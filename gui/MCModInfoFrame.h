@@ -37,6 +37,10 @@ public:
 	void updateWithMod(Mod &m);
 	void clear();
 
+public slots:
+    	void modDescEllipsisHandler(const QString& link );
+
 private:
 	Ui::MCModInfoFrame *ui;
+    	QString desc;
 };
