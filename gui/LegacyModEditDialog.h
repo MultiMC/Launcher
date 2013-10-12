@@ -53,12 +53,12 @@ slots:
 	void on_rmTexPackBtn_clicked();
 	void on_viewTexPackBtn_clicked();
 
-	void on_jarWebsite_clicked();
-	void on_loaderWebsite_clicked();
-	void on_coreWebsite_clicked();
-
 	// Questionable: SettingsDialog doesn't need this for some reason?
 	void on_buttonBox_rejected();
+
+	void jarCurrent(QModelIndex current, QModelIndex previous);
+	void coreCurrent(QModelIndex current, QModelIndex previous);
+	void loaderCurrent(QModelIndex current, QModelIndex previous);
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *ev);

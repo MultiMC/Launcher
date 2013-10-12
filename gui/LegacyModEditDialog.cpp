@@ -47,6 +47,9 @@ LegacyModEditDialog::LegacyModEditDialog(LegacyInstance *inst, QWidget *parent)
 #endif
 		ui->jarModsTreeView->installEventFilter(this);
 		m_jarmods->startWatching();
+		auto smodel = ui->jarModsTreeView->selectionModel();
+		connect(smodel, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+				SLOT(jarCurrent(QModelIndex, QModelIndex)));
 	}
 	// Core mods
 	{
@@ -55,6 +58,9 @@ LegacyModEditDialog::LegacyModEditDialog(LegacyInstance *inst, QWidget *parent)
 		ui->coreModsTreeView->setModel(m_coremods.get());
 		ui->coreModsTreeView->installEventFilter(this);
 		m_coremods->startWatching();
+		auto smodel = ui->coreModsTreeView->selectionModel();
+		connect(smodel, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+				SLOT(coreCurrent(QModelIndex, QModelIndex)));
 	}
 	// Loader mods
 	{
@@ -63,6 +69,9 @@ LegacyModEditDialog::LegacyModEditDialog(LegacyInstance *inst, QWidget *parent)
 		ui->loaderModTreeView->setModel(m_mods.get());
 		ui->loaderModTreeView->installEventFilter(this);
 		m_mods->startWatching();
+		auto smodel = ui->loaderModTreeView->selectionModel();
+		connect(smodel, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+				SLOT(loaderCurrent(QModelIndex, QModelIndex)));
 	}
 	// texture packs
 	{
@@ -201,7 +210,7 @@ void LegacyModEditDialog::on_addForgeBtn_clicked()
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ForgeVersionPtr forge =
-			std::dynamic_pointer_cast<ForgeVersion> (vselect.selectedVersion());
+			std::dynamic_pointer_cast<ForgeVersion>(vselect.selectedVersion());
 		if (!forge)
 			return;
 		auto entry = MMC->metacache()->resolveEntry("minecraftforge", forge->filename);
@@ -345,34 +354,38 @@ void LegacyModEditDialog::on_buttonBox_rejected()
 	close();
 }
 
-//FIXME: too much copypasta makes peterix a sad hacker. BUT IT'S SO DELICIOUS!
-
-void LegacyModEditDialog::on_coreWebsite_clicked()
+void LegacyModEditDialog::jarCurrent(QModelIndex current, QModelIndex previous)
 {
-	int first, last;
-	auto list = ui->coreModsTreeView->selectionModel()->selectedRows();
-
-	if (!lastfirst(list, first, last))
+	if(!current.isValid())
+	{
+		ui->jarMIFrame->clear();
 		return;
-	showWebsiteForMod(this, m_coremods->operator[](first));
+	}
+	int row = current.row();
+	Mod &m = m_jarmods->operator[](row);
+	ui->jarMIFrame->updateWithMod(m);
 }
 
-void LegacyModEditDialog::on_jarWebsite_clicked()
+void LegacyModEditDialog::coreCurrent(QModelIndex current, QModelIndex previous)
 {
-	int first, last;
-	auto list = ui->jarModsTreeView->selectionModel()->selectedRows();
-
-	if (!lastfirst(list, first, last))
+	if(!current.isValid())
+	{
+		ui->coreMIFrame->clear();
 		return;
-	showWebsiteForMod(this, m_jarmods->operator[](first));
+	}
+	int row = current.row();
+	Mod &m = m_coremods->operator[](row);
+	ui->coreMIFrame->updateWithMod(m);
 }
 
-void LegacyModEditDialog::on_loaderWebsite_clicked()
+void LegacyModEditDialog::loaderCurrent(QModelIndex current, QModelIndex previous)
 {
-	int first, last;
-	auto list = ui->loaderModTreeView->selectionModel()->selectedRows();
-
-	if (!lastfirst(list, first, last))
+	if(!current.isValid())
+	{
+		ui->loaderMIFrame->clear();
 		return;
-	showWebsiteForMod(this, m_mods->operator[](first));
+	}
+	int row = current.row();
+	Mod &m = m_mods->operator[](row);
+	ui->loaderMIFrame->updateWithMod(m);
 }

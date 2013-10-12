@@ -57,8 +57,10 @@ QStringList OneSixInstance::processMinecraftArgs(LoginResponse response)
 	QString args_pattern = version->minecraftArguments;
 
 	QMap<QString, QString> token_mapping;
+	// yggdrasil!
 	token_mapping["auth_username"] = response.username;
 	token_mapping["auth_session"] = response.session_id;
+	token_mapping["auth_access_token"] = response.access_token;
 	token_mapping["auth_player_name"] = response.player_name;
 	token_mapping["auth_uuid"] = response.player_id;
 
@@ -68,6 +70,7 @@ QStringList OneSixInstance::processMinecraftArgs(LoginResponse response)
 	map["auth_player_name"] = "00000000-0000-0000-0000-000000000000";
 	*/
 
+	// these do nothing and are stupid.
 	token_mapping["profile_name"] = name();
 	token_mapping["version_name"] = version->id;
 
@@ -144,8 +147,17 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(LoginResponse response)
 	args.append(processMinecraftArgs(response));
 
 	// Set the width and height for 1.6 instances
-	args << QString("--width") << settings().get("MinecraftWinWidth").toString();
-	args << QString("--height") << settings().get("MinecraftWinHeight").toString();
+	bool maximize = settings().get("LaunchMaximized").toBool();
+	if(maximize)
+	{
+		// this is probably a BAD idea
+		// args << QString("--fullscreen");
+	}
+	else
+	{
+		args << QString("--width") << settings().get("MinecraftWinWidth").toString();
+		args << QString("--height") << settings().get("MinecraftWinHeight").toString();
+	}
 
 	// create the process and set its parameters
 	MinecraftProcess *proc = new MinecraftProcess(this);
@@ -168,8 +180,7 @@ std::shared_ptr<ModList> OneSixInstance::loaderModList()
 	{
 		d->loader_mod_list.reset(new ModList(loaderModsDir()));
 	}
-	else
-		d->loader_mod_list->update();
+	d->loader_mod_list->update();
 	return d->loader_mod_list;
 }
 
@@ -180,8 +191,7 @@ std::shared_ptr<ModList> OneSixInstance::resourcePackList()
 	{
 		d->resource_pack_list.reset(new ModList(resourcePacksDir()));
 	}
-	else
-		d->resource_pack_list->update();
+	d->resource_pack_list->update();
 	return d->resource_pack_list;
 }
 
@@ -194,6 +204,11 @@ bool OneSixInstance::setIntendedVersionId(QString version)
 {
 	settings().set("IntendedVersion", version);
 	setShouldUpdate(true);
+	auto pathCustom = PathCombine(instanceRoot(), "custom.json");
+	auto pathOrig = PathCombine(instanceRoot(), "version.json");
+	QFile::remove(pathCustom);
+	QFile::remove(pathOrig);
+	reloadFullVersion();
 	return true;
 }
 
@@ -273,7 +288,11 @@ bool OneSixInstance::reloadFullVersion()
 		d->version = version;
 		return true;
 	}
-	return false;
+	else
+	{
+		d->version.reset();
+		return false;
+	}
 }
 
 std::shared_ptr<OneSixVersion> OneSixInstance::getFullVersion()
