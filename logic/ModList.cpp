@@ -16,6 +16,7 @@
 
 #include "ModList.h"
 #include "LegacyInstance.h"
+#include "MultiMC.h"
 #include <pathutils.h>
 #include <QMimeData>
 #include <QUrl>
@@ -198,7 +199,12 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	if (type == Mod::MOD_SINGLEFILE || type == Mod::MOD_ZIPFILE)
 	{
 		QString newpath = PathCombine(m_dir.path(), filename.fileName());
+		QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
+		if (!centralpath.makeAbsolute())
+			return false;
 		if (!QFile::copy(filename.filePath(), newpath))
+			return false;
+		if (!QFile::copy(filename.filePath(), centralpath.absolutePath()))
 			return false;
 		m.repath(newpath);
 		beginInsertRows(QModelIndex(), index, index);
@@ -413,7 +419,7 @@ QMimeData *ModList::mimeData(const QModelIndexList &indexes) const
 	return data;
 }
 bool ModList::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
-						   const QModelIndex &parent)
+							const QModelIndex &parent)
 {
 	if (action == Qt::IgnoreAction)
 		return true;
