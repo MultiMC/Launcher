@@ -21,6 +21,7 @@
 #include "ui_LegacyModEditDialog.h"
 #include "logic/ModList.h"
 #include "logic/lists/ForgeVersionList.h"
+#include "gui/platform.h"
 
 #include <pathutils.h>
 #include <QFileDialog>
@@ -32,6 +33,7 @@
 LegacyModEditDialog::LegacyModEditDialog(LegacyInstance *inst, QWidget *parent)
 	: m_inst(inst), QDialog(parent), ui(new Ui::LegacyModEditDialog)
 {
+    MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
 
 	// Jar mods
@@ -216,8 +218,8 @@ void LegacyModEditDialog::on_addForgeBtn_clicked()
 		auto entry = MMC->metacache()->resolveEntry("minecraftforge", forge->filename);
 		if (entry->stale)
 		{
-			DownloadJob *fjob = new DownloadJob("Forge download");
-			fjob->addCacheDownload(forge->universal_url, entry);
+			NetJob *fjob = new NetJob("Forge download");
+			fjob->addNetAction(CacheDownload::make(forge->universal_url, entry));
 			ProgressDialog dlg(this);
 			dlg.exec(fjob);
 			if (dlg.result() == QDialog::Accepted)

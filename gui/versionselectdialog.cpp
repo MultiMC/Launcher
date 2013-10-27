@@ -21,14 +21,16 @@
 #include <QDebug>
 
 #include <gui/ProgressDialog.h>
+#include "gui/platform.h"
 
 #include <logic/BaseVersion.h>
 #include <logic/lists/BaseVersionList.h>
 #include <logic/tasks/Task.h>
 
-VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, QWidget *parent)
+VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, QWidget *parent, bool cancelable)
 	: QDialog(parent), ui(new Ui::VersionSelectDialog)
 {
+    MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
 	setWindowModality(Qt::WindowModal);
 	setWindowTitle(title);
@@ -40,12 +42,24 @@ VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, 
 
 	ui->listView->setModel(m_proxyModel);
 	ui->listView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	ui->listView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+	ui->listView->header()->setSectionResizeMode(resizeOnColumn, QHeaderView::Stretch);
+
+	if(!cancelable)
+	{
+		ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
+	}
 }
 
 VersionSelectDialog::~VersionSelectDialog()
 {
 	delete ui;
+}
+
+void VersionSelectDialog::setResizeOn(int column)
+{
+	ui->listView->header()->setSectionResizeMode(resizeOnColumn, QHeaderView::ResizeToContents);
+	resizeOnColumn = column;
+	ui->listView->header()->setSectionResizeMode(resizeOnColumn, QHeaderView::Stretch);
 }
 
 int VersionSelectDialog::exec()

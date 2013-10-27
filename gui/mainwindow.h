@@ -49,6 +49,8 @@ public:
 	// Browser Dialog
 	void openWebPage(QUrl url);
 
+	void checkSetDefaultJava();
+
 private slots:
 	void onCatToggled(bool);
 
@@ -97,6 +99,8 @@ private slots:
 	void on_actionEditInstNotes_triggered();
 
 	void doLogin(const QString &errorMsg = "");
+	void doLogin(QString username, QString password);
+	void doAutoLogin();
 
 	void onLoginComplete();
 
@@ -108,9 +112,15 @@ private slots:
 
 	void on_actionChangeInstLWJGLVersion_triggered();
 
-	void instanceEnded();
+	void instanceEnded(BaseInstance *instance);
 
 	void on_actionInstanceSettings_triggered();
+
+	void assetsIndexStarted();
+	void assetsFilesStarted();
+	void assetsFilesProgress(int, int, int);
+	void assetsFailed();
+	void assetsFinished();
 
 public slots:
 	void instanceActivated(QModelIndex);
@@ -128,7 +138,6 @@ protected:
 	void setCatBackground(bool enabled);
 
 private:
-
 	Ui::MainWindow *ui;
 	KCategoryDrawer *drawer;
 	KCategorizedView *view;
@@ -147,6 +156,9 @@ private:
 	LoginResponse m_activeLogin;
 
 	Task *m_versionLoadTask;
+
+	QLabel *m_statusLeft;
+	QLabel *m_statusRight;
 };
 
 #endif // MAINWINDOW_H

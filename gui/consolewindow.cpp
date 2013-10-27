@@ -4,14 +4,17 @@
 #include <QScrollBar>
 #include <QMessageBox>
 
+#include <gui/platform.h>
+
 ConsoleWindow::ConsoleWindow(MinecraftProcess *mcproc, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::ConsoleWindow),
 	m_mayclose(true),
 	proc(mcproc)
 {
+    MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
-	connect(mcproc, SIGNAL(ended()), this, SLOT(onEnded()));
+	connect(mcproc, SIGNAL(ended(BaseInstance*)), this, SLOT(onEnded(BaseInstance*)));
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -36,6 +39,11 @@ void ConsoleWindow::write(QString data, MessageLevel::Enum mode)
 	if (data.endsWith('\n'))
 		data = data.left(data.length()-1);
 	QStringList paragraphs = data.split('\n');
+	for(QString &paragraph : paragraphs)
+	{
+		paragraph = paragraph.trimmed();
+	}
+
 	QListIterator<QString> iter(paragraphs);
 	if (mode == MessageLevel::MultiMC)
 		while(iter.hasNext())
@@ -101,9 +109,14 @@ void ConsoleWindow::on_btnKillMinecraft_clicked()
 	r_u_sure.close();
 }
 
-void ConsoleWindow::onEnded()
+void ConsoleWindow::onEnded(BaseInstance *instance)
 {
 	ui->btnKillMinecraft->setEnabled(false);
-	// TODO: Check why this doesn't work
-	if (!proc->exitCode()) this->close(); 
+
+	// TODO: Might need an option to forcefully close, even on an error
+	if(instance->settings().get("AutoCloseConsole").toBool())
+	{
+		// TODO: Check why this doesn't work
+		if (!proc->exitCode()) this->close();
+	}
 }

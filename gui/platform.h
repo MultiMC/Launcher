@@ -1,10 +1,12 @@
 /* Copyright 2013 MultiMC Contributors
  *
+ * Authors: Orochimarufan <orochimarufan.x3@gmail.com>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,28 +15,21 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef PLATFORM_H
+#define PLATFORM_H
 
-#include <QStringList>
+/**
+  * @file platform.h
+  * This file contains platform-specific functions, tweaks and fixes.
+  */
+
 #include <QWidget>
-#include <logic/lists/JavaVersionList.h>
-#include "osutils.h"
 
-#if WINDOWS
-	#include <windows.h>
-#endif
-
-class JavaUtils
+class MultiMCPlatform
 {
 public:
-	JavaUtils();
-
-	QList<JavaVersionPtr> FindJavaPaths();
-	JavaVersionPtr GetDefaultJava();
-
-private:
-
-#if WINDOWS
-	QList<JavaVersionPtr> FindJavaFromRegistryKey(DWORD keyType, QString keyName);
-#endif
+    // X11 WM_CLASS
+    static void fixWM_CLASS(QWidget *widget);
 };
+
+#endif // PLATFORM_H

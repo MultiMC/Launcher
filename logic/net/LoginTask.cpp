@@ -56,45 +56,6 @@ void LoginTask::legacyLogin()
 	netReply = worker->post(netRequest, params.query(QUrl::EncodeSpaces).toUtf8());
 }
 
-void LoginTask::processLegacyReply(QNetworkReply *reply)
-{
-	if (netReply != reply)
-		return;
-	// Check for errors.
-	switch (reply->error())
-	{
-	case QNetworkReply::NoError:
-	{
-		// Check the response code.
-		int responseCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-		if (responseCode == 200)
-		{
-			parseLegacyReply(reply->readAll());
-		}
-		else if (responseCode == 503)
-		{
-			emitFailed(tr("The login servers are currently unavailable. Check "
-						  "http://help.mojang.com/ for more info."));
-		}
-		else
-		{
-			emitFailed(tr("Login failed: Unknown HTTP error %1 occurred.")
-						   .arg(QString::number(responseCode)));
-		}
-		break;
-	}
-
-	case QNetworkReply::OperationCanceledError:
-		emitFailed(tr("Login canceled."));
-		break;
-
-	default:
-		emitFailed(tr("Login failed: %1").arg(reply->errorString()));
-		break;
-	}
-}
-
 void LoginTask::parseLegacyReply(QByteArray data)
 {
 	QString responseStr = QString::fromUtf8(data);
@@ -129,6 +90,100 @@ void LoginTask::parseLegacyReply(QByteArray data)
 	}
 }
 
+void LoginTask::processLegacyReply(QNetworkReply *reply)
+{
+	processReply(reply, &LoginTask::parseLegacyReply, &LoginTask::parseLegacyError);
+}
+
+void LoginTask::processYggdrasilReply(QNetworkReply *reply)
+{
+	processReply(reply, &LoginTask::parseYggdrasilReply, &LoginTask::parseYggdrasilError);
+}
+
+void LoginTask::processReply(QNetworkReply *reply, std::function<void (LoginTask*, QByteArray)> parser, std::function<QString (LoginTask*, QNetworkReply*)> errorHandler)
+{
+	if (netReply != reply)
+		return;
+	// Check for errors.
+	switch (reply->error())
+	{
+	case QNetworkReply::NoError:
+	{
+		// Check the response code.
+		int responseCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+		switch (responseCode)
+		{
+		case 200:
+			parser(this, reply->readAll());
+			break;
+
+		default:
+			emitFailed(tr("Login failed: Unknown HTTP code %1 encountered.").arg(responseCode));
+			break;
+		}
+
+		break;
+	}
+
+	case QNetworkReply::OperationCanceledError:
+		emitFailed(tr("Login canceled."));
+		break;
+
+	default:
+		emitFailed(errorHandler(this, reply));
+		break;
+	}
+}
+
+QString LoginTask::parseLegacyError(QNetworkReply *reply)
+{
+	int responseCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+	switch (responseCode)
+	{
+	case 403:
+		return tr("Invalid username or password.");
+
+	case 503:
+		return tr("The login servers are currently unavailable. Check "
+					  "http://help.mojang.com/ for more info.");
+
+	default:
+		QLOG_DEBUG() << "Login failed with QNetworkReply code:" << reply->error();
+		return tr("Login failed: %1").arg(reply->errorString());
+	}
+}
+
+QString LoginTask::parseYggdrasilError(QNetworkReply *reply)
+{
+	QByteArray data = reply->readAll();
+	QJsonParseError jsonError;
+	QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
+
+	// If there are JSON errors fall back to using the legacy error handling using HTTP status codes
+	if (jsonError.error != QJsonParseError::NoError)
+	{
+		return parseLegacyError(reply);
+	}
+
+	if (!jsonDoc.isObject())
+	{
+		return parseLegacyError(reply);
+	}
+
+	QJsonObject root = jsonDoc.object();
+
+	//QString error = root.value("error").toString();
+	QString errorMessage = root.value("errorMessage").toString();
+
+	if(errorMessage.isEmpty())
+	{
+		return parseLegacyError(reply);
+	}
+
+	return tr("Login failed: ") + errorMessage;
+}
 
 void LoginTask::yggdrasilLogin()
 {
@@ -158,53 +213,16 @@ void LoginTask::yggdrasilLogin()
 	clientToken.remove('{');
 	clientToken.remove('}');
 	// create the request
-	QString requestConstent;
-	requestConstent += "{";
-	requestConstent += "    \"agent\":{\"name\":\"Minecraft\",\"version\":1},\n";
-	requestConstent += "    \"username\":\"" + uInfo.username + "\",\n";
-	requestConstent += "    \"password\":\"" + uInfo.password + "\",\n";
-	requestConstent += "    \"clientToken\":\"" + clientToken + "\"\n";
-	requestConstent += "}";
-	netReply = worker->post(netRequest, requestConstent.toUtf8());
-}
-
-void LoginTask::processYggdrasilReply(QNetworkReply *reply)
-{
-	if (netReply != reply)
-		return;
-	// Check for errors.
-	switch (reply->error())
-	{
-	case QNetworkReply::NoError:
-	{
-		// Check the response code.
-		int responseCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-		if (responseCode == 200)
-		{
-			parseYggdrasilReply(reply->readAll());
-		}
-		else if (responseCode == 503)
-		{
-			emitFailed(tr("The login servers are currently unavailable. Check "
-						  "http://help.mojang.com/ for more info."));
-		}
-		else
-		{
-			emitFailed(tr("Login failed: Unknown HTTP error %1 occurred.")
-						   .arg(QString::number(responseCode)));
-		}
-		break;
-	}
-
-	case QNetworkReply::OperationCanceledError:
-		emitFailed(tr("Login canceled."));
-		break;
-
-	default:
-		emitFailed(tr("Login failed: %1").arg(reply->errorString()));
-		break;
-	}
+	QJsonObject root;
+	QJsonObject agent;
+	agent.insert("name", QString("Minecraft"));
+	agent.insert("version", QJsonValue(1));
+	root.insert("agent", agent);
+	root.insert("username", uInfo.username);
+	root.insert("password", uInfo.password);
+	root.insert("clientToken", clientToken);
+	QJsonDocument requestDoc(root);
+	netReply = worker->post(netRequest, requestDoc.toJson());
 }
 
 /*

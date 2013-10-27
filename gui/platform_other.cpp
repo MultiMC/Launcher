@@ -1,10 +1,12 @@
 /* Copyright 2013 MultiMC Contributors
  *
+ * Authors: Orochimarufan <orochimarufan.x3@gmail.com>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,28 +15,13 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <QStringList>
-#include <QWidget>
-#include <logic/lists/JavaVersionList.h>
-#include "osutils.h"
-
-#if WINDOWS
-	#include <windows.h>
-#endif
-
-class JavaUtils
+#include <gui/platform.h>
+/**
+ * Stub for non-X11 platforms
+ * @brief MultiMCPlatform::fixWM_CLASS
+ * @param widget
+ */
+void MultiMCPlatform::fixWM_CLASS(QWidget *widget)
 {
-public:
-	JavaUtils();
-
-	QList<JavaVersionPtr> FindJavaPaths();
-	JavaVersionPtr GetDefaultJava();
-
-private:
-
-#if WINDOWS
-	QList<JavaVersionPtr> FindJavaFromRegistryKey(DWORD keyType, QString keyName);
-#endif
-};
+    Q_UNUSED(widget);
+}

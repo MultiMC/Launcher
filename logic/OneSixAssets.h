@@ -1,5 +1,5 @@
 #pragma once
-#include "net/DownloadJob.h"
+#include "net/NetJob.h"
 
 class Private;
 class ThreadedDeleter;
@@ -10,15 +10,18 @@ class OneSixAssets : public QObject
 signals:
 	void failed();
 	void finished();
+	void indexStarted();
+	void filesStarted();
+	void filesProgress(int, int, int);
 
 public slots:
-	void fetchXMLFinished();
+	void S3BucketFinished();
 	void downloadFinished();
 public:
 	void start();
 private:
 	ThreadedDeleter * deleter;
 	QStringList nuke_whitelist;
-	DownloadJobPtr index_job;
-	DownloadJobPtr files_job;
+	NetJobPtr index_job;
+	NetJobPtr files_job;
 };

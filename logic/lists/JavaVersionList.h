@@ -18,53 +18,42 @@
 #include <QObject>
 #include <QAbstractListModel>
 #include <QSharedPointer>
-#include <QUrl>
 
-#include <QNetworkReply>
 #include "BaseVersionList.h"
 #include "logic/tasks/Task.h"
-#include "logic/net/NetJob.h"
 
-class ForgeVersion;
-typedef std::shared_ptr<ForgeVersion> ForgeVersionPtr;
+class JavaListLoadTask;
 
-struct ForgeVersion : public BaseVersion
+struct JavaVersion : public BaseVersion
 {
 	virtual QString descriptor()
 	{
-		return filename;
+		return id;
 	}
-	;
+
 	virtual QString name()
 	{
-		return "Forge " + jobbuildver;
+		return id;
 	}
-	;
+
 	virtual QString typeString() const
 	{
-		if (installer_url.isEmpty())
-			return "Universal";
-		else
-			return "Installer";
+		return arch;
 	}
-	;
 
-	int m_buildnr = 0;
-	QString universal_url;
-	QString changelog_url;
-	QString installer_url;
-	QString jobbuildver;
-	QString mcver;
-	QString filename;
+	QString id;
+	QString arch;
+	QString path;
+	bool recommended;
 };
 
-class ForgeVersionList : public BaseVersionList
+typedef std::shared_ptr<JavaVersion> JavaVersionPtr;
+
+class JavaVersionList : public BaseVersionList
 {
 	Q_OBJECT
 public:
-	friend class ForgeListLoadTask;
-
-	explicit ForgeVersionList(QObject *parent = 0);
+	explicit JavaVersionList(QObject *parent = 0);
 
 	virtual Task *getLoadTask();
 	virtual bool isLoaded();
@@ -72,38 +61,33 @@ public:
 	virtual int count() const;
 	virtual void sort();
 
-	virtual BaseVersionPtr getLatestStable() const;
+	virtual BaseVersionPtr getTopRecommended() const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation,
 								int role) const;
 	virtual int columnCount(const QModelIndex &parent) const;
 
+public slots:
+	virtual void updateListData(QList<BaseVersionPtr> versions);
+
 protected:
 	QList<BaseVersionPtr> m_vlist;
 
-	bool m_loaded;
-
-protected
-slots:
-	virtual void updateListData(QList<BaseVersionPtr> versions);
+	bool m_loaded = false;
 };
 
-class ForgeListLoadTask : public Task
+class JavaListLoadTask : public Task
 {
 	Q_OBJECT
 
 public:
-	explicit ForgeListLoadTask(ForgeVersionList *vlist);
+	explicit JavaListLoadTask(JavaVersionList *vlist);
+	~JavaListLoadTask();
 
 	virtual void executeTask();
 
-protected
-slots:
-	void list_downloaded();
-	void list_failed();
-
 protected:
-	NetJobPtr listJob;
-	ForgeVersionList *m_list;
+	JavaVersionList *m_list;
+	JavaVersion *m_currentRecommended;
 };
