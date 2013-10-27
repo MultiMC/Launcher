@@ -227,7 +227,7 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 			QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
 			if (!centralpath.makeAbsolute())
 				return false;
-			if(!copyPath(from, PathCombine(centralpath, filename.fileName())));
+			if(!copyPath(from, PathCombine(centralpath.absolutePath(), filename.fileName())));
 		}
 		if (!copyPath(from, to))
 			return false;
