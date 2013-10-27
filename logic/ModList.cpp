@@ -199,12 +199,15 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	if (type == Mod::MOD_SINGLEFILE || type == Mod::MOD_ZIPFILE)
 	{
 		QString newpath = PathCombine(m_dir.path(), filename.fileName());
-		QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
-		if (!centralpath.makeAbsolute())
-			return false;
+		if(MMC->settings()->get("copy_mods_central_path").toBool())
+		{
+			QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
+			if (!centralpath.makeAbsolute())
+				return false;
+			if (!QFile::copy(filename.filePath(), PathCombine(centralpath.absolutePath(), filename.fileName())))
+				return false;
+		}
 		if (!QFile::copy(filename.filePath(), newpath))
-			return false;
-		if (!QFile::copy(filename.filePath(), centralpath.absolutePath()))
 			return false;
 		m.repath(newpath);
 		beginInsertRows(QModelIndex(), index, index);
@@ -219,6 +222,13 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 
 		QString from = filename.filePath();
 		QString to = PathCombine(m_dir.path(), filename.fileName());
+		if(MMC->settings()->get("copy_mods_central_path").toBool())
+		{
+			QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
+			if (!centralpath.makeAbsolute())
+				return false;
+			if(!copyPath(from, PathCombine(centralpath, filename.fileName())));
+		}
 		if (!copyPath(from, to))
 			return false;
 		m.repath(to);
