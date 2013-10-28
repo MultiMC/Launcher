@@ -61,6 +61,10 @@ BaseInstance::BaseInstance( BaseInstancePrivate* d_in,
 	settings().registerSetting(new OverrideSetting("JavaPath", globalSettings->getSetting("JavaPath")));
 	settings().registerSetting(new OverrideSetting("JvmArgs", globalSettings->getSetting("JvmArgs")));
 	
+	//Mods Settings
+	settings().registerSetting(new Setting("OverrideMods", false));
+	settings().registerSetting(new Setting("CopyModsToCentralPath", globalSettings->getSetting("CopyModsToCentralPath")));
+	
 	// Custom Commands
 	settings().registerSetting(new Setting("OverrideCommands", false));
 	settings().registerSetting(new OverrideSetting("PreLaunchCommand", globalSettings->getSetting("PreLaunchCommand")));
