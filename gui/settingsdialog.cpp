@@ -211,8 +211,3 @@ void SettingsDialog::on_btnBrowse_clicked()
 		ui->javaPathTextBox->setText(dir);
 	}
 }
-
-void SettingsDialog::on_checkBox_stateChanged(int arg1)
-{
-
-}
