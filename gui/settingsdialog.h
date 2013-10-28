@@ -57,8 +57,6 @@ private slots:
 
 	void on_btnBrowse_clicked();
 
-	void on_checkBox_stateChanged(int arg1);
-
 private:
 	Ui::SettingsDialog *ui;
 };
