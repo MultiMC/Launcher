@@ -99,7 +99,7 @@ void InstanceSettings::applySettings()
 	}
 	else
 	{
-		m_obj->reset("copy_mods_central_path");
+		m_obj->reset("CopyModsToCentralPath");
 	}
 	
 
@@ -192,6 +192,10 @@ void InstanceSettings::loadSettings()
 	ui->javaSettingsGroupBox->setChecked(m_obj->get("OverrideJava").toBool());
 	ui->javaPathTextBox->setText(m_obj->get("JavaPath").toString());
 	ui->jvmArgsTextBox->setText(m_obj->get("JvmArgs").toString());
+	
+	//Mods Settings
+	ui->modOverrideBox->setChecked(m_obj->get("CopyModsToCentralPath").toBool());
+	ui->modCopyCheckBox->setChecked(m_obj->get("CopyModsToCentralPath").toBool());
 
 	// Custom Commands
 	ui->customCommandsGroupBox->setChecked(m_obj->get("OverrideCommands").toBool());
