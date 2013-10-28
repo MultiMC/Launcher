@@ -20,6 +20,7 @@
 #include <pathutils.h>
 #include <QMimeData>
 #include <QUrl>
+#include <QDir>
 #include <QUuid>
 #include <QFileSystemWatcher>
 #include <logger/QsLog.h>
