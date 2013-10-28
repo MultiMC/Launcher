@@ -1,4 +1,3 @@
-
 #include "MultiMC.h"
 #include <iostream>
 #include <QDir>
@@ -261,6 +260,9 @@ void MultiMC::initGlobalSettings()
 
 	// Auto login
 	m_settings->registerSetting(new Setting("AutoLogin", false));
+	
+	//Mods Settings
+	m_settings->registerSetting(new Setting("CopyModsToCentralPath"), false);
 
 	// Memory
 	m_settings->registerSetting(new Setting("MinMemAlloc", 512));
