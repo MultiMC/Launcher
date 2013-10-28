@@ -143,7 +143,9 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	// Java Settings
 	s->set("JavaPath", ui->javaPathTextBox->text());
 	s->set("JvmArgs", ui->jvmArgsTextBox->text());
-	s->set("copy_mods_central_path", ui->modCopyBox->isChecked());
+	
+	//Mods Settings
+	s->set("CopyModsToCentralPath", ui->modCopyBox->isChecked());
 
 	// Custom Commands
 	s->set("PreLaunchCommand", ui->preLaunchCmdTextBox->text());
@@ -177,7 +179,9 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	ui->minMemSpinBox->setValue(s->get("MinMemAlloc").toInt());
 	ui->maxMemSpinBox->setValue(s->get("MaxMemAlloc").toInt());
 	ui->permGenSpinBox->setValue(s->get("PermGen").toInt());
-	ui->modCopyBox->setChecked(s->get("copy_mods_central_path").toBool());
+	
+	//Mods Settings
+	ui->modCopyBox->setChecked(s->get("CopyModsToCentralPath").toBool());
 
 	// Java Settings
 	ui->javaPathTextBox->setText(s->get("JavaPath").toString());
