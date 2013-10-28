@@ -177,6 +177,7 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	ui->minMemSpinBox->setValue(s->get("MinMemAlloc").toInt());
 	ui->maxMemSpinBox->setValue(s->get("MaxMemAlloc").toInt());
 	ui->permGenSpinBox->setValue(s->get("PermGen").toInt());
+	ui->modCopyBox->setChecked(s->get("copy_mods_central_path").toBool());
 
 	// Java Settings
 	ui->javaPathTextBox->setText(s->get("JavaPath").toString());
