@@ -1,4 +1,3 @@
-
 #include "MultiMC.h"
 #include <iostream>
 #include <QDir>
@@ -248,6 +247,7 @@ void MultiMC::initGlobalSettings()
 	m_settings->registerSetting(new Setting("ShowConsole", true));
 	m_settings->registerSetting(new Setting("AutoCloseConsole", true));
 
+	m_settings->registerSetting(new Setting("copy_mods_central_path", false));
 	// Toolbar settings
 	m_settings->registerSetting(new Setting("InstanceToolbarVisible", true));
 	m_settings->registerSetting(new Setting("InstanceToolbarPosition", QPoint()));
