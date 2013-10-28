@@ -23,7 +23,6 @@
 #include <QUuid>
 #include <QFileSystemWatcher>
 #include <logger/QsLog.h>
-#include "config.h"
 
 ModList::ModList(const QString &dir, const QString &list_file, SettingsObject* settings)
 	: QAbstractListModel(), m_dir(dir), m_list_file(list_file), m_settings(settings)
