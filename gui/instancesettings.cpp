@@ -91,6 +91,17 @@ void InstanceSettings::applySettings()
 		m_obj->reset("MinecraftWinHeight");
 	}
 	
+	bool mods = ui->modOverrideBox->isChecked();
+	m_obj->set("OverrideMods", mods);
+	if(mods)
+	{
+		m_obj->set("copy_mods_central_path", ui->modCopyCheckBox->isChecked());
+	}
+	else
+	{
+		m_obj->reset("copy_mods_central_path");
+	}
+	
 
 	// Auto Login
 	bool login = ui->accountSettingsGroupBox->isChecked();
