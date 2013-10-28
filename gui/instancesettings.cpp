@@ -95,7 +95,7 @@ void InstanceSettings::applySettings()
 	m_obj->set("OverrideMods", mods);
 	if(mods)
 	{
-		m_obj->set("copy_mods_central_path", ui->modCopyCheckBox->isChecked());
+		m_obj->set("CopyModsToCentralPath", ui->modCopyCheckBox->isChecked());
 	}
 	else
 	{
