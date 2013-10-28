@@ -200,7 +200,7 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	if (type == Mod::MOD_SINGLEFILE || type == Mod::MOD_ZIPFILE)
 	{
 		QString newpath = PathCombine(m_dir.path(), filename.fileName());
-		if(m_settings->get("OverrideMods").toBool ? m_settings->get("copy_mods_central_path").toBool() : MMC->settings()->get("copy_mods_central_path").toBool())
+		if(m_settings->get("OverrideMods").toBool ? m_settings->get("CopyModsToCentralPath").toBool() : MMC->settings()->get("copy_mods_central_path").toBool())
 		{
 			QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
 			if (!centralpath.makeAbsolute())
@@ -223,7 +223,7 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 
 		QString from = filename.filePath();
 		QString to = PathCombine(m_dir.path(), filename.fileName());
-		if(m_settings->get("OverrideMods").toBool ? m_settings->get("copy_mods_central_path").toBool() : MMC->settings()->get("copy_mods_central_path").toBool())
+		if(m_settings->get("OverrideMods").toBool ? m_settings->get("CopyModsToCentralPath").toBool() : MMC->settings()->get("copy_mods_central_path").toBool())
 		{
 			QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
 			if (!centralpath.makeAbsolute())
