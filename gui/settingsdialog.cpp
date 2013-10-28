@@ -22,14 +22,14 @@
 #include "logic/lists/JavaVersionList.h"
 
 #include <settingsobject.h>
+#include <pathutils.h>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QDir>
 
-SettingsDialog::SettingsDialog(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::SettingsDialog)
+SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog)
 {
-	 MultiMCPlatform::fixWM_CLASS(this);
+	MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
 
 	loadSettings(MMC->settings().get());
@@ -40,7 +40,7 @@ SettingsDialog::~SettingsDialog()
 {
 	delete ui;
 }
-void SettingsDialog::showEvent ( QShowEvent* ev )
+void SettingsDialog::showEvent(QShowEvent *ev)
 {
 	QDialog::showEvent(ev);
 	adjustSize();
@@ -49,15 +49,20 @@ void SettingsDialog::showEvent ( QShowEvent* ev )
 void SettingsDialog::updateCheckboxStuff()
 {
 	ui->windowWidthSpinBox->setEnabled(!ui->maximizedCheckBox->isChecked());
-	ui->windowHeightSpinBox->setEnabled(! ui->maximizedCheckBox->isChecked());
+	ui->windowHeightSpinBox->setEnabled(!ui->maximizedCheckBox->isChecked());
 }
 
 void SettingsDialog::on_instDirBrowseBtn_clicked()
 {
-	QString dir = QFileDialog::getExistingDirectory(this, tr("Instance Directory"),
-													ui->instDirTextBox->text());
-	if (!dir.isEmpty())
-		ui->instDirTextBox->setText(dir);
+	QString raw_dir = QFileDialog::getExistingDirectory(this, tr("Instance Directory"),
+														ui->instDirTextBox->text());
+	QString cooked_dir = NormalizePath(raw_dir);
+
+	// do not allow current dir - it's dirty. Do not allow dirs that don't exist
+	if (!cooked_dir.isEmpty() && QDir(cooked_dir).exists())
+	{
+		ui->instDirTextBox->setText(cooked_dir);
+	}
 }
 
 void SettingsDialog::on_modsDirBrowseBtn_clicked()
@@ -65,7 +70,9 @@ void SettingsDialog::on_modsDirBrowseBtn_clicked()
 	QString dir = QFileDialog::getExistingDirectory(this, tr("Mods Directory"),
 													ui->modsDirTextBox->text());
 	if (!dir.isEmpty())
+	{
 		ui->modsDirTextBox->setText(dir);
+	}
 }
 
 void SettingsDialog::on_lwjglDirBrowseBtn_clicked()
@@ -73,7 +80,9 @@ void SettingsDialog::on_lwjglDirBrowseBtn_clicked()
 	QString dir = QFileDialog::getExistingDirectory(this, tr("LWJGL Directory"),
 													ui->lwjglDirTextBox->text());
 	if (!dir.isEmpty())
+	{
 		ui->lwjglDirTextBox->setText(dir);
+	}
 }
 
 void SettingsDialog::on_compatModeCheckBox_clicked(bool checked)
@@ -104,9 +113,10 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	}
 	else if (!s->get("UseDevBuilds").toBool())
 	{
-		int response = QMessageBox::question(this, tr("Development builds"),
-											 tr("Development builds contain experimental features "
-											 "and may be unstable. Are you sure you want to enable them?"));
+		int response = QMessageBox::question(
+			this, tr("Development builds"),
+			tr("Development builds contain experimental features "
+			   "and may be unstable. Are you sure you want to enable them?"));
 		if (response == QMessageBox::Yes)
 		{
 			s->set("UseDevBuilds", true);
@@ -143,7 +153,7 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	// Java Settings
 	s->set("JavaPath", ui->javaPathTextBox->text());
 	s->set("JvmArgs", ui->jvmArgsTextBox->text());
-	
+
 	//Mods Settings
 	s->set("CopyModsToCentralPath", ui->modCopyBox->isChecked());
 
@@ -179,7 +189,7 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	ui->minMemSpinBox->setValue(s->get("MinMemAlloc").toInt());
 	ui->maxMemSpinBox->setValue(s->get("MaxMemAlloc").toInt());
 	ui->permGenSpinBox->setValue(s->get("PermGen").toInt());
-	
+
 	//Mods Settings
 	ui->modCopyBox->setChecked(s->get("CopyModsToCentralPath").toBool());
 
@@ -210,7 +220,7 @@ void SettingsDialog::on_pushButton_clicked()
 void SettingsDialog::on_btnBrowse_clicked()
 {
 	QString dir = QFileDialog::getOpenFileName(this, tr("Find Java executable"));
-	if(!dir.isNull())
+	if (!dir.isNull())
 	{
 		ui->javaPathTextBox->setText(dir);
 	}

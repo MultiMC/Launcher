@@ -31,8 +31,8 @@ using namespace Util::Commandline;
 
 MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 {
-    setOrganizationName("MultiMC");
-    setApplicationName("MultiMC5");
+	setOrganizationName("MultiMC");
+	setApplicationName("MultiMC5");
 
 	initTranslations();
 
@@ -138,9 +138,12 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 	initGlobalSettings();
 
 	// and instances
-	m_instances.reset(new InstanceList(m_settings->get("InstanceDir").toString(), this));
+	auto InstDirSetting = m_settings->getSetting("InstanceDir");
+	m_instances.reset(new InstanceList(InstDirSetting->get().toString(), this));
 	QLOG_INFO() << "Loading Instances...";
 	m_instances->loadList();
+	connect(InstDirSetting, SIGNAL(settingChanged(const Setting &, QVariant)),
+			m_instances.get(), SLOT(on_InstFolderChanged(const Setting &, QVariant)));
 
 	// init the http meta cache
 	initHttpMetaCache();
@@ -244,6 +247,7 @@ void MultiMC::initGlobalSettings()
 	m_settings->registerSetting(new Setting("ShowConsole", true));
 	m_settings->registerSetting(new Setting("AutoCloseConsole", true));
 
+	m_settings->registerSetting(new Setting("CopymModsToCentralPath", false));
 	// Toolbar settings
 	m_settings->registerSetting(new Setting("InstanceToolbarVisible", true));
 	m_settings->registerSetting(new Setting("InstanceToolbarPosition", QPoint()));
@@ -350,20 +354,24 @@ std::shared_ptr<JavaVersionList> MultiMC::javalist()
 	return m_javalist;
 }
 
+int main_gui(MultiMC & app)
+{
+	// show main window
+	MainWindow mainWin;
+	mainWin.show();
+	mainWin.checkSetDefaultJava();
+	return app.exec();
+}
+
 int main(int argc, char *argv[])
 {
 	// initialize Qt
 	MultiMC app(argc, argv);
 
-	// show main window
-	MainWindow mainWin;
-	mainWin.show();
-	mainWin.checkSetDefaultJava();
-
 	switch (app.status())
 	{
 	case MultiMC::Initialized:
-		return app.exec();
+		return main_gui(app);
 	case MultiMC::Failed:
 		return 1;
 	case MultiMC::Succeeded:
