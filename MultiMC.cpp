@@ -247,7 +247,7 @@ void MultiMC::initGlobalSettings()
 	m_settings->registerSetting(new Setting("ShowConsole", true));
 	m_settings->registerSetting(new Setting("AutoCloseConsole", true));
 
-	m_settings->registerSetting(new Setting("CopymModsToCentralPath", false));
+	m_settings->registerSetting(new Setting("CopyModsToCentralPath", false));
 	// Toolbar settings
 	m_settings->registerSetting(new Setting("InstanceToolbarVisible", true));
 	m_settings->registerSetting(new Setting("InstanceToolbarPosition", QPoint()));
