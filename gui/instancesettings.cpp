@@ -91,6 +91,17 @@ void InstanceSettings::applySettings()
 		m_obj->reset("MinecraftWinHeight");
 	}
 	
+	bool mods = ui->modOverrideBox->isChecked();
+	m_obj->set("OverrideMods", mods);
+	if(mods)
+	{
+		m_obj->set("CopyModsToCentralPath", ui->modCopyCheckBox->isChecked());
+	}
+	else
+	{
+		m_obj->reset("CopyModsToCentralPath");
+	}
+	
 
 	// Auto Login
 	bool login = ui->accountSettingsGroupBox->isChecked();
@@ -181,6 +192,10 @@ void InstanceSettings::loadSettings()
 	ui->javaSettingsGroupBox->setChecked(m_obj->get("OverrideJava").toBool());
 	ui->javaPathTextBox->setText(m_obj->get("JavaPath").toString());
 	ui->jvmArgsTextBox->setText(m_obj->get("JvmArgs").toString());
+	
+	//Mods Settings
+	ui->modOverrideBox->setChecked(m_obj->get("CopyModsToCentralPath").toBool());
+	ui->modCopyCheckBox->setChecked(m_obj->get("CopyModsToCentralPath").toBool());
 
 	// Custom Commands
 	ui->customCommandsGroupBox->setChecked(m_obj->get("OverrideCommands").toBool());

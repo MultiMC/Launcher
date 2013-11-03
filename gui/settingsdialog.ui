@@ -96,6 +96,31 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="modsBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Mods Settings</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QCheckBox" name="modCopyBox">
+            <property name="text">
+             <string>Copy Mods to central Mods dir?</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="foldersBox">
          <property name="title">
           <string>Folders</string>
@@ -159,6 +184,9 @@
         <spacer name="generalTabSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -537,8 +565,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>410</y>
+     <x>266</x>
+     <y>589</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -553,8 +581,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>410</y>
+     <x>334</x>
+     <y>589</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

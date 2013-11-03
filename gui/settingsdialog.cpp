@@ -131,6 +131,7 @@ void SettingsDialog::applySettings(SettingsObject *s)
 		}
 	}
 
+
 	// Updates
 	s->set("AutoUpdate", ui->autoUpdateCheckBox->isChecked());
 
@@ -161,6 +162,9 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	s->set("JavaPath", ui->javaPathTextBox->text());
 	s->set("JvmArgs", ui->jvmArgsTextBox->text());
 	NagUtils::checkJVMArgs(s->get("JvmArgs").toString(), this->parentWidget());
+
+	//Mods Settings
+	s->set("CopyModsToCentralPath", ui->modCopyBox->isChecked());
 
 	// Custom Commands
 	s->set("PreLaunchCommand", ui->preLaunchCmdTextBox->text());
@@ -194,6 +198,9 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	ui->minMemSpinBox->setValue(s->get("MinMemAlloc").toInt());
 	ui->maxMemSpinBox->setValue(s->get("MaxMemAlloc").toInt());
 	ui->permGenSpinBox->setValue(s->get("PermGen").toInt());
+
+	//Mods Settings
+	ui->modCopyBox->setChecked(s->get("CopyModsToCentralPath").toBool());
 
 	// Java Settings
 	ui->javaPathTextBox->setText(s->get("JavaPath").toString());

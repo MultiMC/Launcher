@@ -16,15 +16,17 @@
 
 #include "ModList.h"
 #include "LegacyInstance.h"
+#include "MultiMC.h"
 #include <pathutils.h>
 #include <QMimeData>
 #include <QUrl>
+#include <QDir>
 #include <QUuid>
 #include <QFileSystemWatcher>
 #include <logger/QsLog.h>
 
-ModList::ModList(const QString &dir, const QString &list_file)
-	: QAbstractListModel(), m_dir(dir), m_list_file(list_file)
+ModList::ModList(const QString &dir, const QString &list_file, SettingsObject* settings)
+	: QAbstractListModel(), m_dir(dir), m_list_file(list_file), m_settings(settings)
 {
 	m_dir.setFilter(QDir::Readable | QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs |
 					QDir::NoSymLinks);
@@ -198,6 +200,14 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	if (type == Mod::MOD_SINGLEFILE || type == Mod::MOD_ZIPFILE)
 	{
 		QString newpath = PathCombine(m_dir.path(), filename.fileName());
+		if(m_settings->get("OverrideMods").toBool ? m_settings->get("CopyModsToCentralPath").toBool() : MMC->settings()->get("copy_mods_central_path").toBool())
+		{
+			QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
+			if (!centralpath.makeAbsolute())
+				return false;
+			if (!QFile::copy(filename.filePath(), PathCombine(centralpath.absolutePath(), filename.fileName())))
+				return false;
+		}
 		if (!QFile::copy(filename.filePath(), newpath))
 			return false;
 		m.repath(newpath);
@@ -213,6 +223,13 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 
 		QString from = filename.filePath();
 		QString to = PathCombine(m_dir.path(), filename.fileName());
+		if(m_settings->get("OverrideMods").toBool ? m_settings->get("CopyModsToCentralPath").toBool() : MMC->settings()->get("copy_mods_central_path").toBool())
+		{
+			QDir centralpath = QDir(MMC->settings()->get("CentralModsDir").toString());
+			if (!centralpath.makeAbsolute())
+				return false;
+			if(!copyPath(from, PathCombine(centralpath.absolutePath(), filename.fileName())));
+		}
 		if (!copyPath(from, to))
 			return false;
 		m.repath(to);
@@ -413,7 +430,7 @@ QMimeData *ModList::mimeData(const QModelIndexList &indexes) const
 	return data;
 }
 bool ModList::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
-						   const QModelIndex &parent)
+							const QModelIndex &parent)
 {
 	if (action == Qt::IgnoreAction)
 		return true;
