@@ -413,17 +413,19 @@ std::shared_ptr<JavaVersionList> MultiMC::javalist()
 void MultiMC::main_gui()
 {
 	// show main window
-	MainWindow mainWin;
-	mainWin.restoreState(QByteArray::fromBase64(MMC->settings()->get("MainWindowState").toByteArray()));
-	mainWin.restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("MainWindowGeometry").toByteArray()));
-	mainWin.show();
-	mainWin.checkSetDefaultJava();
+	MainWindow* mainWin = new MainWindow;
+	mainWin->restoreState(QByteArray::fromBase64(MMC->settings()->get("MainWindowState").toByteArray()));
+	mainWin->restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("MainWindowGeometry").toByteArray()));
+	mainWin->show();
+	mainWin->checkSetDefaultJava();
 }
 
 int main(int argc, char *argv[])
 {
 	// initialize Qt
 	MultiMC app(argc, argv);
+
+	qDebug() << app.status() << MultiMC::Initialized;
 
 	switch (app.status())
 	{
