@@ -40,8 +40,9 @@ ENDIF()
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
+find_package(Qt5WebKitWidgets REQUIRED)
 
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5WebKitWidgets_INCLUDE_DIRS})
 
 ######## Included Libs ########
 
@@ -413,7 +414,7 @@ ADD_EXECUTABLE(MultiMC MACOSX_BUNDLE WIN32
 
 # Link
 TARGET_LINK_LIBRARIES(MultiMC xz-embedded unpack200 quazip libUtil libSettings libGroupView ${MultiMC_LINK_ADDITIONAL_LIBS})
-QT5_USE_MODULES(MultiMC Core Widgets Network Xml ${MultiMC_QT_ADDITIONAL_MODULES})
+QT5_USE_MODULES(MultiMC Core Widgets Network Xml WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
 ADD_DEPENDENCIES(MultiMC MultiMCLauncher)
 
 option(BUILD_KEYRING_TEST "Build the simple keyring test binary" OFF)

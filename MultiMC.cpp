@@ -425,8 +425,6 @@ int main(int argc, char *argv[])
 	// initialize Qt
 	MultiMC app(argc, argv);
 
-	qDebug() << app.status() << MultiMC::Initialized;
-
 	switch (app.status())
 	{
 	case MultiMC::Initialized:

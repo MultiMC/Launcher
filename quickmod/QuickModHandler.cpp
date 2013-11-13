@@ -1,5 +1,6 @@
 #include "QuickModHandler.h"
 
+// TODO sort the includes
 #include <QStringList>
 #include <QWizard>
 #include <QDebug>
@@ -14,23 +15,58 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QHeaderView>
+#include <QWebView>
+#include <QNetworkReply>
+#include <QDir>
+#include <QStandardPaths>
 #include <iostream>
 
 #include "MultiMC.h"
 #include "logic/BaseInstance.h"
 #include "logic/lists/InstanceList.h"
+#include "logic/lists/IconList.h"
+#include "depends/quazip/JlCompress.h"
 
 #include "QuickModFile.h"
+
+struct WorkingObject
+{
+	WorkingObject() : version(0) {}
+	QuickModVersion* version;
+	QList<QNetworkReply*> replies;
+};
+
+// TODO this should be an entire widget, containing amongst others a progress bar (loading)
+class WebDownloadCatcher : public QWebView
+{
+	Q_OBJECT
+public:
+	WebDownloadCatcher(QWidget* parent = 0) : QWebView(parent)
+	{
+		connect(page(), SIGNAL(unsupportedContent(QNetworkReply*)), this, SIGNAL(caughtUrl(QNetworkReply*)));
+		page()->setForwardUnsupportedContent(true);
+	}
+
+	int workingObjectIndex;
+
+signals:
+	void caughtUrl(QNetworkReply* url);
+};
 
 class WelcomePage : public QWizardPage
 {
 	Q_OBJECT
+	Q_PROPERTY(WelcomePage* welcomePage READ welcomePage NOTIFY welcomePageChanged)
 public:
 	WelcomePage(QWidget* parent = 0) :
 		QWizardPage(parent), m_isError(false), m_label(new QLabel(this)), m_layout(new QVBoxLayout)
 	{
+		setTitle(tr("Welcome"));
+
 		m_layout->addWidget(m_label);
 		setLayout(m_layout);
+
+		registerField("welcomePage", this, "welcomePage", SIGNAL(welcomePageChanged()));
 	}
 
 	void initializePage()
@@ -57,21 +93,37 @@ public:
 		return !m_isError;
 	}
 
+	WelcomePage* welcomePage() { return this; }
+
 	QList<QuickModFile*>* files;
+
+	// accessor methods to the working objects
+	void addWorkingObject(const WorkingObject& object) { m_workingObjects.append(object); }
+	WorkingObject& workingObject(const int index) { return m_workingObjects[index]; }
+	int numWorkingObjects() const { return m_workingObjects.size(); }
+	void clearWorkingObjects() { m_workingObjects.clear(); }
+
+signals:
+	void welcomePageChanged();
 
 private:
 	bool m_isError;
 	QLabel* m_label;
 	QVBoxLayout* m_layout;
+
+	QList<WorkingObject> m_workingObjects;
 };
 class ChooseInstancePage : public QWizardPage
 {
 	Q_OBJECT
 	Q_PROPERTY(QString mcVersion READ mcVersion NOTIFY mcVersionChanged)
+	Q_PROPERTY(QString instanceId READ instanceId NOTIFY instanceChanged)
 public:
 	ChooseInstancePage(QWidget* parent = 0) :
 		QWizardPage(parent), m_widget(new QTableWidget(this)), m_isInited(false)
 	{
+		setTitle(tr("Choose Instance"));
+
 		QVBoxLayout* layout = new QVBoxLayout;
 		layout->addWidget(new QLabel(tr("Choose the instance to install stuff into"), this));
 		layout->addWidget(m_widget);
@@ -87,8 +139,11 @@ public:
 				this, SIGNAL(completeChanged()));
 		connect(m_widget->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
 				this, SIGNAL(mcVersionChanged()));
+		connect(m_widget->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+				this, SIGNAL(instanceChanged()));
 
 		registerField("mcVersion", this, "mcVersion", SIGNAL(mcVersionChanged));
+		registerField("instanceId", this, "instanceId", SIGNAL(instanceChanged()));
 	}
 
 	void initializePage()
@@ -99,7 +154,8 @@ public:
 				InstancePtr instance = MMC->instances()->at(i);
 				QTableWidgetItem* name = new QTableWidgetItem(instance->name());
 				name->setData(Qt::UserRole, instance->id());
-				QTableWidgetItem* mcVersion = new QTableWidgetItem(instance->intendedVersionId());
+				//name->setData(Qt::DisplayRole, MMC->icons()->getIcon(instance->iconKey()));
+				QTableWidgetItem* mcVersion = new QTableWidgetItem(instance->currentVersionId());
 				m_widget->setItem(i, 0, name);
 				m_widget->setItem(i, 1, mcVersion);
 			}
@@ -131,11 +187,12 @@ public:
 		if (instanceId().isNull()) {
 			return QString();
 		}
-		return MMC->instances()->getInstanceById(instanceId())->intendedVersionId();
+		return MMC->instances()->getInstanceById(instanceId())->currentVersionId();
 	}
 
 signals:
 	void mcVersionChanged();
+	void instanceChanged();
 
 private:
 	// TODO change to treeview (groups)
@@ -150,6 +207,7 @@ public:
 		QWizardPage(parent), files(0), m_treeView(new QTreeWidget(this))
 	{
 		setCommitPage(true);
+		setTitle(tr("Choose Version"));
 
 		QVBoxLayout* layout = new QVBoxLayout;
 		setLayout(layout);
@@ -172,12 +230,14 @@ public:
 				vItem->setText(1, version->name());
 				vItem->setText(2, version->mcVersions().join(", "));
 				vItem->setText(3, version->modTypeString());
+				vItem->setSelected(!hasEnabledItem);
 				if (version->mcVersions().contains(field("mcVersion").toString())) {
-					vItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable);
+					vItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 					hasEnabledItem = true;
 				} else {
 					vItem->setFlags(Qt::NoItemFlags);
 				}
+				m_versionItemMapping.insert(version, vItem);
 			}
 			item->setExpanded(hasEnabledItem);
 			m_treeView->addTopLevelItem(item);
@@ -190,6 +250,16 @@ public:
 	}
 	bool validatePage()
 	{
+		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
+		page->clearWorkingObjects();
+		foreach (QTreeWidgetItem* item, m_treeView->selectedItems()) {
+			if (m_versionItemMapping.values().contains(item)) {
+				WorkingObject object;
+				object.version = m_versionItemMapping.key(item);
+				page->addWorkingObject(object);
+			}
+		}
+
 		return true;
 	}
 
@@ -205,14 +275,26 @@ class WebNavigationPage : public QWizardPage
 	Q_OBJECT
 public:
 	WebNavigationPage(QWidget* parent = 0) :
-		QWizardPage(parent)
+		QWizardPage(parent), m_layout(new QStackedLayout(this))
 	{
-		setCommitPage(true);
+		setTitle(tr("Web Navigation"));
+		setLayout(m_layout);
 	}
 
 	void initializePage()
 	{
-
+		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
+		for (int i = 0; i < page->numWorkingObjects(); ++i) {
+			foreach (const QUrl& url, page->workingObject(i).version->urls()) {
+				WebDownloadCatcher* view = new WebDownloadCatcher(this);
+				view->load(url);
+				view->workingObjectIndex = i;
+				connect(view, SIGNAL(caughtUrl(QNetworkReply*)), this, SLOT(urlCaught(QNetworkReply*)));
+				m_layout->addWidget(view);
+				m_views.append(view);
+			}
+		}
+		m_layout->setCurrentIndex(0);
 	}
 	void cleanupPage()
 	{
@@ -224,22 +306,58 @@ public:
 	}
 	bool isComplete()
 	{
+		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
+		for (int i = 0; i < page->numWorkingObjects(); ++i) {
+			if (page->workingObject(i).replies.size() != page->workingObject(i).version->urls().size()) {
+				return false;
+			}
+		}
+
 		return true;
 	}
+
+private slots:
+	void urlCaught(QNetworkReply* reply)
+	{
+		WebDownloadCatcher* view = qobject_cast<WebDownloadCatcher*>(sender());
+		field("welcomePage").value<WelcomePage*>()->workingObject(view->workingObjectIndex).replies.append(reply);
+		emit completeChanged();
+	}
+
+private:
+	QStackedLayout* m_layout;
+	QList<WebDownloadCatcher*> m_views;
 };
 class DownloadPage : public QWizardPage
 {
 	Q_OBJECT
 public:
 	DownloadPage(QWidget* parent = 0) :
-		QWizardPage(parent)
+		QWizardPage(parent), m_widget(new QTableWidget(this))
 	{
-		setCommitPage(true);
+		setTitle(tr("Downloading"));
+
+		QVBoxLayout* layout = new QVBoxLayout;
+		layout->addWidget(m_widget);
+		setLayout(layout);
+
+		m_widget->setColumnCount(1);
+		m_widget->setHorizontalHeaderLabels(QStringList() << tr("Progress"));
 	}
 
 	void initializePage()
 	{
-
+		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
+		for (int i = 0; i < page->numWorkingObjects(); ++i) {
+			foreach (QNetworkReply* reply, page->workingObject(i).replies) {
+				QProgressBar* bar = new QProgressBar(m_widget);
+				m_widget->setCellWidget(i, 0, bar);
+				reply->setProperty("progressbar", QVariant::fromValue(bar));
+				reply->setProperty("workingObjectIndex", i);
+				connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadChanged(qint64,qint64)));
+				connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
+			}
+		}
 	}
 	void cleanupPage()
 	{
@@ -249,6 +367,90 @@ public:
 	{
 		return true;
 	}
+	bool isComplete() const
+	{
+		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
+		for (int i = 0; i < page->numWorkingObjects(); ++i) {
+			if (!page->workingObject(i).replies.isEmpty()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+private:
+	static QString fileName(const QUrl& url)
+	{
+		const QString path = url.path();
+		return path.mid(path.lastIndexOf('/'));
+	}
+	static bool saveDeviceToFile(QIODevice* device, const QString& file)
+	{
+		QFile out(file);
+		if (!out.open(QFile::WriteOnly | QFile::Truncate)) {
+			return false;
+		}
+		device->seek(0);
+		QByteArray data = device->readAll();
+		return data.size() == out.write(data);
+	}
+
+private slots:
+	void downloadFinished()
+	{
+		QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
+		QuickModVersion* version = page->workingObject(reply->property("workingObjectIndex").toInt()).version;
+		page->workingObject(reply->property("workingObjectIndex").toInt()).replies.takeAt(page->workingObject(reply->property("workingObjectIndex").toInt()).replies.indexOf(reply))->deleteLater();
+		// TODO error reporting
+		InstancePtr instance = MMC->instances()->getInstanceById(field("instanceId").toString());
+		QDir dir(instance->minecraftRoot());
+		bool extract = false;
+		switch (version->modType()) {
+		case QuickModVersion::ForgeMod:
+			dir.cd("mods");
+			extract = false;
+		case QuickModVersion::ForgeCoreMod:
+			dir.cd("coremods");
+			extract = false;
+		case QuickModVersion::ResourcePack:
+			dir.cd("resourcepacks");
+			extract = false;
+		case QuickModVersion::ConfigPack:
+			dir.cd("config");
+			extract = true;
+		}
+		if (extract) {
+			const QString path = reply->url().path();
+			// TODO more file formats. KArchive?
+			if (path.endsWith(".zip")) {
+				const QString zipFileName = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).absoluteFilePath(fileName(reply->url()));
+				if (saveDeviceToFile(reply, zipFileName)) {
+					JlCompress::extractDir(zipFileName, dir.absolutePath());
+				}
+			} else {
+				qWarning("Trying to extract an unknown file type %s", qPrintable(reply->url().toString()));
+			}
+		} else {
+			QFile file(dir.absoluteFilePath(fileName(reply->url())));
+			file.open(QFile::WriteOnly | QFile::Truncate);
+			reply->seek(0);
+			file.write(reply->readAll());
+			file.close();
+			reply->close();
+		}
+		emit completeChanged();
+	}
+	void downloadChanged(qint64 val, qint64 max)
+	{
+		QProgressBar* bar = qobject_cast<QProgressBar*>(sender()->property("progressbar").value<QObject*>());
+		bar->setMaximum(max);
+		bar->setValue(val);
+	}
+
+private:
+	QTableWidget* m_widget;
 };
 class FinishPage : public QWizardPage
 {
@@ -261,6 +463,8 @@ public:
 		m_launchMMCBox(new QRadioButton(tr("Launch MultiMC"), this)),
 		m_quitBox(new QRadioButton(tr("Quit"), this))
 	{
+		setTitle(tr("Done"));
+
 		m_layout->addWidget(new QLabel(tr("Everything has been installed. What should be done now?"), this));
 		m_layout->addWidget(m_launchInstanceBox);
 		m_layout->addWidget(m_launchMMCBox);
@@ -331,7 +535,7 @@ QuickModHandler::QuickModHandler(const QStringList& arguments, QObject *parent) 
 
 	connect(m_wizard, SIGNAL(rejected()), qApp, SLOT(quit()));
 
-	m_wizard->show();
+	m_wizard->showMaximized();
 }
 
 bool QuickModHandler::shouldTakeOver(const QStringList &arguments)
