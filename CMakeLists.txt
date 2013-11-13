@@ -331,6 +331,12 @@ logic/JavaUtils.cpp
 logic/NagUtils.h
 logic/NagUtils.cpp
 
+# QuickMod stuff
+quickmod/QuickModHandler.h
+quickmod/QuickModHandler.cpp
+quickmod/QuickModFile.h
+quickmod/QuickModFile.cpp
+
 )
 
 
