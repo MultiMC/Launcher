@@ -1,24 +1,28 @@
 #include "QuickModHandler.h"
 
-// TODO sort the includes
 #include <QStringList>
-#include <QWizard>
-#include <QDebug>
-#include <QRadioButton>
-#include <QBoxLayout>
-#include <QLabel>
+#include <QDir>
+
 #include <QApplication>
-#include <QProgressBar>
+#include <QBoxLayout>
 #include <QStackedLayout>
+#include <QWebView>
+#include <QRadioButton>
+#include <QProgressBar>
+#include <QLabel>
+#include <QWizard>
+#include <QMessageBox>
+
+#include <QHeaderView>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QTableWidget>
 #include <QTableWidgetItem>
-#include <QHeaderView>
-#include <QWebView>
+
 #include <QNetworkReply>
-#include <QDir>
 #include <QStandardPaths>
+#include <QDebug>
+
 #include <iostream>
 
 #include "MultiMC.h"
@@ -36,21 +40,35 @@ struct WorkingObject
 	QList<QNetworkReply*> replies;
 };
 
-// TODO this should be an entire widget, containing amongst others a progress bar (loading)
-class WebDownloadCatcher : public QWebView
+class WebDownloadCatcher : public QWidget
 {
 	Q_OBJECT
 public:
-	WebDownloadCatcher(QWidget* parent = 0) : QWebView(parent)
+	WebDownloadCatcher(QWidget* parent = 0) : QWidget(parent), m_layout(new QVBoxLayout), m_view(new QWebView(this)), m_bar(new QProgressBar(this))
 	{
-		connect(page(), SIGNAL(unsupportedContent(QNetworkReply*)), this, SIGNAL(caughtUrl(QNetworkReply*)));
-		page()->setForwardUnsupportedContent(true);
+		m_view->setHtml(tr("<h1>Loading...</h1>"));
+
+		connect(m_view, SIGNAL(loadProgress(int)), m_bar, SLOT(setValue(int)));
+		connect(m_view->page(), SIGNAL(unsupportedContent(QNetworkReply*)), this, SIGNAL(caughtUrl(QNetworkReply*)));
+		m_view->page()->setForwardUnsupportedContent(true);
+
+		m_layout->addWidget(m_view, 1);
+		m_layout->addWidget(m_bar);
+		setLayout(m_layout);
 	}
 
 	int workingObjectIndex;
 
+public slots:
+	void load(const QUrl& url) { m_view->load(url); }
+
 signals:
 	void caughtUrl(QNetworkReply* url);
+
+private:
+	QVBoxLayout* m_layout;
+	QWebView* m_view;
+	QProgressBar* m_bar;
 };
 
 class WelcomePage : public QWizardPage
@@ -141,6 +159,7 @@ public:
 				this, SIGNAL(mcVersionChanged()));
 		connect(m_widget->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
 				this, SIGNAL(instanceChanged()));
+		connect(m_widget, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(instanceClicked(int,int)));
 
 		registerField("mcVersion", this, "mcVersion", SIGNAL(mcVersionChanged));
 		registerField("instanceId", this, "instanceId", SIGNAL(instanceChanged()));
@@ -153,9 +172,11 @@ public:
 			for (int i = 0; i < MMC->instances()->count(); ++i) {
 				InstancePtr instance = MMC->instances()->at(i);
 				QTableWidgetItem* name = new QTableWidgetItem(instance->name());
+				name->setIcon(MMC->icons()->getIcon(instance->iconKey()));
 				name->setData(Qt::UserRole, instance->id());
-				//name->setData(Qt::DisplayRole, MMC->icons()->getIcon(instance->iconKey()));
+				name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 				QTableWidgetItem* mcVersion = new QTableWidgetItem(instance->currentVersionId());
+				mcVersion->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 				m_widget->setItem(i, 0, name);
 				m_widget->setItem(i, 1, mcVersion);
 			}
@@ -194,8 +215,15 @@ signals:
 	void mcVersionChanged();
 	void instanceChanged();
 
+private slots:
+	void instanceClicked(const int row, const int column)
+	{
+		m_widget->selectRow(row);
+		wizard()->next();
+	}
+
 private:
-	// TODO change to treeview (groups)
+	// QUESTION change to treeview (groups)?
 	QTableWidget* m_widget;
 	bool m_isInited;
 };
@@ -207,6 +235,7 @@ public:
 		QWizardPage(parent), files(0), m_treeView(new QTreeWidget(this))
 	{
 		setCommitPage(true);
+		setButtonText(QWizard::CommitButton, tr("Download"));
 		setTitle(tr("Choose Version"));
 
 		QVBoxLayout* layout = new QVBoxLayout;
@@ -270,6 +299,7 @@ private:
 	QMap<QuickModFile*, QTreeWidgetItem*> m_fileItemMapping;
 	QMap<QuickModVersion*, QTreeWidgetItem*> m_versionItemMapping;
 };
+// TODO some visible notification for the user for when he/she is done clicking links
 class WebNavigationPage : public QWizardPage
 {
 	Q_OBJECT
@@ -304,7 +334,7 @@ public:
 	{
 		return true;
 	}
-	bool isComplete()
+	bool isComplete() const
 	{
 		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
 		for (int i = 0; i < page->numWorkingObjects(); ++i) {
@@ -341,8 +371,8 @@ public:
 		layout->addWidget(m_widget);
 		setLayout(layout);
 
-		m_widget->setColumnCount(1);
-		m_widget->setHorizontalHeaderLabels(QStringList() << tr("Progress"));
+		m_widget->setColumnCount(2);
+		m_widget->setHorizontalHeaderLabels(QStringList() << tr("File") << tr("Progress"));
 	}
 
 	void initializePage()
@@ -350,8 +380,10 @@ public:
 		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
 		for (int i = 0; i < page->numWorkingObjects(); ++i) {
 			foreach (QNetworkReply* reply, page->workingObject(i).replies) {
-				QProgressBar* bar = new QProgressBar(m_widget);
-				m_widget->setCellWidget(i, 0, bar);
+				m_widget->setRowCount(m_widget->rowCount() + 1);
+				QProgressBar* bar = new QProgressBar;
+				m_widget->setItem(i, 0, new QTableWidgetItem(fileName(reply->url())));
+				m_widget->setCellWidget(i, 1, bar);
 				reply->setProperty("progressbar", QVariant::fromValue(bar));
 				reply->setProperty("workingObjectIndex", i);
 				connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadChanged(qint64,qint64)));
@@ -383,7 +415,7 @@ private:
 	static QString fileName(const QUrl& url)
 	{
 		const QString path = url.path();
-		return path.mid(path.lastIndexOf('/'));
+		return path.mid(path.lastIndexOf('/')+1);
 	}
 	static bool saveDeviceToFile(QIODevice* device, const QString& file)
 	{
@@ -402,8 +434,6 @@ private slots:
 		QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
 		QuickModVersion* version = page->workingObject(reply->property("workingObjectIndex").toInt()).version;
-		page->workingObject(reply->property("workingObjectIndex").toInt()).replies.takeAt(page->workingObject(reply->property("workingObjectIndex").toInt()).replies.indexOf(reply))->deleteLater();
-		// TODO error reporting
 		InstancePtr instance = MMC->instances()->getInstanceById(field("instanceId").toString());
 		QDir dir(instance->minecraftRoot());
 		bool extract = false;
@@ -411,15 +441,19 @@ private slots:
 		case QuickModVersion::ForgeMod:
 			dir.cd("mods");
 			extract = false;
+			break;
 		case QuickModVersion::ForgeCoreMod:
 			dir.cd("coremods");
 			extract = false;
+			break;
 		case QuickModVersion::ResourcePack:
 			dir.cd("resourcepacks");
 			extract = false;
+			break;
 		case QuickModVersion::ConfigPack:
 			dir.cd("config");
 			extract = true;
+			break;
 		}
 		if (extract) {
 			const QString path = reply->url().path();
@@ -434,11 +468,16 @@ private slots:
 			}
 		} else {
 			QFile file(dir.absoluteFilePath(fileName(reply->url())));
-			file.open(QFile::WriteOnly | QFile::Truncate);
+			if (!file.open(QFile::WriteOnly | QFile::Truncate)) {
+				QMessageBox::critical(this, tr("Error"), tr("Error saving %1: %2").arg(file.fileName(), file.errorString()));
+				return;
+			}
 			reply->seek(0);
 			file.write(reply->readAll());
 			file.close();
 			reply->close();
+			reply->deleteLater();
+			page->workingObject(reply->property("workingObjectIndex").toInt()).replies.removeAll(reply);
 		}
 		emit completeChanged();
 	}
@@ -487,7 +526,6 @@ public:
 		} else if (m_launchInstanceBox->isChecked()) {
 			// TODO launch the instance
 		} else if (m_launchMMCBox->isChecked()) {
-			// FIXME doesn't work
 			MMC->main_gui();
 		}
 		wizard()->hide();
