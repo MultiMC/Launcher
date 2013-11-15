@@ -261,8 +261,13 @@ public:
 		layout->addWidget(new QLabel(tr("Please choose the files to install:")));
 		layout->addWidget(m_treeView);
 
+		connect(m_treeView, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
+		connect(m_treeView, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
+
 		m_treeView->setColumnCount(4);
 		m_treeView->setHeaderLabels(QStringList() << tr("Name") << tr("Version") << tr("MC Versions") << tr("Type"));
+		m_treeView->setSelectionMode(QTreeWidget::MultiSelection);
+		m_treeView->setSelectionBehavior(QTreeWidget::SelectRows);
 	}
 
 	void initializePage()
@@ -312,12 +317,36 @@ public:
 
 	QList<QuickModFile*>* files;
 
+private slots:
+	// TODO this works, but is not perfect (kinda slow, also dragging may select multiple nodes)
+	void itemClicked(QTreeWidgetItem* item, const int column)
+	{
+		// not a version, probably a file
+		if (!m_versionItemMapping.values().contains(item)) {
+			return;
+		}
+
+		QTreeWidgetItem* parent = item->parent();
+		for (int i = 0; i < parent->childCount(); ++i) {
+			parent->child(i)->setSelected(false);
+		}
+
+		item->setSelected(true);
+	}
+	void itemDoubleClicked(QTreeWidgetItem* item, const int column)
+	{
+		itemClicked(item, column);
+		// only allow double clicking for next step if we only have one thing
+		if (m_fileItemMapping.size() == 1) {
+			wizard()->next();
+		}
+	}
+
 private:
 	QTreeWidget* m_treeView;
 	QMap<QuickModFile*, QTreeWidgetItem*> m_fileItemMapping;
 	QMap<QuickModVersion*, QTreeWidgetItem*> m_versionItemMapping;
 };
-// TODO some visible notification for the user for when he/she is done clicking links
 class WebNavigationPage : public QWizardPage
 {
 	Q_OBJECT
@@ -369,6 +398,9 @@ private slots:
 	{
 		WebDownloadCatcher* view = qobject_cast<WebDownloadCatcher*>(sender());
 		field("welcomePage").value<WelcomePage*>()->workingObject(view->workingObjectIndex).replies.append(reply);
+		if (isComplete()) {
+			wizard()->next();
+		}
 		emit completeChanged();
 	}
 
