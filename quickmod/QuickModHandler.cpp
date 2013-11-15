@@ -664,9 +664,4 @@ bool QuickModHandler::shouldTakeOver(const QStringList &arguments)
 	return false;
 }
 
-QString QuickModHandler::instanceId() const
-{
-	return m_chooseInstancePage->instanceId();
-}
-
 #include "QuickModHandler.moc"

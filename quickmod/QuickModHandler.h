@@ -24,8 +24,6 @@ public:
 
 	static bool shouldTakeOver(const QStringList& arguments);
 
-	QString instanceId() const;
-
 private:
 	QWizard* m_wizard;
 	WelcomePage* m_welcomePage;
