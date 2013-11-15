@@ -18,6 +18,8 @@
 #include <QTreeWidgetItem>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QListView>
+#include <QStringListModel>
 
 #include <QNetworkReply>
 #include <QStandardPaths>
@@ -71,18 +73,23 @@ private:
 	QProgressBar* m_bar;
 };
 
+// TODO mod icons
 class WelcomePage : public QWizardPage
 {
 	Q_OBJECT
 	Q_PROPERTY(WelcomePage* welcomePage READ welcomePage NOTIFY welcomePageChanged)
 public:
 	WelcomePage(QWidget* parent = 0) :
-		QWizardPage(parent), m_isError(false), m_label(new QLabel(this)), m_layout(new QVBoxLayout)
+		QWizardPage(parent), m_isError(false), m_label(new QLabel(this)), m_view(new QListView(this)), m_model(new QStringListModel(this)), m_layout(new QVBoxLayout)
 	{
 		setTitle(tr("Welcome"));
 
 		m_layout->addWidget(m_label);
+		m_layout->addWidget(m_view);
 		setLayout(m_layout);
+
+		m_view->setVisible(false);
+		m_view->setModel(m_model);
 
 		registerField("welcomePage", this, "welcomePage", SIGNAL(welcomePageChanged()));
 	}
@@ -97,6 +104,15 @@ public:
 				return;
 			}
 		}
+
+		// all files have been opened and parsed: make them into a string so the user sees something
+		QStringList mods;
+		foreach (QuickModFile* file, *files) {
+			mods.append(file->name());
+		}
+		m_model->setStringList(mods);
+		m_label->setText(tr("The following stuff will be installed:"));
+		m_view->setVisible(true);
 	}
 	void cleanupPage()
 	{
@@ -127,6 +143,8 @@ signals:
 private:
 	bool m_isError;
 	QLabel* m_label;
+	QListView* m_view;
+	QStringListModel* m_model;
 	QVBoxLayout* m_layout;
 
 	QList<WorkingObject> m_workingObjects;
