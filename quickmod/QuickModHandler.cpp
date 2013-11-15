@@ -428,16 +428,19 @@ public:
 	void initializePage()
 	{
 		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
+		int row = 0;
 		for (int i = 0; i < page->numWorkingObjects(); ++i) {
 			foreach (QNetworkReply* reply, page->workingObject(i).replies) {
 				m_widget->setRowCount(m_widget->rowCount() + 1);
 				QProgressBar* bar = new QProgressBar;
-				m_widget->setItem(i, 0, new QTableWidgetItem(fileName(reply->url())));
-				m_widget->setCellWidget(i, 1, bar);
+				m_widget->setItem(row, 0, new QTableWidgetItem(fileName(reply->url())));
+				m_widget->setCellWidget(row, 1, bar);
+				m_replyToColumnMapping.insert(reply, row);
 				reply->setProperty("progressbar", QVariant::fromValue(bar));
 				reply->setProperty("workingObjectIndex", i);
 				connect(reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadChanged(qint64,qint64)));
 				connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
+				++row;
 			}
 		}
 	}
@@ -477,6 +480,24 @@ private:
 		QByteArray data = device->readAll();
 		return data.size() == out.write(data);
 	}
+	static QDir dirEnsureExists(const QString& dir, const QString& path)
+	{
+		QDir dir_ = QDir::current();
+
+		// first stage
+		if (!dir_.exists(dir)) {
+			dir_.mkpath(dir);
+		}
+		dir_.cd(dir);
+
+		// second stage
+		if (!dir_.exists(path)) {
+			dir_.mkpath(path);
+		}
+		dir_.cd(path);
+
+		return dir_;
+	}
 
 private slots:
 	void downloadFinished()
@@ -485,26 +506,27 @@ private slots:
 		WelcomePage* page = field("welcomePage").value<WelcomePage*>();
 		QuickModVersion* version = page->workingObject(reply->property("workingObjectIndex").toInt()).version;
 		InstancePtr instance = MMC->instances()->getInstanceById(field("instanceId").toString());
-		QDir dir(instance->minecraftRoot());
+		QDir dir;
 		bool extract = false;
 		switch (version->modType()) {
 		case QuickModVersion::ForgeMod:
-			dir.cd("mods");
+			dir = dirEnsureExists(instance->minecraftRoot(), "mods");
 			extract = false;
 			break;
 		case QuickModVersion::ForgeCoreMod:
-			dir.cd("coremods");
+			dir = dirEnsureExists(instance->minecraftRoot(), "coremods");
 			extract = false;
 			break;
 		case QuickModVersion::ResourcePack:
-			dir.cd("resourcepacks");
+			dir = dirEnsureExists(instance->minecraftRoot(), "resourcepacks");
 			extract = false;
 			break;
 		case QuickModVersion::ConfigPack:
-			dir.cd("config");
+			dir = dirEnsureExists(instance->minecraftRoot(), "config");
 			extract = true;
 			break;
 		}
+
 		if (extract) {
 			const QString path = reply->url().path();
 			// TODO more file formats. KArchive?
@@ -519,6 +541,8 @@ private slots:
 		} else {
 			QFile file(dir.absoluteFilePath(fileName(reply->url())));
 			if (!file.open(QFile::WriteOnly | QFile::Truncate)) {
+				m_widget->removeCellWidget(m_replyToColumnMapping.value(reply), 1);
+				m_widget->setItem(m_replyToColumnMapping.value(reply), 1, new QTableWidgetItem(tr("Error")));
 				QMessageBox::critical(this, tr("Error"), tr("Error saving %1: %2").arg(file.fileName(), file.errorString()));
 				return;
 			}
@@ -540,6 +564,7 @@ private slots:
 
 private:
 	QTableWidget* m_widget;
+	QMap<QNetworkReply*, int> m_replyToColumnMapping;
 };
 class FinishPage : public QWizardPage
 {
