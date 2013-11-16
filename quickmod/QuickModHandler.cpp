@@ -18,8 +18,8 @@
 #include <QTreeWidgetItem>
 #include <QTableWidget>
 #include <QTableWidgetItem>
-#include <QListView>
-#include <QStringListModel>
+#include <QListWidget>
+#include <QListWidgetItem>
 
 #include <QNetworkReply>
 #include <QStandardPaths>
@@ -34,6 +34,7 @@
 #include "depends/quazip/JlCompress.h"
 
 #include "QuickModFile.h"
+#include "IconDownloader.h"
 
 struct WorkingObject
 {
@@ -73,14 +74,13 @@ private:
 	QProgressBar* m_bar;
 };
 
-// TODO mod icons
 class WelcomePage : public QWizardPage
 {
 	Q_OBJECT
 	Q_PROPERTY(WelcomePage* welcomePage READ welcomePage NOTIFY welcomePageChanged)
 public:
 	WelcomePage(QWidget* parent = 0) :
-		QWizardPage(parent), m_isError(false), m_label(new QLabel(this)), m_view(new QListView(this)), m_model(new QStringListModel(this)), m_layout(new QVBoxLayout)
+		QWizardPage(parent), m_isError(false), m_label(new QLabel(this)), m_view(new QListWidget(this)), m_layout(new QVBoxLayout)
 	{
 		setTitle(tr("Welcome"));
 
@@ -89,7 +89,6 @@ public:
 		setLayout(m_layout);
 
 		m_view->setVisible(false);
-		m_view->setModel(m_model);
 
 		registerField("welcomePage", this, "welcomePage", SIGNAL(welcomePageChanged()));
 	}
@@ -105,12 +104,11 @@ public:
 			}
 		}
 
-		// all files have been opened and parsed: make them into a string so the user sees something
-		QStringList mods;
 		foreach (QuickModFile* file, *files) {
-			mods.append(file->name());
+			QListWidgetItem* item = new QListWidgetItem(m_view);
+			item->setText(file->name());
+			new ListWidgetIconDownloader(item, file->icon(), this);
 		}
-		m_model->setStringList(mods);
 		m_label->setText(tr("The following stuff will be installed:"));
 		m_view->setVisible(true);
 	}
@@ -143,8 +141,7 @@ signals:
 private:
 	bool m_isError;
 	QLabel* m_label;
-	QListView* m_view;
-	QStringListModel* m_model;
+	QListWidget* m_view;
 	QVBoxLayout* m_layout;
 
 	QList<WorkingObject> m_workingObjects;
@@ -276,6 +273,7 @@ public:
 		foreach (QuickModFile* file, *files) {
 			QTreeWidgetItem* item = new QTreeWidgetItem(m_treeView);
 			item->setText(0, file->name());
+			new TreeWidgetIconDownloader(item, file->icon(), this);
 			bool hasEnabledItem = false;
 			foreach (QuickModVersion* version, file->versions()) {
 				QTreeWidgetItem* vItem = new QTreeWidgetItem(item);

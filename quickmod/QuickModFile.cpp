@@ -62,6 +62,7 @@ bool QuickModFile::parse()
 	}
 	m_name = mod.value("name").toString();
 	m_website = mod.value("website").toString();
+	m_icon = mod.value("icon").toString();
 	QJsonArray versions = mod.value("versions").toArray();
 	foreach (const QJsonValue& versionValue, versions) {
 		QJsonObject v = versionValue.toObject();

@@ -57,6 +57,7 @@ public:
 
 	QString name() const { return m_name; }
 	QUrl website() const { return m_website; }
+	QUrl icon() const { return m_icon; }
 	QList<QuickModVersion*> versions() const { return m_versions; }
 
 private:
@@ -70,5 +71,6 @@ private:
 
 	QString m_name;
 	QUrl m_website;
+	QUrl m_icon;
 	QList<QuickModVersion*> m_versions;
 };
