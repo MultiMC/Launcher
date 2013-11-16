@@ -42,7 +42,7 @@ find_package(Qt5Network REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
 find_package(Qt5WebKitWidgets REQUIRED)
 
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${Qt5WebKitWidgets_INCLUDE_DIRS})
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
 ######## Included Libs ########
 

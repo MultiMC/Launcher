@@ -17,7 +17,6 @@ class IconList;
 class QNetworkAccessManager;
 class ForgeVersionList;
 class JavaVersionList;
-class QuickModHandler;
 
 #if defined(MMC)
 #undef MMC
@@ -115,8 +114,6 @@ private:
 	std::shared_ptr<JavaVersionList> m_javalist;
 	QsLogging::DestinationPtr m_fileDestination;
 	QsLogging::DestinationPtr m_debugDestination;
-
-	std::shared_ptr<QuickModHandler> m_quickModHandler;
 
 	Status m_status = MultiMC::Failed;
 	MultiMCVersion m_version = {VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD};
