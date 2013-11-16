@@ -153,7 +153,7 @@ class ChooseInstancePage : public QWizardPage
 	Q_PROPERTY(QString instanceId READ instanceId NOTIFY instanceChanged)
 public:
 	ChooseInstancePage(QWidget* parent = 0) :
-		QWizardPage(parent), m_widget(new QTableWidget(this)), m_isInited(false)
+		QWizardPage(parent), m_widget(new QTreeWidget(this)), m_isInited(false)
 	{
 		setTitle(tr("Choose Instance"));
 
@@ -163,10 +163,9 @@ public:
 		setLayout(layout);
 
 		m_widget->setColumnCount(2);
-		m_widget->setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("MC Version"));
+		m_widget->setHeaderLabels(QStringList() << tr("Name") << tr("MC Version"));
 		m_widget->setSelectionMode(QTableWidget::SingleSelection);
 		m_widget->setSelectionBehavior(QTableWidget::SelectRows);
-		m_widget->verticalHeader()->setVisible(false);
 
 		connect(m_widget->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
 				this, SIGNAL(completeChanged()));
@@ -174,7 +173,7 @@ public:
 				this, SIGNAL(mcVersionChanged()));
 		connect(m_widget->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
 				this, SIGNAL(instanceChanged()));
-		connect(m_widget, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(instanceClicked(int,int)));
+		connect(m_widget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(instanceChoosen()));
 
 		registerField("mcVersion", this, "mcVersion", SIGNAL(mcVersionChanged));
 		registerField("instanceId", this, "instanceId", SIGNAL(instanceChanged()));
@@ -183,19 +182,24 @@ public:
 	void initializePage()
 	{
 		if (!m_isInited) {
-			m_widget->setRowCount(MMC->instances()->count());
+			QMap<QString, QTreeWidgetItem*> groups;
 			for (int i = 0; i < MMC->instances()->count(); ++i) {
 				InstancePtr instance = MMC->instances()->at(i);
-				QTableWidgetItem* name = new QTableWidgetItem(instance->name());
-				name->setIcon(MMC->icons()->getIcon(instance->iconKey()));
-				name->setData(Qt::UserRole, instance->id());
-				name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-				QTableWidgetItem* mcVersion = new QTableWidgetItem(instance->currentVersionId());
-				mcVersion->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-				m_widget->setItem(i, 0, name);
-				m_widget->setItem(i, 1, mcVersion);
+				if (!groups.contains(instance->group())) {
+					QTreeWidgetItem* group = new QTreeWidgetItem(m_widget);
+					group->setText(0, instance->group().isEmpty() ? tr("Ungrouped") : instance->group());
+					group->setExpanded(true);
+					groups.insert(instance->group(), group);
+				}
+				QTreeWidgetItem* item = new QTreeWidgetItem(groups[instance->group()]);
+				item->setIcon(0, MMC->icons()->getIcon(instance->iconKey()));
+				item->setData(0, Qt::UserRole, instance->id());
+				item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+				item->setText(0, instance->name());
+				item->setText(1, instance->currentVersionId());
 			}
-			m_widget->selectRow(0);
+			m_widget->selectionModel()->select(m_widget->selectionModel()->model()->index(0, 0), QItemSelectionModel::Rows | QItemSelectionModel::Select);
+			m_widget->resizeColumnToContents(0);
 		}
 	}
 	void cleanupPage()
@@ -211,7 +215,7 @@ public:
 	QString instanceId() const
 	{
 		if (m_widget->selectionModel()->hasSelection()) {
-			return m_widget->item(m_widget->currentRow(), 0)->data(Qt::UserRole).toString();
+			return m_widget->selectedItems().first()->data(0, Qt::UserRole).toString();
 		} else {
 			return QString();
 		}
@@ -231,15 +235,13 @@ signals:
 	void instanceChanged();
 
 private slots:
-	void instanceClicked(const int row, const int column)
+	void instanceChoosen()
 	{
-		m_widget->selectRow(row);
 		wizard()->next();
 	}
 
 private:
-	// QUESTION change to treeview (groups)?
-	QTableWidget* m_widget;
+	QTreeWidget* m_widget;
 	bool m_isInited;
 };
 class ChooseVersionPage : public QWizardPage
