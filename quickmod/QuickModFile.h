@@ -4,6 +4,7 @@
 #include <QUrl>
 #include <QFileInfo>
 #include <QStringList>
+#include <QMap>
 
 class QFile;
 
@@ -50,14 +51,16 @@ public:
 
 	void setFileInfo(const QFileInfo& info);
 	QFileInfo fileInfo() const { return m_info; }
-	QFile* file() const { return m_file; }
 	QString errorString() const { return m_errorString; }
 
 	bool open();
+	bool open(QIODevice* device);
 
 	QString name() const { return m_name; }
 	QUrl website() const { return m_website; }
 	QUrl icon() const { return m_icon; }
+	QMap<QString, QUrl> recommends() { return m_recommends; }
+	QMap<QString, QUrl> depends() { return m_depends; }
 	QList<QuickModVersion*> versions() const { return m_versions; }
 
 private:
@@ -66,11 +69,13 @@ private:
 	bool parse();
 
 	QFileInfo m_info;
-	QFile* m_file;
+	QIODevice* m_file;
 	QString m_errorString;
 
 	QString m_name;
 	QUrl m_website;
 	QUrl m_icon;
+	QMap<QString, QUrl> m_recommends;
+	QMap<QString, QUrl> m_depends;
 	QList<QuickModVersion*> m_versions;
 };

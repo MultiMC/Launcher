@@ -33,22 +33,33 @@ QuickModFile::QuickModFile(QObject *parent) :
 
 void QuickModFile::setFileInfo(const QFileInfo &info)
 {
-	if (m_file) {
-		delete m_file;
-		m_file = 0;
-	}
 	m_info = info;
-	m_file = new QFile(m_info.absoluteFilePath(), this);
 }
 bool QuickModFile::open()
 {
 	if (m_file == 0) {
-		return false;
+		if (m_info.isFile()) {
+			m_file = new QFile(m_info.absoluteFilePath(), this);
+		} else {
+			return false;
+		}
 	}
 	if (!m_file->open(QFile::ReadOnly)) {
 		m_errorString = m_file->errorString();
 		return false;
 	}
+	return parse();
+}
+
+bool QuickModFile::open(QIODevice *device)
+{
+	m_file = device;
+	setFileInfo(QFileInfo());
+
+	if (!m_file->isOpen() && !m_file->open(QIODevice::ReadOnly)) {
+		m_errorString = m_file->errorString();
+	}
+
 	return parse();
 }
 
@@ -63,6 +74,14 @@ bool QuickModFile::parse()
 	m_name = mod.value("name").toString();
 	m_website = mod.value("website").toString();
 	m_icon = mod.value("icon").toString();
+	QJsonObject recommends = mod.value("recommends").toObject();
+	for (QJsonObject::const_iterator it = recommends.begin(); it != recommends.end(); ++it) {
+		m_recommends.insert(it.key(), QUrl(it.value().toString()));
+	}
+	QJsonObject depends = mod.value("depends").toObject();
+	for (QJsonObject::const_iterator it = depends.begin(); it != depends.end(); ++it) {
+		m_depends.insert(it.key(), QUrl(it.value().toString()));
+	}
 	QJsonArray versions = mod.value("versions").toArray();
 	foreach (const QJsonValue& versionValue, versions) {
 		QJsonObject v = versionValue.toObject();
