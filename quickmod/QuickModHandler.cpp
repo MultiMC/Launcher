@@ -31,6 +31,7 @@
 #include "logic/BaseInstance.h"
 #include "logic/lists/InstanceList.h"
 #include "logic/lists/IconList.h"
+#include "logic/InstanceLauncher.h"
 #include "depends/quazip/JlCompress.h"
 
 #include "QuickModFile.h"
@@ -347,6 +348,7 @@ private:
 	QMap<QuickModFile*, QTreeWidgetItem*> m_fileItemMapping;
 	QMap<QuickModVersion*, QTreeWidgetItem*> m_versionItemMapping;
 };
+// TODO darken areas of know pages that are not related to what we want to do
 class WebNavigationPage : public QWizardPage
 {
 	Q_OBJECT
@@ -599,11 +601,11 @@ public:
 		if (m_quitBox->isChecked()) {
 			qApp->quit();
 		} else if (m_launchInstanceBox->isChecked()) {
-			// TODO launch the instance
+			InstanceLauncher(field("instanceId").toString()).launch();
 		} else if (m_launchMMCBox->isChecked()) {
 			MMC->main_gui();
 		}
-		wizard()->hide();
+		wizard()->close();
 		return true;
 	}
 	int nextId() { return -1; }

@@ -206,7 +206,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 	// launch instance, if that's what should be done
 	if (!args["launch"].isNull())
 	{
-		if (InstanceLauncher(args["launch"].toString()).launch())
+		if (InstanceLauncher(args["launch"].toString()).launch() && exec())
 			m_status = MultiMC::Succeeded;
 		else
 			m_status = MultiMC::Failed;
