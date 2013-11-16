@@ -22,6 +22,16 @@ class QuickModHandler : public QObject
 public:
 	QuickModHandler(const QStringList& arguments, QObject* parent = 0);
 
+	enum Pages
+	{
+		WelcomePageId,
+		ChooseInstancePageId,
+		ChooseVersionPageId,
+		WebNavigationPageId,
+		DownloadPageId,
+		FinishPageId
+	};
+
 	static bool shouldTakeOver(const QStringList& arguments);
 
 private:

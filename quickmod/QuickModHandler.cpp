@@ -24,6 +24,7 @@
 #include <QNetworkReply>
 #include <QStandardPaths>
 #include <QDebug>
+#include <QTimer>
 
 #include <iostream>
 
@@ -125,6 +126,7 @@ public:
 	{
 		return !m_isError;
 	}
+	int nextId() const { return QuickModHandler::ChooseInstancePageId; }
 
 	WelcomePage* welcomePage() { return this; }
 
@@ -152,9 +154,10 @@ class ChooseInstancePage : public QWizardPage
 	Q_OBJECT
 	Q_PROPERTY(QString mcVersion READ mcVersion NOTIFY mcVersionChanged)
 	Q_PROPERTY(QString instanceId READ instanceId NOTIFY instanceChanged)
+	Q_PROPERTY(bool failed READ failed WRITE setFailed NOTIFY failedChanged)
 public:
 	ChooseInstancePage(QWidget* parent = 0) :
-		QWizardPage(parent), m_widget(new QTreeWidget(this)), m_isInited(false)
+		QWizardPage(parent), m_widget(new QTreeWidget(this)), m_isInited(false), m_failed(true)
 	{
 		setTitle(tr("Choose Instance"));
 
@@ -178,11 +181,20 @@ public:
 
 		registerField("mcVersion", this, "mcVersion", SIGNAL(mcVersionChanged));
 		registerField("instanceId", this, "instanceId", SIGNAL(instanceChanged()));
+		registerField("failed", this, "failed", SIGNAL(failedChanged()));
 	}
 
 	void initializePage()
 	{
+		setField("failed", true);
+		if (MMC->instances()->count() == 0) {
+			QMessageBox::critical(this, tr("Error"), tr("No existing instance found"));
+			QTimer::singleShot(1, wizard(), SLOT(next()));
+			return;
+		}
+		setField("failed", false);
 		if (!m_isInited) {
+			bool haveSelection = false;
 			QMap<QString, QTreeWidgetItem*> groups;
 			for (int i = 0; i < MMC->instances()->count(); ++i) {
 				InstancePtr instance = MMC->instances()->at(i);
@@ -198,9 +210,16 @@ public:
 				item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 				item->setText(0, instance->name());
 				item->setText(1, instance->currentVersionId());
+				if (!haveSelection) {
+					item->setSelected(true);
+					haveSelection = false;
+				}
 			}
-			m_widget->selectionModel()->select(m_widget->selectionModel()->model()->index(0, 0), QItemSelectionModel::Rows | QItemSelectionModel::Select);
 			m_widget->resizeColumnToContents(0);
+		}
+
+		if (MMC->instances()->count() == 1) {
+			QTimer::singleShot(1, wizard(), SLOT(next()));
 		}
 	}
 	void cleanupPage()
@@ -212,6 +231,9 @@ public:
 		return true;
 	}
 	bool isComplete() const { return !m_widget->selectedItems().isEmpty(); }
+	int nextId() const { return m_failed ? QuickModHandler::FinishPageId : QuickModHandler::ChooseVersionPageId; }
+
+	QList<QuickModFile*>* files;
 
 	QString instanceId() const
 	{
@@ -221,19 +243,28 @@ public:
 			return QString();
 		}
 	}
-
-	QList<QuickModFile*>* files;
-
 	QString mcVersion() const {
 		if (instanceId().isNull()) {
 			return QString();
 		}
 		return MMC->instances()->getInstanceById(instanceId())->currentVersionId();
 	}
+	bool failed() const { return m_failed; }
+
+public slots:
+	void setFailed(bool arg)
+	{
+		if (m_failed != arg) {
+			m_failed = arg;
+			emit failedChanged();
+		}
+	}
 
 signals:
 	void mcVersionChanged();
 	void instanceChanged();
+
+	void failedChanged();
 
 private slots:
 	void instanceChoosen()
@@ -244,6 +275,7 @@ private slots:
 private:
 	QTreeWidget* m_widget;
 	bool m_isInited;
+	bool m_failed;
 };
 class ChooseVersionPage : public QWizardPage
 {
@@ -315,6 +347,7 @@ public:
 
 		return true;
 	}
+	int nextId() const { return QuickModHandler::WebNavigationPageId; }
 
 	QList<QuickModFile*>* files;
 
@@ -394,6 +427,7 @@ public:
 
 		return true;
 	}
+	int nextId() const { return QuickModHandler::DownloadPageId; }
 
 private slots:
 	void urlCaught(QNetworkReply* reply)
@@ -465,6 +499,7 @@ public:
 
 		return true;
 	}
+	int nextId() const { return QuickModHandler::FinishPageId; }
 
 private:
 	static QString fileName(const QUrl& url)
@@ -581,7 +616,7 @@ public:
 	{
 		setTitle(tr("Done"));
 
-		m_layout->addWidget(new QLabel(tr("Everything has been installed. What should be done now?"), this));
+		m_layout->addWidget(new QLabel(field("failed").toBool() ? tr("There was an error") : tr("Everything has been installed. What should be done now?"), this));
 		m_layout->addWidget(m_launchInstanceBox);
 		m_layout->addWidget(m_launchMMCBox);
 		m_layout->addWidget(m_quitBox);
@@ -591,6 +626,8 @@ public:
 	void initializePage()
 	{
 		m_quitBox->setChecked(true);
+		m_quitBox->setFocus();
+		m_launchInstanceBox->setVisible(!field("failed").toBool());
 	}
 	void cleanupPage()
 	{
@@ -637,12 +674,16 @@ QuickModHandler::QuickModHandler(const QStringList& arguments, QObject *parent) 
 		}
 	}
 
-	m_wizard->addPage(m_welcomePage = new WelcomePage(m_wizard));
-	m_wizard->addPage(m_chooseInstancePage = new ChooseInstancePage(m_wizard));
-	m_wizard->addPage(m_chooseVersionPage = new ChooseVersionPage(m_wizard));
-	m_wizard->addPage(m_webNavigationPage = new WebNavigationPage(m_wizard));
-	m_wizard->addPage(m_downloadPage = new DownloadPage(m_wizard));
-	m_wizard->addPage(m_finishPage = new FinishPage(m_wizard));
+	m_wizard->setPixmap(QWizard::LogoPixmap, QPixmap(":/icons/multimc/scalable/apps/multimc.svg"));
+	m_wizard->setOptions(QWizard::DisabledBackButtonOnLastPage);
+
+	m_wizard->setPage(WelcomePageId, m_welcomePage = new WelcomePage(m_wizard));
+	m_wizard->setPage(ChooseInstancePageId, m_chooseInstancePage = new ChooseInstancePage(m_wizard));
+	m_wizard->setPage(ChooseVersionPageId, m_chooseVersionPage = new ChooseVersionPage(m_wizard));
+	m_wizard->setPage(WebNavigationPageId, m_webNavigationPage = new WebNavigationPage(m_wizard));
+	m_wizard->setPage(DownloadPageId, m_downloadPage = new DownloadPage(m_wizard));
+	m_wizard->setPage(FinishPageId, m_finishPage = new FinishPage(m_wizard));
+	m_wizard->setStartId(WelcomePageId);
 
 	m_welcomePage->files = m_files;
 	m_chooseInstancePage->files = m_files;
