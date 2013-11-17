@@ -153,7 +153,7 @@ Qt::ItemFlags QuickModsList::flags(const QModelIndex &index) const
 
 QVariant QuickModsList::data(const QModelIndex &index, int role) const
 {
-	if (0 <= index.row() || index.row() < m_mods.size())
+	if (0 > index.row() || index.row() >= m_mods.size())
 	{
 		return QVariant();
 	}
@@ -274,8 +274,8 @@ void QuickModsList::addMod(QuickMod *mod)
 		}
 	}
 
-	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()) + 1);
-	m_mods.append(mod);
+	beginInsertRows(QModelIndex(), 0, 0);
+	m_mods.prepend(mod);
 	endInsertRows();
 }
 
