@@ -18,6 +18,7 @@
 
 #include <QIcon>
 #include <QFileDialog>
+#include <QUrl>
 
 #include "MultiMC.h"
 #include "gui/Platform.h"

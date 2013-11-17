@@ -2,6 +2,7 @@
 
 #include <QAbstractListModel>
 #include <QUrl>
+#include <QStringList>
 
 class QuickModFilesUpdater;
 
