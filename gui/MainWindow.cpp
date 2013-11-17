@@ -57,6 +57,7 @@
 #include "gui/dialogs/IconPickerDialog.h"
 #include "gui/dialogs/EditNotesDialog.h"
 #include "gui/dialogs/CopyInstanceDialog.h"
+#include "gui/dialogs/AddQuickModFileDialog.h"
 
 #include "gui/ConsoleWindow.h"
 
@@ -65,6 +66,7 @@
 #include "logic/lists/LwjglVersionList.h"
 #include "logic/lists/IconList.h"
 #include "logic/lists/JavaVersionList.h"
+#include "logic/lists/QuickModsList.h"
 
 #include "logic/net/LoginTask.h"
 
@@ -83,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
 	setWindowTitle(QString("MultiMC %1").arg(MMC->version().toString()));
+	setAcceptDrops(true);
 
 	// Set the selected instance to null
 	m_selectedInstance = nullptr;
@@ -252,6 +255,30 @@ void MainWindow::setCatBackground(bool enabled)
 	else
 	{
 		view->setStyleSheet(QString());
+	}
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+	if (event->mimeData()->hasUrls()) {
+		if (event->dropAction() == Qt::CopyAction) {
+			event->acceptProposedAction();
+		} else {
+			event->setDropAction(Qt::CopyAction);
+			event->accept();
+		}
+	}
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+	event->setDropAction(Qt::CopyAction);
+
+	if(event->mimeData()->hasUrls()) {
+		foreach (const QUrl& url, event->mimeData()->urls()) {
+			MMC->quickmodslist()->registerMod(url);
+		}
+		event->accept();
 	}
 }
 
@@ -881,6 +908,26 @@ void MainWindow::on_actionEditInstNotes_triggered()
 
 		linst->setNotes(noteedit.getText());
 	}
+}
+
+void MainWindow::on_actionAddQuickModFile_triggered()
+{
+	AddQuickModFileDialog dialog(this);
+	if (dialog.exec() == QDialog::Accepted) {
+		switch (dialog.type()) {
+		case AddQuickModFileDialog::FileName:
+			MMC->quickmodslist()->registerMod(dialog.fileName());
+			break;
+		case AddQuickModFileDialog::Url:
+			MMC->quickmodslist()->registerMod(dialog.url());
+			break;
+		}
+	}
+}
+
+void MainWindow::on_actionUpdateQuickModFiles_triggered()
+{
+	MMC->quickmodslist()->updateFiles();
 }
 
 void MainWindow::instanceEnded(BaseInstance *instance, int code, QProcess::ExitStatus status)

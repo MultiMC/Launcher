@@ -14,13 +14,12 @@
 #include "logic/lists/LwjglVersionList.h"
 #include "logic/lists/MinecraftVersionList.h"
 #include "logic/lists/ForgeVersionList.h"
+#include "logic/lists/QuickModsList.h"
 
 #include "logic/InstanceLauncher.h"
 #include "logic/net/HttpMetaCache.h"
 
 #include "logic/JavaUtils.h"
-
-#include "quickmod/QuickModHandler.h"
 
 #include "pathutils.h"
 #include "cmdutils.h"
@@ -46,11 +45,8 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 	std::cout << "MultiMC 5" << std::endl;
 	std::cout << "(c) 2013 MultiMC Contributors" << std::endl << std::endl;
 
-	bool handleQuickMod = QuickModHandler::shouldTakeOver(arguments());
-
 	// Commandline parsing
 	QHash<QString, QVariant> args;
-	if (!handleQuickMod)
 	{
 		Parser parser(FlagStyle::GNU, ArgumentStyle::SpaceAndEquals);
 
@@ -206,21 +202,17 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 	// launch instance, if that's what should be done
 	if (!args["launch"].isNull())
 	{
-		if (InstanceLauncher(args["launch"].toString()).launch() && exec())
+		if (InstanceLauncher(args["launch"].toString()).launch())
 			m_status = MultiMC::Succeeded;
 		else
 			m_status = MultiMC::Failed;
 		return;
 	}
 
-	if (handleQuickMod)
-	{
-		m_status = MultiMC::QuickModHandling;
-	}
-	else
-	{
-		m_status = MultiMC::Initialized;
-	}
+	m_quickmodslist.reset(new QuickModsList(this));
+	// TODO cmd line arguments for accessing the quickmodslist
+
+	m_status = MultiMC::Initialized;
 }
 
 MultiMC::~MultiMC()
@@ -408,14 +400,20 @@ std::shared_ptr<JavaVersionList> MultiMC::javalist()
 	return m_javalist;
 }
 
-void MultiMC::main_gui()
+std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
+{
+	return m_quickmodslist;
+}
+
+int main_gui(MultiMC &app)
 {
 	// show main window
-	MainWindow* mainWin = new MainWindow;
-	mainWin->restoreState(QByteArray::fromBase64(MMC->settings()->get("MainWindowState").toByteArray()));
-	mainWin->restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("MainWindowGeometry").toByteArray()));
-	mainWin->show();
-	mainWin->checkSetDefaultJava();
+	MainWindow mainWin;
+	mainWin.restoreState(QByteArray::fromBase64(MMC->settings()->get("MainWindowState").toByteArray()));
+	mainWin.restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("MainWindowGeometry").toByteArray()));
+	mainWin.show();
+	mainWin.checkSetDefaultJava();
+	return app.exec();
 }
 
 int main(int argc, char *argv[])
@@ -426,17 +424,12 @@ int main(int argc, char *argv[])
 	switch (app.status())
 	{
 	case MultiMC::Initialized:
-		app.main_gui();
-		break;
+		return main_gui(app);
 	case MultiMC::Failed:
 		return 1;
 	case MultiMC::Succeeded:
 		return 0;
-	case MultiMC::QuickModHandling:
-		new QuickModHandler(app.arguments(), &app);
-		break;
 	}
-	return app.exec();
 }
 
 #include "MultiMC.moc"

@@ -32,8 +32,6 @@ public:
 		FinishPageId
 	};
 
-	static bool shouldTakeOver(const QStringList& arguments);
-
 private:
 	QWizard* m_wizard;
 	WelcomePage* m_welcomePage;
