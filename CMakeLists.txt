@@ -339,6 +339,8 @@ quickmod/QuickModFile.h
 quickmod/QuickModFile.cpp
 quickmod/IconDownloader.h
 quickmod/IconDownloader.cpp
+quickmod/QuickModDependancyResolver.h
+quickmod/QuickModDependancyResolver.cpp
 
 )
 

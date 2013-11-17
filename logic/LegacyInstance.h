@@ -88,7 +88,7 @@ public:
 	virtual QString defaultCustomBaseJar() const;
 
 	bool menuActionEnabled(QString action_name) const;
-	virtual QString getStatusbarDescription();
+    virtual QString getStatusbarDescription();
 
 protected
 slots:

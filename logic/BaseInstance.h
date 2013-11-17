@@ -23,6 +23,7 @@
 #include "inifile.h"
 #include "lists/BaseVersionList.h"
 #include "net/LoginTask.h"
+#include "Mod.h"
 
 class QDialog;
 class BaseUpdate;
@@ -169,7 +170,7 @@ public:
 	virtual QString getStatusbarDescription() = 0;
 
 	/// FIXME: this really should be elsewhere...
-	virtual QString instanceConfigFolder() const = 0;
+    virtual QString instanceConfigFolder() const = 0;
 
 signals:
 	/*!
