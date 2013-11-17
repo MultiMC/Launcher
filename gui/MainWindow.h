@@ -102,6 +102,10 @@ slots:
 
 	void on_actionEditInstNotes_triggered();
 
+	void on_actionAddQuickModFile_triggered();
+
+	void on_actionUpdateQuickModFiles_triggered();
+
 	void doLogin(const QString &errorMsg = "");
 	void doLogin(QString username, QString password);
 	void doAutoLogin();
@@ -141,6 +145,9 @@ slots:
 protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
 	void setCatBackground(bool enabled);
+
+	void dragEnterEvent(QDragEnterEvent* event);
+	void dropEvent(QDropEvent* event);
 
 private:
 	Ui::MainWindow *ui;

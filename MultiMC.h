@@ -17,6 +17,7 @@ class IconList;
 class QNetworkAccessManager;
 class ForgeVersionList;
 class JavaVersionList;
+class QuickModsList;
 
 #if defined(MMC)
 #undef MMC
@@ -40,8 +41,7 @@ public:
 	{
 		Failed,
 		Succeeded,
-		Initialized,
-		QuickModHandling
+		Initialized
 	};
 
 public:
@@ -88,8 +88,7 @@ public:
 
 	std::shared_ptr<JavaVersionList> javalist();
 
-public slots:
-	void main_gui();
+	std::shared_ptr<QuickModsList> quickmodslist();
 
 private:
 	void initLogger();
@@ -112,6 +111,7 @@ private:
 	std::shared_ptr<ForgeVersionList> m_forgelist;
 	std::shared_ptr<MinecraftVersionList> m_minecraftlist;
 	std::shared_ptr<JavaVersionList> m_javalist;
+	std::shared_ptr<QuickModsList> m_quickmodslist;
 	QsLogging::DestinationPtr m_fileDestination;
 	QsLogging::DestinationPtr m_debugDestination;
 

@@ -640,7 +640,7 @@ public:
 		} else if (m_launchInstanceBox->isChecked()) {
 			InstanceLauncher(field("instanceId").toString()).launch();
 		} else if (m_launchMMCBox->isChecked()) {
-			MMC->main_gui();
+			//MMC->main_gui();
 		}
 		wizard()->close();
 		return true;
@@ -692,19 +692,6 @@ QuickModHandler::QuickModHandler(const QStringList& arguments, QObject *parent) 
 	connect(m_wizard, SIGNAL(rejected()), qApp, SLOT(quit()));
 
 	m_wizard->showMaximized();
-}
-
-bool QuickModHandler::shouldTakeOver(const QStringList &arguments)
-{
-	if (arguments.size() > 1)
-	{
-		QFileInfo file(arguments[1]);
-		if (file.exists())
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 #include "QuickModHandler.moc"
