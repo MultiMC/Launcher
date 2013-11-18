@@ -51,6 +51,20 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Download/Add QuickMod</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>Update QuickMods</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="installButton">
        <property name="text">
         <string>Install</string>

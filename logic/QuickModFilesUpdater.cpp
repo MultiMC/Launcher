@@ -59,11 +59,11 @@ void QuickModFilesUpdater::receivedMod(int notused)
 
 void QuickModFilesUpdater::get(const QUrl &url)
 {
-	auto job = new NetJob("QuickMod download: " + url.toString());
+    auto job = new NetJob("QuickMod download: " + url.toString());
 	auto download = ByteArrayDownload::make(url);
-	connect(&*download, SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
-	job->addNetAction(download);
-	job->start();
+    connect(&*download, SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
+    job->addNetAction(download);
+    job->start();
 }
 
 void QuickModFilesUpdater::readModFiles()
