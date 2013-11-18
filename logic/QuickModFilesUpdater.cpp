@@ -5,6 +5,7 @@
 
 #include "logic/lists/QuickModsList.h"
 #include "logic/net/ByteArrayDownload.h"
+#include "logic/net/NetJob.h"
 
 #include "logger/QsLog.h"
 
@@ -31,9 +32,9 @@ void QuickModFilesUpdater::update()
 	}
 }
 
-void QuickModFilesUpdater::receivedMod()
+void QuickModFilesUpdater::receivedMod(int notused)
 {
-	ByteArrayDownload *download = qobject_cast<ByteArrayDownload *>(sender());
+	ByteArrayDownload *download = qobject_cast<ByteArrayDownload*>(sender());
 	QuickMod *mod = new QuickMod;
 	QString errorMessage;
 	mod->parse(download->m_data, &errorMessage);
@@ -58,9 +59,11 @@ void QuickModFilesUpdater::receivedMod()
 
 void QuickModFilesUpdater::get(const QUrl &url)
 {
-	ByteArrayDownload *download = new ByteArrayDownload(url);
-	connect(download, &ByteArrayDownload::succeeded, this, &QuickModFilesUpdater::receivedMod);
-	download->start();
+	auto job = new NetJob("QuickMod download: " + url.toString());
+	auto download = ByteArrayDownload::make(url);
+	connect(&*download, SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
+	job->addNetAction(download);
+	job->start();
 }
 
 void QuickModFilesUpdater::readModFiles()
@@ -74,7 +77,7 @@ void QuickModFilesUpdater::readModFiles()
 		{
 			QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
 			emit error(tr("Error opening %1 for reading: %2")
-						   .arg(file.fileName(), file.errorString()));
+							.arg(file.fileName(), file.errorString()));
 		}
 
 		QuickMod *mod = new QuickMod;
