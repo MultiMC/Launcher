@@ -43,6 +43,12 @@ protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 	{
 		const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+
+		if (index.data(QuickModsList::IsStubRole).toBool())
+		{
+			return false;
+		}
+
 		if (!m_tag.isNull())
 		{
 			if (!index.data(QuickModsList::TagsRole).toStringList().contains(m_tag))

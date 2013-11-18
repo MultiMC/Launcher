@@ -11,10 +11,11 @@
 #include "logic/net/CacheDownload.h"
 #include "logic/net/NetJob.h"
 #include "logic/QuickModFilesUpdater.h"
+#include "logic/Mod.h"
 #include "MultiMC.h"
 #include "depends/groupview/include/categorizedsortfilterproxymodel.h"
 
-QuickMod::QuickMod(QObject *parent) : QObject(parent)
+QuickMod::QuickMod(QObject *parent) : QObject(parent), m_stub(false)
 {
 }
 
@@ -44,6 +45,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	JSON_ASSERT_X(error.error == QJsonParseError::NoError, error.errorString());
 	JSON_ASSERT(doc.isObject());
 	QJsonObject mod = doc.object();
+	m_stub = mod.value("stub").toBool(false);
 	m_name = mod.value("name").toString();
 	m_description = mod.value("description").toString();
 	m_nemName = mod.value("nemName").toString();
@@ -136,12 +138,18 @@ void QuickMod::logoDownloadFinished(int index)
 void QuickMod::fetchImages()
 {
 	auto job = new NetJob("QuickMod image download: " + m_iconUrl.toString() + " and " + m_logoUrl.toString());
-	auto icon = CacheDownload::make(m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
-	connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
-	auto logo = CacheDownload::make(m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
-	connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
-	job->addNetAction(icon);
-	job->addNetAction(logo);
+	if (m_iconUrl.isValid())
+	{
+		auto icon = CacheDownload::make(m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
+		connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
+		job->addNetAction(icon);
+	}
+	if (m_logoUrl.isValid())
+	{
+		auto logo = CacheDownload::make(m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
+		connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
+		job->addNetAction(logo);
+	}
 	job->start();
 }
 
@@ -157,6 +165,7 @@ QuickModsList::QuickModsList(QObject *parent)
 {
 	connect(this, &QuickModsList::registerModFile, m_updater, &QuickModFilesUpdater::registerFile);
 	connect(this, &QuickModsList::updateModFiles, m_updater, &QuickModFilesUpdater::update);
+	connect(this, &QuickModsList::ensureModFileExists, m_updater, &QuickModFilesUpdater::ensureExists);
 	connect(m_updater, &QuickModFilesUpdater::addedMod, this, &QuickModsList::addMod);
 	connect(m_updater, &QuickModFilesUpdater::clearMods, this, &QuickModsList::clearMods);
 }
@@ -236,10 +245,11 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return QVariant::fromValue(mod->versions());
 	case QuickModRole:
 		return QVariant::fromValue(mod);
+	case IsStubRole:
+		return mod->isStub();
 	case KCategorizedSortFilterProxyModel::CategoryDisplayRole:
 	case KCategorizedSortFilterProxyModel::CategorySortRole:
-		return mod->categories().first(); // the first category is seen as the "primary"
-										  // category
+		return mod->categories().isEmpty() ? "" : mod->categories().first(); // the first category is seen as the "primary" category
 	}
 
 	return QVariant();
@@ -287,6 +297,11 @@ Qt::DropActions QuickModsList::supportedDropActions() const
 Qt::DropActions QuickModsList::supportedDragActions() const
 {
 	return 0;
+}
+
+void QuickModsList::ensureModExists(const Mod &mod)
+{
+	emit ensureModFileExists(mod);
 }
 
 void QuickModsList::registerMod(const QString &fileName)

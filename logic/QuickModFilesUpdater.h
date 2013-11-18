@@ -5,6 +5,7 @@
 
 class QuickMod;
 class QuickModsList;
+class Mod;
 
 /**
  * Takes care of regulary checking for updates to quickmod files, and is also responsible for
@@ -23,6 +24,7 @@ public
 slots:
 	void registerFile(const QUrl &url);
 	void update();
+	void ensureExists(const Mod &mod);
 
 signals:
 	void clearMods();
@@ -39,6 +41,9 @@ slots:
 private:
 	QuickModsList *m_list;
 	QDir m_quickmodDir;
+
+	void saveQuickMod(const QuickMod *mod);
+	bool parseQuickMod(const QString &fileName, QuickMod *mod);
 
 	static QString fileName(const QuickMod *mod);
 };

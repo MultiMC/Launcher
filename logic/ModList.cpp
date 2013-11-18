@@ -22,6 +22,9 @@
 #include <QFileSystemWatcher>
 #include "logger/QsLog.h"
 
+#include "lists/QuickModsList.h"
+#include "MultiMC.h"
+
 ModList::ModList(const QString &dir, const QString &list_file)
 	: QAbstractListModel(), m_dir(dir), m_list_file(list_file)
 {
@@ -100,6 +103,10 @@ bool ModList::update()
 				break;
 			}
 		}
+	for (auto mod : newMods)
+	{
+		MMC->quickmodslist()->ensureModExists(mod);
+	}
 	beginResetModel();
 	mods.swap(newMods);
 	endResetModel();
@@ -173,6 +180,8 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	Mod m(filename);
 	if (!m.valid())
 		return false;
+
+	MMC->quickmodslist()->ensureModExists(m);
 
 	// if it's already there, replace the original mod (in place)
 	int idx = mods.indexOf(m);

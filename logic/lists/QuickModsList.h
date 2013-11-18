@@ -7,6 +7,7 @@
 #include <QPixmap>
 
 class QuickModFilesUpdater;
+class Mod;
 
 class QuickMod : public QObject
 {
@@ -51,6 +52,7 @@ public:
 	QStringList tags() const { return m_tags; }
 	ModType type() const { return m_type; }
 	QList<Version> versions() const { return m_versions; }
+	bool isStub() const { return m_stub; }
 
 	int numVersions() const { return m_versions.size(); }
 	Version version(const int index) const { return m_versions.at(index); }
@@ -69,6 +71,7 @@ slots:
 	void logoDownloadFinished(int index);
 
 private:
+	friend class QuickModFilesUpdater;
 	QString m_name;
 	QString m_description;
 	QUrl m_websiteUrl;
@@ -85,6 +88,7 @@ private:
 	QStringList m_tags;
 	ModType m_type;
 	QList<Version> m_versions;
+	bool m_stub;
 
 	void fetchImages();
 	QString fileName(const QUrl& url) const;
@@ -114,7 +118,8 @@ public:
 		TagsRole,
 		TypeRole,
 		VersionsRole,
-		QuickModRole
+		QuickModRole,
+		IsStubRole
 	};
 	QHash<int, QByteArray> roleNames() const;
 
@@ -133,6 +138,8 @@ public:
 	int numMods() const { return m_mods.size(); }
 	QuickMod *modAt(const int index) const { return m_mods[index]; }
 
+	void ensureModExists(const Mod &mod);
+
 public
 slots:
 	void registerMod(const QString &fileName);
@@ -142,8 +149,10 @@ slots:
 
 private
 slots:
+	// begin QuickModFilesUpdater
 	void addMod(QuickMod *mod);
 	void clearMods();
+	// end
 	void removeMod(QuickMod *mod);
 
 	void modIconUpdated();
@@ -151,8 +160,12 @@ slots:
 
 signals:
 	void modAdded(QuickMod *mod);
+
+	// begin QuickModFilesUpdater
 	void registerModFile(const QUrl &url);
 	void updateModFiles();
+	void ensureModFileExists(const Mod &mod);
+	// end
 
 private:
 	QuickModFilesUpdater *m_updater;

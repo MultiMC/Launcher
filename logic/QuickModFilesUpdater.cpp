@@ -3,9 +3,13 @@
 #include <QFile>
 #include <QTimer>
 
+#include <QJsonDocument>
+#include <QJsonObject>
+
 #include "logic/lists/QuickModsList.h"
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
+#include "logic/Mod.h"
 
 #include "logger/QsLog.h"
 
@@ -28,7 +32,49 @@ void QuickModFilesUpdater::update()
 {
 	for (int i = 0; i < m_list->numMods(); ++i)
 	{
-		get(m_list->modAt(i)->updateUrl());
+		auto url = m_list->modAt(i)->updateUrl();
+		if (url.isValid())
+		{
+			get(url);
+		}
+	}
+}
+
+void QuickModFilesUpdater::ensureExists(const Mod &mod)
+{
+	auto qMod = new QuickMod;
+	qMod->m_name = mod.name();
+	qMod->m_modId = mod.id();
+	qMod->m_websiteUrl = QUrl(mod.homeurl());
+	qMod->m_description = mod.description();
+	qMod->m_stub = true;
+	if (mod.filename().path().contains("coremod"))
+	{
+		qMod->m_type = QuickMod::ForgeCoreMod;
+	}
+	else
+	{
+		qMod->m_type = QuickMod::ForgeMod;
+	}
+
+	QFileInfo modFile(m_quickmodDir.absoluteFilePath(fileName(qMod)));
+	// we save a new file if: there isn't an old one OR it's not parseable OR it's a stub to
+	if (!modFile.exists())
+	{
+		saveQuickMod(qMod);
+	}
+	else
+	{
+		auto oldMod = new QuickMod;
+		if (!parseQuickMod(modFile.absoluteFilePath(), oldMod))
+		{
+			saveQuickMod(qMod);
+		}
+		else if (oldMod->isStub())
+		{
+			saveQuickMod(qMod);
+		}
+
 	}
 }
 
@@ -45,8 +91,10 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	}
 	emit addedMod(mod);
 
+	m_quickmodDir.remove(fileName(mod));
+
 	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
-	if (!file.open(QFile::WriteOnly | QFile::Truncate))
+	if (!file.open(QFile::WriteOnly))
 	{
 		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
 		emit error(
@@ -72,25 +120,48 @@ void QuickModFilesUpdater::readModFiles()
 	foreach(const QFileInfo& info,
 			m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
 	{
-		QFile file(info.filePath());
-		if (!file.open(QFile::ReadOnly))
+		auto mod = new QuickMod;
+		if (parseQuickMod(info.absoluteFilePath(), mod))
 		{
-			QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
-			emit error(tr("Error opening %1 for reading: %2")
-							.arg(file.fileName(), file.errorString()));
+			emit addedMod(mod);
 		}
-
-		QuickMod *mod = new QuickMod;
-		QString errorMessage;
-		mod->parse(file.readAll(), &errorMessage);
-		if (!errorMessage.isNull())
-		{
-			emit error(tr("QuickMod parse error: %1").arg(errorMessage));
-			return;
-		}
-
-		emit addedMod(mod);
 	}
+}
+
+void QuickModFilesUpdater::saveQuickMod(const QuickMod *mod)
+{
+	QJsonObject obj;
+	obj.insert("name", mod->name());
+	obj.insert("modId", mod->modId());
+	obj.insert("websiteUrl", mod->websiteUrl().toString());
+	obj.insert("description", mod->description());
+	obj.insert("stub", mod->isStub());
+	switch (mod->type())
+	{
+	case QuickMod::ForgeMod:
+		obj.insert("type", QStringLiteral("forgeMod"));
+		break;
+	case QuickMod::ForgeCoreMod:
+		obj.insert("type", QStringLiteral("forgeCoreMod"));
+		break;
+	case QuickMod::ResourcePack:
+		obj.insert("type", QStringLiteral("resourcepack"));
+		break;
+	case QuickMod::ConfigPack:
+		obj.insert("type", QStringLiteral("configpack"));
+		break;
+	}
+
+	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
+	if (!file.open(QFile::WriteOnly | QFile::Truncate))
+	{
+		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
+		emit error(
+			tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
+		return;
+	}
+	file.write(QJsonDocument(obj).toJson());
+	file.close();
 }
 
 QString QuickModFilesUpdater::fileName(const QuickMod *mod)
@@ -103,4 +174,27 @@ QString QuickModFilesUpdater::fileName(const QuickMod *mod)
 	{
 		return QString("mod_%1_quickmod.json").arg(mod->modId());
 	}
+}
+
+bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickMod *mod)
+{
+	QLOG_INFO() << "Saving the QuickMod file" << fileName;
+	QFile file(fileName);
+	if (!file.open(QFile::ReadOnly))
+	{
+		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
+		emit error(tr("Error opening %1 for reading: %2")
+				   .arg(file.fileName(), file.errorString()));
+		return false;
+	}
+
+	QString errorMessage;
+	mod->parse(file.readAll(), &errorMessage);
+	if (!errorMessage.isNull())
+	{
+		emit error(tr("QuickMod parse error: %1").arg(errorMessage));
+		return false;
+	}
+
+	return true;
 }
