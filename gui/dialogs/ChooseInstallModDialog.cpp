@@ -113,15 +113,24 @@ void ChooseInstallModDialog::on_installButton_clicked()
     QList<QuickMod*> modsList;
 
     modsList.append(choosenMod);
-    DownloadProgressDialog dialog(choosenMod->dependentUrls().count(), this);
-    connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod*)), &dialog, SLOT(ModAdded(QuickMod*)));
-    for(auto url : choosenMod->dependentUrls())
+    dialog = new DownloadProgressDialog(choosenMod->dependentUrls().count(), this);
+    connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod*)), dialog, SLOT(ModAdded(QuickMod*)));
+    connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod*)), this, SLOT(resolveSingleMod(QuickMod*)));
+    resolveSingleMod(choosenMod);
+    dialog->exec();
+    delete dialog;
+    disconnect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod*)), this, SLOT(resolveSingleMod(QuickMod*)));
+    modsList.append(dialog->mods());
+}
+void ChooseInstallModDialog::resolveSingleMod(QuickMod *mod)
+{
+    for(auto url : mod->dependentUrls())
     {
         MMC->quickmodslist()->registerMod(url);
+        dialog->registerNewMod();
     }
-    dialog.exec();
-    modsList.append(dialog.mods());
 }
+
 void ChooseInstallModDialog::on_cancelButton_clicked()
 {
     reject();
@@ -176,7 +185,7 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 
 #include "ChooseInstallModDialog.moc"
 
-void ChooseInstallModDialog::on_pushButton_clicked()
+void ChooseInstallModDialog::on_addButton_clicked()
 {
     AddQuickModFileDialog dialog(this);
     if (dialog.exec() == QDialog::Accepted) {
@@ -191,7 +200,7 @@ void ChooseInstallModDialog::on_pushButton_clicked()
     }
 }
 
-void ChooseInstallModDialog::on_pushButton_2_clicked()
+void ChooseInstallModDialog::on_updateButton_clicked()
 {
     MMC->quickmodslist()->updateFiles();
 }

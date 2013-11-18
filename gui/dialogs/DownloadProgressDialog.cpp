@@ -15,7 +15,7 @@ DownloadProgressDialog::~DownloadProgressDialog()
     delete ui;
 }
 
-void DownloadProgressDialog::ModAdded(QuickMod *mod)
+void DownloadProgressDialog::modAdded(QuickMod *mod)
 {
     m_downloadedmods.append(mod);
     if(ui->progressBar->value() +1 == m_modcount)
@@ -28,4 +28,9 @@ void DownloadProgressDialog::ModAdded(QuickMod *mod)
 QList<QuickMod*> DownloadProgressDialog::mods()
 {
     return m_downloadedmods;
+}
+
+void DownloadProgressDialog::registerNewMod()
+{
+    m_modcount++;
 }

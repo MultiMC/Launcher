@@ -16,9 +16,10 @@ public:
     explicit DownloadProgressDialog(int modcount, QWidget *parent = 0);
     ~DownloadProgressDialog();
     QList<QuickMod*> mods();
+    void registerNewMod();
 
 public slots:
-    void ModAdded(QuickMod *mod);
+    void modAdded(QuickMod *mod);
 
 private:
     Ui::DownloadProgressDialog *ui;
