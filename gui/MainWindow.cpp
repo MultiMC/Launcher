@@ -183,6 +183,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		{
 			MMC->lwjgllist()->loadList();
 		}
+
 		assets_downloader = new OneSixAssets();
 		connect(assets_downloader, SIGNAL(indexStarted()), SLOT(assetsIndexStarted()));
 		connect(assets_downloader, SIGNAL(filesStarted()), SLOT(assetsFilesStarted()));
