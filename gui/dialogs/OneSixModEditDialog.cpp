@@ -30,6 +30,7 @@
 #include "gui/Platform.h"
 #include "gui/dialogs/CustomMessageBox.h"
 #include "gui/dialogs/VersionSelectDialog.h"
+#include "gui/dialogs/ChooseInstallModDialog.h"
 
 #include "gui/dialogs/ProgressDialog.h"
 
@@ -276,6 +277,11 @@ void OneSixModEditDialog::on_rmModBtn_clicked()
 	m_mods->stopWatching();
 	m_mods->deleteMods(first, last);
 	m_mods->startWatching();
+}
+void OneSixModEditDialog::on_installModBtn_clicked()
+{
+	ChooseInstallModDialog dialog(this);
+	dialog.exec();
 }
 void OneSixModEditDialog::on_viewModBtn_clicked()
 {

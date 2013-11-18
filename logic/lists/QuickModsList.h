@@ -3,6 +3,8 @@
 #include <QAbstractListModel>
 #include <QUrl>
 #include <QStringList>
+#include <QIcon>
+#include <QPixmap>
 
 class QuickModFilesUpdater;
 
@@ -37,6 +39,9 @@ public:
 	QString description() const { return m_description; }
 	QUrl websiteUrl() const { return m_websiteUrl; }
 	QUrl iconUrl() const { return m_iconUrl; }
+	QIcon icon() const { return m_icon; }
+	QUrl logoUrl() const { return m_logoUrl; }
+	QPixmap logo() const { return m_logo; }
 	QUrl updateUrl() const { return m_updateUrl; }
 	QList<QUrl> recommendedUrls() const { return m_recommendedUrls; }
 	QList<QUrl> dependentUrls() const { return m_dependentUrls; }
@@ -54,11 +59,23 @@ public:
 
 	bool compare(const QuickMod *other) const;
 
+signals:
+	void iconUpdated();
+	void logoUpdated();
+
+private
+slots:
+	void iconDownloadFinished(int index);
+	void logoDownloadFinished(int index);
+
 private:
 	QString m_name;
 	QString m_description;
 	QUrl m_websiteUrl;
 	QUrl m_iconUrl;
+	QIcon m_icon;
+	QUrl m_logoUrl;
+	QPixmap m_logo;
 	QUrl m_updateUrl;
 	QList<QUrl> m_recommendedUrls;
 	QList<QUrl> m_dependentUrls;
@@ -68,6 +85,9 @@ private:
 	QStringList m_tags;
 	ModType m_type;
 	QList<Version> m_versions;
+
+	void fetchImages();
+	QString fileName(const QUrl& url) const;
 };
 Q_DECLARE_METATYPE(QuickMod*)
 Q_DECLARE_METATYPE(QuickMod::Version)
@@ -93,7 +113,8 @@ public:
 		CategoriesRole,
 		TagsRole,
 		TypeRole,
-		VersionsRole
+		VersionsRole,
+		QuickModRole
 	};
 	QHash<int, QByteArray> roleNames() const;
 
@@ -124,6 +145,9 @@ slots:
 	void addMod(QuickMod *mod);
 	void clearMods();
 	void removeMod(QuickMod *mod);
+
+	void modIconUpdated();
+	void modLogoUpdated();
 
 signals:
 	void registerModFile(const QUrl &url);

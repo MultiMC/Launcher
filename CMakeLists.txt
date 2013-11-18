@@ -218,6 +218,8 @@ gui/dialogs/CustomMessageBox.h
 gui/dialogs/CustomMessageBox.cpp
 gui/dialogs/AddQuickModFileDialog.h
 gui/dialogs/AddQuickModFileDialog.cpp
+gui/dialogs/ChooseInstallModDialog.h
+gui/dialogs/ChooseInstallModDialog.cpp
 
 # GUI - widgets
 gui/widgets/InstanceDelegate.h
@@ -228,6 +230,8 @@ gui/widgets/LabeledToolButton.h
 gui/widgets/LabeledToolButton.cpp
 gui/widgets/MCModInfoFrame.h
 gui/widgets/MCModInfoFrame.cpp
+gui/widgets/WebDownloadNavigator.h
+gui/widgets/WebDownloadNavigator.cpp
 
 # Base classes and infrastructure
 logic/BaseVersion.h
@@ -372,6 +376,7 @@ gui/dialogs/LegacyModEditDialog.ui
 gui/dialogs/OneSixModEditDialog.ui
 gui/dialogs/EditNotesDialog.ui
 gui/dialogs/AddQuickModFileDialog.ui
+gui/dialogs/ChooseInstallModDialog.ui
 
 # Widgets/other
 gui/widgets/MCModInfoFrame.ui

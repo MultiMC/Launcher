@@ -352,6 +352,8 @@ void MultiMC::initHttpMetaCache()
 	m_metacache->addBase("libraries", QDir("libraries").absolutePath());
 	m_metacache->addBase("minecraftforge", QDir("mods/minecraftforge").absolutePath());
 	m_metacache->addBase("skins", QDir("accounts/skins").absolutePath());
+	m_metacache->addBase("quickmod/icons", QDir("quickmod/images/icons").absolutePath());
+	m_metacache->addBase("quickmod/logos", QDir("quickmod/images/logos").absolutePath());
 	m_metacache->Load();
 }
 

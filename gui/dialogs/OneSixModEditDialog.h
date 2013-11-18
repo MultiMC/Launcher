@@ -36,6 +36,7 @@ private
 slots:
 	void on_addModBtn_clicked();
 	void on_rmModBtn_clicked();
+	void on_installModBtn_clicked();
 	void on_viewModBtn_clicked();
 
 	void on_addResPackBtn_clicked();

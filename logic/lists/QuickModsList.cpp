@@ -8,7 +8,10 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include "logic/net/CacheDownload.h"
+#include "logic/net/NetJob.h"
 #include "logic/QuickModFilesUpdater.h"
+#include "MultiMC.h"
 #include "depends/groupview/include/categorizedsortfilterproxymodel.h"
 
 QuickMod::QuickMod(QObject *parent) : QObject(parent)
@@ -47,6 +50,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	m_modId = mod.value("modId").toString();
 	m_websiteUrl = QUrl(mod.value("websiteUrl").toString());
 	m_iconUrl = QUrl(mod.value("iconUrl").toString());
+	m_logoUrl = QUrl(mod.value("logoUrl").toString());
 	m_updateUrl = QUrl(mod.value("updateUrl").toString());
 	m_recommendedUrls.clear();
 	foreach(const QJsonValue& val, mod.value("recommends").toArray())
@@ -103,6 +107,8 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 			version.compatibleVersions.append(val.toString());
 		}
 	}
+
+	fetchImages();
 }
 #undef MALFORMED_JSON_X
 #undef MALFORMED_JSON
@@ -112,6 +118,38 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 bool QuickMod::compare(const QuickMod *other) const
 {
 	return m_name == other->name();
+}
+
+void QuickMod::iconDownloadFinished(int index)
+{
+	auto download = qobject_cast<CacheDownload*>(sender());
+	m_icon = QIcon(download->m_target_path);
+	emit iconUpdated();
+}
+void QuickMod::logoDownloadFinished(int index)
+{
+	auto download = qobject_cast<CacheDownload*>(sender());
+	m_logo = QPixmap(download->m_target_path);
+	emit logoUpdated();
+}
+
+void QuickMod::fetchImages()
+{
+	auto job = new NetJob("QuickMod image download: " + m_iconUrl.toString() + " and " + m_logoUrl.toString());
+	auto icon = CacheDownload::make(m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
+	connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
+	auto logo = CacheDownload::make(m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
+	connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
+	job->addNetAction(icon);
+	job->addNetAction(logo);
+	job->start();
+}
+
+QString QuickMod::fileName(const QUrl &url) const
+{
+	const QString path = url.path();
+	// TODO what if we don't have a mod id? (non-forge mod)
+	return m_modId + path.mid(path.lastIndexOf("."));
 }
 
 QuickModsList::QuickModsList(QObject *parent)
@@ -165,7 +203,7 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 	case Qt::DisplayRole:
 		return mod->name();
 	case Qt::DecorationRole:
-		return QIcon(); // TODO we've got an url, now what?
+		return mod->icon();
 	case Qt::ToolTipRole:
 		return mod->description();
 	case NameRole:
@@ -175,9 +213,9 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 	case WebsiteRole:
 		return mod->websiteUrl();
 	case IconRole:
-		return QIcon(); // TODO we've got an url, now what?
+		return mod->icon();
 	case LogoRole:
-		return QIcon(); // TODO we've got an url, now what?
+		return mod->logo();
 	case UpdateRole:
 		return mod->updateUrl();
 	case RecommendedUrlsRole:
@@ -196,6 +234,8 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return mod->type();
 	case VersionsRole:
 		return QVariant::fromValue(mod->versions());
+	case QuickModRole:
+		return QVariant::fromValue(mod);
 	case KCategorizedSortFilterProxyModel::CategoryDisplayRole:
 	case KCategorizedSortFilterProxyModel::CategorySortRole:
 		return mod->categories().first(); // the first category is seen as the "primary"
@@ -265,10 +305,15 @@ void QuickModsList::updateFiles()
 
 void QuickModsList::addMod(QuickMod *mod)
 {
+	connect(mod, &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
+	connect(mod, &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
+
 	for (int i = 0; i < m_mods.size(); ++i)
 	{
 		if (m_mods.at(i)->compare(mod))
 		{
+			disconnect(m_mods.at(i), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
+			disconnect(m_mods.at(i), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 			m_mods.replace(i, mod);
 			return;
 		}
@@ -278,7 +323,6 @@ void QuickModsList::addMod(QuickMod *mod)
 	m_mods.prepend(mod);
 	endInsertRows();
 }
-
 void QuickModsList::clearMods()
 {
 	beginResetModel();
@@ -286,7 +330,6 @@ void QuickModsList::clearMods()
 	m_mods.clear();
 	endResetModel();
 }
-
 void QuickModsList::removeMod(QuickMod *mod)
 {
 	if (!m_mods.contains(mod))
@@ -294,7 +337,23 @@ void QuickModsList::removeMod(QuickMod *mod)
 		return;
 	}
 
+	disconnect(mod, &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
+	disconnect(mod, &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
+
 	beginRemoveRows(QModelIndex(), m_mods.indexOf(mod), m_mods.indexOf(mod));
 	m_mods.takeAt(m_mods.indexOf(mod));
 	endRemoveRows();
+}
+
+void QuickModsList::modIconUpdated()
+{
+	auto mod = qobject_cast<QuickMod*>(sender());
+	auto modIndex = index(m_mods.indexOf(mod), 0);
+	emit dataChanged(modIndex, modIndex, QVector<int>() << Qt::DecorationRole << IconRole);
+}
+void QuickModsList::modLogoUpdated()
+{
+	auto mod = qobject_cast<QuickMod*>(sender());
+	auto modIndex = index(m_mods.indexOf(mod), 0);
+	emit dataChanged(modIndex, modIndex, QVector<int>() << LogoRole);
 }
