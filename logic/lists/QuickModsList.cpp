@@ -308,6 +308,8 @@ void QuickModsList::addMod(QuickMod *mod)
 	connect(mod, &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
 	connect(mod, &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 
+	emit modAdded(mod);
+
 	for (int i = 0; i < m_mods.size(); ++i)
 	{
 		if (m_mods.at(i)->compare(mod))
