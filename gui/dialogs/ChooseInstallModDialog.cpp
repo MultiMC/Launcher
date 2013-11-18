@@ -120,6 +120,7 @@ void ChooseInstallModDialog::on_installButton_clicked()
         MMC->quickmodslist()->registerMod(url);
     }
     dialog.exec();
+    modsList.append(dialog.mods());
 }
 void ChooseInstallModDialog::on_cancelButton_clicked()
 {
