@@ -1,5 +1,4 @@
-#ifndef CHOOSEINSTALLMODDIALOG_H
-#define CHOOSEINSTALLMODDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -34,5 +33,3 @@ private:
 	KCategorizedView *m_view;
 	ModFilterProxyModel* m_model;
 };
-
-#endif // CHOOSEINSTALLMODDIALOG_H

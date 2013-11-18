@@ -1,5 +1,4 @@
-#ifndef WEBDOWNLOADNAVIGATOR_H
-#define WEBDOWNLOADNAVIGATOR_H
+#pragma once
 
 #include <QWidget>
 #include <QStackedWidget>
@@ -41,6 +40,3 @@ private:
 	QWebView* m_view;
 	QProgressBar* m_bar;
 };
-
-
-#endif // WEBDOWNLOADNAVIGATOR_H
