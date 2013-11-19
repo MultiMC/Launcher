@@ -323,8 +323,6 @@ void QuickModsList::addMod(QuickMod *mod)
 	connect(mod, &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
 	connect(mod, &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 
-	emit modAdded(mod);
-
 	for (int i = 0; i < m_mods.size(); ++i)
 	{
 		if (m_mods.at(i)->compare(mod))
@@ -332,6 +330,8 @@ void QuickModsList::addMod(QuickMod *mod)
 			disconnect(m_mods.at(i), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
 			disconnect(m_mods.at(i), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 			m_mods.replace(i, mod);
+			emit modAdded(mod);
+			emit modsListChanged();
 			return;
 		}
 	}
@@ -339,6 +339,9 @@ void QuickModsList::addMod(QuickMod *mod)
 	beginInsertRows(QModelIndex(), 0, 0);
 	m_mods.prepend(mod);
 	endInsertRows();
+
+	emit modAdded(mod);
+	emit modsListChanged();
 }
 void QuickModsList::clearMods()
 {
@@ -346,6 +349,8 @@ void QuickModsList::clearMods()
 	qDeleteAll(m_mods);
 	m_mods.clear();
 	endResetModel();
+
+	emit modsListChanged();
 }
 void QuickModsList::removeMod(QuickMod *mod)
 {
@@ -360,6 +365,8 @@ void QuickModsList::removeMod(QuickMod *mod)
 	beginRemoveRows(QModelIndex(), m_mods.indexOf(mod), m_mods.indexOf(mod));
 	m_mods.takeAt(m_mods.indexOf(mod));
 	endRemoveRows();
+
+	emit modsListChanged();
 }
 
 void QuickModsList::modIconUpdated()

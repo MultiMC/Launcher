@@ -160,6 +160,7 @@ slots:
 
 signals:
 	void modAdded(QuickMod *mod);
+	void modsListChanged();
 
 	// begin QuickModFilesUpdater
 	void registerModFile(const QUrl &url);

@@ -25,7 +25,11 @@ slots:
 	void on_categoriesLabel_linkActivated(const QString &link);
 	void on_tagsLabel_linkActivated(const QString &link);
 	void on_fulltextEdit_textChanged();
+	void on_tagsEdit_textChanged();
+	void on_categoryBox_currentTextChanged();
 	void modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+
+	void setupCategoryBox();
 
 private:
 	Ui::ChooseInstallModDialog *ui;

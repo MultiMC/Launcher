@@ -12,6 +12,31 @@
 
 #include "MultiMC.h"
 
+template<typename T>
+bool intersectLists(const QList<T> &l1, const QList<T> &l2)
+{
+	foreach (const T& item, l1)
+	{
+		if (!l2.contains(item))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+bool listContainsSubstring(const QStringList& list, const QString& str)
+{
+	foreach (const QString& item, list)
+	{
+		if (item.contains(str))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 class ModFilterProxyModel : public KCategorizedSortFilterProxyModel
 {
 	Q_OBJECT
@@ -21,15 +46,13 @@ public:
 		setCategorizedModel(true);
 	}
 
-	void setTag(const QString& tag)
+	void setTags(const QStringList& tags)
 	{
-		m_tag = tag;
-		m_category = QString();
+		m_tags = tags;
 		invalidateFilter();
 	}
 	void setCategory(const QString& category)
 	{
-		m_tag = QString();
 		m_category = category;
 		invalidateFilter();
 	}
@@ -49,16 +72,16 @@ protected:
 			return false;
 		}
 
-		if (!m_tag.isNull())
+		if (!m_tags.isEmpty())
 		{
-			if (!index.data(QuickModsList::TagsRole).toStringList().contains(m_tag))
+			if (!intersectLists(m_tags, index.data(QuickModsList::TagsRole).toStringList()))
 			{
 				return false;
 			}
 		}
-		if (!m_category.isNull())
+		if (!m_category.isEmpty())
 		{
-			if (!index.data(QuickModsList::CategoriesRole).toStringList().contains(m_category))
+			if (!listContainsSubstring(index.data(QuickModsList::CategoriesRole).toStringList(), m_category))
 			{
 				return false;
 			}
@@ -77,9 +100,26 @@ protected:
 	}
 
 private:
-	QString m_tag;
+	QStringList m_tags;
 	QString m_category;
 	QString m_fulltext;
+};
+
+class TagsValidator : public QValidator
+{
+	Q_OBJECT
+public:
+	TagsValidator(QObject *parent = 0) : QValidator(parent)
+	{
+
+	}
+
+protected:
+	State validate(QString &input, int &pos) const
+	{
+		// TODO write a good validator
+		return Acceptable;
+	}
 };
 
 ChooseInstallModDialog::ChooseInstallModDialog(QWidget *parent) :
@@ -92,6 +132,8 @@ ChooseInstallModDialog::ChooseInstallModDialog(QWidget *parent) :
 
 	ui->viewLayout->addWidget(m_view);
 
+	ui->tagsEdit->setValidator(new TagsValidator(this));
+
 	m_view->setSelectionBehavior(KCategorizedView::SelectRows);
 	m_view->setSelectionMode(KCategorizedView::SingleSelection);
 	m_view->setCategoryDrawer(new KCategoryDrawer(m_view));
@@ -99,6 +141,9 @@ ChooseInstallModDialog::ChooseInstallModDialog(QWidget *parent) :
 	m_view->setModel(m_model);
 
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ChooseInstallModDialog::modSelectionChanged);
+	connect(MMC->quickmodslist().get(), &QuickModsList::modsListChanged, this, &ChooseInstallModDialog::setupCategoryBox);
+
+	setupCategoryBox();
 }
 
 ChooseInstallModDialog::~ChooseInstallModDialog()
@@ -132,15 +177,26 @@ void ChooseInstallModDialog::on_cancelButton_clicked()
 
 void ChooseInstallModDialog::on_categoriesLabel_linkActivated(const QString &link)
 {
-	m_model->setCategory(link);
+	ui->categoryBox->setCurrentText(link);
+	ui->tagsEdit->setText(QString());
 }
 void ChooseInstallModDialog::on_tagsLabel_linkActivated(const QString &link)
 {
-	m_model->setTag(link);
+	ui->tagsEdit->setText(ui->tagsEdit->text() + ", " + link);
+	ui->categoryBox->setCurrentText(QString());
+	on_tagsEdit_textChanged();
 }
 void ChooseInstallModDialog::on_fulltextEdit_textChanged()
 {
 	m_model->setFulltext(ui->fulltextEdit->text());
+}
+void ChooseInstallModDialog::on_tagsEdit_textChanged()
+{
+	m_model->setTags(ui->tagsEdit->text().split(QRegularExpression(", {0,1}"), QString::SkipEmptyParts));
+}
+void ChooseInstallModDialog::on_categoryBox_currentTextChanged()
+{
+	m_model->setCategory(ui->categoryBox->currentText());
 }
 
 void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
@@ -175,6 +231,22 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 		ui->tagsLabel->setText(tags.join(", "));
 		ui->logoLabel->setPixmap(mod->logo());
 	}
+}
+
+void ChooseInstallModDialog::setupCategoryBox()
+{
+	QStringList categories;
+	categories.append("");
+
+	for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
+	{
+		categories.append(MMC->quickmodslist()->modAt(i)->categories());
+	}
+
+	categories.removeDuplicates();
+
+	ui->categoryBox->clear();
+	ui->categoryBox->addItems(categories);
 }
 
 #include "ChooseInstallModDialog.moc"
