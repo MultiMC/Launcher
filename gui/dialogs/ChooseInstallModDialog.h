@@ -20,10 +20,10 @@ public:
 	~ChooseInstallModDialog();
 
 public slots:
-    void resolveSingleMod(QuickMod* mod);
+	void resolveSingleMod(QuickMod* mod);
 
-private
-slots:
+	private
+	slots:
 	void on_installButton_clicked();
 	void on_cancelButton_clicked();
 	void on_categoriesLabel_linkActivated(const QString &link);
@@ -31,15 +31,15 @@ slots:
 	void on_fulltextEdit_textChanged();
 	void modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
-    void on_addButton_clicked();
+	void on_addButton_clicked();
 
-    void on_updateButton_clicked();
+	void on_updateButton_clicked();
 
 private:
 
 	Ui::ChooseInstallModDialog *ui;
 
-    DownloadProgressDialog *dialog;
+	DownloadProgressDialog *dialog;
 
 	KCategorizedView *m_view;
 	ModFilterProxyModel* m_model;

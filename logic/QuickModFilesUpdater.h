@@ -3,8 +3,8 @@
 #include <QObject>
 #include <QDir>
 
-class QuickMod;
 class QuickModsList;
+class QuickMod;
 
 /**
  * Takes care of regulary checking for updates to quickmod files, and is also responsible for

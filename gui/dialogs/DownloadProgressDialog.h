@@ -10,19 +10,19 @@ class DownloadProgressDialog;
 
 class DownloadProgressDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit DownloadProgressDialog(int modcount, QWidget *parent = 0);
-    ~DownloadProgressDialog();
-    QList<QuickMod*> mods();
-    void registerNewMod();
+	explicit DownloadProgressDialog(int modcount, QWidget *parent = 0);
+	~DownloadProgressDialog();
+	QList<QuickMod*> mods();
+	void registerNewMod();
 
 public slots:
-    void modAdded(QuickMod *mod);
+	void modAdded(QuickMod *mod);
 
 private:
-    Ui::DownloadProgressDialog *ui;
-    QList<QuickMod*> m_downloadedmods;
-    int m_modcount;
+	Ui::DownloadProgressDialog *ui;
+	QList<QuickMod*> m_downloadedmods;
+	int m_modcount;
 };
