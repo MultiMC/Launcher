@@ -16,66 +16,66 @@
 
 class ModFilterProxyModel : public KCategorizedSortFilterProxyModel
 {
-		Q_OBJECT
-	public:
-		ModFilterProxyModel(QObject *parent = 0) : KCategorizedSortFilterProxyModel(parent)
-		{
-			setCategorizedModel(true);
-		}
+	Q_OBJECT
+public:
+	ModFilterProxyModel(QObject *parent = 0) : KCategorizedSortFilterProxyModel(parent)
+	{
+		setCategorizedModel(true);
+	}
 
-		void setTag(const QString& tag)
-		{
-			m_tag = tag;
-			m_category = QString();
-			invalidateFilter();
-		}
-		void setCategory(const QString& category)
-		{
-			m_tag = QString();
-			m_category = category;
-			invalidateFilter();
-		}
-		void setFulltext(const QString& query)
-		{
-			m_fulltext = query;
-			invalidateFilter();
-		}
+	void setTag(const QString& tag)
+	{
+		m_tag = tag;
+		m_category = QString();
+		invalidateFilter();
+	}
+	void setCategory(const QString& category)
+	{
+		m_tag = QString();
+		m_category = category;
+		invalidateFilter();
+	}
+	void setFulltext(const QString& query)
+	{
+		m_fulltext = query;
+		invalidateFilter();
+	}
 
-	protected:
-		bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+protected:
+	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+	{
+		const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+		if (!m_tag.isNull())
 		{
-			const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
-			if (!m_tag.isNull())
+			if (!index.data(QuickModsList::TagsRole).toStringList().contains(m_tag))
 			{
-				if (!index.data(QuickModsList::TagsRole).toStringList().contains(m_tag))
-				{
-					return false;
-				}
+				return false;
 			}
-			if (!m_category.isNull())
+		}
+		if (!m_category.isNull())
+		{
+			if (!index.data(QuickModsList::CategoriesRole).toStringList().contains(m_category))
 			{
-				if (!index.data(QuickModsList::CategoriesRole).toStringList().contains(m_category))
-				{
-					return false;
-				}
+				return false;
 			}
-			if (!m_fulltext.isEmpty())
+		}
+		if (!m_fulltext.isEmpty())
+		{
+			bool inName = index.data(QuickModsList::NameRole).toString().contains(m_fulltext, Qt::CaseInsensitive);
+			bool inDesc = index.data(QuickModsList::DescriptionRole).toString().contains(m_fulltext, Qt::CaseInsensitive);
+			if (!inName && !inDesc)
 			{
-				bool inName = index.data(QuickModsList::NameRole).toString().contains(m_fulltext, Qt::CaseInsensitive);
-				bool inDesc = index.data(QuickModsList::DescriptionRole).toString().contains(m_fulltext, Qt::CaseInsensitive);
-				if (!inName && !inDesc)
-				{
-					return false;
-				}
+				return false;
 			}
-
-			return true;
 		}
 
-	private:
-		QString m_tag;
-		QString m_category;
-		QString m_fulltext;
+		return true;
+	}
+
+private:
+	QString m_tag;
+	QString m_category;
+	QString m_fulltext;
 };
 
 ChooseInstallModDialog::ChooseInstallModDialog(QWidget *parent) :

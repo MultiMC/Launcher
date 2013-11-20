@@ -50,7 +50,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	{
 		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
 		emit error(
-			tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
+					tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
 		return;
 	}
 	file.write(download->m_data);
@@ -59,25 +59,25 @@ void QuickModFilesUpdater::receivedMod(int notused)
 
 void QuickModFilesUpdater::get(const QUrl &url)
 {
-    auto job = new NetJob("QuickMod download: " + url.toString());
+	auto job = new NetJob("QuickMod download: " + url.toString());
 	auto download = ByteArrayDownload::make(url);
-    connect(&*download, SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
-    job->addNetAction(download);
-    job->start();
+	connect(&*download, SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
+	job->addNetAction(download);
+	job->start();
 }
 
 void QuickModFilesUpdater::readModFiles()
 {
 	emit clearMods();
 	foreach(const QFileInfo& info,
-			m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
+			  m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
 	{
 		QFile file(info.filePath());
 		if (!file.open(QFile::ReadOnly))
 		{
 			QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
 			emit error(tr("Error opening %1 for reading: %2")
-							.arg(file.fileName(), file.errorString()));
+						  .arg(file.fileName(), file.errorString()));
 		}
 
 		QuickMod *mod = new QuickMod;
