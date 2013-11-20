@@ -23,19 +23,19 @@ public:
 		setCategorizedModel(true);
 	}
 
-	void setTag(const QString& tag)
+	void setTag(const QString &tag)
 	{
 		m_tag = tag;
 		m_category = QString();
 		invalidateFilter();
 	}
-	void setCategory(const QString& category)
+	void setCategory(const QString &category)
 	{
 		m_tag = QString();
 		m_category = category;
 		invalidateFilter();
 	}
-	void setFulltext(const QString& query)
+	void setFulltext(const QString &query)
 	{
 		m_fulltext = query;
 		invalidateFilter();
@@ -61,8 +61,10 @@ protected:
 		}
 		if (!m_fulltext.isEmpty())
 		{
-			bool inName = index.data(QuickModsList::NameRole).toString().contains(m_fulltext, Qt::CaseInsensitive);
-			bool inDesc = index.data(QuickModsList::DescriptionRole).toString().contains(m_fulltext, Qt::CaseInsensitive);
+			bool inName = index.data(QuickModsList::NameRole).toString().contains(
+				m_fulltext, Qt::CaseInsensitive);
+			bool inDesc = index.data(QuickModsList::DescriptionRole).toString().contains(
+				m_fulltext, Qt::CaseInsensitive);
 			if (!inName && !inDesc)
 			{
 				return false;
@@ -78,11 +80,9 @@ private:
 	QString m_fulltext;
 };
 
-ChooseInstallModDialog::ChooseInstallModDialog(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::ChooseInstallModDialog),
-	m_view(new KCategorizedView(this)),
-	m_model(new ModFilterProxyModel(this))
+ChooseInstallModDialog::ChooseInstallModDialog(QWidget *parent)
+	: QDialog(parent), ui(new Ui::ChooseInstallModDialog), m_view(new KCategorizedView(this)),
+	  m_model(new ModFilterProxyModel(this))
 {
 	ui->setupUi(this);
 
@@ -94,7 +94,8 @@ ChooseInstallModDialog::ChooseInstallModDialog(QWidget *parent) :
 	m_model->setSourceModel(MMC->quickmodslist().get());
 	m_view->setModel(m_model);
 
-	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ChooseInstallModDialog::modSelectionChanged);
+	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+			&ChooseInstallModDialog::modSelectionChanged);
 }
 
 ChooseInstallModDialog::~ChooseInstallModDialog()
@@ -109,22 +110,29 @@ void ChooseInstallModDialog::on_installButton_clicked()
 		return;
 	}
 
-	auto choosenMod = m_view->selectionModel()->selectedRows().first().data(QuickModsList::QuickModRole).value<QuickMod*>();
-	QList<QuickMod*> modsList;
+	auto choosenMod = m_view->selectionModel()
+						  ->selectedRows()
+						  .first()
+						  .data(QuickModsList::QuickModRole)
+						  .value<QuickMod *>();
+	QList<QuickMod *> modsList;
 
 	modsList.append(choosenMod);
 	dialog = new DownloadProgressDialog(choosenMod->dependentUrls().count(), this);
-	connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod*)), dialog, SLOT(modAdded(QuickMod*)));
-	connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod*)), this, SLOT(resolveSingleMod(QuickMod*)));
+	connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), dialog,
+			SLOT(modAdded(QuickMod *)));
+	connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), this,
+			SLOT(resolveSingleMod(QuickMod *)));
 	resolveSingleMod(choosenMod);
 	dialog->exec();
 	delete dialog;
-	disconnect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod*)), this, SLOT(resolveSingleMod(QuickMod*)));
+	disconnect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), this,
+			   SLOT(resolveSingleMod(QuickMod *)));
 	modsList.append(dialog->mods());
 }
 void ChooseInstallModDialog::resolveSingleMod(QuickMod *mod)
 {
-	for(auto url : mod->dependentUrls())
+	for (auto url : mod->dependentUrls())
 	{
 		MMC->quickmodslist()->registerMod(url);
 	}
@@ -148,7 +156,8 @@ void ChooseInstallModDialog::on_fulltextEdit_textChanged()
 	m_model->setFulltext(ui->fulltextEdit->text());
 }
 
-void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
+												 const QItemSelection &deselected)
 {
 	if (selected.isEmpty())
 	{
@@ -161,19 +170,22 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 	}
 	else
 	{
-		QuickMod* mod = m_model->index(selected.first().top(), 0).data(QuickModsList::QuickModRole).value<QuickMod*>();
+		QuickMod *mod = m_model->index(selected.first().top(), 0)
+							.data(QuickModsList::QuickModRole)
+							.value<QuickMod *>();
 		ui->nameLabel->setText(mod->name());
 		ui->descriptionLabel->setText(mod->description());
-		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>").arg(mod->websiteUrl().toString(QUrl::FullyEncoded),
-																							mod->websiteUrl().toString(QUrl::PrettyDecoded)));
+		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>")
+									  .arg(mod->websiteUrl().toString(QUrl::FullyEncoded),
+										   mod->websiteUrl().toString(QUrl::PrettyDecoded)));
 		QStringList categories;
-		foreach (const QString& category, mod->categories())
+		foreach(const QString & category, mod->categories())
 		{
 			categories.append(QString("<a href=\"%1\">%1</a>").arg(category));
 		}
 		ui->categoriesLabel->setText(categories.join(", "));
 		QStringList tags;
-		foreach (const QString& tag, mod->tags())
+		foreach(const QString & tag, mod->tags())
 		{
 			tags.append(QString("<a href=\"%1\">%1</a>").arg(tag));
 		}
@@ -187,8 +199,10 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 void ChooseInstallModDialog::on_addButton_clicked()
 {
 	AddQuickModFileDialog dialog(this);
-	if (dialog.exec() == QDialog::Accepted) {
-		switch (dialog.type()) {
+	if (dialog.exec() == QDialog::Accepted)
+	{
+		switch (dialog.type())
+		{
 		case AddQuickModFileDialog::FileName:
 			MMC->quickmodslist()->registerMod(dialog.fileName());
 			break;

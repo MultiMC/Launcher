@@ -3,7 +3,8 @@
 #include <QDialog>
 #include "DownloadProgressDialog.h"
 
-namespace Ui {
+namespace Ui
+{
 class ChooseInstallModDialog;
 }
 
@@ -19,11 +20,12 @@ public:
 	explicit ChooseInstallModDialog(QWidget *parent = 0);
 	~ChooseInstallModDialog();
 
-public slots:
-	void resolveSingleMod(QuickMod* mod);
+public
+slots:
+	void resolveSingleMod(QuickMod *mod);
 
-	private
-	slots:
+private
+slots:
 	void on_installButton_clicked();
 	void on_cancelButton_clicked();
 	void on_categoriesLabel_linkActivated(const QString &link);
@@ -36,11 +38,10 @@ public slots:
 	void on_updateButton_clicked();
 
 private:
-
 	Ui::ChooseInstallModDialog *ui;
 
 	DownloadProgressDialog *dialog;
 
 	KCategorizedView *m_view;
-	ModFilterProxyModel* m_model;
+	ModFilterProxyModel *m_model;
 };
