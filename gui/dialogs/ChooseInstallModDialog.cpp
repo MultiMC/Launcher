@@ -9,6 +9,7 @@
 
 #include "logic/lists/QuickModsList.h"
 #include "gui/widgets/WebDownloadNavigator.h"
+#include "ChooseQuickModVersionDialog.h"
 
 #include "MultiMC.h"
 
@@ -122,9 +123,10 @@ protected:
 	}
 };
 
-ChooseInstallModDialog::ChooseInstallModDialog(QWidget *parent) :
+ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance* instance, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::ChooseInstallModDialog),
+	m_instance(instance),
 	m_view(new KCategorizedView(this)),
 	m_model(new ModFilterProxyModel(this))
 {
@@ -159,16 +161,24 @@ void ChooseInstallModDialog::on_installButton_clicked()
 	}
 
 	auto choosenMod = m_view->selectionModel()->selectedRows().first().data(QuickModsList::QuickModRole).value<QuickMod*>();
-	QList<QuickMod*> modsList;
+	QMap<QuickMod*, QuickMod::Version> modsList;
 	/*
 	 * At this point we have access to the QuickModsList instance (via MMC->quickmodslist()) and
 	 * one mod (choosenMod of type QuickMod*). We here need to fill the modsList with any dependency
 	 * mods.
 	 */
-	// For now, we just add choosenMod
-	modsList.append(choosenMod);
 
-	// TODO download the mods
+	// For now, we just add choosenMod
+	ChooseQuickModVersionDialog dialog;
+	dialog.setMod(choosenMod, m_instance);
+	if (dialog.exec() != QDialog::Accepted)
+	{
+		return;
+	}
+	modsList.insert(choosenMod, choosenMod->version(dialog.version()));
+
+	// TODO check if we already have the file. redownload or use existing? ask user?
+	// TODO download using the QuickModDownloadDialog
 }
 void ChooseInstallModDialog::on_cancelButton_clicked()
 {

@@ -9,13 +9,14 @@ class ChooseInstallModDialog;
 class QItemSelection;
 class KCategorizedView;
 class ModFilterProxyModel;
+class BaseInstance;
 
 class ChooseInstallModDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit ChooseInstallModDialog(QWidget *parent = 0);
+	explicit ChooseInstallModDialog(BaseInstance *instance, QWidget *parent = 0);
 	~ChooseInstallModDialog();
 
 private
@@ -33,6 +34,8 @@ slots:
 
 private:
 	Ui::ChooseInstallModDialog *ui;
+
+	BaseInstance* m_instance;
 
 	KCategorizedView *m_view;
 	ModFilterProxyModel* m_model;

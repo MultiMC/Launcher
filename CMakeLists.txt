@@ -220,6 +220,10 @@ gui/dialogs/AddQuickModFileDialog.h
 gui/dialogs/AddQuickModFileDialog.cpp
 gui/dialogs/ChooseInstallModDialog.h
 gui/dialogs/ChooseInstallModDialog.cpp
+gui/dialogs/ChooseQuickModVersionDialog.h
+gui/dialogs/ChooseQuickModVersionDialog.cpp
+gui/dialogs/QuickModDownloadDialog.h
+gui/dialogs/QuickModDownloadDialog.cpp
 
 # GUI - widgets
 gui/widgets/InstanceDelegate.h
@@ -379,6 +383,8 @@ gui/dialogs/OneSixModEditDialog.ui
 gui/dialogs/EditNotesDialog.ui
 gui/dialogs/AddQuickModFileDialog.ui
 gui/dialogs/ChooseInstallModDialog.ui
+gui/dialogs/ChooseQuickModVersionDialog.ui
+gui/dialogs/QuickModDownloadDialog.ui
 
 # Widgets/other
 gui/widgets/MCModInfoFrame.ui

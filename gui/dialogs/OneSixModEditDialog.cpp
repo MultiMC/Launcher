@@ -280,7 +280,7 @@ void OneSixModEditDialog::on_rmModBtn_clicked()
 }
 void OneSixModEditDialog::on_installModBtn_clicked()
 {
-	ChooseInstallModDialog dialog(this);
+	ChooseInstallModDialog dialog(m_inst, this);
 	dialog.exec();
 }
 void OneSixModEditDialog::on_viewModBtn_clicked()
