@@ -8,7 +8,7 @@
 #include "depends/groupview/include/categorydrawer.h"
 
 #include "logic/lists/QuickModsList.h"
-#include "gui/widgets/WebDownloadNavigator.h"
+#include "gui/dialogs/QuickModInstallDialog.h"
 #include "ChooseQuickModVersionDialog.h"
 #include "DownloadProgressDialog.h"
 #include "AddQuickModFileDialog.h"
@@ -164,45 +164,10 @@ void ChooseInstallModDialog::on_installButton_clicked()
 		return;
 	}
 
-	auto choosenMod = m_view->selectionModel()->selectedRows().first().data(QuickModsList::QuickModRole).value<QuickMod*>();
-	QMap<QuickMod*, QuickMod::Version> modsList;
-	/*
-	 * At this point we have access to the QuickModsList instance (via MMC->quickmodslist()) and
-	 * one mod (choosenMod of type QuickMod*). We here need to fill the modsList with any dependency
-	 * mods.
-	 */
-
-	ChooseQuickModVersionDialog *versionDialog = new ChooseQuickModVersionDialog;
-	versionDialog->setMod(choosenMod, m_instance);
-	if (versionDialog->exec() != QDialog::Accepted)
-	{
-		return;
-	}
-	modsList.insert(choosenMod, choosenMod->version(versionDialog->version()));
-
-	dialog = new DownloadProgressDialog(choosenMod->dependentUrls().count(), this);
-	connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), dialog,
-			SLOT(modAdded(QuickMod *)));
-	connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), this,
-			SLOT(resolveSingleMod(QuickMod *)));
-	resolveSingleMod(choosenMod);
-	dialog->exec();
-	delete dialog;
-	disconnect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), this,
-			   SLOT(resolveSingleMod(QuickMod *)));
-	foreach (auto mod, dialog->mods())
-	{
-		versionDialog = new ChooseQuickModVersionDialog;
-		versionDialog->setMod(mod, m_instance);
-		if (versionDialog->exec() != QDialog::Accepted)
-		{
-			return;
-		}
-		modsList.insert(mod, mod->version(versionDialog->version()));
-	}
-
-	// TODO check if we already have the file. redownload or use existing? ask user?
-	// TODO download using the QuickModDownloadDialog
+	//MMC->quickmodsinstalldialog(m_instance)->setParent(this);
+	MMC->quickmodsinstalldialog(m_instance)->addMod(
+				m_view->selectionModel()->selectedRows().first()
+				.data(QuickModsList::QuickModRole).value<QuickMod*>(), true);
 }
 void ChooseInstallModDialog::resolveSingleMod(QuickMod *mod)
 {

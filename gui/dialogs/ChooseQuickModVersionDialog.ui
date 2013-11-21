@@ -17,7 +17,7 @@
    <item>
     <widget class="QTreeWidget" name="versionsWidget">
      <attribute name="headerVisible">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
      <attribute name="headerDefaultSectionSize">
       <number>100</number>
@@ -58,6 +58,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="cancelButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Cancel</string>
        </property>
@@ -69,22 +72,6 @@
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>cancelButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ChooseQuickModVersionDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>200</x>
-     <y>296</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>234</x>
-     <y>287</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>chooseButton</sender>
    <signal>clicked()</signal>
@@ -98,6 +85,22 @@
     <hint type="destinationlabel">
      <x>34</x>
      <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ChooseQuickModVersionDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>235</x>
+     <y>280</y>
     </hint>
    </hints>
   </connection>

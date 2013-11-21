@@ -104,7 +104,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		version.name = ver.value("name").toString();
 		version.url = QUrl(ver.value("url").toString());
 		version.compatibleVersions.clear();
-		foreach(const QJsonValue &val, ver.value("mcCompatability").toArray())
+		foreach(const QJsonValue &val, ver.value("mcCompatibility").toArray())
 		{
 			version.compatibleVersions.append(val.toString());
 		}

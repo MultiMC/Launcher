@@ -18,6 +18,10 @@ ChooseQuickModVersionDialog::~ChooseQuickModVersionDialog()
 	delete ui;
 }
 
+void ChooseQuickModVersionDialog::setCanCancel(bool canCancel)
+{
+	ui->cancelButton->setEnabled(canCancel);
+}
 void ChooseQuickModVersionDialog::setMod(const QuickMod *mod, const BaseInstance* instance)
 {
 	ui->versionsWidget->clear();
@@ -44,5 +48,5 @@ void ChooseQuickModVersionDialog::setMod(const QuickMod *mod, const BaseInstance
 
 int ChooseQuickModVersionDialog::version() const
 {
-	ui->versionsWidget->selectedItems().first()->data(0, Qt::UserRole).toInt();
+	return ui->versionsWidget->selectedItems().first()->data(0, Qt::UserRole).toInt();
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QuickModDownloadDialog</class>
- <widget class="QDialog" name="QuickModDownloadDialog">
+ <class>QuickModInstallDialog</class>
+ <widget class="QWidget" name="QuickModInstallDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="web">
       <attribute name="title">
@@ -32,12 +32,20 @@
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QTreeWidget" name="progressList">
+         <attribute name="headerDefaultSectionSize">
+          <number>100</number>
+         </attribute>
          <attribute name="headerShowSortIndicator" stdset="0">
           <bool>true</bool>
          </attribute>
          <column>
           <property name="text">
            <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Version</string>
           </property>
          </column>
          <column>
@@ -84,7 +92,7 @@
      <item>
       <widget class="QPushButton" name="cancelButton">
        <property name="text">
-        <string>Cancel</string>
+        <string>Hide</string>
        </property>
       </widget>
      </item>
@@ -97,32 +105,16 @@
   <connection>
    <sender>cancelButton</sender>
    <signal>clicked()</signal>
-   <receiver>QuickModDownloadDialog</receiver>
-   <slot>reject()</slot>
+   <receiver>QuickModInstallDialog</receiver>
+   <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>567</x>
-     <y>464</y>
+     <x>605</x>
+     <y>458</y>
     </hint>
     <hint type="destinationlabel">
-     <x>462</x>
-     <y>448</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>finishButton</sender>
-   <signal>clicked()</signal>
-   <receiver>QuickModDownloadDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>486</x>
-     <y>457</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>354</x>
-     <y>448</y>
+     <x>636</x>
+     <y>456</y>
     </hint>
    </hints>
   </connection>

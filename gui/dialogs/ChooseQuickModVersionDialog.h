@@ -1,5 +1,4 @@
-#ifndef CHOOSEQUICKMODVERSIONDIALOGKMODVERSIONDIALOG_H
-#define CHOOSEQUICKMODVERSIONDIALOGKMODVERSIONDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -18,6 +17,7 @@ public:
 	explicit ChooseQuickModVersionDialog(QWidget *parent = 0);
 	~ChooseQuickModVersionDialog();
 
+	void setCanCancel(bool canCancel);
 	void setMod(const QuickMod* mod, const BaseInstance *instance);
 
 	int version() const;
@@ -25,5 +25,3 @@ public:
 private:
 	Ui::ChooseQuickModVersionDialog *ui;
 };
-
-#endif // CHOOSEQUICKMODVERSIONDIALOGKMODVERSIONDIALOG_H
