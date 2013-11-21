@@ -91,6 +91,20 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="addButton">
+       <property name="text">
+        <string>Download/Add QuickMod</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="updateButton">
+       <property name="text">
+        <string>Update QuickMods</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="installButton">
        <property name="text">
         <string>Install</string>

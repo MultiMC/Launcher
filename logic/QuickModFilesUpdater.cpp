@@ -98,7 +98,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	{
 		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
 		emit error(
-			tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
+					tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
 		return;
 	}
 	file.write(download->m_data);
@@ -118,7 +118,7 @@ void QuickModFilesUpdater::readModFiles()
 {
 	emit clearMods();
 	foreach(const QFileInfo& info,
-			m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
+			  m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
 	{
 		auto mod = new QuickMod;
 		if (parseQuickMod(info.absoluteFilePath(), mod))

@@ -23,6 +23,7 @@
 #include "inifile.h"
 #include "lists/BaseVersionList.h"
 #include "net/LoginTask.h"
+#include "Mod.h"
 
 class QDialog;
 class BaseUpdate;

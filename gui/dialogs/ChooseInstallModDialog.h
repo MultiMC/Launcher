@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QDialog>
+#include "DownloadProgressDialog.h"
 
-namespace Ui {
+namespace Ui
+{
 class ChooseInstallModDialog;
 }
 
@@ -19,6 +21,10 @@ public:
 	explicit ChooseInstallModDialog(BaseInstance *instance, QWidget *parent = 0);
 	~ChooseInstallModDialog();
 
+public
+slots:
+	void resolveSingleMod(QuickMod *mod);
+
 private
 slots:
 	void on_installButton_clicked();
@@ -28,6 +34,8 @@ slots:
 	void on_fulltextEdit_textChanged();
 	void on_tagsEdit_textChanged();
 	void on_categoryBox_currentTextChanged();
+	void on_addButton_clicked();
+	void on_updateButton_clicked();
 	void modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 	void setupCategoryBox();
@@ -37,6 +45,8 @@ private:
 
 	BaseInstance* m_instance;
 
+	DownloadProgressDialog *dialog;
+
 	KCategorizedView *m_view;
-	ModFilterProxyModel* m_model;
+	ModFilterProxyModel *m_model;
 };

@@ -10,6 +10,8 @@
 #include "logic/lists/QuickModsList.h"
 #include "gui/widgets/WebDownloadNavigator.h"
 #include "ChooseQuickModVersionDialog.h"
+#include "DownloadProgressDialog.h"
+#include "AddQuickModFileDialog.h"
 
 #include "MultiMC.h"
 
@@ -52,12 +54,12 @@ public:
 		m_tags = tags;
 		invalidateFilter();
 	}
-	void setCategory(const QString& category)
+	void setCategory(const QString &category)
 	{
 		m_category = category;
 		invalidateFilter();
 	}
-	void setFulltext(const QString& query)
+	void setFulltext(const QString &query)
 	{
 		m_fulltext = query;
 		invalidateFilter();
@@ -89,8 +91,10 @@ protected:
 		}
 		if (!m_fulltext.isEmpty())
 		{
-			bool inName = index.data(QuickModsList::NameRole).toString().contains(m_fulltext, Qt::CaseInsensitive);
-			bool inDesc = index.data(QuickModsList::DescriptionRole).toString().contains(m_fulltext, Qt::CaseInsensitive);
+			bool inName = index.data(QuickModsList::NameRole).toString().contains(
+				m_fulltext, Qt::CaseInsensitive);
+			bool inDesc = index.data(QuickModsList::DescriptionRole).toString().contains(
+				m_fulltext, Qt::CaseInsensitive);
 			if (!inName && !inDesc)
 			{
 				return false;
@@ -168,18 +172,46 @@ void ChooseInstallModDialog::on_installButton_clicked()
 	 * mods.
 	 */
 
-	// For now, we just add choosenMod
-	ChooseQuickModVersionDialog dialog;
-	dialog.setMod(choosenMod, m_instance);
-	if (dialog.exec() != QDialog::Accepted)
+	ChooseQuickModVersionDialog *versionDialog = new ChooseQuickModVersionDialog;
+	versionDialog->setMod(choosenMod, m_instance);
+	if (versionDialog->exec() != QDialog::Accepted)
 	{
 		return;
 	}
-	modsList.insert(choosenMod, choosenMod->version(dialog.version()));
+	modsList.insert(choosenMod, choosenMod->version(versionDialog->version()));
+
+	dialog = new DownloadProgressDialog(choosenMod->dependentUrls().count(), this);
+	connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), dialog,
+			SLOT(modAdded(QuickMod *)));
+	connect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), this,
+			SLOT(resolveSingleMod(QuickMod *)));
+	resolveSingleMod(choosenMod);
+	dialog->exec();
+	delete dialog;
+	disconnect(&*MMC->quickmodslist(), SIGNAL(modAdded(QuickMod *)), this,
+			   SLOT(resolveSingleMod(QuickMod *)));
+	foreach (auto mod, dialog->mods())
+	{
+		versionDialog = new ChooseQuickModVersionDialog;
+		versionDialog->setMod(mod, m_instance);
+		if (versionDialog->exec() != QDialog::Accepted)
+		{
+			return;
+		}
+		modsList.insert(mod, mod->version(versionDialog->version()));
+	}
 
 	// TODO check if we already have the file. redownload or use existing? ask user?
 	// TODO download using the QuickModDownloadDialog
 }
+void ChooseInstallModDialog::resolveSingleMod(QuickMod *mod)
+{
+	for (auto url : mod->dependentUrls())
+	{
+		MMC->quickmodslist()->registerMod(url);
+	}
+}
+
 void ChooseInstallModDialog::on_cancelButton_clicked()
 {
 	reject();
@@ -209,7 +241,8 @@ void ChooseInstallModDialog::on_categoryBox_currentTextChanged()
 	m_model->setCategory(ui->categoryBox->currentText());
 }
 
-void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
+												 const QItemSelection &deselected)
 {
 	if (selected.isEmpty())
 	{
@@ -222,19 +255,22 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 	}
 	else
 	{
-		QuickMod* mod = m_model->index(selected.first().top(), 0).data(QuickModsList::QuickModRole).value<QuickMod*>();
+		QuickMod *mod = m_model->index(selected.first().top(), 0)
+							.data(QuickModsList::QuickModRole)
+							.value<QuickMod *>();
 		ui->nameLabel->setText(mod->name());
 		ui->descriptionLabel->setText(mod->description());
-		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>").arg(mod->websiteUrl().toString(QUrl::FullyEncoded),
-																	   mod->websiteUrl().toString(QUrl::PrettyDecoded)));
+		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>")
+									  .arg(mod->websiteUrl().toString(QUrl::FullyEncoded),
+										   mod->websiteUrl().toString(QUrl::PrettyDecoded)));
 		QStringList categories;
-		foreach (const QString& category, mod->categories())
+		foreach(const QString & category, mod->categories())
 		{
 			categories.append(QString("<a href=\"%1\">%1</a>").arg(category));
 		}
 		ui->categoriesLabel->setText(categories.join(", "));
 		QStringList tags;
-		foreach (const QString& tag, mod->tags())
+		foreach(const QString & tag, mod->tags())
 		{
 			tags.append(QString("<a href=\"%1\">%1</a>").arg(tag));
 		}
@@ -260,3 +296,25 @@ void ChooseInstallModDialog::setupCategoryBox()
 }
 
 #include "ChooseInstallModDialog.moc"
+
+void ChooseInstallModDialog::on_addButton_clicked()
+{
+	AddQuickModFileDialog dialog(this);
+	if (dialog.exec() == QDialog::Accepted)
+	{
+		switch (dialog.type())
+		{
+		case AddQuickModFileDialog::FileName:
+			MMC->quickmodslist()->registerMod(dialog.fileName());
+			break;
+		case AddQuickModFileDialog::Url:
+			MMC->quickmodslist()->registerMod(dialog.url());
+			break;
+		}
+	}
+}
+
+void ChooseInstallModDialog::on_updateButton_clicked()
+{
+	MMC->quickmodslist()->updateFiles();
+}

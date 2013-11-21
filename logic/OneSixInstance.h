@@ -69,7 +69,7 @@ public:
 	virtual QString defaultCustomBaseJar() const;
 
 	virtual bool menuActionEnabled(QString action_name) const;
-	virtual QString getStatusbarDescription();
+    virtual QString getStatusbarDescription();
 
 private:
 	QStringList processMinecraftArgs(LoginResponse response);
