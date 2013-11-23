@@ -426,14 +426,16 @@ SET_SOURCE_FILES_PROPERTIES(resources/MultiMCLauncher.jar GENERATED)
 QT5_WRAP_UI(MULTIMC_UI ${MULTIMC_UIS})
 QT5_ADD_RESOURCES(MULTIMC_QRC multimc.qrc)
 
+ADD_LIBRARY(MultiMC_common STATIC ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_QRC} ${MULTIMC_RCS})
 # Add executable
-ADD_EXECUTABLE(MultiMC MACOSX_BUNDLE WIN32
-	${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_QRC} ${MULTIMC_RCS})
+ADD_EXECUTABLE(MultiMC MACOSX_BUNDLE WIN32 main.cpp)
 
 # Link
-TARGET_LINK_LIBRARIES(MultiMC xz-embedded unpack200 quazip libUtil libSettings libGroupView ${MultiMC_LINK_ADDITIONAL_LIBS})
+TARGET_LINK_LIBRARIES(MultiMC MultiMC_common)
+TARGET_LINK_LIBRARIES(MultiMC_common xz-embedded unpack200 quazip libUtil libSettings libGroupView ${MultiMC_LINK_ADDITIONAL_LIBS})
 QT5_USE_MODULES(MultiMC Core Widgets Network Xml WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
-ADD_DEPENDENCIES(MultiMC MultiMCLauncher)
+QT5_USE_MODULES(MultiMC_common Core Widgets Network Xml WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
+ADD_DEPENDENCIES(MultiMC_common MultiMCLauncher)
 
 option(BUILD_KEYRING_TEST "Build the simple keyring test binary" OFF)
 IF(BUILD_KEYRING_TEST)
@@ -591,3 +593,5 @@ endif (UPDATE_TRANSLATIONS)
 add_custom_target (translations DEPENDS ${QM_FILES})
 
 install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/translations)
+
+add_subdirectory(tests)

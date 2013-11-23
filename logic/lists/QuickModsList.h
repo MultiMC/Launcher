@@ -28,10 +28,24 @@ public:
 
 	struct Version
 	{
+		Version() {}
+		Version(const QString &name,
+				const QUrl &url,
+				const QStringList &mc,
+				const QMap<QString, QString> &deps) :
+			name(name), url(url), compatibleVersions(mc), dependencies(deps) {}
 		QString name;
 		QUrl url;
 		QStringList compatibleVersions;
 		QMap<QString, QString> dependencies;
+
+		bool operator==(const Version &other) const
+		{
+			return name == other.name &&
+					url == other.url &&
+					compatibleVersions == other.compatibleVersions &&
+					dependencies == other.dependencies;
+		}
 	};
 
 	bool isValid() const
@@ -75,6 +89,7 @@ slots:
 
 private:
 	friend class QuickModFilesUpdater;
+	friend class QuickModTest;
 	QString m_name;
 	QString m_description;
 	QUrl m_websiteUrl;
@@ -93,6 +108,7 @@ private:
 	QList<Version> m_versions;
 	bool m_stub;
 
+	bool m_noFetchImages;
 	void fetchImages();
 	QString fileName(const QUrl& url) const;
 };

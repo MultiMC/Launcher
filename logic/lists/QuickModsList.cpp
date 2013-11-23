@@ -20,7 +20,11 @@
 
 #include "depends/settings/include/inisettingsobject.h"
 
-QuickMod::QuickMod(QObject *parent) : QObject(parent), m_stub(false)
+// TODO test
+// TODO updating of mods
+// TODO fixing markModAs*
+
+QuickMod::QuickMod(QObject *parent) : QObject(parent), m_stub(false), m_noFetchImages(false)
 {
 }
 
@@ -133,7 +137,10 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		m_versions.append(version);
 	}
 
-	fetchImages();
+	if (!m_noFetchImages)
+	{
+		fetchImages();
+	}
 }
 #undef MALFORMED_JSON_X
 #undef MALFORMED_JSON
@@ -341,6 +348,7 @@ void QuickModsList::markModAsExists(QuickMod *mod, const int version, const QStr
 	m_settings->getSetting("AvailableMods")->set(QVariant::fromValue(mods));
 }
 
+// FIXME these all don't seem to do anything
 void QuickModsList::markModAsInstalled(QuickMod *mod, const int version, const QString &fileName, BaseInstance *instance)
 {
 	auto mods = instance->settings().getSetting("InstalledMods")->value<QMap<QString, QMap<QString, QString> > >();
@@ -390,11 +398,6 @@ void QuickModsList::updateFiles()
 
 void QuickModsList::addMod(QuickMod *mod)
 {
-	for (int i = 0; i < MMC->instances()->count(); ++i)
-	{
-		//MMC->instances()->at(i)->settings().set("InstalledMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >()));
-	}
-
 	connect(mod, &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
 	connect(mod, &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 

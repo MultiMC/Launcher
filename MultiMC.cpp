@@ -7,7 +7,6 @@
 #include <QLibraryInfo>
 #include <QMessageBox>
 
-#include "gui/MainWindow.h"
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "logic/lists/InstanceList.h"
 #include "logic/lists/IconList.h"
@@ -406,33 +405,6 @@ std::shared_ptr<JavaVersionList> MultiMC::javalist()
 std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
 {
 	return m_quickmodslist;
-}
-
-int main_gui(MultiMC &app)
-{
-	// show main window
-	MainWindow mainWin;
-	mainWin.restoreState(QByteArray::fromBase64(MMC->settings()->get("MainWindowState").toByteArray()));
-	mainWin.restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("MainWindowGeometry").toByteArray()));
-	mainWin.show();
-	mainWin.checkSetDefaultJava();
-	return app.exec();
-}
-
-int main(int argc, char *argv[])
-{
-	// initialize Qt
-	MultiMC app(argc, argv);
-
-	switch (app.status())
-	{
-	case MultiMC::Initialized:
-		return main_gui(app);
-	case MultiMC::Failed:
-		return 1;
-	case MultiMC::Succeeded:
-		return 0;
-	}
 }
 
 #include "MultiMC.moc"
