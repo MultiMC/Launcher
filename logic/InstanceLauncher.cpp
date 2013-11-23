@@ -48,12 +48,9 @@ void InstanceLauncher::onLoginComplete()
 		return;
 	}
 	console = new ConsoleWindow(proc);
-	console->show();
+	connect(console, SIGNAL(isClosing()), this, SLOT(onTerminated()));
 
-	connect(proc, SIGNAL(ended()), SLOT(onTerminated()));
-	connect(proc, SIGNAL(log(QString, MessageLevel::Enum)), console,
-			SLOT(write(QString, MessageLevel::Enum)));
-
+	proc->setLogin(result.username, result.session_id);
 	proc->launch();
 }
 
@@ -63,7 +60,7 @@ void InstanceLauncher::doLogin(const QString &errorMsg)
 	loginDlg->exec();
 	if (loginDlg->result() == QDialog::Accepted)
 	{
-		UserInfo uInfo{loginDlg->getUsername(), loginDlg->getPassword()};
+		PasswordLogin uInfo{loginDlg->getUsername(), loginDlg->getPassword()};
 
 		ProgressDialog *tDialog = new ProgressDialog(nullptr);
 		LoginTask *loginTask = new LoginTask(uInfo, tDialog);

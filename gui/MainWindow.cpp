@@ -616,7 +616,7 @@ void MainWindow::doAutoLogin()
 
 void MainWindow::doLogin(QString username, QString password)
 {
-	UserInfo uInfo{username, password};
+	PasswordLogin uInfo{username, password};
 
 	ProgressDialog *tDialog = new ProgressDialog(this);
 	LoginTask *loginTask = new LoginTask(uInfo, tDialog);
@@ -739,27 +739,10 @@ void MainWindow::launchInstance(BaseInstance *instance, LoginResponse response)
 	if (!proc)
 		return;
 
-	// Prepare GUI: If it shall stay open disable the required parts
-	if (MMC->settings()->get("NoHide").toBool())
-	{
-		ui->actionLaunchInstance->setEnabled(false);
-	}
-	else
-	{
-		this->hide();
-	}
+	this->hide();
 
 	console = new ConsoleWindow(proc);
-
-	connect(proc, SIGNAL(log(QString, MessageLevel::Enum)), console,
-			SLOT(write(QString, MessageLevel::Enum)));
-	connect(proc, SIGNAL(ended(BaseInstance*,int,QProcess::ExitStatus)), this,
-			SLOT(instanceEnded(BaseInstance*,int,QProcess::ExitStatus)));
-
-	if (instance->settings().get("ShowConsole").toBool())
-	{
-		console->show();
-	}
+	connect(console, SIGNAL(isClosing()), this, SLOT(instanceEnded()));
 
 	proc->setLogin(response.username, response.session_id);
 	proc->launch();
@@ -931,15 +914,9 @@ void MainWindow::on_actionUpdateQuickModFiles_triggered()
 	MMC->quickmodslist()->updateFiles();
 }
 
-void MainWindow::instanceEnded(BaseInstance *instance, int code, QProcess::ExitStatus status)
+void MainWindow::instanceEnded()
 {
 	this->show();
-	ui->actionLaunchInstance->setEnabled(m_selectedInstance);
-
-	if (instance->settings().get("AutoCloseConsole").toBool())
-	{
-		console->close();
-	}
 }
 
 void MainWindow::checkSetDefaultJava()

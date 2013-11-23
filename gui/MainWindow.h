@@ -120,7 +120,7 @@ slots:
 
 	void on_actionChangeInstLWJGLVersion_triggered();
 
-	void instanceEnded(BaseInstance *instance, int code, QProcess::ExitStatus status);
+	void instanceEnded();
 
 	void on_actionInstanceSettings_triggered();
 
