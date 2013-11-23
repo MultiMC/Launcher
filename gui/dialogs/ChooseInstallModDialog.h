@@ -9,7 +9,7 @@ class ChooseInstallModDialog;
 }
 
 class QItemSelection;
-class KCategorizedView;
+class QListView;
 class ModFilterProxyModel;
 class BaseInstance;
 
@@ -51,6 +51,6 @@ private:
 
 	DownloadProgressDialog *dialog;
 
-	KCategorizedView *m_view;
+	QListView *m_view;
 	ModFilterProxyModel *m_model;
 };

@@ -18,10 +18,12 @@ public:
 	~ChooseQuickModVersionDialog();
 
 	void setCanCancel(bool canCancel);
-	void setMod(const QuickMod* mod, const BaseInstance *instance);
+	void setMod(const QuickMod* mod, const BaseInstance *instance, const QString &versionFilter);
 
 	int version() const;
 
 private:
 	Ui::ChooseQuickModVersionDialog *ui;
+
+	static bool versionIsInFilter(const QString &version, const QString &filter);
 };

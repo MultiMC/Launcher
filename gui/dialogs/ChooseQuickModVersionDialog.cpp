@@ -22,7 +22,7 @@ void ChooseQuickModVersionDialog::setCanCancel(bool canCancel)
 {
 	ui->cancelButton->setEnabled(canCancel);
 }
-void ChooseQuickModVersionDialog::setMod(const QuickMod *mod, const BaseInstance* instance)
+void ChooseQuickModVersionDialog::setMod(const QuickMod *mod, const BaseInstance* instance, const QString &versionFilter)
 {
 	ui->versionsWidget->clear();
 
@@ -33,7 +33,7 @@ void ChooseQuickModVersionDialog::setMod(const QuickMod *mod, const BaseInstance
 		item->setText(0, version.name);
 		item->setText(1, version.compatibleVersions.join(", "));
 		item->setData(0, Qt::UserRole, i);
-		if (version.compatibleVersions.contains(instance->currentVersionId()))
+		if (version.compatibleVersions.contains(instance->currentVersionId()) && versionIsInFilter(version.name, versionFilter))
 		{
 			item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 		}
@@ -49,4 +49,37 @@ void ChooseQuickModVersionDialog::setMod(const QuickMod *mod, const BaseInstance
 int ChooseQuickModVersionDialog::version() const
 {
 	return ui->versionsWidget->selectedItems().first()->data(0, Qt::UserRole).toInt();
+}
+
+bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version, const QString &filter)
+{
+	if (filter.isEmpty())
+	{
+		return true;
+	}
+
+	/* We can have these versions of filters:
+	 *
+	 * X+ (matches version X and above)
+	 * X -> Y (matches all versions between X and Y (inclusive))
+	 * X (matches only version X)
+	 *
+	 * Matching itself is done using normal operators (<, >, <= and >=)
+	 */
+
+	if (filter.endsWith('+'))
+	{
+		const QString bottom = filter.left(filter.size() - 1);
+		return bottom <= version;
+	}
+	else if (filter.contains(" -> "))
+	{
+		const QString bottom = filter.left(filter.indexOf(" -> "));
+		const QString top = filter.mid(filter.indexOf(" -> ") + 4);
+		return bottom <= version && version <= top;
+	}
+	else
+	{
+		return version == filter;
+	}
 }

@@ -16,6 +16,7 @@
 #include "depends/settings/include/setting.h"
 #include "MultiMC.h"
 #include "depends/groupview/include/categorizedsortfilterproxymodel.h"
+#include "logic/lists/InstanceList.h"
 
 #include "depends/settings/include/inisettingsobject.h"
 
@@ -25,18 +26,12 @@ QuickMod::QuickMod(QObject *parent) : QObject(parent), m_stub(false)
 
 QIcon QuickMod::icon()
 {
-	if (m_icon.isNull())
-	{
-		fetchImages();
-	}
+	fetchImages();
 	return m_icon;
 }
 QPixmap QuickMod::logo()
 {
-	if (m_logo.isNull())
-	{
-		fetchImages();
-	}
+	fetchImages();
 	return m_logo;
 }
 
@@ -76,22 +71,22 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	m_logoUrl = QUrl(mod.value("logoUrl").toString());
 	m_updateUrl = QUrl(mod.value("updateUrl").toString());
 	m_recommendedUrls.clear();
-	foreach(const QJsonValue& val, mod.value("recommends").toArray())
+	foreach (const QJsonValue& val, mod.value("recommends").toArray())
 	{
 		m_recommendedUrls.append(QUrl(val.toString()));
 	}
 	m_dependentUrls.clear();
-	foreach(const QJsonValue& val, mod.value("depends").toArray())
+	foreach (const QJsonValue& val, mod.value("depends").toArray())
 	{
 		m_dependentUrls.append(QUrl(val.toString()));
 	}
 	m_categories.clear();
-	foreach(const QJsonValue& val, mod.value("categories").toArray())
+	foreach (const QJsonValue& val, mod.value("categories").toArray())
 	{
 		m_categories.append(val.toString());
 	}
 	m_tags.clear();
-	foreach(const QJsonValue& val, mod.value("tags").toArray())
+	foreach (const QJsonValue& val, mod.value("tags").toArray())
 	{
 		m_tags.append(val.toString());
 	}
@@ -117,7 +112,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		MALFORMED_JSON_X(tr("Unknown version type: %1").arg(modType));
 	}
 	m_versions.clear();
-	foreach(const QJsonValue& val, mod.value("versions").toArray())
+	foreach (const QJsonValue& val, mod.value("versions").toArray())
 	{
 		JSON_ASSERT(val.isObject());
 		QJsonObject ver = val.toObject();
@@ -125,9 +120,15 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		version.name = ver.value("name").toString();
 		version.url = QUrl(ver.value("url").toString());
 		version.compatibleVersions.clear();
-		foreach(const QJsonValue &val, ver.value("mcCompatibility").toArray())
+		foreach (const QJsonValue &val, ver.value("mcCompatibility").toArray())
 		{
 			version.compatibleVersions.append(val.toString());
+		}
+		version.dependencies.clear();
+		QJsonObject deps = ver.value("dependencies").toObject();
+		foreach (const QString &mod, deps.keys())
+		{
+			version.dependencies.insert(mod, deps.value(mod).toString());
 		}
 		m_versions.append(version);
 	}
@@ -160,13 +161,13 @@ void QuickMod::logoDownloadFinished(int index)
 void QuickMod::fetchImages()
 {
 	auto job = new NetJob("QuickMod image download: " + m_name);
-	if (m_iconUrl.isValid())
+	if (m_iconUrl.isValid() && m_icon.isNull())
 	{
 		auto icon = CacheDownload::make(m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
 		connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
 		job->addNetAction(icon);
 	}
-	if (m_logoUrl.isValid())
+	if (m_logoUrl.isValid() && m_logo.isNull())
 	{
 		auto logo = CacheDownload::make(m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
 		connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
@@ -186,6 +187,11 @@ QuickModsList::QuickModsList(QObject *parent)
 	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)), m_settings(new INISettingsObject("quickmod.cfg", this))
 {
 	m_settings->registerSetting(new Setting("AvailableMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >())));
+}
+
+QuickModsList::~QuickModsList()
+{
+
 }
 
 QHash<int, QByteArray> QuickModsList::roleNames() const
@@ -209,7 +215,7 @@ QHash<int, QByteArray> QuickModsList::roleNames() const
 
 int QuickModsList::rowCount(const QModelIndex &) const
 {
-	return m_mods.size();
+	return m_mods.size(); // <-----
 }
 Qt::ItemFlags QuickModsList::flags(const QModelIndex &index) const
 {
@@ -349,11 +355,12 @@ void QuickModsList::markModAsUninstalled(QuickMod *mod, const int version, BaseI
 	{
 		mods.remove(mod->modId());
 	}
-	instance->settings().getSetting("InstalledMods")->set(QVariant::fromValue(mods));
+	instance->settings().set("InstalledMods", QVariant::fromValue(mods));
 }
 bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const int version, BaseInstance *instance) const
 {
 	auto mods = instance->settings().getSetting("InstalledMods")->value<QMap<QString, QMap<QString, QString> > >();
+	qDebug() << mods;
 	return mods.contains(mod->modId()) && mods.value(mod->modId()).contains(mod->version(version).name);
 }
 bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const int version)
@@ -383,6 +390,11 @@ void QuickModsList::updateFiles()
 
 void QuickModsList::addMod(QuickMod *mod)
 {
+	for (int i = 0; i < MMC->instances()->count(); ++i)
+	{
+		//MMC->instances()->at(i)->settings().set("InstalledMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >()));
+	}
+
 	connect(mod, &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
 	connect(mod, &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 
@@ -393,8 +405,10 @@ void QuickModsList::addMod(QuickMod *mod)
 			disconnect(m_mods.at(i), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
 			disconnect(m_mods.at(i), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 			m_mods.replace(i, mod);
+
 			emit modAdded(mod);
 			emit modsListChanged();
+
 			return;
 		}
 	}

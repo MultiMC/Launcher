@@ -31,6 +31,7 @@ signals:
 private
 slots:
 	void receivedMod(int notused);
+	void failedMod(int index);
 	void get(const QUrl &url);
 	void readModFiles();
 

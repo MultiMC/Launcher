@@ -15,7 +15,7 @@ class QuickMod : public QObject
 {
 	Q_OBJECT
 public:
-	QuickMod(QObject *parent = 0);
+	explicit QuickMod(QObject *parent = 0);
 
 	enum ModType
 	{
@@ -31,6 +31,7 @@ public:
 		QString name;
 		QUrl url;
 		QStringList compatibleVersions;
+		QMap<QString, QString> dependencies;
 	};
 
 	bool isValid() const
@@ -102,7 +103,8 @@ class QuickModsList : public QAbstractListModel
 {
 	Q_OBJECT
 public:
-	QuickModsList(QObject *parent = 0);
+	explicit QuickModsList(QObject *parent = 0);
+	~QuickModsList();
 
 	enum Roles
 	{

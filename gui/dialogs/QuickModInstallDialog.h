@@ -24,13 +24,15 @@ public:
 
 public
 slots:
-	void addMod(QuickMod* mod, bool isInitial = false);
+	void addMod(QuickMod* mod, bool isInitial = false, const QString &versionFilter = QString());
 
 private
 slots:
 	void urlCaught(QNetworkReply *reply);
 	void downloadProgress(const qint64 current, const qint64 max);
 	void downloadCompleted();
+
+	void newModRegistered(QuickMod *mod);
 
 	void checkForIsDone();
 
@@ -40,8 +42,9 @@ private:
 
 	BaseInstance *m_instance;
 
+	QMap<QuickMod *, int> m_trackedMods;
+
 	QMap<WebDownloadNavigator *, QPair<QuickMod *, int> > m_webModMapping;
-	int m_pendingDownloads;
 
 	void install(QuickMod *mod, const int versionIndex);
 };

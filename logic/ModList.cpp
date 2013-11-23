@@ -239,6 +239,7 @@ bool ModList::deleteMod(int index)
 	if (index >= mods.size() || index < 0)
 		return false;
 	Mod &m = mods[index];
+	MMC->quickmodslist()->modRemovedBy(m, m_instance);
 	if (m.destroy())
 	{
 		beginRemoveRows(QModelIndex(), index, index);
@@ -256,6 +257,7 @@ bool ModList::deleteMods(int first, int last)
 	for (int i = first; i <= last; i++)
 	{
 		Mod &m = mods[i];
+		MMC->quickmodslist()->modRemovedBy(m, m_instance);
 		m.destroy();
 	}
 	beginRemoveRows(QModelIndex(), first, last);

@@ -132,7 +132,7 @@ ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance* instance, QWidget *
 	ui(new Ui::ChooseInstallModDialog),
 	m_currentMod(0),
 	m_instance(instance),
-	m_view(new KCategorizedView(this)),
+	m_view(new QListView(this)),
 	m_model(new ModFilterProxyModel(this))
 {
 	ui->setupUi(this);
@@ -143,7 +143,8 @@ ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance* instance, QWidget *
 
 	m_view->setSelectionBehavior(KCategorizedView::SelectRows);
 	m_view->setSelectionMode(KCategorizedView::SingleSelection);
-	m_view->setCategoryDrawer(new KCategoryDrawer(m_view));
+	// BUG using a KCategorizedView instead of a QListView creates crash
+	//m_view->setCategoryDrawer(new KCategoryDrawer(m_view));
 	m_model->setSourceModel(MMC->quickmodslist().get());
 	m_view->setModel(m_model);
 
@@ -274,8 +275,6 @@ void ChooseInstallModDialog::setupCategoryBox()
 	ui->categoryBox->addItems(categories);
 }
 
-#include "ChooseInstallModDialog.moc"
-
 void ChooseInstallModDialog::on_addButton_clicked()
 {
 	AddQuickModFileDialog dialog(this);
@@ -292,8 +291,9 @@ void ChooseInstallModDialog::on_addButton_clicked()
 		}
 	}
 }
-
 void ChooseInstallModDialog::on_updateButton_clicked()
 {
 	MMC->quickmodslist()->updateFiles();
 }
+
+#include "ChooseInstallModDialog.moc"

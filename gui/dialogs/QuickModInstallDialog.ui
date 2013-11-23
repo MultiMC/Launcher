@@ -17,19 +17,66 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
+     <widget class="QWidget" name="dependencies">
+      <attribute name="title">
+       <string>Dependencies</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QPlainTextEdit" name="dependencyLogEdit"/>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="web">
       <attribute name="title">
        <string>Web</string>
       </attribute>
-      <layout class="QVBoxLayout" name="webLayout"/>
+      <layout class="QVBoxLayout" name="webLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+      </layout>
      </widget>
      <widget class="QWidget" name="downloads">
       <attribute name="title">
        <string>Downloads</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
        <item>
         <widget class="QTreeWidget" name="progressList">
          <property name="rootIsDecorated">

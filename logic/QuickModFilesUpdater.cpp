@@ -111,6 +111,14 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	}
 	file.write(download->m_data);
 	file.close();
+
+	m_list->addMod(mod);
+}
+
+void QuickModFilesUpdater::failedMod(int index)
+{
+	auto download = qobject_cast<ByteArrayDownload *>(sender());
+	emit error(tr("Error downloading %1: %2").arg(download->m_reply->url().toString(QUrl::PrettyDecoded), download->m_reply->errorString()));
 }
 
 void QuickModFilesUpdater::get(const QUrl &url)
@@ -118,6 +126,7 @@ void QuickModFilesUpdater::get(const QUrl &url)
 	auto job = new NetJob("QuickMod download: " + url.toString());
 	auto download = ByteArrayDownload::make(url);
 	connect(&*download, SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
+	connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
 	job->addNetAction(download);
 	job->start();
 }

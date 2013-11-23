@@ -67,14 +67,15 @@ QuickModInstallDialog::QuickModInstallDialog(BaseInstance *instance, QWidget *pa
 	QDialog(parent),
 	ui(new Ui::QuickModInstallDialog),
 	m_stack(new QStackedLayout),
-	m_instance(instance),
-	m_pendingDownloads(0)
+	m_instance(instance)
 {
 	ui->setupUi(this);
 	setWindowModality(Qt::WindowModal);
 	ui->webLayout->addLayout(m_stack);
 
 	ui->progressList->setItemDelegateForColumn(3, new ProgressItemDelegate(this));
+
+	connect(MMC->quickmodslist().get(), &QuickModsList::modAdded, this, &QuickModInstallDialog::newModRegistered);
 }
 
 QuickModInstallDialog::~QuickModInstallDialog()
@@ -84,7 +85,7 @@ QuickModInstallDialog::~QuickModInstallDialog()
 
 void QuickModInstallDialog::checkForIsDone()
 {
-	if (m_pendingDownloads == 0)
+	if (m_trackedMods.isEmpty())
 	{
 		ui->finishButton->setEnabled(true);
 	}
@@ -94,11 +95,11 @@ void QuickModInstallDialog::checkForIsDone()
 	}
 }
 
-void QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial)
+void QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString &versionFilter)
 {
 	ChooseQuickModVersionDialog dialog(this);
 	dialog.setCanCancel(isInitial);
-	dialog.setMod(mod, m_instance);
+	dialog.setMod(mod, m_instance, versionFilter);
 	if (dialog.exec() == QDialog::Rejected)
 	{
 		checkForIsDone();
@@ -119,13 +120,19 @@ void QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial)
 		return;
 	}
 
+	foreach (const QUrl &dep, mod->dependentUrls())
+	{
+		MMC->quickmodslist()->registerMod(dep);
+		ui->dependencyLogEdit->appendHtml(QString("Fetching dependency URL %1...<br/>").arg(dep.toString(QUrl::PrettyDecoded)));
+	}
+
 	auto navigator = new WebDownloadNavigator(this);
 	connect(navigator, &WebDownloadNavigator::caughtUrl, this, &QuickModInstallDialog::urlCaught);
 	navigator->load(mod->version(dialog.version()).url);
 	m_webModMapping.insert(navigator, qMakePair(mod, dialog.version()));
 	m_stack->addWidget(navigator);
 
-	m_pendingDownloads++;
+	m_trackedMods.insert(mod, dialog.version());
 
 	show();
 	activateWindow();
@@ -275,8 +282,21 @@ void QuickModInstallDialog::downloadCompleted()
 		install(mod, versionIndex);
 	}
 
-	m_pendingDownloads--;
+	m_trackedMods.remove(mod);
 	checkForIsDone();
+}
+
+void QuickModInstallDialog::newModRegistered(QuickMod *newMod)
+{
+	foreach (QuickMod *mod, m_trackedMods.keys())
+	{
+		QuickMod::Version version = mod->version(m_trackedMods[mod]);
+		if (version.dependencies.contains(newMod->name()))
+		{
+			ui->dependencyLogEdit->appendHtml(QString("Resolved dependency from %1 to %2<br/>").arg(mod->name(), newMod->name()));
+			addMod(newMod, false, version.dependencies[newMod->name()]);
+		}
+	}
 }
 
 void QuickModInstallDialog::install(QuickMod *mod, const int versionIndex)
