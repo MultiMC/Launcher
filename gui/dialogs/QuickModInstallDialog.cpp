@@ -85,7 +85,7 @@ QuickModInstallDialog::~QuickModInstallDialog()
 
 void QuickModInstallDialog::checkForIsDone()
 {
-	if (m_trackedMods.isEmpty())
+	if (m_trackedMods.isEmpty() && m_pendingDependencyUrls.isEmpty())
 	{
 		ui->finishButton->setEnabled(true);
 	}
@@ -122,8 +122,12 @@ void QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 
 	foreach (const QUrl &dep, mod->dependentUrls())
 	{
-		MMC->quickmodslist()->registerMod(dep);
-		ui->dependencyLogEdit->appendHtml(QString("Fetching dependency URL %1...<br/>").arg(dep.toString(QUrl::PrettyDecoded)));
+		if (!m_pendingDependencyUrls.contains(dep))
+		{
+			MMC->quickmodslist()->registerMod(dep);
+			ui->dependencyLogEdit->appendHtml(QString("Fetching dependency URL %1...<br/>").arg(dep.toString(QUrl::PrettyDecoded)));
+			m_pendingDependencyUrls.append(dep);
+		}
 	}
 
 	auto navigator = new WebDownloadNavigator(this);
@@ -297,6 +301,8 @@ void QuickModInstallDialog::newModRegistered(QuickMod *newMod)
 			addMod(newMod, false, version.dependencies[newMod->name()]);
 		}
 	}
+	m_pendingDependencyUrls.removeAll(newMod->updateUrl());
+	checkForIsDone();
 }
 
 void QuickModInstallDialog::install(QuickMod *mod, const int versionIndex)

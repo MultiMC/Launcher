@@ -43,6 +43,7 @@ private:
 	BaseInstance *m_instance;
 
 	QMap<QuickMod *, int> m_trackedMods;
+	QList<QUrl> m_pendingDependencyUrls;
 
 	QMap<WebDownloadNavigator *, QPair<QuickMod *, int> > m_webModMapping;
 
