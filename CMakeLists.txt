@@ -351,14 +351,6 @@ logic/NagUtils.cpp
 # QuickMod stuff
 logic/QuickModFilesUpdater.h
 logic/QuickModFilesUpdater.cpp
-
-quickmod/QuickModHandler.h
-quickmod/QuickModHandler.cpp
-quickmod/QuickModFile.h
-quickmod/QuickModFile.cpp
-quickmod/IconDownloader.h
-quickmod/IconDownloader.cpp
-
 )
 
 
