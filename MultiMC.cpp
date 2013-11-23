@@ -9,7 +9,6 @@
 
 #include "gui/MainWindow.h"
 #include "gui/dialogs/VersionSelectDialog.h"
-#include "gui/dialogs/QuickModInstallDialog.h"
 #include "logic/lists/InstanceList.h"
 #include "logic/lists/IconList.h"
 #include "logic/lists/LwjglVersionList.h"
@@ -406,15 +405,6 @@ std::shared_ptr<JavaVersionList> MultiMC::javalist()
 std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
 {
 	return m_quickmodslist;
-}
-
-QuickModInstallDialog *MultiMC::quickmodsinstalldialog(BaseInstance *instance)
-{
-	if (!m_quickmodsinstalldialogs.count(instance))
-	{
-		m_quickmodsinstalldialogs[instance] = new QuickModInstallDialog(instance);
-	}
-	return m_quickmodsinstalldialogs[instance];
 }
 
 int main_gui(MultiMC &app)

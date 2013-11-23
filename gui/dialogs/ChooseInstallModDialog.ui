@@ -40,6 +40,9 @@
            <property name="text">
             <string>Category:</string>
            </property>
+           <property name="buddy">
+            <cstring>categoryBox</cstring>
+           </property>
           </widget>
          </item>
          <item row="1" column="1">
@@ -54,6 +57,9 @@
            <property name="text">
             <string>Tags:</string>
            </property>
+           <property name="buddy">
+            <cstring>tagsEdit</cstring>
+           </property>
           </widget>
          </item>
          <item row="2" column="1">
@@ -61,10 +67,17 @@
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use commas (,) to separate tags:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;tag1, tag2, tag3, tag4&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
+           <property name="placeholderText">
+            <string>tag1, tag2, tag3</string>
+           </property>
           </widget>
          </item>
          <item row="0" column="0" colspan="2">
-          <widget class="QLineEdit" name="fulltextEdit"/>
+          <widget class="QLineEdit" name="fulltextEdit">
+           <property name="placeholderText">
+            <string>Type your search here...</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -245,6 +258,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>fulltextEdit</tabstop>
+  <tabstop>categoryBox</tabstop>
+  <tabstop>tagsEdit</tabstop>
+  <tabstop>installButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>updateButton</tabstop>
+  <tabstop>scrollArea</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -12,11 +12,32 @@
 #include "logic/net/NetJob.h"
 #include "logic/QuickModFilesUpdater.h"
 #include "logic/Mod.h"
+#include "logic/BaseInstance.h"
+#include "depends/settings/include/setting.h"
 #include "MultiMC.h"
 #include "depends/groupview/include/categorizedsortfilterproxymodel.h"
 
+#include "depends/settings/include/inisettingsobject.h"
+
 QuickMod::QuickMod(QObject *parent) : QObject(parent), m_stub(false)
 {
+}
+
+QIcon QuickMod::icon()
+{
+	if (m_icon.isNull())
+	{
+		fetchImages();
+	}
+	return m_icon;
+}
+QPixmap QuickMod::logo()
+{
+	if (m_logo.isNull())
+	{
+		fetchImages();
+	}
+	return m_logo;
 }
 
 #define MALFORMED_JSON_X(message)                                                              \
@@ -138,7 +159,7 @@ void QuickMod::logoDownloadFinished(int index)
 
 void QuickMod::fetchImages()
 {
-	auto job = new NetJob("QuickMod image download: " + m_iconUrl.toString() + " and " + m_logoUrl.toString());
+	auto job = new NetJob("QuickMod image download: " + m_name);
 	if (m_iconUrl.isValid())
 	{
 		auto icon = CacheDownload::make(m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
@@ -162,13 +183,9 @@ QString QuickMod::fileName(const QUrl &url) const
 }
 
 QuickModsList::QuickModsList(QObject *parent)
-	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this))
+	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)), m_settings(new INISettingsObject("quickmod.cfg", this))
 {
-	connect(this, &QuickModsList::registerModFile, m_updater, &QuickModFilesUpdater::registerFile);
-	connect(this, &QuickModsList::updateModFiles, m_updater, &QuickModFilesUpdater::update);
-	connect(this, &QuickModsList::ensureModFileExists, m_updater, &QuickModFilesUpdater::ensureExists);
-	connect(m_updater, &QuickModFilesUpdater::addedMod, this, &QuickModsList::addMod);
-	connect(m_updater, &QuickModFilesUpdater::clearMods, this, &QuickModsList::clearMods);
+	m_settings->registerSetting(new Setting("AvailableMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >())));
 }
 
 QHash<int, QByteArray> QuickModsList::roleNames() const
@@ -300,9 +317,54 @@ Qt::DropActions QuickModsList::supportedDragActions() const
 	return 0;
 }
 
-void QuickModsList::ensureModExists(const Mod &mod)
+void QuickModsList::modAddedBy(const Mod &mod, BaseInstance *instance)
 {
-	emit ensureModFileExists(mod);
+	QuickMod *qMod = m_updater->ensureExists(mod);
+	markModAsInstalled(qMod, 0, mod.filename().absoluteFilePath(), instance);
+}
+void QuickModsList::modRemovedBy(const Mod &mod, BaseInstance *instance)
+{
+	QuickMod *qMod = m_updater->ensureExists(mod);
+	markModAsUninstalled(qMod, 0, instance);
+}
+
+void QuickModsList::markModAsExists(QuickMod *mod, const int version, const QString &fileName)
+{
+	auto mods = m_settings->getSetting("AvailableMods")->value<QMap<QString, QMap<QString, QString> > >();
+	mods[mod->modId()][mod->version(version).name] = fileName;
+	m_settings->getSetting("AvailableMods")->set(QVariant::fromValue(mods));
+}
+
+void QuickModsList::markModAsInstalled(QuickMod *mod, const int version, const QString &fileName, BaseInstance *instance)
+{
+	auto mods = instance->settings().getSetting("InstalledMods")->value<QMap<QString, QMap<QString, QString> > >();
+	mods[mod->modId()][mod->version(version).name] = fileName;
+	instance->settings().getSetting("InstalledMods")->set(QVariant::fromValue(mods));
+}
+void QuickModsList::markModAsUninstalled(QuickMod *mod, const int version, BaseInstance *instance)
+{
+	auto mods = instance->settings().getSetting("InstalledMods")->value<QMap<QString, QMap<QString, QString> > >();
+	mods[mod->modId()].remove(mod->version(version).name);
+	if (mods[mod->modId()].isEmpty())
+	{
+		mods.remove(mod->modId());
+	}
+	instance->settings().getSetting("InstalledMods")->set(QVariant::fromValue(mods));
+}
+bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const int version, BaseInstance *instance) const
+{
+	auto mods = instance->settings().getSetting("InstalledMods")->value<QMap<QString, QMap<QString, QString> > >();
+	return mods.contains(mod->modId()) && mods.value(mod->modId()).contains(mod->version(version).name);
+}
+bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const int version)
+{
+	auto mods = m_settings->getSetting("AvailableMods")->value<QMap<QString, QMap<QString, QString> > >();
+	return mods.contains(mod->modId()) && mods.value(mod->modId()).contains(mod->version(version).name);
+}
+QString QuickModsList::existingModFile(QuickMod *mod, const int version)
+{
+	auto mods = m_settings->getSetting("AvailableMods")->value<QMap<QString, QMap<QString, QString> > >();
+	return mods[mod->modId()][mod->version(version).name];
 }
 
 void QuickModsList::registerMod(const QString &fileName)
@@ -311,12 +373,12 @@ void QuickModsList::registerMod(const QString &fileName)
 }
 void QuickModsList::registerMod(const QUrl &url)
 {
-	emit registerModFile(url);
+	m_updater->registerFile(url);
 }
 
 void QuickModsList::updateFiles()
 {
-	emit updateModFiles();
+	m_updater->update();
 }
 
 void QuickModsList::addMod(QuickMod *mod)

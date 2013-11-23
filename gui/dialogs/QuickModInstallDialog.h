@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QWidget>
+#include <QDialog>
 #include <QMap>
 #include <QPair>
 
@@ -14,7 +14,7 @@ class QuickMod;
 class WebDownloadNavigator;
 class BaseInstance;
 
-class QuickModInstallDialog : public QWidget
+class QuickModInstallDialog : public QDialog
 {
 	Q_OBJECT
 
@@ -30,6 +30,9 @@ private
 slots:
 	void urlCaught(QNetworkReply *reply);
 	void downloadProgress(const qint64 current, const qint64 max);
+	void downloadCompleted();
+
+	void checkForIsDone();
 
 private:
 	Ui::QuickModInstallDialog *ui;
@@ -38,4 +41,7 @@ private:
 	BaseInstance *m_instance;
 
 	QMap<WebDownloadNavigator *, QPair<QuickMod *, int> > m_webModMapping;
+	int m_pendingDownloads;
+
+	void install(QuickMod *mod, const int versionIndex);
 };

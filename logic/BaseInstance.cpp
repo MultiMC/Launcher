@@ -96,6 +96,9 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 		new OverrideSetting("ShowConsole", globalSettings->getSetting("ShowConsole")));
 	settings().registerSetting(new OverrideSetting(
 		"AutoCloseConsole", globalSettings->getSetting("AutoCloseConsole")));
+
+	// Mods
+	settings().registerSetting(new Setting("InstalledMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >())));
 }
 
 void BaseInstance::nuke()

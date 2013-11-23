@@ -38,12 +38,16 @@ slots:
 	void on_updateButton_clicked();
 	void modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
+	void modLogoUpdated();
+
 	void setupCategoryBox();
 
 private:
 	Ui::ChooseInstallModDialog *ui;
 
-	BaseInstance* m_instance;
+	QuickMod *m_currentMod;
+
+	BaseInstance *m_instance;
 
 	DownloadProgressDialog *dialog;
 

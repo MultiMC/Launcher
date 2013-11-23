@@ -34,7 +34,7 @@ class ModList : public QAbstractListModel
 {
 	Q_OBJECT
 public:
-	ModList(const QString &dir, const QString &list_file = QString());
+	ModList(BaseInstance *instance, const QString &dir, const QString &list_file = QString());
 
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const
@@ -129,6 +129,7 @@ signals:
 	void changed();
 
 protected:
+	BaseInstance *m_instance;
 	QFileSystemWatcher *m_watcher;
 	bool is_watching;
 	QDir m_dir;

@@ -18,8 +18,6 @@ class QNetworkAccessManager;
 class ForgeVersionList;
 class JavaVersionList;
 class QuickModsList;
-class QuickModInstallDialog;
-class BaseInstance;
 
 #if defined(MMC)
 #undef MMC
@@ -92,8 +90,6 @@ public:
 
 	std::shared_ptr<QuickModsList> quickmodslist();
 
-	QuickModInstallDialog *quickmodsinstalldialog(BaseInstance *instance);
-
 private:
 	void initLogger();
 
@@ -116,7 +112,6 @@ private:
 	std::shared_ptr<MinecraftVersionList> m_minecraftlist;
 	std::shared_ptr<JavaVersionList> m_javalist;
 	std::shared_ptr<QuickModsList> m_quickmodslist;
-	std::map<BaseInstance *, QuickModInstallDialog *> m_quickmodsinstalldialogs;
 	QsLogging::DestinationPtr m_fileDestination;
 	QsLogging::DestinationPtr m_debugDestination;
 

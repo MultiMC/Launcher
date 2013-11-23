@@ -130,6 +130,7 @@ protected:
 ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance* instance, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::ChooseInstallModDialog),
+	m_currentMod(0),
 	m_instance(instance),
 	m_view(new KCategorizedView(this)),
 	m_model(new ModFilterProxyModel(this))
@@ -164,10 +165,10 @@ void ChooseInstallModDialog::on_installButton_clicked()
 		return;
 	}
 
-	//MMC->quickmodsinstalldialog(m_instance)->setParent(this);
-	MMC->quickmodsinstalldialog(m_instance)->addMod(
-				m_view->selectionModel()->selectedRows().first()
-				.data(QuickModsList::QuickModRole).value<QuickMod*>(), true);
+	QuickModInstallDialog dialog(m_instance, this);
+	dialog.addMod(m_view->selectionModel()->selectedRows().first()
+				  .data(QuickModsList::QuickModRole).value<QuickMod*>(), true);
+	dialog.exec();
 }
 void ChooseInstallModDialog::resolveSingleMod(QuickMod *mod)
 {
@@ -209,8 +210,14 @@ void ChooseInstallModDialog::on_categoryBox_currentTextChanged()
 void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 												 const QItemSelection &deselected)
 {
+	if (m_currentMod)
+	{
+		disconnect(m_currentMod, &QuickMod::logoUpdated, this, &ChooseInstallModDialog::modLogoUpdated);
+	}
+
 	if (selected.isEmpty())
 	{
+		m_currentMod = 0;
 		ui->nameLabel->setText("");
 		ui->descriptionLabel->setText("");
 		ui->websiteLabel->setText("");
@@ -220,28 +227,35 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 	}
 	else
 	{
-		QuickMod *mod = m_model->index(selected.first().top(), 0)
-							.data(QuickModsList::QuickModRole)
-							.value<QuickMod *>();
-		ui->nameLabel->setText(mod->name());
-		ui->descriptionLabel->setText(mod->description());
+		m_currentMod = m_model->index(selected.first().top(), 0)
+				.data(QuickModsList::QuickModRole)
+				.value<QuickMod *>();
+		ui->nameLabel->setText(m_currentMod->name());
+		ui->descriptionLabel->setText(m_currentMod->description());
 		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>")
-									  .arg(mod->websiteUrl().toString(QUrl::FullyEncoded),
-										   mod->websiteUrl().toString(QUrl::PrettyDecoded)));
+									  .arg(m_currentMod->websiteUrl().toString(QUrl::FullyEncoded),
+										   m_currentMod->websiteUrl().toString(QUrl::PrettyDecoded)));
 		QStringList categories;
-		foreach(const QString & category, mod->categories())
+		foreach(const QString & category, m_currentMod->categories())
 		{
 			categories.append(QString("<a href=\"%1\">%1</a>").arg(category));
 		}
 		ui->categoriesLabel->setText(categories.join(", "));
 		QStringList tags;
-		foreach(const QString & tag, mod->tags())
+		foreach(const QString & tag, m_currentMod->tags())
 		{
 			tags.append(QString("<a href=\"%1\">%1</a>").arg(tag));
 		}
 		ui->tagsLabel->setText(tags.join(", "));
-		ui->logoLabel->setPixmap(mod->logo());
+		ui->logoLabel->setPixmap(m_currentMod->logo());
+
+		connect(m_currentMod, &QuickMod::logoUpdated, this, &ChooseInstallModDialog::modLogoUpdated);
 	}
+}
+
+void ChooseInstallModDialog::modLogoUpdated()
+{
+	ui->logoLabel->setPixmap(m_currentMod->logo());
 }
 
 void ChooseInstallModDialog::setupCategoryBox()

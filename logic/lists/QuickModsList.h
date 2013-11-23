@@ -8,6 +8,8 @@
 
 class QuickModFilesUpdater;
 class Mod;
+class BaseInstance;
+class SettingsObject;
 
 class QuickMod : public QObject
 {
@@ -40,9 +42,9 @@ public:
 	QString description() const { return m_description; }
 	QUrl websiteUrl() const { return m_websiteUrl; }
 	QUrl iconUrl() const { return m_iconUrl; }
-	QIcon icon() const { return m_icon; }
+	QIcon icon();
 	QUrl logoUrl() const { return m_logoUrl; }
-	QPixmap logo() const { return m_logo; }
+	QPixmap logo();
 	QUrl updateUrl() const { return m_updateUrl; }
 	QList<QUrl> recommendedUrls() const { return m_recommendedUrls; }
 	QList<QUrl> dependentUrls() const { return m_dependentUrls; }
@@ -138,7 +140,15 @@ public:
 	int numMods() const { return m_mods.size(); }
 	QuickMod *modAt(const int index) const { return m_mods[index]; }
 
-	void ensureModExists(const Mod &mod);
+	void modAddedBy(const Mod &mod, BaseInstance *instance);
+	void modRemovedBy(const Mod &mod, BaseInstance *instance);
+
+	void markModAsExists(QuickMod *mod, const int version, const QString &fileName);
+	void markModAsInstalled(QuickMod *mod, const int version, const QString &fileName, BaseInstance *instance);
+	void markModAsUninstalled(QuickMod *mod, const int version, BaseInstance *instance);
+	bool isModMarkedAsInstalled(QuickMod *mod, const int version, BaseInstance *instance) const;
+	bool isModMarkedAsExists(QuickMod *mod, const int version);
+	QString existingModFile(QuickMod *mod, const int version);
 
 public
 slots:
@@ -149,10 +159,8 @@ slots:
 
 private
 slots:
-	// begin QuickModFilesUpdater
 	void addMod(QuickMod *mod);
 	void clearMods();
-	// end
 	void removeMod(QuickMod *mod);
 
 	void modIconUpdated();
@@ -162,14 +170,11 @@ signals:
 	void modAdded(QuickMod *mod);
 	void modsListChanged();
 
-	// begin QuickModFilesUpdater
-	void registerModFile(const QUrl &url);
-	void updateModFiles();
-	void ensureModFileExists(const Mod &mod);
-	// end
-
 private:
+	friend class QuickModFilesUpdater;
 	QuickModFilesUpdater *m_updater;
 
 	QList<QuickMod *> m_mods;
+
+	SettingsObject *m_settings;
 };

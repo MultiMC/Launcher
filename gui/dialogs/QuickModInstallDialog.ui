@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>QuickModInstallDialog</class>
- <widget class="QWidget" name="QuickModInstallDialog">
+ <widget class="QDialog" name="QuickModInstallDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -32,6 +32,9 @@
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QTreeWidget" name="progressList">
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
          <attribute name="headerDefaultSectionSize">
           <number>100</number>
          </attribute>
@@ -89,13 +92,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton">
-       <property name="text">
-        <string>Hide</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>
@@ -103,18 +99,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>cancelButton</sender>
+   <sender>finishButton</sender>
    <signal>clicked()</signal>
    <receiver>QuickModInstallDialog</receiver>
-   <slot>hide()</slot>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>605</x>
-     <y>458</y>
+     <x>566</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
-     <x>636</x>
-     <y>456</y>
+     <x>511</x>
+     <y>448</y>
     </hint>
    </hints>
   </connection>

@@ -10,9 +10,6 @@ class Mod;
 /**
  * Takes care of regulary checking for updates to quickmod files, and is also responsible for
  * keeping track of them
- *
- * All access to this class should be via signals and slots (in case we at some point want
- * threading)
  */
 class QuickModFilesUpdater : public QObject
 {
@@ -20,16 +17,15 @@ class QuickModFilesUpdater : public QObject
 public:
 	QuickModFilesUpdater(QuickModsList *list);
 
+	QuickMod *ensureExists(const Mod &mod);
+
+	void registerFile(const QUrl &url);
+
 public
 slots:
-	void registerFile(const QUrl &url);
 	void update();
-	void ensureExists(const Mod &mod);
 
 signals:
-	void clearMods();
-	void addedMod(QuickMod *mod);
-
 	void error(const QString &message);
 
 private
@@ -42,7 +38,7 @@ private:
 	QuickModsList *m_list;
 	QDir m_quickmodDir;
 
-	void saveQuickMod(const QuickMod *mod);
+	void saveQuickMod(QuickMod *mod);
 	bool parseQuickMod(const QString &fileName, QuickMod *mod);
 
 	static QString fileName(const QuickMod *mod);

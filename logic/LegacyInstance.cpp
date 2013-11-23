@@ -127,7 +127,7 @@ std::shared_ptr<ModList> LegacyInstance::coreModList()
 	I_D(LegacyInstance);
 	if (!d->core_mod_list)
 	{
-		d->core_mod_list.reset(new ModList(coreModsDir()));
+		d->core_mod_list.reset(new ModList(this, coreModsDir()));
 	}
 	d->core_mod_list->update();
 	return d->core_mod_list;
@@ -138,7 +138,7 @@ std::shared_ptr<ModList> LegacyInstance::jarModList()
 	I_D(LegacyInstance);
 	if (!d->jar_mod_list)
 	{
-		auto list = new ModList(jarModsDir(), modListFile());
+		auto list = new ModList(this, jarModsDir(), modListFile());
 		connect(list, SIGNAL(changed()), SLOT(jarModsChanged()));
 		d->jar_mod_list.reset(list);
 	}
@@ -156,7 +156,7 @@ std::shared_ptr<ModList> LegacyInstance::loaderModList()
 	I_D(LegacyInstance);
 	if (!d->loader_mod_list)
 	{
-		d->loader_mod_list.reset(new ModList(loaderModsDir()));
+		d->loader_mod_list.reset(new ModList(this, loaderModsDir()));
 	}
 	d->loader_mod_list->update();
 	return d->loader_mod_list;
@@ -167,7 +167,7 @@ std::shared_ptr<ModList> LegacyInstance::texturePackList()
 	I_D(LegacyInstance);
 	if (!d->texture_pack_list)
 	{
-		d->texture_pack_list.reset(new ModList(texturePacksDir()));
+		d->texture_pack_list.reset(new ModList(this, texturePacksDir()));
 	}
 	d->texture_pack_list->update();
 	return d->texture_pack_list;

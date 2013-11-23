@@ -40,7 +40,7 @@ void QuickModFilesUpdater::update()
 	}
 }
 
-void QuickModFilesUpdater::ensureExists(const Mod &mod)
+QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 {
 	auto qMod = new QuickMod;
 	qMod->m_name = mod.name();
@@ -48,6 +48,9 @@ void QuickModFilesUpdater::ensureExists(const Mod &mod)
 	qMod->m_websiteUrl = QUrl(mod.homeurl());
 	qMod->m_description = mod.description();
 	qMod->m_stub = true;
+	QuickMod::Version version;
+	version.name = mod.version();
+	qMod->m_versions.append(version);
 	if (mod.filename().path().contains("coremod"))
 	{
 		qMod->m_type = QuickMod::ForgeCoreMod;
@@ -74,8 +77,14 @@ void QuickModFilesUpdater::ensureExists(const Mod &mod)
 		{
 			saveQuickMod(qMod);
 		}
-
+		else
+		{
+			delete qMod;
+			qMod = oldMod;
+		}
 	}
+
+	return qMod;
 }
 
 void QuickModFilesUpdater::receivedMod(int notused)
@@ -89,7 +98,6 @@ void QuickModFilesUpdater::receivedMod(int notused)
 		emit error(tr("QuickMod parse error: %1").arg(errorMessage));
 		return;
 	}
-	emit addedMod(mod);
 
 	m_quickmodDir.remove(fileName(mod));
 
@@ -116,19 +124,19 @@ void QuickModFilesUpdater::get(const QUrl &url)
 
 void QuickModFilesUpdater::readModFiles()
 {
-	emit clearMods();
+	m_list->clearMods();
 	foreach(const QFileInfo& info,
 			  m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
 	{
 		auto mod = new QuickMod;
 		if (parseQuickMod(info.absoluteFilePath(), mod))
 		{
-			emit addedMod(mod);
+			m_list->addMod(mod);
 		}
 	}
 }
 
-void QuickModFilesUpdater::saveQuickMod(const QuickMod *mod)
+void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
 {
 	QJsonObject obj;
 	obj.insert("name", mod->name());
@@ -162,6 +170,8 @@ void QuickModFilesUpdater::saveQuickMod(const QuickMod *mod)
 	}
 	file.write(QJsonDocument(obj).toJson());
 	file.close();
+
+	m_list->addMod(mod);
 }
 
 QString QuickModFilesUpdater::fileName(const QuickMod *mod)

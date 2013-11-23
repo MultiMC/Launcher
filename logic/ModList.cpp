@@ -25,8 +25,8 @@
 #include "lists/QuickModsList.h"
 #include "MultiMC.h"
 
-ModList::ModList(const QString &dir, const QString &list_file)
-	: QAbstractListModel(), m_dir(dir), m_list_file(list_file)
+ModList::ModList(BaseInstance *instance, const QString &dir, const QString &list_file)
+	: QAbstractListModel(), m_instance(instance), m_dir(dir), m_list_file(list_file)
 {
 	m_dir.setFilter(QDir::Readable | QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs |
 					QDir::NoSymLinks);
@@ -105,7 +105,7 @@ bool ModList::update()
 		}
 	for (auto mod : newMods)
 	{
-		MMC->quickmodslist()->ensureModExists(mod);
+		MMC->quickmodslist()->modAddedBy(mod, m_instance);
 	}
 	beginResetModel();
 	mods.swap(newMods);
@@ -181,7 +181,7 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	if (!m.valid())
 		return false;
 
-	MMC->quickmodslist()->ensureModExists(m);
+	MMC->quickmodslist()->modAddedBy(m, m_instance);
 
 	// if it's already there, replace the original mod (in place)
 	int idx = mods.indexOf(m);
