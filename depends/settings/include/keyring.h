@@ -22,7 +22,7 @@
 #include "libsettings_config.h"
 
 /**
- * @file libsettings/include/keyring.h
+ * @file settings/include/keyring.h
  * Access to System Keyrings
  */
 

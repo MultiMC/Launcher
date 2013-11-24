@@ -98,8 +98,11 @@ SET(MultiMC_VERSION_REV			0)
 SET(MultiMC_VERSION_BUILD 0 CACHE STRING "Build number.")
 MESSAGE(STATUS "MultiMC build #${MultiMC_VERSION_BUILD}")
 
+# Complete version string
+SET(MultiMC_VERSION "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_REV}.${MultiMC_VERSION_BUILD}")
+
 # Custom target to just print the version.
-ADD_CUSTOM_TARGET(version echo "Version: ${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_REV}.${MultiMC_VERSION_BUILD}")
+ADD_CUSTOM_TARGET(version echo "Version: ${MultiMC_VERSION}")
 
 # Check the current Git commit
 execute_process(COMMAND git rev-parse HEAD
@@ -606,3 +609,4 @@ install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/translations)
 set(SOURCE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(tests)
+add_subdirectory(docs)

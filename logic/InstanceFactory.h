@@ -25,7 +25,7 @@ class BaseVersion;
 class BaseInstance;
 
 /*!
- * The \bInstanceFactory\b is a singleton that manages loading and creating instances.
+ * The \b InstanceFactory\b is a singleton that manages loading and creating instances.
  */
 class InstanceFactory : public QObject
 {
@@ -59,7 +59,7 @@ public:
 	 * \brief Creates a stub instance
 	 *
 	 * \param inst Pointer to store the created instance in.
-	 * \param inst Game version to use for the instance
+	 * \param version Game version to use for the instance
 	 * \param instDir The new instance's directory.
 	 * \return An InstCreateError error code.
 	 * - InstExists if the given instance directory is already an instance.

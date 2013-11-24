@@ -18,7 +18,7 @@
 #include "include/cmdutils.h"
 
 /**
- * @file libutil/src/cmdutils.cpp
+ * @file util/src/cmdutils.cpp
  */
 
 namespace Util

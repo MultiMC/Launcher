@@ -84,7 +84,7 @@ public:
 
 	/*!
 	 * \brief Finds a version by its descriptor.
-	 * \param The descriptor of the version to find.
+	 * \param descriptor The descriptor of the version to find.
 	 * \return A const pointer to the version with the given descriptor. NULL if
 	 * one doesn't exist.
 	 */

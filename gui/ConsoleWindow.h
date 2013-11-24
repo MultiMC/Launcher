@@ -46,7 +46,7 @@ slots:
 	/**
 	 * @brief write a string
 	 * @param data the string
-	 * @param mode the WriteMode
+	 * @param level the log level of the message
 	 * lines have to be put through this as a whole!
 	 */
 	void write(QString data, MessageLevel::Enum level = MessageLevel::MultiMC);
