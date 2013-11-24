@@ -419,6 +419,15 @@ IF(WIN32)
 	)
 ENDIF(WIN32)
 
+OPTION(MultiMC_CODE_COVERAGE "Compiles for code coverage" OFF)
+IF(MultiMC_CODE_COVERAGE)
+	#SET(MultiMC_LINK_ADDITIONAL_LIBS ${MultiMC_LINK_ADDITIONAL_LIBS} gcov)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 --coverage")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g -O0 --coverage")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS} -g -O0 --coverage")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O0 --coverage")
+ENDIF(MultiMC_CODE_COVERAGE)
+
 # Tell CMake that MultiMCLauncher.jar is generated.
 SET_SOURCE_FILES_PROPERTIES(resources/MultiMCLauncher.jar GENERATED)
 
@@ -594,4 +603,6 @@ add_custom_target (translations DEPENDS ${QM_FILES})
 
 install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/translations)
 
+set(SOURCE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(BUILD_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 add_subdirectory(tests)

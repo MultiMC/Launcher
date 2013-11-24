@@ -9,5 +9,4 @@ build
 resources/CMakeFiles
 resources/MultiMCLauncher.jar
 *~
-/resources/icons/toolbar/open.png
-/quickmod/quickmoddependancyresolver.cpp
+html/
