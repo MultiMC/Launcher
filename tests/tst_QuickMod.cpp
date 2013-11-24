@@ -40,7 +40,7 @@ private slots:
 											 QStringList() << "1.6.2" << "1.6.4",
 											 QMap<QString, QString>({{"stuff", "1.0.0.0.0"}}));
 		mod->m_stub = false;
-		QTest::newRow("basic test") << Tests::Internal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test")) << mod;
+		QTest::newRow("basic test") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test")) << mod;
 	}
 	void testParsing()
 	{

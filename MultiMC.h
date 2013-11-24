@@ -45,7 +45,7 @@ public:
 	};
 
 public:
-	MultiMC(int &argc, char **argv);
+	MultiMC(int &argc, char **argv, const QString &currentDir = QString());
 	virtual ~MultiMC();
 
 	std::shared_ptr<SettingsObject> settings()

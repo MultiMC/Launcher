@@ -30,7 +30,7 @@
 #include "config.h"
 using namespace Util::Commandline;
 
-MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
+MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplication(argc, argv)
 {
 	setOrganizationName("MultiMC");
 	setApplicationName("MultiMC5");
@@ -58,7 +58,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 		parser.addShortOpt("version", 'V');
 		parser.addDocumentation("version", "display program version and exit.");
 		// --dir
-		parser.addOption("dir", applicationDirPath());
+		parser.addOption("dir", currentDir.isNull() ? applicationDirPath() : currentDir);
 		parser.addShortOpt("dir", 'd');
 		parser.addDocumentation("dir", "use the supplied directory as MultiMC root instead of "
 									   "the binary location (use '.' for current)");

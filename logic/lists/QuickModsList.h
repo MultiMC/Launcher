@@ -32,7 +32,7 @@ public:
 		Version(const QString &name,
 				const QUrl &url,
 				const QStringList &mc,
-				const QMap<QString, QString> &deps) :
+				const QMap<QString, QString> &deps = QMap<QString, QString>()) :
 			name(name), url(url), compatibleVersions(mc), dependencies(deps) {}
 		QString name;
 		QUrl url;
@@ -90,6 +90,8 @@ slots:
 private:
 	friend class QuickModFilesUpdater;
 	friend class QuickModTest;
+	friend class QuickModsListTest;
+	friend class TestsInternal;
 	QString m_name;
 	QString m_description;
 	QUrl m_websiteUrl;
@@ -165,8 +167,9 @@ public:
 	void markModAsInstalled(QuickMod *mod, const int version, const QString &fileName, BaseInstance *instance);
 	void markModAsUninstalled(QuickMod *mod, const int version, BaseInstance *instance);
 	bool isModMarkedAsInstalled(QuickMod *mod, const int version, BaseInstance *instance) const;
-	bool isModMarkedAsExists(QuickMod *mod, const int version);
-	QString existingModFile(QuickMod *mod, const int version);
+	bool isModMarkedAsExists(QuickMod *mod, const int version) const;
+	QString installedModFile(QuickMod *mod, const int version, BaseInstance *instance) const;
+	QString existingModFile(QuickMod *mod, const int version) const;
 
 public
 slots:

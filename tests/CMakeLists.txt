@@ -25,6 +25,7 @@ macro(add_unit_test2 name)
 endmacro()
 
 add_unit_test2(QuickMod)
+add_unit_test2(QuickModsList)
 
 set(COVERAGE_SOURCE_DIRS
  ${SOURCE_ROOT}/logic/*
@@ -54,13 +55,14 @@ if(MultiMC_CODE_COVERAGE)
 	add_custom_target(MultiMC_RUN_TEST_${test}
 	 COMMAND lcov -d ${CMAKE_CURRENT_BINARY_DIR} -z -q # clean test
 		 && lcov -d ${BUILD_ROOT} -z -q # clean common
-		 && ${BUILD_ROOT}/${test} -xml -o coverage_${test}.out # run test
+		 && ${BUILD_ROOT}/${test} -o coverage_${test}.out,xml # run test
 		 && lcov --checksum -b ${SOURCE_ROOT} -d ${CMAKE_CURRENT_BINARY_DIR} -c -o coverage_${test}.info # generate for test
 		 && lcov --checksum -b ${SOURCE_ROOT} -d ${BUILD_ROOT} -c -o coverage_common.info # generate for common
 		 && lcov --checksum -b ${SOURCE_ROOT} -d . -a coverage_${test}.info -a coverage_common.info -o coverage_${test}-combined.info # combine test and common
-		 && lcov --checksum -b ${SOURCE_ROOT} --list-full-path --extract coverage_${test}-combined.info ${SOURCE_ROOT}/tests/* ${COVERAGE_SOURCE_DIRS} -o coverage_${test}-stripped.info # strip
+		 && lcov --checksum -b ${SOURCE_ROOT} --list-full-path --extract coverage_${test}-combined.info ${COVERAGE_SOURCE_DIRS} -o coverage_${test}-stripped.info # strip
 	 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	 VERBATIM
+	 DEPENDS ${test}
 	)
 	list(APPEND MultiMC_TEST_COVERAGE_FILES coverage_${test}-stripped.info)
 	list(APPEND MultiMC_RUN_TESTS MultiMC_RUN_TEST_${test})

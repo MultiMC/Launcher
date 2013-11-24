@@ -22,6 +22,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QCoreApplication>
 #include <pathutils.h>
 
 #include "MultiMC.h"
@@ -36,11 +37,11 @@ const static int GROUP_FILE_FORMAT_VERSION = 1;
 InstanceList::InstanceList(const QString &instDir, QObject *parent)
 	: QAbstractListModel(parent), m_instDir(instDir)
 {
+	connect(qApp, &QCoreApplication::aboutToQuit, this, &InstanceList::saveGroupList);
 }
 
 InstanceList::~InstanceList()
 {
-	saveGroupList();
 }
 
 int InstanceList::rowCount(const QModelIndex &parent) const
@@ -121,7 +122,7 @@ void InstanceList::saveGroupList()
 	if (!groupFile.open(QIODevice::WriteOnly | QIODevice::Truncate))
 	{
 		// An error occurred. Ignore it.
-		QLOG_ERROR() << "Failed to read instance group file.";
+		QLOG_ERROR() << "Failed to read instance group file";
 		return;
 	}
 	QTextStream out(&groupFile);

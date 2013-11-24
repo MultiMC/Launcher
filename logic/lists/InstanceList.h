@@ -29,6 +29,8 @@ class InstanceList : public QAbstractListModel
 	Q_OBJECT
 private:
 	void loadGroupList(QMap<QString, QString> &groupList);
+
+private slots:
 	void saveGroupList();
 
 public:

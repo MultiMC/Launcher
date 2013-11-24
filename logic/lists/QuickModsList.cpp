@@ -343,43 +343,63 @@ void QuickModsList::modRemovedBy(const Mod &mod, BaseInstance *instance)
 
 void QuickModsList::markModAsExists(QuickMod *mod, const int version, const QString &fileName)
 {
-	auto mods = m_settings->getSetting("AvailableMods")->value<QMap<QString, QMap<QString, QString> > >();
-	mods[mod->modId()][mod->version(version).name] = fileName;
-	m_settings->getSetting("AvailableMods")->set(QVariant::fromValue(mods));
+	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
+	auto map = mods[mod->modId()].toMap();
+	map[mod->version(version).name] = fileName;
+	mods[mod->modId()] = map;
+	m_settings->getSetting("AvailableMods")->set(QVariant(mods));
 }
 
-// FIXME these all don't seem to do anything
 void QuickModsList::markModAsInstalled(QuickMod *mod, const int version, const QString &fileName, BaseInstance *instance)
 {
-	auto mods = instance->settings().getSetting("InstalledMods")->value<QMap<QString, QMap<QString, QString> > >();
-	mods[mod->modId()][mod->version(version).name] = fileName;
-	instance->settings().getSetting("InstalledMods")->set(QVariant::fromValue(mods));
+	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
+	auto map = mods[mod->modId()].toMap();
+	map[mod->version(version).name] = fileName;
+	mods[mod->modId()] = map;
+	instance->settings().getSetting("InstalledMods")->set(QVariant(mods));
 }
 void QuickModsList::markModAsUninstalled(QuickMod *mod, const int version, BaseInstance *instance)
 {
-	auto mods = instance->settings().getSetting("InstalledMods")->value<QMap<QString, QMap<QString, QString> > >();
-	mods[mod->modId()].remove(mod->version(version).name);
-	if (mods[mod->modId()].isEmpty())
+	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
+	auto map = mods[mod->modId()].toMap();
+	map.remove(mod->version(version).name);
+	if (map.isEmpty())
 	{
 		mods.remove(mod->modId());
 	}
-	instance->settings().set("InstalledMods", QVariant::fromValue(mods));
+	else
+	{
+		mods[mod->modId()] = map;
+	}
+	instance->settings().set("InstalledMods", QVariant(mods));
 }
 bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const int version, BaseInstance *instance) const
 {
-	auto mods = instance->settings().getSetting("InstalledMods")->value<QMap<QString, QMap<QString, QString> > >();
-	qDebug() << mods;
-	return mods.contains(mod->modId()) && mods.value(mod->modId()).contains(mod->version(version).name);
+	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
+	return mods.contains(mod->modId()) && mods.value(mod->modId()).toMap().contains(mod->version(version).name);
 }
-bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const int version)
+bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const int version) const
 {
-	auto mods = m_settings->getSetting("AvailableMods")->value<QMap<QString, QMap<QString, QString> > >();
-	return mods.contains(mod->modId()) && mods.value(mod->modId()).contains(mod->version(version).name);
+	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
+	return mods.contains(mod->modId()) && mods.value(mod->modId()).toMap().contains(mod->version(version).name);
 }
-QString QuickModsList::existingModFile(QuickMod *mod, const int version)
+QString QuickModsList::installedModFile(QuickMod *mod, const int version, BaseInstance *instance) const
 {
-	auto mods = m_settings->getSetting("AvailableMods")->value<QMap<QString, QMap<QString, QString> > >();
-	return mods[mod->modId()][mod->version(version).name];
+	if (!isModMarkedAsInstalled(mod, version, instance))
+	{
+		return QString();
+	}
+	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
+	return mods[mod->modId()].toMap()[mod->version(version).name].toString();
+}
+QString QuickModsList::existingModFile(QuickMod *mod, const int version) const
+{
+	if (!isModMarkedAsExists(mod, version))
+	{
+		return QString();
+	}
+	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
+	return mods[mod->modId()].toMap()[mod->version(version).name].toString();
 }
 
 void QuickModsList::registerMod(const QString &fileName)
