@@ -77,6 +77,14 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplicati
 		parser.addShortOpt("launch", 'l');
 		parser.addDocumentation("launch", "tries to launch the given instance", "<inst>");
 
+		/***************** QuickMod stuff *****************/
+
+		parser.addOption("qm-register");
+		parser.addShortOpt("qm-register", 'r');
+		parser.addDocumentation("qm-register", "registers a quickmod file or url with the quickmod system", "<file|url>");
+
+		/**************************************************/
+
 		// parse the arguments
 		try
 		{
@@ -208,8 +216,29 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplicati
 		return;
 	}
 
-	m_quickmodslist.reset(new QuickModsList(this));
-	// TODO cmd line arguments for accessing the quickmodslist
+	// register quickmod file or url
+	if (!args["qm-register"].isNull())
+	{
+		QUrl url;
+		const QString opt = args["qm-register"].toString();
+		if (QFileInfo(opt).exists())
+		{
+			std::cout << "Registering local QuickMod file with the quickmod system" << std::endl;
+			url = QUrl::fromLocalFile(opt);
+		}
+		else
+		{
+			url = QUrl::fromUserInput(opt);
+		}
+		quickmodslist()->registerMod(url);
+		connect(quickmodslist().get(), SIGNAL(modAdded(QuickMod*)), this, SLOT(quit()));
+		exec();
+		m_status = MultiMC::Succeeded;
+		return;
+	}
+
+	// ensure we always create the quickmods list
+	quickmodslist();
 
 	m_status = MultiMC::Initialized;
 }
@@ -404,6 +433,10 @@ std::shared_ptr<JavaVersionList> MultiMC::javalist()
 
 std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
 {
+	if (!m_quickmodslist)
+	{
+		m_quickmodslist.reset(new QuickModsList());
+	}
 	return m_quickmodslist;
 }
 
