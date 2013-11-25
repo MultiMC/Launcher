@@ -35,16 +35,10 @@ set(COVERAGE_SOURCE_DIRS
  ${SOURCE_ROOT}/gui/*
  ${SOURCE_ROOT}/gui/dialogs/*
  ${SOURCE_ROOT}/gui/widgets/*
- ${SOURCE_ROOT}/depends/classparser/include/*
- ${SOURCE_ROOT}/depends/classparser/src/*
- ${SOURCE_ROOT}/depends/launcher/include/*
- ${SOURCE_ROOT}/depends/launcher/src/*
- ${SOURCE_ROOT}/depends/classparser/include/*
- ${SOURCE_ROOT}/depends/classparser/src/*
  ${SOURCE_ROOT}/depends/settings/include/*
  ${SOURCE_ROOT}/depends/settings/src/*
- ${SOURCE_ROOT}/depends/utils/include/*
- ${SOURCE_ROOT}/depends/utils/src/*
+ ${SOURCE_ROOT}/depends/util/include/*
+ ${SOURCE_ROOT}/depends/util/src/*
 )
 
 if(MultiMC_CODE_COVERAGE)
@@ -55,11 +49,17 @@ if(MultiMC_CODE_COVERAGE)
 	add_custom_target(MultiMC_RUN_TEST_${test}
 	 COMMAND lcov -d ${CMAKE_CURRENT_BINARY_DIR} -z -q # clean test
 		 && lcov -d ${BUILD_ROOT} -z -q # clean common
+		 && lcov -d ${BUILD_ROOT}/depends/settings/CMakeFiles/libSettings.dir -z -q # clean settings
+		 && lcov -d ${BUILD_ROOT}/depends/utils/CMakeFiles/libUtil.dir -z -q # clean utils
 		 && ${BUILD_ROOT}/${test} -o coverage_${test}.out,xml # run test
-		 && lcov --checksum -b ${SOURCE_ROOT} -d ${CMAKE_CURRENT_BINARY_DIR} -c -o coverage_${test}.info # generate for test
-		 && lcov --checksum -b ${SOURCE_ROOT} -d ${BUILD_ROOT} -c -o coverage_common.info # generate for common
-		 && lcov --checksum -b ${SOURCE_ROOT} -d . -a coverage_${test}.info -a coverage_common.info -o coverage_${test}-combined.info # combine test and common
-		 && lcov --checksum -b ${SOURCE_ROOT} --list-full-path --extract coverage_${test}-combined.info ${COVERAGE_SOURCE_DIRS} -o coverage_${test}-stripped.info # strip
+		 && lcov -q --checksum -b ${SOURCE_ROOT} -d ${CMAKE_CURRENT_BINARY_DIR} -c -o coverage_${test}.info # generate for test
+		 && lcov -q --checksum -b ${SOURCE_ROOT} -d ${BUILD_ROOT} -c -o coverage_common.info # generate for common
+		 && lcov -q --checksum -b ${SOURCE_ROOT} -d ${BUILD_ROOT}/depends/settings/CMakeFiles/libSettings.dir -c -o coverage_settings.info # generate for settings
+		 && lcov -q --checksum -b ${SOURCE_ROOT} -d ${BUILD_ROOT}/depends/util/CMakeFiles/libUtil.dir -c -o coverage_utils.info # generate for utils
+		 && lcov -q --checksum -b ${SOURCE_ROOT} -d .
+		    -a coverage_${test}.info -a coverage_common.info -a coverage_settings.info -a coverage_utils.info
+		    -o coverage_${test}-combined.info # combine test and common
+		 && lcov -q --checksum -b ${SOURCE_ROOT} --list-full-path --extract coverage_${test}-combined.info ${COVERAGE_SOURCE_DIRS} -o coverage_${test}-stripped.info # strip
 	 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	 VERBATIM
 	 DEPENDS ${test}
