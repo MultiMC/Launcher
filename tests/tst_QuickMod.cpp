@@ -16,13 +16,9 @@ private slots:
 
 	}
 
-	void testParsing_data()
+	QuickMod *createTestingMod()
 	{
-		QTest::addColumn<QByteArray>("input");
-		QTest::addColumn<QuickMod *>("mod");
-		QuickMod *mod;
-
-		mod = new QuickMod;
+		auto mod = new QuickMod;
 		mod->m_name = "testmodname";
 		mod->m_description = "test mod description\nsome more";
 		mod->m_websiteUrl = QUrl("http://test.com/");
@@ -40,7 +36,29 @@ private slots:
 											 QStringList() << "1.6.2" << "1.6.4",
 											 QMap<QString, QString>({{"stuff", "1.0.0.0.0"}}));
 		mod->m_stub = false;
-		QTest::newRow("basic test") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test")) << mod;
+		return mod;
+	}
+
+	void testParsing_data()
+	{
+		QTest::addColumn<QByteArray>("input");
+		QTest::addColumn<QuickMod *>("mod");
+		QuickMod *mod;
+
+		mod = createTestingMod();
+		QTest::newRow("basic test, forge mod") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test, forge mod")) << mod;
+
+		mod = createTestingMod();
+		mod->m_type = QuickMod::ForgeCoreMod;
+		QTest::newRow("basic test, core mod") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test, core mod")) << mod;
+
+		mod = createTestingMod();
+		mod->m_type = QuickMod::ResourcePack;
+		QTest::newRow("basic test, resource pack") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test, resource pack")) << mod;
+
+		mod = createTestingMod();
+		mod->m_type = QuickMod::ConfigPack;
+		QTest::newRow("basic test, config pack") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test, config pack")) << mod;
 	}
 	void testParsing()
 	{
@@ -67,6 +85,24 @@ private slots:
 		QCOMPARE(parsed->m_type, mod->m_type);
 		QCOMPARE(parsed->m_versions, mod->m_versions);
 		QCOMPARE(parsed->m_stub, mod->m_stub);
+	}
+
+	void testFileName_data()
+	{
+		QTest::addColumn<QUrl>("url");
+		QTest::addColumn<QuickMod *>("mod");
+		QTest::addColumn<QString>("result");
+
+		QTest::newRow("jar") << QUrl("http://downloads.org/filename.jar") << TestsInternal::createMod("SomeMod") << "SomeMod.jar";
+		QTest::newRow("jar, with version") << QUrl("https://notthewebpageyouarelookingfor.droids/mymod-4.2.jar") << TestsInternal::createMod("MyMod") << "MyMod.jar";
+	}
+	void testFileName()
+	{
+		QFETCH(QUrl, url);
+		QFETCH(QuickMod *, mod);
+		QFETCH(QString, result);
+
+		QCOMPARE(mod->fileName(url), result);
 	}
 };
 

@@ -63,6 +63,7 @@ if(MultiMC_CODE_COVERAGE)
 	 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	 VERBATIM
 	 DEPENDS ${test}
+	 COMMENT "Running ${test}..."
 	)
 	list(APPEND MultiMC_TEST_COVERAGE_FILES coverage_${test}-stripped.info)
 	list(APPEND MultiMC_RUN_TESTS MultiMC_RUN_TEST_${test})
