@@ -22,7 +22,6 @@
 
 // TODO test
 // TODO updating of mods
-// TODO fixing markModAs*
 
 QuickMod::QuickMod(QObject *parent) : QObject(parent), m_stub(false), m_noFetchImages(false)
 {
