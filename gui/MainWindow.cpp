@@ -37,6 +37,8 @@
 #include "userutils.h"
 #include "pathutils.h"
 
+#include "setting.h"
+
 #include "categorizedview.h"
 #include "categorydrawer.h"
 
@@ -135,6 +137,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		// maybe the application itself?
 		proxymodel->setSourceModel(MMC->instances().get());
 		proxymodel->sort(0);
+		connect(MMC->settings()->getSetting("InstSortMode"), SIGNAL(settingChanged(Setting,QVariant)), this, SLOT(invalidateInstanceSorting()));
+		connect(MMC, SIGNAL(invalidateInstanceSorting()), this, SLOT(invalidateInstanceSorting()));
 		view->setFrameShape(QFrame::NoFrame);
 		view->setModel(proxymodel);
 
@@ -769,6 +773,11 @@ void MainWindow::startTask(Task *task)
 	connect(task, SIGNAL(succeeded()), SLOT(taskEnd()));
 	connect(task, SIGNAL(failed(QString)), SLOT(taskEnd()));
 	task->start();
+}
+
+void MainWindow::invalidateInstanceSorting()
+{
+	proxymodel->invalidate();
 }
 
 // Create A Desktop Shortcut

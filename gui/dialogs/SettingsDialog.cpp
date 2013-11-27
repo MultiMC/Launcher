@@ -38,6 +38,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Se
 	MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
 	ui->sortingModeGroup->setId(ui->sortByNameBtn, Sort_Name);
+	ui->sortingModeGroup->setId(ui->sortPriorityBtn, Sort_Priority);
 	ui->sortingModeGroup->setId(ui->sortLastLaunchedBtn, Sort_LastLaunch);
 
 	loadSettings(MMC->settings().get());
@@ -173,6 +174,9 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	case Sort_LastLaunch:
 		s->set("InstSortMode", "LastLaunch");
 		break;
+	case Sort_Priority:
+		s->set("InstSortMode", "Priority");
+		break;
 	case Sort_Name:
 	default:
 		s->set("InstSortMode", "Name");
@@ -215,6 +219,10 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	if (sortMode == "LastLaunch")
 	{
 		ui->sortLastLaunchedBtn->setChecked(true);
+	}
+	else if (sortMode == "Priority")
+	{
+		ui->sortPriorityBtn->setChecked(true);
 	}
 	else
 	{

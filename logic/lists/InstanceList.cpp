@@ -437,6 +437,17 @@ bool InstanceProxyModel::subSortLessThan(const QModelIndex &left,
 	{
 		return pdataLeft->lastLaunch() > pdataRight->lastLaunch();
 	}
+	else if (sortMode == "Priority")
+	{
+		if (pdataLeft->priority() == pdataRight->priority())
+		{
+			return QString::localeAwareCompare(pdataLeft->name(), pdataRight->name()) < 0;
+		}
+		else
+		{
+			return pdataLeft->priority() > pdataRight->priority();
+		}
+	}
 	else
 	{
 		return QString::localeAwareCompare(pdataLeft->name(), pdataRight->name()) < 0;

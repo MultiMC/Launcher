@@ -97,6 +97,9 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 		new OverrideSetting("ShowConsole", globalSettings->getSetting("ShowConsole")));
 	settings().registerSetting(new OverrideSetting(
 		"AutoCloseConsole", globalSettings->getSetting("AutoCloseConsole")));
+
+	connect(settings().getSetting("priority"), SIGNAL(settingChanged(Setting,QVariant)), MMC, SIGNAL(invalidateInstanceSorting()));
+	connect(settings().getSetting("name"), SIGNAL(settingChanged(Setting,QVariant)), MMC, SIGNAL(invalidateInstanceSorting()));
 }
 
 void BaseInstance::nuke()

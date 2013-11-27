@@ -146,6 +146,8 @@ slots:
 
 	void startTask(Task *task);
 
+	void invalidateInstanceSorting();
+
 protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
 	void setCatBackground(bool enabled);

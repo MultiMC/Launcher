@@ -29,6 +29,8 @@ enum InstSortMode
 {
 	// Sort alphabetically by name.
 	Sort_Name,
+	// Sort by the instances priority
+	Sort_Priority,
 	// Sort by which instance was launched most recently.
 	Sort_LastLaunch,
 };
@@ -101,6 +103,9 @@ private:
 	void initHttpMetaCache();
 
 	void initTranslations();
+
+signals:
+	void invalidateInstanceSorting();
 
 private:
 	std::shared_ptr<QTranslator> m_qt_translator;
