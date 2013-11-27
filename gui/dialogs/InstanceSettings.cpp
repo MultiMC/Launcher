@@ -68,6 +68,9 @@ void InstanceSettings::on_buttonBox_rejected()
 
 void InstanceSettings::applySettings()
 {
+	// Priority
+	m_obj->set("priority", ui->priorityBox->value());
+
 	// Console
 	bool console = ui->consoleSettingsBox->isChecked();
 	m_obj->set("OverrideConsole", console);
@@ -159,6 +162,9 @@ void InstanceSettings::applySettings()
 
 void InstanceSettings::loadSettings()
 {
+	// Priority
+	ui->priorityBox->setValue(m_obj->get("priority").toInt());
+
 	// Console
 	ui->consoleSettingsBox->setChecked(m_obj->get("OverrideConsole").toBool());
 	ui->showConsoleCheck->setChecked(m_obj->get("ShowConsole").toBool());

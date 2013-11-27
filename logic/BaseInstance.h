@@ -81,6 +81,9 @@ public:
 	void setGroupInitial(QString val);
 	void setGroupPost(QString val);
 
+	int priority() const;
+	void setPriority(const int val);
+
 	virtual QString intendedVersionId() const = 0;
 	virtual bool setIntendedVersionId(QString version) = 0;
 
