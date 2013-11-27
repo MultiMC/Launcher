@@ -187,24 +187,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		assets_downloader->start();
 	}
 
-	const QString currentInstanceId = MMC->settings()->get("SelectedInstance").toString();
-	if (!currentInstanceId.isNull())
-	{
-		const QModelIndex index = MMC->instances()->getInstanceIndexById(currentInstanceId);
-		if (index.isValid())
-		{
-			const QModelIndex mappedIndex = proxymodel->mapFromSource(index);
-			view->setCurrentIndex(mappedIndex);
-		}
-		else
-		{
-			view->setCurrentIndex(proxymodel->index(0, 0));
-		}
-	}
-	else
-	{
-		view->setCurrentIndex(proxymodel->index(0, 0));
-	}
+	setupInstanceView();
 
 	// removing this looks stupid
 	view->setFocus();
@@ -271,6 +254,64 @@ void MainWindow::setCatBackground(bool enabled)
 	else
 	{
 		view->setStyleSheet(QString());
+	}
+}
+
+void MainWindow::setupInstanceView()
+{
+	if (MMC->instances()->count() == 0)
+	{
+		return;
+	}
+
+	QMultiMap<int, QString> sorted;
+	for (int i = 0; i < MMC->instances()->count(); ++i)
+	{
+		sorted.insertMulti(MMC->instances()->at(i)->priority(), MMC->instances()->at(i)->id());
+	}
+	QList<int> priorities = sorted.keys();
+	std::sort(priorities.begin(), priorities.end());
+
+	int highest = priorities.last();
+	QString instanceId;
+	QString lastSelectedInstance = MMC->settings()->get("SelectedInstance").toString();
+	QList<QString> instancesWithHighestId;
+
+	// sort out all instances with the highest id
+	for (auto it = sorted.begin(); it != sorted.end(); ++it)
+	{
+		if (it.key() == highest)
+		{
+			instancesWithHighestId.append(it.value());
+		}
+	}
+
+	if (instancesWithHighestId.contains(lastSelectedInstance))
+	{
+		instanceId = lastSelectedInstance;
+	}
+	else
+	{
+		// well then it's random
+		instanceId = instancesWithHighestId.first();
+	}
+
+	if (!instanceId.isNull())
+	{
+		const QModelIndex index = MMC->instances()->getInstanceIndexById(instanceId);
+		if (index.isValid())
+		{
+			const QModelIndex mappedIndex = proxymodel->mapFromSource(index);
+			view->setCurrentIndex(mappedIndex);
+		}
+		else
+		{
+			view->setCurrentIndex(proxymodel->mapFromSource(MMC->instances()->index(0, 0)));
+		}
+	}
+	else
+	{
+		view->setCurrentIndex(proxymodel->mapFromSource(MMC->instances()->index(0, 0)));
 	}
 }
 

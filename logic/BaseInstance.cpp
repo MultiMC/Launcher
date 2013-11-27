@@ -40,6 +40,7 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 	settings().registerSetting(new Setting("iconKey", "default"));
 	settings().registerSetting(new Setting("notes", ""));
 	settings().registerSetting(new Setting("lastLaunchTime", 0));
+	settings().registerSetting(new Setting("priority", 10));
 
 	/*
 	 * custom base jar has no default. it is determined in code... see the accessor methods for
@@ -218,6 +219,18 @@ void BaseInstance::setGroupPost(QString val)
 {
 	setGroupInitial(val);
 	emit groupChanged();
+}
+
+int BaseInstance::priority() const
+{
+	I_D(BaseInstance);
+	return d->m_settings->get("priority").toInt();
+}
+
+void BaseInstance::setPriority(const int val)
+{
+	I_D(BaseInstance);
+	d->m_settings->set("priority", val);
 }
 
 QString BaseInstance::group() const

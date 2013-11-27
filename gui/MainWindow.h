@@ -150,6 +150,8 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
 	void setCatBackground(bool enabled);
 
+	void setupInstanceView();
+
 private:
 	Ui::MainWindow *ui;
 	KCategoryDrawer *drawer;
