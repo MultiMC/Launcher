@@ -32,19 +32,22 @@ public:
 		Version(const QString &name,
 				const QUrl &url,
 				const QStringList &mc,
-				const QMap<QString, QString> &deps = QMap<QString, QString>()) :
-			name(name), url(url), compatibleVersions(mc), dependencies(deps) {}
+				const QMap<QString, QString> &deps = QMap<QString, QString>(),
+				const QByteArray &checksum = QByteArray()) :
+			name(name), url(url), compatibleVersions(mc), dependencies(deps), checksum(checksum) {}
 		QString name;
 		QUrl url;
 		QStringList compatibleVersions;
 		QMap<QString, QString> dependencies;
+		QByteArray checksum;
 
 		bool operator==(const Version &other) const
 		{
 			return name == other.name &&
 					url == other.url &&
 					compatibleVersions == other.compatibleVersions &&
-					dependencies == other.dependencies;
+					dependencies == other.dependencies &&
+					checksum == other.checksum;
 		}
 	};
 

@@ -10,6 +10,7 @@
 #include <QStandardPaths>
 #include <QMessageBox>
 #include <QtMath>
+#include <QCryptographicHash>
 
 #include "gui/widgets/WebDownloadNavigator.h"
 #include "gui/dialogs/ChooseQuickModVersionDialog.h"
@@ -189,15 +190,13 @@ static QString fileEnding(const QUrl &url)
 	const QString path = url.path();
 	return path.mid(path.lastIndexOf('.')+1);
 }
-static bool saveDeviceToFile(QIODevice *device, const QString &file)
+static bool saveDeviceToFile(const QByteArray &data, const QString &file)
 {
 	QFile out(file);
 	if (!out.open(QFile::WriteOnly | QFile::Truncate))
 	{
 		return false;
 	}
-	device->seek(0);
-	QByteArray data = device->readAll();
 	return data.size() == out.write(data);
 }
 static QDir dirEnsureExists(const QString &dir, const QString &path)
@@ -226,6 +225,7 @@ void QuickModInstallDialog::downloadCompleted()
 	QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 	auto item = reply->property("item").value<QTreeWidgetItem *>();
 	item->setData(3, ExtraRoles::IgnoreRole, true);
+	item->setText(3, tr("Installing..."));
 	auto mod = reply->property("mod").value<QuickMod *>();
 	auto versionIndex = reply->property("versionIndex").toInt();
 	QDir dir;
@@ -248,6 +248,15 @@ void QuickModInstallDialog::downloadCompleted()
 		break;
 	}
 
+	QByteArray data = reply->readAll();
+
+	if (QCryptographicHash::hash(data, QCryptographicHash::Sha512).toHex() != mod->version(versionIndex).checksum)
+	{
+		item->setText(3, tr("Error: Checksum mismatch"));
+		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
+		return;
+	}
+
 	if (extract)
 	{
 		const QString path = reply->url().path();
@@ -256,14 +265,22 @@ void QuickModInstallDialog::downloadCompleted()
 		{
 			const QString zipFileName = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
 					.absoluteFilePath(fileName(reply->url()));
-			if (saveDeviceToFile(reply, zipFileName))
+			if (saveDeviceToFile(data, zipFileName))
 			{
 				JlCompress::extractDir(zipFileName, dir.absolutePath());
+			}
+			else
+			{
+				item->setText(3, tr("Error: Checksum mismatch"));
+				item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
+				return;
 			}
 		}
 		else
 		{
-			qWarning("Trying to extract an unknown file type %s", qPrintable(reply->url().toString()));
+			item->setText(3, tr("Error: Trying to extract an unknown file type %1").arg(reply->url().toString(QUrl::PrettyDecoded)));
+			item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
+			return;
 		}
 	}
 	else
@@ -271,12 +288,12 @@ void QuickModInstallDialog::downloadCompleted()
 		QFile file(dir.absoluteFilePath(fileName(reply->url())));
 		if (!file.open(QFile::WriteOnly | QFile::Truncate))
 		{
-			item->setText(3, tr("Error"));
-			QMessageBox::critical(this, tr("Error"), tr("Error saving %1: %2").arg(file.fileName(), file.errorString()));
+			item->setText(3, tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
+			item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
 			return;
 		}
 		reply->seek(0);
-		file.write(reply->readAll());
+		file.write(data);
 		file.close();
 		reply->close();
 		reply->deleteLater();
@@ -285,6 +302,9 @@ void QuickModInstallDialog::downloadCompleted()
 
 		install(mod, versionIndex);
 	}
+
+	item->setText(3, tr("Sucess: Installed successfully"));
+	item->setData(3, Qt::ForegroundRole, QColor(Qt::green));
 
 	m_trackedMods.remove(mod);
 	checkForIsDone();
