@@ -96,29 +96,29 @@ void QuickModInstallDialog::checkForIsDone()
 	}
 }
 
-void QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString &versionFilter)
+bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString &versionFilter)
 {
 	ChooseQuickModVersionDialog dialog(this);
 	dialog.setCanCancel(isInitial);
 	dialog.setMod(mod, m_instance, versionFilter);
 	if (dialog.exec() == QDialog::Rejected)
 	{
-		checkForIsDone();
-		return;
+		reject();
+		return false;
 	}
 
 	// TODO any installed version should prevent another version from being installed
 	if (MMC->quickmodslist()->isModMarkedAsInstalled(mod, dialog.version(), m_instance))
 	{
 		accept();
-		return;
+		return false;
 	}
 
 	if (MMC->quickmodslist()->isModMarkedAsExists(mod, dialog.version()))
 	{
 		install(mod, dialog.version());
 		accept();
-		return;
+		return false;
 	}
 
 	foreach (const QUrl &dep, mod->dependentUrls())
@@ -141,6 +141,7 @@ void QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 
 	show();
 	activateWindow();
+	return true;
 }
 
 void QuickModInstallDialog::urlCaught(QNetworkReply *reply)

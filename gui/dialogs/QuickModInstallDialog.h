@@ -24,7 +24,7 @@ public:
 
 public
 slots:
-	void addMod(QuickMod* mod, bool isInitial = false, const QString &versionFilter = QString());
+	bool addMod(QuickMod* mod, bool isInitial = false, const QString &versionFilter = QString());
 
 private
 slots:

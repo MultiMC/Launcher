@@ -167,9 +167,11 @@ void ChooseInstallModDialog::on_installButton_clicked()
 	}
 
 	QuickModInstallDialog dialog(m_instance, this);
-	dialog.addMod(m_view->selectionModel()->selectedRows().first()
-				  .data(QuickModsList::QuickModRole).value<QuickMod*>(), true);
-	dialog.exec();
+	if (dialog.addMod(m_view->selectionModel()->selectedRows().first()
+					  .data(QuickModsList::QuickModRole).value<QuickMod*>(), true))
+	{
+		dialog.exec();
+	}
 }
 void ChooseInstallModDialog::resolveSingleMod(QuickMod *mod)
 {
