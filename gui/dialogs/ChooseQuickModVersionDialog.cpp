@@ -71,11 +71,11 @@ bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version, cons
 		// check if in range (bottom)
 		if (!bottom.isEmpty())
 		{
-			if ((start == '(' || start == ']') && !(version >= bottom))
+			if ((start == '[') && !(version >= bottom))
 			{
 				return false;
 			}
-			else if ((start == ')' || start == '[') && !(version > bottom))
+			else if ((start == '(') && !(version > bottom))
 			{
 				return false;
 			}
@@ -84,11 +84,11 @@ bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version, cons
 		// check if in range (top)
 		if (!top.isEmpty())
 		{
-			if ((end == ')' || end == '[') && !(version <= top))
+			if ((end == ']') && !(version <= top))
 			{
 				return false;
 			}
-			else if ((end == '(' || end == ']') && !(version < top))
+			else if ((end == ')') && !(version < top))
 			{
 				return false;
 			}
