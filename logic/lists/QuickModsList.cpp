@@ -119,6 +119,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		version.name = ver.value("name").toString();
 		version.url = QUrl(ver.value("url").toString());
 		version.checksum = ver.value("checksum").toString().toLatin1();
+		version.forgeVersionFilter = ver.value("forgeCompatibility").toString();
 		version.compatibleVersions.clear();
 		foreach (const QJsonValue &val, ver.value("mcCompatibility").toArray())
 		{

@@ -32,13 +32,16 @@ public:
 		Version(const QString &name,
 				const QUrl &url,
 				const QStringList &mc,
+				const QString &forge,
 				const QMap<QString, QString> &deps = QMap<QString, QString>(),
 				const QMap<QString, QString> &recs = QMap<QString, QString>(),
 				const QByteArray &checksum = QByteArray()) :
-			name(name), url(url), compatibleVersions(mc), dependencies(deps), recommendations(recs), checksum(checksum) {}
+			name(name), url(url), compatibleVersions(mc), forgeVersionFilter(forge), dependencies(deps), recommendations(recs), checksum(checksum) {}
 		QString name;
 		QUrl url;
 		QStringList compatibleVersions;
+		// TODO actually make use of the forge version provided
+		QString forgeVersionFilter;
 		QMap<QString, QString> dependencies;
 		QMap<QString, QString> recommendations;
 		QByteArray checksum;
@@ -48,6 +51,7 @@ public:
 			return name == other.name &&
 					url == other.url &&
 					compatibleVersions == other.compatibleVersions &&
+					forgeVersionFilter == other.forgeVersionFilter &&
 					dependencies == other.dependencies &&
 					recommendations == other.recommendations &&
 					checksum == other.checksum;
