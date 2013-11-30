@@ -34,6 +34,7 @@ private slots:
 		mod->m_type = QuickMod::ForgeMod;
 		mod->m_versions << QuickMod::Version("1.42", QUrl("http://downloads.com/deadbeaf"),
 											 QStringList() << "1.6.2" << "1.6.4",
+											 QString("(9.8.42,)"),
 											 QMap<QString, QString>({{"stuff", "1.0.0.0.0"}}),
 											 QMap<QString, QString>({{"OtherName", "1.2.3"}}),
 											 "a68b86df2f3fff44");

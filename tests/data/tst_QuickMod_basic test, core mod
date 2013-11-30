@@ -28,6 +28,7 @@
 	{
 	    "name": "1.42",
 	    "url": "http://downloads.com/deadbeaf",
+	    "forgeCompatibility": "(9.8.42,)",
 	    "mcCompatibility": [
 		"1.6.2",
 		"1.6.4"

@@ -32,7 +32,7 @@ public:
 		Version(const QString &name,
 				const QUrl &url,
 				const QStringList &mc,
-				const QString &forge,
+				const QString &forge = QString(),
 				const QMap<QString, QString> &deps = QMap<QString, QString>(),
 				const QMap<QString, QString> &recs = QMap<QString, QString>(),
 				const QByteArray &checksum = QByteArray()) :
