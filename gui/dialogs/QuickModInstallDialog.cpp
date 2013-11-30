@@ -121,7 +121,7 @@ bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 		return false;
 	}
 
-	foreach (const QUrl &dep, mod->dependentUrls())
+	foreach (const QUrl &dep, mod->depends())
 	{
 		if (!m_pendingDependencyUrls.contains(dep))
 		{

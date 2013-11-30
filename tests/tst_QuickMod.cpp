@@ -25,8 +25,8 @@ private slots:
 		mod->m_iconUrl = QUrl("http://test.com/icon.png");
 		mod->m_logoUrl = QUrl("http://test.com/logo.png");
 		mod->m_updateUrl = QUrl("http://test.com/testmodname.json");
-		mod->m_recommendedUrls << QUrl("http://other.com/othername.json") << QUrl("https://other2.com/other2name.json");
-		mod->m_dependentUrls << QUrl("https://stuff.org/stuff.json") << QUrl("ftp://wikipedia.org/thewikipediamod.quickmod");
+		mod->m_recommends = {{"OtherName",QUrl("http://other.com/othername.json")}, {"Other2Name",QUrl("https://other2.com/other2name.json")}};
+		mod->m_depends = {{"stuff",QUrl("https://stuff.org/stuff.json")}, {"TheWikipediaMod",QUrl("ftp://wikipedia.org/thewikipediamod.quickmod")}};
 		mod->m_nemName = "nemname";
 		mod->m_modId = "modid";
 		mod->m_categories << "cat" << "grep" << "ls" << "cp";
@@ -77,8 +77,8 @@ private slots:
 		QCOMPARE(parsed->m_iconUrl, mod->m_iconUrl);
 		QCOMPARE(parsed->m_logoUrl, mod->m_logoUrl);
 		QCOMPARE(parsed->m_updateUrl, mod->m_updateUrl);
-		QCOMPARE(parsed->m_recommendedUrls, mod->m_recommendedUrls);
-		QCOMPARE(parsed->m_dependentUrls, mod->m_dependentUrls);
+		QCOMPARE(parsed->m_recommends, mod->m_recommends);
+		QCOMPARE(parsed->m_depends, mod->m_depends);
 		QCOMPARE(parsed->m_nemName, mod->m_nemName);
 		QCOMPARE(parsed->m_modId, mod->m_modId);
 		QCOMPARE(parsed->m_categories, mod->m_categories);

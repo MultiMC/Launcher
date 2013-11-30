@@ -64,8 +64,8 @@ public:
 	QUrl logoUrl() const { return m_logoUrl; }
 	QPixmap logo();
 	QUrl updateUrl() const { return m_updateUrl; }
-	QList<QUrl> recommendedUrls() const { return m_recommendedUrls; }
-	QList<QUrl> dependentUrls() const { return m_dependentUrls; }
+	QMap<QString, QUrl> recommends() const { return m_recommends; }
+	QMap<QString, QUrl> depends() const { return m_depends; }
 	QString nemName() const { return m_nemName; }
 	QString modId() const { return m_modId; }
 	QStringList categories() const { return m_categories; }
@@ -103,8 +103,8 @@ private:
 	QUrl m_logoUrl;
 	QPixmap m_logo;
 	QUrl m_updateUrl;
-	QList<QUrl> m_recommendedUrls;
-	QList<QUrl> m_dependentUrls;
+	QMap<QString, QUrl> m_recommends;
+	QMap<QString, QUrl> m_depends;
 	QString m_nemName;
 	QString m_modId;
 	QStringList m_categories;

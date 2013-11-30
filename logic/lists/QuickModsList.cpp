@@ -73,15 +73,17 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	m_iconUrl = QUrl(mod.value("iconUrl").toString());
 	m_logoUrl = QUrl(mod.value("logoUrl").toString());
 	m_updateUrl = QUrl(mod.value("updateUrl").toString());
-	m_recommendedUrls.clear();
-	foreach (const QJsonValue& val, mod.value("recommends").toArray())
+	m_recommends.clear();
+	QVariantMap recommends = mod.value("recommends").toObject().toVariantMap();
+	for (auto key : recommends.keys())
 	{
-		m_recommendedUrls.append(QUrl(val.toString()));
+		m_recommends.insert(key, QUrl(recommends[key].toString()));
 	}
-	m_dependentUrls.clear();
-	foreach (const QJsonValue& val, mod.value("depends").toArray())
+	m_depends.clear();
+	QVariantMap depends = mod.value("depends").toObject().toVariantMap();
+	for (auto key : depends.keys())
 	{
-		m_dependentUrls.append(QUrl(val.toString()));
+		m_depends.insert(key, QUrl(depends[key].toString()));
 	}
 	m_categories.clear();
 	foreach (const QJsonValue& val, mod.value("categories").toArray())
@@ -259,9 +261,9 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 	case UpdateRole:
 		return mod->updateUrl();
 	case RecommendedUrlsRole:
-		return QVariant::fromValue(mod->recommendedUrls());
+		return QVariant::fromValue(mod->recommends());
 	case DependentUrlsRole:
-		return QVariant::fromValue(mod->dependentUrls());
+		return QVariant::fromValue(mod->depends());
 	case NemNameRole:
 		return mod->nemName();
 	case ModIdRole:

@@ -17,7 +17,7 @@ DownloadProgressDialog::~DownloadProgressDialog()
 void DownloadProgressDialog::modAdded(QuickMod *mod)
 {
 	m_downloadedmods.append(mod);
-	for (auto depends : mod->dependentUrls())
+	for (auto depends : mod->depends())
 	{
 		m_modcount++;
 	}

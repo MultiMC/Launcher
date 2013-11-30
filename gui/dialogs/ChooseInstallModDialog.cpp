@@ -175,7 +175,7 @@ void ChooseInstallModDialog::on_installButton_clicked()
 }
 void ChooseInstallModDialog::resolveSingleMod(QuickMod *mod)
 {
-	for (auto url : mod->dependentUrls())
+	for (auto url : mod->depends())
 	{
 		MMC->quickmodslist()->registerMod(url);
 	}
