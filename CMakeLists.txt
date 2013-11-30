@@ -227,8 +227,6 @@ gui/dialogs/ChooseQuickModVersionDialog.h
 gui/dialogs/ChooseQuickModVersionDialog.cpp
 gui/dialogs/QuickModInstallDialog.h
 gui/dialogs/QuickModInstallDialog.cpp
-gui/dialogs/DownloadProgressDialog.h
-gui/dialogs/DownloadProgressDialog.cpp
 
 # GUI - widgets
 gui/widgets/InstanceDelegate.h
@@ -382,7 +380,6 @@ gui/dialogs/AddQuickModFileDialog.ui
 gui/dialogs/ChooseInstallModDialog.ui
 gui/dialogs/ChooseQuickModVersionDialog.ui
 gui/dialogs/QuickModInstallDialog.ui
-gui/dialogs/DownloadProgressDialog.ui
 
 # Widgets/other
 gui/widgets/MCModInfoFrame.ui

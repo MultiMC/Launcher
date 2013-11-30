@@ -33,12 +33,14 @@ public:
 				const QUrl &url,
 				const QStringList &mc,
 				const QMap<QString, QString> &deps = QMap<QString, QString>(),
+				const QMap<QString, QString> &recs = QMap<QString, QString>(),
 				const QByteArray &checksum = QByteArray()) :
-			name(name), url(url), compatibleVersions(mc), dependencies(deps), checksum(checksum) {}
+			name(name), url(url), compatibleVersions(mc), dependencies(deps), recommendations(recs), checksum(checksum) {}
 		QString name;
 		QUrl url;
 		QStringList compatibleVersions;
 		QMap<QString, QString> dependencies;
+		QMap<QString, QString> recommendations;
 		QByteArray checksum;
 
 		bool operator==(const Version &other) const
@@ -47,6 +49,7 @@ public:
 					url == other.url &&
 					compatibleVersions == other.compatibleVersions &&
 					dependencies == other.dependencies &&
+					recommendations == other.recommendations &&
 					checksum == other.checksum;
 		}
 	};
@@ -64,8 +67,7 @@ public:
 	QUrl logoUrl() const { return m_logoUrl; }
 	QPixmap logo();
 	QUrl updateUrl() const { return m_updateUrl; }
-	QMap<QString, QUrl> recommends() const { return m_recommends; }
-	QMap<QString, QUrl> depends() const { return m_depends; }
+	QMap<QString, QUrl> references() const { return m_references; }
 	QString nemName() const { return m_nemName; }
 	QString modId() const { return m_modId; }
 	QStringList categories() const { return m_categories; }
@@ -103,8 +105,7 @@ private:
 	QUrl m_logoUrl;
 	QPixmap m_logo;
 	QUrl m_updateUrl;
-	QMap<QString, QUrl> m_recommends;
-	QMap<QString, QUrl> m_depends;
+	QMap<QString, QUrl> m_references;
 	QString m_nemName;
 	QString m_modId;
 	QStringList m_categories;
@@ -135,7 +136,7 @@ public:
 		IconRole,
 		LogoRole,
 		UpdateRole,
-		RecommendedUrlsRole,
+		ReferencesRole,
 		DependentUrlsRole,
 		NemNameRole,
 		ModIdRole,

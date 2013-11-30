@@ -121,13 +121,12 @@ bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 		return false;
 	}
 
-	foreach (const QUrl &dep, mod->depends())
+	foreach (const QString &dep, mod->version(dialog.version()).dependencies.keys())
 	{
-		if (!m_pendingDependencyUrls.contains(dep))
+		if (!m_pendingDependencyUrls.contains(mod->references()[dep]))
 		{
-			MMC->quickmodslist()->registerMod(dep);
-			ui->dependencyLogEdit->appendHtml(QString("Fetching dependency URL %1...<br/>").arg(dep.toString(QUrl::PrettyDecoded)));
-			m_pendingDependencyUrls.append(dep);
+			ui->dependencyLogEdit->appendHtml(QString("Fetching dependency URL %1...<br/>").arg(mod->references()[dep].toString(QUrl::PrettyDecoded)));
+			m_pendingDependencyUrls.append(mod->references()[dep]);
 		}
 	}
 

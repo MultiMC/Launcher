@@ -73,17 +73,11 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	m_iconUrl = QUrl(mod.value("iconUrl").toString());
 	m_logoUrl = QUrl(mod.value("logoUrl").toString());
 	m_updateUrl = QUrl(mod.value("updateUrl").toString());
-	m_recommends.clear();
-	QVariantMap recommends = mod.value("recommends").toObject().toVariantMap();
-	for (auto key : recommends.keys())
+	m_references.clear();
+	QVariantMap references = mod.value("references").toObject().toVariantMap();
+	for (auto key : references.keys())
 	{
-		m_recommends.insert(key, QUrl(recommends[key].toString()));
-	}
-	m_depends.clear();
-	QVariantMap depends = mod.value("depends").toObject().toVariantMap();
-	for (auto key : depends.keys())
-	{
-		m_depends.insert(key, QUrl(depends[key].toString()));
+		m_references.insert(key, QUrl(references[key].toString()));
 	}
 	m_categories.clear();
 	foreach (const QJsonValue& val, mod.value("categories").toArray())
@@ -131,10 +125,16 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 			version.compatibleVersions.append(val.toString());
 		}
 		version.dependencies.clear();
-		QJsonObject deps = ver.value("dependencies").toObject();
+		QJsonObject deps = ver.value("modDependencies").toObject();
 		foreach (const QString &mod, deps.keys())
 		{
 			version.dependencies.insert(mod, deps.value(mod).toString());
+		}
+		version.recommendations.clear();
+		QJsonObject recs = ver.value("modRecommendations").toObject();
+		foreach (const QString &mod, recs.keys())
+		{
+			version.recommendations.insert(mod, recs.value(mod).toString());
 		}
 		m_versions.append(version);
 	}
@@ -211,7 +211,7 @@ QHash<int, QByteArray> QuickModsList::roleNames() const
 	roles[IconRole] = "icon";
 	roles[LogoRole] = "logo";
 	roles[UpdateRole] = "update";
-	roles[RecommendedUrlsRole] = "recommendedUrls";
+	roles[ReferencesRole] = "recommendedUrls";
 	roles[DependentUrlsRole] = "dependentUrls";
 	roles[NemNameRole] = "nemName";
 	roles[ModIdRole] = "modId";
@@ -260,10 +260,8 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return mod->logo();
 	case UpdateRole:
 		return mod->updateUrl();
-	case RecommendedUrlsRole:
-		return QVariant::fromValue(mod->recommends());
-	case DependentUrlsRole:
-		return QVariant::fromValue(mod->depends());
+	case ReferencesRole:
+		return QVariant::fromValue(mod->references());
 	case NemNameRole:
 		return mod->nemName();
 	case ModIdRole:

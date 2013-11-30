@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QDialog>
-#include "DownloadProgressDialog.h"
 
 namespace Ui
 {
@@ -12,6 +11,7 @@ class QItemSelection;
 class QListView;
 class ModFilterProxyModel;
 class BaseInstance;
+class QuickMod;
 
 class ChooseInstallModDialog : public QDialog
 {
@@ -20,10 +20,6 @@ class ChooseInstallModDialog : public QDialog
 public:
 	explicit ChooseInstallModDialog(BaseInstance *instance, QWidget *parent = 0);
 	~ChooseInstallModDialog();
-
-public
-slots:
-	void resolveSingleMod(QuickMod *mod);
 
 private
 slots:
@@ -48,8 +44,6 @@ private:
 	QuickMod *m_currentMod;
 
 	BaseInstance *m_instance;
-
-	DownloadProgressDialog *dialog;
 
 	QListView *m_view;
 	ModFilterProxyModel *m_model;

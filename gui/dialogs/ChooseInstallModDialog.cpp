@@ -10,7 +10,6 @@
 #include "logic/lists/QuickModsList.h"
 #include "gui/dialogs/QuickModInstallDialog.h"
 #include "ChooseQuickModVersionDialog.h"
-#include "DownloadProgressDialog.h"
 #include "AddQuickModFileDialog.h"
 
 #include "MultiMC.h"
@@ -173,14 +172,6 @@ void ChooseInstallModDialog::on_installButton_clicked()
 		dialog.exec();
 	}
 }
-void ChooseInstallModDialog::resolveSingleMod(QuickMod *mod)
-{
-	for (auto url : mod->depends())
-	{
-		MMC->quickmodslist()->registerMod(url);
-	}
-}
-
 void ChooseInstallModDialog::on_cancelButton_clicked()
 {
 	reject();
