@@ -26,6 +26,7 @@ endmacro()
 
 add_unit_test2(QuickMod)
 add_unit_test2(QuickModsList)
+add_unit_test2(ChooseQuickModVersionDialog)
 
 set(COVERAGE_SOURCE_DIRS
  ${SOURCE_ROOT}/logic/*

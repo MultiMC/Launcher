@@ -23,6 +23,7 @@ public:
 	int version() const;
 
 private:
+	friend class ChooseQuickModVersionDialogTest;
 	Ui::ChooseQuickModVersionDialog *ui;
 
 	static bool versionIsInFilter(const QString &version, const QString &filter);

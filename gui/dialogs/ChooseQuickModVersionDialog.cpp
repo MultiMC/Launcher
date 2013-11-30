@@ -58,28 +58,48 @@ bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version, cons
 		return true;
 	}
 
-	/* We can have these versions of filters:
-	 *
-	 * X+ (matches version X and above)
-	 * X -> Y (matches all versions between X and Y (inclusive))
-	 * X (matches only version X)
-	 *
-	 * Matching itself is done using normal operators (<, >, <= and >=)
-	 */
+	// Interval notation is used
+	QRegularExpression exp("(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)])");
+	QRegularExpressionMatch match = exp.match(filter);
+	if (match.hasMatch())
+	{
+		const QChar start = match.captured("start").at(0);
+		const QChar end = match.captured("end").at(0);
+		const QString bottom = match.captured("bottom");
+		const QString top = match.captured("top");
 
-	if (filter.endsWith('+'))
-	{
-		const QString bottom = filter.left(filter.size() - 1);
-		return bottom <= version;
+		// check if in range (bottom)
+		if (!bottom.isEmpty())
+		{
+			if ((start == '(' || start == ']') && !(version >= bottom))
+			{
+				return false;
+			}
+			else if ((start == ')' || start == '[') && !(version > bottom))
+			{
+				return false;
+			}
+		}
+
+		// check if in range (top)
+		if (!top.isEmpty())
+		{
+			if ((end == ')' || end == '[') && !(version <= top))
+			{
+				return false;
+			}
+			else if ((end == '(' || end == ']') && !(version < top))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
-	else if (filter.contains(" -> "))
+	else if (version != filter)
 	{
-		const QString bottom = filter.left(filter.indexOf(" -> "));
-		const QString top = filter.mid(filter.indexOf(" -> ") + 4);
-		return bottom <= version && version <= top;
+		return false;
 	}
-	else
-	{
-		return version == filter;
-	}
+
+	return true;
 }
