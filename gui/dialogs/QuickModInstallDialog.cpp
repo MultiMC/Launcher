@@ -126,6 +126,7 @@ bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 		if (!m_pendingDependencyUrls.contains(mod->references()[dep]))
 		{
 			ui->dependencyLogEdit->appendHtml(QString("Fetching dependency URL %1...<br/>").arg(mod->references()[dep].toString(QUrl::PrettyDecoded)));
+			MMC->quickmodslist()->registerMod(mod->references()[dep]);
 			m_pendingDependencyUrls.append(mod->references()[dep]);
 		}
 	}

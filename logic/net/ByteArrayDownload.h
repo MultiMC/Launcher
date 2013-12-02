@@ -31,6 +31,8 @@ public:
 	/// if not saving to file, downloaded data is placed here
 	QByteArray m_data;
 
+	QString m_errorString;
+
 public
 slots:
 	virtual void start();

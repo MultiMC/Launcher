@@ -171,5 +171,37 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>urlEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>addButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>184</x>
+     <y>53</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>263</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fileEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>addButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>26</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>301</x>
+     <y>263</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

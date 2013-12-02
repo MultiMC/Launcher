@@ -118,7 +118,6 @@ private:
 	QList<Version> m_versions;
 	bool m_stub;
 
-	bool m_noFetchImages;
 	void fetchImages();
 	QString fileName(const QUrl& url) const;
 };
@@ -198,6 +197,7 @@ slots:
 signals:
 	void modAdded(QuickMod *mod);
 	void modsListChanged();
+	void error(const QString &message);
 
 private:
 	friend class QuickModFilesUpdater;

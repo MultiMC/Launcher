@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QTimer>
+#include <QDebug>
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -118,7 +119,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 void QuickModFilesUpdater::failedMod(int index)
 {
 	auto download = qobject_cast<ByteArrayDownload *>(sender());
-	emit error(tr("Error downloading %1: %2").arg(download->m_reply->url().toString(QUrl::PrettyDecoded), download->m_reply->errorString()));
+	emit error(tr("Error downloading %1: %2").arg(download->m_url.toString(QUrl::PrettyDecoded), download->m_errorString));
 }
 
 void QuickModFilesUpdater::get(const QUrl &url)

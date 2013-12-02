@@ -169,7 +169,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	m_statusLeft = new QLabel(tr("Instance type"), this);
 	m_statusRight = new QLabel(tr("Assets information"), this);
 	m_statusRight->setAlignment(Qt::AlignRight);
-	statusBar()->addPermanentWidget(m_statusLeft, 1);
+	statusBar()->addPermanentWidget(m_statusLeft, 0);
 	statusBar()->addPermanentWidget(m_statusRight, 0);
 
 	// Add "manage accounts" button, right align
@@ -270,6 +270,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	// removing this looks stupid
 	view->setFocus();
+
+	connect(MMC->quickmodslist().get(), &QuickModsList::error, [this](const QString &message){ this->ui->statusBar->showMessage(message, 5 * 1000); });
 }
 
 MainWindow::~MainWindow()

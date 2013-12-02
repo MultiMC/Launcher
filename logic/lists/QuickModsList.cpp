@@ -23,7 +23,7 @@
 // TODO test
 // TODO updating of mods
 
-QuickMod::QuickMod(QObject *parent) : QObject(parent), m_stub(false), m_noFetchImages(false)
+QuickMod::QuickMod(QObject *parent) : QObject(parent), m_stub(false)
 {
 }
 
@@ -140,10 +140,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		m_versions.append(version);
 	}
 
-	if (!m_noFetchImages)
-	{
-		fetchImages();
-	}
+	return true;
 }
 #undef MALFORMED_JSON_X
 #undef MALFORMED_JSON
@@ -171,19 +168,25 @@ void QuickMod::logoDownloadFinished(int index)
 void QuickMod::fetchImages()
 {
 	auto job = new NetJob("QuickMod image download: " + m_name);
+	bool download = false;
 	if (m_iconUrl.isValid() && m_icon.isNull())
 	{
 		auto icon = CacheDownload::make(m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
 		connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
 		job->addNetAction(icon);
+		download = true;
 	}
 	if (m_logoUrl.isValid() && m_logo.isNull())
 	{
 		auto logo = CacheDownload::make(m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
 		connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
 		job->addNetAction(logo);
+		download = true;
 	}
-	job->start();
+	if (download)
+	{
+		job->start();
+	}
 }
 
 QString QuickMod::fileName(const QUrl &url) const
@@ -197,6 +200,8 @@ QuickModsList::QuickModsList(QObject *parent)
 	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)), m_settings(new INISettingsObject("quickmod.cfg", this))
 {
 	m_settings->registerSetting(new Setting("AvailableMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >())));
+
+	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
 }
 
 QuickModsList::~QuickModsList()

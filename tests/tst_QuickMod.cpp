@@ -69,7 +69,6 @@ private slots:
 		QFETCH(QuickMod *, mod);
 
 		QuickMod *parsed = new QuickMod;
-		parsed->m_noFetchImages = true;
 
 		QString errorString;
 		QBENCHMARK { parsed->parse(input, &errorString); }

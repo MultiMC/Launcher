@@ -51,6 +51,7 @@ void ByteArrayDownload::downloadError(QNetworkReply::NetworkError error)
 	QLOG_ERROR() << "Error getting URL:" << m_url.toString().toLocal8Bit()
 				 << "Network error: " << error;
 	m_status = Job_Failed;
+	m_errorString = m_reply->errorString();
 }
 
 void ByteArrayDownload::downloadFinished()
