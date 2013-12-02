@@ -18,6 +18,7 @@
 #include "OneSixUpdate.h"
 #include "MinecraftProcess.h"
 #include "OneSixVersion.h"
+#include "JavaChecker.h"
 
 #include <setting.h>
 #include <pathutils.h>
@@ -36,9 +37,9 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *setting_o
 	reloadFullVersion();
 }
 
-BaseUpdate *OneSixInstance::doUpdate()
+Task *OneSixInstance::doUpdate(bool prepare_for_launch)
 {
-	return new OneSixUpdate(this);
+	return new OneSixUpdate(this, prepare_for_launch);
 }
 
 QString replaceTokensIn(QString text, QMap<QString, QString> with)
@@ -65,7 +66,7 @@ QString replaceTokensIn(QString text, QMap<QString, QString> with)
 	return result;
 }
 
-QStringList OneSixInstance::processMinecraftArgs(LoginResponse response)
+QStringList OneSixInstance::processMinecraftArgs(MojangAccountPtr account)
 {
 	I_D(OneSixInstance);
 	auto version = d->version;
@@ -73,11 +74,11 @@ QStringList OneSixInstance::processMinecraftArgs(LoginResponse response)
 
 	QMap<QString, QString> token_mapping;
 	// yggdrasil!
-	token_mapping["auth_username"] = response.username;
-	token_mapping["auth_session"] = response.session_id;
-	token_mapping["auth_access_token"] = response.access_token;
-	token_mapping["auth_player_name"] = response.player_name;
-	token_mapping["auth_uuid"] = response.player_id;
+	token_mapping["auth_username"] = account->username();
+	token_mapping["auth_session"] = account->sessionId();
+	token_mapping["auth_access_token"] = account->accessToken();
+	token_mapping["auth_player_name"] = account->currentProfile()->name();
+	token_mapping["auth_uuid"] = account->currentProfile()->id();
 
 	// this is for offline?:
 	/*
@@ -104,32 +105,15 @@ QStringList OneSixInstance::processMinecraftArgs(LoginResponse response)
 	return parts;
 }
 
-MinecraftProcess *OneSixInstance::prepareForLaunch(LoginResponse response)
+MinecraftProcess *OneSixInstance::prepareForLaunch(MojangAccountPtr account)
 {
 	I_D(OneSixInstance);
-	cleanupAfterRun();
+
+	QString natives_dir_raw = PathCombine(instanceRoot(), "natives/");
+
 	auto version = d->version;
 	if (!version)
 		return nullptr;
-	auto libs_to_extract = version->getActiveNativeLibs();
-	QString natives_dir_raw = PathCombine(instanceRoot(), "natives/");
-	bool success = ensureFolderPathExists(natives_dir_raw);
-	if (!success)
-	{
-		// FIXME: handle errors
-		return nullptr;
-	}
-
-	for (auto lib : libs_to_extract)
-	{
-		QString path = "libraries/" + lib->storagePath();
-		QLOG_INFO() << "Will extract " << path.toLocal8Bit();
-		if (JlCompress::extractWithExceptions(path, natives_dir_raw, lib->extract_excludes)
-				.isEmpty())
-		{
-			return nullptr;
-		}
-	}
 
 	QStringList args;
 	args.append(Util::Commandline::splitArgs(settings().get("JvmArgs").toString()));
@@ -171,7 +155,7 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(LoginResponse response)
 		args << classPath;
 	}
 	args << version->mainClass;
-	args.append(processMinecraftArgs(response));
+	args.append(processMinecraftArgs(account));
 
 	// Set the width and height for 1.6 instances
 	bool maximize = settings().get("LaunchMaximized").toBool();
@@ -188,8 +172,8 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(LoginResponse response)
 
 	// create the process and set its parameters
 	MinecraftProcess *proc = new MinecraftProcess(this);
-	proc->setMinecraftArguments(args);
-	proc->setMinecraftWorkdir(minecraftRoot());
+	proc->setArguments(args);
+	proc->setWorkdir(minecraftRoot());
 	return proc;
 }
 
@@ -251,7 +235,6 @@ void OneSixInstance::setShouldUpdate(bool val)
 
 bool OneSixInstance::shouldUpdate() const
 {
-	I_D(OneSixInstance);
 	QVariant var = settings().get("ShouldUpdate");
 	if (!var.isValid() || var.toBool() == false)
 	{

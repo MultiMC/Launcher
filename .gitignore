@@ -10,3 +10,10 @@ resources/CMakeFiles
 resources/MultiMCLauncher.jar
 *~
 html/
+*.swp
+
+# Ctags File
+tags
+
+# YouCompleteMe config stuff.
+.ycm_extra_conf.*

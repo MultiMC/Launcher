@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>502</width>
+    <width>526</width>
     <height>599</height>
    </rect>
   </property>
@@ -20,7 +20,7 @@
    <string>Settings</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../multimc.qrc">
+   <iconset resource="../../graphics.qrc">
     <normaloff>:/icons/toolbar/settings</normaloff>:/icons/toolbar/settings</iconset>
   </property>
   <property name="modal">
@@ -394,7 +394,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="labelJVMArgs">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -407,26 +407,16 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
-           <widget class="QPushButton" name="btnBrowse">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="3">
+          <item row="0" column="1" colspan="5">
            <widget class="QLineEdit" name="javaPathTextBox"/>
           </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="pushButton">
+          <item row="3" column="1" colspan="5">
+           <widget class="QLineEdit" name="jvmArgsTextBox"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="javaDetectBtn">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -436,8 +426,31 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="3">
-           <widget class="QLineEdit" name="jvmArgsTextBox"/>
+          <item row="1" column="4" colspan="2">
+           <widget class="QPushButton" name="javaTestBtn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Test</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" colspan="2">
+           <widget class="QPushButton" name="javaBrowseBtn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -528,14 +541,12 @@
   <tabstop>maxMemSpinBox</tabstop>
   <tabstop>permGenSpinBox</tabstop>
   <tabstop>javaPathTextBox</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>btnBrowse</tabstop>
   <tabstop>jvmArgsTextBox</tabstop>
   <tabstop>preLaunchCmdTextBox</tabstop>
   <tabstop>postExitCmdTextBox</tabstop>
  </tabstops>
  <resources>
-  <include location="../../multimc.qrc"/>
+  <include location="../../graphics.qrc"/>
  </resources>
  <connections>
   <connection>

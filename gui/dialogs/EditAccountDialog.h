@@ -16,46 +16,42 @@
 #pragma once
 
 #include <QDialog>
-#include <QPushButton>
 
 namespace Ui
 {
-class LoginDialog;
+class EditAccountDialog;
 }
 
-class LoginDialog : public QDialog
+class EditAccountDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit LoginDialog(QWidget *parent = 0, const QString &loginErrMsg = "");
-	~LoginDialog();
+	explicit EditAccountDialog(const QString &text = "", QWidget *parent = 0,
+							   int flags = UsernameField | PasswordField);
+	~EditAccountDialog();
 
-	QString getUsername() const;
-	QString getPassword() const;
+	/*!
+	 * Gets the text entered in the dialog's username field.
+	 */
+	QString username() const;
 
-	inline bool isOnline()
+	/*!
+	 * Gets the text entered in the dialog's password field.
+	 */
+	QString password() const;
+
+	enum Flags
 	{
-		return isOnline_;
-	}
+		NoFlags = 0,
 
-	void forceOnline();
+		//! Specifies that the dialog should have a username field.
+		UsernameField,
 
-public
-slots:
-	virtual void accept();
-	virtual void userTextChanged(const QString &user);
-	virtual void forgetCurrentUser();
-private
-slots:
-	void usernameToggled(bool);
-	void passwordToggled(bool);
-	void launchOffline();
+		//! Specifies that the dialog should have a password field.
+		PasswordField,
+	};
 
 private:
-	Ui::LoginDialog *ui;
-	bool blockToggles;
-	QPushButton *offlineButton;
-	bool isOnline_;
-	bool onlineForced;
+	Ui::EditAccountDialog *ui;
 };

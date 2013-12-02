@@ -478,6 +478,14 @@
     <string>Update QuickMod Files</string>
    </property>
   </action>
+  <action name="actionManageAccounts">
+   <property name="text">
+    <string>Manage Accounts</string>
+   </property>
+   <property name="toolTip">
+    <string>Manage your Mojang or Minecraft accounts.</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

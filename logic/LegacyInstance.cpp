@@ -44,13 +44,15 @@ LegacyInstance::LegacyInstance(const QString &rootDir, SettingsObject *settings,
 	settings->registerSetting(new Setting("IntendedJarVersion", ""));
 }
 
-BaseUpdate *LegacyInstance::doUpdate()
+Task *LegacyInstance::doUpdate(bool prepare_for_launch)
 {
+	// make sure the jar mods list is initialized by asking for it.
 	auto list = jarModList();
-	return new LegacyUpdate(this, this);
+	// create an update task
+	return new LegacyUpdate(this, prepare_for_launch , this);
 }
 
-MinecraftProcess *LegacyInstance::prepareForLaunch(LoginResponse response)
+MinecraftProcess *LegacyInstance::prepareForLaunch(MojangAccountPtr account)
 {
 	MinecraftProcess *proc = new MinecraftProcess(this);
 
@@ -59,7 +61,7 @@ MinecraftProcess *LegacyInstance::prepareForLaunch(LoginResponse response)
 	pixmap.save(PathCombine(minecraftRoot(), "icon.png"), "PNG");
 
 	// extract the legacy launcher
-	QFile(":/launcher/launcher.jar").copy(PathCombine(minecraftRoot(), LAUNCHER_FILE));
+	QFile(":/java/launcher.jar").copy(PathCombine(minecraftRoot(), LAUNCHER_FILE));
 
 	// set the process arguments
 	{
@@ -103,16 +105,16 @@ MinecraftProcess *LegacyInstance::prepareForLaunch(LoginResponse response)
 #endif
 
 		args << "-jar" << LAUNCHER_FILE;
-		args << response.player_name;
-		args << response.session_id;
+		args << account->currentProfile()->name();
+		args << account->sessionId();
 		args << windowTitle;
 		args << windowSize;
 		args << lwjgl;
-		proc->setMinecraftArguments(args);
+		proc->setArguments(args);
 	}
 
 	// set the process work path
-	proc->setMinecraftWorkdir(minecraftRoot());
+	proc->setWorkdir(minecraftRoot());
 
 	return proc;
 }
@@ -227,66 +229,22 @@ QString LegacyInstance::instanceConfigFolder() const
 	return PathCombine(minecraftRoot(), "config");
 }
 
-/*
-bool LegacyInstance::shouldUpdateCurrentVersion() const
-{
-	QFileInfo jar(runnableJar());
-	return jar.lastModified().toUTC().toMSecsSinceEpoch() != lastCurrentVersionUpdate();
-}
-
-void LegacyInstance::updateCurrentVersion(bool keepCurrent)
-{
-	QFileInfo jar(runnableJar());
-
-	if(!jar.exists())
-	{
-		setLastCurrentVersionUpdate(0);
-		setCurrentVersionId("Unknown");
-		return;
-	}
-
-	qint64 time = jar.lastModified().toUTC().toMSecsSinceEpoch();
-
-	setLastCurrentVersionUpdate(time);
-	if (!keepCurrent)
-	{
-		// TODO: Implement GetMinecraftJarVersion function.
-		QString newVersion =
-"Unknown";//javautils::GetMinecraftJarVersion(jar.absoluteFilePath());
-		setCurrentVersionId(newVersion);
-	}
-}
-qint64 LegacyInstance::lastCurrentVersionUpdate() const
-{
-	I_D(LegacyInstance);
-	return d->m_settings->get ( "lastVersionUpdate" ).value<qint64>();
-}
-void LegacyInstance::setLastCurrentVersionUpdate ( qint64 val )
-{
-	I_D(LegacyInstance);
-	d->m_settings->set ( "lastVersionUpdate", val );
-}
-*/
 bool LegacyInstance::shouldRebuild() const
 {
 	I_D(LegacyInstance);
 	return d->m_settings->get("NeedsRebuild").toBool();
 }
+
 void LegacyInstance::setShouldRebuild(bool val)
 {
 	I_D(LegacyInstance);
 	d->m_settings->set("NeedsRebuild", val);
 }
+
 QString LegacyInstance::currentVersionId() const
 {
 	I_D(LegacyInstance);
 	return d->m_settings->get("JarVersion").toString();
-}
-
-void LegacyInstance::setCurrentVersionId(QString val)
-{
-	I_D(LegacyInstance);
-	d->m_settings->set("JarVersion", val);
 }
 
 QString LegacyInstance::lwjglVersion() const
@@ -294,25 +252,28 @@ QString LegacyInstance::lwjglVersion() const
 	I_D(LegacyInstance);
 	return d->m_settings->get("LwjglVersion").toString();
 }
+
 void LegacyInstance::setLWJGLVersion(QString val)
 {
 	I_D(LegacyInstance);
 	d->m_settings->set("LwjglVersion", val);
 }
+
 QString LegacyInstance::intendedVersionId() const
 {
 	I_D(LegacyInstance);
 	return d->m_settings->get("IntendedJarVersion").toString();
 }
+
 bool LegacyInstance::setIntendedVersionId(QString version)
 {
 	settings().set("IntendedJarVersion", version);
 	setShouldUpdate(true);
 	return true;
 }
+
 bool LegacyInstance::shouldUpdate() const
 {
-	I_D(LegacyInstance);
 	QVariant var = settings().get("ShouldUpdate");
 	if (!var.isValid() || var.toBool() == false)
 	{
@@ -320,6 +281,7 @@ bool LegacyInstance::shouldUpdate() const
 	}
 	return true;
 }
+
 void LegacyInstance::setShouldUpdate(bool val)
 {
 	settings().set("ShouldUpdate", val);

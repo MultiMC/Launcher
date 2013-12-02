@@ -19,10 +19,8 @@
 #include "MultiMC.h"
 
 #include "gui/ConsoleWindow.h"
-#include "gui/dialogs/LoginDialog.h"
 #include "gui/dialogs/ProgressDialog.h"
 
-#include "logic/net/LoginTask.h"
 #include "logic/MinecraftProcess.h"
 #include "logic/lists/InstanceList.h"
 
@@ -38,6 +36,8 @@ void InstanceLauncher::onTerminated()
 
 void InstanceLauncher::onLoginComplete()
 {
+	// TODO: Fix this.
+	/*
 	LoginTask *task = (LoginTask *)QObject::sender();
 	auto result = task->getResult();
 	auto instance = MMC->instances()->getInstanceById(instId);
@@ -52,10 +52,13 @@ void InstanceLauncher::onLoginComplete()
 
 	proc->setLogin(result.username, result.session_id);
 	proc->launch();
+	*/
 }
 
 void InstanceLauncher::doLogin(const QString &errorMsg)
 {
+	// FIXME: Use new account system here...
+	/*
 	LoginDialog *loginDlg = new LoginDialog(nullptr, errorMsg);
 	loginDlg->exec();
 	if (loginDlg->result() == QDialog::Accepted)
@@ -69,6 +72,7 @@ void InstanceLauncher::doLogin(const QString &errorMsg)
 				Qt::QueuedConnection);
 		tDialog->exec(loginTask);
 	}
+	*/
 	// onLoginComplete(LoginResponse("Offline","Offline", 1));
 }
 

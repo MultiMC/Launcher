@@ -32,6 +32,7 @@
 #include <QFileInfo>
 #include <QLabel>
 #include <QToolButton>
+#include <QWidgetAction>
 
 #include "osutils.h"
 #include "userutils.h"
@@ -47,7 +48,6 @@
 
 #include "gui/dialogs/SettingsDialog.h"
 #include "gui/dialogs/NewInstanceDialog.h"
-#include "gui/dialogs/LoginDialog.h"
 #include "gui/dialogs/ProgressDialog.h"
 #include "gui/dialogs/AboutDialog.h"
 #include "gui/dialogs/VersionSelectDialog.h"
@@ -58,6 +58,9 @@
 #include "gui/dialogs/EditNotesDialog.h"
 #include "gui/dialogs/CopyInstanceDialog.h"
 #include "gui/dialogs/AddQuickModFileDialog.h"
+#include "gui/dialogs/AccountListDialog.h"
+#include "gui/dialogs/AccountSelectDialog.h"
+#include "gui/dialogs/EditAccountDialog.h"
 
 #include "gui/ConsoleWindow.h"
 
@@ -68,7 +71,9 @@
 #include "logic/lists/JavaVersionList.h"
 #include "logic/lists/QuickModsList.h"
 
-#include "logic/net/LoginTask.h"
+#include "logic/auth/flows/AuthenticateTask.h"
+#include "logic/auth/flows/RefreshTask.h"
+#include "logic/auth/flows/ValidateTask.h"
 
 #include "logic/BaseInstance.h"
 #include "logic/InstanceFactory.h"
@@ -77,6 +82,7 @@
 #include "logic/OneSixUpdate.h"
 #include "logic/JavaUtils.h"
 #include "logic/NagUtils.h"
+#include "logic/SkinUtils.h"
 
 #include "logic/LegacyInstance.h"
 
@@ -86,11 +92,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	ui->setupUi(this);
 	setWindowTitle(QString("MultiMC %1").arg(MMC->version().toString()));
 	setAcceptDrops(true);
-
-	// Set the selected instance to null
-	m_selectedInstance = nullptr;
-	// Set active instance to null.
-	m_activeInst = nullptr;
 
 	// OSX magic.
 	setUnifiedTitleAndToolBarOnMac(true);
@@ -171,6 +172,60 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	statusBar()->addPermanentWidget(m_statusLeft, 1);
 	statusBar()->addPermanentWidget(m_statusRight, 0);
 
+	// Add "manage accounts" button, right align
+	QWidget* spacer = new QWidget();
+	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	ui->mainToolBar->addWidget(spacer);
+
+	accountMenu = new QMenu(this);
+	manageAccountsAction = new QAction(tr("Manage Accounts"), this);
+	manageAccountsAction->setCheckable(false);
+	connect(manageAccountsAction, SIGNAL(triggered(bool)), this, SLOT(on_actionManageAccounts_triggered()));
+
+	repopulateAccountsMenu();
+
+	accountMenuButton = new QToolButton(this);
+	accountMenuButton->setText(tr("Accounts"));
+	accountMenuButton->setMenu(accountMenu);
+	accountMenuButton->setPopupMode(QToolButton::InstantPopup);
+	accountMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	accountMenuButton->setIcon(QPixmap(":/icons/toolbar/noaccount").scaled(48, 48, Qt::KeepAspectRatio));
+
+	QWidgetAction *accountMenuButtonAction = new QWidgetAction(this);
+	accountMenuButtonAction->setDefaultWidget(accountMenuButton);
+
+	ui->mainToolBar->addAction(accountMenuButtonAction);
+
+	// Update the menu when the active account changes.
+	// Shouldn't have to use lambdas here like this, but if I don't, the compiler throws a fit. Template hell sucks...
+	connect(MMC->accounts().get(), &MojangAccountList::activeAccountChanged, [this] { activeAccountChanged(); });
+	connect(MMC->accounts().get(), &MojangAccountList::listChanged, [this] { repopulateAccountsMenu(); });
+
+	std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
+
+	// TODO: Nicer way to iterate?
+	for(int i = 0; i < accounts->count(); i++)
+	{
+		MojangAccountPtr account = accounts->at(i);
+		if(account != nullptr)
+		{
+			auto job = new NetJob("Startup player skins: " + account->username());
+
+			for(AccountProfile profile : account->profiles())
+			{
+				auto meta = MMC->metacache()->resolveEntry("skins", profile.name() + ".png");
+				auto action = CacheDownload::make(
+					QUrl("http://skins.minecraft.net/MinecraftSkins/" + profile.name() + ".png"),
+					meta);
+				job->addNetAction(action);
+				meta->stale = true;
+			}
+
+			connect(job, SIGNAL(succeeded()), SLOT(activeAccountChanged()));
+			job->start();
+		}
+	}
+
 	// run the things that load and download other things... FIXME: this is NOT the place
 	// FIXME: invisible actions in the background = NOPE.
 	{
@@ -193,6 +248,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		connect(assets_downloader, SIGNAL(finished()), SLOT(assetsFinished()));
 		assets_downloader->start();
 	}
+
+	const QString currentInstanceId = MMC->settings()->get("SelectedInstance").toString();
+	if (!currentInstanceId.isNull())
+	{
+		const QModelIndex index = MMC->instances()->getInstanceIndexById(currentInstanceId);
+		if (index.isValid())
+		{
+			const QModelIndex mappedIndex = proxymodel->mapFromSource(index);
+			view->setCurrentIndex(mappedIndex);
+		}
+		else
+		{
+			view->setCurrentIndex(proxymodel->index(0, 0));
+		}
+	}
+	else
+	{
+		view->setCurrentIndex(proxymodel->index(0, 0));
+	}
+
+	// removing this looks stupid
+	view->setFocus();
 }
 
 MainWindow::~MainWindow()
@@ -201,6 +278,116 @@ MainWindow::~MainWindow()
 	delete proxymodel;
 	delete drawer;
 	delete assets_downloader;
+}
+
+void MainWindow::repopulateAccountsMenu()
+{
+	accountMenu->clear();
+
+	std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
+	MojangAccountPtr active_account = accounts->activeAccount();
+
+	QString active_username = "";
+	if (active_account != nullptr)
+	{
+		active_username = accounts->activeAccount()->username();
+	}
+
+	if (accounts->count() <= 0)
+	{
+		QAction *action = new QAction(tr("No accounts added!"), this);
+		action->setEnabled(false);
+		accountMenu->addAction(action);
+
+		accountMenu->addSeparator();
+	}
+	else
+	{
+		// TODO: Nicer way to iterate?
+		for (int i = 0; i < accounts->count(); i++)
+		{
+			MojangAccountPtr account = accounts->at(i);
+
+			// Styling hack
+			QAction *section = new QAction(account->username(), this);
+			section->setEnabled(false);
+			accountMenu->addAction(section);
+
+			for (AccountProfile profile : account->profiles())
+			{
+				QAction *action = new QAction(profile.name(), this);
+				action->setData(account->username());
+				action->setCheckable(true);
+				if(active_username == account->username())
+				{
+					action->setChecked(true);
+				}
+
+				action->setIcon(SkinUtils::getFaceFromCache(profile.name()));
+				accountMenu->addAction(action);
+				connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
+			}
+
+			accountMenu->addSeparator();
+		}
+	}
+
+	QAction *action = new QAction(tr("No Default Account"), this);
+	action->setCheckable(true);
+	action->setIcon(QPixmap(":/icons/toolbar/noaccount").scaled(48, 48, Qt::KeepAspectRatio));
+	action->setData("");
+	if(active_username.isEmpty())
+	{
+		action->setChecked(true);
+	}
+
+	accountMenu->addAction(action);
+	connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
+
+	accountMenu->addSeparator();
+	accountMenu->addAction(manageAccountsAction);
+}
+
+/*
+ * Assumes the sender is a QAction
+ */
+void MainWindow::changeActiveAccount()
+{
+	QAction* sAction = (QAction*) sender();
+	// Profile's associated Mojang username
+	// Will need to change when profiles are properly implemented
+	if (sAction->data().type() != QVariant::Type::String) return;
+
+	QVariant data = sAction->data();
+	QString id = "";
+	if (!data.isNull())
+	{
+		id = data.toString();
+	}
+
+	MMC->accounts()->setActiveAccount(id);
+
+	activeAccountChanged();
+}
+
+void MainWindow::activeAccountChanged()
+{
+	repopulateAccountsMenu();
+
+	MojangAccountPtr account = MMC->accounts()->activeAccount();
+
+	if (account != nullptr && account->username() != "")
+	{
+		const AccountProfile *profile = account->currentProfile();
+		if (profile != nullptr)
+		{
+			accountMenuButton->setIcon(SkinUtils::getFaceFromCache(profile->name()));
+			return;
+		}
+	}
+
+	// Set the icon to the "no account" icon.
+	accountMenuButton->setIcon(QPixmap(":/icons/toolbar/noaccount").scaled(48, 48, Qt::KeepAspectRatio));
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
@@ -455,6 +642,12 @@ void MainWindow::on_actionSettings_triggered()
 	proxymodel->sort(0);
 }
 
+void MainWindow::on_actionManageAccounts_triggered()
+{
+	AccountListDialog dialog(this);
+	dialog.exec();
+}
+
 void MainWindow::on_actionReportBug_triggered()
 {
 	openWebPage(QUrl("http://multimc.myjetbrains.com/youtrack/dashboard#newissue=yes"));
@@ -565,11 +758,7 @@ void MainWindow::instanceActivated(QModelIndex index)
 
 	NagUtils::checkJVMArgs(inst->settings().get("JvmArgs").toString(), this);
 
-	bool autoLogin = inst->settings().get("AutoLogin").toBool();
-	if (autoLogin)
-		doAutoLogin();
-	else
-		doLogin();
+	doLaunch();
 }
 
 void MainWindow::on_actionLaunchInstance_triggered()
@@ -577,165 +766,141 @@ void MainWindow::on_actionLaunchInstance_triggered()
 	if (m_selectedInstance)
 	{
 		NagUtils::checkJVMArgs(m_selectedInstance->settings().get("JvmArgs").toString(), this);
-		doLogin();
+		doLaunch();
 	}
 }
 
-void MainWindow::doAutoLogin()
+void MainWindow::doLaunch()
 {
 	if (!m_selectedInstance)
 		return;
 
-	Keyring *k = Keyring::instance();
-	QStringList accounts = k->getStoredAccounts("minecraft");
-
-	if (!accounts.isEmpty())
+	// Find an account to use.
+	std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
+	MojangAccountPtr account = accounts->activeAccount();
+	if (accounts->count() <= 0)
 	{
-		QString username = accounts[0];
-		QString password = k->getPassword("minecraft", username);
+		// Tell the user they need to log in at least one account in order to play.
+		auto reply = CustomMessageBox::selectable(this, tr("No Accounts"),
+			tr("In order to play Minecraft, you must have at least one Mojang or Minecraft account logged in to MultiMC."
+				"Would you like to open the account manager to add an account now?"),
+			QMessageBox::Information, QMessageBox::Yes | QMessageBox::No)->exec();
 
-		if (!password.isEmpty())
+		if (reply == QMessageBox::Yes)
 		{
-			QLOG_INFO() << "Automatically logging in with stored account: " << username;
-			m_activeInst = m_selectedInstance;
-			doLogin(username, password);
+			// Open the account manager.
+			on_actionManageAccounts_triggered();
 		}
-		else
-		{
-			QLOG_ERROR() << "Auto login set for account, but no password was found: "
-						 << username;
-			doLogin(tr("Auto login attempted, but no password is stored."));
-		}
+	}
+	else if (account.get() == nullptr)
+	{
+		// If no default account is set, ask the user which one to use.
+		AccountSelectDialog selectDialog(tr("Which account would you like to use?"),
+				AccountSelectDialog::GlobalDefaultCheckbox, this);
+
+		selectDialog.exec();
+
+		// Launch the instance with the selected account.
+		account = selectDialog.selectedAccount();
+
+		// If the user said to use the account as default, do that.
+		if (selectDialog.useAsGlobalDefault() && account.get() != nullptr)
+			accounts->setActiveAccount(account->username());
+	}
+
+	if (account.get() != nullptr)
+	{
+		doLaunchInst(m_selectedInstance, account);
+	}
+}
+
+void MainWindow::doLaunchInst(BaseInstance* instance, MojangAccountPtr account)
+{
+	// We'll need to validate the access token to make sure the account is still logged in.
+	ProgressDialog progDialog(this);
+	RefreshTask refreshtask(account, &progDialog);
+	progDialog.exec(&refreshtask);
+
+	if (refreshtask.successful())
+	{
+		prepareLaunch(m_selectedInstance, account);
 	}
 	else
 	{
-		QLOG_ERROR() << "Auto login set but no accounts were stored.";
-		doLogin(tr("Auto login attempted, but no accounts are stored."));
-	}
-}
+		YggdrasilTask::Error *error = refreshtask.getError();
 
-void MainWindow::doLogin(QString username, QString password)
-{
-	PasswordLogin uInfo{username, password};
-
-	ProgressDialog *tDialog = new ProgressDialog(this);
-	LoginTask *loginTask = new LoginTask(uInfo, tDialog);
-	connect(loginTask, SIGNAL(succeeded()), SLOT(onLoginComplete()), Qt::QueuedConnection);
-	connect(loginTask, SIGNAL(failed(QString)), SLOT(doLogin(QString)), Qt::QueuedConnection);
-
-	tDialog->exec(loginTask);
-}
-
-void MainWindow::doLogin(const QString &errorMsg)
-{
-	if (!m_selectedInstance)
-		return;
-
-	LoginDialog *loginDlg = new LoginDialog(this, errorMsg);
-	if (!m_selectedInstance->lastLaunch())
-		loginDlg->forceOnline();
-
-	loginDlg->exec();
-	if (loginDlg->result() == QDialog::Accepted)
-	{
-		if (loginDlg->isOnline())
+		if (error != nullptr)
 		{
-			m_activeInst = m_selectedInstance;
-			doLogin(loginDlg->getUsername(), loginDlg->getPassword());
+			if (error->getErrorMessage().contains("invalid token", Qt::CaseInsensitive))
+			{
+				// TODO: Allow the user to enter their password and "refresh" their access token.
+				if (doRefreshToken(account, tr("Your account's access token is invalid. Please enter your password to log in again.")))
+					doLaunchInst(instance, account);
+			}
+			else
+			{
+				CustomMessageBox::selectable(
+					this, tr("Access Token Validation Error"),
+					tr("There was an error when trying to validate your access token.\n"
+					   "Details: %s").arg(error->getDisplayMessage()),
+					QMessageBox::Warning, QMessageBox::Ok)->exec();
+			}
 		}
 		else
 		{
-			QString user = loginDlg->getUsername();
-			if (user.length() == 0)
-				user = QString("Player");
-			m_activeLogin = {user, QString("Offline"), user, QString()};
-			m_activeInst = m_selectedInstance;
-			launchInstance(m_activeInst, m_activeLogin);
+			CustomMessageBox::selectable(
+				this, tr("Access Token Validation Error"),
+				tr("There was an unknown error when trying to validate your access token."
+				   "The authentication server might be down, or you might not be connected to "
+				   "the Internet."),
+				QMessageBox::Warning, QMessageBox::Ok)->exec();
 		}
 	}
 }
 
-void MainWindow::onLoginComplete()
+bool MainWindow::doRefreshToken(MojangAccountPtr account, const QString& errorMsg)
 {
-	if (!m_activeInst)
-		return;
-	LoginTask *task = (LoginTask *)QObject::sender();
-	m_activeLogin = task->getResult();
+	EditAccountDialog passDialog(errorMsg, this, EditAccountDialog::PasswordField);
+	if (passDialog.exec() == QDialog::Accepted)
+	{
+		// To refresh the token, we just create an authenticate task with the given account and the user's password.
+		ProgressDialog progDialog(this);
+		AuthenticateTask authTask(account, passDialog.password(), &progDialog);
+		progDialog.exec(&authTask);
+		if (authTask.successful())
+			return true;
+		else
+		{
+			// If the authentication task failed, recurse with the task's error message.
+			return doRefreshToken(account, authTask.failReason());
+		}
+	}
+	else return false;
+}
 
-	BaseUpdate *updateTask = m_activeInst->doUpdate();
+void MainWindow::prepareLaunch(BaseInstance* instance, MojangAccountPtr account)
+{
+	Task *updateTask = instance->doUpdate(true);
 	if (!updateTask)
 	{
-		launchInstance(m_activeInst, m_activeLogin);
+		launchInstance(instance, account);
 	}
 	else
 	{
 		ProgressDialog tDialog(this);
-		connect(updateTask, SIGNAL(succeeded()), SLOT(onGameUpdateComplete()));
+		connect(updateTask, &Task::succeeded, [this, instance, account] { launchInstance(instance, account); });
 		connect(updateTask, SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
 		tDialog.exec(updateTask);
 		delete updateTask;
 	}
-
-	auto job = new NetJob("Player skin: " + m_activeLogin.player_name);
-
-	auto meta = MMC->metacache()->resolveEntry("skins", m_activeLogin.player_name + ".png");
-	auto action = CacheDownload::make(
-		QUrl("http://skins.minecraft.net/MinecraftSkins/" + m_activeLogin.player_name + ".png"),
-		meta);
-	job->addNetAction(action);
-	meta->stale = true;
-
-	job->start();
-	auto filename = MMC->metacache()->resolveEntry("skins", "skins.json")->getFullPath();
-	QFile listFile(filename);
-
-	// Add skin mapping
-	QByteArray data;
-	{
-		if (!listFile.open(QIODevice::ReadWrite))
-		{
-			QLOG_ERROR() << "Failed to open/make skins list JSON";
-			return;
-		}
-
-		data = listFile.readAll();
-	}
-
-	QJsonParseError jsonError;
-	QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &jsonError);
-	QJsonObject root = jsonDoc.object();
-	QJsonObject mappings = root.value("mappings").toObject();
-	QJsonArray usernames = mappings.value(m_activeLogin.username).toArray();
-
-	if (!usernames.contains(m_activeLogin.player_name))
-	{
-		usernames.prepend(m_activeLogin.player_name);
-		mappings[m_activeLogin.username] = usernames;
-		root["mappings"] = mappings;
-		jsonDoc.setObject(root);
-
-		// QJson hack - shouldn't have to clear the file every time a save happens
-		listFile.resize(0);
-		listFile.write(jsonDoc.toJson());
-	}
 }
 
-void MainWindow::onGameUpdateComplete()
-{
-	launchInstance(m_activeInst, m_activeLogin);
-}
-
-void MainWindow::onGameUpdateError(QString error)
-{
-	CustomMessageBox::selectable(this, tr("Error updating instance"), error,
-								 QMessageBox::Warning)->show();
-}
-
-void MainWindow::launchInstance(BaseInstance *instance, LoginResponse response)
+void MainWindow::launchInstance(BaseInstance *instance, MojangAccountPtr account)
 {
 	Q_ASSERT_X(instance != NULL, "launchInstance", "instance is NULL");
+	Q_ASSERT_X(account.get() != nullptr, "launchInstance", "account is NULL");
 
-	proc = instance->prepareForLaunch(response);
+	proc = instance->prepareForLaunch(account);
 	if (!proc)
 		return;
 
@@ -744,8 +909,14 @@ void MainWindow::launchInstance(BaseInstance *instance, LoginResponse response)
 	console = new ConsoleWindow(proc);
 	connect(console, SIGNAL(isClosing()), this, SLOT(instanceEnded()));
 
-	proc->setLogin(response.username, response.session_id);
+	proc->setLogin(account);
 	proc->launch();
+}
+
+void MainWindow::onGameUpdateError(QString error)
+{
+	CustomMessageBox::selectable(this, tr("Error updating instance"), error,
+								 QMessageBox::Warning)->show();
 }
 
 void MainWindow::taskStart()
@@ -861,10 +1032,14 @@ void MainWindow::instanceChanged(const QModelIndex &current, const QModelIndex &
 		m_statusLeft->setText(m_selectedInstance->getStatusbarDescription());
 		auto ico = MMC->icons()->getIcon(iconKey);
 		ui->actionChangeInstIcon->setIcon(ico);
+
+		MMC->settings()->set("SelectedInstance", m_selectedInstance->id());
 	}
 	else
 	{
 		selectionBad();
+
+		MMC->settings()->set("SelectedInstance", QString());
 	}
 }
 

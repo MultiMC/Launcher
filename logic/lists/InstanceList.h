@@ -93,7 +93,9 @@ public:
 	int add(InstancePtr t);
 
 	/// Get an instance by ID
-	InstancePtr getInstanceById(QString id);
+	InstancePtr getInstanceById(QString id) const;
+
+	QModelIndex getInstanceIndexById(const QString &id) const;
 signals:
 	void dataIsInvalid();
 
@@ -108,7 +110,7 @@ slots:
 	void groupChanged();
 
 private:
-	int getInstIndex(BaseInstance *inst);
+	int getInstIndex(BaseInstance *inst) const;
 
 protected:
 	QString m_instDir;

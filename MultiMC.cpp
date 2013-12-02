@@ -9,6 +9,7 @@
 
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "logic/lists/InstanceList.h"
+#include "logic/lists/MojangAccountList.h"
 #include "logic/lists/IconList.h"
 #include "logic/lists/LwjglVersionList.h"
 #include "logic/lists/MinecraftVersionList.h"
@@ -30,7 +31,8 @@
 #include "config.h"
 using namespace Util::Commandline;
 
-MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplication(argc, argv)
+MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplication(argc, argv),
+	m_version{VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_BUILD_TYPE}
 {
 	setOrganizationName("MultiMC");
 	setApplicationName("MultiMC5");
@@ -112,8 +114,6 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplicati
 		{
 			std::cout << "Version " << VERSION_STR << std::endl;
 			std::cout << "Git " << GIT_COMMIT << std::endl;
-			std::cout << "Tag: " << JENKINS_BUILD_TAG << " " << (ARCH == x64 ? "x86_64" : "x86")
-					  << std::endl;
 			m_status = MultiMC::Succeeded;
 			return;
 		}
@@ -154,6 +154,12 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplicati
 	connect(InstDirSetting, SIGNAL(settingChanged(const Setting &, QVariant)),
 			m_instances.get(), SLOT(on_InstFolderChanged(const Setting &, QVariant)));
 
+	// and accounts
+	m_accounts.reset(new MojangAccountList(this));
+	QLOG_INFO() << "Loading accounts...";
+	m_accounts->setListFilePath("accounts.json", true);
+	m_accounts->loadList();
+
 	// init the http meta cache
 	initHttpMetaCache();
 
@@ -191,6 +197,9 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplicati
 		case QNetworkProxy::FtpCachingProxy:
 			proxyDesc = "FTP caching: ";
 			break;
+		default:
+			proxyDesc = "DERP proxy: ";
+			break;
 		}
 		proxyDesc += QString("%3@%1:%2 pass %4")
 						 .arg(proxy.hostName())
@@ -202,9 +211,6 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &currentDir) : QApplicati
 
 	// create the global network manager
 	m_qnam.reset(new QNetworkAccessManager(this));
-
-	// Register meta types.
-	qRegisterMetaType<LoginResponse>("LoginResponse");
 
 	// launch instance, if that's what should be done
 	if (!args["launch"].isNull())
@@ -355,6 +361,7 @@ void MultiMC::initGlobalSettings()
 
 
 	m_settings->registerSetting(new Setting("InstSortMode", "Name"));
+	m_settings->registerSetting(new Setting("SelectedInstance", QString()));
 
 	// Persistent value for the client ID
 	m_settings->registerSetting(new Setting("YggdrasilClientToken", ""));

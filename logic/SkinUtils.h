@@ -13,14 +13,11 @@
  * limitations under the License.
  */
 
-#include "BaseUpdate.h"
+#pragma once
 
-BaseUpdate::BaseUpdate(BaseInstance *inst, QObject *parent) : Task(parent)
-{
-	m_inst = inst;
-}
+#include <QPixmap>
 
-void BaseUpdate::updateDownloadProgress(qint64 current, qint64 total)
+namespace SkinUtils
 {
-	emit progress(current, total);
+QPixmap getFaceFromCache(QString username, int height = 48, int width = 48);
 }

@@ -21,16 +21,16 @@
 
 #include "logic/net/NetJob.h"
 #include "logic/tasks/Task.h"
-#include "logic/BaseUpdate.h"
+#include "logic/JavaChecker.h"
 
 class MinecraftVersion;
 class BaseInstance;
 
-class OneSixUpdate : public BaseUpdate
+class OneSixUpdate : public Task
 {
 	Q_OBJECT
 public:
-	explicit OneSixUpdate(BaseInstance *inst, QObject *parent = 0);
+	explicit OneSixUpdate(BaseInstance *inst, bool prepare_for_launch, QObject *parent = 0);
 	virtual void executeTask();
 
 private
@@ -43,10 +43,20 @@ slots:
 	void jarlibFinished();
 	void jarlibFailed();
 
+	void checkJava();
+	void checkFinished(JavaCheckResult result);
+
+	// extract the appropriate libraries
+	void prepareForLaunch();
 private:
 	NetJobPtr specificVersionDownloadJob;
 	NetJobPtr jarlibDownloadJob;
 
 	// target version, determined during this task
 	std::shared_ptr<MinecraftVersion> targetVersion;
+	BaseInstance *m_inst = nullptr;
+	bool m_prepare_for_launch = false;
+	std::shared_ptr<JavaChecker> checker;
+
+	bool java_is_64bit = false;
 };

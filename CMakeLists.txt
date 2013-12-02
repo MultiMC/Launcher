@@ -12,6 +12,11 @@ SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 SET(FILES_TO_TRANSLATE )
 
+######## Set module path ########
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/")
+SET(MMC_SRC "${PROJECT_SOURCE_DIR}")
+SET(MMC_BIN "${PROJECT_BINARY_DIR}")
+
 # Output all executables and shared libs in the main build folder, not in subfolders.
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
@@ -22,14 +27,14 @@ ENDIF()
 ######## Set compiler flags ########
 IF(APPLE)
 	message(STATUS "Using APPLE CMAKE_CXX_FLAGS")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 ELSEIF(UNIX)
 	# assume GCC, add C++0x/C++11 stuff
 	MESSAGE(STATUS "Using UNIX CMAKE_CXX_FLAGS")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 ELSEIF(MINGW)
 	MESSAGE(STATUS "Using MINGW CMAKE_CXX_FLAGS")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall")
 ENDIF()
 
 ################################ INCLUDE LIBRARIES ################################
@@ -44,14 +49,32 @@ find_package(Qt5WebKitWidgets REQUIRED)
 
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
+# The Qt5 cmake files don't provide its install paths, so ask qmake.
+get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
+function(QUERY_QMAKE VAR RESULT)
+	exec_program(${QMAKE_EXECUTABLE} ARGS "-query ${VAR}" RETURN_VALUE return_code OUTPUT_VARIABLE output )
+	if(NOT return_code)
+		file(TO_CMAKE_PATH "${output}" output)
+		set(${RESULT} ${output} PARENT_SCOPE)
+	endif(NOT return_code)
+endfunction(QUERY_QMAKE)
+
+query_qmake(QT_INSTALL_PLUGINS QT_PLUGINS_DIR)
+query_qmake(QT_INSTALL_IMPORTS QT_IMPORTS_DIR)
+query_qmake(QT_INSTALL_LIBS QT_LIBS_DIR)
+query_qmake(QT_HOST_DATA QT_DATA_DIR)
+set(QT_MKSPECS_DIR ${QT_DATA_DIR}/mkspecs)
+
+
 ######## Included Libs ########
 
 # Add quazip
 add_subdirectory(depends/quazip)
 include_directories(depends/quazip)
 
-# Add the java launcher
+# Add the java launcher and checker
 add_subdirectory(depends/launcher)
+add_subdirectory(depends/javacheck)
 
 # Add xz decompression
 add_subdirectory(depends/xz-embedded)
@@ -85,24 +108,30 @@ IF(${BIGENDIAN})
 ENDIF(${BIGENDIAN})
 
 
-######## Set module path ########
-SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
-
-
 ######## Set version numbers ########
-SET(MultiMC_VERSION_MAJOR		5)
+SET(MultiMC_VERSION_MAJOR		1)
 SET(MultiMC_VERSION_MINOR		0)
-SET(MultiMC_VERSION_REV			0)
 
 # Build number
-SET(MultiMC_VERSION_BUILD 0 CACHE STRING "Build number.")
-MESSAGE(STATUS "MultiMC build #${MultiMC_VERSION_BUILD}")
+SET(MultiMC_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
 
-# Complete version string
-SET(MultiMC_VERSION "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_REV}.${MultiMC_VERSION_BUILD}")
+# Build type
+SET(MultiMC_VERSION_BUILD_TYPE "custombuild" CACHE STRING "Build type. Usually corresponds to the buildbot build name. Empty string for no build type.")
+
+SET(MultiMC_VERSION_STRING "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}")
+
+IF (MultiMC_VERSION_BUILD GREATER -1)
+	SET(MultiMC_VERSION_STRING "${MultiMC_VERSION_STRING}.${MultiMC_VERSION_BUILD}")
+ENDIF ()
+
+IF (NOT MultiMC_VERSION_BUILD_TYPE STREQUAL "")
+	SET(MultiMC_VERSION_STRING "${MultiMC_VERSION_STRING}-${MultiMC_VERSION_BUILD_TYPE}")
+ENDIF ()
+
+MESSAGE(STATUS "MultiMC 5 version ${MultiMC_VERSION_STRING}")
 
 # Custom target to just print the version.
-ADD_CUSTOM_TARGET(version echo "Version: ${MultiMC_VERSION}")
+ADD_CUSTOM_TARGET(version echo "Version: ${MultiMC_VERSION_STRING}")
 
 # Check the current Git commit
 execute_process(COMMAND git rev-parse HEAD
@@ -195,8 +224,6 @@ gui/dialogs/CopyInstanceDialog.h
 gui/dialogs/CopyInstanceDialog.cpp
 gui/dialogs/dialogs/
 gui/dialogs/NewInstanceDialog.cpp
-gui/dialogs/LoginDialog.h
-gui/dialogs/LoginDialog.cpp
 gui/dialogs/ProgressDialog.h
 gui/dialogs/ProgressDialog.cpp
 gui/dialogs/AboutDialog.h
@@ -227,6 +254,12 @@ gui/dialogs/ChooseQuickModVersionDialog.h
 gui/dialogs/ChooseQuickModVersionDialog.cpp
 gui/dialogs/QuickModInstallDialog.h
 gui/dialogs/QuickModInstallDialog.cpp
+gui/dialogs/EditAccountDialog.h
+gui/dialogs/EditAccountDialog.cpp
+gui/dialogs/AccountListDialog.h
+gui/dialogs/AccountListDialog.cpp
+gui/dialogs/AccountSelectDialog.h
+gui/dialogs/AccountSelectDialog.cpp
 
 # GUI - widgets
 gui/widgets/InstanceDelegate.h
@@ -245,8 +278,6 @@ logic/BaseVersion.h
 logic/MinecraftVersion.h
 logic/InstanceFactory.h
 logic/InstanceFactory.cpp
-logic/BaseUpdate.h
-logic/BaseUpdate.cpp
 logic/BaseInstance.h
 logic/BaseInstance.cpp
 logic/BaseInstance_p.h
@@ -278,11 +309,22 @@ logic/net/NetJob.h
 logic/net/NetJob.cpp
 logic/net/HttpMetaCache.h
 logic/net/HttpMetaCache.cpp
-logic/net/LoginTask.h
-logic/net/LoginTask.cpp
 logic/net/S3ListBucket.h
 logic/net/S3ListBucket.cpp
 
+# Yggdrasil login stuff
+logic/auth/MojangAccount.h
+logic/auth/MojangAccount.cpp
+logic/auth/YggdrasilTask.h
+logic/auth/YggdrasilTask.cpp
+logic/auth/flows/AuthenticateTask.h
+logic/auth/flows/AuthenticateTask.cpp
+logic/auth/flows/RefreshTask.cpp
+logic/auth/flows/RefreshTask.cpp
+logic/auth/flows/ValidateTask.h
+logic/auth/flows/ValidateTask.cpp
+logic/auth/flows/InvalidateTask.h
+logic/auth/flows/InvalidateTask.cpp
 
 # legacy instances
 logic/LegacyInstance.h
@@ -333,6 +375,8 @@ logic/lists/JavaVersionList.h
 logic/lists/JavaVersionList.cpp
 logic/lists/QuickModsList.h
 logic/lists/QuickModsList.cpp
+logic/lists/MojangAccountList.h
+logic/lists/MojangAccountList.cpp
 
 # misc model/view
 logic/EnabledItemFilter.h
@@ -344,10 +388,14 @@ logic/tasks/Task.h
 logic/tasks/Task.cpp
 
 # Utilities
+logic/JavaChecker.h
+logic/JavaChecker.cpp
 logic/JavaUtils.h
 logic/JavaUtils.cpp
 logic/NagUtils.h
 logic/NagUtils.cpp
+logic/SkinUtils.h
+logic/SkinUtils.cpp
 
 # QuickMod stuff
 logic/QuickModFilesUpdater.h
@@ -366,7 +414,6 @@ gui/ConsoleWindow.ui
 gui/dialogs/SettingsDialog.ui
 gui/dialogs/CopyInstanceDialog.ui
 gui/dialogs/NewInstanceDialog.ui
-gui/dialogs/LoginDialog.ui
 gui/dialogs/AboutDialog.ui
 gui/dialogs/VersionSelectDialog.ui
 gui/dialogs/LwjglSelectDialog.ui
@@ -380,6 +427,9 @@ gui/dialogs/AddQuickModFileDialog.ui
 gui/dialogs/ChooseInstallModDialog.ui
 gui/dialogs/ChooseQuickModVersionDialog.ui
 gui/dialogs/QuickModInstallDialog.ui
+gui/dialogs/AccountListDialog.ui
+gui/dialogs/AccountSelectDialog.ui
+gui/dialogs/EditAccountDialog.ui
 
 # Widgets/other
 gui/widgets/MCModInfoFrame.ui
@@ -430,13 +480,17 @@ IF(MultiMC_CODE_COVERAGE)
 ENDIF(MultiMC_CODE_COVERAGE)
 
 # Tell CMake that MultiMCLauncher.jar is generated.
-SET_SOURCE_FILES_PROPERTIES(resources/MultiMCLauncher.jar GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${PROJECT_BINARY_DIR}/depends/launcher/MultiMCLauncher.jar GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${PROJECT_BINARY_DIR}/depends/javacheck/JavaCheck.jar GENERATED)
 
 # Qt 5 stuff
 QT5_WRAP_UI(MULTIMC_UI ${MULTIMC_UIS})
-QT5_ADD_RESOURCES(MULTIMC_QRC multimc.qrc)
+CONFIGURE_FILE(generated.qrc.in generated.qrc)
+QT5_ADD_RESOURCES(GENERATED_QRC ${CMAKE_CURRENT_BINARY_DIR}/generated.qrc)
+QT5_ADD_RESOURCES(GRAPHICS_QRC graphics.qrc)
 
-ADD_LIBRARY(MultiMC_common STATIC ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_QRC} ${MULTIMC_RCS})
+ADD_LIBRARY(MultiMC_common STATIC ${MULTIMC_SOURCES} ${MULTIMC_UI} ${GRAPHICS_QRC} ${GENERATED_QRC} ${MULTIMC_RCS})
+
 # Add executable
 ADD_EXECUTABLE(MultiMC MACOSX_BUNDLE WIN32 main.cpp)
 
@@ -445,112 +499,123 @@ TARGET_LINK_LIBRARIES(MultiMC MultiMC_common)
 TARGET_LINK_LIBRARIES(MultiMC_common xz-embedded unpack200 quazip libUtil libSettings libGroupView ${MultiMC_LINK_ADDITIONAL_LIBS})
 QT5_USE_MODULES(MultiMC Core Widgets Network Xml WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
 QT5_USE_MODULES(MultiMC_common Core Widgets Network Xml WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
-ADD_DEPENDENCIES(MultiMC_common MultiMCLauncher)
-
-option(BUILD_KEYRING_TEST "Build the simple keyring test binary" OFF)
-IF(BUILD_KEYRING_TEST)
-	# test.cpp
-	ADD_EXECUTABLE(Test test.cpp)
-	QT5_USE_MODULES(Test Core)
-	TARGET_LINK_LIBRARIES(Test libUtil libSettings)
-ENDIF()
 
 ################################ INSTALLATION AND PACKAGING ################################
-# use QtCreator's QTDIR var
-IF(DEFINED ENV{QTDIR})
-	SET(Qt5_DIR $ENV{QTDIR})
-ENDIF()
 
-######## Plugin and library folders ########
+######## Packaging/install paths setup ########
 
-SET(PLUGIN_DEST_DIR plugins)
-SET(QTCONF_DEST_DIR .)
-SET(APPS "\${CMAKE_INSTALL_PREFIX}/MultiMC")
+IF(UNIX AND APPLE)
+	SET(PLUGIN_DEST_DIR MultiMC.app/Contents/MacOS)
+	SET(QTCONF_DEST_DIR MultiMC.app/Contents/Resources)
+	SET(APPS "\${CMAKE_INSTALL_PREFIX}/MultiMC.app")
 
-IF(WIN32)
+	SET(MACOSX_BUNDLE_BUNDLE_NAME "MultiMC")
+	SET(MACOSX_BUNDLE_INFO_STRING "MultiMC Minecraft launcher and management utility.")
+	SET(MACOSX_BUNDLE_BUNDLE_VERSION "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_REV}.${MultiMC_VERSION_BUILD}")
+	#SET(MACOSX_BUNDLE_GUI_IDENTIFIER "")
+	SET(MACOSX_BUNDLE_ICON_FILE MultiMC.icns)
+ELSEIF(UNIX)
+	SET(PLUGIN_DEST_DIR plugins)
+	SET(QTCONF_DEST_DIR .)
+	SET(APPS "\${CMAKE_INSTALL_PREFIX}/bin/MultiMC")
+ELSEIF(WIN32)
 	SET(PLUGIN_DEST_DIR .)
 	SET(QTCONF_DEST_DIR .)
 	SET(APPS "\${CMAKE_INSTALL_PREFIX}/MultiMC.exe")
 ENDIF()
 
-IF(UNIX)
-IF(APPLE)
-	SET(PLUGIN_DEST_DIR MultiMC.app/Contents/MacOS)
-	SET(QTCONF_DEST_DIR MultiMC.app/Contents/Resources)
-		SET(APPS "\${CMAKE_INSTALL_PREFIX}/MultiMC.app")
-ELSE()
-	SET(APPS "\${CMAKE_INSTALL_PREFIX}/bin/MultiMC")
-ENDIF()
-ENDIF()
-
-SET(QT_PLUGINS_DIR ${Qt5_DIR}/plugins)
-SET(QT_LIBRARY_DIRS ${Qt5_DIR}/lib)
-
-
-######## OS X Bundle Info ########
-
-IF(APPLE)
-	SET(MACOSX_BUNDLE_BUNDLE_NAME "MultiMC")
-	SET(MACOSX_BUNDLE_INFO_STRING "MultiMC Minecraft launcher and management utility.")
-	SET(MACOSX_BUNDLE_BUNDLE_VERSION 
-		"${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_REV}.${MultiMC_VERSION_BUILD}")
-	#SET(MACOSX_BUNDLE_GUI_IDENTIFIER "")
-	SET(MACOSX_BUNDLE_ICON_FILE MultiMC.icns)
-ENDIF(APPLE)
+# directories to look for dependencies
+SET(DIRS "${QT_LIBS_DIR}")
 
 ######## Install ########
 
 #### Executable ####
-IF(WIN32)
-INSTALL(TARGETS MultiMC 
-	BUNDLE DESTINATION . COMPONENT Runtime
-	LIBRARY DESTINATION . COMPONENT Runtime
-	RUNTIME DESTINATION . COMPONENT Runtime
+IF(APPLE AND UNIX) ## OSX
+	INSTALL(TARGETS MultiMC 
+		BUNDLE DESTINATION . COMPONENT Runtime
+		RUNTIME DESTINATION MultiMC.app/Contents/MacOS COMPONENT Runtime
+	)
+
+ELSEIF(UNIX) ## LINUX and similar
+	INSTALL(TARGETS MultiMC 
+		BUNDLE DESTINATION . COMPONENT Runtime
+		RUNTIME DESTINATION bin COMPONENT Runtime
+	)
+	INSTALL(PROGRAMS package/linux/MultiMC DESTINATION .)
+
+ELSEIF(WIN32) ## WINDOWS
+	INSTALL(TARGETS MultiMC 
+		BUNDLE DESTINATION . COMPONENT Runtime
+		LIBRARY DESTINATION . COMPONENT Runtime
+		RUNTIME DESTINATION . COMPONENT Runtime
+	)
+ENDIF()
+
+#### Dist package logic ####
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+# Image formats
+INSTALL(
+	DIRECTORY "${QT_PLUGINS_DIR}/imageformats"
+	DESTINATION ${PLUGIN_DEST_DIR}
+	COMPONENT Runtime
+	REGEX "tga|svg|tiff|mng" EXCLUDE
 )
-ENDIF()
-IF(UNIX)
-IF(APPLE)
-INSTALL(TARGETS MultiMC 
-	BUNDLE DESTINATION . COMPONENT Runtime
-	RUNTIME DESTINATION MultiMC.app/Contents/MacOS COMPONENT Runtime
+
+# Platform plugins
+INSTALL(
+	DIRECTORY "${QT_PLUGINS_DIR}/platforms"
+	DESTINATION ${PLUGIN_DEST_DIR}
+	COMPONENT Runtime
+	REGEX "minimal|linuxfb|offscreen" EXCLUDE
 )
-ELSE()
-INSTALL(TARGETS MultiMC 
-	BUNDLE DESTINATION . COMPONENT Runtime
-	RUNTIME DESTINATION bin COMPONENT Runtime
+else()
+# Image formats
+INSTALL(
+	DIRECTORY "${QT_PLUGINS_DIR}/imageformats"
+	DESTINATION ${PLUGIN_DEST_DIR}
+	COMPONENT Runtime
+	REGEX "tga|svg|tiff|mng" EXCLUDE
+	REGEX "d\\." EXCLUDE
+	REGEX "_debug\\." EXCLUDE
 )
-INSTALL(PROGRAMS package/linux/MultiMC DESTINATION .)
-ENDIF()
-ENDIF()
+
+# Platform plugins
+INSTALL(
+	DIRECTORY "${QT_PLUGINS_DIR}/platforms"
+	DESTINATION ${PLUGIN_DEST_DIR}
+	COMPONENT Runtime
+	REGEX "minimal|linuxfb|offscreen" EXCLUDE
+	REGEX "d\\." EXCLUDE
+	REGEX "_debug\\." EXCLUDE
+)
+endif()
+
+# qtconf
+INSTALL(
+	CODE "
+FILE(WRITE \"\${CMAKE_INSTALL_PREFIX}/${QTCONF_DEST_DIR}/qt.conf\" \"\")
+"
+	COMPONENT Runtime
+)
 
 
-#### Plugins ####
+INSTALL(
+	CODE "
+FILE(GLOB_RECURSE	QTPLUGINS \"\${CMAKE_INSTALL_PREFIX}/${PLUGIN_DEST_DIR}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+function(gp_resolved_file_type_override resolved_file type_var)
+	if(resolved_file MATCHES \"^/usr/lib/libQt\")
+		message(\"resolving \${resolved_file} as other\")
+		set(\${type_var} other PARENT_SCOPE)
+    endif()
+endfunction()
 
-OPTION(MultiMC_INSTALL_SHARED_LIBS "if set, Qt's shared libraries will be copied to the installation directory on install")
+include(BundleUtilities)
+fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
+"
+	COMPONENT Runtime
+)
 
-IF (MultiMC_INSTALL_SHARED_LIBS)
-	# Image formats
-	INSTALL(DIRECTORY "${QT_PLUGINS_DIR}/imageformats" DESTINATION ${PLUGIN_DEST_DIR} COMPONENT Runtime)
-
-	# Platform plugins
-	INSTALL(DIRECTORY "${QT_PLUGINS_DIR}/platforms" DESTINATION ${PLUGIN_DEST_DIR} COMPONENT Runtime)
-
-	# qtconf
-	INSTALL(CODE "
-		FILE(WRITE \"\${CMAKE_INSTALL_PREFIX}/${QTCONF_DEST_DIR}/qt.conf\" \"\")
-		" COMPONENT Runtime)
-
-
-	# Dirs to look for dependencies.
-	SET(DIRS "${QT_LIBRARY_DIRS}")
-
-	INSTALL(CODE "
-		file(GLOB_RECURSE QTPLUGINS
-			\"\${CMAKE_INSTALL_PREFIX}/${PLUGIN_DEST_DIR}/plugins/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
-		include(BundleUtilities)
-		fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
-		" COMPONENT Runtime)
-ENDIF()
 
 
 ######## Package ########
@@ -594,11 +659,11 @@ include_directories(${PROJECT_BINARY_DIR}/include)
 file (GLOB TRANSLATIONS_FILES translations/*.ts)
 
 option (UPDATE_TRANSLATIONS "Update source translation translations/*.ts files (WARNING: make clean will delete the source .ts files! Danger!)")
-if (UPDATE_TRANSLATIONS)
-  qt5_create_translation(QM_FILES ${FILES_TO_TRANSLATE} ${TRANSLATIONS_FILES})
-else (UPDATE_TRANSLATIONS)
-  qt5_add_translation(QM_FILES ${TRANSLATIONS_FILES})
-endif (UPDATE_TRANSLATIONS) 
+IF(UPDATE_TRANSLATIONS)
+	qt5_create_translation(QM_FILES ${FILES_TO_TRANSLATE} ${TRANSLATIONS_FILES})
+ELSE()
+	qt5_add_translation(QM_FILES ${TRANSLATIONS_FILES})
+ENDIF()
 
 add_custom_target (translations DEPENDS ${QM_FILES})
 

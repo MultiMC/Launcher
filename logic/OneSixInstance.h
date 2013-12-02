@@ -20,7 +20,7 @@
 #include "BaseInstance.h"
 
 class OneSixVersion;
-class BaseUpdate;
+class Task;
 class ModList;
 
 class OneSixInstance : public BaseInstance
@@ -37,22 +37,22 @@ public:
 	////// Directories //////
 	QString resourcePacksDir() const;
 	QString loaderModsDir() const;
-	virtual QString instanceConfigFolder() const;
+	virtual QString instanceConfigFolder() const override;
 
-	virtual BaseUpdate *doUpdate();
-	virtual MinecraftProcess *prepareForLaunch(LoginResponse response);
-	virtual void cleanupAfterRun();
+	virtual Task *doUpdate(bool prepare_for_launch) override;
+	virtual MinecraftProcess *prepareForLaunch(MojangAccountPtr account) override;
 
-	virtual QString intendedVersionId() const;
-	virtual bool setIntendedVersionId(QString version);
+	virtual void cleanupAfterRun() override;
 
-	virtual QString currentVersionId() const;
-	// virtual void setCurrentVersionId ( QString val ) {};
+	virtual QString intendedVersionId() const override;
+	virtual bool setIntendedVersionId(QString version) override;
 
-	virtual bool shouldUpdate() const;
-	virtual void setShouldUpdate(bool val);
+	virtual QString currentVersionId() const override;
 
-	virtual QDialog *createModEditDialog(QWidget *parent);
+	virtual bool shouldUpdate() const override;
+	virtual void setShouldUpdate(bool val) override;
+
+	virtual QDialog *createModEditDialog(QWidget *parent) override;
 
 	/// reload the full version json file. return true on success!
 	bool reloadFullVersion();
@@ -65,12 +65,12 @@ public:
 	/// is the current version original, or custom?
 	virtual bool versionIsCustom() override;
 
-	virtual QString defaultBaseJar() const;
-	virtual QString defaultCustomBaseJar() const;
+	virtual QString defaultBaseJar() const override;
+	virtual QString defaultCustomBaseJar() const override;
 
-	virtual bool menuActionEnabled(QString action_name) const;
-    virtual QString getStatusbarDescription();
+	virtual bool menuActionEnabled(QString action_name) const override;
+	virtual QString getStatusbarDescription() override;
 
 private:
-	QStringList processMinecraftArgs(LoginResponse response);
+	QStringList processMinecraftArgs(MojangAccountPtr account);
 };

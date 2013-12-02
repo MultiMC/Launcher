@@ -22,11 +22,10 @@
 
 #include "inifile.h"
 #include "lists/BaseVersionList.h"
-#include "net/LoginTask.h"
-#include "Mod.h"
+#include "logic/auth/MojangAccount.h"
 
 class QDialog;
-class BaseUpdate;
+class Task;
 class MinecraftProcess;
 class OneSixUpdate;
 class InstanceList;
@@ -94,7 +93,6 @@ public:
 	 * \warning Don't change this value unless you know what you're doing.
 	 */
 	virtual QString currentVersionId() const = 0;
-	// virtual void setCurrentVersionId(QString val) = 0;
 
 	/*!
 	 * Whether or not Minecraft should be downloaded when the instance is launched.
@@ -152,10 +150,10 @@ public:
 	virtual SettingsObject &settings() const;
 
 	/// returns a valid update task if update is needed, NULL otherwise
-	virtual BaseUpdate *doUpdate() = 0;
+	virtual Task *doUpdate(bool prepare_for_launch) = 0;
 
-	/// returns a valid minecraft process, ready for launch
-	virtual MinecraftProcess *prepareForLaunch(LoginResponse response) = 0;
+	/// returns a valid minecraft process, ready for launch with the given account.
+	virtual MinecraftProcess *prepareForLaunch(MojangAccountPtr account) = 0;
 
 	/// do any necessary cleanups after the instance finishes. also runs before
 	/// 'prepareForLaunch'

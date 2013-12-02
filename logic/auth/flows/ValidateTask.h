@@ -15,33 +15,29 @@
 
 #pragma once
 
+#include <logic/auth/YggdrasilTask.h>
+
 #include <QObject>
-#include <QList>
-#include <QUrl>
+#include <QString>
+#include <QJsonObject>
 
-#include "net/NetJob.h"
-
-#include "tasks/Task.h"
-
-class MinecraftVersion;
-class BaseInstance;
-
-/*!
- * The game update task is the task that handles downloading instances' files.
+/**
+ * The validate task takes a MojangAccount and checks to make sure its access token is valid.
  */
-class BaseUpdate : public Task
+class ValidateTask : public YggdrasilTask
 {
 	Q_OBJECT
 public:
-	explicit BaseUpdate(BaseInstance *inst, QObject *parent = 0);
-
-	virtual void executeTask() = 0;
-
-protected
-slots:
-	// virtual void error(const QString &msg);
-	void updateDownloadProgress(qint64 current, qint64 total);
+	ValidateTask(MojangAccountPtr account, QObject *parent = 0);
 
 protected:
-	BaseInstance *m_inst;
+	virtual QJsonObject getRequestContent() const;
+
+	virtual QString getEndpoint() const;
+
+	virtual bool processResponse(QJsonObject responseData);
+
+	QString getStateMessage(const YggdrasilTask::State state) const;
+
+private:
 };

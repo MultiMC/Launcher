@@ -2,7 +2,6 @@
 
 #include <QApplication>
 #include "MultiMCVersion.h"
-#include "config.h"
 #include <memory>
 #include "logger/QsLog.h"
 #include "logger/QsLogDest.h"
@@ -13,6 +12,7 @@ class LWJGLVersionList;
 class HttpMetaCache;
 class SettingsObject;
 class InstanceList;
+class MojangAccountList;
 class IconList;
 class QNetworkAccessManager;
 class ForgeVersionList;
@@ -56,6 +56,11 @@ public:
 	std::shared_ptr<InstanceList> instances()
 	{
 		return m_instances;
+	}
+
+	std::shared_ptr<MojangAccountList> accounts()
+	{
+		return m_accounts;
 	}
 
 	std::shared_ptr<IconList> icons();
@@ -104,6 +109,7 @@ private:
 	std::shared_ptr<QTranslator> m_mmc_translator;
 	std::shared_ptr<SettingsObject> m_settings;
 	std::shared_ptr<InstanceList> m_instances;
+	std::shared_ptr<MojangAccountList> m_accounts;
 	std::shared_ptr<IconList> m_icons;
 	std::shared_ptr<QNetworkAccessManager> m_qnam;
 	std::shared_ptr<HttpMetaCache> m_metacache;
@@ -116,5 +122,5 @@ private:
 	QsLogging::DestinationPtr m_debugDestination;
 
 	Status m_status = MultiMC::Failed;
-	MultiMCVersion m_version = {VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD};
+	MultiMCVersion m_version;
 };

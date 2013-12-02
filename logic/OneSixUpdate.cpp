@@ -31,8 +31,10 @@
 #include "net/ForgeMirrors.h"
 
 #include "pathutils.h"
+#include <JlCompress.h>
 
-OneSixUpdate::OneSixUpdate(BaseInstance *inst, QObject *parent) : BaseUpdate(inst, parent)
+OneSixUpdate::OneSixUpdate(BaseInstance *inst, bool prepare_for_launch, QObject *parent)
+	: Task(parent), m_inst(inst), m_prepare_for_launch(prepare_for_launch)
 {
 }
 
@@ -48,28 +50,57 @@ void OneSixUpdate::executeTask()
 		return;
 	}
 
-	// Get a pointer to the version object that corresponds to the instance's version.
-	targetVersion = std::dynamic_pointer_cast<MinecraftVersion>(
-		MMC->minecraftlist()->findVersion(intendedVersion));
-	if (targetVersion == nullptr)
-	{
-		// don't do anything if it was invalid
-		emitSucceeded();
-		return;
-	}
-
 	if (m_inst->shouldUpdate())
 	{
+		// Get a pointer to the version object that corresponds to the instance's version.
+		targetVersion = std::dynamic_pointer_cast<MinecraftVersion>(
+			MMC->minecraftlist()->findVersion(intendedVersion));
+		if (targetVersion == nullptr)
+		{
+			// don't do anything if it was invalid
+			emitFailed("The specified Minecraft version is invalid. Choose a different one.");
+			return;
+		}
 		versionFileStart();
 	}
 	else
 	{
+		checkJava();
+	}
+}
+
+void OneSixUpdate::checkJava()
+{
+	QLOG_INFO() << m_inst->name() << ": checking java binary";
+	setStatus("Testing the Java installation.");
+	// TODO: cache this so we don't have to run an extra java process every time.
+	QString java_path = m_inst->settings().get("JavaPath").toString();
+
+	checker.reset(new JavaChecker());
+	connect(checker.get(), SIGNAL(checkFinished(JavaCheckResult)), this,
+			SLOT(checkFinished(JavaCheckResult)));
+	checker->performCheck(java_path);
+}
+
+void OneSixUpdate::checkFinished(JavaCheckResult result)
+{
+	if (result.valid)
+	{
+		QLOG_INFO() << m_inst->name() << ": java is "
+					<< (result.is_64bit ? "64 bit" : "32 bit");
+		java_is_64bit = result.is_64bit;
 		jarlibStart();
+	}
+	else
+	{
+		QLOG_INFO() << m_inst->name() << ": java isn't valid";
+		emitFailed("The java binary doesn't work. Check the settings and correct the problem");
 	}
 }
 
 void OneSixUpdate::versionFileStart()
 {
+	QLOG_INFO() << m_inst->name() << ": getting version file.";
 	setStatus("Getting the version files from Mojang.");
 
 	QString urlstr("http://s3.amazonaws.com/Minecraft.Download/versions/");
@@ -129,7 +160,7 @@ void OneSixUpdate::versionFileFinished()
 	}
 	inst->reloadFullVersion();
 
-	jarlibStart();
+	checkJava();
 }
 
 void OneSixUpdate::versionFileFailed()
@@ -139,11 +170,13 @@ void OneSixUpdate::versionFileFailed()
 
 void OneSixUpdate::jarlibStart()
 {
+	setStatus("Getting the library files from Mojang.");
+	QLOG_INFO() << m_inst->name() << ": downloading libraries";
 	OneSixInstance *inst = (OneSixInstance *)m_inst;
 	bool successful = inst->reloadFullVersion();
 	if (!successful)
 	{
-		emitFailed("Failed to load the version description file (version.json). It might be "
+		emitFailed("Failed to load the version description file. It might be "
 				   "corrupted, missing or simply too new.");
 		return;
 	}
@@ -165,21 +198,27 @@ void OneSixUpdate::jarlibStart()
 
 	auto metacache = MMC->metacache();
 	QList<ForgeXzDownloadPtr> ForgeLibs;
-	bool already_forge_xz = false;
 	for (auto lib : libs)
 	{
 		if (lib->hint() == "local")
 			continue;
-		auto entry = metacache->resolveEntry("libraries", lib->storagePath());
+		QString subst = java_is_64bit ? "64" : "32";
+		QString storage = lib->storagePath();
+		QString dl = lib->downloadUrl();
+
+		storage.replace("${arch}", subst);
+		dl.replace("${arch}", subst);
+
+		auto entry = metacache->resolveEntry("libraries", storage);
 		if (entry->stale)
 		{
 			if (lib->hint() == "forge-pack-xz")
 			{
-				ForgeLibs.append(ForgeXzDownload::make(lib->storagePath(), entry));
+				ForgeLibs.append(ForgeXzDownload::make(storage, entry));
 			}
 			else
 			{
-				jarlibDownloadJob->addNetAction(CacheDownload::make(lib->downloadUrl(), entry));
+				jarlibDownloadJob->addNetAction(CacheDownload::make(dl, entry));
 			}
 		}
 	}
@@ -201,7 +240,10 @@ void OneSixUpdate::jarlibStart()
 
 void OneSixUpdate::jarlibFinished()
 {
-	emitSucceeded();
+	if (m_prepare_for_launch)
+		prepareForLaunch();
+	else
+		emitSucceeded();
 }
 
 void OneSixUpdate::jarlibFailed()
@@ -210,4 +252,58 @@ void OneSixUpdate::jarlibFailed()
 	QString failed_all = failed.join("\n");
 	emitFailed("Failed to download the following files:\n" + failed_all +
 			   "\n\nPlease try again.");
+}
+
+void OneSixUpdate::prepareForLaunch()
+{
+	setStatus("Preparing for launch.");
+	QLOG_INFO() << m_inst->name() << ": preparing for launch";
+	auto onesix_inst = (OneSixInstance *)m_inst;
+
+	// delete any leftovers, if they are present.
+	onesix_inst->cleanupAfterRun();
+
+	// Acquire swag
+	QString natives_dir_raw = PathCombine(onesix_inst->instanceRoot(), "natives/");
+	auto version = onesix_inst->getFullVersion();
+	if (!version)
+	{
+		emitFailed("The version information for this instance is not complete. Try re-creating "
+				   "it or changing the version.");
+		return;
+	}
+	auto libs_to_extract = version->getActiveNativeLibs();
+
+	// Acquire bag
+	bool success = ensureFolderPathExists(natives_dir_raw);
+	if (!success)
+	{
+		emitFailed("Could not create the native library folder:\n" + natives_dir_raw +
+				   "\nMake sure MultiMC has appropriate permissions and there is enough space "
+				   "on the storage device.");
+		return;
+	}
+
+	// Put swag in the bag
+	QString subst = java_is_64bit ? "64" : "32";
+	for (auto lib : libs_to_extract)
+	{
+		QString storage = lib->storagePath();
+		storage.replace("${arch}", subst);
+
+		QString path = "libraries/" + storage;
+		QLOG_INFO() << "Will extract " << path.toLocal8Bit();
+		if (JlCompress::extractWithExceptions(path, natives_dir_raw, lib->extract_excludes)
+				.isEmpty())
+		{
+			emitFailed(
+				"Could not extract the native library:\n" + path +
+				"\nMake sure MultiMC has appropriate permissions and there is enough space "
+				"on the storage device.");
+			return;
+		}
+	}
+
+	// Show them your war face!
+	emitSucceeded();
 }

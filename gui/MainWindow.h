@@ -19,8 +19,9 @@
 #include <QProcess>
 
 #include "logic/lists/InstanceList.h"
-#include "logic/net/LoginTask.h"
 #include "logic/BaseInstance.h"
+
+#include "logic/auth/MojangAccount.h"
 
 class QToolButton;
 class LabeledToolButton;
@@ -80,6 +81,8 @@ slots:
 
 	void on_actionSettings_triggered();
 
+	void on_actionManageAccounts_triggered();
+
 	void on_actionReportBug_triggered();
 
 	void on_actionNews_triggered();
@@ -106,13 +109,35 @@ slots:
 
 	void on_actionUpdateQuickModFiles_triggered();
 
-	void doLogin(const QString &errorMsg = "");
-	void doLogin(QString username, QString password);
-	void doAutoLogin();
+	/*!
+	 * Launches the currently selected instance with the default account.
+	 * If no default account is selected, prompts the user to pick an account.
+	 */
+	void doLaunch();
+	
+	/*!
+	 * Launches the given instance with the given account.
+	 */
+	void doLaunchInst(BaseInstance* instance, MojangAccountPtr account);
 
-	void onLoginComplete();
+	/*!
+	 * Opens an input dialog, allowing the user to input their password and refresh its access token.
+	 * This function will execute the proper Yggdrasil task to refresh the access token.
+	 * Returns true if successful. False if the user cancelled.
+	 */
+	bool doRefreshToken(MojangAccountPtr account, const QString& errorMsg="");
 
-	void onGameUpdateComplete();
+	/*!
+	 * Launches the given instance with the given account.
+	 * This function assumes that the given account has a valid, usable access token.
+	 */
+	void launchInstance(BaseInstance* instance, MojangAccountPtr account);
+
+	/*!
+	 * Prepares the given instance for launch with the given account.
+	 */
+	void prepareLaunch(BaseInstance* instance, MojangAccountPtr account);
+
 	void onGameUpdateError(QString error);
 
 	void taskStart();
@@ -140,7 +165,11 @@ slots:
 
 	void startTask(Task *task);
 
-	void launchInstance(BaseInstance *inst, LoginResponse response);
+	void activeAccountChanged();
+
+	void changeActiveAccount();
+
+	void repopulateAccountsMenu();
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
@@ -162,14 +191,12 @@ private:
 
 	BaseInstance *m_selectedInstance;
 
-	// A pointer to the instance we are actively doing stuff with.
-	// This is set when the user launches an instance and is used to refer to that
-	// instance throughout the launching process.
-	BaseInstance *m_activeInst;
-	LoginResponse m_activeLogin;
-
 	Task *m_versionLoadTask;
 
 	QLabel *m_statusLeft;
 	QLabel *m_statusRight;
+
+	QMenu *accountMenu;
+	QToolButton *accountMenuButton;
+	QAction *manageAccountsAction;
 };

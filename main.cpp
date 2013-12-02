@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
 	// initialize Qt
 	MultiMC app(argc, argv);
 
-	Q_INIT_RESOURCE(multimc);
+	Q_INIT_RESOURCE(generated);
+	Q_INIT_RESOURCE(graphics);
 
 	switch (app.status())
 	{
