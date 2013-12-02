@@ -251,7 +251,8 @@ void QuickModInstallDialog::downloadCompleted()
 
 	QByteArray data = reply->readAll();
 
-	if (QCryptographicHash::hash(data, QCryptographicHash::Sha512).toHex() != mod->version(versionIndex).checksum)
+	if (!mod->version(versionIndex).checksum.isNull() &&
+			QCryptographicHash::hash(data, mod->version(versionIndex).checksum_algorithm).toHex() != mod->version(versionIndex).checksum)
 	{
 		item->setText(3, tr("Error: Checksum mismatch"));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));

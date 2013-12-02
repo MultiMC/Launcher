@@ -118,7 +118,68 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		Version version;
 		version.name = ver.value("name").toString();
 		version.url = QUrl(ver.value("url").toString());
-		version.checksum = ver.value("checksum").toString().toLatin1();
+		// checksum
+		{
+			if (ver.contains("checksum_md4"))
+			{
+				version.checksum = ver.value("checksum_md4").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Md4;
+			}
+			else if (ver.contains("checksum_md5"))
+			{
+				version.checksum = ver.value("checksum_md5").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Md5;
+			}
+			else if (ver.contains("checksum_sha1"))
+			{
+				version.checksum = ver.value("checksum_sha1").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha1;
+			}
+			else if (ver.contains("checksum_sha224"))
+			{
+				version.checksum = ver.value("checksum_sha224").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha224;
+			}
+			else if (ver.contains("checksum_sha256"))
+			{
+				version.checksum = ver.value("checksum_sha256").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha256;
+			}
+			else if (ver.contains("checksum_sha384"))
+			{
+				version.checksum = ver.value("checksum_sha384").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha384;
+			}
+			else if (ver.contains("checksum_sha512"))
+			{
+				version.checksum = ver.value("checksum_sha512").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha512;
+			}
+			else if (ver.contains("checksum_sha3_224"))
+			{
+				version.checksum = ver.value("checksum_sha3_224").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha3_224;
+			}
+			else if (ver.contains("checksum_sha3_256"))
+			{
+				version.checksum = ver.value("checksum_sha3_256").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha3_256;
+			}
+			else if (ver.contains("checksum_sha3_384"))
+			{
+				version.checksum = ver.value("checksum_sha3_384").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha3_384;
+			}
+			else if (ver.contains("checksum_sha3_512"))
+			{
+				version.checksum = ver.value("checksum_sha3_512").toString().toLatin1();
+				version.checksum_algorithm = QCryptographicHash::Sha3_512;
+			}
+			else
+			{
+				version.checksum = QByteArray();
+			}
+		}
 		version.forgeVersionFilter = ver.value("forgeCompatibility").toString();
 		version.compatibleVersions.clear();
 		foreach (const QJsonValue &val, ver.value("mcCompatibility").toArray())

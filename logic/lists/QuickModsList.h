@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QIcon>
 #include <QPixmap>
+#include <QCryptographicHash>
 
 class QuickModFilesUpdater;
 class Mod;
@@ -45,6 +46,7 @@ public:
 		QMap<QString, QString> dependencies;
 		QMap<QString, QString> recommendations;
 		QByteArray checksum;
+		QCryptographicHash::Algorithm checksum_algorithm;
 
 		bool operator==(const Version &other) const
 		{
