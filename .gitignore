@@ -17,3 +17,4 @@ tags
 # YouCompleteMe config stuff.
 .ycm_extra_conf.*
 
+build/

@@ -19,6 +19,7 @@
      <widget class="QPlainTextEdit" name="text">
       <property name="font">
        <font>
+        <family>Consolas</family>
         <pointsize>10</pointsize>
        </font>
       </property>
