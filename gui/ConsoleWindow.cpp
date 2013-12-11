@@ -43,6 +43,11 @@ ConsoleWindow::ConsoleWindow(MinecraftProcess *mcproc, QWidget *parent)
 	restoreState(QByteArray::fromBase64(MMC->settings()->get("ConsoleWindowState").toByteArray()));
 	restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("ConsoleWindowGeometry").toByteArray()));
 
+    QFont font (MMC->settings()->get("ConsoleFont").value<QFont>());
+    font.setPointSize(10);
+
+    ui->text->setFont(font);
+
 	if (mcproc->instance()->settings().get("ShowConsole").toBool())
 	{
 		show();
