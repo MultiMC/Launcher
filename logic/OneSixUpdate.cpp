@@ -29,12 +29,14 @@
 #include "OneSixLibrary.h"
 #include "OneSixInstance.h"
 #include "net/ForgeMirrors.h"
+#include "net/URLConstants.h"
+#include "assets/AssetsUtils.h"
 
 #include "pathutils.h"
 #include <JlCompress.h>
 
-OneSixUpdate::OneSixUpdate(BaseInstance *inst, bool prepare_for_launch, QObject *parent)
-	: Task(parent), m_inst(inst), m_prepare_for_launch(prepare_for_launch)
+OneSixUpdate::OneSixUpdate(BaseInstance *inst, bool only_prepare, QObject *parent)
+	: Task(parent), m_inst(inst), m_only_prepare(only_prepare)
 {
 }
 
@@ -47,6 +49,24 @@ void OneSixUpdate::executeTask()
 	if (!mcDir.exists() && !mcDir.mkpath("."))
 	{
 		emitFailed("Failed to create bin folder.");
+		return;
+	}
+
+	if (m_only_prepare)
+	{
+		if (m_inst->shouldUpdate())
+		{
+			emitFailed("Unable to update instance in offline mode.");
+			return;
+		}
+		setStatus("Testing the Java installation.");
+		QString java_path = m_inst->settings().get("JavaPath").toString();
+
+		checker.reset(new JavaChecker());
+		connect(checker.get(), SIGNAL(checkFinished(JavaCheckResult)), this,
+				SLOT(checkFinishedOffline(JavaCheckResult)));
+		checker->path = java_path;
+		checker->performCheck();
 		return;
 	}
 
@@ -65,35 +85,44 @@ void OneSixUpdate::executeTask()
 	}
 	else
 	{
-		checkJava();
+		checkJavaOnline();
 	}
 }
 
-void OneSixUpdate::checkJava()
+void OneSixUpdate::checkJavaOnline()
 {
-	QLOG_INFO() << m_inst->name() << ": checking java binary";
 	setStatus("Testing the Java installation.");
-	// TODO: cache this so we don't have to run an extra java process every time.
 	QString java_path = m_inst->settings().get("JavaPath").toString();
 
 	checker.reset(new JavaChecker());
 	connect(checker.get(), SIGNAL(checkFinished(JavaCheckResult)), this,
-			SLOT(checkFinished(JavaCheckResult)));
-	checker->performCheck(java_path);
+			SLOT(checkFinishedOnline(JavaCheckResult)));
+	checker->path = java_path;
+	checker->performCheck();
 }
 
-void OneSixUpdate::checkFinished(JavaCheckResult result)
+void OneSixUpdate::checkFinishedOnline(JavaCheckResult result)
 {
 	if (result.valid)
 	{
-		QLOG_INFO() << m_inst->name() << ": java is "
-					<< (result.is_64bit ? "64 bit" : "32 bit");
 		java_is_64bit = result.is_64bit;
 		jarlibStart();
 	}
 	else
 	{
-		QLOG_INFO() << m_inst->name() << ": java isn't valid";
+		emitFailed("The java binary doesn't work. Check the settings and correct the problem");
+	}
+}
+
+void OneSixUpdate::checkFinishedOffline(JavaCheckResult result)
+{
+	if (result.valid)
+	{
+		java_is_64bit = result.is_64bit;
+		prepareForLaunch();
+	}
+	else
+	{
 		emitFailed("The java binary doesn't work. Check the settings and correct the problem");
 	}
 }
@@ -103,8 +132,7 @@ void OneSixUpdate::versionFileStart()
 	QLOG_INFO() << m_inst->name() << ": getting version file.";
 	setStatus("Getting the version files from Mojang.");
 
-	QString urlstr("http://s3.amazonaws.com/Minecraft.Download/versions/");
-	urlstr += targetVersion->descriptor() + "/" + targetVersion->descriptor() + ".json";
+	QString urlstr = "http://" + URLConstants::AWS_DOWNLOAD_VERSIONS + targetVersion->descriptor() + "/" + targetVersion->descriptor() + ".json";
 	auto job = new NetJob("Version index");
 	job->addNetAction(ByteArrayDownload::make(QUrl(urlstr)));
 	specificVersionDownloadJob.reset(job);
@@ -160,13 +188,96 @@ void OneSixUpdate::versionFileFinished()
 	}
 	inst->reloadFullVersion();
 
-	checkJava();
+	checkJavaOnline();
 }
 
 void OneSixUpdate::versionFileFailed()
 {
 	emitFailed("Failed to download the version description. Try again.");
 }
+
+void OneSixUpdate::assetIndexStart()
+{
+	setStatus("Updating asset index.");
+	OneSixInstance *inst = (OneSixInstance *)m_inst;
+	std::shared_ptr<OneSixVersion> version = inst->getFullVersion();
+	QString assetName = version->assets;
+	QUrl indexUrl = "http://" + URLConstants::AWS_DOWNLOAD_INDEXES + assetName + ".json";
+	QString localPath = assetName + ".json";
+	auto job = new NetJob("Asset index for " + inst->name());
+
+	auto metacache = MMC->metacache();
+	auto entry = metacache->resolveEntry("asset_indexes", localPath);
+	job->addNetAction(CacheDownload::make(indexUrl, entry));
+	jarlibDownloadJob.reset(job);
+
+	connect(jarlibDownloadJob.get(), SIGNAL(succeeded()), SLOT(assetIndexFinished()));
+	connect(jarlibDownloadJob.get(), SIGNAL(failed()), SLOT(assetIndexFailed()));
+	connect(jarlibDownloadJob.get(), SIGNAL(progress(qint64, qint64)),
+			SIGNAL(progress(qint64, qint64)));
+
+	jarlibDownloadJob->start();
+}
+
+void OneSixUpdate::assetIndexFinished()
+{
+	AssetsIndex index;
+
+	OneSixInstance *inst = (OneSixInstance *)m_inst;
+	std::shared_ptr<OneSixVersion> version = inst->getFullVersion();
+	QString assetName = version->assets;
+
+	QString asset_fname = "assets/indexes/" + assetName + ".json";
+	if (!AssetsUtils::loadAssetsIndexJson(asset_fname, &index))
+	{
+		emitFailed("Failed to read the assets index!");
+	}
+	
+	QList<Md5EtagDownloadPtr> dls;
+	for (auto object : index.objects.values())
+	{
+		QString objectName = object.hash.left(2) + "/" + object.hash;
+		QFileInfo objectFile("assets/objects/" + objectName);
+		if ((!objectFile.isFile()) || (objectFile.size() != object.size))
+		{
+			auto objectDL = MD5EtagDownload::make(
+				QUrl("http://" + URLConstants::RESOURCE_BASE + objectName),
+				objectFile.filePath());
+			dls.append(objectDL);
+		}
+	}
+	if(dls.size())
+	{
+		auto job = new NetJob("Assets for " + inst->name());
+		for(auto dl: dls)
+			job->addNetAction(dl);
+		jarlibDownloadJob.reset(job);
+		connect(jarlibDownloadJob.get(), SIGNAL(succeeded()), SLOT(assetsFinished()));
+		connect(jarlibDownloadJob.get(), SIGNAL(failed()), SLOT(assetsFailed()));
+		connect(jarlibDownloadJob.get(), SIGNAL(progress(qint64, qint64)),
+			SIGNAL(progress(qint64, qint64)));
+		jarlibDownloadJob->start();
+		return;
+	}
+	assetsFinished();
+}
+
+void OneSixUpdate::assetIndexFailed()
+{
+	emitFailed("Failed to download the assets index!");
+}
+
+void OneSixUpdate::assetsFinished()
+{
+	prepareForLaunch();
+}
+
+void OneSixUpdate::assetsFailed()
+{
+	emitFailed("Failed to download assets!");
+}
+
+
 
 void OneSixUpdate::jarlibStart()
 {
@@ -181,17 +292,22 @@ void OneSixUpdate::jarlibStart()
 		return;
 	}
 
+	// Build a list of URLs that will need to be downloaded.
 	std::shared_ptr<OneSixVersion> version = inst->getFullVersion();
+	// minecraft.jar for this version
+	{
+		QString version_id = version->id;
+		QString localPath = version_id + "/" + version_id + ".jar";
+		QString urlstr = "http://" + URLConstants::AWS_DOWNLOAD_VERSIONS + localPath;
 
-	// download the right jar, save it in versions/$version/$version.jar
-	QString urlstr("http://s3.amazonaws.com/Minecraft.Download/versions/");
-	urlstr += version->id + "/" + version->id + ".jar";
-	QString targetstr("versions/");
-	targetstr += version->id + "/" + version->id + ".jar";
+		auto job = new NetJob("Libraries for instance " + inst->name());
 
-	auto job = new NetJob("Libraries for instance " + inst->name());
-	job->addNetAction(FileDownload::make(QUrl(urlstr), targetstr));
-	jarlibDownloadJob.reset(job);
+		auto metacache = MMC->metacache();
+		auto entry = metacache->resolveEntry("versions", localPath);
+		job->addNetAction(CacheDownload::make(QUrl(urlstr), entry));
+
+		jarlibDownloadJob.reset(job);
+	}
 
 	auto libs = version->getActiveNativeLibs();
 	libs.append(version->getActiveNormalLibs());
@@ -240,10 +356,7 @@ void OneSixUpdate::jarlibStart()
 
 void OneSixUpdate::jarlibFinished()
 {
-	if (m_prepare_for_launch)
-		prepareForLaunch();
-	else
-		emitSucceeded();
+	assetIndexStart();
 }
 
 void OneSixUpdate::jarlibFailed()

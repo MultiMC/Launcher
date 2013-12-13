@@ -25,15 +25,32 @@
 #include <quazipfile.h>
 #include <JlCompress.h>
 #include "logger/QsLog.h"
+#include "logic/net/URLConstants.h"
 
-LegacyUpdate::LegacyUpdate(BaseInstance *inst, bool prepare_for_launch, QObject *parent)
-	: Task(parent), m_inst(inst), m_prepare_for_launch(prepare_for_launch)
+LegacyUpdate::LegacyUpdate(BaseInstance *inst, bool only_prepare, QObject *parent)
+	: Task(parent), m_inst(inst), m_only_prepare(only_prepare)
 {
 }
 
 void LegacyUpdate::executeTask()
 {
-	lwjglStart();
+	if(m_only_prepare)
+	{
+		// FIXME: think this through some more.
+		LegacyInstance *inst = (LegacyInstance *)m_inst;
+		if (!inst->shouldUpdate() || inst->shouldUseCustomBaseJar())
+		{
+			ModTheJar();
+		}
+		else
+		{
+			emitSucceeded();
+		}
+	}
+	else
+	{
+		lwjglStart();
+	}
 }
 
 void LegacyUpdate::lwjglStart()
@@ -245,16 +262,20 @@ void LegacyUpdate::jarStart()
 	// Build a list of URLs that will need to be downloaded.
 	setStatus("Downloading new minecraft.jar");
 
-	QString urlstr("http://s3.amazonaws.com/Minecraft.Download/versions/");
-	QString intended_version_id = inst->intendedVersionId();
-	urlstr += intended_version_id + "/" + intended_version_id + ".jar";
+	QString version_id = inst->intendedVersionId();
+	QString localPath = version_id + "/" + version_id + ".jar";
+	QString urlstr = "http://" + URLConstants::AWS_DOWNLOAD_VERSIONS + localPath;
 
-	auto dljob = new NetJob("Minecraft.jar for version " + intended_version_id);
-	dljob->addNetAction(FileDownload::make(QUrl(urlstr), inst->defaultBaseJar()));
-	legacyDownloadJob.reset(dljob);
+	auto dljob = new NetJob("Minecraft.jar for version " + version_id);
+
+
+	auto metacache = MMC->metacache();
+	auto entry = metacache->resolveEntry("versions", localPath);
+	dljob->addNetAction(CacheDownload::make(QUrl(urlstr), entry));
 	connect(dljob, SIGNAL(succeeded()), SLOT(jarFinished()));
 	connect(dljob, SIGNAL(failed()), SLOT(jarFailed()));
 	connect(dljob, SIGNAL(progress(qint64, qint64)), SIGNAL(progress(qint64, qint64)));
+	legacyDownloadJob.reset(dljob);
 	legacyDownloadJob->start();
 }
 

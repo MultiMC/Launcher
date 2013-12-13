@@ -60,6 +60,7 @@
 #include "gui/dialogs/AddQuickModFileDialog.h"
 #include "gui/dialogs/AccountListDialog.h"
 #include "gui/dialogs/AccountSelectDialog.h"
+#include "gui/dialogs/UpdateDialog.h"
 #include "gui/dialogs/EditAccountDialog.h"
 
 #include "gui/ConsoleWindow.h"
@@ -75,16 +76,22 @@
 #include "logic/auth/flows/RefreshTask.h"
 #include "logic/auth/flows/ValidateTask.h"
 
+#include "logic/updater/DownloadUpdateTask.h"
+
+#include "logic/net/URLConstants.h"
+
 #include "logic/BaseInstance.h"
 #include "logic/InstanceFactory.h"
 #include "logic/MinecraftProcess.h"
-#include "logic/OneSixAssets.h"
 #include "logic/OneSixUpdate.h"
 #include "logic/JavaUtils.h"
 #include "logic/NagUtils.h"
 #include "logic/SkinUtils.h"
 
 #include "logic/LegacyInstance.h"
+
+#include "logic/assets/AssetsUtils.h"
+#include <logic/updater/UpdateChecker.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -167,7 +174,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	connect(MMC->instances().get(), SIGNAL(dataIsInvalid()), SLOT(selectionBad()));
 
 	m_statusLeft = new QLabel(tr("Instance type"), this);
-	m_statusRight = new QLabel(tr("Assets information"), this);
+	m_statusRight = new QLabel(this);
 	m_statusRight->setAlignment(Qt::AlignRight);
 	statusBar()->addPermanentWidget(m_statusLeft, 0);
 	statusBar()->addPermanentWidget(m_statusRight, 0);
@@ -213,9 +220,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 			for(AccountProfile profile : account->profiles())
 			{
-				auto meta = MMC->metacache()->resolveEntry("skins", profile.name() + ".png");
+				auto meta = MMC->metacache()->resolveEntry("skins", profile.name + ".png");
 				auto action = CacheDownload::make(
-					QUrl("http://skins.minecraft.net/MinecraftSkins/" + profile.name() + ".png"),
+					QUrl("http://" + URLConstants::SKINS_BASE + profile.name + ".png"),
 					meta);
 				job->addNetAction(action);
 				meta->stale = true;
@@ -239,14 +246,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 			MMC->lwjgllist()->loadList();
 		}
 
-		assets_downloader = new OneSixAssets();
-		connect(assets_downloader, SIGNAL(indexStarted()), SLOT(assetsIndexStarted()));
-		connect(assets_downloader, SIGNAL(filesStarted()), SLOT(assetsFilesStarted()));
-		connect(assets_downloader, SIGNAL(filesProgress(int, int, int)),
-				SLOT(assetsFilesProgress(int, int, int)));
-		connect(assets_downloader, SIGNAL(failed()), SLOT(assetsFailed()));
-		connect(assets_downloader, SIGNAL(finished()), SLOT(assetsFinished()));
-		assets_downloader->start();
+		// set up the updater object.
+		auto updater = MMC->updateChecker();
+		QObject::connect(updater.get(), &UpdateChecker::updateAvailable, this, &MainWindow::updateAvailable);
+		// if automatic update checks are allowed, start one.
+		if(MMC->settings()->get("AutoUpdate").toBool())
+			on_actionCheckUpdate_triggered();
 	}
 
 	const QString currentInstanceId = MMC->settings()->get("SelectedInstance").toString();
@@ -271,7 +276,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	// removing this looks stupid
 	view->setFocus();
 
+
 	connect(MMC->quickmodslist().get(), &QuickModsList::error, [this](const QString &message){ this->ui->statusBar->showMessage(message, 5 * 1000); });
+
+	AssetsUtils::migrateOldAssets();
 }
 
 MainWindow::~MainWindow()
@@ -279,7 +287,6 @@ MainWindow::~MainWindow()
 	delete ui;
 	delete proxymodel;
 	delete drawer;
-	delete assets_downloader;
 }
 
 void MainWindow::repopulateAccountsMenu()
@@ -315,9 +322,9 @@ void MainWindow::repopulateAccountsMenu()
 			section->setEnabled(false);
 			accountMenu->addAction(section);
 
-			for (AccountProfile profile : account->profiles())
+			for (auto profile : account->profiles())
 			{
-				QAction *action = new QAction(profile.name(), this);
+				QAction *action = new QAction(profile.name, this);
 				action->setData(account->username());
 				action->setCheckable(true);
 				if(active_username == account->username())
@@ -325,7 +332,7 @@ void MainWindow::repopulateAccountsMenu()
 					action->setChecked(true);
 				}
 
-				action->setIcon(SkinUtils::getFaceFromCache(profile.name()));
+				action->setIcon(SkinUtils::getFaceFromCache(profile.name));
 				accountMenu->addAction(action);
 				connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
 			}
@@ -383,7 +390,7 @@ void MainWindow::activeAccountChanged()
 		const AccountProfile *profile = account->currentProfile();
 		if (profile != nullptr)
 		{
-			accountMenuButton->setIcon(SkinUtils::getFaceFromCache(profile->name()));
+			accountMenuButton->setIcon(SkinUtils::getFaceFromCache(profile->name));
 			return;
 		}
 	}
@@ -420,6 +427,41 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
 		}
 	}
 	return QMainWindow::eventFilter(obj, ev);
+}
+
+void MainWindow::updateAvailable(QString repo, QString versionName, int versionId)
+{
+	UpdateDialog dlg;
+	UpdateAction action = (UpdateAction) dlg.exec();
+	switch(action)
+	{
+		case UPDATE_LATER:
+			QLOG_INFO() << "Update will be installed later.";
+			break;
+		case UPDATE_NOW:
+			downloadUpdates(repo, versionId);
+			break;
+		case UPDATE_ONEXIT:
+			downloadUpdates(repo, versionId, true);
+			break;
+	}
+}
+
+void MainWindow::downloadUpdates(QString repo, int versionId, bool installOnExit)
+{
+	QLOG_INFO() << "Downloading updates.";
+	// TODO: If the user chooses to update on exit, we should download updates in the background.
+	// Doing so is a bit complicated, because we'd have to make sure it finished downloading before actually exiting MultiMC.
+	ProgressDialog updateDlg(this);
+	DownloadUpdateTask updateTask(repo, versionId, &updateDlg);
+	// If the task succeeds, install the updates.
+	if (updateDlg.exec(&updateTask))
+	{
+		if (installOnExit)
+			MMC->setUpdateOnExit(updateTask.updateFilesDir());
+		else
+			MMC->installUpdates(updateTask.updateFilesDir());
+	}
 }
 
 void MainWindow::onCatToggled(bool state)
@@ -503,7 +545,7 @@ void MainWindow::on_actionAddInstance_triggered()
 		newInstance->setName(newInstDlg.instName());
 		newInstance->setIconKey(newInstDlg.iconKey());
 		MMC->instances()->add(InstancePtr(newInstance));
-		return;
+		break;
 
 	case InstanceFactory::InstExists:
 	{
@@ -525,6 +567,19 @@ void MainWindow::on_actionAddInstance_triggered()
 		CustomMessageBox::selectable(this, tr("Error"), errorMsg, QMessageBox::Warning)->show();
 		break;
 	}
+	}
+
+	std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
+	MojangAccountPtr account = accounts->activeAccount();
+	if(account.get() != nullptr && account->accountStatus() != NotVerified)
+	{
+		ProgressDialog loadDialog(this);
+		auto update = newInstance->doUpdate(false);
+		connect(update.get(), &Task::failed , [this](QString reason) {
+			QString error = QString("Instance load failed: %1").arg(reason);
+			CustomMessageBox::selectable(this, tr("Error"), error, QMessageBox::Warning)->show();
+		});
+		loadDialog.exec(update.get());
 	}
 }
 
@@ -633,6 +688,8 @@ void MainWindow::on_actionConfig_Folder_triggered()
 
 void MainWindow::on_actionCheckUpdate_triggered()
 {
+	auto updater = MMC->updateChecker();
+	updater->checkForUpdate();
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -810,79 +867,56 @@ void MainWindow::doLaunch()
 			accounts->setActiveAccount(account->username());
 	}
 
-	if (account.get() != nullptr)
+	// if no account is selected, we bail
+	if (!account.get())
+		return;
+
+	// do the login. if the account has an access token, try to refresh it first.
+	if(account->accountStatus() != NotVerified)
 	{
-		doLaunchInst(m_selectedInstance, account);
+		// We'll need to validate the access token to make sure the account is still logged in.
+		ProgressDialog progDialog(this);
+		progDialog.setSkipButton(true, tr("Play Offline"));
+		auto task = account->login();
+		progDialog.exec(task.get());
+
+		auto status = account->accountStatus();
+		if(status != NotVerified)
+		{
+			updateInstance(m_selectedInstance, account);
+		}
+		// revert from online to verified.
+		account->downgrade();
+		return;
 	}
+	if (loginWithPassword(account, tr("Your account is currently not logged in. Please enter your password to log in again.")))
+		updateInstance(m_selectedInstance, account);
 }
 
-void MainWindow::doLaunchInst(BaseInstance* instance, MojangAccountPtr account)
-{
-	// We'll need to validate the access token to make sure the account is still logged in.
-	ProgressDialog progDialog(this);
-	RefreshTask refreshtask(account, &progDialog);
-	progDialog.exec(&refreshtask);
-
-	if (refreshtask.successful())
-	{
-		prepareLaunch(m_selectedInstance, account);
-	}
-	else
-	{
-		YggdrasilTask::Error *error = refreshtask.getError();
-
-		if (error != nullptr)
-		{
-			if (error->getErrorMessage().contains("invalid token", Qt::CaseInsensitive))
-			{
-				// TODO: Allow the user to enter their password and "refresh" their access token.
-				if (doRefreshToken(account, tr("Your account's access token is invalid. Please enter your password to log in again.")))
-					doLaunchInst(instance, account);
-			}
-			else
-			{
-				CustomMessageBox::selectable(
-					this, tr("Access Token Validation Error"),
-					tr("There was an error when trying to validate your access token.\n"
-					   "Details: %s").arg(error->getDisplayMessage()),
-					QMessageBox::Warning, QMessageBox::Ok)->exec();
-			}
-		}
-		else
-		{
-			CustomMessageBox::selectable(
-				this, tr("Access Token Validation Error"),
-				tr("There was an unknown error when trying to validate your access token."
-				   "The authentication server might be down, or you might not be connected to "
-				   "the Internet."),
-				QMessageBox::Warning, QMessageBox::Ok)->exec();
-		}
-	}
-}
-
-bool MainWindow::doRefreshToken(MojangAccountPtr account, const QString& errorMsg)
+bool MainWindow::loginWithPassword(MojangAccountPtr account, const QString& errorMsg)
 {
 	EditAccountDialog passDialog(errorMsg, this, EditAccountDialog::PasswordField);
 	if (passDialog.exec() == QDialog::Accepted)
 	{
 		// To refresh the token, we just create an authenticate task with the given account and the user's password.
 		ProgressDialog progDialog(this);
-		AuthenticateTask authTask(account, passDialog.password(), &progDialog);
-		progDialog.exec(&authTask);
-		if (authTask.successful())
+		auto task = account->login(passDialog.password());
+		progDialog.exec(task.get());
+		if(task->successful())
 			return true;
 		else
 		{
 			// If the authentication task failed, recurse with the task's error message.
-			return doRefreshToken(account, authTask.failReason());
+			return loginWithPassword(account, task->failReason());
 		}
 	}
-	else return false;
+	return false;
 }
 
-void MainWindow::prepareLaunch(BaseInstance* instance, MojangAccountPtr account)
+void MainWindow::updateInstance(BaseInstance* instance, MojangAccountPtr account)
 {
-	Task *updateTask = instance->doUpdate(true);
+	bool only_prepare = account->accountStatus() != Online;
+	auto updateTask = instance->doUpdate(only_prepare);
 	if (!updateTask)
 	{
 		launchInstance(instance, account);
@@ -890,10 +924,9 @@ void MainWindow::prepareLaunch(BaseInstance* instance, MojangAccountPtr account)
 	else
 	{
 		ProgressDialog tDialog(this);
-		connect(updateTask, &Task::succeeded, [this, instance, account] { launchInstance(instance, account); });
-		connect(updateTask, SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
-		tDialog.exec(updateTask);
-		delete updateTask;
+		connect(updateTask.get(), &Task::succeeded, [this, instance, account] { launchInstance(instance, account); });
+		connect(updateTask.get(), SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
+		tDialog.exec(updateTask.get());
 	}
 }
 

@@ -9,7 +9,13 @@ int main_gui(MultiMC &app)
 	mainWin.restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("MainWindowGeometry").toByteArray()));
 	mainWin.show();
 	mainWin.checkSetDefaultJava();
-	return app.exec();
+	auto exitCode = app.exec();
+
+	// Update if necessary.
+	if (!app.getExitUpdatePath().isEmpty())
+		app.installUpdates(app.getExitUpdatePath(), false);
+
+	return exitCode;
 }
 
 int main(int argc, char *argv[])

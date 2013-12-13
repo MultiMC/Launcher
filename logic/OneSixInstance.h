@@ -16,6 +16,7 @@
 #pragma once
 
 #include <QStringList>
+#include <QDir>
 
 #include "BaseInstance.h"
 
@@ -39,7 +40,7 @@ public:
 	QString loaderModsDir() const;
 	virtual QString instanceConfigFolder() const override;
 
-	virtual Task *doUpdate(bool prepare_for_launch) override;
+	virtual std::shared_ptr<Task> doUpdate(bool only_prepare) override;
 	virtual MinecraftProcess *prepareForLaunch(MojangAccountPtr account) override;
 
 	virtual void cleanupAfterRun() override;
@@ -73,4 +74,5 @@ public:
 
 private:
 	QStringList processMinecraftArgs(MojangAccountPtr account);
+	QDir reconstructAssets(std::shared_ptr<OneSixVersion> version);
 };

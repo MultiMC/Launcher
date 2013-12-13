@@ -26,6 +26,7 @@
 #include <JlCompress.h>
 #include "gui/dialogs/OneSixModEditDialog.h"
 #include "logger/QsLog.h"
+#include "logic/assets/AssetsUtils.h"
 
 OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *setting_obj,
 							   QObject *parent)
@@ -37,9 +38,9 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *setting_o
 	reloadFullVersion();
 }
 
-Task *OneSixInstance::doUpdate(bool prepare_for_launch)
+std::shared_ptr<Task> OneSixInstance::doUpdate(bool only_prepare)
 {
-	return new OneSixUpdate(this, prepare_for_launch);
+	return std::shared_ptr<Task> (new OneSixUpdate(this, only_prepare));
 }
 
 QString replaceTokensIn(QString text, QMap<QString, QString> with)
@@ -66,6 +67,63 @@ QString replaceTokensIn(QString text, QMap<QString, QString> with)
 	return result;
 }
 
+QDir OneSixInstance::reconstructAssets(std::shared_ptr<OneSixVersion> version)
+{
+	QDir assetsDir = QDir("assets/");
+	QDir indexDir = QDir(PathCombine(assetsDir.path(), "indexes"));
+	QDir objectDir = QDir(PathCombine(assetsDir.path(), "objects"));
+	QDir virtualDir = QDir(PathCombine(assetsDir.path(), "virtual"));
+
+	QString indexPath = PathCombine(indexDir.path(), version->assets + ".json");
+	QFile indexFile(indexPath);
+	QDir virtualRoot(PathCombine(virtualDir.path(), version->assets));
+
+	if(!indexFile.exists())
+	{
+		QLOG_ERROR() << "No assets index file" << indexPath << "; can't reconstruct assets";
+		return virtualRoot;
+	}
+
+	QLOG_DEBUG() << "reconstructAssets" << assetsDir.path() << indexDir.path() << objectDir.path() << virtualDir.path() << virtualRoot.path();
+
+	AssetsIndex index;
+	bool loadAssetsIndex = AssetsUtils::loadAssetsIndexJson(indexPath, &index);
+
+	if(loadAssetsIndex)
+	{
+		if(index.isVirtual)
+		{
+			QLOG_INFO() << "Reconstructing virtual assets folder at" << virtualRoot.path();
+
+			for(QString map : index.objects.keys())
+			{
+				AssetObject asset_object = index.objects.value(map);
+				QString target_path = PathCombine(virtualRoot.path(), map);
+				QFile target(target_path);
+
+				QString tlk = asset_object.hash.left(2);
+
+				QString original_path = PathCombine(PathCombine(objectDir.path(), tlk), asset_object.hash);
+				QFile original(original_path);
+				if(!target.exists())
+				{
+					QFileInfo info(target_path);
+					QDir target_dir = info.dir();
+					//QLOG_DEBUG() << target_dir;
+					if(!target_dir.exists()) QDir("").mkpath(target_dir.path());
+
+					bool couldCopy = original.copy(target_path);
+					QLOG_DEBUG() << " Copying" << original_path << "to" << target_path << QString::number(couldCopy);// << original.errorString();
+				}
+			}
+
+			// TODO: Write last used time to virtualRoot/.lastused
+		}
+	}
+
+	return virtualRoot;
+}
+
 QStringList OneSixInstance::processMinecraftArgs(MojangAccountPtr account)
 {
 	I_D(OneSixInstance);
@@ -77,8 +135,8 @@ QStringList OneSixInstance::processMinecraftArgs(MojangAccountPtr account)
 	token_mapping["auth_username"] = account->username();
 	token_mapping["auth_session"] = account->sessionId();
 	token_mapping["auth_access_token"] = account->accessToken();
-	token_mapping["auth_player_name"] = account->currentProfile()->name();
-	token_mapping["auth_uuid"] = account->currentProfile()->id();
+	token_mapping["auth_player_name"] = account->currentProfile()->name;
+	token_mapping["auth_uuid"] = account->currentProfile()->id;
 
 	// this is for offline?:
 	/*
@@ -93,9 +151,13 @@ QStringList OneSixInstance::processMinecraftArgs(MojangAccountPtr account)
 	QString absRootDir = QDir(minecraftRoot()).absolutePath();
 	token_mapping["game_directory"] = absRootDir;
 	QString absAssetsDir = QDir("assets/").absolutePath();
-	token_mapping["game_assets"] = absAssetsDir;
+	token_mapping["game_assets"] = reconstructAssets(d->version).absolutePath();
 	//TODO: this is something new and not even fully implemented in the vanilla launcher.
 	token_mapping["user_properties"] = "{ }";
+	token_mapping["user_type"] = account->currentProfile()->legacy ? "legacy" : "mojang";
+	// 1.7.3+ assets tokens
+	token_mapping["assets_root"] = absAssetsDir;
+	token_mapping["assets_index_name"] = version->assets;
 
 	QStringList parts = args_pattern.split(' ', QString::SkipEmptyParts);
 	for (int i = 0; i < parts.length(); i++)

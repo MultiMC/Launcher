@@ -31,7 +31,6 @@ class KCategorizedView;
 class KCategoryDrawer;
 class MinecraftProcess;
 class ConsoleWindow;
-class OneSixAssets;
 
 namespace Ui
 {
@@ -114,18 +113,13 @@ slots:
 	 * If no default account is selected, prompts the user to pick an account.
 	 */
 	void doLaunch();
-	
-	/*!
-	 * Launches the given instance with the given account.
-	 */
-	void doLaunchInst(BaseInstance* instance, MojangAccountPtr account);
 
 	/*!
 	 * Opens an input dialog, allowing the user to input their password and refresh its access token.
 	 * This function will execute the proper Yggdrasil task to refresh the access token.
 	 * Returns true if successful. False if the user cancelled.
 	 */
-	bool doRefreshToken(MojangAccountPtr account, const QString& errorMsg="");
+	bool loginWithPassword(MojangAccountPtr account, const QString& errorMsg="");
 
 	/*!
 	 * Launches the given instance with the given account.
@@ -136,7 +130,7 @@ slots:
 	/*!
 	 * Prepares the given instance for launch with the given account.
 	 */
-	void prepareLaunch(BaseInstance* instance, MojangAccountPtr account);
+	void updateInstance(BaseInstance* instance, MojangAccountPtr account);
 
 	void onGameUpdateError(QString error);
 
@@ -165,11 +159,18 @@ slots:
 
 	void startTask(Task *task);
 
+	void updateAvailable(QString repo, QString versionName, int versionId);
+
 	void activeAccountChanged();
 
 	void changeActiveAccount();
 
 	void repopulateAccountsMenu();
+	
+	/*!
+	 * Runs the DownloadUpdateTask and installs updates.
+	 */
+	void downloadUpdates(QString repo, int versionId, bool installOnExit=false);
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
@@ -185,7 +186,6 @@ private:
 	InstanceProxyModel *proxymodel;
 	MinecraftProcess *proc;
 	ConsoleWindow *console;
-	OneSixAssets *assets_downloader;
 	LabeledToolButton *renameButton;
 	QToolButton *changeIconButton;
 

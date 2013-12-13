@@ -22,6 +22,9 @@
 
 #include <gui/Platform.h>
 #include <gui/dialogs/CustomMessageBox.h>
+#include <gui/dialogs/ProgressDialog.h>
+
+#include "logic/net/PasteUpload.h"
 
 ConsoleWindow::ConsoleWindow(MinecraftProcess *mcproc, QWidget *parent)
 	: QMainWindow(parent), ui(new Ui::ConsoleWindow), proc(mcproc)
@@ -44,6 +47,7 @@ ConsoleWindow::ConsoleWindow(MinecraftProcess *mcproc, QWidget *parent)
 	{
 		show();
 	}
+	setMayClose(false);
 }
 
 ConsoleWindow::~ConsoleWindow()
@@ -161,6 +165,8 @@ void ConsoleWindow::onEnded(BaseInstance *instance, int code, QProcess::ExitStat
 {
 	ui->btnKillMinecraft->setEnabled(false);
 
+	setMayClose(true);
+
 	if (instance->settings().get("AutoCloseConsole").toBool())
 	{
 		if (code == 0 && status != QProcess::CrashExit)
@@ -176,6 +182,21 @@ void ConsoleWindow::onEnded(BaseInstance *instance, int code, QProcess::ExitStat
 void ConsoleWindow::onLaunchFailed(BaseInstance *instance)
 {
 	ui->btnKillMinecraft->setEnabled(false);
+
+	setMayClose(true);
+
 	if(!isVisible())
 		show();
+}
+
+void ConsoleWindow::on_btnPaste_clicked()
+{
+	auto text = ui->text->toPlainText();
+	ProgressDialog dialog(this);
+	PasteUpload* paste=new PasteUpload(this, text);
+	dialog.exec(paste);
+	if(!paste->successful())
+	{
+		CustomMessageBox::selectable(this, "Upload failed", paste->failReason(), QMessageBox::Critical)->exec();
+	}
 }

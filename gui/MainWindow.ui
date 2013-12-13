@@ -14,7 +14,7 @@
    <string>MultiMC 5</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../multimc.qrc">
+   <iconset resource="../graphics.qrc">
     <normaloff>:/icons/multimc/scalable/apps/multimc.svg</normaloff>:/icons/multimc/scalable/apps/multimc.svg</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -126,7 +126,7 @@
   </widget>
   <action name="actionAddInstance">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/new</normaloff>:/icons/toolbar/new</iconset>
    </property>
    <property name="text">
@@ -141,7 +141,7 @@
   </action>
   <action name="actionViewInstanceFolder">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/viewfolder</normaloff>:/icons/toolbar/viewfolder</iconset>
    </property>
    <property name="text">
@@ -156,7 +156,7 @@
   </action>
   <action name="actionRefresh">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/refresh</normaloff>:/icons/toolbar/refresh</iconset>
    </property>
    <property name="text">
@@ -171,7 +171,7 @@
   </action>
   <action name="actionViewCentralModsFolder">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/centralmods</normaloff>:/icons/toolbar/centralmods</iconset>
    </property>
    <property name="text">
@@ -186,7 +186,7 @@
   </action>
   <action name="actionCheckUpdate">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/checkupdate</normaloff>:/icons/toolbar/checkupdate</iconset>
    </property>
    <property name="text">
@@ -201,7 +201,7 @@
   </action>
   <action name="actionSettings">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/settings</normaloff>:/icons/toolbar/settings</iconset>
    </property>
    <property name="text">
@@ -219,7 +219,7 @@
   </action>
   <action name="actionReportBug">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/bug</normaloff>:/icons/toolbar/bug</iconset>
    </property>
    <property name="text">
@@ -234,7 +234,7 @@
   </action>
   <action name="actionNews">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/news</normaloff>:/icons/toolbar/news</iconset>
    </property>
    <property name="text">
@@ -249,7 +249,7 @@
   </action>
   <action name="actionAbout">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/about</normaloff>:/icons/toolbar/about</iconset>
    </property>
    <property name="text">
@@ -303,7 +303,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/instances/infinity</normaloff>:/icons/instances/infinity</iconset>
    </property>
    <property name="text">
@@ -443,7 +443,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/cat</normaloff>:/icons/toolbar/cat</iconset>
    </property>
    <property name="text">
@@ -455,7 +455,7 @@
   </action>
   <action name="actionCopyInstance">
    <property name="icon">
-    <iconset resource="../multimc.qrc">
+    <iconset resource="../graphics.qrc">
      <normaloff>:/icons/toolbar/copy</normaloff>:/icons/toolbar/copy</iconset>
    </property>
    <property name="text">
@@ -489,7 +489,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="../multimc.qrc"/>
+  <include location="../graphics.qrc"/>
  </resources>
  <connections/>
 </ui>

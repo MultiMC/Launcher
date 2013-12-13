@@ -43,11 +43,20 @@ slots:
 	void jarlibFinished();
 	void jarlibFailed();
 
-	void checkJava();
-	void checkFinished(JavaCheckResult result);
+	void assetIndexStart();
+	void assetIndexFinished();
+	void assetIndexFailed();
+
+	void assetsFinished();
+	void assetsFailed();
+
+	void checkJavaOnline();
+	void checkFinishedOnline(JavaCheckResult result);
+	void checkFinishedOffline(JavaCheckResult result);
 
 	// extract the appropriate libraries
 	void prepareForLaunch();
+
 private:
 	NetJobPtr specificVersionDownloadJob;
 	NetJobPtr jarlibDownloadJob;
@@ -55,7 +64,7 @@ private:
 	// target version, determined during this task
 	std::shared_ptr<MinecraftVersion> targetVersion;
 	BaseInstance *m_inst = nullptr;
-	bool m_prepare_for_launch = false;
+	bool m_only_prepare = false;
 	std::shared_ptr<JavaChecker> checker;
 
 	bool java_is_64bit = false;

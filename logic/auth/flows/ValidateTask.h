@@ -13,6 +13,10 @@
  * limitations under the License.
  */
 
+/*
+ * :FIXME: DEAD CODE, DEAD CODE, DEAD CODE! :FIXME:
+ */
+
 #pragma once
 
 #include <logic/auth/YggdrasilTask.h>
@@ -28,7 +32,7 @@ class ValidateTask : public YggdrasilTask
 {
 	Q_OBJECT
 public:
-	ValidateTask(MojangAccountPtr account, QObject *parent = 0);
+	ValidateTask(MojangAccount *account, QObject *parent = 0);
 
 protected:
 	virtual QJsonObject getRequestContent() const;

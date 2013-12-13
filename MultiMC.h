@@ -18,6 +18,7 @@ class QNetworkAccessManager;
 class ForgeVersionList;
 class JavaVersionList;
 class QuickModsList;
+class UpdateChecker;
 
 #if defined(MMC)
 #undef MMC
@@ -85,6 +86,11 @@ public:
 		return m_metacache;
 	}
 
+	std::shared_ptr<UpdateChecker> updateChecker()
+	{
+		return m_updateChecker;
+	}
+
 	std::shared_ptr<LWJGLVersionList> lwjgllist();
 
 	std::shared_ptr<ForgeVersionList> forgelist();
@@ -94,6 +100,23 @@ public:
 	std::shared_ptr<JavaVersionList> javalist();
 
 	std::shared_ptr<QuickModsList> quickmodslist();
+
+	/*!
+	 * Installs update from the given update files directory.
+	 */
+	void installUpdates(const QString& updateFilesDir, bool restartOnFinish=false);
+
+	/*!
+	 * Sets MultiMC to install updates from the given directory when it exits.
+	 */
+	void setUpdateOnExit(const QString& updateFilesDir);
+
+	/*!
+	 * Gets the path to install updates from on exit.
+	 * If this is an empty string, no updates should be installed on exit.
+	 */
+	QString getExitUpdatePath() const;
+
 
 private:
 	void initLogger();
@@ -109,6 +132,7 @@ private:
 	std::shared_ptr<QTranslator> m_mmc_translator;
 	std::shared_ptr<SettingsObject> m_settings;
 	std::shared_ptr<InstanceList> m_instances;
+	std::shared_ptr<UpdateChecker> m_updateChecker;
 	std::shared_ptr<MojangAccountList> m_accounts;
 	std::shared_ptr<IconList> m_icons;
 	std::shared_ptr<QNetworkAccessManager> m_qnam;
@@ -120,6 +144,8 @@ private:
 	std::shared_ptr<QuickModsList> m_quickmodslist;
 	QsLogging::DestinationPtr m_fileDestination;
 	QsLogging::DestinationPtr m_debugDestination;
+
+	QString m_updateOnExitPath;
 
 	Status m_status = MultiMC::Failed;
 	MultiMCVersion m_version;

@@ -18,7 +18,7 @@
 #include <QLabel>
 #include "NetAction.h"
 #include "ByteArrayDownload.h"
-#include "FileDownload.h"
+#include "MD5EtagDownload.h"
 #include "CacheDownload.h"
 #include "HttpMetaCache.h"
 #include "ForgeXzDownload.h"
@@ -94,6 +94,8 @@ signals:
 public
 slots:
 	virtual void start();
+	// FIXME: implement
+	virtual void abort() {};
 private
 slots:
 	void partProgress(int index, qint64 bytesReceived, qint64 bytesTotal);
