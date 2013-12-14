@@ -62,6 +62,7 @@ void ByteArrayDownload::downloadFinished()
 		// nothing went wrong...
 		m_status = Job_Finished;
 		m_data = m_reply->readAll();
+		m_content_type = m_reply->header(QNetworkRequest::ContentTypeHeader).toString();
 		m_reply.reset();
 		emit succeeded(index_within_job);
 		return;

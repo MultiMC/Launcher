@@ -91,6 +91,17 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 void QuickModFilesUpdater::receivedMod(int notused)
 {
 	ByteArrayDownload *download = qobject_cast<ByteArrayDownload*>(sender());
+
+	if (download->m_content_type.startsWith("application/x-quickmod-index"))
+	{
+		QJsonObject obj = QJsonDocument::fromJson(download->m_data).object();
+		for (auto it = obj.begin(); it != obj.end(); ++it)
+		{
+			registerFile(QUrl(it.value().toString()));
+		}
+		return;
+	}
+
 	QuickMod *mod = new QuickMod;
 	QString errorMessage;
 	mod->parse(download->m_data, &errorMessage);
