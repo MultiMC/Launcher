@@ -217,13 +217,19 @@ void QuickMod::iconDownloadFinished(int index)
 {
 	auto download = qobject_cast<CacheDownload*>(sender());
 	m_icon = QIcon(download->m_target_path);
-	emit iconUpdated();
+	if (!m_icon.isNull())
+	{
+		emit iconUpdated();
+	}
 }
 void QuickMod::logoDownloadFinished(int index)
 {
 	auto download = qobject_cast<CacheDownload*>(sender());
 	m_logo = QPixmap(download->m_target_path);
-	emit logoUpdated();
+	if (!m_logo.isNull())
+	{
+		emit logoUpdated();
+	}
 }
 
 void QuickMod::fetchImages()
