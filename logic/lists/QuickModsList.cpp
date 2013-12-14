@@ -106,6 +106,10 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	{
 		m_type = ConfigPack;
 	}
+	else if (modType == "group")
+	{
+		m_type = Group;
+	}
 	else
 	{
 		MALFORMED_JSON_X(tr("Unknown version type: %1").arg(modType));

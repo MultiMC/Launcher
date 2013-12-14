@@ -46,6 +46,16 @@ public:
 	ModFilterProxyModel(QObject *parent = 0) : KCategorizedSortFilterProxyModel(parent)
 	{
 		setCategorizedModel(true);
+		setSortRole(Qt::DisplayRole);
+		setSortCaseSensitivity(Qt::CaseInsensitive);
+	}
+
+	void setSourceModel(QAbstractItemModel *model)
+	{
+		KCategorizedSortFilterProxyModel::setSourceModel(model);
+		connect(model, &QAbstractItemModel::modelReset, this, &ModFilterProxyModel::restort);
+		connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(restort()));
+		restort();
 	}
 
 	void setTags(const QStringList& tags)
@@ -63,6 +73,9 @@ public:
 		m_fulltext = query;
 		invalidateFilter();
 	}
+
+private slots:
+	void restort() { sort(0); }
 
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const

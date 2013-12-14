@@ -23,7 +23,8 @@ public:
 		ForgeMod,
 		ForgeCoreMod,
 		ResourcePack,
-		ConfigPack
+		ConfigPack,
+		Group
 	};
 	Q_ENUMS(ModType)
 
