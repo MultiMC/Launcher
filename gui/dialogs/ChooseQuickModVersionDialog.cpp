@@ -18,6 +18,29 @@ ChooseQuickModVersionDialog::~ChooseQuickModVersionDialog()
 	delete ui;
 }
 
+int ChooseQuickModVersionDialog::exec()
+{
+	QList<QTreeWidgetItem*> versions;
+	for (int i = 0; i < ui->versionsWidget->invisibleRootItem()->childCount(); ++i)
+	{
+		if (ui->versionsWidget->invisibleRootItem()->child(i)->flags().testFlag(Qt::ItemIsSelectable))
+		{
+			versions.append(ui->versionsWidget->invisibleRootItem()->child(i));
+		}
+	}
+	if (versions.size() == 0)
+	{
+		return Rejected;
+	}
+	else if (versions.size() == 1)
+	{
+		versions.first()->setSelected(true);
+		return Accepted;
+	}
+
+	return QDialog::exec();
+}
+
 void ChooseQuickModVersionDialog::setCanCancel(bool canCancel)
 {
 	ui->cancelButton->setEnabled(canCancel);
@@ -54,6 +77,10 @@ int ChooseQuickModVersionDialog::version() const
 bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version, const QString &filter)
 {
 	if (filter.isEmpty())
+	{
+		return true;
+	}
+	else if (version == filter)
 	{
 		return true;
 	}
@@ -96,10 +123,6 @@ bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version, cons
 
 		return true;
 	}
-	else if (version != filter)
-	{
-		return false;
-	}
 
-	return true;
+	return false;
 }

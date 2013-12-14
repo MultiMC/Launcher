@@ -44,6 +44,7 @@ private:
 
 	QMap<QuickMod *, int> m_trackedMods;
 	QList<QUrl> m_pendingDependencyUrls;
+	QList<QString> m_pendingInstallations;
 
 	QMap<WebDownloadNavigator *, QPair<QuickMod *, int> > m_webModMapping;
 

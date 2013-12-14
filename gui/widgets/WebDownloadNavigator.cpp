@@ -15,6 +15,7 @@ WebDownloadNavigator::WebDownloadNavigator(QWidget *parent) : QWidget(parent), m
 	connect(m_view->page(), &QWebPage::unsupportedContent, this, &WebDownloadNavigator::caughtUrl);
 	m_view->page()->setForwardUnsupportedContent(true);
 	m_view->page()->setNetworkAccessManager(MMC->qnam().get());
+	m_view->settings()->setAttribute(QWebSettings::PluginsEnabled, true);
 
 	m_layout->addWidget(m_view, 1);
 	m_layout->addWidget(m_bar);

@@ -312,7 +312,14 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 	case Qt::DisplayRole:
 		return mod->name();
 	case Qt::DecorationRole:
-		return mod->icon();
+		if (mod->icon().isNull())
+		{
+			return QColor(0, 0, 0, 0);
+		}
+		else
+		{
+			return mod->icon();
+		}
 	case Qt::ToolTipRole:
 		return mod->description();
 	case NameRole:

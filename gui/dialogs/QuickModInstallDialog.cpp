@@ -98,6 +98,12 @@ void QuickModInstallDialog::checkForIsDone()
 
 bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString &versionFilter)
 {
+	if (m_pendingInstallations.contains(mod->name()))
+	{
+		return false;
+	}
+	m_pendingInstallations.append(mod->name());
+
 	ChooseQuickModVersionDialog dialog(this);
 	dialog.setCanCancel(isInitial);
 	dialog.setMod(mod, m_instance, versionFilter);
@@ -185,11 +191,6 @@ static QString fileName(const QUrl &url)
 {
 	const QString path = url.path();
 	return path.mid(path.lastIndexOf('/')+1);
-}
-static QString fileEnding(const QUrl &url)
-{
-	const QString path = url.path();
-	return path.mid(path.lastIndexOf('.')+1);
 }
 static bool saveDeviceToFile(const QByteArray &data, const QString &file)
 {
@@ -314,13 +315,18 @@ void QuickModInstallDialog::downloadCompleted()
 
 void QuickModInstallDialog::newModRegistered(QuickMod *newMod)
 {
+	bool haveAdded = false;
 	foreach (QuickMod *mod, m_trackedMods.keys())
 	{
 		QuickMod::Version version = mod->version(m_trackedMods[mod]);
 		if (version.dependencies.contains(newMod->name()))
 		{
 			ui->dependencyLogEdit->appendHtml(QString("Resolved dependency from %1 to %2<br/>").arg(mod->name(), newMod->name()));
-			addMod(newMod, false, version.dependencies[newMod->name()]);
+			if (!haveAdded)
+			{
+				addMod(newMod, false, version.dependencies[newMod->name()]);
+				haveAdded = true;
+			}
 		}
 	}
 	m_pendingDependencyUrls.removeAll(newMod->updateUrl());

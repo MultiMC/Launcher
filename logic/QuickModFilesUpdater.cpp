@@ -186,13 +186,13 @@ void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
 
 QString QuickModFilesUpdater::fileName(const QuickMod *mod)
 {
-	if (mod->type() == QuickMod::ForgeMod || mod->type() == QuickMod::ForgeCoreMod)
+	if (mod->type() != QuickMod::ForgeMod && mod->type() != QuickMod::ForgeCoreMod)
 	{
 		return QString("other_%1_quickmod.json").arg(mod->name());
 	}
 	else
 	{
-		return QString("mod_%1_quickmod.json").arg(mod->modId());
+		return QString("mod_%1_quickmod.json").arg(mod->modId().isNull() ? mod->name() : mod->modId());
 	}
 }
 

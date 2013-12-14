@@ -80,7 +80,7 @@ QUrl AddQuickModFileDialog::url() const
 void AddQuickModFileDialog::on_addButton_clicked()
 {
 	if ((ui->fileButton->isChecked() && ui->fileEdit->hasAcceptableInput()) ||
-			ui->urlButton->isChecked() && ui->urlEdit->hasAcceptableInput())
+			(ui->urlButton->isChecked() && ui->urlEdit->hasAcceptableInput()))
 	{
 		if (ui->fileButton->isChecked())
 		{
