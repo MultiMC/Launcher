@@ -90,12 +90,16 @@ slots:
 		ops << DownloadUpdateTask::UpdateOperation::CopyOp("sourceOne", "destOne", 0777)
 			<< DownloadUpdateTask::UpdateOperation::CopyOp("MultiMC.exe", "M/u/l/t/i/M/C/e/x/e")
 			<< DownloadUpdateTask::UpdateOperation::DeleteOp("toDelete.abc");
-
+#if defined(Q_OS_WIN)
+		auto testFile = "tests/data/tst_DownloadUpdateTask-test_writeInstallScript_win32.xml";
+#else
+		auto testFile = "tests/data/tst_DownloadUpdateTask-test_writeInstallScript.xml";
+#endif
 		const QString script = QDir::temp().absoluteFilePath("MultiMCUpdateScript.xml");
 		QVERIFY(task.writeInstallScript(ops, script));
-		QCOMPARE(TestsInternal::readFileUtf8(script),
-				 MULTIMC_GET_TEST_FILE_UTF8(
-					 "tests/data/tst_DownloadUpdateTask-test_writeInstallScript.xml"));
+        QCOMPARE(TestsInternal::readFileUtf8(script).replace(QRegExp("[\r\n]"), "\n"),
+				 MULTIMC_GET_TEST_FILE_UTF8(testFile)
+                     .replace(QRegExp("[\r\n]"), "\n"));
 	}
 
 	void test_parseVersionInfo_data()
@@ -108,7 +112,7 @@ slots:
 		QTest::newRow("one")
 			<< MULTIMC_GET_TEST_FILE("tests/data/1.json")
 			<< (DownloadUpdateTask::VersionFileList()
-			<< DownloadUpdateTask::VersionFileEntry{
+				<< DownloadUpdateTask::VersionFileEntry{
 					   "fileOne", 493, (DownloadUpdateTask::FileSourceList()
 										<< DownloadUpdateTask::FileSource(
 											   "http", "file://" + qApp->applicationDirPath() +
@@ -168,47 +172,45 @@ slots:
 		DownloadUpdateTask *downloader = new DownloadUpdateTask(QString(), -1);
 
 		// update fileOne, keep fileTwo, remove fileThree
-		QTest::newRow("test 1") << downloader
-								<< (DownloadUpdateTask::VersionFileList()
-									<< DownloadUpdateTask::VersionFileEntry{
-										   QFINDTESTDATA("tests/data/fileOne"), 493,
-										   DownloadUpdateTask::FileSourceList()
-											   << DownloadUpdateTask::FileSource(
-													  "http", "http://host/path/fileOne-1"),
-										   "9eb84090956c484e32cb6c08455a667b"}
-									<< DownloadUpdateTask::VersionFileEntry{
-										   QFINDTESTDATA("tests/data/fileTwo"), 644,
-										   DownloadUpdateTask::FileSourceList()
-											   << DownloadUpdateTask::FileSource(
-													  "http", "http://host/path/fileTwo-1"),
-										   "38f94f54fa3eb72b0ea836538c10b043"}
-									<< DownloadUpdateTask::VersionFileEntry{
-										   QFINDTESTDATA("tests/data/fileThree"), 420,
-										   DownloadUpdateTask::FileSourceList()
-											   << DownloadUpdateTask::FileSource(
-													  "http", "http://host/path/fileThree-1"),
-										   "f12df554b21e320be6471d7154130e70"})
-								<< (DownloadUpdateTask::VersionFileList()
-									<< DownloadUpdateTask::VersionFileEntry{
-										   QFINDTESTDATA("tests/data/fileOne"), 493,
-										   DownloadUpdateTask::FileSourceList()
-											   << DownloadUpdateTask::FileSource(
-													  "http", "http://host/path/fileOne-2"),
-										   "42915a71277c9016668cce7b82c6b577"}
-									<< DownloadUpdateTask::VersionFileEntry{
-										   QFINDTESTDATA("tests/data/fileTwo"), 644,
-										   DownloadUpdateTask::FileSourceList()
-											   << DownloadUpdateTask::FileSource(
-													  "http", "http://host/path/fileTwo-2"),
-										   "38f94f54fa3eb72b0ea836538c10b043"})
-								<< (DownloadUpdateTask::UpdateOperationList()
-									<< DownloadUpdateTask::UpdateOperation::DeleteOp(
-										   QFINDTESTDATA("tests/data/fileThree"))
-									<< DownloadUpdateTask::UpdateOperation::CopyOp(
-										   PathCombine(downloader->updateFilesDir(),
-													   QFINDTESTDATA("tests/data/fileOne")
-														   .replace("/", "_")),
-										   QFINDTESTDATA("tests/data/fileOne"), 493));
+		QTest::newRow("test 1")
+			<< downloader << (DownloadUpdateTask::VersionFileList()
+							  << DownloadUpdateTask::VersionFileEntry{
+									 "tests/data/fileOne", 493,
+									 DownloadUpdateTask::FileSourceList()
+										 << DownloadUpdateTask::FileSource(
+												"http", "http://host/path/fileOne-1"),
+									 "9eb84090956c484e32cb6c08455a667b"}
+							  << DownloadUpdateTask::VersionFileEntry{
+									 "tests/data/fileTwo", 644,
+									 DownloadUpdateTask::FileSourceList()
+										 << DownloadUpdateTask::FileSource(
+												"http", "http://host/path/fileTwo-1"),
+									 "38f94f54fa3eb72b0ea836538c10b043"}
+							  << DownloadUpdateTask::VersionFileEntry{
+									 "tests/data/fileThree", 420,
+									 DownloadUpdateTask::FileSourceList()
+										 << DownloadUpdateTask::FileSource(
+												"http", "http://host/path/fileThree-1"),
+									 "f12df554b21e320be6471d7154130e70"})
+			<< (DownloadUpdateTask::VersionFileList()
+				<< DownloadUpdateTask::VersionFileEntry{
+					   "tests/data/fileOne", 493,
+					   DownloadUpdateTask::FileSourceList()
+						   << DownloadUpdateTask::FileSource("http",
+															 "http://host/path/fileOne-2"),
+					   "42915a71277c9016668cce7b82c6b577"}
+				<< DownloadUpdateTask::VersionFileEntry{
+					   "tests/data/fileTwo", 644,
+					   DownloadUpdateTask::FileSourceList()
+						   << DownloadUpdateTask::FileSource("http",
+															 "http://host/path/fileTwo-2"),
+					   "38f94f54fa3eb72b0ea836538c10b043"})
+			<< (DownloadUpdateTask::UpdateOperationList()
+				<< DownloadUpdateTask::UpdateOperation::DeleteOp("tests/data/fileThree")
+				<< DownloadUpdateTask::UpdateOperation::CopyOp(
+					   PathCombine(downloader->updateFilesDir(),
+								   QString("tests/data/fileOne").replace("/", "_")),
+					   "tests/data/fileOne", 493));
 	}
 	void test_processFileLists()
 	{
