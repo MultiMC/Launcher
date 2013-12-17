@@ -97,9 +97,9 @@ slots:
 #endif
 		const QString script = QDir::temp().absoluteFilePath("MultiMCUpdateScript.xml");
 		QVERIFY(task.writeInstallScript(ops, script));
-        QCOMPARE(TestsInternal::readFileUtf8(script).replace(QRegExp("[\r\n]"), "\n"),
+        QCOMPARE(TestsInternal::readFileUtf8(script).replace(QRegExp("[\r\n]+"), "\n"),
 				 MULTIMC_GET_TEST_FILE_UTF8(testFile)
-                     .replace(QRegExp("[\r\n]"), "\n"));
+                     .replace(QRegExp("[\r\n]+"), "\n"));
 	}
 
 	void test_parseVersionInfo_data()
