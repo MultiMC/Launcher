@@ -5,7 +5,7 @@
 #include "logic/InstanceFactory.h"
 #include "logic/MinecraftVersion.h"
 #include "logic/BaseInstance.h"
-#include "testutil.h"
+#include "TestUtil.h"
 
 Q_DECLARE_METATYPE(BaseInstance*)
 

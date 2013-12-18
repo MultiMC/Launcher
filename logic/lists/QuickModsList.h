@@ -38,7 +38,7 @@ public:
 				const QMap<QString, QString> &deps = QMap<QString, QString>(),
 				const QMap<QString, QString> &recs = QMap<QString, QString>(),
 				const QByteArray &checksum = QByteArray()) :
-			name(name), url(url), compatibleVersions(mc), forgeVersionFilter(forge), dependencies(deps), recommendations(recs), checksum(checksum) {}
+			name(name), url(url), compatibleVersions(mc), forgeVersionFilter(forge), dependencies(deps), recommendations(recs), checksum_algorithm(QCryptographicHash::Md5), checksum(checksum) {}
 		QString name;
 		QUrl url;
 		QStringList compatibleVersions;

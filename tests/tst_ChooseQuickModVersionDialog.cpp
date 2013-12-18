@@ -1,7 +1,7 @@
 #include <QTest>
 
 #include "gui/dialogs/ChooseQuickModVersionDialog.h"
-#include "testutil.h"
+#include "TestUtil.h"
 
 class ChooseQuickModVersionDialogTest : public QObject
 {
@@ -55,6 +55,6 @@ private slots:
 	}
 };
 
-QTEST_GUILESS_MAIN(ChooseQuickModVersionDialogTest)
+QTEST_GUILESS_MAIN_MULTIMC(ChooseQuickModVersionDialogTest)
 
 #include "tst_ChooseQuickModVersionDialog.moc"

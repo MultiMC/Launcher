@@ -6,7 +6,9 @@
 #include <QDir>
 
 #include "MultiMC.h"
+#include "logic/lists/QuickModsList.h"
 
+typedef QList<QuickMod::Version> QMVersionList;
 struct TestsInternal
 {
         static QByteArray readFile(const QString &fileName)
@@ -18,6 +20,22 @@ struct TestsInternal
 		static QString readFileUtf8(const QString &fileName)
 		{
 			return QString::fromUtf8(readFile(fileName));
+		}
+
+		static QuickMod *createMod(QString name, QMVersionList versions)
+		{
+			QuickMod *mod = new QuickMod;
+			mod->m_name = name;
+			mod->m_nemName = name;
+			mod->m_modId = name;
+			mod->m_description = name + " description";
+			mod->m_updateUrl = "http://localhost/quickmod/" + name + ".json";
+			mod->m_versions = versions;
+			return mod;
+		}
+		static QuickMod *createMod(QString name)
+		{
+			return createMod(name, QMVersionList() << QuickMod::Version("1.0.0", QUrl("http://localhost/" + name + ".jar"), QStringList() << "1.6.2" << "1.6.4"));
 		}
 };
 

@@ -1,7 +1,7 @@
 #include <QTest>
 
 #include "logic/lists/QuickModsList.h"
-#include "testutil.h"
+#include "TestUtil.h"
 
 class QuickModTest : public QObject
 {
@@ -109,6 +109,6 @@ private slots:
 	}
 };
 
-QTEST_GUILESS_MAIN(QuickModTest)
+QTEST_GUILESS_MAIN_MULTIMC(QuickModTest)
 
 #include "tst_QuickMod.moc"
