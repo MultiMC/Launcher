@@ -105,6 +105,7 @@ void DownloadUpdateTask::loadVersionInfo()
 
 	// Find the index URL.
 	QUrl newIndexUrl = QUrl(m_nRepoUrl).resolved(QString::number(m_nVersionId) + ".json");
+	QLOG_DEBUG() << m_nRepoUrl << " turns into " << newIndexUrl;
 
 	// Add a net action to download the version info for the version we're updating to.
 	netJob->addNetAction(ByteArrayDownload::make(newIndexUrl));
@@ -114,6 +115,7 @@ void DownloadUpdateTask::loadVersionInfo()
 	{
 		QUrl cIndexUrl = QUrl(m_cRepoUrl).resolved(QString::number(m_cVersionId) + ".json");
 		netJob->addNetAction(ByteArrayDownload::make(cIndexUrl));
+		QLOG_DEBUG() << m_cRepoUrl << " turns into " << cIndexUrl;
 	}
 
 	// Connect slots so we know when it's done.
@@ -200,6 +202,7 @@ bool DownloadUpdateTask::parseVersionInfo(const QByteArray &data, VersionFileLis
 
 	QJsonObject json = jsonDoc.object();
 
+	QLOG_DEBUG() << data;
 	QLOG_DEBUG() << "Loading version info from JSON.";
 	QJsonArray filesArray = json.value("Files").toArray();
 	for (QJsonValue fileValue : filesArray)
@@ -419,7 +422,9 @@ bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QStrin
 
 QString DownloadUpdateTask::preparePath(const QString &path)
 {
-	return QString(path).replace("$PWD", qApp->applicationDirPath());
+    QString foo = path;
+    foo.replace("$PWD", qApp->applicationDirPath());
+	return QUrl::fromLocalFile(foo).toString(QUrl::FullyEncoded);
 }
 
 void DownloadUpdateTask::fileDownloadFinished()

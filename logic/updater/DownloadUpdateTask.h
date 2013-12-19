@@ -195,7 +195,8 @@ protected:
 	QTemporaryDir m_updateFilesDir;
 
 	/*!
-	 * Substitutes $PWD for the application directory
+	 * Filters paths
+	 * Path of the format $PWD/path, it is converted to a file:///$PWD/ URL
 	 */
 	static QString preparePath(const QString &path);
 
