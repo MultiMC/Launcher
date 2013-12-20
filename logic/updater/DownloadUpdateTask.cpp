@@ -250,7 +250,11 @@ void DownloadUpdateTask::processFileLists()
 	// Create a network job for downloading files.
 	NetJob *netJob = new NetJob("Update Files");
 
-	processFileLists(netJob, m_cVersionFileList, m_nVersionFileList, m_operationList);
+	if(!processFileLists(netJob, m_cVersionFileList, m_nVersionFileList, m_operationList))
+	{
+		emitFailed(tr("Failed to process update lists..."));
+		return;
+	}
 
 	// Add listeners to wait for the downloads to finish.
 	QObject::connect(netJob, &NetJob::succeeded, this,
@@ -268,9 +272,10 @@ void DownloadUpdateTask::processFileLists()
 	writeInstallScript(m_operationList, PathCombine(m_updateFilesDir.path(), "file_list.xml"));
 }
 
-void DownloadUpdateTask::processFileLists(NetJob *job, const VersionFileList &currentVersion,
-										  const VersionFileList &newVersion,
-										  DownloadUpdateTask::UpdateOperationList &ops)
+bool DownloadUpdateTask::processFileLists(NetJob *job,
+									 const DownloadUpdateTask::VersionFileList &currentVersion,
+									 const DownloadUpdateTask::VersionFileList &newVersion,
+									 DownloadUpdateTask::UpdateOperationList &ops)
 {
 	setStatus(tr("Processing file lists. Figuring out how to install the update."));
 
@@ -301,47 +306,64 @@ void DownloadUpdateTask::processFileLists(NetJob *job, const VersionFileList &cu
 		// way to do this in the background.
 		QString fileMD5;
 		QFile entryFile(entry.path);
-		if (entryFile.open(QFile::ReadOnly))
+		bool needs_upgrade = false;
+		if(!entryFile.exists())
 		{
-			QCryptographicHash hash(QCryptographicHash::Md5);
-			hash.addData(entryFile.readAll());
-			fileMD5 = hash.result().toHex();
+			needs_upgrade = true;
+		}
+		else if( !entryFile.isReadable() || !entryFile.isWritable() || !entryFile.open(QFile::ReadOnly))
+		{
+			QLOG_ERROR() << "File " << entry.path << " could not be read or written !!!";
+			QLOG_ERROR() << "CWD: " << QDir::currentPath();;
+			ops.clear();
+			return false;
 		}
 
-		if (!entryFile.exists() || fileMD5.isEmpty() || fileMD5 != entry.md5)
+		QCryptographicHash hash(QCryptographicHash::Md5);
+		hash.addData(entryFile.readAll());
+		fileMD5 = hash.result().toHex();
+		needs_upgrade |= (fileMD5 != entry.md5);
+
+		// skip file. it doesn't need an upgrade.
+		if ( !needs_upgrade )
 		{
-			QLOG_DEBUG() << "Found file" << entry.path << "that needs updating.";
+			QLOG_DEBUG() << "File" << entry.path << " does not need updating.";
+			continue;
+		}
 
-			// Go through the sources list and find one to use.
-			// TODO: Make a NetAction that takes a source list and tries each of them until one
-			// works. For now, we'll just use the first http one.
-			for (FileSource source : entry.sources)
+		// yep. this file actually needs an upgrade. PROCEED.
+		QLOG_DEBUG() << "Found file" << entry.path << " that needs updating.";
+
+		// Go through the sources list and find one to use.
+		// TODO: Make a NetAction that takes a source list and tries each of them until one
+		// works. For now, we'll just use the first http one.
+		for (FileSource source : entry.sources)
+		{
+			if (source.type == "http")
 			{
-				if (source.type == "http")
+				QLOG_DEBUG() << "Will download" << entry.path << "from" << source.url;
+
+				// Download it to updatedir/<filepath>-<md5> where filepath is the file's
+				// path with slashes replaced by underscores.
+				QString dlPath = PathCombine(m_updateFilesDir.path(),
+												QString(entry.path).replace("/", "_"));
+
+				if (job)
 				{
-					QLOG_DEBUG() << "Will download" << entry.path << "from" << source.url;
-
-					// Download it to updatedir/<filepath>-<md5> where filepath is the file's
-					// path with slashes replaced by underscores.
-					QString dlPath = PathCombine(m_updateFilesDir.path(),
-												 QString(entry.path).replace("/", "_"));
-
-					if (job)
-					{
-						// We need to download the file to the updatefiles folder and add a task
-						// to copy it to its install path.
-						auto download = MD5EtagDownload::make(source.url, dlPath);
-						download->m_check_md5 = true;
-						download->m_expected_md5 = entry.md5;
-						job->addNetAction(download);
-					}
-
-					// Now add a copy operation to our operations list to install the file.
-					ops.append(UpdateOperation::CopyOp(dlPath, entry.path, entry.mode));
+					// We need to download the file to the updatefiles folder and add a task
+					// to copy it to its install path.
+					auto download = MD5EtagDownload::make(source.url, dlPath);
+					download->m_check_md5 = true;
+					download->m_expected_md5 = entry.md5;
+					job->addNetAction(download);
 				}
+
+				// Now add a copy operation to our operations list to install the file.
+				ops.append(UpdateOperation::CopyOp(dlPath, entry.path, entry.mode));
 			}
 		}
 	}
+	return true;
 }
 
 bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QString scriptFile)
