@@ -306,17 +306,37 @@ bool DownloadUpdateTask::processFileLists(NetJob *job,
 		// way to do this in the background.
 		QString fileMD5;
 		QFile entryFile(entry.path);
+		QFileInfo entryInfo(entry.path);
+
 		bool needs_upgrade = false;
 		if(!entryFile.exists())
 		{
 			needs_upgrade = true;
 		}
-		else if( !entryFile.isReadable() || !entryFile.isWritable() || !entryFile.open(QFile::ReadOnly))
+		else
 		{
-			QLOG_ERROR() << "File " << entry.path << " could not be read or written !!!";
-			QLOG_ERROR() << "CWD: " << QDir::currentPath();;
-			ops.clear();
-			return false;
+			bool pass = true;
+			if(!entryInfo.isReadable())
+			{
+				QLOG_ERROR() << "File " << entry.path << " is not readable.";
+				pass = false;
+			}
+			if(!entryInfo.isWritable())
+			{
+				QLOG_ERROR() << "File " << entry.path << " is not writable.";
+				pass = false;
+			}
+			if(!entryFile.open(QFile::ReadOnly))
+			{
+				QLOG_ERROR() << "File " << entry.path << " cannot be opened for reading.";
+				pass = false;
+			}
+			if(!pass)
+			{
+				QLOG_ERROR() << "CWD: " << QDir::currentPath();
+				ops.clear();
+				return false;
+			}
 		}
 
 		QCryptographicHash hash(QCryptographicHash::Md5);
