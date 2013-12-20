@@ -354,6 +354,12 @@ logic/ForgeInstaller.cpp
 logic/NostalgiaInstance.h
 logic/NostalgiaInstance.cpp
 
+# FTB
+logic/OneSixFTBInstance.h
+logic/OneSixFTBInstance.cpp
+logic/LegacyFTBInstance.h
+logic/LegacyFTBInstance.cpp
+
 # Lists
 logic/lists/InstanceList.h
 logic/lists/InstanceList.cpp
@@ -378,6 +384,8 @@ logic/EnabledItemFilter.cpp
 logic/tasks/ProgressProvider.h
 logic/tasks/Task.h
 logic/tasks/Task.cpp
+logic/tasks/SequentialTask.h
+logic/tasks/SequentialTask.cpp
 
 # Utilities
 logic/JavaChecker.h

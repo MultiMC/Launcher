@@ -135,6 +135,9 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	// Updates
 	s->set("AutoUpdate", ui->autoUpdateCheckBox->isChecked());
 
+	// FTB
+	s->set("TrackFTBInstances", ui->trackFtbBox->isChecked());
+
 	// Folders
 	// TODO: Offer to move instances to new instance folder.
 	s->set("InstanceDir", ui->instDirTextBox->text());
@@ -184,6 +187,9 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	// Updates
 	ui->autoUpdateCheckBox->setChecked(s->get("AutoUpdate").toBool());
 	ui->devBuildsCheckBox->setChecked(s->get("UseDevBuilds").toBool());
+
+	// FTB
+	ui->trackFtbBox->setChecked(s->get("TrackFTBInstances").toBool());
 
 	// Folders
 	ui->instDirTextBox->setText(s->get("InstanceDir").toString());

@@ -300,6 +300,9 @@ void MultiMC::initGlobalSettings()
 	m_settings->registerSetting(new Setting("UseDevBuilds", false));
 	m_settings->registerSetting(new Setting("AutoUpdate", true));
 
+	// FTB
+	m_settings->registerSetting(new Setting("TrackFTBInstances", true));
+
 	// Folders
 	m_settings->registerSetting(new Setting("InstanceDir", "instances"));
 	m_settings->registerSetting(new Setting("CentralModsDir", "mods"));
