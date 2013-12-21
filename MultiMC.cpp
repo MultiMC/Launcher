@@ -306,7 +306,7 @@ void MultiMC::initGlobalSettings()
 										#ifdef Q_OS_LINUX
 											QDir::home().absoluteFilePath(".ftblauncher")
 										#elif defined(Q_OS_WIN32)
-											QDir::home().absoluteFilePath("AppData\\Roaming\\")
+											QDir::home().absoluteFilePath("AppData\\Roaming\\ftblauncher")
 										#endif
 											));
 
