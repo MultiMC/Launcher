@@ -312,7 +312,7 @@ InstanceList::InstListError InstanceList::loadList()
 		QDir dataDir = QDir(MMC->settings()->get("FTBRoot").toString());
 		if (!dir.exists() || !dataDir.exists())
 		{
-			QLOG_ERROR() << "You do not seem to have FTB installed. You can change the searched paths in the settings";
+			QLOG_INFO() << "You do not seem to have FTB installed. You can change the searched paths in the settings";
 		}
 		else
 		{

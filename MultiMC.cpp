@@ -306,9 +306,9 @@ void MultiMC::initGlobalSettings()
 										#ifdef Q_OS_LINUX
 											QDir::home().absoluteFilePath(".ftblauncher")
 										#elif defined(Q_OS_WIN32)
-											QDir::home().absoluteFilePath("AppData\\Roaming\\ftblauncher")
+											PathCombine(QDir::homePath(), "AppData/Roaming/ftblauncher")
 										#elif defined(Q_OS_MAC)
-											QDir::home().absoluteFilePath("Library/Application Support/ftblauncher");
+											PathCombine(QDir::homePath(), "Library/Application Support/ftblauncher")
 										#endif
 											));
 
@@ -322,7 +322,7 @@ void MultiMC::initGlobalSettings()
 		{
 			const QString data = QString::fromLatin1(f.readAll());
 			QRegularExpression exp("installPath=(.*)");
-			ftbRoot = exp.match(data).captured(1);
+			ftbRoot = QDir::cleanPath(exp.match(data).captured(1));
 			if (ftbRoot.isEmpty())
 			{
 				QLOG_INFO() << "Failed to get FTB root path";
