@@ -250,7 +250,7 @@ void DownloadUpdateTask::processFileLists()
 	// Create a network job for downloading files.
 	NetJob *netJob = new NetJob("Update Files");
 
-	if(!processFileLists(netJob, m_cVersionFileList, m_nVersionFileList, m_operationList))
+	if (!processFileLists(netJob, m_cVersionFileList, m_nVersionFileList, m_operationList))
 	{
 		emitFailed(tr("Failed to process update lists..."));
 		return;
@@ -272,7 +272,8 @@ void DownloadUpdateTask::processFileLists()
 	writeInstallScript(m_operationList, PathCombine(m_updateFilesDir.path(), "file_list.xml"));
 }
 
-bool DownloadUpdateTask::processFileLists(NetJob *job,
+bool
+DownloadUpdateTask::processFileLists(NetJob *job,
 									 const DownloadUpdateTask::VersionFileList &currentVersion,
 									 const DownloadUpdateTask::VersionFileList &newVersion,
 									 DownloadUpdateTask::UpdateOperationList &ops)
@@ -283,7 +284,16 @@ bool DownloadUpdateTask::processFileLists(NetJob *job,
 	// delete anything in the current one version's list that isn't in the new version's list.
 	for (VersionFileEntry entry : currentVersion)
 	{
+		QFileInfo toDelete(entry.path);
+		if (!toDelete.exists())
+		{
+			QLOG_ERROR() << "Expected file " << toDelete.absoluteFilePath()
+						 << " doesn't exist!";
+			QLOG_ERROR() << "CWD: " << QDir::currentPath();
+		}
 		bool keep = false;
+
+		//
 		for (VersionFileEntry newEntry : newVersion)
 		{
 			if (newEntry.path == entry.path)
@@ -294,9 +304,14 @@ bool DownloadUpdateTask::processFileLists(NetJob *job,
 				break;
 			}
 		}
+
 		// If the loop reaches the end and we didn't find a match, delete the file.
 		if (!keep)
-			ops.append(UpdateOperation::DeleteOp(entry.path));
+		{
+			QFileInfo toDelete(entry.path);
+			if (toDelete.exists())
+				ops.append(UpdateOperation::DeleteOp(entry.path));
+		}
 	}
 
 	// Next, check each file in MultiMC's folder and see if we need to update them.
@@ -309,29 +324,29 @@ bool DownloadUpdateTask::processFileLists(NetJob *job,
 		QFileInfo entryInfo(entry.path);
 
 		bool needs_upgrade = false;
-		if(!entryFile.exists())
+		if (!entryFile.exists())
 		{
 			needs_upgrade = true;
 		}
 		else
 		{
 			bool pass = true;
-			if(!entryInfo.isReadable())
+			if (!entryInfo.isReadable())
 			{
 				QLOG_ERROR() << "File " << entry.path << " is not readable.";
 				pass = false;
 			}
-			if(!entryInfo.isWritable())
+			if (!entryInfo.isWritable())
 			{
 				QLOG_ERROR() << "File " << entry.path << " is not writable.";
 				pass = false;
 			}
-			if(!entryFile.open(QFile::ReadOnly))
+			if (!entryFile.open(QFile::ReadOnly))
 			{
 				QLOG_ERROR() << "File " << entry.path << " cannot be opened for reading.";
 				pass = false;
 			}
-			if(!pass)
+			if (!pass)
 			{
 				QLOG_ERROR() << "CWD: " << QDir::currentPath();
 				ops.clear();
@@ -340,12 +355,20 @@ bool DownloadUpdateTask::processFileLists(NetJob *job,
 		}
 
 		QCryptographicHash hash(QCryptographicHash::Md5);
-		hash.addData(entryFile.readAll());
+		auto foo = entryFile.readAll();
+
+		hash.addData(foo);
 		fileMD5 = hash.result().toHex();
-		needs_upgrade |= (fileMD5 != entry.md5);
+		if ((fileMD5 != entry.md5))
+		{
+			QLOG_DEBUG() << "MD5Sum does not match!";
+			QLOG_DEBUG() << "Expected:'" << entry.md5 << "'";
+			QLOG_DEBUG() << "Got:     '" << fileMD5 << "'";
+			needs_upgrade = true;
+		}
 
 		// skip file. it doesn't need an upgrade.
-		if ( !needs_upgrade )
+		if (!needs_upgrade)
 		{
 			QLOG_DEBUG() << "File" << entry.path << " does not need updating.";
 			continue;
@@ -365,8 +388,8 @@ bool DownloadUpdateTask::processFileLists(NetJob *job,
 
 				// Download it to updatedir/<filepath>-<md5> where filepath is the file's
 				// path with slashes replaced by underscores.
-				QString dlPath = PathCombine(m_updateFilesDir.path(),
-												QString(entry.path).replace("/", "_"));
+				QString dlPath =
+					PathCombine(m_updateFilesDir.path(), QString(entry.path).replace("/", "_"));
 
 				if (job)
 				{
@@ -464,8 +487,8 @@ bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QStrin
 
 QString DownloadUpdateTask::preparePath(const QString &path)
 {
-    QString foo = path;
-    foo.replace("$PWD", qApp->applicationDirPath());
+	QString foo = path;
+	foo.replace("$PWD", qApp->applicationDirPath());
 	return QUrl::fromLocalFile(foo).toString(QUrl::FullyEncoded);
 }
 
