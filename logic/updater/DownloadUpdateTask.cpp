@@ -105,6 +105,7 @@ void DownloadUpdateTask::loadVersionInfo()
 
 	// Find the index URL.
 	QUrl newIndexUrl = QUrl(m_nRepoUrl).resolved(QString::number(m_nVersionId) + ".json");
+	QLOG_DEBUG() << m_nRepoUrl << " turns into " << newIndexUrl;
 
 	// Add a net action to download the version info for the version we're updating to.
 	netJob->addNetAction(ByteArrayDownload::make(newIndexUrl));
@@ -114,6 +115,7 @@ void DownloadUpdateTask::loadVersionInfo()
 	{
 		QUrl cIndexUrl = QUrl(m_cRepoUrl).resolved(QString::number(m_cVersionId) + ".json");
 		netJob->addNetAction(ByteArrayDownload::make(cIndexUrl));
+		QLOG_DEBUG() << m_cRepoUrl << " turns into " << cIndexUrl;
 	}
 
 	// Connect slots so we know when it's done.
@@ -200,6 +202,7 @@ bool DownloadUpdateTask::parseVersionInfo(const QByteArray &data, VersionFileLis
 
 	QJsonObject json = jsonDoc.object();
 
+	QLOG_DEBUG() << data;
 	QLOG_DEBUG() << "Loading version info from JSON.";
 	QJsonArray filesArray = json.value("Files").toArray();
 	for (QJsonValue fileValue : filesArray)
@@ -247,7 +250,11 @@ void DownloadUpdateTask::processFileLists()
 	// Create a network job for downloading files.
 	NetJob *netJob = new NetJob("Update Files");
 
-	processFileLists(netJob, m_cVersionFileList, m_nVersionFileList, m_operationList);
+	if (!processFileLists(netJob, m_cVersionFileList, m_nVersionFileList, m_operationList))
+	{
+		emitFailed(tr("Failed to process update lists..."));
+		return;
+	}
 
 	// Add listeners to wait for the downloads to finish.
 	QObject::connect(netJob, &NetJob::succeeded, this,
@@ -265,9 +272,11 @@ void DownloadUpdateTask::processFileLists()
 	writeInstallScript(m_operationList, PathCombine(m_updateFilesDir.path(), "file_list.xml"));
 }
 
-void DownloadUpdateTask::processFileLists(NetJob *job, const VersionFileList &currentVersion,
-										  const VersionFileList &newVersion,
-										  DownloadUpdateTask::UpdateOperationList &ops)
+bool
+DownloadUpdateTask::processFileLists(NetJob *job,
+									 const DownloadUpdateTask::VersionFileList &currentVersion,
+									 const DownloadUpdateTask::VersionFileList &newVersion,
+									 DownloadUpdateTask::UpdateOperationList &ops)
 {
 	setStatus(tr("Processing file lists. Figuring out how to install the update."));
 
@@ -275,7 +284,16 @@ void DownloadUpdateTask::processFileLists(NetJob *job, const VersionFileList &cu
 	// delete anything in the current one version's list that isn't in the new version's list.
 	for (VersionFileEntry entry : currentVersion)
 	{
+		QFileInfo toDelete(entry.path);
+		if (!toDelete.exists())
+		{
+			QLOG_ERROR() << "Expected file " << toDelete.absoluteFilePath()
+						 << " doesn't exist!";
+			QLOG_ERROR() << "CWD: " << QDir::currentPath();
+		}
 		bool keep = false;
+
+		//
 		for (VersionFileEntry newEntry : newVersion)
 		{
 			if (newEntry.path == entry.path)
@@ -286,9 +304,14 @@ void DownloadUpdateTask::processFileLists(NetJob *job, const VersionFileList &cu
 				break;
 			}
 		}
+
 		// If the loop reaches the end and we didn't find a match, delete the file.
 		if (!keep)
-			ops.append(UpdateOperation::DeleteOp(entry.path));
+		{
+			QFileInfo toDelete(entry.path);
+			if (toDelete.exists())
+				ops.append(UpdateOperation::DeleteOp(entry.path));
+		}
 	}
 
 	// Next, check each file in MultiMC's folder and see if we need to update them.
@@ -298,47 +321,92 @@ void DownloadUpdateTask::processFileLists(NetJob *job, const VersionFileList &cu
 		// way to do this in the background.
 		QString fileMD5;
 		QFile entryFile(entry.path);
-		if (entryFile.open(QFile::ReadOnly))
+		QFileInfo entryInfo(entry.path);
+
+		bool needs_upgrade = false;
+		if (!entryFile.exists())
 		{
-			QCryptographicHash hash(QCryptographicHash::Md5);
-			hash.addData(entryFile.readAll());
-			fileMD5 = hash.result().toHex();
+			needs_upgrade = true;
+		}
+		else
+		{
+			bool pass = true;
+			if (!entryInfo.isReadable())
+			{
+				QLOG_ERROR() << "File " << entry.path << " is not readable.";
+				pass = false;
+			}
+			if (!entryInfo.isWritable())
+			{
+				QLOG_ERROR() << "File " << entry.path << " is not writable.";
+				pass = false;
+			}
+			if (!entryFile.open(QFile::ReadOnly))
+			{
+				QLOG_ERROR() << "File " << entry.path << " cannot be opened for reading.";
+				pass = false;
+			}
+			if (!pass)
+			{
+				QLOG_ERROR() << "CWD: " << QDir::currentPath();
+				ops.clear();
+				return false;
+			}
 		}
 
-		if (!entryFile.exists() || fileMD5.isEmpty() || fileMD5 != entry.md5)
+		QCryptographicHash hash(QCryptographicHash::Md5);
+		auto foo = entryFile.readAll();
+
+		hash.addData(foo);
+		fileMD5 = hash.result().toHex();
+		if ((fileMD5 != entry.md5))
 		{
-			QLOG_DEBUG() << "Found file" << entry.path << "that needs updating.";
+			QLOG_DEBUG() << "MD5Sum does not match!";
+			QLOG_DEBUG() << "Expected:'" << entry.md5 << "'";
+			QLOG_DEBUG() << "Got:     '" << fileMD5 << "'";
+			needs_upgrade = true;
+		}
 
-			// Go through the sources list and find one to use.
-			// TODO: Make a NetAction that takes a source list and tries each of them until one
-			// works. For now, we'll just use the first http one.
-			for (FileSource source : entry.sources)
+		// skip file. it doesn't need an upgrade.
+		if (!needs_upgrade)
+		{
+			QLOG_DEBUG() << "File" << entry.path << " does not need updating.";
+			continue;
+		}
+
+		// yep. this file actually needs an upgrade. PROCEED.
+		QLOG_DEBUG() << "Found file" << entry.path << " that needs updating.";
+
+		// Go through the sources list and find one to use.
+		// TODO: Make a NetAction that takes a source list and tries each of them until one
+		// works. For now, we'll just use the first http one.
+		for (FileSource source : entry.sources)
+		{
+			if (source.type == "http")
 			{
-				if (source.type == "http")
+				QLOG_DEBUG() << "Will download" << entry.path << "from" << source.url;
+
+				// Download it to updatedir/<filepath>-<md5> where filepath is the file's
+				// path with slashes replaced by underscores.
+				QString dlPath =
+					PathCombine(m_updateFilesDir.path(), QString(entry.path).replace("/", "_"));
+
+				if (job)
 				{
-					QLOG_DEBUG() << "Will download" << entry.path << "from" << source.url;
-
-					// Download it to updatedir/<filepath>-<md5> where filepath is the file's
-					// path with slashes replaced by underscores.
-					QString dlPath = PathCombine(m_updateFilesDir.path(),
-												 QString(entry.path).replace("/", "_"));
-
-					if (job)
-					{
-						// We need to download the file to the updatefiles folder and add a task
-						// to copy it to its install path.
-						auto download = MD5EtagDownload::make(source.url, dlPath);
-						download->m_check_md5 = true;
-						download->m_expected_md5 = entry.md5;
-						job->addNetAction(download);
-					}
-
-					// Now add a copy operation to our operations list to install the file.
-					ops.append(UpdateOperation::CopyOp(dlPath, entry.path, entry.mode));
+					// We need to download the file to the updatefiles folder and add a task
+					// to copy it to its install path.
+					auto download = MD5EtagDownload::make(source.url, dlPath);
+					download->m_check_md5 = true;
+					download->m_expected_md5 = entry.md5;
+					job->addNetAction(download);
 				}
+
+				// Now add a copy operation to our operations list to install the file.
+				ops.append(UpdateOperation::CopyOp(dlPath, entry.path, entry.mode));
 			}
 		}
 	}
+	return true;
 }
 
 bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QString scriptFile)
@@ -419,7 +487,9 @@ bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QStrin
 
 QString DownloadUpdateTask::preparePath(const QString &path)
 {
-	return QString(path).replace("$PWD", qApp->applicationDirPath());
+	QString foo = path;
+	foo.replace("$PWD", qApp->applicationDirPath());
+	return QUrl::fromLocalFile(foo).toString(QUrl::FullyEncoded);
 }
 
 void DownloadUpdateTask::fileDownloadFinished()

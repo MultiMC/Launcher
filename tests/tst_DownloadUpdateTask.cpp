@@ -7,6 +7,15 @@
 #include "logic/updater/UpdateChecker.h"
 #include "depends/util/include/pathutils.h"
 
+DownloadUpdateTask::FileSourceList encodeBaseFile(const char *suffix)
+{
+	auto base = qApp->applicationDirPath();
+	QUrl localFile = QUrl::fromLocalFile(base + suffix);
+	QString localUrlString = localFile.toString(QUrl::FullyEncoded);
+	auto item = DownloadUpdateTask::FileSource("http", localUrlString);
+	return DownloadUpdateTask::FileSourceList({item});
+}
+
 Q_DECLARE_METATYPE(DownloadUpdateTask::VersionFileList)
 Q_DECLARE_METATYPE(DownloadUpdateTask::UpdateOperation)
 
@@ -97,9 +106,8 @@ slots:
 #endif
 		const QString script = QDir::temp().absoluteFilePath("MultiMCUpdateScript.xml");
 		QVERIFY(task.writeInstallScript(ops, script));
-        QCOMPARE(TestsInternal::readFileUtf8(script).replace(QRegExp("[\r\n]+"), "\n"),
-				 MULTIMC_GET_TEST_FILE_UTF8(testFile)
-                     .replace(QRegExp("[\r\n]+"), "\n"));
+		QCOMPARE(TestsInternal::readFileUtf8(script).replace(QRegExp("[\r\n]+"), "\n"),
+				 MULTIMC_GET_TEST_FILE_UTF8(testFile).replace(QRegExp("[\r\n]+"), "\n"));
 	}
 
 	void test_parseVersionInfo_data()
@@ -112,40 +120,31 @@ slots:
 		QTest::newRow("one")
 			<< MULTIMC_GET_TEST_FILE("tests/data/1.json")
 			<< (DownloadUpdateTask::VersionFileList()
-				<< DownloadUpdateTask::VersionFileEntry{
-					   "fileOne", 493, (DownloadUpdateTask::FileSourceList()
-										<< DownloadUpdateTask::FileSource(
-											   "http", "file://" + qApp->applicationDirPath() +
-														   "/tests/data/fileOneA")),
-					   "9eb84090956c484e32cb6c08455a667b"}
-				<< DownloadUpdateTask::VersionFileEntry{
-					   "fileTwo", 644, (DownloadUpdateTask::FileSourceList()
-										<< DownloadUpdateTask::FileSource(
-											   "http", "file://" + qApp->applicationDirPath() +
-														   "/tests/data/fileTwo")),
-					   "38f94f54fa3eb72b0ea836538c10b043"}
-				<< DownloadUpdateTask::VersionFileEntry{
-					   "fileThree", 750,
-					   (DownloadUpdateTask::FileSourceList()
-						<< DownloadUpdateTask::FileSource(
-							   "http", "file://" + qApp->applicationDirPath() +
-										   "/tests/data/fileThree")),
-					   "f12df554b21e320be6471d7154130e70"}) << QString() << true;
+				<< DownloadUpdateTask::VersionFileEntry{"fileOne",
+														493,
+														encodeBaseFile("/tests/data/fileOneA"),
+														"9eb84090956c484e32cb6c08455a667b"}
+				<< DownloadUpdateTask::VersionFileEntry{"fileTwo",
+														644,
+														encodeBaseFile("/tests/data/fileTwo"),
+														"38f94f54fa3eb72b0ea836538c10b043"}
+				<< DownloadUpdateTask::VersionFileEntry{"fileThree",
+														750,
+														encodeBaseFile("/tests/data/fileThree"),
+														"f12df554b21e320be6471d7154130e70"})
+			<< QString() << true;
 		QTest::newRow("two")
 			<< MULTIMC_GET_TEST_FILE("tests/data/2.json")
 			<< (DownloadUpdateTask::VersionFileList()
-				<< DownloadUpdateTask::VersionFileEntry{
-					   "fileOne", 493, (DownloadUpdateTask::FileSourceList()
-										<< DownloadUpdateTask::FileSource(
-											   "http", "file://" + qApp->applicationDirPath() +
-														   "/tests/data/fileOneB")),
-					   "42915a71277c9016668cce7b82c6b577"}
-				<< DownloadUpdateTask::VersionFileEntry{
-					   "fileTwo", 644, (DownloadUpdateTask::FileSourceList()
-										<< DownloadUpdateTask::FileSource(
-											   "http", "file://" + qApp->applicationDirPath() +
-														   "/tests/data/fileTwo")),
-					   "38f94f54fa3eb72b0ea836538c10b043"}) << QString() << true;
+				<< DownloadUpdateTask::VersionFileEntry{"fileOne",
+														493,
+														encodeBaseFile("/tests/data/fileOneB"),
+														"42915a71277c9016668cce7b82c6b577"}
+				<< DownloadUpdateTask::VersionFileEntry{"fileTwo",
+														644,
+														encodeBaseFile("/tests/data/fileTwo"),
+														"38f94f54fa3eb72b0ea836538c10b043"})
+			<< QString() << true;
 	}
 	void test_parseVersionInfo()
 	{
@@ -234,12 +233,15 @@ slots:
 		QLOG_INFO() << "#####################";
 		MMC->m_version.build = 1;
 		MMC->m_version.channel = "develop";
-		MMC->updateChecker()->setChannelListUrl(QUrl::fromLocalFile(
-			QDir::current().absoluteFilePath("tests/data/channels.json")).toString());
+		auto channels =
+			QUrl::fromLocalFile(QDir::current().absoluteFilePath("tests/data/channels.json"));
+		auto root = QUrl::fromLocalFile(QDir::current().absoluteFilePath("tests/data/"));
+		QLOG_DEBUG() << "channels: " << channels;
+		QLOG_DEBUG() << "root: " << root;
+		MMC->updateChecker()->setChannelListUrl(channels.toString());
 		MMC->updateChecker()->setCurrentChannel("develop");
 
-		DownloadUpdateTask task(
-			QUrl::fromLocalFile(QDir::current().absoluteFilePath("tests/data/")).toString(), 2);
+		DownloadUpdateTask task(root.toString(), 2);
 
 		QSignalSpy succeededSpy(&task, SIGNAL(succeeded()));
 
