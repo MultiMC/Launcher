@@ -323,6 +323,15 @@ void MultiMC::initGlobalSettings()
 			const QString data = QString::fromLatin1(f.readAll());
 			QRegularExpression exp("installPath=(.*)");
 			ftbRoot = QDir::cleanPath(exp.match(data).captured(1));
+#ifdef Q_OS_WIN32
+			if (!ftbRoot.isEmpty())
+			{
+				if (ftbRoot.at(0).isLetter() && ftbRoot.size() > 1 && ftbRoot.at(1) == '/')
+				{
+					ftbRoot.remove(1, 1);
+				}
+			}
+#endif
 			if (ftbRoot.isEmpty())
 			{
 				QLOG_INFO() << "Failed to get FTB root path";
