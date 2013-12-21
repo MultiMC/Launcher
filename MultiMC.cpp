@@ -301,7 +301,7 @@ void MultiMC::initGlobalSettings()
 	m_settings->registerSetting(new Setting("AutoUpdate", true));
 
 	// FTB
-	m_settings->registerSetting(new Setting("TrackFTBInstances", true));
+	m_settings->registerSetting(new Setting("TrackFTBInstances", false));
 	m_settings->registerSetting(new Setting("FTBLauncherRoot",
 										#ifdef Q_OS_LINUX
 											QDir::home().absoluteFilePath(".ftblauncher")
