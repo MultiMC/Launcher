@@ -2,7 +2,6 @@
 
 #include "OneSixVersion.h"
 #include "OneSixLibrary.h"
-#include "OneSixInstance_p.h"
 #include "tasks/SequentialTask.h"
 #include "ForgeInstaller.h"
 #include "lists/ForgeVersionList.h"
@@ -107,13 +106,6 @@ std::shared_ptr<Task> OneSixFTBInstance::doUpdate(bool only_prepare)
 	task->addTask(OneSixInstance::doUpdate(only_prepare));
 	task->addTask(std::shared_ptr<Task>(new OneSixFTBInstanceForge(m_forge->version(), this, this)));
 	return task;
-}
-
-MinecraftProcess *OneSixFTBInstance::prepareForLaunch(MojangAccountPtr account)
-{
-	I_D(OneSixInstance);
-
-	return OneSixInstance::prepareForLaunch(account);
 }
 
 #include "OneSixFTBInstance.moc"

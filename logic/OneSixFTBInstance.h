@@ -14,7 +14,6 @@ public:
 	virtual bool menuActionEnabled(QString action_name) const;
 
 	virtual std::shared_ptr<Task> doUpdate(bool only_prepare) override;
-	virtual MinecraftProcess *prepareForLaunch(MojangAccountPtr account) override;
 
 private:
 	std::shared_ptr<OneSixLibrary> m_forge;
