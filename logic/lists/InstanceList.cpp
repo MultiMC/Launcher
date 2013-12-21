@@ -308,57 +308,60 @@ InstanceList::InstListError InstanceList::loadList()
 
 	if (MMC->settings()->get("TrackFTBInstances").toBool() && MMC->minecraftlist()->isLoaded())
 	{
-		QDir dir;
-		QDir dataDir;
-#ifdef Q_OS_LINUX
-		dir = QDir(QDir::home().absoluteFilePath(".ftblauncher"));
-		dataDir = QDir(QDir::home().absoluteFilePath(".ftb"));
-#endif
-		dir.cd("ModPacks");
-		QFile f(dir.absoluteFilePath("modpacks.xml"));
-		if (f.open(QFile::ReadOnly))
+		QDir dir = QDir(MMC->settings()->get("FTBLauncherRoot").toString());
+		QDir dataDir = QDir(MMC->settings()->get("FTBRoot").toString());
+		if (!dir.exists() || !dataDir.exists())
 		{
-			QXmlStreamReader reader(&f);
-			while (!reader.atEnd())
+			QLOG_ERROR() << "You do not seem to have FTB installed. You can change the searched paths in the settings";
+		}
+		else
+		{
+			dir.cd("ModPacks");
+			QFile f(dir.absoluteFilePath("modpacks.xml"));
+			if (f.open(QFile::ReadOnly))
 			{
-				switch (reader.readNext())
+				QXmlStreamReader reader(&f);
+				while (!reader.atEnd())
 				{
-				case QXmlStreamReader::StartElement:
-				{
-					if (reader.name() == "modpack")
+					switch (reader.readNext())
 					{
-						QXmlStreamAttributes attrs = reader.attributes();
-						const QDir instanceDir = QDir(dataDir.absoluteFilePath(attrs.value("dir").toString()));
-						if (instanceDir.exists())
+					case QXmlStreamReader::StartElement:
+					{
+						if (reader.name() == "modpack")
 						{
-							const QString name = attrs.value("name").toString();
-							const QString iconKey = attrs.value("logo").toString().remove(QRegularExpression("\\..*"));
-							const QString mcVersion = attrs.value("mcVersion").toString();
-							const QString notes = attrs.value("description").toString();
-							QLOG_DEBUG() << dir.absoluteFilePath(attrs.value("logo").toString());
-							MMC->icons()->addIcon(iconKey, iconKey, dir.absoluteFilePath(attrs.value("dir").toString() + QDir::separator() + attrs.value("logo").toString()), true);
-
-							BaseInstance *instPtr = NULL;
-							auto error = InstanceFactory::get().createInstance(instPtr, MMC->minecraftlist()->findVersion(mcVersion), instanceDir.absolutePath(), InstanceFactory::FTBInstance);
-							if (instPtr && error == InstanceFactory::NoCreateError)
+							QXmlStreamAttributes attrs = reader.attributes();
+							const QDir instanceDir = QDir(dataDir.absoluteFilePath(attrs.value("dir").toString()));
+							if (instanceDir.exists())
 							{
-								instPtr->setGroupInitial("FTB");
-								instPtr->setName(name);
-								instPtr->setIconKey(iconKey);
-								instPtr->setIntendedVersionId(mcVersion);
-								instPtr->setNotes(notes);
+								const QString name = attrs.value("name").toString();
+								const QString iconKey = attrs.value("logo").toString().remove(QRegularExpression("\\..*"));
+								const QString mcVersion = attrs.value("mcVersion").toString();
+								const QString notes = attrs.value("description").toString();
+								QLOG_DEBUG() << dir.absoluteFilePath(attrs.value("logo").toString());
+								MMC->icons()->addIcon(iconKey, iconKey, dir.absoluteFilePath(attrs.value("dir").toString() + QDir::separator() + attrs.value("logo").toString()), true);
+
+								BaseInstance *instPtr = NULL;
+								auto error = InstanceFactory::get().createInstance(instPtr, MMC->minecraftlist()->findVersion(mcVersion), instanceDir.absolutePath(), InstanceFactory::FTBInstance);
+								if (instPtr && error == InstanceFactory::NoCreateError)
+								{
+									instPtr->setGroupInitial("FTB");
+									instPtr->setName(name);
+									instPtr->setIconKey(iconKey);
+									instPtr->setIntendedVersionId(mcVersion);
+									instPtr->setNotes(notes);
+								}
+								continueProcessInstance(instPtr, error, instanceDir, groupMap);
 							}
-							continueProcessInstance(instPtr, error, instanceDir, groupMap);
 						}
+						break;
 					}
-					break;
-				}
-				case QXmlStreamReader::EndElement:
-					break;
-				case QXmlStreamReader::Characters:
-					break;
-				default:
-					break;
+					case QXmlStreamReader::EndElement:
+						break;
+					case QXmlStreamReader::Characters:
+						break;
+					default:
+						break;
+					}
 				}
 			}
 		}
