@@ -310,9 +310,13 @@ InstanceList::InstListError InstanceList::loadList()
 	{
 		QDir dir = QDir(MMC->settings()->get("FTBLauncherRoot").toString());
 		QDir dataDir = QDir(MMC->settings()->get("FTBRoot").toString());
-		if (!dir.exists() || !dataDir.exists())
+		if (!dir.exists())
 		{
-			QLOG_INFO() << "You do not seem to have FTB installed. You can change the searched paths in the settings";
+			QLOG_INFO() << "The FTB launcher directory specified does not exist. Please check your settings.";
+		}
+		else if (!dataDir.exists())
+		{
+			QLOG_INFO() << "The FTB directory specified does not exist. Please check your settings";
 		}
 		else
 		{
