@@ -60,6 +60,32 @@ void SettingsDialog::updateCheckboxStuff()
 	ui->windowHeightSpinBox->setEnabled(!ui->maximizedCheckBox->isChecked());
 }
 
+void SettingsDialog::on_ftbLauncherBrowseBtn_clicked()
+{
+	QString raw_dir = QFileDialog::getExistingDirectory(this, tr("FTB Launcher Directory"),
+														ui->ftbLauncherBox->text());
+	QString cooked_dir = NormalizePath(raw_dir);
+
+	// do not allow current dir - it's dirty. Do not allow dirs that don't exist
+	if (!cooked_dir.isEmpty() && QDir(cooked_dir).exists())
+	{
+		ui->ftbLauncherBox->setText(cooked_dir);
+	}
+}
+
+void SettingsDialog::on_ftbBrowseBtn_clicked()
+{
+	QString raw_dir = QFileDialog::getExistingDirectory(this, tr("FTB Directory"),
+														ui->ftbBox->text());
+	QString cooked_dir = NormalizePath(raw_dir);
+
+	// do not allow current dir - it's dirty. Do not allow dirs that don't exist
+	if (!cooked_dir.isEmpty() && QDir(cooked_dir).exists())
+	{
+		ui->ftbBox->setText(cooked_dir);
+	}
+}
+
 void SettingsDialog::on_instDirBrowseBtn_clicked()
 {
 	QString raw_dir = QFileDialog::getExistingDirectory(this, tr("Instance Directory"),
@@ -135,6 +161,11 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	// Updates
 	s->set("AutoUpdate", ui->autoUpdateCheckBox->isChecked());
 
+	// FTB
+	s->set("TrackFTBInstances", ui->trackFtbBox->isChecked());
+	s->set("FTBLauncherRoot", ui->ftbLauncherBox->text());
+	s->set("FTBRoot", ui->ftbBox->text());
+
 	// Folders
 	// TODO: Offer to move instances to new instance folder.
 	s->set("InstanceDir", ui->instDirTextBox->text());
@@ -149,9 +180,6 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	s->set("LaunchMaximized", ui->maximizedCheckBox->isChecked());
 	s->set("MinecraftWinWidth", ui->windowWidthSpinBox->value());
 	s->set("MinecraftWinHeight", ui->windowHeightSpinBox->value());
-
-	// Auto Login
-	s->set("AutoLogin", ui->autoLoginCheckBox->isChecked());
 
 	// Memory
 	s->set("MinMemAlloc", ui->minMemSpinBox->value());
@@ -188,6 +216,11 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	ui->autoUpdateCheckBox->setChecked(s->get("AutoUpdate").toBool());
 	ui->devBuildsCheckBox->setChecked(s->get("UseDevBuilds").toBool());
 
+	// FTB
+	ui->trackFtbBox->setChecked(s->get("TrackFTBInstances").toBool());
+	ui->ftbLauncherBox->setText(s->get("FTBLauncherRoot").toString());
+	ui->ftbBox->setText(s->get("FTBRoot").toString());
+
 	// Folders
 	ui->instDirTextBox->setText(s->get("InstanceDir").toString());
 	ui->modsDirTextBox->setText(s->get("CentralModsDir").toString());
@@ -201,9 +234,6 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	ui->maximizedCheckBox->setChecked(s->get("LaunchMaximized").toBool());
 	ui->windowWidthSpinBox->setValue(s->get("MinecraftWinWidth").toInt());
 	ui->windowHeightSpinBox->setValue(s->get("MinecraftWinHeight").toInt());
-
-	// Auto Login
-	ui->autoLoginCheckBox->setChecked(s->get("AutoLogin").toBool());
 
 	// Memory
 	ui->minMemSpinBox->setValue(s->get("MinMemAlloc").toInt());

@@ -1,85 +1,95 @@
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
+# run the unit tests with `make test`
 find_package(Qt5 COMPONENTS Test Core Network Widgets)
 
-include_directories(..)
-
-add_definitions(-DMULTIMC_TEST)
+include_directories(${MMC_SRC})
 
 unset(MultiMC_TESTS)
 macro(add_unit_test name)
-    unset(srcs)
-    foreach(arg ${testname} ${ARGN})
-	list(APPEND srcs ${CMAKE_CURRENT_SOURCE_DIR}/${arg})
-    endforeach()
-    add_executable(tst_${name} ${srcs})
-    qt5_use_modules(tst_${name} Test Core Network Widgets)
-    target_link_libraries(tst_${name} MultiMC_common)
-    add_test(tst_${name} tst_${name})
-    list(APPEND MultiMC_TESTS tst_${name})
+	unset(srcs)
+	foreach(arg ${testname} ${ARGN})
+		list(APPEND srcs ${CMAKE_CURRENT_SOURCE_DIR}/${arg})
+	if (WIN32)
+		list(APPEND srcs ${CMAKE_CURRENT_SOURCE_DIR}/test.rc)
+	endif()
+	endforeach()
+	add_executable(tst_${name} ${srcs})
+	qt5_use_modules(tst_${name} Test Core Network Widgets)
+	target_link_libraries(tst_${name} MultiMC_common)
+	list(APPEND MultiMC_TESTS tst_${name})
+	add_test(NAME ${name} COMMAND tst_${name})
 endmacro()
 
-macro(add_unit_test2 name)
-    add_unit_test(${name} tst_${name}.cpp)
-endmacro()
+# Tests START #
 
-add_unit_test2(QuickMod)
-add_unit_test2(QuickModsList)
-add_unit_test2(ChooseQuickModVersionDialog)
+add_unit_test(pathutils tst_pathutils.cpp)
+add_unit_test(userutils tst_userutils.cpp)
+add_unit_test(UpdateChecker tst_UpdateChecker.cpp)
+add_unit_test(DownloadUpdateTask tst_DownloadUpdateTask.cpp)
+add_unit_test(QuickMod tst_QuickMod.cpp)
+add_unit_test(QuickModsList tst_QuickModsList.cpp)
+add_unit_test(ChooseQuickModVersionDialog tst_ChooseQuickModVersionDialog.cpp)
 
+# Tests END #
+	
 set(COVERAGE_SOURCE_DIRS
- ${SOURCE_ROOT}/logic/*
- ${SOURCE_ROOT}/logic/lists/*
- ${SOURCE_ROOT}/logic/net/*
- ${SOURCE_ROOT}/logic/tasks/*
- ${SOURCE_ROOT}/gui/*
- ${SOURCE_ROOT}/gui/dialogs/*
- ${SOURCE_ROOT}/gui/widgets/*
- ${SOURCE_ROOT}/depends/settings/include/*
- ${SOURCE_ROOT}/depends/settings/src/*
- ${SOURCE_ROOT}/depends/util/include/*
- ${SOURCE_ROOT}/depends/util/src/*
+ ${MMC_SRC}/logic/*
+ ${MMC_SRC}/logic/auth/*
+ ${MMC_SRC}/logic/auth/flows/*
+ ${MMC_SRC}/logic/lists/*
+ ${MMC_SRC}/logic/net/*
+ ${MMC_SRC}/logic/tasks/*
+ ${MMC_SRC}/gui/*
+ ${MMC_SRC}/gui/dialogs/*
+ ${MMC_SRC}/gui/widgets/*
+ ${MMC_SRC}/depends/settings/include/*
+ ${MMC_SRC}/depends/settings/src/*
+ ${MMC_SRC}/depends/util/include/*
+ ${MMC_SRC}/depends/util/src/*
 )
 
 if(MultiMC_CODE_COVERAGE)
-    unset(MultiMC_RUN_TESTS)
-    unset(MultiMC_TEST_COVERAGE_FILES)
+	unset(MultiMC_RUN_TESTS)
+	unset(MultiMC_TEST_COVERAGE_FILES)
 
-    foreach(test ${MultiMC_TESTS})
-	add_custom_target(MultiMC_RUN_TEST_${test}
-	 COMMAND lcov -d ${CMAKE_CURRENT_BINARY_DIR} -z -q # clean test
-		 && lcov -d ${BUILD_ROOT} -z -q # clean common
-		 && lcov -d ${BUILD_ROOT}/depends/settings/CMakeFiles/libSettings.dir -z -q # clean settings
-		 && lcov -d ${BUILD_ROOT}/depends/utils/CMakeFiles/libUtil.dir -z -q # clean utils
-		 && ${BUILD_ROOT}/${test} -o coverage_${test}.out,xml # run test
-		 && lcov -q --checksum -b ${SOURCE_ROOT} -d ${CMAKE_CURRENT_BINARY_DIR} -c -o coverage_${test}.info # generate for test
-		 && lcov -q --checksum -b ${SOURCE_ROOT} -d ${BUILD_ROOT} -c -o coverage_common.info # generate for common
-		 && lcov -q --checksum -b ${SOURCE_ROOT} -d ${BUILD_ROOT}/depends/settings/CMakeFiles/libSettings.dir -c -o coverage_settings.info # generate for settings
-		 && lcov -q --checksum -b ${SOURCE_ROOT} -d ${BUILD_ROOT}/depends/util/CMakeFiles/libUtil.dir -c -o coverage_utils.info # generate for utils
-		 && lcov -q --checksum -b ${SOURCE_ROOT} -d .
-		    -a coverage_${test}.info -a coverage_common.info -a coverage_settings.info -a coverage_utils.info
-		    -o coverage_${test}-combined.info # combine test and common
-		 && lcov -q --checksum -b ${SOURCE_ROOT} --list-full-path --extract coverage_${test}-combined.info ${COVERAGE_SOURCE_DIRS} -o coverage_${test}-stripped.info # strip
-	 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	 VERBATIM
-	 DEPENDS ${test}
-	 COMMENT "Running ${test}..."
+	foreach(test ${MultiMC_TESTS})
+		add_custom_target(MultiMC_RUN_TEST_${test}
+		 COMMAND lcov -d ${CMAKE_CURRENT_BINARY_DIR} -z -q # clean test
+				&& lcov -d ${MMC_BIN} -z -q # clean common
+				&& lcov -d ${MMC_BIN}/depends/settings/CMakeFiles/libSettings.dir -z -q # clean settings
+				&& lcov -d ${MMC_BIN}/depends/utils/CMakeFiles/libUtil.dir -z -q # clean utils
+				&& ${MMC_BIN}/${test} -o coverage_${test}.out,xml # run test
+				&& lcov -q --checksum -b ${MMC_SRC} -d ${CMAKE_CURRENT_BINARY_DIR} -c -o coverage_${test}.info # generate for test
+				&& lcov -q --checksum -b ${MMC_SRC} -d ${MMC_BIN} -c -o coverage_common.info # generate for common
+				&& lcov -q --checksum -b ${MMC_SRC} -d ${MMC_BIN}/depends/settings/CMakeFiles/libSettings.dir -c -o coverage_settings.info # generate for settings
+				&& lcov -q --checksum -b ${MMC_SRC} -d ${MMC_BIN}/depends/util/CMakeFiles/libUtil.dir -c -o coverage_utils.info # generate for utils
+				&& lcov -q --checksum -b ${MMC_SRC} -d .
+					-a coverage_${test}.info -a coverage_common.info -a coverage_settings.info -a coverage_utils.info
+					-o coverage_${test}-combined.info # combine test and common
+				&& lcov -q --checksum -b ${MMC_SRC} --list-full-path --extract coverage_${test}-combined.info ${COVERAGE_SOURCE_DIRS} -o coverage_${test}-stripped.info # strip
+		 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		 VERBATIM
+		 DEPENDS ${test}
+		 COMMENT "Running ${test}..."
+		)
+		list(APPEND MultiMC_TEST_COVERAGE_FILES coverage_${test}-stripped.info)
+		list(APPEND MultiMC_RUN_TESTS MultiMC_RUN_TEST_${test})
+	endforeach(test)
+
+	add_custom_target(MultiMC_GENERATE_COVERAGE
+	 DEPENDS ${MultiMC_RUN_TESTS}
+	 COMMENT "Generating coverage files..."
 	)
-	list(APPEND MultiMC_TEST_COVERAGE_FILES coverage_${test}-stripped.info)
-	list(APPEND MultiMC_RUN_TESTS MultiMC_RUN_TEST_${test})
-    endforeach(test)
-
-    add_custom_target(MultiMC_GENERATE_COVERAGE
-     DEPENDS ${MultiMC_RUN_TESTS}
-     COMMENT "Generating coverage files..."
-    )
-    add_custom_target(MultiMC_GENERATE_COVERAGE_HTML
-     COMMAND genhtml -t "MultiMC 5 Test Coverage" --num-spaces 4 --demangle-cpp --legend -o ${SOURCE_ROOT}/html/coverage ${MultiMC_TEST_COVERAGE_FILES}
-     DEPENDS MultiMC_GENERATE_COVERAGE
-     COMMENT "Generating test coverage html..."
-    )
-    add_custom_target(MultiMC_RUN_TESTS DEPENDS MultiMC_GENERATE_COVERAGE_HTML)
+	add_custom_target(MultiMC_GENERATE_COVERAGE_HTML
+	 COMMAND genhtml -t "MultiMC 5 Test Coverage" --num-spaces 4 --demangle-cpp --legend -o ${MMC_SRC}/html/coverage ${MultiMC_TEST_COVERAGE_FILES}
+	 DEPENDS MultiMC_GENERATE_COVERAGE
+	 COMMENT "Generating test coverage html..."
+	)
+	add_custom_target(MultiMC_RUN_TESTS DEPENDS MultiMC_GENERATE_COVERAGE_HTML)
 endif(MultiMC_CODE_COVERAGE)
 
-add_subdirectory(data)
+
+add_custom_target(MultiMC_Test_Data
+ ALL
+ COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/data
+ COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/data ${CMAKE_CURRENT_BINARY_DIR}/data
+)

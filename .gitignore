@@ -11,6 +11,7 @@ resources/MultiMCLauncher.jar
 *~
 html/
 *.swp
+html/
 
 # Ctags File
 tags

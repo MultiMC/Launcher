@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>622</height>
+    <height>637</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string/>
+   <string>Instance Settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -125,31 +125,6 @@
            <widget class="QCheckBox" name="autoCloseConsoleCheck">
             <property name="text">
              <string>Automatically close console when the game quits?</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="accountSettingsBox">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="title">
-          <string>Account Settings</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_6">
-          <item>
-           <widget class="QCheckBox" name="autoLoginCheckBox">
-            <property name="text">
-             <string>Login automatically when an instance icon is double clicked?</string>
             </property>
            </widget>
           </item>
@@ -411,7 +386,6 @@
   <tabstop>consoleSettingsBox</tabstop>
   <tabstop>showConsoleCheck</tabstop>
   <tabstop>autoCloseConsoleCheck</tabstop>
-  <tabstop>accountSettingsBox</tabstop>
   <tabstop>memoryGroupBox</tabstop>
   <tabstop>minMemSpinBox</tabstop>
   <tabstop>maxMemSpinBox</tabstop>

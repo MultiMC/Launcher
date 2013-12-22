@@ -17,6 +17,7 @@
 
 #include <QObject>
 #include <QAbstractListModel>
+#include <QSet>
 #include "categorizedsortfilterproxymodel.h"
 #include <QIcon>
 
@@ -24,13 +25,16 @@
 
 class BaseInstance;
 
+class QDir;
+
 class InstanceList : public QAbstractListModel
 {
 	Q_OBJECT
 private:
 	void loadGroupList(QMap<QString, QString> &groupList);
 
-private slots:
+private
+slots:
 	void saveGroupList();
 
 public:
@@ -64,11 +68,6 @@ public:
 	}
 
 	/*!
-	 * \brief Loads the instance list. Triggers notifications.
-	 */
-	InstListError loadList();
-
-	/*!
 	 * \brief Get the instance at index
 	 */
 	InstancePtr at(int i) const
@@ -96,12 +95,21 @@ public:
 	InstancePtr getInstanceById(QString id) const;
 
 	QModelIndex getInstanceIndexById(const QString &id) const;
+
+	// FIXME: instead of iterating through all instances and forming a set, keep the set around
+	QStringList getGroups();
 signals:
 	void dataIsInvalid();
 
 public
 slots:
 	void on_InstFolderChanged(const Setting &setting, QVariant value);
+
+	/*!
+	 * \brief Loads the instance list. Triggers notifications.
+	 */
+	InstListError loadList();
+	void loadForgeInstances(QMap<QString, QString> groupMap);
 
 private
 slots:
@@ -112,9 +120,13 @@ slots:
 private:
 	int getInstIndex(BaseInstance *inst) const;
 
+	void continueProcessInstance(BaseInstance *instPtr, const int error, const QDir &dir,
+								 QMap<QString, QString> &groupMap);
+
 protected:
 	QString m_instDir;
 	QList<InstancePtr> m_instances;
+	QSet<QString> m_groups;
 };
 
 class InstanceProxyModel : public KCategorizedSortFilterProxyModel
