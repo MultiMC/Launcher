@@ -70,6 +70,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	m_nemName = mod.value("nemName").toString();
 	m_modId = mod.value("modId").toString();
 	m_websiteUrl = QUrl(mod.value("websiteUrl").toString());
+	m_verifyUrl = QUrl(mod.value("verifyUrl").toString());
 	m_iconUrl = QUrl(mod.value("iconUrl").toString());
 	m_logoUrl = QUrl(mod.value("logoUrl").toString());
 	m_updateUrl = QUrl(mod.value("updateUrl").toString());
@@ -271,6 +272,7 @@ QuickModsList::QuickModsList(QObject *parent)
 	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)), m_settings(new INISettingsObject("quickmod.cfg", this))
 {
 	m_settings->registerSetting(new Setting("AvailableMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >())));
+	m_settings->registerSetting(new Setting("TrustedWebsites", QVariantList()));
 
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
 }
@@ -484,6 +486,25 @@ QString QuickModsList::existingModFile(QuickMod *mod, const int version) const
 	}
 	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
 	return mods[mod->modId()].toMap()[mod->version(version).name].toString();
+}
+
+bool QuickModsList::isWebsiteTrusted(const QUrl &url) const
+{
+	auto websites = m_settings->getSetting("TrustedWebsites")->get().toList();
+	return websites.contains(url.toString());
+}
+void QuickModsList::setWebsiteTrusted(const QUrl &url, const bool trusted)
+{
+	auto websites = m_settings->getSetting("TrustedWebsites")->get().toList();
+	if (trusted && !websites.contains(url.toString()))
+	{
+		websites.append(url.toString());
+	}
+	else if (!trusted)
+	{
+		websites.removeAll(url.toString());
+	}
+	m_settings->getSetting("TrustedWebsites")->set(websites);
 }
 
 void QuickModsList::registerMod(const QString &fileName)

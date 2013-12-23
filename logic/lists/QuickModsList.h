@@ -69,6 +69,7 @@ public:
 	QString name() const { return m_name; }
 	QString description() const { return m_description; }
 	QUrl websiteUrl() const { return m_websiteUrl; }
+	QUrl verifyUrl() const { return m_verifyUrl; }
 	QUrl iconUrl() const { return m_iconUrl; }
 	QIcon icon();
 	QUrl logoUrl() const { return m_logoUrl; }
@@ -82,6 +83,8 @@ public:
 	ModType type() const { return m_type; }
 	QList<Version> versions() const { return m_versions; }
 	bool isStub() const { return m_stub; }
+
+	QByteArray hash() const { return m_hash; }
 
 	int numVersions() const { return m_versions.size(); }
 	Version version(const int index) const { return m_versions.at(index); }
@@ -107,6 +110,7 @@ private:
 	QString m_name;
 	QString m_description;
 	QUrl m_websiteUrl;
+	QUrl m_verifyUrl;
 	QUrl m_iconUrl;
 	QIcon m_icon;
 	QUrl m_logoUrl;
@@ -120,6 +124,8 @@ private:
 	ModType m_type;
 	QList<Version> m_versions;
 	bool m_stub;
+
+	QByteArray m_hash;
 
 	void fetchImages();
 	QString fileName(const QUrl& url) const;
@@ -180,6 +186,9 @@ public:
 	bool isModMarkedAsExists(QuickMod *mod, const int version) const;
 	QString installedModFile(QuickMod *mod, const int version, BaseInstance *instance) const;
 	QString existingModFile(QuickMod *mod, const int version) const;
+
+	bool isWebsiteTrusted(const QUrl &url) const;
+	void setWebsiteTrusted(const QUrl &url, const bool trusted);
 
 public
 slots:

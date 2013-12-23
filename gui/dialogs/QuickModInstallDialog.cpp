@@ -14,8 +14,11 @@
 
 #include "gui/widgets/WebDownloadNavigator.h"
 #include "gui/dialogs/ChooseQuickModVersionDialog.h"
+#include "gui/dialogs/ProgressDialog.h"
 #include "logic/lists/QuickModsList.h"
 #include "logic/BaseInstance.h"
+#include "logic/net/ByteArrayDownload.h"
+#include "logic/net/NetJob.h"
 #include "MultiMC.h"
 #include "depends/settings/include/settingsobject.h"
 #include "depends/quazip/JlCompress.h"
@@ -104,50 +107,114 @@ bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 	}
 	m_pendingInstallations.append(mod->name());
 
-	ChooseQuickModVersionDialog dialog(this);
-	dialog.setCanCancel(isInitial);
-	dialog.setMod(mod, m_instance, versionFilter);
-	if (dialog.exec() == QDialog::Rejected)
+	auto secondStageAddMod = [this](QuickMod *mod, bool isInitial, const QString &versionFilter)
 	{
-		reject();
-		return false;
-	}
-
-	// TODO any installed version should prevent another version from being installed
-	if (MMC->quickmodslist()->isModMarkedAsInstalled(mod, dialog.version(), m_instance))
-	{
-		accept();
-		return false;
-	}
-
-	if (MMC->quickmodslist()->isModMarkedAsExists(mod, dialog.version()))
-	{
-		install(mod, dialog.version());
-		accept();
-		return false;
-	}
-
-	foreach (const QString &dep, mod->version(dialog.version()).dependencies.keys())
-	{
-		if (!m_pendingDependencyUrls.contains(mod->references()[dep]))
+		ChooseQuickModVersionDialog dialog(this);
+		dialog.setCanCancel(isInitial);
+		dialog.setMod(mod, m_instance, versionFilter);
+		if (dialog.exec() == QDialog::Rejected)
 		{
-			ui->dependencyLogEdit->appendHtml(QString("Fetching dependency URL %1...<br/>").arg(mod->references()[dep].toString(QUrl::PrettyDecoded)));
-			MMC->quickmodslist()->registerMod(mod->references()[dep]);
-			m_pendingDependencyUrls.append(mod->references()[dep]);
+			reject();
+			return false;
+		}
+
+		// TODO any installed version should prevent another version from being installed
+		if (MMC->quickmodslist()->isModMarkedAsInstalled(mod, dialog.version(), m_instance))
+		{
+			accept();
+			return false;
+		}
+
+		if (MMC->quickmodslist()->isModMarkedAsExists(mod, dialog.version()))
+		{
+			install(mod, dialog.version());
+			accept();
+			return false;
+		}
+
+		foreach (const QString &dep, mod->version(dialog.version()).dependencies.keys())
+		{
+			if (!m_pendingDependencyUrls.contains(mod->references()[dep]))
+			{
+				ui->dependencyLogEdit->appendHtml(QString("Fetching dependency URL %1...<br/>").arg(mod->references()[dep].toString(QUrl::PrettyDecoded)));
+				MMC->quickmodslist()->registerMod(mod->references()[dep]);
+				m_pendingDependencyUrls.append(mod->references()[dep]);
+			}
+		}
+
+		auto navigator = new WebDownloadNavigator(this);
+		connect(navigator, &WebDownloadNavigator::caughtUrl, this, &QuickModInstallDialog::urlCaught);
+		navigator->load(mod->version(dialog.version()).url);
+		m_webModMapping.insert(navigator, qMakePair(mod, dialog.version()));
+		m_stack->addWidget(navigator);
+
+		m_trackedMods.insert(mod, dialog.version());
+
+		show();
+		activateWindow();
+		return true;
+	};
+
+	if (mod->verifyUrl().isValid())
+	{
+		NetJobPtr job = NetJobPtr(new NetJob("Verify QuickMod file"));
+		ByteArrayDownloadPtr ptr = ByteArrayDownload::make(mod->verifyUrl());
+		job->addNetAction(ptr);
+		ProgressDialog dialog(this);
+		if (dialog.exec(job.get()) != QDialog::Accepted)
+		{
+			return false;
+		}
+		const QByteArray actual = ptr->m_data;
+		const QByteArray expected = mod->hash().toHex();
+		if (actual == expected)
+		{
+			if (!MMC->quickmodslist()->isWebsiteTrusted(mod->verifyUrl()))
+			{
+				QMessageBox box(this);
+				box.setWindowTitle(tr("Trust website?"));
+				box.setText(tr("The QuickMod %1 verifies against %2.\nTrust %2?")
+							.arg(mod->name(), mod->verifyUrl().host()));
+				box.setIcon(QMessageBox::Question);
+				QPushButton *once = box.addButton(tr("Once"), QMessageBox::AcceptRole);
+				QPushButton *always = box.addButton(tr("Always"), QMessageBox::AcceptRole);
+				QPushButton *no = box.addButton(QMessageBox::No);
+				box.setDefaultButton(always);
+				box.exec();
+				if (box.clickedButton() == no)
+				{
+					return false;
+				}
+				if (box.clickedButton() == always)
+				{
+					MMC->quickmodslist()->setWebsiteTrusted(mod->verifyUrl(), true);
+				}
+			}
+			return secondStageAddMod(mod, isInitial, versionFilter);
+		}
+		else
+		{
+			QMessageBox box(this);
+			box.setWindowTitle(tr("Trust website?"));
+			box.setText(tr("The QuickMod %1 does NOT verify against %2.")
+						.arg(mod->name(), mod->verifyUrl().host()));
+			box.setInformativeText(tr("You may add a one-time exception, but it's strictly recommended that you don't."));
+			box.setIcon(QMessageBox::Warning);
+			QPushButton *exception = box.addButton(tr("Add one-time exception"), QMessageBox::AcceptRole);
+			QPushButton *no = box.addButton(QMessageBox::No);
+			box.setDefaultButton(no);
+			box.exec();
+			if (box.clickedButton() == exception)
+			{
+				return secondStageAddMod(mod, isInitial, versionFilter);
+			}
+			return false;
 		}
 	}
-
-	auto navigator = new WebDownloadNavigator(this);
-	connect(navigator, &WebDownloadNavigator::caughtUrl, this, &QuickModInstallDialog::urlCaught);
-	navigator->load(mod->version(dialog.version()).url);
-	m_webModMapping.insert(navigator, qMakePair(mod, dialog.version()));
-	m_stack->addWidget(navigator);
-
-	m_trackedMods.insert(mod, dialog.version());
-
-	show();
-	activateWindow();
-	return true;
+	else
+	{
+		return secondStageAddMod(mod, isInitial, versionFilter);
+	}
 }
 
 void QuickModInstallDialog::urlCaught(QNetworkReply *reply)

@@ -111,6 +111,8 @@ void QuickModFilesUpdater::receivedMod(int notused)
 		return;
 	}
 
+	mod->m_hash = QCryptographicHash::hash(download->m_data, QCryptographicHash::Sha512);
+
 	m_quickmodDir.remove(fileName(mod));
 
 	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
