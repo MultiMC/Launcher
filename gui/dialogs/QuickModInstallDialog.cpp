@@ -248,6 +248,13 @@ void QuickModInstallDialog::downloadCompleted()
 	case QuickMod::ConfigPack:
 		Q_ASSERT_X(false, __func__, "Not implemented");
 		break;
+	case QuickMod::Group:
+		item->setText(3, tr("Sucess: Installed successfully"));
+		item->setData(3, Qt::ForegroundRole, QColor(Qt::green));
+
+		m_trackedMods.remove(mod);
+		checkForIsDone();
+		return;
 	}
 
 	QByteArray data = reply->readAll();
@@ -350,6 +357,8 @@ void QuickModInstallDialog::install(QuickMod *mod, const int versionIndex)
 	case QuickMod::ConfigPack:
 		Q_ASSERT_X(false, __func__, "Not implemented");
 		break;
+	case QuickMod::Group:
+		return;
 	}
 	const QString file = MMC->quickmodslist()->existingModFile(mod, versionIndex);
 	const QString dest = finalDir.absoluteFilePath(QFileInfo(file).fileName());
