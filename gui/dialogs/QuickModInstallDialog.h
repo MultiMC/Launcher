@@ -4,7 +4,8 @@
 #include <QMap>
 #include <QPair>
 
-namespace Ui {
+namespace Ui
+{
 class QuickModInstallDialog;
 }
 
@@ -24,7 +25,8 @@ public:
 
 public
 slots:
-	bool addMod(QuickMod* mod, bool isInitial = false, const QString &versionFilter = QString());
+	bool addMod(QuickMod *mod, bool isInitial = false,
+				const QString &versionFilter = QString());
 
 private
 slots:
@@ -46,7 +48,7 @@ private:
 	QList<QUrl> m_pendingDependencyUrls;
 	QList<QString> m_pendingInstallations;
 
-	QMap<WebDownloadNavigator *, QPair<QuickMod *, int> > m_webModMapping;
+	QMap<WebDownloadNavigator *, QPair<QuickMod *, int>> m_webModMapping;
 
 	void install(QuickMod *mod, const int versionIndex);
 };

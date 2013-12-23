@@ -30,13 +30,20 @@ public:
 	explicit AddQuickModFileDialog(QWidget *parent = 0);
 	~AddQuickModFileDialog();
 
-	enum Type { FileName, Url };
-	Type type() const { return m_type; }
+	enum Type
+	{
+		FileName,
+		Url
+	};
+	Type type() const
+	{
+		return m_type;
+	}
 	QString fileName() const;
 	QUrl url() const;
 
 private
-	slots:
+slots:
 	void on_addButton_clicked();
 	void on_browseButton_clicked();
 

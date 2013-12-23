@@ -81,12 +81,12 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		m_references.insert(key, QUrl(references[key].toString()));
 	}
 	m_categories.clear();
-	foreach (const QJsonValue& val, mod.value("categories").toArray())
+	foreach(const QJsonValue & val, mod.value("categories").toArray())
 	{
 		m_categories.append(val.toString());
 	}
 	m_tags.clear();
-	foreach (const QJsonValue& val, mod.value("tags").toArray())
+	foreach(const QJsonValue & val, mod.value("tags").toArray())
 	{
 		m_tags.append(val.toString());
 	}
@@ -116,7 +116,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		MALFORMED_JSON_X(tr("Unknown version type: %1").arg(modType));
 	}
 	m_versions.clear();
-	foreach (const QJsonValue& val, mod.value("versions").toArray())
+	foreach(const QJsonValue & val, mod.value("versions").toArray())
 	{
 		JSON_ASSERT(val.isObject());
 		QJsonObject ver = val.toObject();
@@ -187,19 +187,19 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 		}
 		version.forgeVersionFilter = ver.value("forgeCompatibility").toString();
 		version.compatibleVersions.clear();
-		foreach (const QJsonValue &val, ver.value("mcCompatibility").toArray())
+		foreach(const QJsonValue & val, ver.value("mcCompatibility").toArray())
 		{
 			version.compatibleVersions.append(val.toString());
 		}
 		version.dependencies.clear();
 		QJsonObject deps = ver.value("modDependencies").toObject();
-		foreach (const QString &mod, deps.keys())
+		foreach(const QString & mod, deps.keys())
 		{
 			version.dependencies.insert(mod, deps.value(mod).toString());
 		}
 		version.recommendations.clear();
 		QJsonObject recs = ver.value("modRecommendations").toObject();
-		foreach (const QString &mod, recs.keys())
+		foreach(const QString & mod, recs.keys())
 		{
 			version.recommendations.insert(mod, recs.value(mod).toString());
 		}
@@ -220,7 +220,7 @@ bool QuickMod::compare(const QuickMod *other) const
 
 void QuickMod::iconDownloadFinished(int index)
 {
-	auto download = qobject_cast<CacheDownload*>(sender());
+	auto download = qobject_cast<CacheDownload *>(sender());
 	m_icon = QIcon(download->m_target_path);
 	if (!m_icon.isNull())
 	{
@@ -229,7 +229,7 @@ void QuickMod::iconDownloadFinished(int index)
 }
 void QuickMod::logoDownloadFinished(int index)
 {
-	auto download = qobject_cast<CacheDownload*>(sender());
+	auto download = qobject_cast<CacheDownload *>(sender());
 	m_logo = QPixmap(download->m_target_path);
 	if (!m_logo.isNull())
 	{
@@ -243,14 +243,16 @@ void QuickMod::fetchImages()
 	bool download = false;
 	if (m_iconUrl.isValid() && m_icon.isNull())
 	{
-		auto icon = CacheDownload::make(m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
+		auto icon = CacheDownload::make(
+			m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
 		connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
 		job->addNetAction(icon);
 		download = true;
 	}
 	if (m_logoUrl.isValid() && m_logo.isNull())
 	{
-		auto logo = CacheDownload::make(m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
+		auto logo = CacheDownload::make(
+			m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
 		connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
 		job->addNetAction(logo);
 		download = true;
@@ -269,9 +271,11 @@ QString QuickMod::fileName(const QUrl &url) const
 }
 
 QuickModsList::QuickModsList(QObject *parent)
-	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)), m_settings(new INISettingsObject("quickmod.cfg", this))
+	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)),
+	  m_settings(new INISettingsObject("quickmod.cfg", this))
 {
-	m_settings->registerSetting(new Setting("AvailableMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >())));
+	m_settings->registerSetting(new Setting(
+		"AvailableMods", QVariant::fromValue(QMap<QString, QMap<QString, QString>>())));
 	m_settings->registerSetting(new Setting("TrustedWebsites", QVariantList()));
 
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
@@ -279,7 +283,6 @@ QuickModsList::QuickModsList(QObject *parent)
 
 QuickModsList::~QuickModsList()
 {
-
 }
 
 QHash<int, QByteArray> QuickModsList::roleNames() const
@@ -366,7 +369,10 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return mod->isStub();
 	case KCategorizedSortFilterProxyModel::CategoryDisplayRole:
 	case KCategorizedSortFilterProxyModel::CategorySortRole:
-		return mod->categories().isEmpty() ? "" : mod->categories().first(); // the first category is seen as the "primary" category
+		return mod->categories().isEmpty() ? "" : mod->categories().first(); // the first
+																			 // category is seen
+																			 // as the "primary"
+																			 // category
 	}
 
 	return QVariant();
@@ -436,7 +442,8 @@ void QuickModsList::markModAsExists(QuickMod *mod, const int version, const QStr
 	m_settings->getSetting("AvailableMods")->set(QVariant(mods));
 }
 
-void QuickModsList::markModAsInstalled(QuickMod *mod, const int version, const QString &fileName, BaseInstance *instance)
+void QuickModsList::markModAsInstalled(QuickMod *mod, const int version,
+									   const QString &fileName, BaseInstance *instance)
 {
 	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
 	auto map = mods[mod->modId()].toMap();
@@ -444,7 +451,8 @@ void QuickModsList::markModAsInstalled(QuickMod *mod, const int version, const Q
 	mods[mod->modId()] = map;
 	instance->settings().getSetting("InstalledMods")->set(QVariant(mods));
 }
-void QuickModsList::markModAsUninstalled(QuickMod *mod, const int version, BaseInstance *instance)
+void QuickModsList::markModAsUninstalled(QuickMod *mod, const int version,
+										 BaseInstance *instance)
 {
 	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
 	auto map = mods[mod->modId()].toMap();
@@ -459,17 +467,21 @@ void QuickModsList::markModAsUninstalled(QuickMod *mod, const int version, BaseI
 	}
 	instance->settings().set("InstalledMods", QVariant(mods));
 }
-bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const int version, BaseInstance *instance) const
+bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const int version,
+										   BaseInstance *instance) const
 {
 	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
-	return mods.contains(mod->modId()) && mods.value(mod->modId()).toMap().contains(mod->version(version).name);
+	return mods.contains(mod->modId()) &&
+		   mods.value(mod->modId()).toMap().contains(mod->version(version).name);
 }
 bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const int version) const
 {
 	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
-	return mods.contains(mod->modId()) && mods.value(mod->modId()).toMap().contains(mod->version(version).name);
+	return mods.contains(mod->modId()) &&
+		   mods.value(mod->modId()).toMap().contains(mod->version(version).name);
 }
-QString QuickModsList::installedModFile(QuickMod *mod, const int version, BaseInstance *instance) const
+QString QuickModsList::installedModFile(QuickMod *mod, const int version,
+										BaseInstance *instance) const
 {
 	if (!isModMarkedAsInstalled(mod, version, instance))
 	{
@@ -530,8 +542,10 @@ void QuickModsList::addMod(QuickMod *mod)
 	{
 		if (m_mods.at(i)->compare(mod))
 		{
-			disconnect(m_mods.at(i), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
-			disconnect(m_mods.at(i), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
+			disconnect(m_mods.at(i), &QuickMod::iconUpdated, this,
+					   &QuickModsList::modIconUpdated);
+			disconnect(m_mods.at(i), &QuickMod::logoUpdated, this,
+					   &QuickModsList::modLogoUpdated);
 			m_mods.replace(i, mod);
 
 			emit modAdded(mod);
@@ -576,13 +590,13 @@ void QuickModsList::removeMod(QuickMod *mod)
 
 void QuickModsList::modIconUpdated()
 {
-	auto mod = qobject_cast<QuickMod*>(sender());
+	auto mod = qobject_cast<QuickMod *>(sender());
 	auto modIndex = index(m_mods.indexOf(mod), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << Qt::DecorationRole << IconRole);
 }
 void QuickModsList::modLogoUpdated()
 {
-	auto mod = qobject_cast<QuickMod*>(sender());
+	auto mod = qobject_cast<QuickMod *>(sender());
 	auto modIndex = index(m_mods.indexOf(mod), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << LogoRole);
 }

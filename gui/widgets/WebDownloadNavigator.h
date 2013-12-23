@@ -15,13 +15,13 @@ public:
 
 public
 slots:
-	void load(const QUrl& url);
+	void load(const QUrl &url);
 
 signals:
-	void caughtUrl(QNetworkReply* reply);
+	void caughtUrl(QNetworkReply *reply);
 
 private:
-	QVBoxLayout* m_layout;
-	QWebView* m_view;
-	QProgressBar* m_bar;
+	QVBoxLayout *m_layout;
+	QWebView *m_view;
+	QProgressBar *m_bar;
 };

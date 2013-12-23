@@ -14,10 +14,9 @@
 
 #include "MultiMC.h"
 
-template<typename T>
-bool intersectLists(const QList<T> &l1, const QList<T> &l2)
+template <typename T> bool intersectLists(const QList<T> &l1, const QList<T> &l2)
 {
-	foreach (const T& item, l1)
+	foreach(const T & item, l1)
 	{
 		if (!l2.contains(item))
 		{
@@ -27,9 +26,9 @@ bool intersectLists(const QList<T> &l1, const QList<T> &l2)
 
 	return true;
 }
-bool listContainsSubstring(const QStringList& list, const QString& str)
+bool listContainsSubstring(const QStringList &list, const QString &str)
 {
-	foreach (const QString& item, list)
+	foreach(const QString & item, list)
 	{
 		if (item.contains(str))
 		{
@@ -54,11 +53,11 @@ public:
 	{
 		KCategorizedSortFilterProxyModel::setSourceModel(model);
 		connect(model, &QAbstractItemModel::modelReset, this, &ModFilterProxyModel::restort);
-		connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(restort()));
+		connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(restort()));
 		restort();
 	}
 
-	void setTags(const QStringList& tags)
+	void setTags(const QStringList &tags)
 	{
 		m_tags = tags;
 		invalidateFilter();
@@ -74,8 +73,12 @@ public:
 		invalidateFilter();
 	}
 
-private slots:
-	void restort() { sort(0); }
+private
+slots:
+	void restort()
+	{
+		sort(0);
+	}
 
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -96,7 +99,8 @@ protected:
 		}
 		if (!m_category.isEmpty())
 		{
-			if (!listContainsSubstring(index.data(QuickModsList::CategoriesRole).toStringList(), m_category))
+			if (!listContainsSubstring(index.data(QuickModsList::CategoriesRole).toStringList(),
+									   m_category))
 			{
 				return false;
 			}
@@ -128,7 +132,6 @@ class TagsValidator : public QValidator
 public:
 	TagsValidator(QObject *parent = 0) : QValidator(parent)
 	{
-
 	}
 
 protected:
@@ -139,13 +142,9 @@ protected:
 	}
 };
 
-ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance* instance, QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::ChooseInstallModDialog),
-	m_currentMod(0),
-	m_instance(instance),
-	m_view(new QListView(this)),
-	m_model(new ModFilterProxyModel(this))
+ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance *instance, QWidget *parent)
+	: QDialog(parent), ui(new Ui::ChooseInstallModDialog), m_currentMod(0),
+	  m_instance(instance), m_view(new QListView(this)), m_model(new ModFilterProxyModel(this))
 {
 	ui->setupUi(this);
 
@@ -156,12 +155,14 @@ ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance* instance, QWidget *
 	m_view->setSelectionBehavior(KCategorizedView::SelectRows);
 	m_view->setSelectionMode(KCategorizedView::SingleSelection);
 	// BUG using a KCategorizedView instead of a QListView creates crash
-	//m_view->setCategoryDrawer(new KCategoryDrawer(m_view));
+	// m_view->setCategoryDrawer(new KCategoryDrawer(m_view));
 	m_model->setSourceModel(MMC->quickmodslist().get());
 	m_view->setModel(m_model);
 
-	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ChooseInstallModDialog::modSelectionChanged);
-	connect(MMC->quickmodslist().get(), &QuickModsList::modsListChanged, this, &ChooseInstallModDialog::setupCategoryBox);
+	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+			&ChooseInstallModDialog::modSelectionChanged);
+	connect(MMC->quickmodslist().get(), &QuickModsList::modsListChanged, this,
+			&ChooseInstallModDialog::setupCategoryBox);
 
 	setupCategoryBox();
 }
@@ -179,8 +180,12 @@ void ChooseInstallModDialog::on_installButton_clicked()
 	}
 
 	QuickModInstallDialog dialog(m_instance, this);
-	if (dialog.addMod(m_view->selectionModel()->selectedRows().first()
-					  .data(QuickModsList::QuickModRole).value<QuickMod*>(), true))
+	if (dialog.addMod(m_view->selectionModel()
+						  ->selectedRows()
+						  .first()
+						  .data(QuickModsList::QuickModRole)
+						  .value<QuickMod *>(),
+					  true))
 	{
 		dialog.exec();
 	}
@@ -207,7 +212,8 @@ void ChooseInstallModDialog::on_fulltextEdit_textChanged()
 }
 void ChooseInstallModDialog::on_tagsEdit_textChanged()
 {
-	m_model->setTags(ui->tagsEdit->text().split(QRegularExpression(", {0,1}"), QString::SkipEmptyParts));
+	m_model->setTags(
+		ui->tagsEdit->text().split(QRegularExpression(", {0,1}"), QString::SkipEmptyParts));
 }
 void ChooseInstallModDialog::on_categoryBox_currentTextChanged()
 {
@@ -219,7 +225,8 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 {
 	if (m_currentMod)
 	{
-		disconnect(m_currentMod, &QuickMod::logoUpdated, this, &ChooseInstallModDialog::modLogoUpdated);
+		disconnect(m_currentMod, &QuickMod::logoUpdated, this,
+				   &ChooseInstallModDialog::modLogoUpdated);
 	}
 
 	if (selected.isEmpty())
@@ -235,13 +242,13 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 	else
 	{
 		m_currentMod = m_model->index(selected.first().top(), 0)
-				.data(QuickModsList::QuickModRole)
-				.value<QuickMod *>();
+						   .data(QuickModsList::QuickModRole)
+						   .value<QuickMod *>();
 		ui->nameLabel->setText(m_currentMod->name());
 		ui->descriptionLabel->setText(m_currentMod->description());
-		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>")
-									  .arg(m_currentMod->websiteUrl().toString(QUrl::FullyEncoded),
-										   m_currentMod->websiteUrl().toString(QUrl::PrettyDecoded)));
+		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>").arg(
+			m_currentMod->websiteUrl().toString(QUrl::FullyEncoded),
+			m_currentMod->websiteUrl().toString(QUrl::PrettyDecoded)));
 		QStringList categories;
 		foreach(const QString & category, m_currentMod->categories())
 		{
@@ -256,7 +263,8 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 		ui->tagsLabel->setText(tags.join(", "));
 		ui->logoLabel->setPixmap(m_currentMod->logo());
 
-		connect(m_currentMod, &QuickMod::logoUpdated, this, &ChooseInstallModDialog::modLogoUpdated);
+		connect(m_currentMod, &QuickMod::logoUpdated, this,
+				&ChooseInstallModDialog::modLogoUpdated);
 	}
 }
 

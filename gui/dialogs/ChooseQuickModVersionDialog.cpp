@@ -6,9 +6,8 @@
 #include "logic/lists/QuickModsList.h"
 #include "logic/BaseInstance.h"
 
-ChooseQuickModVersionDialog::ChooseQuickModVersionDialog(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::ChooseQuickModVersionDialog)
+ChooseQuickModVersionDialog::ChooseQuickModVersionDialog(QWidget *parent)
+	: QDialog(parent), ui(new Ui::ChooseQuickModVersionDialog)
 {
 	ui->setupUi(this);
 }
@@ -20,10 +19,11 @@ ChooseQuickModVersionDialog::~ChooseQuickModVersionDialog()
 
 int ChooseQuickModVersionDialog::exec()
 {
-	QList<QTreeWidgetItem*> versions;
+	QList<QTreeWidgetItem *> versions;
 	for (int i = 0; i < ui->versionsWidget->invisibleRootItem()->childCount(); ++i)
 	{
-		if (ui->versionsWidget->invisibleRootItem()->child(i)->flags().testFlag(Qt::ItemIsSelectable))
+		if (ui->versionsWidget->invisibleRootItem()->child(i)->flags().testFlag(
+				Qt::ItemIsSelectable))
 		{
 			versions.append(ui->versionsWidget->invisibleRootItem()->child(i));
 		}
@@ -45,18 +45,20 @@ void ChooseQuickModVersionDialog::setCanCancel(bool canCancel)
 {
 	ui->cancelButton->setEnabled(canCancel);
 }
-void ChooseQuickModVersionDialog::setMod(const QuickMod *mod, const BaseInstance* instance, const QString &versionFilter)
+void ChooseQuickModVersionDialog::setMod(const QuickMod *mod, const BaseInstance *instance,
+										 const QString &versionFilter)
 {
 	ui->versionsWidget->clear();
 
 	for (int i = 0; i < mod->numVersions(); ++i)
 	{
 		const QuickMod::Version version = mod->version(i);
-		QTreeWidgetItem* item = new QTreeWidgetItem(ui->versionsWidget);
+		QTreeWidgetItem *item = new QTreeWidgetItem(ui->versionsWidget);
 		item->setText(0, version.name);
 		item->setText(1, version.compatibleVersions.join(", "));
 		item->setData(0, Qt::UserRole, i);
-		if (version.compatibleVersions.contains(instance->currentVersionId()) && versionIsInFilter(version.name, versionFilter))
+		if (version.compatibleVersions.contains(instance->currentVersionId()) &&
+			versionIsInFilter(version.name, versionFilter))
 		{
 			item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 		}
@@ -74,7 +76,8 @@ int ChooseQuickModVersionDialog::version() const
 	return ui->versionsWidget->selectedItems().first()->data(0, Qt::UserRole).toInt();
 }
 
-bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version, const QString &filter)
+bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version,
+													const QString &filter)
 {
 	if (filter.isEmpty())
 	{
@@ -86,7 +89,8 @@ bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version, cons
 	}
 
 	// Interval notation is used
-	QRegularExpression exp("(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)])");
+	QRegularExpression exp(
+		"(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)])");
 	QRegularExpressionMatch match = exp.match(filter);
 	if (match.hasMatch())
 	{

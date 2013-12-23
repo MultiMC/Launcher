@@ -90,7 +90,7 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 
 void QuickModFilesUpdater::receivedMod(int notused)
 {
-	ByteArrayDownload *download = qobject_cast<ByteArrayDownload*>(sender());
+	ByteArrayDownload *download = qobject_cast<ByteArrayDownload *>(sender());
 
 	if (download->m_content_type.startsWith("application/x-quickmod-index"))
 	{
@@ -120,7 +120,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	{
 		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
 		emit error(
-					tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
+			tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
 		return;
 	}
 	file.write(download->m_data);
@@ -132,7 +132,8 @@ void QuickModFilesUpdater::receivedMod(int notused)
 void QuickModFilesUpdater::failedMod(int index)
 {
 	auto download = qobject_cast<ByteArrayDownload *>(sender());
-	emit error(tr("Error downloading %1: %2").arg(download->m_url.toString(QUrl::PrettyDecoded), download->m_errorString));
+	emit error(tr("Error downloading %1: %2").arg(download->m_url.toString(QUrl::PrettyDecoded),
+												  download->m_errorString));
 }
 
 void QuickModFilesUpdater::get(const QUrl &url)
@@ -148,8 +149,8 @@ void QuickModFilesUpdater::get(const QUrl &url)
 void QuickModFilesUpdater::readModFiles()
 {
 	m_list->clearMods();
-	foreach(const QFileInfo& info,
-			  m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
+	foreach(const QFileInfo & info,
+			m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
 	{
 		auto mod = new QuickMod;
 		if (parseQuickMod(info.absoluteFilePath(), mod))
@@ -205,7 +206,8 @@ QString QuickModFilesUpdater::fileName(const QuickMod *mod)
 	}
 	else
 	{
-		return QString("mod_%1_quickmod.json").arg(mod->modId().isNull() ? mod->name() : mod->modId());
+		return QString("mod_%1_quickmod.json")
+			.arg(mod->modId().isNull() ? mod->name() : mod->modId());
 	}
 }
 
@@ -216,8 +218,8 @@ bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickMod *mod)
 	if (!file.open(QFile::ReadOnly))
 	{
 		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
-		emit error(tr("Error opening %1 for reading: %2")
-				   .arg(file.fileName(), file.errorString()));
+		emit error(
+			tr("Error opening %1 for reading: %2").arg(file.fileName(), file.errorString()));
 		return false;
 	}
 

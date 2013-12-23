@@ -30,15 +30,19 @@ public:
 
 	struct Version
 	{
-		Version() {}
-		Version(const QString &name,
-				const QUrl &url,
-				const QStringList &mc,
+		Version()
+		{
+		}
+		Version(const QString &name, const QUrl &url, const QStringList &mc,
 				const QString &forge = QString(),
 				const QMap<QString, QString> &deps = QMap<QString, QString>(),
 				const QMap<QString, QString> &recs = QMap<QString, QString>(),
-				const QByteArray &checksum = QByteArray()) :
-			name(name), url(url), compatibleVersions(mc), forgeVersionFilter(forge), dependencies(deps), recommendations(recs), checksum_algorithm(QCryptographicHash::Md5), checksum(checksum) {}
+				const QByteArray &checksum = QByteArray())
+			: name(name), url(url), compatibleVersions(mc), forgeVersionFilter(forge),
+			  dependencies(deps), recommendations(recs),
+			  checksum_algorithm(QCryptographicHash::Md5), checksum(checksum)
+		{
+		}
 		QString name;
 		QUrl url;
 		QStringList compatibleVersions;
@@ -51,13 +55,11 @@ public:
 
 		bool operator==(const Version &other) const
 		{
-			return name == other.name &&
-					url == other.url &&
-					compatibleVersions == other.compatibleVersions &&
-					forgeVersionFilter == other.forgeVersionFilter &&
-					dependencies == other.dependencies &&
-					recommendations == other.recommendations &&
-					checksum == other.checksum;
+			return name == other.name && url == other.url &&
+				   compatibleVersions == other.compatibleVersions &&
+				   forgeVersionFilter == other.forgeVersionFilter &&
+				   dependencies == other.dependencies &&
+				   recommendations == other.recommendations && checksum == other.checksum;
 		}
 	};
 
@@ -66,28 +68,82 @@ public:
 		return !m_name.isEmpty();
 	}
 
-	QString name() const { return m_name; }
-	QString description() const { return m_description; }
-	QUrl websiteUrl() const { return m_websiteUrl; }
-	QUrl verifyUrl() const { return m_verifyUrl; }
-	QUrl iconUrl() const { return m_iconUrl; }
+	QString name() const
+	{
+		return m_name;
+	}
+	QString description() const
+	{
+		return m_description;
+	}
+	QUrl websiteUrl() const
+	{
+		return m_websiteUrl;
+	}
+	QUrl verifyUrl() const
+	{
+		return m_verifyUrl;
+	}
+	QUrl iconUrl() const
+	{
+		return m_iconUrl;
+	}
 	QIcon icon();
-	QUrl logoUrl() const { return m_logoUrl; }
+	QUrl logoUrl() const
+	{
+		return m_logoUrl;
+	}
 	QPixmap logo();
-	QUrl updateUrl() const { return m_updateUrl; }
-	QMap<QString, QUrl> references() const { return m_references; }
-	QString nemName() const { return m_nemName; }
-	QString modId() const { return m_modId; }
-	QStringList categories() const { return m_categories; }
-	QStringList tags() const { return m_tags; }
-	ModType type() const { return m_type; }
-	QList<Version> versions() const { return m_versions; }
-	bool isStub() const { return m_stub; }
+	QUrl updateUrl() const
+	{
+		return m_updateUrl;
+	}
+	QMap<QString, QUrl> references() const
+	{
+		return m_references;
+	}
+	QString nemName() const
+	{
+		return m_nemName;
+	}
+	QString modId() const
+	{
+		return m_modId;
+	}
+	QStringList categories() const
+	{
+		return m_categories;
+	}
+	QStringList tags() const
+	{
+		return m_tags;
+	}
+	ModType type() const
+	{
+		return m_type;
+	}
+	QList<Version> versions() const
+	{
+		return m_versions;
+	}
+	bool isStub() const
+	{
+		return m_stub;
+	}
 
-	QByteArray hash() const { return m_hash; }
+	QByteArray hash() const
+	{
+		return m_hash;
+	}
 
-	int numVersions() const { return m_versions.size(); }
-	Version version(const int index) const { return m_versions.at(index); }
+	int numVersions() const
+	{
+		return m_versions.size();
+	}
+	Version version(const int index) const
+	{
+		return m_versions.at(index);
+	}
 
 	bool parse(const QByteArray &data, QString *errorMessage = 0);
 
@@ -128,9 +184,9 @@ private:
 	QByteArray m_hash;
 
 	void fetchImages();
-	QString fileName(const QUrl& url) const;
+	QString fileName(const QUrl &url) const;
 };
-Q_DECLARE_METATYPE(QuickMod*)
+Q_DECLARE_METATYPE(QuickMod *)
 Q_DECLARE_METATYPE(QuickMod::Version)
 
 class QuickModsList : public QAbstractListModel
@@ -173,14 +229,21 @@ public:
 	Qt::DropActions supportedDropActions() const;
 	Qt::DropActions supportedDragActions() const;
 
-	int numMods() const { return m_mods.size(); }
-	QuickMod *modAt(const int index) const { return m_mods[index]; }
+	int numMods() const
+	{
+		return m_mods.size();
+	}
+	QuickMod *modAt(const int index) const
+	{
+		return m_mods[index];
+	}
 
 	void modAddedBy(const Mod &mod, BaseInstance *instance);
 	void modRemovedBy(const Mod &mod, BaseInstance *instance);
 
 	void markModAsExists(QuickMod *mod, const int version, const QString &fileName);
-	void markModAsInstalled(QuickMod *mod, const int version, const QString &fileName, BaseInstance *instance);
+	void markModAsInstalled(QuickMod *mod, const int version, const QString &fileName,
+							BaseInstance *instance);
 	void markModAsUninstalled(QuickMod *mod, const int version, BaseInstance *instance);
 	bool isModMarkedAsInstalled(QuickMod *mod, const int version, BaseInstance *instance) const;
 	bool isModMarkedAsExists(QuickMod *mod, const int version) const;

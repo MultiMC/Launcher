@@ -2,7 +2,8 @@
 
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
 class ChooseQuickModVersionDialog;
 }
 
@@ -20,7 +21,8 @@ public:
 	int exec();
 
 	void setCanCancel(bool canCancel);
-	void setMod(const QuickMod* mod, const BaseInstance *instance, const QString &versionFilter);
+	void setMod(const QuickMod *mod, const BaseInstance *instance,
+				const QString &versionFilter);
 
 	int version() const;
 
