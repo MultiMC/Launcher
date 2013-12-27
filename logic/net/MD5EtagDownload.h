@@ -31,12 +31,14 @@ public:
 	QString m_target_path;
 	/// this is the output file, if any
 	QFile m_output_file;
+	/// allow http pipeline? (useful for loads of dl's from the same source)
+	bool m_pipeline;
 
 public:
-	explicit MD5EtagDownload(QUrl url, QString target_path);
-	static Md5EtagDownloadPtr make(QUrl url, QString target_path)
+	explicit MD5EtagDownload(QUrl url, QString target_path, const bool pipeline = false);
+	static Md5EtagDownloadPtr make(QUrl url, QString target_path, const bool pipeline = false)
 	{
-		return Md5EtagDownloadPtr(new MD5EtagDownload(url, target_path));
+		return Md5EtagDownloadPtr(new MD5EtagDownload(url, target_path, pipeline));
 	}
 protected
 slots:

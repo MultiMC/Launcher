@@ -240,7 +240,7 @@ void OneSixUpdate::assetIndexFinished()
 		{
 			auto objectDL = MD5EtagDownload::make(
 				QUrl("http://" + URLConstants::RESOURCE_BASE + objectName),
-				objectFile.filePath());
+				objectFile.filePath(), true);
 			objectDL->m_total_progress = object.size;
 			dls.append(objectDL);
 		}
@@ -304,7 +304,7 @@ void OneSixUpdate::jarlibStart()
 
 		auto metacache = MMC->metacache();
 		auto entry = metacache->resolveEntry("versions", localPath);
-		job->addNetAction(CacheDownload::make(QUrl(urlstr), entry));
+		job->addNetAction(CacheDownload::make(QUrl(urlstr), entry, true));
 
 		jarlibDownloadJob.reset(job);
 	}
@@ -334,7 +334,7 @@ void OneSixUpdate::jarlibStart()
 			}
 			else
 			{
-				jarlibDownloadJob->addNetAction(CacheDownload::make(dl, entry));
+				jarlibDownloadJob->addNetAction(CacheDownload::make(dl, entry, true));
 			}
 		}
 	}
