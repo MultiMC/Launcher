@@ -19,7 +19,8 @@
 #include <QCryptographicHash>
 #include "logger/QsLog.h"
 
-MD5EtagDownload::MD5EtagDownload(QUrl url, QString target_path) : NetAction()
+MD5EtagDownload::MD5EtagDownload(QUrl url, QString target_path, const bool pipeline)
+	: NetAction(), m_pipeline(pipeline)
 {
 	m_url = url;
 	m_target_path = target_path;
@@ -74,6 +75,7 @@ void MD5EtagDownload::start()
 		QLOG_INFO() << "Expecting " << m_expected_md5;
 
 	request.setHeader(QNetworkRequest::UserAgentHeader, "MultiMC/5.0 (Uncached)");
+	request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, m_pipeline);
 
 	// Go ahead and try to open the file.
 	// If we don't do this, empty files won't be created, which breaks the updater.
