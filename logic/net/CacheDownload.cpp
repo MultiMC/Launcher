@@ -22,8 +22,8 @@
 #include <QDateTime>
 #include "logger/QsLog.h"
 
-CacheDownload::CacheDownload(QUrl url, MetaEntryPtr entry)
-	: NetAction(), md5sum(QCryptographicHash::Md5)
+CacheDownload::CacheDownload(const QUrl &url, const MetaEntryPtr &entry, const bool pipeline)
+	: NetAction(), md5sum(QCryptographicHash::Md5), m_pipeline(pipeline)
 {
 	m_url = url;
 	m_entry = entry;
@@ -54,6 +54,8 @@ void CacheDownload::start()
 		request.setRawHeader(QString("If-None-Match").toLatin1(), m_entry->etag.toLatin1());
 
 	request.setHeader(QNetworkRequest::UserAgentHeader, "MultiMC/5.0 (Cached)");
+
+	request.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, m_pipeline);
 
 	auto worker = MMC->qnam();
 	QNetworkReply *rep = worker->get(request);

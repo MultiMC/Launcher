@@ -32,12 +32,16 @@ public:
 	QFile m_output_file;
 	/// the hash-as-you-download
 	QCryptographicHash md5sum;
+	/// allow http pipeline? (useful for loads of dl's from the same source)
+	bool m_pipeline;
 
 public:
-	explicit CacheDownload(QUrl url, MetaEntryPtr entry);
-	static CacheDownloadPtr make(QUrl url, MetaEntryPtr entry)
+	explicit CacheDownload(const QUrl &url, const MetaEntryPtr &entry,
+						   const bool pipeline = false);
+	static CacheDownloadPtr make(const QUrl &url, const MetaEntryPtr &entry,
+								 const bool pipeline = false)
 	{
-		return CacheDownloadPtr(new CacheDownload(url, entry));
+		return CacheDownloadPtr(new CacheDownload(url, entry, pipeline));
 	}
 
 protected
