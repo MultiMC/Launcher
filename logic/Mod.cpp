@@ -57,7 +57,7 @@ void Mod::repath(const QFileInfo &file)
 			m_enabled = true;
 		}
 		m_mmc_id = name_base;
-		if (name_base.endsWith(".zip") || name_base.endsWith(".jar"))
+		if (name_base.endsWith(".zip") || name_base.endsWith(".jar") || name_base.endsWith(".litemod"))
 		{
 			m_type = MOD_ZIPFILE;
 			name_base.chop(4);
