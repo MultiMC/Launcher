@@ -66,7 +66,7 @@ void DownloadUpdateTask::processChannels()
 		if (channel.id == channelId)
 		{
 			QLOG_INFO() << "Found matching channel.";
-			m_cRepoUrl = preparePath(channel.url);
+			m_cRepoUrl = fixPathForTests(channel.url);
 			break;
 		}
 	}
@@ -77,7 +77,7 @@ void DownloadUpdateTask::processChannels()
 
 void DownloadUpdateTask::findCurrentVersionInfo()
 {
-	setStatus(tr("Finding information about the current version."));
+	setStatus(tr("Finding information about the current version..."));
 
 	auto checker = MMC->updateChecker();
 
@@ -98,7 +98,7 @@ void DownloadUpdateTask::findCurrentVersionInfo()
 
 void DownloadUpdateTask::loadVersionInfo()
 {
-	setStatus(tr("Loading version information."));
+	setStatus(tr("Loading version information..."));
 
 	// Create the net job for loading version info.
 	NetJob *netJob = new NetJob("Version Info");
@@ -153,10 +153,8 @@ void DownloadUpdateTask::vinfoDownloadFailed()
 
 void DownloadUpdateTask::parseDownloadedVersionInfo()
 {
-	setStatus(tr("Reading file lists."));
-
-	setStatus(tr("Reading file list for new version."));
-	QLOG_DEBUG() << "Reading file list for new version.";
+	setStatus(tr("Reading file list for new version..."));
+	QLOG_DEBUG() << "Reading file list for new version...";
 	QString error;
 	if (!parseVersionInfo(
 			 std::dynamic_pointer_cast<ByteArrayDownload>(m_vinfoNetJob->first())->m_data,
@@ -170,8 +168,8 @@ void DownloadUpdateTask::parseDownloadedVersionInfo()
 	// info.
 	if (m_vinfoNetJob->size() >= 2 && m_vinfoNetJob->operator[](1)->m_status != Job_Failed)
 	{
-		setStatus(tr("Reading file list for current version."));
-		QLOG_DEBUG() << "Reading file list for current version.";
+		setStatus(tr("Reading file list for current version..."));
+		QLOG_DEBUG() << "Reading file list for current version...";
 		QString error;
 		parseVersionInfo(
 			std::dynamic_pointer_cast<ByteArrayDownload>(m_vinfoNetJob->operator[](1))->m_data,
@@ -209,9 +207,17 @@ bool DownloadUpdateTask::parseVersionInfo(const QByteArray &data, VersionFileLis
 	{
 		QJsonObject fileObj = fileValue.toObject();
 
-		VersionFileEntry file{
-			fileObj.value("Path").toString(), fileObj.value("Perms").toVariant().toInt(),
-			FileSourceList(),				 fileObj.value("MD5").toString(), };
+		QString file_path = fileObj.value("Path").toString();
+#ifdef Q_OS_MAC
+		// On OSX, the paths for the updater need to be fixed.
+		// basically, anything that isn't in the .app folder is ignored.
+		// everything else is changed so the code that processes the files actually finds
+		// them and puts the replacements in the right spots.
+		if (!fixPathForOSX(file_path))
+			continue;
+#endif
+		VersionFileEntry file{file_path,		fileObj.value("Perms").toVariant().toInt(),
+							  FileSourceList(), fileObj.value("MD5").toString(), };
 		QLOG_DEBUG() << "File" << file.path << "with perms" << file.mode;
 
 		QJsonArray sourceArray = fileObj.value("Sources").toArray();
@@ -223,13 +229,13 @@ bool DownloadUpdateTask::parseVersionInfo(const QByteArray &data, VersionFileLis
 			if (type == "http")
 			{
 				file.sources.append(
-					FileSource("http", preparePath(sourceObj.value("Url").toString())));
+					FileSource("http", fixPathForTests(sourceObj.value("Url").toString())));
 			}
 			else if (type == "httpc")
 			{
-				file.sources.append(FileSource("httpc",
-											   preparePath(sourceObj.value("Url").toString()),
-											   sourceObj.value("CompressionType").toString()));
+				file.sources.append(
+					FileSource("httpc", fixPathForTests(sourceObj.value("Url").toString()),
+							   sourceObj.value("CompressionType").toString()));
 			}
 			else
 			{
@@ -278,7 +284,7 @@ DownloadUpdateTask::processFileLists(NetJob *job,
 									 const DownloadUpdateTask::VersionFileList &newVersion,
 									 DownloadUpdateTask::UpdateOperationList &ops)
 {
-	setStatus(tr("Processing file lists. Figuring out how to install the update."));
+	setStatus(tr("Processing file lists - figuring out how to install the update..."));
 
 	// First, if we've loaded the current version's file list, we need to iterate through it and
 	// delete anything in the current one version's list that isn't in the new version's list.
@@ -377,6 +383,9 @@ DownloadUpdateTask::processFileLists(NetJob *job,
 		// yep. this file actually needs an upgrade. PROCEED.
 		QLOG_DEBUG() << "Found file" << entry.path << " that needs updating.";
 
+		// if it's the updater we want to treat it separately
+		bool isUpdater = entry.path.endsWith("updater") || entry.path.endsWith("updater.exe");
+
 		// Go through the sources list and find one to use.
 		// TODO: Make a NetAction that takes a source list and tries each of them until one
 		// works. For now, we'll just use the first http one.
@@ -391,17 +400,25 @@ DownloadUpdateTask::processFileLists(NetJob *job,
 				QString dlPath =
 					PathCombine(m_updateFilesDir.path(), QString(entry.path).replace("/", "_"));
 
-				if (job)
+				if (isUpdater)
+				{
+					auto cache_entry = MMC->metacache()->resolveEntry("root", entry.path);
+					QLOG_DEBUG() << "Updater will be in " << cache_entry->getFullPath();
+					if(cache_entry->stale)
+					{
+						auto download = CacheDownload::make(QUrl(source.url), cache_entry);
+						job->addNetAction(download);
+					}
+				}
+				else
 				{
 					// We need to download the file to the updatefiles folder and add a task
 					// to copy it to its install path.
 					auto download = MD5EtagDownload::make(source.url, dlPath);
 					download->m_expected_md5 = entry.md5;
 					job->addNetAction(download);
+					ops.append(UpdateOperation::CopyOp(dlPath, entry.path, entry.mode));
 				}
-
-				// Now add a copy operation to our operations list to install the file.
-				ops.append(UpdateOperation::CopyOp(dlPath, entry.path, entry.mode));
 			}
 		}
 	}
@@ -428,9 +445,6 @@ bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QStrin
 	{
 		QDomElement file = doc.createElement("file");
 
-		QString native_file = QDir::toNativeSeparators(op.file);
-		QString native_dest = QDir::toNativeSeparators(op.dest);
-
 		switch (op.type)
 		{
 		case UpdateOperation::OP_COPY:
@@ -439,8 +453,8 @@ bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QStrin
 			QDomElement name = doc.createElement("source");
 			QDomElement path = doc.createElement("dest");
 			QDomElement mode = doc.createElement("mode");
-			name.appendChild(doc.createTextNode(native_file));
-			path.appendChild(doc.createTextNode(native_dest));
+			name.appendChild(doc.createTextNode(op.file));
+			path.appendChild(doc.createTextNode(op.dest));
 			// We need to add a 0 at the beginning here, because Qt doesn't convert to octal
 			// correctly.
 			mode.appendChild(doc.createTextNode("0" + QString::number(op.mode, 8)));
@@ -448,16 +462,16 @@ bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QStrin
 			file.appendChild(path);
 			file.appendChild(mode);
 			installFiles.appendChild(file);
-			QLOG_DEBUG() << "Will install file" << native_file;
+			QLOG_DEBUG() << "Will install file " << op.file << " to " << op.dest;
 		}
 		break;
 
 		case UpdateOperation::OP_DELETE:
 		{
 			// Delete the file.
-			file.appendChild(doc.createTextNode(native_file));
+			file.appendChild(doc.createTextNode(op.file));
 			removeFiles.appendChild(file);
-			QLOG_DEBUG() << "Will remove file" << native_file;
+			QLOG_DEBUG() << "Will remove file" << op.file;
 		}
 		break;
 
@@ -484,15 +498,31 @@ bool DownloadUpdateTask::writeInstallScript(UpdateOperationList &opsList, QStrin
 	return true;
 }
 
-QString DownloadUpdateTask::preparePath(const QString &path)
+QString DownloadUpdateTask::fixPathForTests(const QString &path)
 {
-	if(path.startsWith("$PWD"))
+	if (path.startsWith("$PWD"))
 	{
 		QString foo = path;
 		foo.replace("$PWD", qApp->applicationDirPath());
 		return QUrl::fromLocalFile(foo).toString(QUrl::FullyEncoded);
 	}
 	return path;
+}
+
+bool DownloadUpdateTask::fixPathForOSX(QString &path)
+{
+	if (path.startsWith("MultiMC.app/"))
+	{
+		// remove the prefix and add a new, more appropriate one.
+		path.remove(0, 12);
+		path = QString("../../") + path;
+		return true;
+	}
+	else
+	{
+		QLOG_ERROR() << "Update path not within .app: " << path;
+		return false;
+	}
 }
 
 void DownloadUpdateTask::fileDownloadFinished()

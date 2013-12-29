@@ -99,11 +99,7 @@ slots:
 		ops << DownloadUpdateTask::UpdateOperation::CopyOp("sourceOne", "destOne", 0777)
 			<< DownloadUpdateTask::UpdateOperation::CopyOp("MultiMC.exe", "M/u/l/t/i/M/C/e/x/e")
 			<< DownloadUpdateTask::UpdateOperation::DeleteOp("toDelete.abc");
-#if defined(Q_OS_WIN)
-		auto testFile = "tests/data/tst_DownloadUpdateTask-test_writeInstallScript_win32.xml";
-#else
 		auto testFile = "tests/data/tst_DownloadUpdateTask-test_writeInstallScript.xml";
-#endif
 		const QString script = QDir::temp().absoluteFilePath("MultiMCUpdateScript.xml");
 		QVERIFY(task.writeInstallScript(ops, script));
 		QCOMPARE(TestsInternal::readFileUtf8(script).replace(QRegExp("[\r\n]+"), "\n"),
@@ -248,6 +244,25 @@ slots:
 		task.start();
 
 		QVERIFY(succeededSpy.wait());
+	}
+
+	void test_OSXPathFixup()
+	{
+		QString path, pathOrig;
+		bool result;
+		// Proper OSX path
+		pathOrig = path = "MultiMC.app/Foo/Bar/Baz";
+		qDebug() << "Proper OSX path: " << path;
+		result = DownloadUpdateTask::fixPathForOSX(path);
+		QCOMPARE(path, QString("../../Foo/Bar/Baz"));
+		QCOMPARE(result, true);
+
+		// Bad OSX path
+		pathOrig = path = "translations/klingon.lol";
+		qDebug() << "Bad OSX path: " << path;
+		result = DownloadUpdateTask::fixPathForOSX(path);
+		QCOMPARE(path, pathOrig);
+		QCOMPARE(result, false);
 	}
 };
 

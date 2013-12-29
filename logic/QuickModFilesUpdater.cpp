@@ -45,7 +45,7 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 {
 	auto qMod = new QuickMod;
 	qMod->m_name = mod.name();
-	qMod->m_modId = mod.id();
+	qMod->m_modId = mod.mod_id();
 	qMod->m_websiteUrl = QUrl(mod.homeurl());
 	qMod->m_description = mod.description();
 	qMod->m_stub = true;
