@@ -221,6 +221,7 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	// Console
 	s->set("ShowConsole", ui->showConsoleCheck->isChecked());
 	s->set("AutoCloseConsole", ui->autoCloseConsoleCheck->isChecked());
+    s->set("ConsoleFont", ui->consoleFontSelect->currentFont());
 
 	// Window Size
 	s->set("LaunchMaximized", ui->maximizedCheckBox->isChecked());
@@ -278,6 +279,7 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	// Console
 	ui->showConsoleCheck->setChecked(s->get("ShowConsole").toBool());
 	ui->autoCloseConsoleCheck->setChecked(s->get("AutoCloseConsole").toBool());
+    ui->consoleFontSelect->setCurrentFont(s->get("ConsoleFont").value<QFont>());
 
 	// Window Size
 	ui->maximizedCheckBox->setChecked(s->get("LaunchMaximized").toBool());

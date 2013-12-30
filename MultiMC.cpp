@@ -389,6 +389,7 @@ void MultiMC::initGlobalSettings()
 	// Console
 	m_settings->registerSetting(new Setting("ShowConsole", true));
 	m_settings->registerSetting(new Setting("AutoCloseConsole", true));
+    m_settings->registerSetting(new Setting("ConsoleFont", QFont("Arial", 10)));
 
 	// Console Colors
 	//	m_settings->registerSetting(new Setting("SysMessageColor", QColor(Qt::blue)));
