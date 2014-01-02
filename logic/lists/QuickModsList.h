@@ -183,6 +183,9 @@ private:
 
 	QByteArray m_hash;
 
+	bool m_loadingIcon;
+	bool m_loadingLogo;
+
 	void fetchImages();
 	QString fileName(const QUrl &url) const;
 };

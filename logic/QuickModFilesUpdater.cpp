@@ -182,6 +182,8 @@ void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
 	case QuickMod::ConfigPack:
 		obj.insert("type", QStringLiteral("configpack"));
 		break;
+	case QuickMod::Group:
+		obj.insert("type", QStringLiteral("group"));
 	}
 
 	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
@@ -200,14 +202,18 @@ void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
 
 QString QuickModFilesUpdater::fileName(const QuickMod *mod)
 {
-	if (mod->type() != QuickMod::ForgeMod && mod->type() != QuickMod::ForgeCoreMod)
+	switch (mod->type())
 	{
-		return QString("other_%1_quickmod.json").arg(mod->name());
-	}
-	else
-	{
+	case QuickMod::ForgeMod:
+	case QuickMod::ForgeCoreMod:
 		return QString("mod_%1_quickmod.json")
-			.arg(mod->modId().isNull() ? mod->name() : mod->modId());
+				.arg(mod->modId().isNull() ? mod->name() : mod->modId());
+	case QuickMod::ConfigPack:
+	case QuickMod::Group:
+		return QString("group_%1_quickmod.json").arg(mod->name());
+	case QuickMod::ResourcePack:
+	default:
+		return QString("other_%1_quickmod.json").arg(mod->name());
 	}
 }
 
