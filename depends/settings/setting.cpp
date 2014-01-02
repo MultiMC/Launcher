@@ -13,30 +13,41 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <QObject>
-#include <QSettings>
-
+#include "setting.h"
 #include "settingsobject.h"
 
-#include "libsettings_config.h"
-
-/*!
- * \brief A settings object that stores its settings in a QSettings object.
- */
-class LIBSETTINGS_EXPORT BasicSettingsObject : public SettingsObject
+Setting::Setting(QStringList synonyms, QVariant defVal)
+	: QObject(), m_synonyms(synonyms), m_defVal(defVal)
 {
-	Q_OBJECT
-public:
-	explicit BasicSettingsObject(QObject *parent = 0);
+}
 
-protected
-slots:
-	virtual void changeSetting(const Setting &setting, QVariant value);
+QVariant Setting::get() const
+{
+	SettingsObject *sbase = m_storage;
+	if (!sbase)
+	{
+		return defValue();
+	}
+	else
+	{
+		QVariant test = sbase->retrieveValue(*this);
+		if (!test.isValid())
+			return defValue();
+		return test;
+	}
+}
 
-protected:
-	virtual QVariant retrieveValue(const Setting &setting);
+QVariant Setting::defValue() const
+{
+	return m_defVal;
+}
 
-	QSettings config;
-};
+void Setting::set(QVariant value)
+{
+	emit settingChanged(*this, value);
+}
+
+void Setting::reset()
+{
+	emit settingReset(*this);
+}

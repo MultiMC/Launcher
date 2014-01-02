@@ -40,6 +40,12 @@ SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Se
 	ui->sortingModeGroup->setId(ui->sortByNameBtn, Sort_Name);
 	ui->sortingModeGroup->setId(ui->sortLastLaunchedBtn, Sort_LastLaunch);
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+	ui->jsonEditorTextBox->setClearButtonEnabled(true);
+#endif
+
+	restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("SettingsGeometry").toByteArray()));
+
 	loadSettings(MMC->settings().get());
 	updateCheckboxStuff();
 }
@@ -51,7 +57,13 @@ SettingsDialog::~SettingsDialog()
 void SettingsDialog::showEvent(QShowEvent *ev)
 {
 	QDialog::showEvent(ev);
-	adjustSize();
+}
+
+void SettingsDialog::closeEvent(QCloseEvent *ev)
+{
+	MMC->settings()->set("SettingsGeometry", saveGeometry().toBase64());
+
+	QDialog::closeEvent(ev);
 }
 
 void SettingsDialog::updateCheckboxStuff()
@@ -98,6 +110,18 @@ void SettingsDialog::on_instDirBrowseBtn_clicked()
 		ui->instDirTextBox->setText(cooked_dir);
 	}
 }
+void SettingsDialog::on_iconsDirBrowseBtn_clicked()
+{
+	QString raw_dir = QFileDialog::getExistingDirectory(this, tr("Icons Directory"),
+														ui->iconsDirTextBox->text());
+	QString cooked_dir = NormalizePath(raw_dir);
+
+	// do not allow current dir - it's dirty. Do not allow dirs that don't exist
+	if (!cooked_dir.isEmpty() && QDir(cooked_dir).exists())
+	{
+		ui->iconsDirTextBox->setText(cooked_dir);
+	}
+}
 
 void SettingsDialog::on_modsDirBrowseBtn_clicked()
 {
@@ -125,6 +149,36 @@ void SettingsDialog::on_lwjglDirBrowseBtn_clicked()
 	}
 }
 
+void SettingsDialog::on_jsonEditorBrowseBtn_clicked()
+{
+	QString raw_file = QFileDialog::getOpenFileName(
+		this, tr("JSON Editor"),
+		ui->jsonEditorTextBox->text().isEmpty()
+	#if defined(Q_OS_LINUX)
+				? QString("/usr/bin")
+	#else
+			? QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation).first()
+	#endif
+			: ui->jsonEditorTextBox->text());
+	QString cooked_file = NormalizePath(raw_file);
+
+	if (cooked_file.isEmpty())
+	{
+		return;
+	}
+
+	// it has to exist and be an executable
+	if (QFileInfo(cooked_file).exists() &&
+		QFileInfo(cooked_file).isExecutable())
+	{
+		ui->jsonEditorTextBox->setText(cooked_file);
+	}
+	else
+	{
+		QMessageBox::warning(this, tr("Invalid"), tr("The file chosen does not seem to be an executable"));
+	}
+}
+
 void SettingsDialog::on_maximizedCheckBox_clicked(bool checked)
 {
 	Q_UNUSED(checked);
@@ -134,6 +188,13 @@ void SettingsDialog::on_maximizedCheckBox_clicked(bool checked)
 void SettingsDialog::on_buttonBox_accepted()
 {
 	applySettings(MMC->settings().get());
+
+	MMC->settings()->set("SettingsGeometry", saveGeometry().toBase64());
+}
+
+void SettingsDialog::on_buttonBox_rejected()
+{
+	MMC->settings()->set("SettingsGeometry", saveGeometry().toBase64());
 }
 
 void SettingsDialog::applySettings(SettingsObject *s)
@@ -171,6 +232,19 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	s->set("InstanceDir", ui->instDirTextBox->text());
 	s->set("CentralModsDir", ui->modsDirTextBox->text());
 	s->set("LWJGLDir", ui->lwjglDirTextBox->text());
+	s->set("IconsDir", ui->iconsDirTextBox->text());
+
+	// Editors
+	QString jsonEditor = ui->jsonEditorTextBox->text();
+	if (!jsonEditor.isEmpty() && (!QFileInfo(jsonEditor).exists() || !QFileInfo(jsonEditor).isExecutable()))
+	{
+		QString found = QStandardPaths::findExecutable(jsonEditor);
+		if (!found.isEmpty())
+		{
+			jsonEditor = found;
+		}
+	}
+	s->set("JsonEditor", jsonEditor);
 
 	// Console
 	s->set("ShowConsole", ui->showConsoleCheck->isChecked());
@@ -225,6 +299,10 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	ui->instDirTextBox->setText(s->get("InstanceDir").toString());
 	ui->modsDirTextBox->setText(s->get("CentralModsDir").toString());
 	ui->lwjglDirTextBox->setText(s->get("LWJGLDir").toString());
+	ui->iconsDirTextBox->setText(s->get("IconsDir").toString());
+
+	// Editors
+	ui->jsonEditorTextBox->setText(s->get("JsonEditor").toString());
 
 	// Console
 	ui->showConsoleCheck->setChecked(s->get("ShowConsole").toBool());

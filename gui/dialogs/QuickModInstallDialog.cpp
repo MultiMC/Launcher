@@ -20,7 +20,7 @@
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
 #include "MultiMC.h"
-#include "depends/settings/include/settingsobject.h"
+#include "depends/settings/settingsobject.h"
 #include "depends/quazip/JlCompress.h"
 
 Q_DECLARE_METATYPE(QTreeWidgetItem *)

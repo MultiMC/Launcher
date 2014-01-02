@@ -13,12 +13,12 @@
 #include "logic/QuickModFilesUpdater.h"
 #include "logic/Mod.h"
 #include "logic/BaseInstance.h"
-#include "depends/settings/include/setting.h"
+#include "depends/settings/setting.h"
 #include "MultiMC.h"
 #include "depends/groupview/include/categorizedsortfilterproxymodel.h"
 #include "logic/lists/InstanceList.h"
 
-#include "depends/settings/include/inisettingsobject.h"
+#include "depends/settings/inisettingsobject.h"
 
 // TODO test
 // TODO updating of mods
@@ -274,9 +274,9 @@ QuickModsList::QuickModsList(QObject *parent)
 	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)),
 	  m_settings(new INISettingsObject("quickmod.cfg", this))
 {
-	m_settings->registerSetting(new Setting(
-		"AvailableMods", QVariant::fromValue(QMap<QString, QMap<QString, QString>>())));
-	m_settings->registerSetting(new Setting("TrustedWebsites", QVariantList()));
+	m_settings->registerSetting("AvailableMods",
+								QVariant::fromValue(QMap<QString, QMap<QString, QString>>()));
+	m_settings->registerSetting("TrustedWebsites", QVariantList());
 
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
 }

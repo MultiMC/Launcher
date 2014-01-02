@@ -13,41 +13,18 @@
  * limitations under the License.
  */
 
-#include "include/setting.h"
-#include "include/settingsobject.h"
+#include "overridesetting.h"
 
-Setting::Setting(QString id, QVariant defVal, QObject *parent)
-	: QObject(parent), m_id(id), m_defVal(defVal)
+OverrideSetting::OverrideSetting(std::shared_ptr<Setting> other)
+	: Setting(other->configKeys(), QVariant())
 {
+	m_other = other;
 }
 
-QVariant Setting::get() const
+QVariant OverrideSetting::defValue() const
 {
-	SettingsObject *sbase = qobject_cast<SettingsObject *>(parent());
-	if (!sbase)
-	{
-		return defValue();
-	}
+	if (m_other)
+		return m_other->get();
 	else
-	{
-		QVariant test = sbase->retrieveValue(*this);
-		if (!test.isValid())
-			return defValue();
-		return test;
-	}
-}
-
-QVariant Setting::defValue() const
-{
-	return m_defVal;
-}
-
-void Setting::set(QVariant value)
-{
-	emit settingChanged(*this, value);
-}
-
-void Setting::reset()
-{
-	emit settingReset(*this);
+		return QVariant();
 }

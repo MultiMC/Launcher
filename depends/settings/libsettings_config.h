@@ -13,32 +13,17 @@
  * limitations under the License.
  */
 
-#include "include/basicsettingsobject.h"
-#include "include/setting.h"
+#pragma once
 
-BasicSettingsObject::BasicSettingsObject(QObject *parent) : SettingsObject(parent)
-{
-}
+#include <QtCore/QtGlobal>
 
-void BasicSettingsObject::changeSetting(const Setting &setting, QVariant value)
-{
-	if (contains(setting.id()))
-	{
-		if (value.isValid())
-			config.setValue(setting.configKey(), value);
-		else
-			config.remove(setting.configKey());
-	}
-}
+#ifdef LIBSETTINGS_STATIC
+#define LIBSETTINGS_EXPORT
+#else
+#ifdef LIBSETTINGS_LIBRARY
+#define LIBSETTINGS_EXPORT Q_DECL_EXPORT
+#else
+#define LIBSETTINGS_EXPORT Q_DECL_IMPORT
+#endif
+#endif
 
-QVariant BasicSettingsObject::retrieveValue(const Setting &setting)
-{
-	if (contains(setting.id()))
-	{
-		return config.value(setting.configKey());
-	}
-	else
-	{
-		return QVariant();
-	}
-}

@@ -47,12 +47,14 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5Test REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
 find_package(Qt5WebKitWidgets REQUIRED)
 
 include_directories(
 	${Qt5Core_INCLUDE_DIRS}
 	${Qt5Widgets_INCLUDE_DIRS}
+	${Qt5Concurrent_INCLUDE_DIRS}
 	${Qt5Network_INCLUDE_DIRS}
 	${Qt5Test_INCLUDE_DIRS}
   )
@@ -383,8 +385,6 @@ logic/LegacyFTBInstance.cpp
 # Lists
 logic/lists/InstanceList.h
 logic/lists/InstanceList.cpp
-logic/lists/IconList.h
-logic/lists/IconList.cpp
 logic/lists/BaseVersionList.h
 logic/lists/BaseVersionList.cpp
 logic/lists/MinecraftVersionList.h
@@ -398,6 +398,13 @@ logic/lists/JavaVersionList.cpp
 logic/lists/QuickModsList.h
 logic/lists/QuickModsList.cpp
 
+# Icons
+logic/icons/MMCIcon.h
+logic/icons/MMCIcon.cpp
+logic/icons/IconList.h
+logic/icons/IconList.cpp
+
+
 # misc model/view
 logic/EnabledItemFilter.h
 logic/EnabledItemFilter.cpp
@@ -406,6 +413,8 @@ logic/EnabledItemFilter.cpp
 logic/tasks/ProgressProvider.h
 logic/tasks/Task.h
 logic/tasks/Task.cpp
+logic/tasks/ThreadTask.h
+logic/tasks/ThreadTask.cpp
 logic/tasks/SequentialTask.h
 logic/tasks/SequentialTask.cpp
 
@@ -426,6 +435,8 @@ logic/QuickModFilesUpdater.h
 logic/QuickModFilesUpdater.cpp
 
 # Assets
+logic/assets/AssetsMigrateTask.h
+logic/assets/AssetsMigrateTask.cpp
 logic/assets/AssetsUtils.h
 logic/assets/AssetsUtils.cpp
 )
@@ -526,8 +537,8 @@ ADD_EXECUTABLE(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_RCS})
 # Link
 TARGET_LINK_LIBRARIES(MultiMC MultiMC_common)
 TARGET_LINK_LIBRARIES(MultiMC_common xz-embedded unpack200 quazip libUtil libSettings libGroupView ${MultiMC_LINK_ADDITIONAL_LIBS})
-QT5_USE_MODULES(MultiMC Core Widgets Network Xml WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
-QT5_USE_MODULES(MultiMC_common Core Widgets Network Xml WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
+QT5_USE_MODULES(MultiMC Core Widgets Network Xml WebKitWidgets Concurrent ${MultiMC_QT_ADDITIONAL_MODULES})
+QT5_USE_MODULES(MultiMC_common Core Widgets Network Xml WebKitWidgets Concurrent ${MultiMC_QT_ADDITIONAL_MODULES})
 ADD_DEPENDENCIES(MultiMC_common MultiMCLauncher JavaCheck)
 
 ################################ INSTALLATION AND PACKAGING ################################
@@ -541,9 +552,12 @@ IF(UNIX AND APPLE)
 
 	SET(MACOSX_BUNDLE_BUNDLE_NAME "MultiMC")
 	SET(MACOSX_BUNDLE_INFO_STRING "MultiMC Minecraft launcher and management utility.")
+	SET(MACOSX_BUNDLE_GUI_IDENTIFIER "org.multimc.MultiMC5")
 	SET(MACOSX_BUNDLE_BUNDLE_VERSION "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_REV}.${MultiMC_VERSION_BUILD}")
-	#SET(MACOSX_BUNDLE_GUI_IDENTIFIER "")
+	SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_REV}.${MultiMC_VERSION_BUILD}")
+	SET(MACOSX_BUNDLE_LONG_VERSION_STRING "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_REV}.${MultiMC_VERSION_BUILD}")
 	SET(MACOSX_BUNDLE_ICON_FILE MultiMC.icns)
+	SET(MACOSX_BUNDLE_COPYRIGHT "Copyright 2013 MultiMC Contributors")
 ELSEIF(UNIX)
 	SET(PLUGIN_DEST_DIR plugins)
 	SET(QTCONF_DEST_DIR .)
@@ -619,6 +633,18 @@ INSTALL(
 	REGEX "d\\." EXCLUDE
 	REGEX "_debug\\." EXCLUDE
 )
+IF(APPLE)
+	# Accessible plugin to make buttons look decent on osx
+	INSTALL(
+		DIRECTORY "${QT_PLUGINS_DIR}/accessible"
+		DESTINATION ${PLUGIN_DEST_DIR}
+		COMPONENT Runtime
+		REGEX "quick" EXCLUDE
+		REGEX "d\\." EXCLUDE
+		REGEX "_debug\\." EXCLUDE
+	)
+ENDIF()
+
 endif()
 
 # qtconf

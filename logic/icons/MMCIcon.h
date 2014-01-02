@@ -14,27 +14,39 @@
  */
 
 #pragma once
-
-#include <QObject>
-
-#include "setting.h"
-
-#include "libsettings_config.h"
-
-/*!
- * \brief A setting that 'overrides another.'
- * This means that the setting's default value will be the value of another setting.
- * The other setting can be (and usually is) a part of a different SettingsObject
- * than this one.
- */
-class LIBSETTINGS_EXPORT OverrideSetting : public Setting
+#include <QString>
+#include <QDateTime>
+#include <QIcon>
+struct MMCImage
 {
-	Q_OBJECT
-public:
-	explicit OverrideSetting(const QString &name, Setting *other, QObject *parent = 0);
+	QIcon icon;
+	QString filename;
+	QDateTime changed;
+	bool present() const
+	{
+		return !icon.isNull();
+	}
+};
 
-	virtual QVariant defValue() const;
+struct MMCIcon
+{
+	enum Type : unsigned
+	{
+		Builtin,
+		Transient,
+		FileBased,
+		ICONS_TOTAL,
+		ToBeDeleted
+	};
+	QString m_key;
+	QString m_name;
+	MMCImage m_images[ICONS_TOTAL];
+	Type m_current_type = ToBeDeleted;
 
-protected:
-	Setting *m_other;
+	Type type() const;
+	QString name() const;
+	bool has(Type _type) const;
+	QIcon icon() const;
+	void remove(Type rm_type);
+	void replace(Type new_type, QIcon icon, QString path = QString());
 };

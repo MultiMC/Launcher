@@ -17,6 +17,8 @@
 
 #include <QObject>
 #include <QVariant>
+#include <QStringList>
+#include <memory>
 
 #include "libsettings_config.h"
 
@@ -29,13 +31,16 @@ class LIBSETTINGS_EXPORT Setting : public QObject
 {
 	Q_OBJECT
 public:
-	/*!
-	 * \brief Constructs a new Setting object with the given parent.
-	 * \param id The id used to identify the setting
-	 * \param defVal The default value used if no other value is set
-	 * \param parent The Setting's parent object.
+	/**
+	 * Construct a Setting
+	 * 
+	 * Synonyms are all the possible names used in the settings object, in order of preference.
+	 * First synonym is the ID, which identifies the setting in MultiMC.
+	 * 
+	 * defVal is the default value that will be returned when the settings object
+	 * doesn't have any value for this setting.
 	 */
-	explicit Setting(QString id, QVariant defVal = QVariant(), QObject *parent = 0);
+	explicit Setting(QStringList synonyms, QVariant defVal = QVariant());
 
 	/*!
 	 * \brief Gets this setting's ID.
@@ -46,7 +51,7 @@ public:
 	 */
 	virtual QString id() const
 	{
-		return m_id;
+		return m_synonyms.first();
 	}
 
 	/*!
@@ -55,9 +60,9 @@ public:
 	 * the same as the setting's ID, but it can be different.
 	 * \return The setting's config file key.
 	 */
-	virtual QString configKey() const
+	virtual QStringList configKeys() const
 	{
-		return id();
+		return m_synonyms;
 	}
 
 	/*!
@@ -68,16 +73,6 @@ public:
 	 * \sa value()
 	 */
 	virtual QVariant get() const;
-
-	/*!
-	 * \brief Gets this setting's actual value (I.E. not as a QVariant).
-	 * This function is just shorthand for get().value<T>()
-	 * \return The setting's actual value.
-	 */
-	template <typename T> inline T value() const
-	{
-		return get().value<T>();
-	}
 
 	/*!
 	 * \brief Gets this setting's default value.
@@ -117,6 +112,8 @@ slots:
 	virtual void reset();
 
 protected:
-	QString m_id;
+	friend class SettingsObject;
+	SettingsObject * m_storage;
+	QStringList m_synonyms;
 	QVariant m_defVal;
 };
