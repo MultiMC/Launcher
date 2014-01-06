@@ -179,7 +179,9 @@ bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 
 		foreach(const QString & dep, mod->version(dialog.version()).dependencies.keys())
 		{
-			if (!m_pendingDependencyUrls.contains(mod->references()[dep]))
+			if (!m_pendingDependencyUrls.contains(mod->references()[dep])
+					&& mod->references().contains(dep)
+					&& !mod->references()[dep].isEmpty())
 			{
 				ui->dependencyLogEdit->appendHtml(
 					QString("Fetching dependency URL %1...<br/>")
