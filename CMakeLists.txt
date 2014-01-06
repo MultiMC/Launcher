@@ -121,8 +121,13 @@ IF(${BIGENDIAN})
 ENDIF(${BIGENDIAN})
 
 
+######## Set URLs ########
+
+SET(MultiMC_NEWS_RSS_URL "http://multimc.org/rss.xml" CACHE STRING "URL to fetch MultiMC's news RSS feed from.")
+
+
 ######## Set version numbers ########
-SET(MultiMC_VERSION_MAJOR		1)
+SET(MultiMC_VERSION_MAJOR		0)
 SET(MultiMC_VERSION_MINOR		0)
 
 # Build number
@@ -140,9 +145,11 @@ SET(MultiMC_CHANLIST_URL "" CACHE STRING "URL for the channel list.")
 # Updater enabled?
 SET(MultiMC_UPDATER false CACHE BOOL "Whether or not the update system is enabled. If this is enabled, you must also set MultiMC_CHANLIST_URL and MultiMC_VERSION_CHANNEL in order for it to work properly.")
 
+# Notification URL
+SET(MultiMC_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications.")
 
 # Build a version string to display in the configure logs.
-SET(MultiMC_VERSION_STRING "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}")
+SET(MultiMC_VERSION_STRING "5.${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}")
 IF (MultiMC_VERSION_BUILD GREATER -1)
 	SET(MultiMC_VERSION_STRING "${MultiMC_VERSION_STRING}.${MultiMC_VERSION_BUILD}")
 ENDIF ()
@@ -343,6 +350,14 @@ logic/updater/UpdateChecker.h
 logic/updater/UpdateChecker.cpp
 logic/updater/DownloadUpdateTask.h
 logic/updater/DownloadUpdateTask.cpp
+logic/updater/NotificationChecker.h
+logic/updater/NotificationChecker.cpp
+
+# News System
+logic/news/NewsChecker.h
+logic/news/NewsChecker.cpp
+logic/news/NewsEntry.h
+logic/news/NewsEntry.cpp
 
 # legacy instances
 logic/LegacyInstance.h
@@ -508,6 +523,9 @@ IF(WIN32)
 		Qt5::WinMain # Link WinMain
 	)
 ENDIF(WIN32)
+
+OPTION(MultiMC_UPDATER_DRY_RUN "Enable updater dry-run mode -- for updater development." OFF)
+OPTION(MultiMC_UPDATER_FORCE_LOCAL "Do not download updated updater -- for updater development." OFF)
 
 OPTION(MultiMC_CODE_COVERAGE "Compiles for code coverage" OFF)
 IF(MultiMC_CODE_COVERAGE)

@@ -196,21 +196,13 @@ protected:
 
 	/*!
 	 * Filters paths
-	 * Path of the format $PWD/path, it is converted to a file:///$PWD/ URL
-	 */
-	static QString fixPathForTests(const QString &path);
-
-	/*!
-	 * Filters paths
 	 * This fixes destination paths for OSX.
 	 * The updater runs in MultiMC.app/Contents/MacOs by default
 	 * The destination paths are such as this: MultiMC.app/blah/blah
 	 * 
-	 * Therefore we chop off the 'MultiMC.app' prefix and prepend ../..
+	 * Therefore we chop off the 'MultiMC.app' prefix
 	 * 
 	 * Returns false if the path couldn't be fixed (is invalid)
-	 * 
-	 * Has no effect on systems that aren't OSX
 	 */
 	static bool fixPathForOSX(QString &path);
 

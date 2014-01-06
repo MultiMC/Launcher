@@ -77,6 +77,8 @@
 
 #include "logic/updater/DownloadUpdateTask.h"
 
+#include "logic/news/NewsChecker.h"
+
 #include "logic/net/URLConstants.h"
 
 #include "logic/BaseInstance.h"
@@ -92,6 +94,7 @@
 #include "logic/assets/AssetsUtils.h"
 #include "logic/assets/AssetsMigrateTask.h"
 #include <logic/updater/UpdateChecker.h>
+#include <logic/updater/NotificationChecker.h>
 #include <logic/tasks/ThreadTask.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -117,6 +120,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		ui->instanceToolBar->insertWidget(ui->actionLaunchInstance, renameButton);
 		ui->instanceToolBar->insertSeparator(ui->actionLaunchInstance);
 		renameButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	}
+
+	// Add the news label to the news toolbar.
+	{
+		newsLabel = new QToolButton();
+		newsLabel->setIcon(QIcon(":/icons/toolbar/news"));
+		newsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+		newsLabel->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+		ui->newsToolBar->insertWidget(ui->actionMoreNews, newsLabel);
+		QObject::connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
+		QObject::connect(MMC->newsChecker().get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
+		updateNewsLabel();
 	}
 
 	// Create the instance list widget
@@ -154,6 +169,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		view->setFrameShape(QFrame::NoFrame);
 		view->setModel(proxymodel);
 
+		view->setContextMenuPolicy(Qt::CustomContextMenu);
+		connect(view, SIGNAL(customContextMenuRequested(const QPoint&)),
+			this, SLOT(showInstanceContextMenu(const QPoint&)));
+
 		ui->horizontalLayout->addWidget(view);
 	}
 	// The cat background
@@ -178,11 +197,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	// FIXME: stop using POINTERS everywhere
 	connect(MMC->instances().get(), SIGNAL(dataIsInvalid()), SLOT(selectionBad()));
 
-	m_statusLeft = new QLabel(tr("Instance type"), this);
-	m_statusRight = new QLabel(this);
-	m_statusRight->setAlignment(Qt::AlignRight);
-	statusBar()->addPermanentWidget(m_statusLeft, 0);
-	statusBar()->addPermanentWidget(m_statusRight, 0);
+	m_statusLeft = new QLabel(tr("No instance selected"), this);
+	statusBar()->addPermanentWidget(m_statusLeft, 1);
 
 	// Add "manage accounts" button, right align
 	QWidget *spacer = new QWidget();
@@ -255,6 +271,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 			MMC->lwjgllist()->loadList();
 		}
 
+		MMC->newsChecker()->reloadNews();
+		updateNewsLabel();
+
 		// set up the updater object.
 		auto updater = MMC->updateChecker();
 		connect(updater.get(), &UpdateChecker::updateAvailable, this,
@@ -268,6 +287,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		// if automatic update checks are allowed, start one.
 		if (MMC->settings()->get("AutoUpdate").toBool())
 			on_actionCheckUpdate_triggered();
+
+		connect(MMC->notificationChecker().get(), &NotificationChecker::notificationCheckFinished,
+				this, &MainWindow::notificationsChanged);
 	}
 
 	const QString currentInstanceId = MMC->settings()->get("SelectedInstance").toString();
@@ -300,6 +322,29 @@ MainWindow::~MainWindow()
 	delete ui;
 	delete proxymodel;
 	delete drawer;
+}
+
+void MainWindow::showInstanceContextMenu(const QPoint& pos)
+{
+	if(!view->indexAt(pos).isValid())
+	{
+		return;
+	}
+
+	QList<QAction *> actions = ui->instanceToolBar->actions();
+
+	// HACK: Filthy rename button hack because the instance view is getting rewritten anyway
+	QAction *actionRename;
+	actionRename = new QAction(tr("Rename"), this);
+	actionRename->setToolTip(ui->actionRenameInstance->toolTip());
+
+	connect(actionRename, SIGNAL(triggered(bool)), SLOT(on_actionRenameInstance_triggered()));
+
+	actions.replace(1, actionRename);
+
+	QMenu myMenu;
+	myMenu.addActions(actions);
+	myMenu.exec(view->mapToGlobal(pos));
 }
 
 void MainWindow::repopulateAccountsMenu()
@@ -444,6 +489,30 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *ev)
 	return QMainWindow::eventFilter(obj, ev);
 }
 
+void MainWindow::updateNewsLabel()
+{
+	auto newsChecker = MMC->newsChecker();
+	if (newsChecker->isLoadingNews())
+	{
+		newsLabel->setText(tr("Loading news..."));
+		newsLabel->setEnabled(false);
+	}
+	else
+	{
+		QList<NewsEntryPtr> entries = newsChecker->getNewsEntries();
+		if (entries.length() > 0)
+		{
+			newsLabel->setText(entries[0]->title);
+			newsLabel->setEnabled(true);
+		}
+		else
+		{
+			newsLabel->setText(tr("No news available."));
+			newsLabel->setEnabled(false);
+		}
+	}
+}
+
 void MainWindow::updateAvailable(QString repo, QString versionName, int versionId)
 {
 	UpdateDialog dlg;
@@ -462,6 +531,63 @@ void MainWindow::updateAvailable(QString repo, QString versionName, int versionI
 	}
 }
 
+QList<int> stringToIntList(const QString &string)
+{
+	QStringList split = string.split(',', QString::SkipEmptyParts);
+	QList<int> out;
+	for (int i = 0; i < split.size(); ++i)
+	{
+		out.append(split.at(i).toInt());
+	}
+	return out;
+}
+QString intListToString(const QList<int> &list)
+{
+	QStringList slist;
+	for (int i = 0; i < list.size(); ++i)
+	{
+		slist.append(QString::number(list.at(i)));
+	}
+	return slist.join(',');
+}
+void MainWindow::notificationsChanged()
+{
+	QList<NotificationChecker::NotificationEntry> entries =
+		MMC->notificationChecker()->notificationEntries();
+	QList<int> shownNotifications =
+		stringToIntList(MMC->settings()->get("ShownNotifications").toString());
+	for (auto it = entries.begin(); it != entries.end(); ++it)
+	{
+		NotificationChecker::NotificationEntry entry = *it;
+		if (!shownNotifications.contains(entry.id) && entry.applies())
+		{
+			QMessageBox::Icon icon;
+			switch (entry.type)
+			{
+			case NotificationChecker::NotificationEntry::Critical:
+				icon = QMessageBox::Critical;
+				break;
+			case NotificationChecker::NotificationEntry::Warning:
+				icon = QMessageBox::Warning;
+				break;
+			case NotificationChecker::NotificationEntry::Information:
+				icon = QMessageBox::Information;
+				break;
+			}
+
+			QMessageBox box(icon, tr("Notification"), entry.message, QMessageBox::Close, this);
+			QPushButton *dontShowAgainButton = box.addButton(tr("Don't show again"), QMessageBox::AcceptRole);
+			box.setDefaultButton(QMessageBox::Close);
+			box.exec();
+			if (box.clickedButton() == dontShowAgainButton)
+			{
+				shownNotifications.append(entry.id);
+			}
+		}
+	}
+	MMC->settings()->set("ShownNotifications", intListToString(shownNotifications));
+}
+
 void MainWindow::downloadUpdates(QString repo, int versionId, bool installOnExit)
 {
 	QLOG_INFO() << "Downloading updates.";
@@ -474,10 +600,14 @@ void MainWindow::downloadUpdates(QString repo, int versionId, bool installOnExit
 	// If the task succeeds, install the updates.
 	if (updateDlg.exec(&updateTask))
 	{
+		UpdateFlags baseFlags = None;
+		#ifdef MultiMC_UPDATER_DRY_RUN
+			baseFlags |= DryRun;
+		#endif
 		if (installOnExit)
-			MMC->setUpdateOnExit(updateTask.updateFilesDir());
+			MMC->installUpdates(updateTask.updateFilesDir(), baseFlags | OnExit);
 		else
-			MMC->installUpdates(updateTask.updateFilesDir(), true);
+			MMC->installUpdates(updateTask.updateFilesDir(), baseFlags | RestartOnFinish);
 	}
 }
 
@@ -758,9 +888,18 @@ void MainWindow::on_actionReportBug_triggered()
 	openWebPage(QUrl("http://multimc.myjetbrains.com/youtrack/dashboard#newissue=yes"));
 }
 
-void MainWindow::on_actionNews_triggered()
+void MainWindow::on_actionMoreNews_triggered()
 {
 	openWebPage(QUrl("http://multimc.org/posts.html"));
+}
+
+void MainWindow::newsButtonClicked()
+{
+	QList<NewsEntryPtr> entries = MMC->newsChecker()->getNewsEntries();
+	if (entries.count() > 0)
+		openWebPage(QUrl(entries[0]->link));
+	else
+		openWebPage(QUrl("http://multimc.org/posts.html"));
 }
 
 void MainWindow::on_actionAbout_triggered()
@@ -1289,33 +1428,4 @@ void MainWindow::checkSetDefaultJava()
 		else
 			MMC->settings()->set("JavaPath", QString("java"));
 	}
-}
-
-void MainWindow::assetsIndexStarted()
-{
-	m_statusRight->setText(tr("Checking assets..."));
-}
-
-void MainWindow::assetsFilesStarted()
-{
-	m_statusRight->setText(tr("Downloading assets..."));
-}
-
-void MainWindow::assetsFilesProgress(int succeeded, int failed, int total)
-{
-	QString status = tr("Downloading assets: %1 / %2").arg(succeeded + failed).arg(total);
-	if (failed > 0)
-		status += tr(" (%1 failed)").arg(failed);
-	status += tr("...");
-	m_statusRight->setText(status);
-}
-
-void MainWindow::assetsFailed()
-{
-	m_statusRight->setText(tr("Failed to update assets."));
-}
-
-void MainWindow::assetsFinished()
-{
-	m_statusRight->setText(tr("Assets up to date."));
 }

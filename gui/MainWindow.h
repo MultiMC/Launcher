@@ -85,7 +85,9 @@ slots:
 
 	void on_actionReportBug_triggered();
 
-	void on_actionNews_triggered();
+	void on_actionMoreNews_triggered();
+
+	void newsButtonClicked();
 
 	void on_mainToolBar_visibilityChanged(bool);
 
@@ -144,14 +146,10 @@ slots:
 
 	void on_actionInstanceSettings_triggered();
 
-	void assetsIndexStarted();
-	void assetsFilesStarted();
-	void assetsFilesProgress(int, int, int);
-	void assetsFailed();
-	void assetsFinished();
-
 	// called when an icon is changed in the icon model.
 	void iconUpdated(QString);
+
+	void showInstanceContextMenu(const QPoint&);
 
 public
 slots:
@@ -165,11 +163,15 @@ slots:
 
 	void updateAvailable(QString repo, QString versionName, int versionId);
 
+	void notificationsChanged();
+
 	void activeAccountChanged();
 
 	void changeActiveAccount();
 
 	void repopulateAccountsMenu();
+
+	void updateNewsLabel();
 	
 	/*!
 	 * Runs the DownloadUpdateTask and installs updates.
@@ -192,6 +194,8 @@ private:
 	MinecraftProcess *proc;
 	ConsoleWindow *console;
 	LabeledToolButton *renameButton;
+	QToolButton *changeIconButton;
+	QToolButton* newsLabel;
 
 	BaseInstance *m_selectedInstance;
 	QString m_currentInstIcon;
@@ -199,7 +203,6 @@ private:
 	Task *m_versionLoadTask;
 
 	QLabel *m_statusLeft;
-	QLabel *m_statusRight;
 
 	QMenu *accountMenu;
 	QToolButton *accountMenuButton;

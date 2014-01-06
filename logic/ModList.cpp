@@ -427,7 +427,7 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 		switch (index.column())
 		{
 		case ActiveColumn:
-			return mods[row].enabled();
+			return mods[row].enabled() ? Qt::Checked: Qt::Unchecked;
 		default:
 			return QVariant();
 		}

@@ -19,12 +19,15 @@
 #include "logic/lists/ForgeVersionList.h"
 #include "logic/lists/QuickModsList.h"
 
+#include "logic/news/NewsChecker.h"
+
 #include "logic/InstanceLauncher.h"
 #include "logic/net/HttpMetaCache.h"
 
 #include "logic/JavaUtils.h"
 
 #include "logic/updater/UpdateChecker.h"
+#include "logic/updater/NotificationChecker.h"
 
 #include "pathutils.h"
 #include "cmdutils.h"
@@ -33,20 +36,9 @@
 #include "logger/QsLog.h"
 #include <logger/QsLogDest.h>
 
-#include "config.h"
-#ifdef WINDOWS
-#define UPDATER_BIN "updater.exe"
-#elif LINUX
-#define UPDATER_BIN "updater"
-#elif OSX
-#define UPDATER_BIN "updater"
-#else
-#error Unsupported operating system.
-#endif
-
 using namespace Util::Commandline;
 
-MultiMC::MultiMC(int &argc, char **argv, const QString &root)
+MultiMC::MultiMC(int &argc, char **argv, bool root_override)
 	: QApplication(argc, argv), m_version{VERSION_MAJOR,   VERSION_MINOR,	 VERSION_BUILD,
 										  VERSION_CHANNEL, VERSION_BUILD_TYPE}
 {
@@ -58,10 +50,6 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &root)
 	setAttribute(Qt::AA_UseHighDpiPixmaps);
 	// Don't quit on hiding the last window
 	this->setQuitOnLastWindowClosed(false);
-
-	// Print app header
-	std::cout << "MultiMC 5" << std::endl;
-	std::cout << "(c) 2013 MultiMC Contributors" << std::endl << std::endl;
 
 	// Commandline parsing
 	QHash<QString, QVariant> args;
@@ -77,20 +65,10 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &root)
 		parser.addShortOpt("version", 'V');
 		parser.addDocumentation("version", "display program version and exit.");
 		// --dir
-		parser.addOption("dir", root.isNull() ? applicationDirPath() : root);
+		parser.addOption("dir", applicationDirPath());
 		parser.addShortOpt("dir", 'd');
 		parser.addDocumentation("dir", "use the supplied directory as MultiMC root instead of "
 									   "the binary location (use '.' for current)");
-		// --update
-		parser.addOption("update");
-		parser.addShortOpt("update", 'u');
-		parser.addDocumentation("update", "replaces the given file with the running executable",
-								"<path>");
-		// --quietupdate
-		parser.addSwitch("quietupdate");
-		parser.addShortOpt("quietupdate", 'U');
-		parser.addDocumentation("quietupdate",
-								"doesn't restart MultiMC after installing updates");
 		// WARNING: disabled until further notice
 		/*
 		// --launch
@@ -137,40 +115,81 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &root)
 			m_status = MultiMC::Succeeded;
 			return;
 		}
-
-		// update
-		// Note: cwd is always the current executable path!
-		if (!args["update"].isNull())
-		{
-			std::cout << "Performing MultiMC update: " << qPrintable(args["update"].toString())
-					  << std::endl;
-			QString cwd = QDir::currentPath();
-			QDir::setCurrent(applicationDirPath());
-			QFile file(applicationFilePath());
-			file.copy(args["update"].toString());
-			if (args["quietupdate"].toBool())
-			{
-				m_status = MultiMC::Succeeded;
-				return;
-			}
-			QDir::setCurrent(cwd);
-		}
+	}
+	origcwdPath = QDir::currentPath();
+	binPath = applicationDirPath();
+	QString adjustedBy;
+	// change directory
+	QString dirParam = args["dir"].toString();
+	if (!dirParam.isEmpty())
+	{
+		// the dir param. it makes multimc data path point to whatever the user specified
+		// on command line
+		adjustedBy += "Command line " + dirParam;
+		dataPath = dirParam;
+	}
+	else
+	{
+		dataPath = applicationDirPath();
+		adjustedBy += "Fallback to binary path " + dataPath;
 	}
 
-	// change directory
-	QDir::setCurrent(
-		args["dir"].toString().isEmpty()
-			? (root.isEmpty() ? QDir::currentPath() : QDir::current().absoluteFilePath(root))
-			: args["dir"].toString());
+	if(!ensureFolderPathExists(dataPath) || !QDir::setCurrent(dataPath))
+	{
+		// BAD STUFF. WHAT DO?
+		initLogger();
+		QLOG_ERROR() << "Failed to set work path. Will exit. NOW.";
+		m_status = MultiMC::Failed;
+		return;
+	}
+
+	if (root_override)
+	{
+		rootPath = binPath;
+	}
+	else
+	{
+	#ifdef Q_OS_LINUX
+		QDir foo(PathCombine(binPath, ".."));
+		rootPath = foo.absolutePath();
+	#elif defined(Q_OS_WIN32)
+		rootPath = binPath;
+	#elif defined(Q_OS_MAC)
+		QDir foo(PathCombine(binPath, "../.."));
+		rootPath = foo.absolutePath();
+	#endif
+	}
 
 	// init the logger
 	initLogger();
+
+	QLOG_INFO() << "MultiMC 5, (c) 2013 MultiMC Contributors";
+	QLOG_INFO() << "Version                    : " << VERSION_STR;
+	QLOG_INFO() << "Git commit                 : " << GIT_COMMIT;
+	if (adjustedBy.size())
+	{
+		QLOG_INFO() << "Work dir before adjustment : " << origcwdPath;
+		QLOG_INFO() << "Work dir after adjustment  : " << QDir::currentPath();
+		QLOG_INFO() << "Adjusted by                : " << adjustedBy;
+	}
+	else
+	{
+		QLOG_INFO() << "Work dir                   : " << QDir::currentPath();
+	}
+	QLOG_INFO() << "Binary path                : " << binPath;
+	QLOG_INFO() << "Application root path      : " << rootPath;
 
 	// load settings
 	initGlobalSettings();
 
 	// initialize the updater
 	m_updateChecker.reset(new UpdateChecker());
+
+	// initialize the notification checker
+	m_notificationChecker.reset(new NotificationChecker());
+
+	// initialize the news checker
+	m_newsChecker.reset(new NewsChecker(NEWS_RSS_URL));
 
 	// and instances
 	auto InstDirSetting = m_settings->getSetting("InstanceDir");
@@ -250,7 +269,7 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &root)
 			m_status = MultiMC::Failed;
 		return;
 	}
-	*/
+*/
 
 	// register quickmod file or url
 	if (!args["qm-register"].isNull())
@@ -276,6 +295,7 @@ MultiMC::MultiMC(int &argc, char **argv, const QString &root)
 	// ensure we always create the quickmods list
 	quickmodslist();
 
+	connect(this, SIGNAL(aboutToQuit()), SLOT(onExit()));
 	m_status = MultiMC::Initialized;
 }
 
@@ -360,8 +380,11 @@ void MultiMC::initGlobalSettings()
 {
 	m_settings.reset(new INISettingsObject("multimc.cfg", this));
 	// Updates
-	m_settings->registerSetting("UseDevBuilds", false);
+	m_settings->registerSetting("UpdateChannel", version().channel);
 	m_settings->registerSetting("AutoUpdate", true);
+	
+	// Notifications
+	m_settings->registerSetting("ShownNotifications", QString());
 
 	// FTB
 	m_settings->registerSetting("TrackFTBInstances", false);
@@ -477,7 +500,7 @@ void MultiMC::initHttpMetaCache()
 	m_metacache->addBase("skins", QDir("accounts/skins").absolutePath());
 	m_metacache->addBase("quickmod/icons", QDir("quickmod/images/icons").absolutePath());
 	m_metacache->addBase("quickmod/logos", QDir("quickmod/images/logos").absolutePath());
-	m_metacache->addBase("root", QDir(".").absolutePath());
+	m_metacache->addBase("root", QDir(root()).absolutePath());
 	m_metacache->Load();
 }
 
@@ -545,46 +568,53 @@ std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
 #error Unsupported operating system.
 #endif
 
-void MultiMC::installUpdates(const QString &updateFilesDir, bool restartOnFinish)
+void MultiMC::installUpdates(const QString updateFilesDir, UpdateFlags flags)
 {
+	// if we are going to update on exit, save the params now
+	if(flags & OnExit)
+	{
+		m_updateOnExitPath = updateFilesDir;
+		m_updateOnExitFlags = flags & ~OnExit;
+		return;
+	}
+	// otherwise if there already were some params for on exit update, clear them and continue
+	else if(m_updateOnExitPath.size())
+	{
+		m_updateOnExitFlags = None;
+		m_updateOnExitPath.clear();
+	}
 	QLOG_INFO() << "Installing updates.";
-#if LINUX
-	// On Linux, the MultiMC executable file is actually in the bin folder inside the
-	// installation directory.
-	// This means that MultiMC's *actual* install path is the parent folder.
-	// We need to tell the updater to run with this directory as the install path, rather than
-	// the bin folder where the executable is.
-	// On other operating systems, we'll just use the path to the executable.
-	QString appDir = QFileInfo(MMC->applicationDirPath()).dir().path();
+	#ifdef WINDOWS
+		QString finishCmd = MMC->applicationFilePath();
+		QString updaterBinary = PathCombine(bin(), "updater.exe");
+	#elif LINUX
+		QString finishCmd = PathCombine(root(), "MultiMC");
+		QString updaterBinary = PathCombine(bin(), "updater");
+	#elif OSX
+		QString finishCmd = MMC->applicationFilePath();
+		QString updaterBinary = PathCombine(bin(), "updater");
+	#else
+		#error Unsupported operating system.
+	#endif
 
-	// On Linux, we also need to set the finish command to the launch script, rather than the
-	// binary.
-	QString finishCmd = PathCombine(appDir, "MultiMC");
-#else
-	QString appDir = MMC->applicationDirPath();
-	QString finishCmd = MMC->applicationFilePath();
-#endif
-
-	// Build the command we'll use to run the updater.
-	// Note, the above comment about the app dir path on Linux is irrelevant here because the
-	// updater binary is always in the
-	// same folder as the main binary.
-	QString updaterBinary = PathCombine(MMC->applicationDirPath(), UPDATER_BIN);
 	QStringList args;
 	// ./updater --install-dir $INSTALL_DIR --package-dir $UPDATEFILES_DIR --script
 	// $UPDATEFILES_DIR/file_list.xml --wait $PID --mode main
-	args << "--install-dir" << appDir;
+	args << "--install-dir" << root();
 	args << "--package-dir" << updateFilesDir;
 	args << "--script" << PathCombine(updateFilesDir, "file_list.xml");
 	args << "--wait" << QString::number(MMC->applicationPid());
-
-	if (restartOnFinish)
+	if(flags & DryRun)
+		args << "--dry-run";
+	if (flags & RestartOnFinish)
+	{
 		args << "--finish-cmd" << finishCmd;
-
+		args << "--finish-dir" << data();
+	}
 	QLOG_INFO() << "Running updater with command" << updaterBinary << args.join(" ");
 	QFile::setPermissions(updaterBinary, (QFileDevice::Permission)0x7755);
 
-	if (!QProcess::startDetached(updaterBinary, args))
+	if (!QProcess::startDetached(updaterBinary, args/*, root()*/))
 	{
 		QLOG_ERROR() << "Failed to start the updater process!";
 		return;
@@ -594,14 +624,12 @@ void MultiMC::installUpdates(const QString &updateFilesDir, bool restartOnFinish
 	MMC->quit();
 }
 
-void MultiMC::setUpdateOnExit(const QString &updateFilesDir)
+void MultiMC::onExit()
 {
-	m_updateOnExitPath = updateFilesDir;
-}
-
-QString MultiMC::getExitUpdatePath() const
-{
-	return m_updateOnExitPath;
+	if(m_updateOnExitPath.size())
+	{
+		installUpdates(m_updateOnExitPath, m_updateOnExitFlags);
+	}
 }
 
 bool MultiMC::openJsonEditor(const QString &filename)

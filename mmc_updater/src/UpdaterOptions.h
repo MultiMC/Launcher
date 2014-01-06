@@ -15,14 +15,12 @@ class UpdaterOptions
 		std::string packageDir;
 		std::string scriptPath;
 		std::string finishCmd;
+		std::string finishDir;
 		PLATFORM_PID waitPid;
 		std::string logFile;
 		bool showVersion;
+		bool dryRun;
 		bool forceElevated;
 		bool autoClose;
-
-	private:
-		void parseOldFormatArgs(int argc, char** argv);
-		static void parseOldFormatArg(const std::string& arg, std::string* key, std::string* value);
 };
 
