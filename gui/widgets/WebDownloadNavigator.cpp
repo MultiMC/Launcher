@@ -24,6 +24,11 @@ WebDownloadNavigator::WebDownloadNavigator(QWidget *parent)
 	m_layout->addWidget(m_bar);
 	setLayout(m_layout);
 }
+
+QUrl WebDownloadNavigator::url() const
+{
+	return m_view->url();
+}
 void WebDownloadNavigator::load(const QUrl &url)
 {
 	m_view->load(url);

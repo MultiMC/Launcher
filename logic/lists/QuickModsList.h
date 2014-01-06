@@ -50,8 +50,8 @@ public:
 		QString forgeVersionFilter;
 		QMap<QString, QString> dependencies;
 		QMap<QString, QString> recommendations;
-		QByteArray checksum;
 		QCryptographicHash::Algorithm checksum_algorithm;
+		QByteArray checksum;
 
 		bool operator==(const Version &other) const
 		{

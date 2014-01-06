@@ -1,7 +1,6 @@
 #include "QuickModInstallDialog.h"
 #include "ui_QuickModInstallDialog.h"
 
-#include <QStackedLayout>
 #include <QTreeWidgetItem>
 #include <QNetworkReply>
 #include <QStyledItemDelegate>
@@ -69,22 +68,59 @@ public:
 };
 
 QuickModInstallDialog::QuickModInstallDialog(BaseInstance *instance, QWidget *parent)
-	: QDialog(parent), ui(new Ui::QuickModInstallDialog), m_stack(new QStackedLayout),
-	  m_instance(instance)
+	: QDialog(parent), ui(new Ui::QuickModInstallDialog), m_instance(instance)
 {
 	ui->setupUi(this);
 	setWindowModality(Qt::WindowModal);
-	ui->webLayout->addLayout(m_stack);
 
 	ui->progressList->setItemDelegateForColumn(3, new ProgressItemDelegate(this));
 
 	connect(MMC->quickmodslist().get(), &QuickModsList::modAdded, this,
 			&QuickModInstallDialog::newModRegistered);
+
+	connect(ui->nextButton, &QPushButton::clicked, [this]()
+	{
+		if (ui->web->currentIndex() + 1 < ui->web->count())
+		{
+			ui->web->setCurrentIndex(ui->web->currentIndex() + 1);
+		}
+		else
+		{
+			ui->web->setCurrentIndex(0);
+		}
+		if (ui->web->currentWidget())
+		{
+			qDebug() << "New index is" << ui->web->currentIndex() << "with the current URL"
+					 << qobject_cast<WebDownloadNavigator *>(ui->web->currentWidget())->url();
+		}
+	});
+	connect(ui->previousButton, &QPushButton::clicked, [this]()
+	{
+		if (ui->web->currentIndex() - 1 >= 0)
+		{
+			ui->web->setCurrentIndex(ui->web->currentIndex() - 1);
+		}
+		else
+		{
+			ui->web->setCurrentIndex(ui->web->count() - 1);
+		}
+		if (ui->web->currentWidget())
+		{
+			qDebug() << "New index is" << ui->web->currentIndex() << "with the current URL"
+					 << qobject_cast<WebDownloadNavigator *>(ui->web->currentWidget())->url();
+		}
+	});
 }
 
 QuickModInstallDialog::~QuickModInstallDialog()
 {
 	delete ui;
+}
+
+int QuickModInstallDialog::exec()
+{
+	showMaximized();
+	return QDialog::exec();
 }
 
 void QuickModInstallDialog::checkForIsDone()
@@ -114,21 +150,30 @@ bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 		dialog.setMod(mod, m_instance, versionFilter);
 		if (dialog.exec() == QDialog::Rejected)
 		{
-			reject();
+			if (isInitial)
+			{
+				reject();
+			}
 			return false;
 		}
 
 		// TODO any installed version should prevent another version from being installed
 		if (MMC->quickmodslist()->isModMarkedAsInstalled(mod, dialog.version(), m_instance))
 		{
-			accept();
+			if (isInitial)
+			{
+				accept();
+			}
 			return false;
 		}
 
 		if (MMC->quickmodslist()->isModMarkedAsExists(mod, dialog.version()))
 		{
 			install(mod, dialog.version());
-			accept();
+			if (isInitial)
+			{
+				accept();
+			}
 			return false;
 		}
 
@@ -149,8 +194,12 @@ bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString 
 				&QuickModInstallDialog::urlCaught);
 		navigator->load(mod->version(dialog.version()).url);
 		m_webModMapping.insert(navigator, qMakePair(mod, dialog.version()));
-		m_stack->addWidget(navigator);
+		ui->web->addWidget(navigator);
 
+		if (isInitial)
+		{
+			m_initialMod = mod;
+		}
 		m_trackedMods.insert(mod, dialog.version());
 
 		show();
@@ -243,9 +292,9 @@ void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 	connect(reply, &QNetworkReply::finished, this, &QuickModInstallDialog::downloadCompleted);
 
 	m_webModMapping.remove(navigator);
-	m_stack->removeWidget(navigator);
+	ui->web->removeWidget(navigator);
 	navigator->deleteLater();
-	if (m_stack->isEmpty())
+	if (ui->web->count() == 0)
 	{
 		ui->tabWidget->setCurrentWidget(ui->downloads);
 	}
@@ -401,9 +450,10 @@ void QuickModInstallDialog::downloadCompleted()
 void QuickModInstallDialog::newModRegistered(QuickMod *newMod)
 {
 	bool haveAdded = false;
-	foreach(QuickMod * mod, m_trackedMods.keys())
+	auto checkModForDependencies = [ this, haveAdded, newMod ](QuickMod * mod, int versionIndex)
+																  ->bool
 	{
-		QuickMod::Version version = mod->version(m_trackedMods[mod]);
+		QuickMod::Version version = mod->version(versionIndex);
 		if (version.dependencies.contains(newMod->name()))
 		{
 			ui->dependencyLogEdit->appendHtml(QString("Resolved dependency from %1 to %2<br/>")
@@ -411,8 +461,17 @@ void QuickModInstallDialog::newModRegistered(QuickMod *newMod)
 			if (!haveAdded)
 			{
 				addMod(newMod, false, version.dependencies[newMod->name()]);
-				haveAdded = true;
+				return true;
 			}
+		}
+		return false;
+	};
+	checkModForDependencies(m_initialMod, m_trackedMods[m_initialMod]);
+	foreach(QuickMod * mod, m_trackedMods.keys())
+	{
+		if (checkModForDependencies(mod, m_trackedMods[mod]))
+		{
+			haveAdded = true;
 		}
 	}
 	m_pendingDependencyUrls.removeAll(newMod->updateUrl());

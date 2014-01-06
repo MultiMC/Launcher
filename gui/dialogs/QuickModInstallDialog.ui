@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="dependencies">
       <attribute name="title">
@@ -41,11 +41,11 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="web">
+     <widget class="QWidget" name="webContainer">
       <attribute name="title">
        <string>Web</string>
       </attribute>
-      <layout class="QVBoxLayout" name="webLayout">
+      <layout class="QVBoxLayout" name="webContainerLayout">
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -58,6 +58,27 @@
        <property name="bottomMargin">
         <number>1</number>
        </property>
+       <item>
+        <widget class="QStackedWidget" name="web"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="previousButton">
+           <property name="text">
+            <string>Previous</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="nextButton">
+           <property name="text">
+            <string>Next</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="downloads">

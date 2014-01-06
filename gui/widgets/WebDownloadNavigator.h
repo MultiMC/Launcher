@@ -13,6 +13,8 @@ class WebDownloadNavigator : public QWidget
 public:
 	WebDownloadNavigator(QWidget *parent = 0);
 
+	QUrl url() const;
+
 public
 slots:
 	void load(const QUrl &url);

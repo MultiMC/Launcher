@@ -10,7 +10,6 @@ class QuickModInstallDialog;
 }
 
 class QNetworkReply;
-class QStackedLayout;
 class QuickMod;
 class WebDownloadNavigator;
 class BaseInstance;
@@ -25,6 +24,8 @@ public:
 
 public
 slots:
+	virtual int exec();
+
 	bool addMod(QuickMod *mod, bool isInitial = false,
 				const QString &versionFilter = QString());
 
@@ -40,10 +41,10 @@ slots:
 
 private:
 	Ui::QuickModInstallDialog *ui;
-	QStackedLayout *m_stack;
 
 	BaseInstance *m_instance;
 
+	QuickMod *m_initialMod;
 	QMap<QuickMod *, int> m_trackedMods;
 	QList<QUrl> m_pendingDependencyUrls;
 	QList<QString> m_pendingInstallations;
