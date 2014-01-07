@@ -186,6 +186,8 @@ protected:
 	void dragEnterEvent(QDragEnterEvent* event);
 	void dropEvent(QDropEvent* event);
 
+	void setSelectedInstanceById(const QString &id);
+
 private:
 	Ui::MainWindow *ui;
 	KCategoryDrawer *drawer;
