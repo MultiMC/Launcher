@@ -27,6 +27,27 @@ namespace Ui
 class VersionSelectDialog;
 }
 
+class VersionSelectProxyModel : public QSortFilterProxyModel
+{
+	Q_OBJECT
+public:
+	VersionSelectProxyModel(QObject *parent = 0);
+
+	QString filter() const;
+	void setFilter(const QString &filter);
+
+	int column() const;
+	void setColumn(int column);
+
+	static bool versionIsInFilter(const QString &version, const QString &filter);
+
+protected:
+	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+
+	QString m_filter;
+	int m_column;
+};
+
 class VersionSelectDialog : public QDialog
 {
 	Q_OBJECT
@@ -55,7 +76,7 @@ private:
 
 	BaseVersionList *m_vlist;
 
-	QSortFilterProxyModel *m_proxyModel;
+	VersionSelectProxyModel *m_proxyModel;
 
 	int resizeOnColumn = 0;
 };

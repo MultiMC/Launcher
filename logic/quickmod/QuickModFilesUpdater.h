@@ -2,10 +2,11 @@
 
 #include <QObject>
 #include <QDir>
+#include <memory>
 
-class QuickMod;
 class QuickModsList;
 class Mod;
+class QuickMod;
 
 /**
  * Takes care of regulary checking for updates to quickmod files, and is also responsible for
@@ -17,6 +18,7 @@ class QuickModFilesUpdater : public QObject
 public:
 	QuickModFilesUpdater(QuickModsList *list);
 
+	// TODO use some sort of lookup
 	QuickMod *ensureExists(const Mod &mod);
 
 	void registerFile(const QUrl &url);

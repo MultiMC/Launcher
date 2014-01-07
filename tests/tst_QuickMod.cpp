@@ -1,6 +1,6 @@
 #include <QTest>
 
-#include "logic/lists/QuickModsList.h"
+#include "logic/quickmod/QuickModsList.h"
 #include "TestUtil.h"
 
 class QuickModTest : public QObject
@@ -32,12 +32,6 @@ private slots:
 		mod->m_categories << "cat" << "grep" << "ls" << "cp";
 		mod->m_tags << "tag" << "tictactoe";
 		mod->m_type = QuickMod::ForgeMod;
-		mod->m_versions << QuickMod::Version("1.42", QUrl("http://downloads.com/deadbeaf"),
-											 QStringList() << "1.6.2" << "1.6.4",
-											 QString("(9.8.42,)"),
-											 QMap<QString, QString>({{"stuff", "1.0.0.0.0"}}),
-											 QMap<QString, QString>({{"OtherName", "1.2.3"}}),
-											 "a68b86df2f3fff44");
 		mod->m_stub = false;
 		return mod;
 	}
@@ -86,7 +80,6 @@ private slots:
 		QCOMPARE(parsed->m_categories, mod->m_categories);
 		QCOMPARE(parsed->m_tags, mod->m_tags);
 		QCOMPARE(parsed->m_type, mod->m_type);
-		QCOMPARE(parsed->m_versions, mod->m_versions);
 		QCOMPARE(parsed->m_stub, mod->m_stub);
 	}
 

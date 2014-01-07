@@ -3,6 +3,9 @@
 #include <QDialog>
 #include <QMap>
 #include <QPair>
+#include <memory>
+
+#include "logic/quickmod/QuickModVersion.h"
 
 namespace Ui
 {
@@ -10,9 +13,9 @@ class QuickModInstallDialog;
 }
 
 class QNetworkReply;
-class QuickMod;
 class WebDownloadNavigator;
 class BaseInstance;
+class QuickMod;
 
 class QuickModInstallDialog : public QDialog
 {
@@ -45,11 +48,11 @@ private:
 	BaseInstance *m_instance;
 
 	QuickMod *m_initialMod;
-	QMap<QuickMod *, int> m_trackedMods;
+	QMap<QuickMod *, QuickModVersionPtr> m_trackedMods;
 	QList<QUrl> m_pendingDependencyUrls;
 	QList<QString> m_pendingInstallations;
 
-	QMap<WebDownloadNavigator *, QPair<QuickMod *, int>> m_webModMapping;
+	QMap<WebDownloadNavigator *, QPair<QuickMod *, QuickModVersionPtr>> m_webModMapping;
 
-	void install(QuickMod *mod, const int versionIndex);
+	void install(QuickMod *mod, const QuickModVersionPtr version);
 };

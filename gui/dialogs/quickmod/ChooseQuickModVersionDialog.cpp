@@ -3,9 +3,11 @@
 
 #include <QDebug>
 
-#include "logic/lists/QuickModsList.h"
+#include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
 #include "logic/BaseInstance.h"
 
+#if 0
 ChooseQuickModVersionDialog::ChooseQuickModVersionDialog(QWidget *parent)
 	: QDialog(parent), ui(new Ui::ChooseQuickModVersionDialog)
 {
@@ -130,3 +132,5 @@ bool ChooseQuickModVersionDialog::versionIsInFilter(const QString &version,
 
 	return false;
 }
+
+#endif

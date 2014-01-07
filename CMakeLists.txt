@@ -234,6 +234,12 @@ gui/ConsoleWindow.h
 gui/ConsoleWindow.cpp
 
 # GUI - dialogs
+gui/dialogs/quickmod/AddQuickModFileDialog.h
+gui/dialogs/quickmod/AddQuickModFileDialog.cpp
+gui/dialogs/quickmod/ChooseInstallModDialog.h
+gui/dialogs/quickmod/ChooseInstallModDialog.cpp
+gui/dialogs/quickmod/QuickModInstallDialog.h
+gui/dialogs/quickmod/QuickModInstallDialog.cpp
 gui/dialogs/SettingsDialog.h
 gui/dialogs/SettingsDialog.cpp
 gui/dialogs/CopyInstanceDialog.h
@@ -262,14 +268,6 @@ gui/dialogs/EditNotesDialog.h
 gui/dialogs/EditNotesDialog.cpp
 gui/dialogs/CustomMessageBox.h
 gui/dialogs/CustomMessageBox.cpp
-gui/dialogs/AddQuickModFileDialog.h
-gui/dialogs/AddQuickModFileDialog.cpp
-gui/dialogs/ChooseInstallModDialog.h
-gui/dialogs/ChooseInstallModDialog.cpp
-gui/dialogs/ChooseQuickModVersionDialog.h
-gui/dialogs/ChooseQuickModVersionDialog.cpp
-gui/dialogs/QuickModInstallDialog.h
-gui/dialogs/QuickModInstallDialog.cpp
 gui/dialogs/EditAccountDialog.h
 gui/dialogs/EditAccountDialog.cpp
 gui/dialogs/AccountListDialog.h
@@ -410,8 +408,16 @@ logic/lists/ForgeVersionList.h
 logic/lists/ForgeVersionList.cpp
 logic/lists/JavaVersionList.h
 logic/lists/JavaVersionList.cpp
-logic/lists/QuickModsList.h
-logic/lists/QuickModsList.cpp
+
+# Quickmod
+logic/quickmod/QuickModsList.h
+logic/quickmod/QuickModsList.cpp
+logic/quickmod/QuickModFilesUpdater.h
+logic/quickmod/QuickModFilesUpdater.cpp
+logic/quickmod/QuickMod.h
+logic/quickmod/QuickMod.cpp
+logic/quickmod/QuickModVersion.h
+logic/quickmod/QuickModVersion.cpp
 
 # Icons
 logic/icons/MMCIcon.h
@@ -445,10 +451,6 @@ logic/SkinUtils.cpp
 logic/JavaCheckerJob.h
 logic/JavaCheckerJob.cpp
 
-# QuickMod stuff
-logic/QuickModFilesUpdater.h
-logic/QuickModFilesUpdater.cpp
-
 # Assets
 logic/assets/AssetsMigrateTask.h
 logic/assets/AssetsMigrateTask.cpp
@@ -477,10 +479,9 @@ gui/dialogs/IconPickerDialog.ui
 gui/dialogs/LegacyModEditDialog.ui
 gui/dialogs/OneSixModEditDialog.ui
 gui/dialogs/EditNotesDialog.ui
-gui/dialogs/AddQuickModFileDialog.ui
-gui/dialogs/ChooseInstallModDialog.ui
-gui/dialogs/ChooseQuickModVersionDialog.ui
-gui/dialogs/QuickModInstallDialog.ui
+gui/dialogs/quickmod/AddQuickModFileDialog.ui
+gui/dialogs/quickmod/ChooseInstallModDialog.ui
+gui/dialogs/quickmod/QuickModInstallDialog.ui
 gui/dialogs/AccountListDialog.ui
 gui/dialogs/AccountSelectDialog.ui
 gui/dialogs/EditAccountDialog.ui

@@ -30,7 +30,7 @@
 #include "gui/Platform.h"
 #include "gui/dialogs/CustomMessageBox.h"
 #include "gui/dialogs/VersionSelectDialog.h"
-#include "gui/dialogs/ChooseInstallModDialog.h"
+#include "gui/dialogs/quickmod/ChooseInstallModDialog.h"
 
 #include "gui/dialogs/ProgressDialog.h"
 

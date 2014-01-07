@@ -1,9 +1,9 @@
 #include <QTest>
 
-#include "gui/dialogs/ChooseQuickModVersionDialog.h"
+#include "gui/dialogs/VersionSelectDialog.h"
 #include "TestUtil.h"
 
-class ChooseQuickModVersionDialogTest : public QObject
+class VersionSelectDialogTest : public QObject
 {
 	Q_OBJECT
 private slots:
@@ -51,10 +51,10 @@ private slots:
 		QFETCH(QString, filter);
 		QFETCH(bool, result);
 
-		QCOMPARE(ChooseQuickModVersionDialog::versionIsInFilter(version, filter), result);
+		QCOMPARE(VersionSelectProxyModel::versionIsInFilter(version, filter), result);
 	}
 };
 
-QTEST_GUILESS_MAIN_MULTIMC(ChooseQuickModVersionDialogTest)
+QTEST_GUILESS_MAIN_MULTIMC(VersionSelectDialogTest)
 
-#include "tst_ChooseQuickModVersionDialog.moc"
+#include "tst_VersionSelectDialog.moc"

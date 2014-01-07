@@ -7,10 +7,11 @@
 #include "depends/groupview/include/categorizedsortfilterproxymodel.h"
 #include "depends/groupview/include/categorydrawer.h"
 
-#include "logic/lists/QuickModsList.h"
-#include "gui/dialogs/QuickModInstallDialog.h"
+#include "logic/quickmod/QuickModsList.h"
+#include "gui/dialogs/quickmod/QuickModInstallDialog.h"
 #include "ChooseQuickModVersionDialog.h"
 #include "AddQuickModFileDialog.h"
+#include "logic/quickmod/QuickMod.h"
 
 #include "MultiMC.h"
 
@@ -190,7 +191,7 @@ void ChooseInstallModDialog::on_installButton_clicked()
 		dialog.exec();
 	}
 }
-void ChooseInstallModDialog::on_cancelButton_clicked()
+void ChooseInstallModDialog::on_closeButton_clicked()
 {
 	reject();
 }

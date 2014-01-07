@@ -17,7 +17,7 @@
 #include "logic/lists/LwjglVersionList.h"
 #include "logic/lists/MinecraftVersionList.h"
 #include "logic/lists/ForgeVersionList.h"
-#include "logic/lists/QuickModsList.h"
+#include "logic/quickmod/QuickModsList.h"
 
 #include "logic/news/NewsChecker.h"
 
@@ -500,6 +500,7 @@ void MultiMC::initHttpMetaCache()
 	m_metacache->addBase("skins", QDir("accounts/skins").absolutePath());
 	m_metacache->addBase("quickmod/icons", QDir("quickmod/images/icons").absolutePath());
 	m_metacache->addBase("quickmod/logos", QDir("quickmod/images/logos").absolutePath());
+	m_metacache->addBase("quickmod/versions", QDir("quickmod/versions").absolutePath());
 	m_metacache->addBase("root", QDir(root()).absolutePath());
 	m_metacache->Load();
 }

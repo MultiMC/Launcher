@@ -3,11 +3,13 @@
 #include <QFile>
 #include <QTimer>
 #include <QDebug>
+#include <memory>
 
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include "logic/lists/QuickModsList.h"
+#include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
 #include "logic/Mod.h"
@@ -49,9 +51,6 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 	qMod->m_websiteUrl = QUrl(mod.homeurl());
 	qMod->m_description = mod.description();
 	qMod->m_stub = true;
-	QuickMod::Version version;
-	version.name = mod.version();
-	qMod->m_versions.append(version);
 	if (mod.filename().path().contains("coremod"))
 	{
 		qMod->m_type = QuickMod::ForgeCoreMod;
@@ -80,7 +79,6 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 		}
 		else
 		{
-			delete qMod;
 			qMod = oldMod;
 		}
 	}
@@ -102,7 +100,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 		return;
 	}
 
-	QuickMod *mod = new QuickMod;
+	auto mod = new QuickMod;
 	QString errorMessage;
 	mod->parse(download->m_data, &errorMessage);
 	if (!errorMessage.isNull())
@@ -148,9 +146,10 @@ void QuickModFilesUpdater::get(const QUrl &url)
 
 void QuickModFilesUpdater::readModFiles()
 {
+	QLOG_TRACE() << "Reloading quickmod files";
 	m_list->clearMods();
 	foreach(const QFileInfo & info,
-			m_quickmodDir.entryInfoList(QStringList() << "*_quickmod.json", QDir::Files))
+			m_quickmodDir.entryInfoList(QStringList() << "*.json", QDir::Files))
 	{
 		auto mod = new QuickMod;
 		if (parseQuickMod(info.absoluteFilePath(), mod))
@@ -202,24 +201,12 @@ void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
 
 QString QuickModFilesUpdater::fileName(const QuickMod *mod)
 {
-	switch (mod->type())
-	{
-	case QuickMod::ForgeMod:
-	case QuickMod::ForgeCoreMod:
-		return QString("mod_%1_quickmod.json")
-				.arg(mod->modId().isNull() ? mod->name() : mod->modId());
-	case QuickMod::ConfigPack:
-	case QuickMod::Group:
-		return QString("group_%1_quickmod.json").arg(mod->name());
-	case QuickMod::ResourcePack:
-	default:
-		return QString("other_%1_quickmod.json").arg(mod->name());
-	}
+	return mod->uid() + ".json";
 }
 
 bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickMod *mod)
 {
-	QLOG_INFO() << "Saving the QuickMod file" << fileName;
+	QLOG_INFO() << "Reading the QuickMod file" << fileName;
 	QFile file(fileName);
 	if (!file.open(QFile::ReadOnly))
 	{

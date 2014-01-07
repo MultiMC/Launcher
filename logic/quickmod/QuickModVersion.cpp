@@ -1,0 +1,219 @@
+#include "QuickModVersion.h"
+
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
+
+#include "logic/net/HttpMetaCache.h"
+#include "QuickMod.h"
+#include "MultiMC.h"
+
+QuickModVersionPtr QuickModVersion::invalid = QuickModVersionPtr(new QuickModVersion(false));
+
+bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
+{
+	name_ = object.value("name").toString();
+	url = QUrl(object.value("url").toString());
+	// checksum
+	{
+		if (object.contains("checksum_md4"))
+		{
+			checksum = object.value("checksum_md4").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Md4;
+		}
+		else if (object.contains("checksum_md5"))
+		{
+			checksum = object.value("checksum_md5").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Md5;
+		}
+		else if (object.contains("checksum_sha1"))
+		{
+			checksum = object.value("checksum_sha1").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha1;
+		}
+		else if (object.contains("checksum_sha224"))
+		{
+			checksum = object.value("checksum_sha224").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha224;
+		}
+		else if (object.contains("checksum_sha256"))
+		{
+			checksum = object.value("checksum_sha256").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha256;
+		}
+		else if (object.contains("checksum_sha384"))
+		{
+			checksum = object.value("checksum_sha384").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha384;
+		}
+		else if (object.contains("checksum_sha512"))
+		{
+			checksum = object.value("checksum_sha512").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha512;
+		}
+		else if (object.contains("checksum_sha3_224"))
+		{
+			checksum = object.value("checksum_sha3_224").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha3_224;
+		}
+		else if (object.contains("checksum_sha3_256"))
+		{
+			checksum = object.value("checksum_sha3_256").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha3_256;
+		}
+		else if (object.contains("checksum_sha3_384"))
+		{
+			checksum = object.value("checksum_sha3_384").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha3_384;
+		}
+		else if (object.contains("checksum_sha3_512"))
+		{
+			checksum = object.value("checksum_sha3_512").toString().toLatin1();
+			checksum_algorithm = QCryptographicHash::Sha3_512;
+		}
+		else
+		{
+			checksum = QByteArray();
+		}
+	}
+	forgeVersionFilter = object.value("forgeCompatibility").toString();
+	compatibleVersions.clear();
+	foreach(const QJsonValue & val, object.value("mcCompatibility").toArray())
+	{
+		compatibleVersions.append(val.toString());
+	}
+	dependencies.clear();
+	QJsonObject deps = object.value("modDependencies").toObject();
+	foreach(const QString & mod, deps.keys())
+	{
+		dependencies.insert(mod, deps.value(mod).toString());
+	}
+	recommendations.clear();
+	QJsonObject recs = object.value("modRecommendations").toObject();
+	foreach(const QString & mod, recs.keys())
+	{
+		recommendations.insert(mod, recs.value(mod).toString());
+	}
+	return true;
+}
+
+QuickModVersionList::QuickModVersionList(QuickMod *mod, BaseInstance *instance, QObject *parent)
+	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
+{
+}
+
+Task *QuickModVersionList::getLoadTask()
+{
+	return new QuickModVersionListLoadTask(this);
+}
+
+bool QuickModVersionList::isLoaded()
+{
+	return m_loaded;
+}
+
+const BaseVersionPtr QuickModVersionList::at(int i) const
+{
+	return m_vlist.at(i);
+}
+
+int QuickModVersionList::count() const
+{
+	return m_vlist.count();
+}
+
+void QuickModVersionList::sort()
+{
+	qSort(m_vlist.begin(), m_vlist.end(), [](const BaseVersionPtr v1, const BaseVersionPtr v2)
+	{
+		return std::dynamic_pointer_cast<QuickModVersion>(v1)->name() <
+			   std::dynamic_pointer_cast<QuickModVersion>(v2)->name();
+	});
+}
+
+void QuickModVersionList::updateListData(QList<BaseVersionPtr> versions)
+{
+	beginResetModel();
+	m_vlist = versions;
+	m_loaded = true;
+	endResetModel();
+	sort();
+}
+
+QuickModVersionListLoadTask::QuickModVersionListLoadTask(QuickModVersionList *vlist)
+	: Task(), m_vlist(vlist)
+{
+}
+
+void QuickModVersionListLoadTask::executeTask()
+{
+	setStatus(tr("Fetching QuickMod version list..."));
+	auto job = new NetJob("Version list");
+	auto entry =
+		MMC->metacache()->resolveEntry("quickmod/versions", m_vlist->m_mod->uid() + ".json");
+
+	job->addNetAction(listDownload = CacheDownload::make(m_vlist->m_mod->versionsUrl(), entry));
+
+	connect(listDownload.get(), SIGNAL(failed(int)), SLOT(listFailed()));
+
+	listJob.reset(job);
+	connect(listJob.get(), SIGNAL(succeeded()), SLOT(listDownloaded()));
+	connect(listJob.get(), SIGNAL(progress(qint64, qint64)), this,
+			SIGNAL(progress(qint64, qint64)));
+	listJob->start();
+}
+
+void QuickModVersionListLoadTask::listDownloaded()
+{
+	setStatus(tr("Parsing reply..."));
+	QList<BaseVersionPtr> list;
+	QJsonParseError error;
+	QFile file(listDownload->m_target_path);
+	if (!file.open(QFile::ReadOnly))
+	{
+		QLOG_ERROR() << "Couldn't open QuickMod version file " << file.fileName()
+					 << " for parsing: " << file.errorString();
+		emitFailed(tr("Couldn't parse reply. See the log for details."));
+		return;
+	}
+	QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &error);
+	if (error.error != QJsonParseError::NoError)
+	{
+		QLOG_ERROR() << "Error parsing JSON in " << file.fileName() << ":"
+					 << error.errorString();
+		emitFailed(tr("Couldn't parse reply. See the log for details."));
+		return;
+	}
+	QJsonArray root = doc.array();
+	foreach(const QJsonValue & value, root)
+	{
+		QuickModVersionPtr version = QuickModVersionPtr(new QuickModVersion(true));
+		QString errorMessage;
+		version->parse(value.toObject(), &errorMessage);
+		if (!errorMessage.isNull())
+		{
+			QLOG_ERROR() << "Error parsing JSON in " << file.fileName() << ":" << errorMessage;
+			emitFailed(tr("Couldn't parse reply. See the log for details."));
+			return;
+		}
+		list.append(version);
+	}
+
+	m_vlist->updateListData(list);
+	emitSucceeded();
+	return;
+}
+
+void QuickModVersionListLoadTask::listFailed()
+{
+	auto reply = listDownload->m_reply;
+	if (reply)
+	{
+		QLOG_ERROR() << "Getting QuickMod version list failed for " << m_vlist->m_mod->name()
+					 << ": " << reply->errorString();
+	}
+	else
+	{
+		QLOG_ERROR() << "Getting QuickMod version list failed for reasons unknown.";
+	}
+}

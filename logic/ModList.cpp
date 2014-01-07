@@ -23,7 +23,7 @@
 #include <QFileSystemWatcher>
 #include "logger/QsLog.h"
 
-#include "lists/QuickModsList.h"
+#include "quickmod/QuickModsList.h"
 #include "MultiMC.h"
 
 ModList::ModList(BaseInstance *instance, const QString &dir, const QString &list_file)

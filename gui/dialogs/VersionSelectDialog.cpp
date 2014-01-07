@@ -27,6 +27,90 @@
 #include <logic/lists/BaseVersionList.h>
 #include <logic/tasks/Task.h>
 
+VersionSelectProxyModel::VersionSelectProxyModel(QObject *parent)
+	: QSortFilterProxyModel(parent)
+{
+}
+
+bool VersionSelectProxyModel::filterAcceptsRow(int source_row,
+											   const QModelIndex &source_parent) const
+{
+	const QString version = sourceModel()->index(source_row, m_column).data().toString();
+
+	bool ret = versionIsInFilter(version, m_filter);
+	return ret;
+}
+QString VersionSelectProxyModel::filter() const
+{
+	return m_filter;
+}
+void VersionSelectProxyModel::setFilter(const QString &filter)
+{
+	m_filter = filter;
+}
+int VersionSelectProxyModel::column() const
+{
+	return m_column;
+}
+void VersionSelectProxyModel::setColumn(int column)
+{
+	m_column = column;
+}
+
+bool VersionSelectProxyModel::versionIsInFilter(const QString &version, const QString &filter)
+{
+	if (filter.isEmpty())
+	{
+		return true;
+	}
+	else if (version == filter)
+	{
+		return true;
+	}
+
+	// Interval notation is used
+	QRegularExpression exp(
+		"(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)])");
+	QRegularExpressionMatch match = exp.match(filter);
+	if (match.hasMatch())
+	{
+		const QChar start = match.captured("start").at(0);
+		const QChar end = match.captured("end").at(0);
+		const QString bottom = match.captured("bottom");
+		const QString top = match.captured("top");
+
+		// check if in range (bottom)
+		if (!bottom.isEmpty())
+		{
+			if ((start == '[') && !(version >= bottom))
+			{
+				return false;
+			}
+			else if ((start == '(') && !(version > bottom))
+			{
+				return false;
+			}
+		}
+
+		// check if in range (top)
+		if (!top.isEmpty())
+		{
+			if ((end == ']') && !(version <= top))
+			{
+				return false;
+			}
+			else if ((end == ')') && !(version < top))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, QWidget *parent,
 										 bool cancelable)
 	: QDialog(parent), ui(new Ui::VersionSelectDialog)
@@ -38,7 +122,7 @@ VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, 
 
 	m_vlist = vlist;
 
-	m_proxyModel = new QSortFilterProxyModel(this);
+	m_proxyModel = new VersionSelectProxyModel(this);
 	m_proxyModel->setSourceModel(vlist);
 
 	ui->listView->setModel(m_proxyModel);
@@ -67,7 +151,19 @@ int VersionSelectDialog::exec()
 {
 	QDialog::open();
 	if (!m_vlist->isLoaded())
+	{
 		loadList();
+	}
+	if (m_proxyModel->rowCount() == 0)
+	{
+		return QDialog::Rejected;
+	}
+	if (m_proxyModel->rowCount() == 1)
+	{
+		ui->listView->selectionModel()->setCurrentIndex(m_proxyModel->index(0, 0),
+														QItemSelectionModel::ClearAndSelect);
+		return QDialog::Accepted;
+	}
 	return QDialog::exec();
 }
 
@@ -77,6 +173,7 @@ void VersionSelectDialog::loadList()
 	Task *loadTask = m_vlist->getLoadTask();
 	loadTask->setParent(taskDlg);
 	taskDlg->exec(loadTask);
+	delete taskDlg; // without this the dialog won't dissapear?
 }
 
 BaseVersionPtr VersionSelectDialog::selectedVersion() const
@@ -93,8 +190,8 @@ void VersionSelectDialog::on_refreshButton_clicked()
 
 void VersionSelectDialog::setFilter(int column, QString filter)
 {
-	m_proxyModel->setFilterKeyColumn(column);
-	m_proxyModel->setFilterFixedString(filter);
+	m_proxyModel->setColumn(column);
+	m_proxyModel->setFilter(filter);
 	/*
 	QStringList filteredTypes;
 	if (!ui->filterSnapshotsCheckbox->isChecked())

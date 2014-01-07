@@ -1,4 +1,5 @@
 #pragma once
+#if 0
 
 #include <QDialog>
 
@@ -32,3 +33,4 @@ private:
 
 	static bool versionIsInFilter(const QString &version, const QString &filter);
 };
+#endif

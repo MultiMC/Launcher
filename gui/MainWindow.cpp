@@ -56,7 +56,7 @@
 #include "gui/dialogs/IconPickerDialog.h"
 #include "gui/dialogs/EditNotesDialog.h"
 #include "gui/dialogs/CopyInstanceDialog.h"
-#include "gui/dialogs/AddQuickModFileDialog.h"
+#include "gui/dialogs/quickmod/AddQuickModFileDialog.h"
 #include "gui/dialogs/AccountListDialog.h"
 #include "gui/dialogs/AccountSelectDialog.h"
 #include "gui/dialogs/UpdateDialog.h"
@@ -69,7 +69,7 @@
 #include "logic/lists/LwjglVersionList.h"
 #include "logic/icons/IconList.h"
 #include "logic/lists/JavaVersionList.h"
-#include "logic/lists/QuickModsList.h"
+#include "logic/quickmod/QuickModsList.h"
 
 #include "logic/auth/flows/AuthenticateTask.h"
 #include "logic/auth/flows/RefreshTask.h"

@@ -1,7 +1,7 @@
 #include <QTest>
 #include <QDir>
 
-#include "logic/lists/QuickModsList.h"
+#include "logic/quickmod/QuickModsList.h"
 #include "logic/InstanceFactory.h"
 #include "logic/MinecraftVersion.h"
 #include "logic/BaseInstance.h"
@@ -51,7 +51,7 @@ private slots:
 	void testMarkAsExisting()
 	{
 		QFETCH(QVector<QuickMod *>, mods);
-		QFETCH(QVector<int>, versions);
+		QFETCH(QVector<QuickModVersionPtr>, versions);
 		QFETCH(QVector<QString>, filenames);
 		Q_ASSERT(mods.size() == versions.size() && mods.size() == filenames.size());
 
@@ -104,7 +104,7 @@ private slots:
 	void testMarkAsInstalledUninstalled()
 	{
 		QFETCH(QVector<QuickMod *>, mods);
-		QFETCH(QVector<int>, versions);
+		QFETCH(QVector<QuickModVersionPtr>, versions);
 		QFETCH(BaseInstance *, instance);
 		QFETCH(QVector<QString>, filenames);
 		Q_ASSERT(mods.size() == versions.size() && mods.size() == filenames.size());
