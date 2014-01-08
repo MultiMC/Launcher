@@ -90,14 +90,20 @@ void QuickModFilesUpdater::receivedMod(int notused)
 {
 	ByteArrayDownload *download = qobject_cast<ByteArrayDownload *>(sender());
 
-	if (download->m_content_type.startsWith("application/x-quickmod-index"))
+	// index?
 	{
 		QJsonObject obj = QJsonDocument::fromJson(download->m_data).object();
-		for (auto it = obj.begin(); it != obj.end(); ++it)
+		if (obj.contains("IsIndex") && obj.value("IsIndex").toBool(false))
 		{
-			registerFile(QUrl(it.value().toString()));
+			for (auto it = obj.begin(); it != obj.end(); ++it)
+			{
+				if (it.key() != "IsIndex")
+				{
+					registerFile(QUrl(it.value().toString()));
+				}
+			}
+			return;
 		}
-		return;
 	}
 
 	auto mod = new QuickMod;
