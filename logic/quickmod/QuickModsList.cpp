@@ -174,16 +174,40 @@ Qt::DropActions QuickModsList::supportedDragActions() const
 	return 0;
 }
 
+QuickMod *QuickModsList::mod(const QString &uid) const
+{
+	foreach (QuickMod *mod, m_mods)
+	{
+		if (mod->uid() == uid)
+		{
+			return mod;
+		}
+	}
+	return 0;
+}
+QuickModVersionPtr QuickModsList::modVersion(const QString &modUid, const QString &versionName) const
+{
+	QuickMod *m = mod(modUid);
+	if (m)
+	{
+		return m->version(versionName);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 void QuickModsList::modAddedBy(const Mod &mod, BaseInstance *instance)
 {
 	QuickMod *qMod = m_updater->ensureExists(mod);
-	markModAsInstalled(qMod, QuickModVersion::invalid, mod.filename().absoluteFilePath(),
+	markModAsInstalled(qMod, QuickModVersion::invalid(qMod), mod.filename().absoluteFilePath(),
 					   instance);
 }
 void QuickModsList::modRemovedBy(const Mod &mod, BaseInstance *instance)
 {
 	QuickMod *qMod = m_updater->ensureExists(mod);
-	markModAsUninstalled(qMod, QuickModVersion::invalid, instance);
+	markModAsUninstalled(qMod, QuickModVersion::invalid(qMod), instance);
 }
 
 void QuickModsList::markModAsExists(QuickMod *mod, const BaseVersionPtr version,

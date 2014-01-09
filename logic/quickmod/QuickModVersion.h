@@ -23,16 +23,16 @@ Q_DECLARE_METATYPE(QuickModVersionPtr)
 class QuickModVersion : public BaseVersion
 {
 public:
-	QuickModVersion(bool valid = true) : valid(valid)
+	QuickModVersion(QuickMod *mod, bool valid = true) : mod(mod), valid(valid)
 	{
 	}
-	QuickModVersion(const QString &name, const QUrl &url, const QStringList &mc,
+	QuickModVersion(QuickMod *mod, const QString &name, const QUrl &url, const QStringList &mc,
 					const QString &forge = QString(),
 					const QMap<QString, QString> &deps = QMap<QString, QString>(),
 					const QMap<QString, QString> &recs = QMap<QString, QString>(),
 					const QByteArray &checksum = QByteArray())
-		: valid(true), name_(name), url(url), compatibleVersions(mc), forgeVersionFilter(forge),
-		  dependencies(deps), recommendations(recs),
+		: mod(mod), valid(true), name_(name), url(url), compatibleVersions(mc),
+		  forgeVersionFilter(forge), dependencies(deps), recommendations(recs),
 		  checksum_algorithm(QCryptographicHash::Md5), checksum(checksum)
 	{
 	}
@@ -52,6 +52,7 @@ public:
 		return QString(); // TODO add type field
 	}
 
+	QuickMod *mod;
 	bool valid;
 	QString name_;
 	QUrl url;
@@ -65,14 +66,14 @@ public:
 
 	bool operator==(const QuickModVersion &other) const
 	{
-		return name_ == other.name_ && url == other.url &&
-			   compatibleVersions == other.compatibleVersions &&
+		return mod == other.mod && valid == other.valid && name_ == other.name_ &&
+			   url == other.url && compatibleVersions == other.compatibleVersions &&
 			   forgeVersionFilter == other.forgeVersionFilter &&
 			   dependencies == other.dependencies && recommendations == other.recommendations &&
 			   checksum == other.checksum;
 	}
 
-	static QuickModVersionPtr invalid;
+	static QuickModVersionPtr invalid(QuickMod *mod);
 };
 
 class QuickModVersionList : public BaseVersionList

@@ -9,6 +9,8 @@
 #include <memory>
 
 class QuickMod;
+class QuickModVersion;
+typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 
 class QuickMod : public QObject
 {
@@ -95,6 +97,16 @@ public:
 		return m_stub;
 	}
 
+	QList<QuickModVersionPtr> versions() const
+	{
+		return m_versions;
+	}
+	void setVersions(const QList<QuickModVersionPtr> &versions)
+	{
+		m_versions = versions;
+	}
+	QuickModVersionPtr version(const QString &name) const;
+
 	QByteArray hash() const
 	{
 		return m_hash;
@@ -135,6 +147,8 @@ private:
 	ModType m_type;
 	QUrl m_versionsUrl;
 	bool m_stub;
+
+	QList<QuickModVersionPtr> m_versions;
 
 	QByteArray m_hash;
 

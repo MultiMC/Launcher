@@ -10,6 +10,8 @@
 
 class QuickModFilesUpdater;
 class QuickMod;
+class QuickModVersion;
+typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 class Mod;
 class BaseInstance;
 class SettingsObject;
@@ -61,6 +63,9 @@ public:
 	{
 		return m_mods[index];
 	}
+
+	QuickMod *mod(const QString &uid) const;
+	QuickModVersionPtr modVersion(const QString &modUid, const QString &versionName) const;
 
 	void modAddedBy(const Mod &mod, BaseInstance *instance);
 	void modRemovedBy(const Mod &mod, BaseInstance *instance);

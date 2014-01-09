@@ -8,8 +8,6 @@
 #include "QuickMod.h"
 #include "MultiMC.h"
 
-QuickModVersionPtr QuickModVersion::invalid = QuickModVersionPtr(new QuickModVersion(false));
-
 bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 {
 	name_ = object.value("name").toString();
@@ -97,6 +95,11 @@ bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 	return true;
 }
 
+QuickModVersionPtr QuickModVersion::invalid(QuickMod *mod)
+{
+	return QuickModVersionPtr(new QuickModVersion(mod, false));
+}
+
 QuickModVersionList::QuickModVersionList(QuickMod *mod, BaseInstance *instance, QObject *parent)
 	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
 {
@@ -126,7 +129,7 @@ void QuickModVersionList::sort()
 {
 	qSort(m_vlist.begin(), m_vlist.end(), [](const BaseVersionPtr v1, const BaseVersionPtr v2)
 	{
-		return std::dynamic_pointer_cast<QuickModVersion>(v1)->name() <
+		return std::dynamic_pointer_cast<QuickModVersion>(v1)->name() >
 			   std::dynamic_pointer_cast<QuickModVersion>(v2)->name();
 	});
 }
@@ -166,7 +169,7 @@ void QuickModVersionListLoadTask::executeTask()
 void QuickModVersionListLoadTask::listDownloaded()
 {
 	setStatus(tr("Parsing reply..."));
-	QList<BaseVersionPtr> list;
+	QList<QuickModVersionPtr> list;
 	QJsonParseError error;
 	QFile file(listDownload->m_target_path);
 	if (!file.open(QFile::ReadOnly))
@@ -187,7 +190,7 @@ void QuickModVersionListLoadTask::listDownloaded()
 	QJsonArray root = doc.array();
 	foreach(const QJsonValue & value, root)
 	{
-		QuickModVersionPtr version = QuickModVersionPtr(new QuickModVersion(true));
+		QuickModVersionPtr version = QuickModVersionPtr(new QuickModVersion(m_vlist->m_mod, true));
 		QString errorMessage;
 		version->parse(value.toObject(), &errorMessage);
 		if (!errorMessage.isNull())
@@ -199,7 +202,14 @@ void QuickModVersionListLoadTask::listDownloaded()
 		list.append(version);
 	}
 
-	m_vlist->updateListData(list);
+	QList<BaseVersionPtr> baseList;
+	foreach (QuickModVersionPtr ptr, list)
+	{
+		baseList.append(ptr);
+	}
+
+	m_vlist->m_mod->setVersions(list);
+	m_vlist->updateListData(baseList);
 	emitSucceeded();
 	return;
 }

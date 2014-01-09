@@ -31,7 +31,7 @@ class NetJob : public ProgressProvider
 {
 	Q_OBJECT
 public:
-	explicit NetJob(QString job_name) : ProgressProvider(), m_job_name(job_name) {};
+	explicit NetJob(QString job_name) : ProgressProvider(), m_job_name(job_name) {}
 
 	template <typename T> bool addNetAction(T action)
 	{
@@ -63,7 +63,10 @@ public:
 	{
 		return downloads[index];
 	}
-	;
+	const NetActionPtr at(const int index)
+	{
+		return downloads.at(index);
+	}
 	NetActionPtr first()
 	{
 		if (downloads.size())
@@ -79,17 +82,14 @@ public:
 		current = current_progress;
 		total = total_progress;
 	}
-	;
 	virtual QString getStatus() const
 	{
 		return m_job_name;
 	}
-	;
 	virtual bool isRunning() const
 	{
 		return m_running;
 	}
-	;
 	QStringList getFailedFiles();
 signals:
 	void started();

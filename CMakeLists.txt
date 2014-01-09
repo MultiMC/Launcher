@@ -418,6 +418,12 @@ logic/quickmod/QuickMod.h
 logic/quickmod/QuickMod.cpp
 logic/quickmod/QuickModVersion.h
 logic/quickmod/QuickModVersion.cpp
+logic/quickmod/QuickModDependencyResolver.h
+logic/quickmod/QuickModDependencyResolver.cpp
+logic/quickmod/QuickModDependencyDownloadTask.h
+logic/quickmod/QuickModDependencyDownloadTask.cpp
+logic/quickmod/QuickModVerificationTask.h
+logic/quickmod/QuickModVerificationTask.cpp
 
 # Icons
 logic/icons/MMCIcon.h

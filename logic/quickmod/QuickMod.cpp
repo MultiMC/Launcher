@@ -8,6 +8,7 @@
 #include "logic/net/CacheDownload.h"
 #include "logic/net/NetJob.h"
 #include "MultiMC.h"
+#include "QuickModVersion.h"
 
 QuickMod::QuickMod(QObject *parent)
 	: QObject(parent), m_stub(false), m_loadingIcon(false), m_loadingLogo(false)
@@ -39,6 +40,18 @@ QPixmap QuickMod::logo()
 {
 	fetchImages();
 	return m_logo;
+}
+
+QuickModVersionPtr QuickMod::version(const QString &name) const
+{
+	foreach (QuickModVersionPtr ptr, m_versions)
+	{
+		if (ptr->name() == name)
+		{
+			return ptr;
+		}
+	}
+	return QuickModVersionPtr();
 }
 
 #define MALFORMED_JSON_X(message)                                                              \

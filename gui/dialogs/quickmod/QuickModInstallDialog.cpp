@@ -18,6 +18,8 @@
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
+#include "logic/quickmod/QuickModDependencyDownloadTask.h"
+#include "logic/quickmod/QuickModDependencyResolver.h"
 #include "logic/BaseInstance.h"
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
@@ -80,9 +82,6 @@ QuickModInstallDialog::QuickModInstallDialog(BaseInstance *instance, QWidget *pa
 
 	ui->progressList->setItemDelegateForColumn(3, new ProgressItemDelegate(this));
 
-	connect(MMC->quickmodslist().get(), &QuickModsList::modAdded, this,
-			&QuickModInstallDialog::newModRegistered);
-
 	connect(ui->nextButton, &QPushButton::clicked, [this]()
 	{
 		if (ui->web->currentIndex() + 1 < ui->web->count())
@@ -92,11 +91,6 @@ QuickModInstallDialog::QuickModInstallDialog(BaseInstance *instance, QWidget *pa
 		else
 		{
 			ui->web->setCurrentIndex(0);
-		}
-		if (ui->web->currentWidget())
-		{
-			qDebug() << "New index is" << ui->web->currentIndex() << "with the current URL"
-					 << qobject_cast<WebDownloadNavigator *>(ui->web->currentWidget())->url();
 		}
 	});
 	connect(ui->previousButton, &QPushButton::clicked, [this]()
@@ -109,11 +103,6 @@ QuickModInstallDialog::QuickModInstallDialog(BaseInstance *instance, QWidget *pa
 		{
 			ui->web->setCurrentIndex(ui->web->count() - 1);
 		}
-		if (ui->web->currentWidget())
-		{
-			qDebug() << "New index is" << ui->web->currentIndex() << "with the current URL"
-					 << qobject_cast<WebDownloadNavigator *>(ui->web->currentWidget())->url();
-		}
 	});
 }
 
@@ -124,13 +113,63 @@ QuickModInstallDialog::~QuickModInstallDialog()
 
 int QuickModInstallDialog::exec()
 {
+	// download all dependency files so they are ready for the dependency resolution
+	{
+		ProgressDialog dialog(this);
+		if (dialog.exec(new QuickModDependencyDownloadTask(m_initialMods, this))
+				== QDialog::Rejected)
+		{
+			return QDialog::Rejected;
+		}
+	}
+
+	// resolve dependencies
+	{
+		QuickModDependencyResolver resolver(m_instance, this);
+		m_modVersions = resolver.resolve(m_initialMods);
+	}
+
+	foreach (QuickModVersionPtr version, m_modVersions)
+	{
+		downloadMod(version);
+	}
+
+	checkForIsDone();
+
 	showMaximized();
 	return QDialog::exec();
 }
 
+void QuickModInstallDialog::setInitialMods(const QList<QuickMod *> mods)
+{
+	m_initialMods = mods;
+}
+
+void QuickModInstallDialog::downloadMod(QuickModVersionPtr version)
+{
+	// TODO any installed version should prevent another version from being installed
+	if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, version, m_instance))
+	{
+		return;
+	}
+
+	if (MMC->quickmodslist()->isModMarkedAsExists(version->mod, version))
+	{
+		install(version);
+		return;
+	}
+
+	auto navigator = new WebDownloadNavigator(this);
+	connect(navigator, &WebDownloadNavigator::caughtUrl, this,
+			&QuickModInstallDialog::urlCaught);
+	navigator->load(version->url);
+	m_webModMapping.insert(navigator, version);
+	ui->web->addWidget(navigator);
+}
+
 void QuickModInstallDialog::checkForIsDone()
 {
-	if (m_trackedMods.isEmpty() && m_pendingDependencyUrls.isEmpty())
+	if (m_downloadingUrls.isEmpty() && ui->web->count() == 0 && m_webModMapping.isEmpty())
 	{
 		ui->finishButton->setEnabled(true);
 	}
@@ -140,161 +179,21 @@ void QuickModInstallDialog::checkForIsDone()
 	}
 }
 
-bool QuickModInstallDialog::addMod(QuickMod *mod, bool isInitial, const QString &versionFilter)
-{
-	if (m_pendingInstallations.contains(mod->name()))
-	{
-		return false;
-	}
-	m_pendingInstallations.append(mod->name());
-
-	auto secondStageAddMod = [this](QuickMod *mod, bool isInitial, const QString &versionFilter)
-	{
-		VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
-								   tr("Choose QuickMod version"), this, isInitial);
-		dialog.setFilter(BaseVersionList::NameColumn, versionFilter);
-		if (dialog.exec() == QDialog::Rejected)
-		{
-			if (isInitial)
-			{
-				reject();
-			}
-			return false;
-		}
-		BaseVersionPtr versionPtr = dialog.selectedVersion();
-		QuickModVersionPtr quickmodVersionPtr =
-			std::dynamic_pointer_cast<QuickModVersion>(versionPtr);
-
-		// TODO any installed version should prevent another version from being installed
-		if (MMC->quickmodslist()->isModMarkedAsInstalled(mod, versionPtr, m_instance))
-		{
-			if (isInitial)
-			{
-				accept();
-			}
-			return false;
-		}
-
-		if (MMC->quickmodslist()->isModMarkedAsExists(mod, versionPtr))
-		{
-			install(mod, quickmodVersionPtr);
-			if (isInitial)
-			{
-				accept();
-			}
-			return false;
-		}
-
-		foreach(const QString & dep, quickmodVersionPtr->dependencies.keys())
-		{
-			if (!m_pendingDependencyUrls.contains(mod->references()[dep]) &&
-				mod->references().contains(dep) && !mod->references()[dep].isEmpty())
-			{
-				ui->dependencyLogEdit->appendHtml(
-					QString("Fetching dependency URL %1...<br/>")
-						.arg(mod->references()[dep].toString(QUrl::PrettyDecoded)));
-				MMC->quickmodslist()->registerMod(mod->references()[dep]);
-				m_pendingDependencyUrls.append(mod->references()[dep]);
-			}
-		}
-
-		auto navigator = new WebDownloadNavigator(this);
-		connect(navigator, &WebDownloadNavigator::caughtUrl, this,
-				&QuickModInstallDialog::urlCaught);
-		navigator->load(quickmodVersionPtr->url);
-		m_webModMapping.insert(navigator, qMakePair(mod, quickmodVersionPtr));
-		ui->web->addWidget(navigator);
-
-		if (isInitial)
-		{
-			m_initialMod = mod;
-		}
-		m_trackedMods.insert(mod, quickmodVersionPtr);
-
-		show();
-		activateWindow();
-		return true;
-	};
-
-	if (mod->verifyUrl().isValid())
-	{
-		NetJobPtr job = NetJobPtr(new NetJob("Verify QuickMod file"));
-		ByteArrayDownloadPtr ptr = ByteArrayDownload::make(mod->verifyUrl());
-		job->addNetAction(ptr);
-		ProgressDialog dialog(this);
-		if (dialog.exec(job.get()) != QDialog::Accepted)
-		{
-			return false;
-		}
-		const QByteArray actual = ptr->m_data;
-		const QByteArray expected = mod->hash().toHex();
-		if (actual == expected)
-		{
-			if (!MMC->quickmodslist()->isWebsiteTrusted(mod->verifyUrl()))
-			{
-				QMessageBox box(this);
-				box.setWindowTitle(tr("Trust website?"));
-				box.setText(tr("The QuickMod %1 verifies against %2.\nTrust %2?")
-								.arg(mod->name(), mod->verifyUrl().host()));
-				box.setIcon(QMessageBox::Question);
-				QPushButton *once = box.addButton(tr("Once"), QMessageBox::AcceptRole);
-				QPushButton *always = box.addButton(tr("Always"), QMessageBox::AcceptRole);
-				QPushButton *no = box.addButton(QMessageBox::No);
-				box.setDefaultButton(always);
-				box.exec();
-				if (box.clickedButton() == no)
-				{
-					return false;
-				}
-				if (box.clickedButton() == always)
-				{
-					MMC->quickmodslist()->setWebsiteTrusted(mod->verifyUrl(), true);
-				}
-			}
-			return secondStageAddMod(mod, isInitial, versionFilter);
-		}
-		else
-		{
-			QMessageBox box(this);
-			box.setWindowTitle(tr("Trust website?"));
-			box.setText(tr("The QuickMod %1 does NOT verify against %2.")
-							.arg(mod->name(), mod->verifyUrl().host()));
-			box.setInformativeText(tr("You may add a one-time exception, but it's strictly "
-									  "recommended that you don't."));
-			box.setIcon(QMessageBox::Warning);
-			QPushButton *exception =
-				box.addButton(tr("Add one-time exception"), QMessageBox::AcceptRole);
-			QPushButton *no = box.addButton(QMessageBox::No);
-			box.setDefaultButton(no);
-			box.exec();
-			if (box.clickedButton() == exception)
-			{
-				return secondStageAddMod(mod, isInitial, versionFilter);
-			}
-			return false;
-		}
-	}
-	else
-	{
-		return secondStageAddMod(mod, isInitial, versionFilter);
-	}
-}
-
 void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 {
 	auto navigator = qobject_cast<WebDownloadNavigator *>(sender());
-	auto mod = m_webModMapping[navigator].first;
-	auto version = m_webModMapping[navigator].second;
+	auto version = m_webModMapping[navigator];
+
+	m_downloadingUrls.append(reply->url());
 
 	auto item = new QTreeWidgetItem(ui->progressList);
-	item->setText(0, mod->name());
-	item->setIcon(0, mod->icon());
+	item->setText(0, version->mod->name());
+	item->setIcon(0, version->mod->icon());
 	item->setText(1, version->name());
 	item->setText(2, reply->url().toString(QUrl::PrettyDecoded));
 	item->setData(3, ExtraRoles::IgnoreRole, false);
 	reply->setProperty("item", QVariant::fromValue(item));
-	reply->setProperty("mod", QVariant::fromValue(mod));
-	reply->setProperty("version", QVariant::fromValue(m_webModMapping[navigator].second));
+	reply->setProperty("version", QVariant::fromValue(version));
 
 	connect(reply, &QNetworkReply::downloadProgress, this,
 			&QuickModInstallDialog::downloadProgress);
@@ -360,11 +259,10 @@ void QuickModInstallDialog::downloadCompleted()
 	auto item = reply->property("item").value<QTreeWidgetItem *>();
 	item->setData(3, ExtraRoles::IgnoreRole, true);
 	item->setText(3, tr("Installing..."));
-	auto mod = reply->property("mod").value<QuickMod *>();
 	auto version = reply->property("version").value<QuickModVersionPtr>();
 	QDir dir;
 	bool extract = false;
-	switch (mod->type())
+	switch (version->mod->type())
 	{
 	case QuickMod::ForgeMod:
 		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "mods");
@@ -381,15 +279,13 @@ void QuickModInstallDialog::downloadCompleted()
 		Q_ASSERT_X(false, __func__, "Not implemented");
 		break;
 	case QuickMod::Group:
-		item->setText(3, tr("Sucess: Installed successfully"));
+		item->setText(3, tr("Success: Installed successfully"));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::green));
 
-		m_trackedMods.remove(mod);
 		checkForIsDone();
 		return;
 	}
 
-	m_trackedMods.remove(mod);
 	checkForIsDone();
 
 	QByteArray data = reply->readAll();
@@ -398,7 +294,7 @@ void QuickModInstallDialog::downloadCompleted()
 		QCryptographicHash::hash(data, version->checksum_algorithm).toHex();
 	if (!version->checksum.isNull() && actual != version->checksum)
 	{
-		QLOG_INFO() << "Checksum missmatch for " << mod->uid() << ". Actual: " << actual
+		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid() << ". Actual: " << actual
 					<< " Expected: " << version->checksum;
 		item->setText(3, tr("Error: Checksum mismatch"));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
@@ -448,49 +344,19 @@ void QuickModInstallDialog::downloadCompleted()
 		reply->close();
 		reply->deleteLater();
 
-		MMC->quickmodslist()->markModAsExists(mod, version, file.fileName());
+		MMC->quickmodslist()->markModAsExists(version->mod, version, file.fileName());
 
-		install(mod, version);
+		install(version);
 	}
 
 	item->setText(3, tr("Success: Installed successfully"));
 	item->setData(3, Qt::ForegroundRole, QColor(Qt::darkGreen));
 }
 
-void QuickModInstallDialog::newModRegistered(QuickMod *newMod)
-{
-	bool haveAdded = false;
-	auto checkModForDependencies = [ this, haveAdded, newMod ](QuickMod * mod,
-															   QuickModVersionPtr version)->bool
-	{
-		if (version->dependencies.contains(newMod->name()))
-		{
-			ui->dependencyLogEdit->appendHtml(QString("Resolved dependency from %1 to %2<br/>")
-												  .arg(mod->name(), newMod->name()));
-			if (!haveAdded)
-			{
-				addMod(newMod, false, version->dependencies[newMod->name()]);
-				return true;
-			}
-		}
-		return false;
-	};
-	checkModForDependencies(m_initialMod, m_trackedMods[m_initialMod]);
-	foreach(QuickMod * mod, m_trackedMods.keys())
-	{
-		if (checkModForDependencies(mod, m_trackedMods[mod]))
-		{
-			haveAdded = true;
-		}
-	}
-	m_pendingDependencyUrls.removeAll(newMod->updateUrl());
-	checkForIsDone();
-}
-
-void QuickModInstallDialog::install(QuickMod *mod, const QuickModVersionPtr version)
+void QuickModInstallDialog::install(const QuickModVersionPtr version)
 {
 	QDir finalDir;
-	switch (mod->type())
+	switch (version->mod->type())
 	{
 	case QuickMod::ForgeMod:
 		finalDir = dirEnsureExists(m_instance->minecraftRoot(), "mods");
@@ -507,7 +373,7 @@ void QuickModInstallDialog::install(QuickMod *mod, const QuickModVersionPtr vers
 	case QuickMod::Group:
 		return;
 	}
-	const QString file = MMC->quickmodslist()->existingModFile(mod, version);
+	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
 	const QString dest = finalDir.absoluteFilePath(QFileInfo(file).fileName());
 	if (!QFile::copy(file, dest))
 	{
@@ -515,7 +381,7 @@ void QuickModInstallDialog::install(QuickMod *mod, const QuickModVersionPtr vers
 							  tr("Error deploying %1 to %2").arg(file, dest));
 		return;
 	}
-	MMC->quickmodslist()->markModAsInstalled(mod, version, dest, m_instance);
+	MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, m_instance);
 }
 
 #include "QuickModInstallDialog.moc"

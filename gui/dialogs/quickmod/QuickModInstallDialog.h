@@ -29,16 +29,15 @@ public
 slots:
 	virtual int exec();
 
-	bool addMod(QuickMod *mod, bool isInitial = false,
-				const QString &versionFilter = QString());
+	void setInitialMods(const QList<QuickMod *> mods);
 
 private
 slots:
+	void downloadMod(QuickModVersionPtr version);
+
 	void urlCaught(QNetworkReply *reply);
 	void downloadProgress(const qint64 current, const qint64 max);
 	void downloadCompleted();
-
-	void newModRegistered(QuickMod *mod);
 
 	void checkForIsDone();
 
@@ -47,12 +46,11 @@ private:
 
 	BaseInstance *m_instance;
 
-	QuickMod *m_initialMod;
-	QMap<QuickMod *, QuickModVersionPtr> m_trackedMods;
-	QList<QUrl> m_pendingDependencyUrls;
-	QList<QString> m_pendingInstallations;
+	QList<QuickMod *> m_initialMods;
+	QList<QuickModVersionPtr> m_modVersions;
+	QList<QUrl> m_downloadingUrls;
 
-	QMap<WebDownloadNavigator *, QPair<QuickMod *, QuickModVersionPtr>> m_webModMapping;
+	QMap<WebDownloadNavigator *, QuickModVersionPtr> m_webModMapping;
 
-	void install(QuickMod *mod, const QuickModVersionPtr version);
+	void install(const QuickModVersionPtr version);
 };
