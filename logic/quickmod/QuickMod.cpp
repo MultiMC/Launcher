@@ -11,7 +11,7 @@
 #include "QuickModVersion.h"
 
 QuickMod::QuickMod(QObject *parent)
-	: QObject(parent), m_stub(false), m_loadingIcon(false), m_loadingLogo(false)
+	: QObject(parent), m_stub(false), m_imagesLoaded(false)
 {
 }
 
@@ -154,7 +154,6 @@ bool QuickMod::compare(const QuickMod *other) const
 
 void QuickMod::iconDownloadFinished(int index)
 {
-	m_loadingIcon = false;
 	auto download = qobject_cast<CacheDownload *>(sender());
 	m_icon = QIcon(download->m_target_path);
 	if (!m_icon.isNull())
@@ -164,7 +163,6 @@ void QuickMod::iconDownloadFinished(int index)
 }
 void QuickMod::logoDownloadFinished(int index)
 {
-	m_loadingLogo = false;
 	auto download = qobject_cast<CacheDownload *>(sender());
 	m_logo = QPixmap(download->m_target_path);
 	if (!m_logo.isNull())
@@ -175,29 +173,36 @@ void QuickMod::logoDownloadFinished(int index)
 
 void QuickMod::fetchImages()
 {
+	if (m_imagesLoaded)
+	{
+		return;
+	}
 	auto job = new NetJob("QuickMod image download: " + m_name);
 	bool download = false;
-	if (m_iconUrl.isValid() && m_icon.isNull() && !m_loadingIcon)
+	m_imagesLoaded = true;
+	if (m_iconUrl.isValid() && m_icon.isNull())
 	{
 		auto icon = CacheDownload::make(
 			m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
 		connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
 		job->addNetAction(icon);
 		download = true;
-		m_loadingIcon = true;
 	}
-	if (m_logoUrl.isValid() && m_logo.isNull() && !m_loadingLogo)
+	if (m_logoUrl.isValid() && m_logo.isNull())
 	{
 		auto logo = CacheDownload::make(
 			m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
 		connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
 		job->addNetAction(logo);
 		download = true;
-		m_loadingLogo = true;
 	}
 	if (download)
 	{
 		job->start();
+	}
+	else
+	{
+		delete job;
 	}
 }
 

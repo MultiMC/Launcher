@@ -152,8 +152,7 @@ private:
 
 	QByteArray m_hash;
 
-	bool m_loadingIcon;
-	bool m_loadingLogo;
+	bool m_imagesLoaded;
 
 	void fetchImages();
 	QString fileName(const QUrl &url) const;
