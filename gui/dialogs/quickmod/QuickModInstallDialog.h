@@ -33,13 +33,13 @@ slots:
 
 private
 slots:
-	void downloadMod(QuickModVersionPtr version);
+	void downloadNextMod();
 
 	void urlCaught(QNetworkReply *reply);
 	void downloadProgress(const qint64 current, const qint64 max);
 	void downloadCompleted();
 
-	void checkForIsDone();
+	bool checkForIsDone();
 
 private:
 	Ui::QuickModInstallDialog *ui;
@@ -48,9 +48,8 @@ private:
 
 	QList<QuickMod *> m_initialMods;
 	QList<QuickModVersionPtr> m_modVersions;
+	QuickModVersionPtr m_currentVersion;
 	QList<QUrl> m_downloadingUrls;
-
-	QMap<WebDownloadNavigator *, QuickModVersionPtr> m_webModMapping;
 
 	void install(const QuickModVersionPtr version);
 };

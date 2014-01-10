@@ -131,10 +131,33 @@ int QuickModInstallDialog::exec()
 
 	foreach (QuickModVersionPtr version, m_modVersions)
 	{
-		downloadMod(version);
+		// TODO any installed version should prevent another version from being installed
+		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, version, m_instance))
+		{
+			QLOG_INFO() << version->mod->uid() << " is already installed";
+			m_modVersions.removeAll(version);
+		}
+
+		if (MMC->quickmodslist()->isModMarkedAsExists(version->mod, version))
+		{
+			QLOG_INFO() << version->mod->uid() << " exists already. Only installing.";
+			install(version);
+			m_modVersions.removeAll(version);
+		}
+
+		if (!version->url.isValid())
+		{
+			m_modVersions.removeAll(version);
+		}
 	}
 
-	checkForIsDone();
+	if (checkForIsDone())
+	{
+		QMessageBox::information(this, tr("Information"), tr("Nothing to do"));
+		return QDialog::Accepted;
+	}
+
+	downloadNextMod();
 
 	showMaximized();
 	return QDialog::exec();
@@ -145,44 +168,44 @@ void QuickModInstallDialog::setInitialMods(const QList<QuickMod *> mods)
 	m_initialMods = mods;
 }
 
-void QuickModInstallDialog::downloadMod(QuickModVersionPtr version)
+void QuickModInstallDialog::downloadNextMod()
 {
-	// TODO any installed version should prevent another version from being installed
-	if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, version, m_instance))
+	if (checkForIsDone())
 	{
 		return;
 	}
 
-	if (MMC->quickmodslist()->isModMarkedAsExists(version->mod, version))
-	{
-		install(version);
-		return;
-	}
+	m_currentVersion = m_modVersions.takeFirst();
+
+	QLOG_INFO() << "Downloading " << m_currentVersion->name() << "(" << m_currentVersion->url.toString() << ")";
 
 	auto navigator = new WebDownloadNavigator(this);
 	connect(navigator, &WebDownloadNavigator::caughtUrl, this,
 			&QuickModInstallDialog::urlCaught);
-	navigator->load(version->url);
-	m_webModMapping.insert(navigator, version);
+	navigator->load(m_currentVersion->url);
 	ui->web->addWidget(navigator);
 }
 
-void QuickModInstallDialog::checkForIsDone()
+bool QuickModInstallDialog::checkForIsDone()
 {
-	if (m_downloadingUrls.isEmpty() && ui->web->count() == 0 && m_webModMapping.isEmpty())
+	if (m_downloadingUrls.isEmpty() && ui->web->count() == 0 && m_modVersions.isEmpty())
 	{
 		ui->finishButton->setEnabled(true);
+		return true;
 	}
 	else
 	{
 		ui->finishButton->setDisabled(true);
+		return false;
 	}
 }
 
 void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 {
+	downloadNextMod();
+
 	auto navigator = qobject_cast<WebDownloadNavigator *>(sender());
-	auto version = m_webModMapping[navigator];
+	auto version = m_currentVersion;
 
 	m_downloadingUrls.append(reply->url());
 
@@ -199,7 +222,6 @@ void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 			&QuickModInstallDialog::downloadProgress);
 	connect(reply, &QNetworkReply::finished, this, &QuickModInstallDialog::downloadCompleted);
 
-	m_webModMapping.remove(navigator);
 	ui->web->removeWidget(navigator);
 	navigator->deleteLater();
 	if (ui->web->count() == 0)

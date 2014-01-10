@@ -4,6 +4,8 @@
 
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "QuickModVersion.h"
+#include "QuickModsList.h"
+#include "MultiMC.h"
 
 QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance *instance, QWidget *parent)
 	: QuickModDependencyResolver(instance, parent, parent)
@@ -17,23 +19,58 @@ QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance *instance, Q
 
 }
 
-// TODO do actual resolving
 QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickMod *> &mods)
 {
 	QList<QuickModVersionPtr> out;
 	foreach (QuickMod *mod, mods)
 	{
-		VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
-								   tr("Choose QuickMod version"), m_widgetParent);
-		dialog.setFilter(BaseVersionList::NameColumn, QString());
-		if (dialog.exec() == QDialog::Rejected)
+		out.append(resolve(getVersion(mod), out));
+	}
+	return out;
+}
+
+QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter)
+{
+	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
+							   tr("Choose QuickMod version"), m_widgetParent);
+	dialog.setFilter(BaseVersionList::NameColumn, filter);
+	if (dialog.exec() == QDialog::Rejected)
+	{
+		return QuickModVersionPtr();
+	}
+	return std::dynamic_pointer_cast<QuickModVersion>(dialog.selectedVersion());
+}
+
+QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVersionPtr mod, const QList<QuickModVersionPtr> &exclude)
+{
+	QList<QuickModVersionPtr> out;
+	if (!mod)
+	{
+		emit unknownError();
+		return out;
+	}
+	out.append(mod);
+	for (auto it = mod->dependencies.begin(); it != mod->dependencies.end(); ++it)
+	{
+		QuickMod *depMod = MMC->quickmodslist()->mod(it.key());
+		if (!depMod)
 		{
+			emit unresolvedDependency(mod, it.key());
 			continue;
 		}
-		BaseVersionPtr versionPtr = dialog.selectedVersion();
-		QuickModVersionPtr quickmodVersionPtr =
-			std::dynamic_pointer_cast<QuickModVersion>(versionPtr);
-		out.append(quickmodVersionPtr);
+		QuickModVersionPtr dep = getVersion(depMod, it.value());
+		if (dep)
+		{
+			emit resolvedDependency(mod, dep);
+			if (!exclude.contains(dep))
+			{
+				out.append(resolve(dep, out + exclude));
+			}
+		}
+		else
+		{
+			emit unknownError(mod, it.key());
+		}
 	}
 	return out;
 }

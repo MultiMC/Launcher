@@ -47,7 +47,7 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 {
 	auto qMod = new QuickMod;
 	qMod->m_name = mod.name();
-	qMod->m_modId = mod.mod_id();
+	qMod->m_modId = mod.mod_id().isEmpty() ? mod.mod_id() : mod.name();
 	qMod->m_websiteUrl = QUrl(mod.homeurl());
 	qMod->m_description = mod.description();
 	qMod->m_stub = true;
@@ -111,6 +111,8 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	mod->parse(download->m_data, &errorMessage);
 	if (!errorMessage.isNull())
 	{
+		QLOG_ERROR() << "QuickMod parse error: " << errorMessage;
+		QLOG_INFO() << "Fetching " << download->m_url.toString();
 		emit error(tr("QuickMod parse error: %1").arg(errorMessage));
 		return;
 	}

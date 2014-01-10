@@ -20,9 +20,9 @@ slots:
 private:
 	QList<QuickMod *> m_mods;
 	// list of mods we are still waiting for
-	QList<QString> m_pendingMods;
+	QList<QUrl> m_pendingMods;
 	// list of mods we have requested
-	QList<QString> m_requestedMods;
+	QList<QUrl> m_requestedMods;
 
 	int m_lastSetPercentage;
 	void updateProgress();
