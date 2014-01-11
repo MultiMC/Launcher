@@ -92,6 +92,28 @@ bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 	{
 		recommendations.insert(mod, recs.value(mod).toString());
 	}
+
+	// type
+	{
+		const QString typeString = object.value("type").toString("parallel");
+		if (typeString == "direct")
+		{
+			type = Direct;
+		}
+		else if (typeString == "parallel")
+		{
+			type = Parallel;
+		}
+		else if (typeString == "sequential")
+		{
+			type = Sequential;
+		}
+		else
+		{
+			*errorMessage = QObject::tr("Unknown value for \"type\" field");
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -154,6 +176,7 @@ void QuickModVersionListLoadTask::executeTask()
 	auto job = new NetJob("Version list");
 	auto entry =
 		MMC->metacache()->resolveEntry("quickmod/versions", m_vlist->m_mod->uid() + ".json");
+	entry->stale = true;
 
 	job->addNetAction(listDownload = CacheDownload::make(m_vlist->m_mod->versionsUrl(), entry));
 

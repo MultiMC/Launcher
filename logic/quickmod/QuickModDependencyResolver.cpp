@@ -4,6 +4,7 @@
 
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "QuickModVersion.h"
+#include "QuickMod.h"
 #include "QuickModsList.h"
 #include "MultiMC.h"
 
@@ -32,7 +33,7 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickM
 QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter)
 {
 	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
-							   tr("Choose QuickMod version"), m_widgetParent);
+							   tr("Choose QuickMod version for %1").arg(mod->name()), m_widgetParent);
 	dialog.setFilter(BaseVersionList::NameColumn, filter);
 	if (dialog.exec() == QDialog::Rejected)
 	{
@@ -46,7 +47,7 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVers
 	QList<QuickModVersionPtr> out;
 	if (!mod)
 	{
-		emit unknownError();
+		emit totallyUnknownError();
 		return out;
 	}
 	out.append(mod);
@@ -69,7 +70,7 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVers
 		}
 		else
 		{
-			emit unknownError(mod, it.key());
+			emit didNotSelectVersionError(mod, it.key());
 		}
 	}
 	return out;

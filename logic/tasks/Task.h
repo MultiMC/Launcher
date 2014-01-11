@@ -49,6 +49,8 @@ slots:
 protected:
 	virtual void executeTask() = 0;
 
+protected
+slots:
 	virtual void emitSucceeded();
 	virtual void emitFailed(QString reason);
 

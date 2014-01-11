@@ -47,6 +47,7 @@ QString VersionSelectProxyModel::filter() const
 void VersionSelectProxyModel::setFilter(const QString &filter)
 {
 	m_filter = filter;
+	invalidateFilter();
 }
 int VersionSelectProxyModel::column() const
 {
@@ -55,6 +56,7 @@ int VersionSelectProxyModel::column() const
 void VersionSelectProxyModel::setColumn(int column)
 {
 	m_column = column;
+	invalidateFilter();
 }
 
 bool VersionSelectProxyModel::versionIsInFilter(const QString &version, const QString &filter)
@@ -156,6 +158,7 @@ int VersionSelectDialog::exec()
 	}
 	if (m_proxyModel->rowCount() == 0)
 	{
+		qDebug() << "No rows in version list";
 		return QDialog::Rejected;
 	}
 	if (m_proxyModel->rowCount() == 1)

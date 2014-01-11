@@ -36,6 +36,7 @@ slots:
 	void downloadNextMod();
 
 	void urlCaught(QNetworkReply *reply);
+	void processReply(QNetworkReply *reply, QuickModVersionPtr version);
 	void downloadProgress(const qint64 current, const qint64 max);
 	void downloadCompleted();
 

@@ -77,7 +77,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 {
 	QJsonParseError error;
 	QJsonDocument doc = QJsonDocument::fromJson(data, &error);
-	JSON_ASSERT_X(error.error == QJsonParseError::NoError, error.errorString());
+	JSON_ASSERT_X(error.error == QJsonParseError::NoError, error.errorString() + " at " + QString::number(error.offset));
 	JSON_ASSERT(doc.isObject());
 	QJsonObject mod = doc.object();
 	m_stub = mod.value("stub").toBool(false);

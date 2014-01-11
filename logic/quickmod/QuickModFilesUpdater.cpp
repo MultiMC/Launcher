@@ -47,7 +47,7 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 {
 	auto qMod = new QuickMod;
 	qMod->m_name = mod.name();
-	qMod->m_modId = mod.mod_id().isEmpty() ? mod.mod_id() : mod.name();
+	qMod->m_modId = mod.mod_id().isEmpty() ? mod.name() : mod.mod_id();
 	qMod->m_websiteUrl = QUrl(mod.homeurl());
 	qMod->m_description = mod.description();
 	qMod->m_stub = true;
@@ -112,7 +112,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	if (!errorMessage.isNull())
 	{
 		QLOG_ERROR() << "QuickMod parse error: " << errorMessage;
-		QLOG_INFO() << "Fetching " << download->m_url.toString();
+		QLOG_INFO() << "While reading " << download->m_url.toString();
 		emit error(tr("QuickMod parse error: %1").arg(errorMessage));
 		return;
 	}
@@ -214,7 +214,6 @@ QString QuickModFilesUpdater::fileName(const QuickMod *mod)
 
 bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickMod *mod)
 {
-	QLOG_INFO() << "Reading the QuickMod file" << fileName;
 	QFile file(fileName);
 	if (!file.open(QFile::ReadOnly))
 	{

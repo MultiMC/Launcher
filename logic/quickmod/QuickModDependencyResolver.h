@@ -21,8 +21,8 @@ public:
 	QList<QuickModVersionPtr> resolve(const QList<QuickMod *> &mods);
 
 signals:
-	void unknownError();
-	void unknownError(QuickModVersionPtr from, const QString &to);
+	void totallyUnknownError();
+	void didNotSelectVersionError(QuickModVersionPtr from, const QString &to);
 	void unresolvedDependency(QuickModVersionPtr from, const QString &to);
 	void resolvedDependency(QuickModVersionPtr from, QuickModVersionPtr to);
 

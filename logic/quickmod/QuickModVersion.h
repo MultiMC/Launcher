@@ -23,6 +23,13 @@ Q_DECLARE_METATYPE(QuickModVersionPtr)
 class QuickModVersion : public BaseVersion
 {
 public:
+	enum Type
+	{
+		Direct,
+		Parallel,
+		Sequential
+	};
+
 	QuickModVersion(QuickMod *mod, bool valid = true) : mod(mod), valid(valid)
 	{
 	}
@@ -30,10 +37,10 @@ public:
 					const QString &forge = QString(),
 					const QMap<QString, QString> &deps = QMap<QString, QString>(),
 					const QMap<QString, QString> &recs = QMap<QString, QString>(),
-					const QByteArray &checksum = QByteArray())
+					const QByteArray &checksum = QByteArray(), const Type type = Parallel)
 		: mod(mod), valid(true), name_(name), url(url), compatibleVersions(mc),
 		  forgeVersionFilter(forge), dependencies(deps), recommendations(recs),
-		  checksum_algorithm(QCryptographicHash::Md5), checksum(checksum)
+		  checksum_algorithm(QCryptographicHash::Md5), checksum(checksum), type(type)
 	{
 	}
 
@@ -63,6 +70,7 @@ public:
 	QMap<QString, QString> recommendations;
 	QCryptographicHash::Algorithm checksum_algorithm;
 	QByteArray checksum;
+	Type type;
 
 	bool operator==(const QuickModVersion &other) const
 	{

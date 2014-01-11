@@ -20,8 +20,7 @@ void QuickModDependencyDownloadTask::executeTask()
 	connect(MMC->quickmodslist().get(), &QuickModsList::modAdded,
 			this, &QuickModDependencyDownloadTask::modAdded);
 	// TODO we cannot know if this is about us
-	connect(MMC->quickmodslist().get(), &QuickModsList::error, [this](const QString &msg)
-	{ emitFailed(msg); });
+	connect(MMC->quickmodslist().get(), &QuickModsList::error, this, &QuickModDependencyDownloadTask::emitFailed);
 
 	foreach(const QuickMod * mod, m_mods)
 	{

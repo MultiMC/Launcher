@@ -30,6 +30,7 @@
 Q_DECLARE_METATYPE(QTreeWidgetItem *)
 
 // TODO install forge / liteloader
+// TODO load parallel versions in parallel (makes sense, right?)
 
 struct ExtraRoles
 {
@@ -116,20 +117,60 @@ int QuickModInstallDialog::exec()
 	// download all dependency files so they are ready for the dependency resolution
 	{
 		ProgressDialog dialog(this);
-		if (dialog.exec(new QuickModDependencyDownloadTask(m_initialMods, this))
-				== QDialog::Rejected)
+		if (dialog.exec(new QuickModDependencyDownloadTask(m_initialMods, this)) ==
+			QDialog::Rejected)
 		{
 			return QDialog::Rejected;
 		}
 	}
 
+	showMaximized();
+
 	// resolve dependencies
 	{
+		bool error = false;
 		QuickModDependencyResolver resolver(m_instance, this);
+		connect(&resolver, &QuickModDependencyResolver::totallyUnknownError, [this, &error]()
+		{
+			error = true;
+			QListWidgetItem *item = new QListWidgetItem(tr("Unknown error"));
+			item->setTextColor(Qt::red);
+			ui->dependencyListWidget->addItem(item);
+		});
+		connect(&resolver, &QuickModDependencyResolver::didNotSelectVersionError,
+				[this, &error](QuickModVersionPtr from, const QString &to)
+		{
+			error = true;
+			QListWidgetItem *item = new QListWidgetItem(tr("Didn't select a version while resolving from %1 (%2) to %3")
+														.arg(from->mod->name(), from->name(), to));
+			item->setTextColor(Qt::red);
+			ui->dependencyListWidget->addItem(item);
+		});
+		connect(&resolver, &QuickModDependencyResolver::unresolvedDependency,
+				[this, &error](QuickModVersionPtr from, const QString &to)
+		{
+			error = true;
+			QListWidgetItem *item = new QListWidgetItem(tr("The dependency from %1 (%2) to %3 cannot be resolved")
+														.arg(from->mod->name(), from->name(), to));
+			item->setTextColor(Qt::red);
+			ui->dependencyListWidget->addItem(item);
+		});
+		connect(&resolver, &QuickModDependencyResolver::resolvedDependency,
+				[this, &error](QuickModVersionPtr from, QuickModVersionPtr to)
+		{
+			QListWidgetItem *item = new QListWidgetItem(tr("Successfully resolved dependency from %1 (%2) to %3 (%4)")
+														.arg(from->mod->name(), from->name(), to->mod->name(), to->name()));
+			item->setTextColor(Qt::darkGreen);
+			ui->dependencyListWidget->addItem(item);
+		});
 		m_modVersions = resolver.resolve(m_initialMods);
+		if (!error)
+		{
+			ui->tabWidget->setCurrentIndex(1);
+		}
 	}
 
-	foreach (QuickModVersionPtr version, m_modVersions)
+	foreach(QuickModVersionPtr version, m_modVersions)
 	{
 		// TODO any installed version should prevent another version from being installed
 		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, version, m_instance))
@@ -157,9 +198,21 @@ int QuickModInstallDialog::exec()
 		return QDialog::Accepted;
 	}
 
+	// do all of the direct download mods
+	QMutableListIterator<QuickModVersionPtr> it(m_modVersions);
+	while (it.hasNext())
+	{
+		QuickModVersionPtr version = it.next();
+		if (version->type == QuickModVersion::Direct)
+		{
+			QLOG_DEBUG() << "Direct download used for " << version->url.toString();
+			processReply(MMC->qnam()->get(QNetworkRequest(version->url)), version);
+			it.remove();
+		}
+	}
+
 	downloadNextMod();
 
-	showMaximized();
 	return QDialog::exec();
 }
 
@@ -177,7 +230,8 @@ void QuickModInstallDialog::downloadNextMod()
 
 	m_currentVersion = m_modVersions.takeFirst();
 
-	QLOG_INFO() << "Downloading " << m_currentVersion->name() << "(" << m_currentVersion->url.toString() << ")";
+	QLOG_INFO() << "Downloading " << m_currentVersion->name() << "("
+				<< m_currentVersion->url.toString() << ")";
 
 	auto navigator = new WebDownloadNavigator(this);
 	connect(navigator, &WebDownloadNavigator::caughtUrl, this,
@@ -202,11 +256,23 @@ bool QuickModInstallDialog::checkForIsDone()
 
 void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 {
+	QLOG_INFO() << "Caught " << reply->url().toString();
 	downloadNextMod();
 
 	auto navigator = qobject_cast<WebDownloadNavigator *>(sender());
-	auto version = m_currentVersion;
 
+	processReply(reply, m_currentVersion);
+
+	ui->web->removeWidget(navigator);
+	navigator->deleteLater();
+	if (ui->web->count() == 0)
+	{
+		ui->tabWidget->setCurrentWidget(ui->downloads);
+	}
+}
+
+void QuickModInstallDialog::processReply(QNetworkReply *reply, QuickModVersionPtr version)
+{
 	m_downloadingUrls.append(reply->url());
 
 	auto item = new QTreeWidgetItem(ui->progressList);
@@ -221,13 +287,6 @@ void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 	connect(reply, &QNetworkReply::downloadProgress, this,
 			&QuickModInstallDialog::downloadProgress);
 	connect(reply, &QNetworkReply::finished, this, &QuickModInstallDialog::downloadCompleted);
-
-	ui->web->removeWidget(navigator);
-	navigator->deleteLater();
-	if (ui->web->count() == 0)
-	{
-		ui->tabWidget->setCurrentWidget(ui->downloads);
-	}
 }
 
 void QuickModInstallDialog::downloadProgress(const qint64 current, const qint64 max)
@@ -316,8 +375,8 @@ void QuickModInstallDialog::downloadCompleted()
 		QCryptographicHash::hash(data, version->checksum_algorithm).toHex();
 	if (!version->checksum.isNull() && actual != version->checksum)
 	{
-		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid() << ". Actual: " << actual
-					<< " Expected: " << version->checksum;
+		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
+					<< ". Actual: " << actual << " Expected: " << version->checksum;
 		item->setText(3, tr("Error: Checksum mismatch"));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
 		return;

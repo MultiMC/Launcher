@@ -183,6 +183,7 @@ QuickMod *QuickModsList::mod(const QString &uid) const
 			return mod;
 		}
 	}
+
 	return 0;
 }
 QuickModVersionPtr QuickModsList::modVersion(const QString &modUid, const QString &versionName) const
