@@ -24,6 +24,7 @@
 #include "logger/QsLog.h"
 
 #include "quickmod/QuickModsList.h"
+#include "quickmod/QuickMod.h"
 #include "MultiMC.h"
 
 ModList::ModList(BaseInstance *instance, const QString &dir, const QString &list_file)
@@ -37,6 +38,7 @@ ModList::ModList(BaseInstance *instance, const QString &dir, const QString &list
 	is_watching = false;
 	connect(m_watcher, SIGNAL(directoryChanged(QString)), this,
 			SLOT(directoryChanged(QString)));
+	connect(MMC->quickmodslist().get(), &QuickModsList::dataChanged, this, &ModList::quickmodDataChanged);
 }
 
 void ModList::startWatching()
@@ -166,6 +168,30 @@ bool ModList::update()
 void ModList::directoryChanged(QString path)
 {
 	update();
+}
+
+void ModList::quickmodDataChanged(const QModelIndex &tr, const QModelIndex &bl, const QVector<int> &roles)
+{
+	if (roles.contains(QuickModsList::IconRole))
+	{
+		const QString modId = tr.data(QuickModsList::ModIdRole).toString();
+		if (!modId.isEmpty())
+		{
+			int row = -1;
+			for (int i = 0; i < rowCount(); ++i)
+			{
+				if (mods.at(i).mod_id() == modId)
+				{
+					row = i;
+					break;
+				}
+			}
+			if (row != -1)
+			{
+				emit dataChanged(index(row), index(row), QVector<int>() << Qt::DecorationRole);
+			}
+		}
+	}
 }
 
 ModList::OrderList ModList::readListFile()
@@ -406,12 +432,31 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 	if (row < 0 || row >= mods.size())
 		return QVariant();
 
+	auto quickmod = MMC->quickmodslist()->modForModId(mods[row].mod_id());
+
 	switch (role)
 	{
+	case Qt::DecorationRole:
+		switch (index.column())
+		{
+		case NameColumn:
+			if (quickmod)
+			{
+				return quickmod->icon();
+			}
+
+		default:
+			return QVariant();
+		}
+
 	case Qt::DisplayRole:
 		switch (index.column())
 		{
 		case NameColumn:
+			if (quickmod)
+			{
+				return quickmod->name();
+			}
 			return mods[row].name();
 		case VersionColumn:
 			return mods[row].version();

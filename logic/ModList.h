@@ -138,6 +138,7 @@ private:
 private
 slots:
 	void directoryChanged(QString path);
+	void quickmodDataChanged(const QModelIndex &tr, const QModelIndex &bl, const QVector<int> &roles);
 
 signals:
 	void changed();

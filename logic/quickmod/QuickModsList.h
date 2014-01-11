@@ -64,6 +64,7 @@ public:
 		return m_mods[index];
 	}
 
+	QuickMod *modForModId(const QString &modId) const;
 	QuickMod *mod(const QString &uid) const;
 	QuickModVersionPtr modVersion(const QString &modUid, const QString &versionName) const;
 

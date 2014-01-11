@@ -174,6 +174,18 @@ Qt::DropActions QuickModsList::supportedDragActions() const
 	return 0;
 }
 
+QuickMod *QuickModsList::modForModId(const QString &modId) const
+{
+	foreach (QuickMod *mod, m_mods)
+	{
+		if (mod->modId() == modId)
+		{
+			return mod;
+		}
+	}
+
+	return 0;
+}
 QuickMod *QuickModsList::mod(const QString &uid) const
 {
 	foreach (QuickMod *mod, m_mods)
@@ -257,7 +269,7 @@ bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const BaseVersionPtr vers
 {
 	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
 	return mods.contains(mod->uid()) &&
-		   mods.value(mod->uid()).toMap().contains(version->name());
+			mods.value(mod->uid()).toMap().contains(version->name());
 }
 QString QuickModsList::installedModFile(QuickMod *mod, const BaseVersionPtr version,
 										BaseInstance *instance) const
