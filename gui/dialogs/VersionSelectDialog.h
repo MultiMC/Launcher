@@ -39,8 +39,6 @@ public:
 	int column() const;
 	void setColumn(int column);
 
-	static bool versionIsInFilter(const QString &version, const QString &filter);
-
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 

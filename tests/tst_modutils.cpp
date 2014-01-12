@@ -1,9 +1,9 @@
 #include <QTest>
 
-#include "gui/dialogs/VersionSelectDialog.h"
+#include "modutils.h"
 #include "TestUtil.h"
 
-class VersionSelectDialogTest : public QObject
+class ModUtilsTest : public QObject
 {
 	Q_OBJECT
 private slots:
@@ -16,10 +16,10 @@ private slots:
 
 	}
 
-	void test_versionIsInFilter_data()
+	void test_versionIsInInterval_data()
 	{
 		QTest::addColumn<QString>("version");
-		QTest::addColumn<QString>("filter");
+		QTest::addColumn<QString>("interval");
 		QTest::addColumn<bool>("result");
 
 		QTest::newRow("empty, true") << "1.2.3" << "" << true;
@@ -45,16 +45,47 @@ private slots:
 		QTest::newRow("exclusive <-> inclusive, false") << "1.2.3" << "(1.2.3,2.0.0]" << false;
 		QTest::newRow("exclusive <-> exclusive, false") << "1.2.3" << "(1.0.0,1.2.3)" << false;
 	}
-	void test_versionIsInFilter()
+	void test_versionIsInInterval()
 	{
 		QFETCH(QString, version);
-		QFETCH(QString, filter);
+		QFETCH(QString, interval);
 		QFETCH(bool, result);
 
-		QCOMPARE(VersionSelectProxyModel::versionIsInFilter(version, filter), result);
+		QCOMPARE(Util::versionIsInInterval(version, interval), result);
+	}
+
+	void test_expandQMURL_data()
+	{
+		QTest::addColumn<QString>("in");
+		QTest::addColumn<QString>("out");
+
+		QTest::newRow("github, default branch, root dir")
+				<< "github://MultiMC@MultiMC5/CMakeLists.txt"
+				<< "https://raw.github.com/MultiMC/MultiMC5/master/CMakeLists.txt";
+		QTest::newRow("github, default branch, not root")
+				<< "github://02JanDal@QuickModDoc/_layout/index.html"
+				<< "https://raw.github.com/02JanDal/QuickModDoc/master/_layout/index.html";
+		QTest::newRow("github, develop branch, root dir")
+				<< "github://MultiMC@MultiMC5/CMakeLists.txt#develop"
+				<< "https://raw.github.com/MultiMC/MultiMC5/develop/CMakeLists.txt";
+		QTest::newRow("github, develop branch, not root")
+				<< "github://02JanDal@QuickModDoc/_layout/index.html#gh-pages"
+				<< "https://raw.github.com/02JanDal/QuickModDoc/gh-pages/_layout/index.html";
+
+		QTest::newRow("mcf")
+				<< "mcf:123456"
+				<< "http://www.minecraftforum.net/topic/123456-";
+	}
+	void test_expandQMURL()
+	{
+		QFETCH(QString, in);
+		QFETCH(QString, out);
+		QUrl outUrl(out);
+
+		QCOMPARE(Util::expandQMURL(in), outUrl);
 	}
 };
 
-QTEST_GUILESS_MAIN_MULTIMC(VersionSelectDialogTest)
+QTEST_GUILESS_MAIN_MULTIMC(ModUtilsTest)
 
-#include "tst_VersionSelectDialog.moc"
+#include "tst_modutils.moc"

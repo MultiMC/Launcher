@@ -26,6 +26,7 @@
 #include <logic/BaseVersion.h>
 #include <logic/lists/BaseVersionList.h>
 #include <logic/tasks/Task.h>
+#include <depends/util/include/modutils.h>
 
 VersionSelectProxyModel::VersionSelectProxyModel(QObject *parent)
 	: QSortFilterProxyModel(parent)
@@ -37,7 +38,7 @@ bool VersionSelectProxyModel::filterAcceptsRow(int source_row,
 {
 	const QString version = sourceModel()->index(source_row, m_column).data().toString();
 
-	bool ret = versionIsInFilter(version, m_filter);
+	bool ret = Util::versionIsInInterval(version, m_filter);
 	return ret;
 }
 QString VersionSelectProxyModel::filter() const
@@ -57,60 +58,6 @@ void VersionSelectProxyModel::setColumn(int column)
 {
 	m_column = column;
 	invalidateFilter();
-}
-
-bool VersionSelectProxyModel::versionIsInFilter(const QString &version, const QString &filter)
-{
-	if (filter.isEmpty())
-	{
-		return true;
-	}
-	else if (version == filter)
-	{
-		return true;
-	}
-
-	// Interval notation is used
-	QRegularExpression exp(
-		"(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)])");
-	QRegularExpressionMatch match = exp.match(filter);
-	if (match.hasMatch())
-	{
-		const QChar start = match.captured("start").at(0);
-		const QChar end = match.captured("end").at(0);
-		const QString bottom = match.captured("bottom");
-		const QString top = match.captured("top");
-
-		// check if in range (bottom)
-		if (!bottom.isEmpty())
-		{
-			if ((start == '[') && !(version >= bottom))
-			{
-				return false;
-			}
-			else if ((start == '(') && !(version > bottom))
-			{
-				return false;
-			}
-		}
-
-		// check if in range (top)
-		if (!top.isEmpty())
-		{
-			if ((end == ']') && !(version <= top))
-			{
-				return false;
-			}
-			else if ((end == ')') && !(version < top))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	return false;
 }
 
 VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, QWidget *parent,
