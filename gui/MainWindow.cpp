@@ -101,7 +101,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
 	MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
-	setWindowTitle(QString("MultiMC %1").arg(MMC->version().toString()));
+
+	QString winTitle = QString("MultiMC 5 - Version %1").arg(MMC->version().toString());
+	if (!MMC->version().platform.isEmpty())
+		winTitle += " on " + MMC->version().platform;
+	setWindowTitle(winTitle);
+
 	setAcceptDrops(true);
 
 	// OSX magic.
@@ -234,17 +239,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	connect(MMC->accounts().get(), &MojangAccountList::listChanged, [this]
 	{ repopulateAccountsMenu(); });
 
-	std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
+	// Show initial account
+	activeAccountChanged();
+
+	auto accounts = MMC->accounts();
 
 	// TODO: Nicer way to iterate?
 	for (int i = 0; i < accounts->count(); i++)
 	{
-		MojangAccountPtr account = accounts->at(i);
+		auto account = accounts->at(i);
 		if (account != nullptr)
 		{
 			auto job = new NetJob("Startup player skins: " + account->username());
 
-			for (AccountProfile profile : account->profiles())
+			for (auto profile : account->profiles())
 			{
 				auto meta = MMC->metacache()->resolveEntry("skins", profile.name + ".png");
 				auto action = CacheDownload::make(
@@ -882,7 +890,7 @@ void MainWindow::on_actionManageAccounts_triggered()
 
 void MainWindow::on_actionReportBug_triggered()
 {
-	openWebPage(QUrl("http://multimc.myjetbrains.com/youtrack/dashboard#newissue=yes"));
+	openWebPage(QUrl("https://github.com/MultiMC/MultiMC5/issues"));
 }
 
 void MainWindow::on_actionMoreNews_triggered()
