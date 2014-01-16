@@ -37,7 +37,6 @@ public:
 		ModIdRole,
 		CategoriesRole,
 		TagsRole,
-		TypeRole,
 		QuickModRole,
 		IsStubRole
 	};

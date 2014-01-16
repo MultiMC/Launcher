@@ -13,6 +13,7 @@
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
 #include "logic/Mod.h"
+#include "modutils.h"
 
 #include "logger/QsLog.h"
 
@@ -51,14 +52,6 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 	qMod->m_websiteUrl = QUrl(mod.homeurl());
 	qMod->m_description = mod.description();
 	qMod->m_stub = true;
-	if (mod.filename().path().contains("coremod"))
-	{
-		qMod->m_type = QuickMod::ForgeCoreMod;
-	}
-	else
-	{
-		qMod->m_type = QuickMod::ForgeMod;
-	}
 
 	QFileInfo modFile(m_quickmodDir.absoluteFilePath(fileName(qMod)));
 	// we save a new file if: there isn't an old one OR it's not parseable OR it's a stub to
@@ -93,13 +86,19 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	// index?
 	{
 		QJsonObject obj = QJsonDocument::fromJson(download->m_data).object();
-		if (obj.contains("IsIndex") && obj.value("IsIndex").toBool(false))
+		if (obj.contains("isIndex") && obj.value("isIndex").toBool(false))
 		{
+			const QUrl base = Util::expandQMURL(obj.value("baseUrl").toString());
 			for (auto it = obj.begin(); it != obj.end(); ++it)
 			{
-				if (it.key() != "IsIndex")
+				if (it.key() != "isIndex")
 				{
-					registerFile(QUrl(it.value().toString()));
+					QUrl url = Util::expandQMURL(it.value().toString());
+					if (!base.isEmpty() && url.isRelative())
+					{
+						url = base.resolved(url);
+					}
+					registerFile(url);
 				}
 			}
 			return;
@@ -175,23 +174,6 @@ void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
 	obj.insert("websiteUrl", mod->websiteUrl().toString());
 	obj.insert("description", mod->description());
 	obj.insert("stub", mod->isStub());
-	switch (mod->type())
-	{
-	case QuickMod::ForgeMod:
-		obj.insert("type", QStringLiteral("forgeMod"));
-		break;
-	case QuickMod::ForgeCoreMod:
-		obj.insert("type", QStringLiteral("forgeCoreMod"));
-		break;
-	case QuickMod::ResourcePack:
-		obj.insert("type", QStringLiteral("resourcepack"));
-		break;
-	case QuickMod::ConfigPack:
-		obj.insert("type", QStringLiteral("configpack"));
-		break;
-	case QuickMod::Group:
-		obj.insert("type", QStringLiteral("group"));
-	}
 
 	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
 	if (!file.open(QFile::WriteOnly | QFile::Truncate))

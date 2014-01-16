@@ -54,7 +54,6 @@ QHash<int, QByteArray> QuickModsList::roleNames() const
 	roles[ModIdRole] = "modId";
 	roles[CategoriesRole] = "categories";
 	roles[TagsRole] = "tags";
-	roles[TypeRole] = "type";
 	return roles;
 }
 
@@ -113,8 +112,6 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return mod->categories();
 	case TagsRole:
 		return mod->tags();
-	case TypeRole:
-		return mod->type();
 	case QuickModRole:
 		return QVariant::fromValue(mod);
 	case IsStubRole:

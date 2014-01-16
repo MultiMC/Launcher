@@ -23,24 +23,32 @@ Q_DECLARE_METATYPE(QuickModVersionPtr)
 class QuickModVersion : public BaseVersion
 {
 public:
-	enum Type
+	enum DownloadType
 	{
 		Direct,
 		Parallel,
 		Sequential
 	};
+	enum InstallType
+	{
+		ForgeMod,
+		ForgeCoreMod,
+		Extract,
+		ConfigPack,
+		Group
+	};
 
-	QuickModVersion(QuickMod *mod, bool valid = true) : mod(mod), valid(valid)
+	QuickModVersion(QuickMod *mod = 0, bool valid = true) : mod(mod), valid(valid)
 	{
 	}
 	QuickModVersion(QuickMod *mod, const QString &name, const QUrl &url, const QStringList &mc,
 					const QString &forge = QString(),
 					const QMap<QString, QString> &deps = QMap<QString, QString>(),
 					const QMap<QString, QString> &recs = QMap<QString, QString>(),
-					const QByteArray &checksum = QByteArray(), const Type type = Parallel)
+					const QByteArray &checksum = QByteArray(), const DownloadType downloadType = Parallel)
 		: mod(mod), valid(true), name_(name), url(url), compatibleVersions(mc),
 		  forgeVersionFilter(forge), dependencies(deps), recommendations(recs),
-		  checksum_algorithm(QCryptographicHash::Md5), checksum(checksum), type(type)
+		  checksum_algorithm(QCryptographicHash::Md5), checksum(checksum), downloadType(downloadType)
 	{
 	}
 
@@ -68,9 +76,14 @@ public:
 	QString forgeVersionFilter;
 	QMap<QString, QString> dependencies;
 	QMap<QString, QString> recommendations;
+	QMap<QString, QString> suggestions;
+	QMap<QString, QString> breaks;
+	QMap<QString, QString> conflicts;
+	QMap<QString, QString> provides;
 	QCryptographicHash::Algorithm checksum_algorithm;
 	QByteArray checksum;
-	Type type;
+	DownloadType downloadType;
+	InstallType installType;
 
 	bool operator==(const QuickModVersion &other) const
 	{
@@ -83,6 +96,7 @@ public:
 
 	static QuickModVersionPtr invalid(QuickMod *mod);
 };
+Q_DECLARE_METATYPE(QuickModVersion*);
 
 class QuickModVersionList : public BaseVersionList
 {

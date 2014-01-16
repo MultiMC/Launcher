@@ -18,22 +18,15 @@ class QuickMod : public QObject
 public:
 	explicit QuickMod(QObject *parent = 0);
 
-	enum ModType
-	{
-		ForgeMod,
-		ForgeCoreMod,
-		ResourcePack,
-		ConfigPack,
-		Group
-	};
-	Q_ENUMS(ModType)
-
 	bool isValid() const
 	{
 		return !m_name.isEmpty();
 	}
 
-	QString uid() const;
+	QString uid() const
+	{
+		return m_uid;
+	}
 	QString name() const
 	{
 		return m_name;
@@ -83,10 +76,6 @@ public:
 	QStringList tags() const
 	{
 		return m_tags;
-	}
-	ModType type() const
-	{
-		return m_type;
 	}
 	QUrl versionsUrl() const
 	{
@@ -144,7 +133,6 @@ private:
 	QString m_modId;
 	QStringList m_categories;
 	QStringList m_tags;
-	ModType m_type;
 	QUrl m_versionsUrl;
 	bool m_stub;
 

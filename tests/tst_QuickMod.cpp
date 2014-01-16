@@ -20,6 +20,7 @@ private slots:
 	{
 		auto mod = new QuickMod;
 		mod->m_name = "testmodname";
+		mod->m_uid = "this.should.be.unique";
 		mod->m_description = "test mod description\nsome more";
 		mod->m_websiteUrl = QUrl("http://test.com/");
 		mod->m_iconUrl = QUrl("http://test.com/icon.png");
@@ -31,7 +32,6 @@ private slots:
 		mod->m_modId = "modid";
 		mod->m_categories << "cat" << "grep" << "ls" << "cp";
 		mod->m_tags << "tag" << "tictactoe";
-		mod->m_type = QuickMod::ForgeMod;
 		mod->m_stub = false;
 		return mod;
 	}
@@ -43,19 +43,7 @@ private slots:
 		QuickMod *mod;
 
 		mod = createTestingMod();
-		QTest::newRow("basic test, forge mod") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test, forge mod")) << mod;
-
-		mod = createTestingMod();
-		mod->m_type = QuickMod::ForgeCoreMod;
-		QTest::newRow("basic test, core mod") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test, core mod")) << mod;
-
-		mod = createTestingMod();
-		mod->m_type = QuickMod::ResourcePack;
-		QTest::newRow("basic test, resource pack") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test, resource pack")) << mod;
-
-		mod = createTestingMod();
-		mod->m_type = QuickMod::ConfigPack;
-		QTest::newRow("basic test, config pack") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test, config pack")) << mod;
+		QTest::newRow("basic test") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test")) << mod;
 	}
 	void testParsing()
 	{
@@ -79,7 +67,6 @@ private slots:
 		QCOMPARE(parsed->m_modId, mod->m_modId);
 		QCOMPARE(parsed->m_categories, mod->m_categories);
 		QCOMPARE(parsed->m_tags, mod->m_tags);
-		QCOMPARE(parsed->m_type, mod->m_type);
 		QCOMPARE(parsed->m_stub, mod->m_stub);
 	}
 

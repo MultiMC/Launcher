@@ -9,26 +9,11 @@
 #include "logic/net/NetJob.h"
 #include "MultiMC.h"
 #include "QuickModVersion.h"
+#include "modutils.h"
 
 QuickMod::QuickMod(QObject *parent)
 	: QObject(parent), m_stub(false), m_imagesLoaded(false)
 {
-}
-
-QString QuickMod::uid() const
-{
-	if (!m_uid.isEmpty())
-	{
-		return m_uid;
-	}
-	else if (!m_modId.isEmpty())
-	{
-		return m_modId;
-	}
-	else
-	{
-		return QString();
-	}
 }
 
 QIcon QuickMod::icon()
@@ -86,16 +71,16 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	m_description = mod.value("description").toString();
 	m_nemName = mod.value("nemName").toString();
 	m_modId = mod.value("modId").toString();
-	m_websiteUrl = QUrl(mod.value("websiteUrl").toString());
-	m_verifyUrl = QUrl(mod.value("verifyUrl").toString());
-	m_iconUrl = QUrl(mod.value("iconUrl").toString());
-	m_logoUrl = QUrl(mod.value("logoUrl").toString());
-	m_updateUrl = QUrl(mod.value("updateUrl").toString());
+	m_websiteUrl = Util::expandQMURL(mod.value("websiteUrl").toString());
+	m_verifyUrl = Util::expandQMURL(mod.value("verifyUrl").toString());
+	m_iconUrl = Util::expandQMURL(mod.value("iconUrl").toString());
+	m_logoUrl = Util::expandQMURL(mod.value("logoUrl").toString());
+	m_updateUrl = Util::expandQMURL(mod.value("updateUrl").toString());
 	m_references.clear();
 	QVariantMap references = mod.value("references").toObject().toVariantMap();
 	for (auto key : references.keys())
 	{
-		m_references.insert(key, QUrl(references[key].toString()));
+		m_references.insert(key, Util::expandQMURL(references[key].toString()));
 	}
 	m_categories.clear();
 	foreach(const QJsonValue & val, mod.value("categories").toArray())
@@ -107,37 +92,12 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	{
 		m_tags.append(val.toString());
 	}
-	const QString modType = mod.value("type").toString();
-	if (modType == "forgeMod")
-	{
-		m_type = ForgeMod;
-	}
-	else if (modType == "forgeCoreMod")
-	{
-		m_type = ForgeCoreMod;
-	}
-	else if (modType == "resourcePack")
-	{
-		m_type = ResourcePack;
-	}
-	else if (modType == "configPack")
-	{
-		m_type = ConfigPack;
-	}
-	else if (modType == "group")
-	{
-		m_type = Group;
-	}
-	else
-	{
-		MALFORMED_JSON_X(tr("Unknown version type: %1").arg(modType));
-	}
-	m_versionsUrl = QUrl(mod.value("versionsUrl").toString());
+	m_versionsUrl = Util::expandQMURL(mod.value("versionsUrl").toString());
 
-	if (uid().isNull())
+	if (uid().isNull() || uid().isEmpty())
 	{
 		MALFORMED_JSON_X(
-			tr("There needs to be either a 'uid' or a 'modId' field in the QuickMod file"));
+			tr("There needs to be a 'uid' field in the QuickMod file"));
 	}
 
 	return true;

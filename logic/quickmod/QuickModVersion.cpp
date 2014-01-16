@@ -8,6 +8,16 @@
 #include "QuickMod.h"
 #include "MultiMC.h"
 
+static QMap<QString, QString> jsonObjectToStringStringMap(const QJsonObject &obj)
+{
+	QMap<QString, QString> out;
+	for (auto it = obj.begin(); it != obj.end(); ++it)
+	{
+		out.insert(it.key(), it.value().toString());
+	}
+	return out;
+}
+
 bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 {
 	name_ = object.value("name").toString();
@@ -74,43 +84,66 @@ bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 			checksum = QByteArray();
 		}
 	}
-	forgeVersionFilter = object.value("forgeCompatibility").toString();
+	forgeVersionFilter = object.value("forgeCompat").toString();
 	compatibleVersions.clear();
-	foreach(const QJsonValue & val, object.value("mcCompatibility").toArray())
+	foreach(const QJsonValue & val, object.value("mcCompat").toArray())
 	{
 		compatibleVersions.append(val.toString());
 	}
-	dependencies.clear();
-	QJsonObject deps = object.value("modDependencies").toObject();
-	foreach(const QString & mod, deps.keys())
-	{
-		dependencies.insert(mod, deps.value(mod).toString());
-	}
-	recommendations.clear();
-	QJsonObject recs = object.value("modRecommendations").toObject();
-	foreach(const QString & mod, recs.keys())
-	{
-		recommendations.insert(mod, recs.value(mod).toString());
-	}
+	dependencies = jsonObjectToStringStringMap(object.value("depends").toObject());
+	recommendations = jsonObjectToStringStringMap(object.value("recommends").toObject());
+	suggestions = jsonObjectToStringStringMap(object.value("suggests").toObject());
+	breaks = jsonObjectToStringStringMap(object.value("breaks").toObject());
+	conflicts = jsonObjectToStringStringMap(object.value("conflicts").toObject());
+	provides = jsonObjectToStringStringMap(object.value("provides").toObject());
 
-	// type
+	// download type
 	{
-		const QString typeString = object.value("type").toString("parallel");
+		const QString typeString = object.value("downloadType").toString("parallel");
 		if (typeString == "direct")
 		{
-			type = Direct;
+			downloadType = Direct;
 		}
 		else if (typeString == "parallel")
 		{
-			type = Parallel;
+			downloadType = Parallel;
 		}
 		else if (typeString == "sequential")
 		{
-			type = Sequential;
+			downloadType = Sequential;
 		}
 		else
 		{
-			*errorMessage = QObject::tr("Unknown value for \"type\" field");
+			*errorMessage = QObject::tr("Unknown value for \"downloadType\" field");
+			return false;
+		}
+	}
+	// install type
+	{
+		const QString typeString = object.value("installType").toString("forgeMod");
+		if (typeString == "forgeMod")
+		{
+			installType = ForgeMod;
+		}
+		else if (typeString == "forgeCoreMod")
+		{
+			installType = ForgeCoreMod;
+		}
+		else if (typeString == "extract")
+		{
+			installType = Extract;
+		}
+		else if (typeString == "configPack")
+		{
+			installType = ConfigPack;
+		}
+		else if (typeString == "group")
+		{
+			installType = Group;
+		}
+		else
+		{
+			*errorMessage = QObject::tr("Unknown value for \"installType\" field");
 			return false;
 		}
 	}

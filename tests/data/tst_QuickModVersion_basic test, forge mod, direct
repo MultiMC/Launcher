@@ -1,0 +1,20 @@
+[
+	{
+	    "name": "1.42",
+	    "url": "http://downloads.com/deadbeaf",
+	    "forgeCompat": "(9.8.42,)",
+	    "mcCompat": [
+		"1.6.2",
+		"1.6.4"
+	    ],
+	    "depends": {
+		"stuff": "1.0.0.0.0"
+	    },
+	    "recommends": {
+		"OtherName": "1.2.3"
+	    },
+            "downloadType": "direct",
+            "installType": "forgeMod",
+	    "checksum_md5": "a68b86df2f3fff44"
+	}
+    ]

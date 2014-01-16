@@ -203,7 +203,7 @@ int QuickModInstallDialog::exec()
 	while (it.hasNext())
 	{
 		QuickModVersionPtr version = it.next();
-		if (version->type == QuickModVersion::Direct)
+		if (version->downloadType == QuickModVersion::Direct)
 		{
 			QLOG_DEBUG() << "Direct download used for " << version->url.toString();
 			processReply(MMC->qnam()->get(QNetworkRequest(version->url)), version);
@@ -343,23 +343,23 @@ void QuickModInstallDialog::downloadCompleted()
 	auto version = reply->property("version").value<QuickModVersionPtr>();
 	QDir dir;
 	bool extract = false;
-	switch (version->mod->type())
+	switch (version->installType)
 	{
-	case QuickMod::ForgeMod:
+	case QuickModVersion::ForgeMod:
 		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "mods");
 		extract = false;
 		break;
-	case QuickMod::ForgeCoreMod:
+	case QuickModVersion::ForgeCoreMod:
 		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "coremods");
 		extract = false;
 		break;
-	case QuickMod::ResourcePack:
+	case QuickModVersion::Extract:
 		Q_ASSERT_X(false, __func__, "Not implemented");
-		break;
-	case QuickMod::ConfigPack:
+		return;
+	case QuickModVersion::ConfigPack:
 		Q_ASSERT_X(false, __func__, "Not implemented");
-		break;
-	case QuickMod::Group:
+		return;
+	case QuickModVersion::Group:
 		item->setText(3, tr("Success: Installed successfully"));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::green));
 
@@ -437,21 +437,21 @@ void QuickModInstallDialog::downloadCompleted()
 void QuickModInstallDialog::install(const QuickModVersionPtr version)
 {
 	QDir finalDir;
-	switch (version->mod->type())
+	switch (version->installType)
 	{
-	case QuickMod::ForgeMod:
+	case QuickModVersion::ForgeMod:
 		finalDir = dirEnsureExists(m_instance->minecraftRoot(), "mods");
 		break;
-	case QuickMod::ForgeCoreMod:
+	case QuickModVersion::ForgeCoreMod:
 		finalDir = dirEnsureExists(m_instance->minecraftRoot(), "coremods");
 		break;
-	case QuickMod::ResourcePack:
+	case QuickModVersion::Extract:
 		Q_ASSERT_X(false, __func__, "Not implemented");
-		break;
-	case QuickMod::ConfigPack:
+		return;
+	case QuickModVersion::ConfigPack:
 		Q_ASSERT_X(false, __func__, "Not implemented");
-		break;
-	case QuickMod::Group:
+		return;
+	case QuickModVersion::Group:
 		return;
 	}
 	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
