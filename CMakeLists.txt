@@ -289,7 +289,6 @@ gui/dialogs/SettingsDialog.h
 gui/dialogs/SettingsDialog.cpp
 gui/dialogs/CopyInstanceDialog.h
 gui/dialogs/CopyInstanceDialog.cpp
-gui/dialogs/dialogs/
 gui/dialogs/NewInstanceDialog.cpp
 gui/dialogs/ProgressDialog.h
 gui/dialogs/ProgressDialog.cpp
@@ -401,6 +400,10 @@ logic/news/NewsChecker.h
 logic/news/NewsChecker.cpp
 logic/news/NewsEntry.h
 logic/news/NewsEntry.cpp
+
+# Status system
+logic/status/StatusChecker.h
+logic/status/StatusChecker.cpp
 
 # legacy instances
 logic/LegacyInstance.h

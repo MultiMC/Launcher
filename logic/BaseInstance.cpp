@@ -26,6 +26,7 @@
 #include "overridesetting.h"
 
 #include "pathutils.h"
+#include <cmdutils.h>
 #include "lists/MinecraftVersionList.h"
 #include "logic/icons/IconList.h"
 
@@ -251,8 +252,19 @@ void BaseInstance::setName(QString val)
 	d->m_settings->set("name", val);
 	emit propertiesChanged(this);
 }
+
 QString BaseInstance::name() const
 {
 	I_D(BaseInstance);
 	return d->m_settings->get("name").toString();
+}
+
+QString BaseInstance::windowTitle() const
+{
+	return "MultiMC: " + name();
+}
+
+QStringList BaseInstance::extraArguments() const
+{
+	return Util::Commandline::splitArgs(settings().get("JvmArgs").toString());
 }
