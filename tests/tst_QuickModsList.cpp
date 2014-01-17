@@ -7,12 +7,13 @@
 #include "logic/BaseInstance.h"
 #include "TestUtil.h"
 
-Q_DECLARE_METATYPE(BaseInstance*)
+Q_DECLARE_METATYPE(BaseInstance *)
 
 class QuickModsListTest : public QObject
 {
 	Q_OBJECT
-private slots:
+private
+slots:
 	void initTestCase()
 	{
 		QDir current = QDir::current();
@@ -35,14 +36,36 @@ private slots:
 		current.cdUp();
 	}
 
+	QuickModVersionPtr createTestingVersion(QuickMod *mod)
+	{
+		auto version = new QuickModVersion(mod);
+		version->name_ = "1.42";
+		version->url = QUrl("http://downloads.com/deadbeaf");
+		version->forgeVersionFilter = "(9.8.42,)";
+		version->compatibleVersions << "1.6.2"
+									<< "1.6.4";
+		version->dependencies = {{"stuff", "1.0.0.0.0"}};
+		version->recommendations = {{"OtherName", "1.2.3"}};
+		version->checksum = "a68b86df2f3fff44";
+		version->checksum_algorithm = QCryptographicHash::Md5;
+		return QuickModVersionPtr(version);
+	}
+
 	void testMarkAsExisting_data()
 	{
-		QTest::addColumn<QVector<QuickMod *> >("mods");
-		QTest::addColumn<QVector<int> >("versions");
-		QTest::addColumn<QVector<QString> >("filenames");
+		QTest::addColumn<QVector<QuickMod *>>("mods");
+		QTest::addColumn<QVector<QuickModVersionPtr>>("versions");
+		QTest::addColumn<QVector<QString>>("filenames");
 
-		QTest::newRow("basic test") << (QVector<QuickMod *>() << TestsInternal::createMod("TestMod") << TestsInternal::createMod("TestMod2") << TestsInternal::createMod("TestMod3"))
-									<< (QVector<int>() << 0 << 0 << 0)
+		QuickMod *testMod = TestsInternal::createMod("TestMod");
+		QuickMod *testMod2 = TestsInternal::createMod("TestMod2");
+		QuickMod *testMod3 = TestsInternal::createMod("TestMod3");
+		QTest::newRow("basic test") << (QVector<QuickMod *>() << testMod << testMod2
+															  << testMod3)
+									<< (QVector<QuickModVersionPtr>()
+										<< createTestingVersion(testMod)
+										<< createTestingVersion(testMod2)
+										<< createTestingVersion(testMod3))
 									<< (QVector<QString>()
 										<< QDir::current().absoluteFilePath("TestMod.jar")
 										<< QDir::current().absoluteFilePath("TestMod2.jar")
@@ -82,19 +105,27 @@ private slots:
 
 	void testMarkAsInstalledUninstalled_data()
 	{
-		QTest::addColumn<QVector<QuickMod *> >("mods");
-		QTest::addColumn<QVector<int> >("versions");
+		QTest::addColumn<QVector<QuickMod *>>("mods");
+		QTest::addColumn<QVector<QuickModVersionPtr>>("versions");
 		QTest::addColumn<BaseInstance *>("instance");
-		QTest::addColumn<QVector<QString> >("filenames");
+		QTest::addColumn<QVector<QString>>("filenames");
 
 		BaseInstance *instance = NULL;
 		std::shared_ptr<MinecraftVersion> version;
 		version.reset(new MinecraftVersion);
 		version->type = MinecraftVersion::OneSix;
 		version->m_name = "1.6.4";
-		InstanceFactory::get().createInstance(instance, version, QDir::current().absoluteFilePath("instances/TestInstance"));
-		QTest::newRow("basic test") << (QVector<QuickMod *>() << TestsInternal::createMod("TestMod") << TestsInternal::createMod("TestMod2") << TestsInternal::createMod("TestMod3"))
-									<< (QVector<int>() << 0 << 0 << 0)
+		InstanceFactory::get().createInstance(
+			instance, version, QDir::current().absoluteFilePath("instances/TestInstance"));
+		QuickMod *testMod = TestsInternal::createMod("TestMod");
+		QuickMod *testMod2 = TestsInternal::createMod("TestMod2");
+		QuickMod *testMod3 = TestsInternal::createMod("TestMod3");
+		QTest::newRow("basic test") << (QVector<QuickMod *>() << testMod << testMod2
+															  << testMod3)
+									<< (QVector<QuickModVersionPtr>()
+										<< createTestingVersion(testMod)
+										<< createTestingVersion(testMod2)
+										<< createTestingVersion(testMod3))
 									<< instance
 									<< (QVector<QString>()
 										<< QDir::current().absoluteFilePath("TestMod.jar")
