@@ -82,6 +82,7 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 	settings().registerSetting("OverrideConsole", false);
 	settings().registerOverride(globalSettings->getSetting("ShowConsole"));
 	settings().registerOverride(globalSettings->getSetting("AutoCloseConsole"));
+	settings().registerOverride(globalSettings->getSetting("LogPrePostOutput"));
 
 	// Mods
 	settings().registerSetting("InstalledMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >()));

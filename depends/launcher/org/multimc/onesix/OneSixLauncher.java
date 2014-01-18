@@ -70,47 +70,48 @@ public class OneSixLauncher implements Launcher
 		List<String> allNativePaths = new ArrayList<String>();
 		boolean is_64 = property.equalsIgnoreCase("x86_64") || property.equalsIgnoreCase("amd64");
 		allNativePaths.add(natives);
-		allNativePaths.add(Utils.combine(natives, is_64 ? "64" : "32"));
+		allNativePaths.add(natives + "/" + (is_64 ? "64" : "32"));
 
 		// print the pretty things
 		{
-			System.out.println("Main Class:");
-			System.out.println(mainClass);
-			System.out.println();
+			Utils.log("Main Class:");
+			Utils.log("  " + mainClass);
+			Utils.log();
 
-			System.out.println("Native paths:");
+			Utils.log("Native paths:");
 			for (String s : allNativePaths)
 			{
-				System.out.println(s);
+				Utils.log("  " + s);
 			}
-			System.out.println();
+			Utils.log();
 
-			System.out.println("Libraries:");
+			Utils.log("Libraries:");
 			for (String s : libraries)
 			{
-				System.out.println(s);
+				Utils.log("  " + s);
 			}
-			System.out.println();
+			Utils.log();
 
 			if(mods.size() > 0)
 			{
-				System.out.println("Class Path Mods:");
+				Utils.log("Class Path Mods:");
 				for (String s : mods)
 				{
-					System.out.println(s);
+					Utils.log("  " + s);
 				}
-				System.out.println();
+				Utils.log();
 			}
 
-			System.out.println("Params:");
-			System.out.println(mcparams.toString());
-			System.out.println();
+			Utils.log("Params:");
+			Utils.log("  " + mcparams.toString());
+			Utils.log();
 		}
 
 		final ClassLoader cl = ClassLoader.getSystemClassLoader();
 
 		// set up the natives path(s).
-		System.setProperty("java.library.path", Utils.join(allNativePaths, String.valueOf(File.pathSeparatorChar)) );
+		String libpath = Utils.join(allNativePaths, String.valueOf(File.pathSeparatorChar));
+		System.setProperty("java.library.path", libpath);
 		Field fieldSysPath;
 		try
 		{
