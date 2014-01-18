@@ -29,52 +29,57 @@ QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list) : QObject(list),
 
 void QuickModFilesUpdater::registerFile(const QUrl &url)
 {
-	get(url);
+	auto job = new NetJob("QuickMod download");
+	auto download =
+		ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+	connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
+	connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
+	job->addNetAction(download);
+	job->start();
+}
+
+void QuickModFilesUpdater::unregisterMod(const QuickMod *mod)
+{
+	m_quickmodDir.remove(fileName(mod));
 }
 
 void QuickModFilesUpdater::update()
 {
+	auto job = new NetJob("QuickMod download");
 	for (int i = 0; i < m_list->numMods(); ++i)
 	{
 		auto url = m_list->modAt(i)->updateUrl();
 		if (url.isValid())
 		{
-			get(url);
+			auto download =
+				ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+			connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
+			connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
+			job->addNetAction(download);
 		}
 	}
+	job->start();
 }
 
 QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 {
+	if (QuickMod *qMod = m_list->modForModId(mod.mod_id().isEmpty() ? mod.name() : mod.mod_id()))
+	{
+		if (!qMod->isStub())
+		{
+			return qMod;
+		}
+	}
+
 	auto qMod = new QuickMod;
 	qMod->m_name = mod.name();
 	qMod->m_modId = mod.mod_id().isEmpty() ? mod.name() : mod.mod_id();
+	qMod->m_uid = qMod->modId();
 	qMod->m_websiteUrl = QUrl(mod.homeurl());
 	qMod->m_description = mod.description();
 	qMod->m_stub = true;
 
-	QFileInfo modFile(m_quickmodDir.absoluteFilePath(fileName(qMod)));
-	// we save a new file if: there isn't an old one OR it's not parseable OR it's a stub to
-	if (!modFile.exists())
-	{
-		saveQuickMod(qMod);
-	}
-	else
-	{
-		auto oldMod = new QuickMod;
-		if (!parseQuickMod(modFile.absoluteFilePath(), oldMod))
-		{
-			saveQuickMod(qMod);
-		}
-		else if (oldMod->isStub())
-		{
-			saveQuickMod(qMod);
-		}
-		else
-		{
-			qMod = oldMod;
-		}
-	}
+	saveQuickMod(qMod);
 
 	return qMod;
 }
@@ -118,7 +123,18 @@ void QuickModFilesUpdater::receivedMod(int notused)
 
 	mod->m_hash = QCryptographicHash::hash(download->m_data, QCryptographicHash::Sha512);
 
-	m_quickmodDir.remove(fileName(mod));
+	// assume this is an updated version
+	if (QuickMod *old = m_list->mod(mod->uid()))
+	{
+		m_list->unregisterMod(old);
+	}
+	if (!mod->modId().isEmpty())
+	{
+		while (QuickMod *old = m_list->modForModId(mod->modId()))
+		{
+			m_list->unregisterMod(old);
+		}
+	}
 
 	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
 	if (!file.open(QFile::WriteOnly))
@@ -139,16 +155,6 @@ void QuickModFilesUpdater::failedMod(int index)
 	auto download = qobject_cast<ByteArrayDownload *>(sender());
 	emit error(tr("Error downloading %1: %2").arg(download->m_url.toString(QUrl::PrettyDecoded),
 												  download->m_errorString));
-}
-
-void QuickModFilesUpdater::get(const QUrl &url)
-{
-	auto job = new NetJob("QuickMod download: " + url.toString());
-	auto download = ByteArrayDownload::make(url);
-	connect(&*download, SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
-	connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
-	job->addNetAction(download);
-	job->start();
 }
 
 void QuickModFilesUpdater::readModFiles()

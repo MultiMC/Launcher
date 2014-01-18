@@ -89,6 +89,7 @@ public
 slots:
 	void registerMod(const QString &fileName);
 	void registerMod(const QUrl &url);
+	void unregisterMod(QuickMod *mod);
 
 	void updateFiles();
 

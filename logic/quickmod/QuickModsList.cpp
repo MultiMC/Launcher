@@ -22,7 +22,6 @@
 
 #include "depends/settings/inisettingsobject.h"
 
-// TODO test
 // TODO updating of mods
 
 QuickModsList::QuickModsList(QObject *parent)
@@ -387,4 +386,17 @@ void QuickModsList::modLogoUpdated()
 	auto mod = qobject_cast<QuickMod *>(sender());
 	auto modIndex = index(m_mods.indexOf(mod), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << LogoRole);
+}
+
+void QuickModsList::unregisterMod(QuickMod *mod)
+{
+	int row = m_mods.indexOf(mod);
+	if (row == -1)
+	{
+		return;
+	}
+	beginRemoveRows(QModelIndex(), row, row);
+	m_mods.removeAt(row);
+	endRemoveRows();
+	m_updater->unregisterMod(mod);
 }

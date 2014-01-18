@@ -456,6 +456,15 @@ void QuickModInstallDialog::install(const QuickModVersionPtr version)
 	}
 	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
 	const QString dest = finalDir.absoluteFilePath(QFileInfo(file).fileName());
+	if (QFile::exists(dest))
+	{
+		if (!QFile::remove(dest))
+		{
+			QMessageBox::critical(this, tr("Error"),
+								  tr("Error deploying %1 to %2").arg(file, dest));
+			return;
+		}
+	}
 	if (!QFile::copy(file, dest))
 	{
 		QMessageBox::critical(this, tr("Error"),

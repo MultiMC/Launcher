@@ -96,6 +96,7 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 
 	if (uid().isNull() || uid().isEmpty())
 	{
+		QLOG_INFO() << "QuickMod" << m_name << ":";
 		MALFORMED_JSON_X(
 			tr("There needs to be a 'uid' field in the QuickMod file"));
 	}

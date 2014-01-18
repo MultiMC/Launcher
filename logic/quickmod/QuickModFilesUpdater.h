@@ -22,6 +22,7 @@ public:
 	QuickMod *ensureExists(const Mod &mod);
 
 	void registerFile(const QUrl &url);
+	void unregisterMod(const QuickMod *mod);
 
 public
 slots:
@@ -34,7 +35,6 @@ private
 slots:
 	void receivedMod(int notused);
 	void failedMod(int index);
-	void get(const QUrl &url);
 	void readModFiles();
 
 private:
