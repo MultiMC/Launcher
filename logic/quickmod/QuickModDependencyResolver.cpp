@@ -25,44 +25,64 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickM
 	QList<QuickModVersionPtr> out;
 	foreach (QuickMod *mod, mods)
 	{
-		out.append(resolve(getVersion(mod), out));
+		bool ok;
+		out.append(resolve(getVersion(mod, QString(), &ok), out));
+		if (!ok)
+		{
+			emit error(tr("Didn't select a version for %1").arg(mod->name()));
+			return QList<QuickModVersionPtr>();
+		}
 	}
 	return out;
 }
 
-QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter)
+QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter, bool *ok)
 {
 	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
 							   tr("Choose QuickMod version for %1").arg(mod->name()), m_widgetParent);
 	dialog.setFilter(BaseVersionList::NameColumn, filter);
 	if (dialog.exec() == QDialog::Rejected)
 	{
+		*ok = false;
 		return QuickModVersionPtr();
 	}
+	*ok = true;
 	return std::dynamic_pointer_cast<QuickModVersion>(dialog.selectedVersion());
 }
 
-QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVersionPtr mod, const QList<QuickModVersionPtr> &exclude)
+QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVersionPtr version, const QList<QuickModVersionPtr> &exclude)
 {
 	QList<QuickModVersionPtr> out;
-	if (!mod)
+	if (!version)
 	{
-		emit totallyUnknownError();
+		emit error(tr("Unknown error"));
 		return out;
 	}
-	out.append(mod);
-	for (auto it = mod->dependencies.begin(); it != mod->dependencies.end(); ++it)
+	if (exclude.contains(version))
+	{
+		return out;
+	}
+	out.append(version);
+	for (auto it = version->dependencies.begin(); it != version->dependencies.end(); ++it)
 	{
 		QuickMod *depMod = MMC->quickmodslist()->mod(it.key());
 		if (!depMod)
 		{
-			emit unresolvedDependency(mod, it.key());
+			emit warning(tr("The dependency from %1 (%2) to %3 cannot be resolved")
+						 .arg(version->mod->name(), version->name(), it.key()));
 			continue;
 		}
-		QuickModVersionPtr dep = getVersion(depMod, it.value());
+		bool ok;
+		QuickModVersionPtr dep = getVersion(depMod, it.value(), &ok);
+		if (!ok)
+		{
+			emit warning(tr("Didn't select a version while resolving from %1 (%2) to %3")
+					.arg(version->mod->name(), version->name(), it.key()));
+		}
 		if (dep)
 		{
-			emit resolvedDependency(mod, dep);
+			emit success(tr("Successfully resolved dependency from %1 (%2) to %3 (%4)")
+						 .arg(version->mod->name(), version->name(), dep->mod->name(), dep->name()));
 			if (!exclude.contains(dep))
 			{
 				out.append(resolve(dep, out + exclude));
@@ -70,7 +90,8 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVers
 		}
 		else
 		{
-			emit didNotSelectVersionError(mod, it.key());
+			emit warning(tr("The dependency from %1 (%2) to %3 (%4) cannot be resolved")
+					.arg(version->mod->name(), version->name(), it.key(), it.value()));
 		}
 	}
 	return out;

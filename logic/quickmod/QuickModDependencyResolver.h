@@ -21,18 +21,17 @@ public:
 	QList<QuickModVersionPtr> resolve(const QList<QuickMod *> &mods);
 
 signals:
-	void totallyUnknownError();
-	void didNotSelectVersionError(QuickModVersionPtr from, const QString &to);
-	void unresolvedDependency(QuickModVersionPtr from, const QString &to);
-	void resolvedDependency(QuickModVersionPtr from, QuickModVersionPtr to);
+	void error(const QString &message);
+	void warning(const QString &message);
+	void success(const QString &message);
 
 private:
 	QWidget *m_widgetParent;
 	BaseInstance *m_instance;
 
-	QuickModVersionPtr getVersion(QuickMod *mod, const QString &filter = QString());
+	QuickModVersionPtr getVersion(QuickMod *mod, const QString &filter, bool *ok);
 	/// \param exclude Used for telling which versions are already included, so they won't have
 	/// to be added or checked now
-	QList<QuickModVersionPtr> resolve(const QuickModVersionPtr mod,
+	QList<QuickModVersionPtr> resolve(const QuickModVersionPtr version,
 									  const QList<QuickModVersionPtr> &exclude);
 };

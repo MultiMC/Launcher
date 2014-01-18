@@ -130,36 +130,24 @@ int QuickModInstallDialog::exec()
 	{
 		bool error = false;
 		QuickModDependencyResolver resolver(m_instance, this);
-		connect(&resolver, &QuickModDependencyResolver::totallyUnknownError, [this, &error]()
+		connect(&resolver, &QuickModDependencyResolver::error, [this, &error](const QString &msg)
 		{
 			error = true;
-			QListWidgetItem *item = new QListWidgetItem(tr("Unknown error"));
+			QListWidgetItem *item = new QListWidgetItem(msg);
 			item->setTextColor(Qt::red);
 			ui->dependencyListWidget->addItem(item);
 		});
-		connect(&resolver, &QuickModDependencyResolver::didNotSelectVersionError,
-				[this, &error](QuickModVersionPtr from, const QString &to)
+		connect(&resolver, &QuickModDependencyResolver::warning,
+				[this](const QString &msg)
 		{
-			error = true;
-			QListWidgetItem *item = new QListWidgetItem(tr("Didn't select a version while resolving from %1 (%2) to %3")
-														.arg(from->mod->name(), from->name(), to));
-			item->setTextColor(Qt::red);
+			QListWidgetItem *item = new QListWidgetItem(msg);
+			item->setTextColor(Qt::darkYellow);
 			ui->dependencyListWidget->addItem(item);
 		});
-		connect(&resolver, &QuickModDependencyResolver::unresolvedDependency,
-				[this, &error](QuickModVersionPtr from, const QString &to)
+		connect(&resolver, &QuickModDependencyResolver::success,
+				[this](const QString &msg)
 		{
-			error = true;
-			QListWidgetItem *item = new QListWidgetItem(tr("The dependency from %1 (%2) to %3 cannot be resolved")
-														.arg(from->mod->name(), from->name(), to));
-			item->setTextColor(Qt::red);
-			ui->dependencyListWidget->addItem(item);
-		});
-		connect(&resolver, &QuickModDependencyResolver::resolvedDependency,
-				[this, &error](QuickModVersionPtr from, QuickModVersionPtr to)
-		{
-			QListWidgetItem *item = new QListWidgetItem(tr("Successfully resolved dependency from %1 (%2) to %3 (%4)")
-														.arg(from->mod->name(), from->name(), to->mod->name(), to->name()));
+			QListWidgetItem *item = new QListWidgetItem(msg);
 			item->setTextColor(Qt::darkGreen);
 			ui->dependencyListWidget->addItem(item);
 		});
@@ -167,6 +155,10 @@ int QuickModInstallDialog::exec()
 		if (!error)
 		{
 			ui->tabWidget->setCurrentIndex(1);
+		}
+		else
+		{
+			return QDialog::exec();
 		}
 	}
 
