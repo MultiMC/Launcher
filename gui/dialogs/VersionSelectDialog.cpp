@@ -103,6 +103,7 @@ int VersionSelectDialog::exec()
 	{
 		loadList();
 	}
+	m_proxyModel->invalidate();
 	if (m_proxyModel->rowCount() == 0)
 	{
 		qDebug() << "No rows in version list";

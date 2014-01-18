@@ -158,11 +158,7 @@ QUrl Util::expandQMURL(const QString &in)
 
 bool Util::versionIsInInterval(const QString &version, const QString &interval)
 {
-	if (interval.isEmpty())
-	{
-		return true;
-	}
-	else if (version == interval)
+	if (interval.isEmpty() || version == interval)
 	{
 		return true;
 	}
