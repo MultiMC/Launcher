@@ -127,9 +127,12 @@ class QuickModVersionListLoadTask : public Task
 {
 	Q_OBJECT
 public:
-	explicit QuickModVersionListLoadTask(QuickModVersionList *vlist);
+	explicit QuickModVersionListLoadTask(QuickMod *mod);
 
 	virtual void executeTask();
+
+signals:
+	void updateListData(QList<BaseVersionPtr> versions);
 
 protected
 slots:
@@ -138,7 +141,7 @@ slots:
 
 protected:
 	NetJobPtr listJob;
-	QuickModVersionList *m_vlist;
+	QuickMod *m_mod;
 
 	CacheDownloadPtr listDownload;
 };

@@ -7,6 +7,12 @@
 #include "QuickMod.h"
 #include "QuickModsList.h"
 #include "MultiMC.h"
+#include "modutils.h"
+
+int qHash(const QuickModVersionPtr &ptr, const uint seed = 0)
+{
+	return qHash(ptr->mod->uid() + ptr->name(), seed);
+}
 
 QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance *instance, QWidget *parent)
 	: QuickModDependencyResolver(instance, parent, parent)
@@ -20,20 +26,136 @@ QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance *instance, Q
 
 }
 
-QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickMod *> &mods)
+QSet<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickMod *> &mods)
 {
-	QList<QuickModVersionPtr> out;
 	foreach (QuickMod *mod, mods)
 	{
-		bool ok;
-		out.append(resolve(getVersion(mod, QString(), &ok), out));
-		if (!ok)
-		{
-			emit error(tr("Didn't select a version for %1").arg(mod->name()));
-			return QList<QuickModVersionPtr>();
-		}
+		m_mods.insert(mod, qMakePair(mod->versions().toSet(), Explicit));
+		addDependencies(mod);
+	}
+	reduce();
+	useLatest();
+	QSet<QuickModVersionPtr> out;
+	typedef QPair<QSet<QuickModVersionPtr>, QuickModDependencyResolver::Type> VersionTypePair;
+	foreach (const VersionTypePair &pair, m_mods.values())
+	{
+		out += pair.first;
 	}
 	return out;
+}
+
+void QuickModDependencyResolver::addDependencies(QuickMod *mod)
+{
+	foreach (const QString &other, mod->references().keys())
+	{
+		addDependencies(MMC->quickmodslist()->mod(other));
+	}
+	m_mods.insert(mod, qMakePair(mod->versions().toSet(), Implicit));
+}
+
+bool QuickModDependencyResolver::isUsed(const QuickMod *mod) const
+{
+	for (auto modIt = m_mods.begin(); modIt != m_mods.end(); ++modIt)
+	{
+		auto versions = modIt.value().first;
+		for (auto verIt = versions.begin(); verIt != versions.end(); ++verIt)
+		{
+			QuickModVersionPtr version = *verIt;
+			if (version->dependencies.contains(mod->uid()) || version->breaks.contains(mod->uid())
+					|| version->provides.contains(mod->uid()))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+bool QuickModDependencyResolver::isLatest(const QuickModVersionPtr &ptr, const QSet<QuickModVersionPtr> &set) const
+{
+	for (auto it = set.begin(); it != set.end(); ++it)
+	{
+		if (Util::Version(ptr->name()) < Util::Version((*it)->name()))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void QuickModDependencyResolver::reduce()
+{
+	typedef QPair<QSet<QuickModVersionPtr>, QuickModDependencyResolver::Type> VersionTypePair;
+	// remove no longer used mods
+	{
+		QMutableHashIterator<QuickMod *, VersionTypePair> it(m_mods);
+		while (it.hasNext())
+		{
+			if (!isUsed(it.next().key()))
+			{
+				it.remove();
+			}
+		}
+	}
+
+	// apply version filters
+	{
+		for (auto it = m_mods.begin(); it != m_mods.end(); ++it)
+		{
+			QMutableSetIterator<QuickModVersionPtr> verIt(it.value().first);
+			while (verIt.hasNext())
+			{
+				QuickModVersionPtr version = verIt.next();
+				for (auto depIt = version->dependencies.begin(); depIt != version->dependencies.end(); ++depIt)
+				{
+					applyVersionFilter(MMC->quickmodslist()->mod(depIt.key()), depIt.value());
+				}
+			}
+		}
+	}
+
+	// apply breaks
+	{
+		// TODO apply breaks
+	}
+
+	// remove mods without versions
+	{
+		QMutableHashIterator<QuickMod *, VersionTypePair> it(m_mods);
+		while (it.hasNext())
+		{
+			// TODO if it's an explicit mod we're in trouble
+			if (it.next().value().first.isEmpty())
+			{
+				it.remove();
+			}
+		}
+	}
+}
+void QuickModDependencyResolver::applyVersionFilter(QuickMod *mod, const QString &filter)
+{
+	auto it = m_mods.find(mod);
+	QMutableSetIterator<QuickModVersionPtr> verIt(it.value().first);
+	while (verIt.hasNext())
+	{
+		if (!Util::versionIsInInterval(verIt.next()->name(), filter))
+		{
+			verIt.remove();
+		}
+	}
+}
+void QuickModDependencyResolver::useLatest()
+{
+	for (auto it = m_mods.begin(); it != m_mods.end(); ++it)
+	{
+		QMutableSetIterator<QuickModVersionPtr> verIt(it.value().first);
+		while (verIt.hasNext())
+		{
+			if (!isLatest(verIt.next(), it.value().first))
+			{
+				verIt.remove();
+			}
+		}
+	}
 }
 
 QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter, bool *ok)
@@ -48,51 +170,4 @@ QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const Q
 	}
 	*ok = true;
 	return std::dynamic_pointer_cast<QuickModVersion>(dialog.selectedVersion());
-}
-
-QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVersionPtr version, const QList<QuickModVersionPtr> &exclude)
-{
-	QList<QuickModVersionPtr> out;
-	if (!version)
-	{
-		emit error(tr("Unknown error"));
-		return out;
-	}
-	if (exclude.contains(version))
-	{
-		return out;
-	}
-	out.append(version);
-	for (auto it = version->dependencies.begin(); it != version->dependencies.end(); ++it)
-	{
-		QuickMod *depMod = MMC->quickmodslist()->mod(it.key());
-		if (!depMod)
-		{
-			emit warning(tr("The dependency from %1 (%2) to %3 cannot be resolved")
-						 .arg(version->mod->name(), version->name(), it.key()));
-			continue;
-		}
-		bool ok;
-		QuickModVersionPtr dep = getVersion(depMod, it.value(), &ok);
-		if (!ok)
-		{
-			emit warning(tr("Didn't select a version while resolving from %1 (%2) to %3")
-					.arg(version->mod->name(), version->name(), it.key()));
-		}
-		if (dep)
-		{
-			emit success(tr("Successfully resolved dependency from %1 (%2) to %3 (%4)")
-						 .arg(version->mod->name(), version->name(), dep->mod->name(), dep->name()));
-			if (!exclude.contains(dep))
-			{
-				out.append(resolve(dep, out + exclude));
-			}
-		}
-		else
-		{
-			emit warning(tr("The dependency from %1 (%2) to %3 (%4) cannot be resolved")
-					.arg(version->mod->name(), version->name(), it.key(), it.value()));
-		}
-	}
-	return out;
 }

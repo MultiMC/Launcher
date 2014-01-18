@@ -11,6 +11,8 @@
 class QuickMod;
 class QuickModVersion;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
+class BaseVersion;
+typedef std::shared_ptr<BaseVersion> BaseVersionPtr;
 
 class QuickMod : public QObject
 {
@@ -90,6 +92,7 @@ public:
 	{
 		return m_versions;
 	}
+	QList<BaseVersionPtr> baseVersions() const;
 	void setVersions(const QList<QuickModVersionPtr> &versions)
 	{
 		m_versions = versions;

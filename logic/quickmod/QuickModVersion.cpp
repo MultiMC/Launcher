@@ -162,7 +162,10 @@ QuickModVersionList::QuickModVersionList(QuickMod *mod, BaseInstance *instance, 
 
 Task *QuickModVersionList::getLoadTask()
 {
-	return new QuickModVersionListLoadTask(this);
+	auto task = new QuickModVersionListLoadTask(m_mod);
+	connect(task, &QuickModVersionListLoadTask::updateListData, this,
+			&QuickModVersionList::updateListData);
+	return task;
 }
 
 bool QuickModVersionList::isLoaded()
@@ -198,20 +201,27 @@ void QuickModVersionList::updateListData(QList<BaseVersionPtr> versions)
 	sort();
 }
 
-QuickModVersionListLoadTask::QuickModVersionListLoadTask(QuickModVersionList *vlist)
-	: Task(), m_vlist(vlist)
+QuickModVersionListLoadTask::QuickModVersionListLoadTask(QuickMod *mod)
+	: Task(), m_mod(mod)
 {
 }
 
 void QuickModVersionListLoadTask::executeTask()
 {
+	if (!m_mod->versions().isEmpty())
+	{
+		emit updateListData(m_mod->baseVersions());
+		emitSucceeded();
+		return;
+	}
+
 	setStatus(tr("Fetching QuickMod version list..."));
 	auto job = new NetJob("Version list");
 	auto entry =
-		MMC->metacache()->resolveEntry("quickmod/versions", m_vlist->m_mod->uid() + ".json");
+		MMC->metacache()->resolveEntry("quickmod/versions", m_mod->uid() + ".json");
 	entry->stale = true;
 
-	job->addNetAction(listDownload = CacheDownload::make(m_vlist->m_mod->versionsUrl(), entry));
+	job->addNetAction(listDownload = CacheDownload::make(m_mod->versionsUrl(), entry));
 
 	connect(listDownload.get(), SIGNAL(failed(int)), SLOT(listFailed()));
 
@@ -246,7 +256,7 @@ void QuickModVersionListLoadTask::listDownloaded()
 	QJsonArray root = doc.array();
 	foreach(const QJsonValue & value, root)
 	{
-		QuickModVersionPtr version = QuickModVersionPtr(new QuickModVersion(m_vlist->m_mod, true));
+		QuickModVersionPtr version = QuickModVersionPtr(new QuickModVersion(m_mod, true));
 		QString errorMessage;
 		version->parse(value.toObject(), &errorMessage);
 		if (!errorMessage.isNull())
@@ -264,8 +274,8 @@ void QuickModVersionListLoadTask::listDownloaded()
 		baseList.append(ptr);
 	}
 
-	m_vlist->m_mod->setVersions(list);
-	m_vlist->updateListData(baseList);
+	m_mod->setVersions(list);
+	emit updateListData(m_mod->baseVersions());
 	emitSucceeded();
 	return;
 }
@@ -275,7 +285,7 @@ void QuickModVersionListLoadTask::listFailed()
 	auto reply = listDownload->m_reply;
 	if (reply)
 	{
-		QLOG_ERROR() << "Getting QuickMod version list failed for " << m_vlist->m_mod->name()
+		QLOG_ERROR() << "Getting QuickMod version list failed for " << m_mod->name()
 					 << ": " << reply->errorString();
 	}
 	else
