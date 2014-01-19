@@ -1,6 +1,7 @@
 #include "QuickModInstaller.h"
 
 #include <QMessageBox>
+#include <QMimeDatabase>
 
 #include "logic/BaseInstance.h"
 #include "logic/quickmod/QuickModVersion.h"
@@ -62,7 +63,8 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, BaseInstance *
 	{
 		QFileInfo finfo(file);
 		// TODO more file formats. KArchive?
-		if (finfo.completeSuffix().toLower() == "zip")
+		const QMimeType mimeType = QMimeDatabase().mimeTypeForFile(finfo);
+		if (mimeType.inherits("application/zip"))
 		{
 			JlCompress::extractDir(finfo.absoluteFilePath(), finalDir.absolutePath());
 		}
