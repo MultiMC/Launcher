@@ -26,6 +26,7 @@
 #include "MultiMC.h"
 #include "depends/settings/settingsobject.h"
 #include "depends/quazip/JlCompress.h"
+#include "logic/quickmod/QuickModInstaller.h"
 
 Q_DECLARE_METATYPE(QTreeWidgetItem *)
 
@@ -118,7 +119,7 @@ int QuickModInstallDialog::exec()
 	{
 		ProgressDialog dialog(this);
 		if (dialog.exec(new QuickModDependencyDownloadTask(m_initialMods, this)) ==
-			QDialog::Rejected)
+				QDialog::Rejected)
 		{
 			return QDialog::Rejected;
 		}
@@ -255,6 +256,22 @@ bool QuickModInstallDialog::checkForIsDone()
 	}
 }
 
+bool QuickModInstallDialog::install(QuickModVersionPtr version, QTreeWidgetItem *item)
+{
+	QuickModInstaller installer(this);
+	QString errorString;
+	if (!installer.install(version, m_instance, &errorString))
+	{
+		if (item)
+		{
+			item->setText(3, errorString);
+			item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
+		}
+		return false;
+	}
+	return true;
+}
+
 void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 {
 	QLOG_INFO() << "Caught " << reply->url().toString();
@@ -297,22 +314,13 @@ void QuickModInstallDialog::downloadProgress(const qint64 current, const qint64 
 	item->setData(3, ExtraRoles::ProgressRole, current);
 	item->setData(3, ExtraRoles::TotalRole, max);
 	ui->progressList->update(
-		ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item), 3));
+				ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item), 3));
 }
 
 static QString fileName(const QUrl &url)
 {
 	const QString path = url.path();
 	return path.mid(path.lastIndexOf('/') + 1);
-}
-static bool saveDeviceToFile(const QByteArray &data, const QString &file)
-{
-	QFile out(file);
-	if (!out.open(QFile::WriteOnly | QFile::Truncate))
-	{
-		return false;
-	}
-	return data.size() == out.write(data);
 }
 static QDir dirEnsureExists(const QString &dir, const QString &path)
 {
@@ -344,23 +352,16 @@ void QuickModInstallDialog::downloadCompleted()
 	item->setText(3, tr("Installing..."));
 	auto version = reply->property("version").value<QuickModVersionPtr>();
 	QDir dir;
-	bool extract = false;
 	switch (version->installType)
 	{
 	case QuickModVersion::ForgeMod:
-		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "mods");
-		extract = false;
-		break;
 	case QuickModVersion::ForgeCoreMod:
-		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "coremods");
-		extract = false;
+		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "mods");
 		break;
 	case QuickModVersion::Extract:
-		Q_ASSERT_X(false, __func__, "Not implemented");
-		return;
 	case QuickModVersion::ConfigPack:
-		Q_ASSERT_X(false, __func__, "Not implemented");
-		return;
+		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "archives");
+		break;
 	case QuickModVersion::Group:
 		item->setText(3, tr("Success: Installed successfully"));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::green));
@@ -374,7 +375,7 @@ void QuickModInstallDialog::downloadCompleted()
 	QByteArray data = reply->readAll();
 
 	const QByteArray actual =
-		QCryptographicHash::hash(data, version->checksum_algorithm).toHex();
+			QCryptographicHash::hash(data, version->checksum_algorithm).toHex();
 	if (!version->checksum.isNull() && actual != version->checksum)
 	{
 		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
@@ -384,96 +385,26 @@ void QuickModInstallDialog::downloadCompleted()
 		return;
 	}
 
-	if (extract)
+	QFile file(dir.absoluteFilePath(fileName(reply->url())));
+	if (!file.open(QFile::WriteOnly | QFile::Truncate))
 	{
-		const QString path = reply->url().path();
-		// TODO more file formats. KArchive?
-		if (path.endsWith(".zip"))
-		{
-			const QString zipFileName =
-				QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
-					.absoluteFilePath(fileName(reply->url()));
-			if (saveDeviceToFile(data, zipFileName))
-			{
-				JlCompress::extractDir(zipFileName, dir.absolutePath());
-			}
-			else
-			{
-				item->setText(3, tr("Error: Checksum mismatch"));
-				item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
-				return;
-			}
-		}
-		else
-		{
-			item->setText(3, tr("Error: Trying to extract an unknown file type %1")
-								 .arg(reply->url().toString(QUrl::PrettyDecoded)));
-			item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
-			return;
-		}
-	}
-	else
-	{
-		QFile file(dir.absoluteFilePath(fileName(reply->url())));
-		if (!file.open(QFile::WriteOnly | QFile::Truncate))
-		{
-			item->setText(
-				3, tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
-			item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
-			return;
-		}
-		file.write(data);
-		file.close();
-		reply->close();
-		reply->deleteLater();
-
-		MMC->quickmodslist()->markModAsExists(version->mod, version, file.fileName());
-
-		install(version);
-	}
-
-	item->setText(3, tr("Success: Installed successfully"));
-	item->setData(3, Qt::ForegroundRole, QColor(Qt::darkGreen));
-}
-
-void QuickModInstallDialog::install(const QuickModVersionPtr version)
-{
-	QDir finalDir;
-	switch (version->installType)
-	{
-	case QuickModVersion::ForgeMod:
-		finalDir = dirEnsureExists(m_instance->minecraftRoot(), "mods");
-		break;
-	case QuickModVersion::ForgeCoreMod:
-		finalDir = dirEnsureExists(m_instance->minecraftRoot(), "coremods");
-		break;
-	case QuickModVersion::Extract:
-		Q_ASSERT_X(false, __func__, "Not implemented");
-		return;
-	case QuickModVersion::ConfigPack:
-		Q_ASSERT_X(false, __func__, "Not implemented");
-		return;
-	case QuickModVersion::Group:
+		item->setText(
+					3, tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
+		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
 		return;
 	}
-	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
-	const QString dest = finalDir.absoluteFilePath(QFileInfo(file).fileName());
-	if (QFile::exists(dest))
+	file.write(data);
+	file.close();
+	reply->close();
+	reply->deleteLater();
+
+	MMC->quickmodslist()->markModAsExists(version->mod, version, file.fileName());
+
+	if (install(version, item))
 	{
-		if (!QFile::remove(dest))
-		{
-			QMessageBox::critical(this, tr("Error"),
-								  tr("Error deploying %1 to %2").arg(file, dest));
-			return;
-		}
+		item->setText(3, tr("Success: Installed successfully"));
+		item->setData(3, Qt::ForegroundRole, QColor(Qt::darkGreen));
 	}
-	if (!QFile::copy(file, dest))
-	{
-		QMessageBox::critical(this, tr("Error"),
-							  tr("Error deploying %1 to %2").arg(file, dest));
-		return;
-	}
-	MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, m_instance);
 }
 
 #include "QuickModInstallDialog.moc"

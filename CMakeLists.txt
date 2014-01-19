@@ -472,6 +472,8 @@ logic/quickmod/QuickModDependencyDownloadTask.h
 logic/quickmod/QuickModDependencyDownloadTask.cpp
 logic/quickmod/QuickModVerificationTask.h
 logic/quickmod/QuickModVerificationTask.cpp
+logic/quickmod/QuickModInstaller.h
+logic/quickmod/QuickModInstaller.cpp
 
 # Icons
 logic/icons/MMCIcon.h

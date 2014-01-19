@@ -16,6 +16,7 @@ class QNetworkReply;
 class WebDownloadNavigator;
 class BaseInstance;
 class QuickMod;
+class QTreeWidgetItem;
 
 class QuickModInstallDialog : public QDialog
 {
@@ -47,9 +48,9 @@ private:
 
 	BaseInstance *m_instance;
 
+	bool install(QuickModVersionPtr version, QTreeWidgetItem *item = 0);
+
 	QList<QuickMod *> m_initialMods;
 	QList<QuickModVersionPtr> m_modVersions;
 	QList<QUrl> m_downloadingUrls;
-
-	void install(const QuickModVersionPtr version);
 };

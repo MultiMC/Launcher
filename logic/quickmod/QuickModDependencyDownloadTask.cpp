@@ -35,9 +35,9 @@ void QuickModDependencyDownloadTask::executeTask()
 
 void QuickModDependencyDownloadTask::modAdded(QuickMod *mod)
 {
-	if (m_pendingMods.contains(mod->updateUrl()))
+	if (m_pendingMods.contains(mod->uid()))
 	{
-		m_pendingMods.removeAll(mod->updateUrl());
+		m_pendingMods.removeAll(mod->uid());
 		m_mods.append(mod);
 		requestDependenciesOf(mod);
 	}
@@ -67,11 +67,11 @@ void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickMod *mod)
 		{
 			continue;
 		}
-		if (!m_requestedMods.contains(it.value()))
+		if (!m_requestedMods.contains(modUid))
 		{
 			MMC->quickmodslist()->registerMod(it.value());
-			m_pendingMods.append(it.value());
-			m_requestedMods.append(it.value());
+			m_pendingMods.append(modUid);
+			m_requestedMods.append(modUid);
 		}
 	}
 }
