@@ -10,11 +10,6 @@ class QuickModDependencyDownloadTask : public Task
 public:
 	explicit QuickModDependencyDownloadTask(QList<QuickMod *> mods, QObject *parent = 0);
 
-	QList<QuickMod *> downloadedMods() const
-	{
-		return m_mods;
-	}
-
 protected:
 	void executeTask();
 

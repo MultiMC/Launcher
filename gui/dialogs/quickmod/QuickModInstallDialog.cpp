@@ -26,7 +26,6 @@
 #include "MultiMC.h"
 #include "depends/settings/settingsobject.h"
 #include "depends/quazip/JlCompress.h"
-#include "logic/tasks/SequentialTask.h"
 
 Q_DECLARE_METATYPE(QTreeWidgetItem *)
 
@@ -115,30 +114,11 @@ QuickModInstallDialog::~QuickModInstallDialog()
 
 int QuickModInstallDialog::exec()
 {
-	QList<QuickMod *> mods;
 	// download all dependency files so they are ready for the dependency resolution
 	{
-		auto task = new QuickModDependencyDownloadTask(m_initialMods, this);
 		ProgressDialog dialog(this);
-		if (dialog.exec(task) ==
+		if (dialog.exec(new QuickModDependencyDownloadTask(m_initialMods, this)) ==
 			QDialog::Rejected)
-		{
-			return QDialog::Rejected;
-		}
-		mods = task->downloadedMods();
-	}
-
-	// fetch all of the version information
-	{
-		SequentialTask *versionsTask = new SequentialTask(this);
-
-		foreach (QuickMod *mod, mods)
-		{
-			versionsTask->addTask(std::shared_ptr<Task>(new QuickModVersionListLoadTask(mod)));
-		}
-
-		ProgressDialog dialog(this);
-		if (dialog.exec(versionsTask) == QDialog::Rejected)
 		{
 			return QDialog::Rejected;
 		}
@@ -171,7 +151,7 @@ int QuickModInstallDialog::exec()
 			item->setTextColor(Qt::darkGreen);
 			ui->dependencyListWidget->addItem(item);
 		});
-		m_modVersions = resolver.resolve(m_initialMods).toList();
+		m_modVersions = resolver.resolve(m_initialMods);
 		if (!error)
 		{
 			ui->tabWidget->setCurrentIndex(1);

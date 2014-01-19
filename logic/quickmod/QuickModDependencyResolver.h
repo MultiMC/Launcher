@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QObject>
-#include <QHash>
 #include <memory>
 
 class QWidget;
@@ -19,7 +18,7 @@ public:
 	explicit QuickModDependencyResolver(BaseInstance *instance, QWidget *widgetParent,
 										QObject *parent);
 
-	QSet<QuickModVersionPtr> resolve(const QList<QuickMod *> &mods);
+	QList<QuickModVersionPtr> resolve(const QList<QuickMod *> &mods);
 
 signals:
 	void error(const QString &message);
@@ -30,25 +29,9 @@ private:
 	QWidget *m_widgetParent;
 	BaseInstance *m_instance;
 
-	enum Type
-	{
-		Explicit,
-		Implicit
-	};
-	QHash<QuickMod *, QPair<QSet<QuickModVersionPtr>, Type> > m_mods;
-
-	void addDependencies(QuickMod *mod);
-
-	// query functions
-	bool isUsed(const QuickMod *mod) const;
-	bool isLatest(const QuickModVersionPtr &ptr, const QSet<QuickModVersionPtr> &set) const;
-	// end query functions
-
-	// other functions
-	void reduce();
-	void applyVersionFilter(QuickMod *mod, const QString &filter);
-	void useLatest();
-	// end other functions
-
 	QuickModVersionPtr getVersion(QuickMod *mod, const QString &filter, bool *ok);
+	/// \param exclude Used for telling which versions are already included, so they won't have
+	/// to be added or checked now
+	QList<QuickModVersionPtr> resolve(const QuickModVersionPtr version,
+									  const QList<QuickModVersionPtr> &exclude);
 };

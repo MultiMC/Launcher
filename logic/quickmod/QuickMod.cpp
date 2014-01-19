@@ -27,16 +27,6 @@ QPixmap QuickMod::logo()
 	return m_logo;
 }
 
-QList<BaseVersionPtr> QuickMod::baseVersions() const
-{
-	QList<BaseVersionPtr> out;
-	foreach (QuickModVersionPtr ptr, m_versions)
-	{
-		out.append(ptr);
-	}
-	return out;
-}
-
 QuickModVersionPtr QuickMod::version(const QString &name) const
 {
 	foreach (QuickModVersionPtr ptr, m_versions)
