@@ -172,6 +172,10 @@ Qt::DropActions QuickModsList::supportedDragActions() const
 
 QuickMod *QuickModsList::modForModId(const QString &modId) const
 {
+	if (modId.isEmpty())
+	{
+		return 0;
+	}
 	foreach (QuickMod *mod, m_mods)
 	{
 		if (mod->modId() == modId)
