@@ -71,6 +71,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QProgressBar" name="webModsProgressBar">
+           <property name="value">
+            <number>24</number>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="nextButton">
            <property name="text">
             <string>Next</string>

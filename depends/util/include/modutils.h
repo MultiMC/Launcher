@@ -12,6 +12,7 @@ struct Version
 	Version(const QString &str);
 
 	bool operator<(const Version &other) const;
+	bool operator<=(const Version &other) const;
 	bool operator>(const Version &other) const;
 	bool operator==(const Version &other) const;
 

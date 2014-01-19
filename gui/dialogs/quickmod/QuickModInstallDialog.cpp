@@ -203,6 +203,8 @@ int QuickModInstallDialog::exec()
 		}
 	}
 
+	ui->webModsProgressBar->setMaximum(m_modVersions.size());
+	ui->webModsProgressBar->setValue(0);
 	downloadNextMod();
 
 	return QDialog::exec();
@@ -220,15 +222,22 @@ void QuickModInstallDialog::downloadNextMod()
 		return;
 	}
 
-	m_currentVersion = m_modVersions.takeFirst();
+	if (m_modVersions.isEmpty())
+	{
+		return;
+	}
 
-	QLOG_INFO() << "Downloading " << m_currentVersion->name() << "("
-				<< m_currentVersion->url.toString() << ")";
+	auto version = m_modVersions.takeFirst();
+	ui->webModsProgressBar->setValue(ui->webModsProgressBar->value() + 1);
+
+	QLOG_INFO() << "Downloading " << version->name() << "("
+				<< version->url.toString() << ")";
 
 	auto navigator = new WebDownloadNavigator(this);
+	navigator->setProperty("version", QVariant::fromValue(version));
 	connect(navigator, &WebDownloadNavigator::caughtUrl, this,
 			&QuickModInstallDialog::urlCaught);
-	navigator->load(m_currentVersion->url);
+	navigator->load(version->url);
 	ui->web->addWidget(navigator);
 }
 
@@ -253,7 +262,7 @@ void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 
 	auto navigator = qobject_cast<WebDownloadNavigator *>(sender());
 
-	processReply(reply, m_currentVersion);
+	processReply(reply, navigator->property("version").value<QuickModVersionPtr>());
 
 	ui->web->removeWidget(navigator);
 	navigator->deleteLater();
@@ -329,6 +338,7 @@ static QDir dirEnsureExists(const QString &dir, const QString &path)
 void QuickModInstallDialog::downloadCompleted()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+	m_downloadingUrls.removeAll(reply->url());
 	auto item = reply->property("item").value<QTreeWidgetItem *>();
 	item->setData(3, ExtraRoles::IgnoreRole, true);
 	item->setText(3, tr("Installing..."));

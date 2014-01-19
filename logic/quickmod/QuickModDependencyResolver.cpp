@@ -7,6 +7,7 @@
 #include "QuickMod.h"
 #include "QuickModsList.h"
 #include "MultiMC.h"
+#include "modutils.h"
 
 QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance *instance, QWidget *parent)
 	: QuickModDependencyResolver(instance, parent, parent)
@@ -22,18 +23,17 @@ QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance *instance, Q
 
 QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickMod *> &mods)
 {
-	QList<QuickModVersionPtr> out;
 	foreach (QuickMod *mod, mods)
 	{
 		bool ok;
-		out.append(resolve(getVersion(mod, QString(), &ok), out));
+		resolve(getVersion(mod, QString(), &ok));
 		if (!ok)
 		{
 			emit error(tr("Didn't select a version for %1").arg(mod->name()));
 			return QList<QuickModVersionPtr>();
 		}
 	}
-	return out;
+	return m_mods.values();
 }
 
 QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter, bool *ok)
@@ -50,19 +50,18 @@ QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const Q
 	return std::dynamic_pointer_cast<QuickModVersion>(dialog.selectedVersion());
 }
 
-QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVersionPtr version, const QList<QuickModVersionPtr> &exclude)
+void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 {
-	QList<QuickModVersionPtr> out;
 	if (!version)
 	{
 		emit error(tr("Unknown error"));
-		return out;
+		return;
 	}
-	if (exclude.contains(version))
+	if (m_mods.contains(version->mod) && Util::Version(version->name()) <= Util::Version(m_mods[version->mod]->name()))
 	{
-		return out;
+		return;
 	}
-	out.append(version);
+	m_mods.insert(version->mod, version);
 	for (auto it = version->dependencies.begin(); it != version->dependencies.end(); ++it)
 	{
 		QuickMod *depMod = MMC->quickmodslist()->mod(it.key());
@@ -77,22 +76,25 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QuickModVers
 		if (!ok)
 		{
 			emit warning(tr("Didn't select a version while resolving from %1 (%2) to %3")
-					.arg(version->mod->name(), version->name(), it.key()));
+						 .arg(version->mod->name(), version->name(), it.key()));
 		}
 		if (dep)
 		{
 			emit success(tr("Successfully resolved dependency from %1 (%2) to %3 (%4)")
 						 .arg(version->mod->name(), version->name(), dep->mod->name(), dep->name()));
-			if (!exclude.contains(dep))
+			if (m_mods.contains(version->mod) && Util::Version(dep->name()) > Util::Version(m_mods[version->mod]->name()))
 			{
-				out.append(resolve(dep, out + exclude));
+				resolve(dep);
+			}
+			else
+			{
+				resolve(dep);
 			}
 		}
 		else
 		{
 			emit warning(tr("The dependency from %1 (%2) to %3 (%4) cannot be resolved")
-					.arg(version->mod->name(), version->name(), it.key(), it.value()));
+						 .arg(version->mod->name(), version->name(), it.key(), it.value()));
 		}
 	}
-	return out;
 }

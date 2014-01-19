@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QHash>
 #include <memory>
 
 class QWidget;
@@ -29,9 +30,10 @@ private:
 	QWidget *m_widgetParent;
 	BaseInstance *m_instance;
 
+	QHash<QuickMod *, QuickModVersionPtr> m_mods;
+
 	QuickModVersionPtr getVersion(QuickMod *mod, const QString &filter, bool *ok);
 	/// \param exclude Used for telling which versions are already included, so they won't have
 	/// to be added or checked now
-	QList<QuickModVersionPtr> resolve(const QuickModVersionPtr version,
-									  const QList<QuickModVersionPtr> &exclude);
+	void resolve(const QuickModVersionPtr version);
 };

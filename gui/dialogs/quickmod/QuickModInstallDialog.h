@@ -49,7 +49,6 @@ private:
 
 	QList<QuickMod *> m_initialMods;
 	QList<QuickModVersionPtr> m_modVersions;
-	QuickModVersionPtr m_currentVersion;
 	QList<QUrl> m_downloadingUrls;
 
 	void install(const QuickModVersionPtr version);
