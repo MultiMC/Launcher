@@ -116,7 +116,7 @@ bool QuickMod::compare(const QuickMod *other) const
 void QuickMod::iconDownloadFinished(int index)
 {
 	auto download = qobject_cast<CacheDownload *>(sender());
-	m_icon = QIcon(download->m_target_path);
+	m_icon = QIcon(download->getTargetFilepath());
 	if (!m_icon.isNull())
 	{
 		emit iconUpdated();
@@ -125,7 +125,7 @@ void QuickMod::iconDownloadFinished(int index)
 void QuickMod::logoDownloadFinished(int index)
 {
 	auto download = qobject_cast<CacheDownload *>(sender());
-	m_logo = QPixmap(download->m_target_path);
+	m_logo = QPixmap(download->getTargetFilepath());
 	if (!m_logo.isNull())
 	{
 		emit logoUpdated();

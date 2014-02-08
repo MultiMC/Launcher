@@ -41,9 +41,9 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *setting_o
 	reloadFullVersion();
 }
 
-std::shared_ptr<Task> OneSixInstance::doUpdate(bool only_prepare)
+std::shared_ptr<Task> OneSixInstance::doUpdate()
 {
-	return std::shared_ptr<Task>(new OneSixUpdate(this, only_prepare));
+	return std::shared_ptr<Task>(new OneSixUpdate(this));
 }
 
 QString replaceTokensIn(QString text, QMap<QString, QString> with)
@@ -93,45 +93,44 @@ QDir OneSixInstance::reconstructAssets(std::shared_ptr<OneSixVersion> version)
 	AssetsIndex index;
 	bool loadAssetsIndex = AssetsUtils::loadAssetsIndexJson(indexPath, &index);
 
-	if (loadAssetsIndex)
+	if (loadAssetsIndex && index.isVirtual)
 	{
-		if (index.isVirtual)
+		QLOG_INFO() << "Reconstructing virtual assets folder at" << virtualRoot.path();
+
+		for (QString map : index.objects.keys())
 		{
-			QLOG_INFO() << "Reconstructing virtual assets folder at" << virtualRoot.path();
+			AssetObject asset_object = index.objects.value(map);
+			QString target_path = PathCombine(virtualRoot.path(), map);
+			QFile target(target_path);
 
-			for (QString map : index.objects.keys())
+			QString tlk = asset_object.hash.left(2);
+
+			QString original_path =
+				PathCombine(PathCombine(objectDir.path(), tlk), asset_object.hash);
+			QFile original(original_path);
+			if(!original.exists())
+				continue;
+			if (!target.exists())
 			{
-				AssetObject asset_object = index.objects.value(map);
-				QString target_path = PathCombine(virtualRoot.path(), map);
-				QFile target(target_path);
+				QFileInfo info(target_path);
+				QDir target_dir = info.dir();
+				// QLOG_DEBUG() << target_dir;
+				if (!target_dir.exists())
+					QDir("").mkpath(target_dir.path());
 
-				QString tlk = asset_object.hash.left(2);
-
-				QString original_path =
-					PathCombine(PathCombine(objectDir.path(), tlk), asset_object.hash);
-				QFile original(original_path);
-				if (!target.exists())
-				{
-					QFileInfo info(target_path);
-					QDir target_dir = info.dir();
-					// QLOG_DEBUG() << target_dir;
-					if (!target_dir.exists())
-						QDir("").mkpath(target_dir.path());
-
-					bool couldCopy = original.copy(target_path);
-					QLOG_DEBUG() << " Copying" << original_path << "to" << target_path
-								 << QString::number(couldCopy); // << original.errorString();
-				}
+				bool couldCopy = original.copy(target_path);
+				QLOG_DEBUG() << " Copying" << original_path << "to" << target_path
+								<< QString::number(couldCopy); // << original.errorString();
 			}
-
-			// TODO: Write last used time to virtualRoot/.lastused
 		}
+
+		// TODO: Write last used time to virtualRoot/.lastused
 	}
 
 	return virtualRoot;
 }
 
-QStringList OneSixInstance::processMinecraftArgs(MojangAccountPtr account)
+QStringList OneSixInstance::processMinecraftArgs(AuthSessionPtr session)
 {
 	I_D(OneSixInstance);
 	auto version = d->version;
@@ -139,17 +138,11 @@ QStringList OneSixInstance::processMinecraftArgs(MojangAccountPtr account)
 
 	QMap<QString, QString> token_mapping;
 	// yggdrasil!
-	token_mapping["auth_username"] = account->username();
-	token_mapping["auth_session"] = account->sessionId();
-	token_mapping["auth_access_token"] = account->accessToken();
-	token_mapping["auth_player_name"] = account->currentProfile()->name;
-	token_mapping["auth_uuid"] = account->currentProfile()->id;
-
-	// this is for offline?:
-	/*
-	map["auth_player_name"] = "Player";
-	map["auth_player_name"] = "00000000-0000-0000-0000-000000000000";
-	*/
+	token_mapping["auth_username"] = session->username;
+	token_mapping["auth_session"] = session->session;
+	token_mapping["auth_access_token"] = session->access_token;
+	token_mapping["auth_player_name"] = session->player_name;
+	token_mapping["auth_uuid"] = session->uuid;
 
 	// these do nothing and are stupid.
 	token_mapping["profile_name"] = name();
@@ -160,17 +153,8 @@ QStringList OneSixInstance::processMinecraftArgs(MojangAccountPtr account)
 	QString absAssetsDir = QDir("assets/").absolutePath();
 	token_mapping["game_assets"] = reconstructAssets(d->version).absolutePath();
 
-	auto user = account->user();
-	QJsonObject userAttrs;
-	for (auto key : user.properties.keys())
-	{
-		auto array = QJsonArray::fromStringList(user.properties.values(key));
-		userAttrs.insert(key, array);
-	}
-	QJsonDocument value(userAttrs);
-
-	token_mapping["user_properties"] = value.toJson(QJsonDocument::Compact);
-	token_mapping["user_type"] = account->currentProfile()->legacy ? "legacy" : "mojang";
+	token_mapping["user_properties"] = session->serializeUserProperties();
+	token_mapping["user_type"] = session->user_type;
 	// 1.7.3+ assets tokens
 	token_mapping["assets_root"] = absAssetsDir;
 	token_mapping["assets_index_name"] = version->assets;
@@ -183,7 +167,7 @@ QStringList OneSixInstance::processMinecraftArgs(MojangAccountPtr account)
 	return parts;
 }
 
-MinecraftProcess *OneSixInstance::prepareForLaunch(MojangAccountPtr account)
+MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 {
 	I_D(OneSixInstance);
 
@@ -208,7 +192,7 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(MojangAccountPtr account)
 	}
 	launchScript += "mainClass " + version->mainClass + "\n";
 
-	for (auto param : processMinecraftArgs(account))
+	for (auto param : processMinecraftArgs(session))
 	{
 		launchScript += "param " + param + "\n";
 	}
@@ -229,6 +213,11 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(MojangAccountPtr account)
 	}
 	QDir natives_dir(PathCombine(instanceRoot(), "natives/"));
 	launchScript += "windowTitle " + windowTitle() + "\n";
+	for(auto native: version->getActiveNativeLibs())
+	{
+		QFileInfo finfo(PathCombine("libraries", native->storagePath()));
+		launchScript += "ext " + finfo.absoluteFilePath() + "\n";
+	}
 	launchScript += "natives " + natives_dir.absolutePath() + "\n";
 	launchScript += "launch onesix\n";
 

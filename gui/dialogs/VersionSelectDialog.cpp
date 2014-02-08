@@ -84,6 +84,11 @@ VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, 
 	}
 }
 
+void VersionSelectDialog::setEmptyString(QString emptyString)
+{
+	ui->listView->setEmptyString(emptyString);
+}
+
 VersionSelectDialog::~VersionSelectDialog()
 {
 	delete ui;

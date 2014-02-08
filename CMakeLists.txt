@@ -93,7 +93,7 @@ SET(MultiMC_NEWS_RSS_URL "http://multimc.org/rss.xml" CACHE STRING "URL to fetch
 
 ######## Set version numbers ########
 SET(MultiMC_VERSION_MAJOR		0)
-SET(MultiMC_VERSION_MINOR		1)
+SET(MultiMC_VERSION_MINOR		2)
 SET(MultiMC_VERSION_HOTFIX		1)
 
 # Build number
@@ -322,10 +322,14 @@ gui/dialogs/UpdateDialog.h
 gui/dialogs/UpdateDialog.cpp
 
 # GUI - widgets
+gui/widgets/Common.h
+gui/widgets/Common.cpp
 gui/widgets/InstanceDelegate.h
 gui/widgets/InstanceDelegate.cpp
 gui/widgets/ModListView.h
 gui/widgets/ModListView.cpp
+gui/widgets/VersionListView.h
+gui/widgets/VersionListView.cpp
 gui/widgets/LabeledToolButton.h
 gui/widgets/LabeledToolButton.cpp
 gui/widgets/MCModInfoFrame.h
@@ -374,6 +378,8 @@ logic/net/PasteUpload.cpp
 logic/net/URLConstants.h
 
 # Yggdrasil login stuff
+logic/auth/AuthSession.h
+logic/auth/AuthSession.cpp
 logic/auth/MojangAccountList.h
 logic/auth/MojangAccountList.cpp
 logic/auth/MojangAccount.h
@@ -549,10 +555,16 @@ gui/widgets/MCModInfoFrame.ui
 
 set (FILES_TO_TRANSLATE ${FILES_TO_TRANSLATE} ${MULTIMC_SOURCES} ${MULTIMC_UIS})
 
+SET(MULTIMC_QRCS
+resources/backgrounds/backgrounds.qrc
+resources/multimc/multimc.qrc
+resources/instances/instances.qrc
+)
+
 
 ######## Windows resource files ########
 IF(WIN32)
-SET(MULTIMC_RCS multimc.rc)
+SET(MULTIMC_RCS resources/multimc.rc)
 ENDIF()
 
 ####### X11 Stuff #######
@@ -592,10 +604,10 @@ ENDIF(MultiMC_CODE_COVERAGE)
 
 # Qt 5 stuff
 QT5_WRAP_UI(MULTIMC_UI ${MULTIMC_UIS})
-QT5_ADD_RESOURCES(GRAPHICS_QRC graphics.qrc)
+QT5_ADD_RESOURCES(MULTIMC_RESOURCES ${MULTIMC_QRCS})
 
 # Add common library
-ADD_LIBRARY(MultiMC_common STATIC ${MULTIMC_SOURCES} ${MULTIMC_UI} ${GRAPHICS_QRC})
+ADD_LIBRARY(MultiMC_common STATIC ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_RESOURCES})
 
 # Add executable
 ADD_EXECUTABLE(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_RCS})
@@ -694,7 +706,7 @@ FILE(WRITE \"\${CMAKE_INSTALL_PREFIX}/${QTCONF_DEST_DIR}/qt.conf\" \"\")
 
 # ICNS file for OS X
 IF(APPLE)
-	INSTALL(FILES MultiMC.icns DESTINATION MultiMC.app/Contents/Resources)
+	INSTALL(FILES resources/MultiMC.icns DESTINATION MultiMC.app/Contents/Resources)
 ENDIF()
 
 CONFIGURE_FILE(

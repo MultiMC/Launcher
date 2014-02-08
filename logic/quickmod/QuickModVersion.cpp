@@ -227,7 +227,7 @@ void QuickModVersionListLoadTask::listDownloaded()
 	setStatus(tr("Parsing reply..."));
 	QList<QuickModVersionPtr> list;
 	QJsonParseError error;
-	QFile file(listDownload->m_target_path);
+	QFile file(listDownload->getTargetFilepath());
 	if (!file.open(QFile::ReadOnly))
 	{
 		QLOG_ERROR() << "Couldn't open QuickMod version file " << file.fileName()

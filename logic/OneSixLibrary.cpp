@@ -136,6 +136,37 @@ QString OneSixLibrary::hint()
 	return m_hint;
 }
 
+bool OneSixLibrary::filesExist()
+{
+	QString storage = storagePath();
+	if (storage.contains("${arch}"))
+	{
+		QString cooked_storage = storage;
+		cooked_storage.replace("${arch}", "32");
+		QFileInfo info32(PathCombine("libraries", cooked_storage));
+		if (!info32.exists())
+		{
+			return false;
+		}
+		cooked_storage = storage;
+		cooked_storage.replace("${arch}", "64");
+		QFileInfo info64(PathCombine("libraries", cooked_storage));
+		if (!info64.exists())
+		{
+			return false;
+		}
+	}
+	else
+	{
+		QFileInfo info(PathCombine("libraries", storage));
+		if (!info.exists())
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 bool OneSixLibrary::extractTo(QString target_dir)
 {
 	QString storage = storagePath();
@@ -159,7 +190,7 @@ bool OneSixLibrary::extractTo(QString target_dir)
 		cooked_storage = storage;
 		cooked_storage.replace("${arch}", "64");
 		origin = PathCombine("libraries", cooked_storage);
-		target_dir_cooked = PathCombine(target_dir, "32");
+		target_dir_cooked = PathCombine(target_dir, "64");
 		if(!ensureFolderPathExists(target_dir_cooked))
 		{
 			QLOG_ERROR() << "Couldn't create folder " + target_dir_cooked;
