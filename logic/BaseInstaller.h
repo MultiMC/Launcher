@@ -15,14 +15,25 @@
 
 #pragma once
 
-#include "BaseInstance_p.h"
-#include "OneSixVersion.h"
-#include "ModList.h"
+#include <memory>
 
-struct OneSixInstancePrivate : public BaseInstancePrivate
+class OneSixInstance;
+class QDir;
+class QString;
+
+class BaseInstaller
 {
-	std::shared_ptr<OneSixVersion> version;
-	std::shared_ptr<OneSixVersion> vanillaVersion;
-	std::shared_ptr<ModList> loader_mod_list;
-	std::shared_ptr<ModList> resource_pack_list;
+public:
+	BaseInstaller();
+
+	virtual bool canApply(OneSixInstance *instance) const { return true; }
+	bool isApplied(OneSixInstance *on);
+
+	virtual bool add(OneSixInstance *to);
+	virtual bool remove(OneSixInstance *from);
+
+protected:
+	virtual QString id() const = 0;
+	QString filename(const QString &root) const;
+	QDir patchesDir(const QString &root) const;
 };
