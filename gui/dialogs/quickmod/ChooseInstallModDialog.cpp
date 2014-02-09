@@ -2,10 +2,7 @@
 #include "ui_ChooseInstallModDialog.h"
 
 #include <QSortFilterProxyModel>
-
-#include "depends/groupview/include/categorizedview.h"
-#include "depends/groupview/include/categorizedsortfilterproxymodel.h"
-#include "depends/groupview/include/categorydrawer.h"
+#include <QListView>
 
 #include "logic/quickmod/QuickModsList.h"
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
@@ -39,23 +36,21 @@ bool listContainsSubstring(const QStringList &list, const QString &str)
 	return false;
 }
 
-class ModFilterProxyModel : public KCategorizedSortFilterProxyModel
+class ModFilterProxyModel : public QSortFilterProxyModel
 {
 	Q_OBJECT
 public:
-	ModFilterProxyModel(QObject *parent = 0) : KCategorizedSortFilterProxyModel(parent)
+	ModFilterProxyModel(QObject *parent = 0) : QSortFilterProxyModel(parent)
 	{
-		setCategorizedModel(true);
 		setSortRole(Qt::DisplayRole);
 		setSortCaseSensitivity(Qt::CaseInsensitive);
 	}
 
 	void setSourceModel(QAbstractItemModel *model)
 	{
-		KCategorizedSortFilterProxyModel::setSourceModel(model);
-		connect(model, &QAbstractItemModel::modelReset, this, &ModFilterProxyModel::restort);
-		connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(restort()));
-		restort();
+		connect(model, &QAbstractItemModel::modelReset, this, &ModFilterProxyModel::resort);
+		connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(resort()));
+		resort();
 	}
 
 	void setTags(const QStringList &tags)
@@ -76,7 +71,7 @@ public:
 
 private
 slots:
-	void restort()
+	void resort()
 	{
 		sort(0);
 	}
@@ -153,10 +148,8 @@ ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance *instance, QWidget *
 
 	ui->tagsEdit->setValidator(new TagsValidator(this));
 
-	m_view->setSelectionBehavior(KCategorizedView::SelectRows);
-	m_view->setSelectionMode(KCategorizedView::SingleSelection);
-	// BUG using a KCategorizedView instead of a QListView creates crash
-	// m_view->setCategoryDrawer(new KCategoryDrawer(m_view));
+	m_view->setSelectionBehavior(QListView::SelectRows);
+	m_view->setSelectionMode(QListView::SingleSelection);
 	m_model->setSourceModel(MMC->quickmodslist().get());
 	m_view->setModel(m_model);
 

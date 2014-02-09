@@ -15,6 +15,12 @@ struct Version
 	bool operator<=(const Version &other) const;
 	bool operator>(const Version &other) const;
 	bool operator==(const Version &other) const;
+	bool operator!=(const Version &other) const;
+
+	QString toString() const
+	{
+		return m_string;
+	}
 
 private:
 	QString m_string;

@@ -17,7 +17,6 @@
 #include "logic/BaseInstance.h"
 #include "depends/settings/setting.h"
 #include "MultiMC.h"
-#include "depends/groupview/include/categorizedsortfilterproxymodel.h"
 #include "logic/lists/InstanceList.h"
 
 #include "depends/settings/inisettingsobject.h"
@@ -115,12 +114,6 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return QVariant::fromValue(mod);
 	case IsStubRole:
 		return mod->isStub();
-	case KCategorizedSortFilterProxyModel::CategoryDisplayRole:
-	case KCategorizedSortFilterProxyModel::CategorySortRole:
-		return mod->categories().isEmpty() ? "" : mod->categories().first(); // the first
-																			 // category is seen
-																			 // as the "primary"
-																			 // category
 	}
 
 	return QVariant();
