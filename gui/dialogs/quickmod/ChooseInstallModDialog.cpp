@@ -3,12 +3,14 @@
 
 #include <QSortFilterProxyModel>
 #include <QListView>
+#include <QMessageBox>
 
 #include "logic/quickmod/QuickModsList.h"
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
 #include "ChooseQuickModVersionDialog.h"
 #include "AddQuickModFileDialog.h"
 #include "logic/quickmod/QuickMod.h"
+#include "logic/OneSixInstance.h"
 
 #include "MultiMC.h"
 
@@ -48,6 +50,7 @@ public:
 
 	void setSourceModel(QAbstractItemModel *model)
 	{
+		QSortFilterProxyModel::setSourceModel(model);
 		connect(model, &QAbstractItemModel::modelReset, this, &ModFilterProxyModel::resort);
 		connect(model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(resort()));
 		resort();
@@ -173,13 +176,30 @@ void ChooseInstallModDialog::on_installButton_clicked()
 		return;
 	}
 
-	QuickModInstallDialog dialog(m_instance, this);
-	dialog.setInitialMods(QList<QuickMod *>() << m_view->selectionModel()
-						  ->selectedRows()
-						  .first()
-						  .data(QuickModsList::QuickModRole)
-						  .value<QuickMod *>());
-	dialog.exec();
+	auto mod = m_view->selectionModel()->selectedIndexes().first().data(QuickModsList::QuickModRole).value<QuickMod *>();
+	if (static_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods.contains(mod->uid()))
+	{
+		return;
+	}
+
+	QFile userFile(m_instance->instanceRoot() + "/user.json");
+	if (!userFile.open(QFile::ReadWrite))
+	{
+		QMessageBox::critical(this, tr("Error"), tr("Couldn't open %1 for reading and writing: %2").arg(userFile.fileName(), userFile.errorString()));
+		return;
+	}
+	// TODO more error reporting
+	QJsonObject obj = QJsonDocument::fromJson(userFile.readAll()).object();
+	QJsonArray plusmods = obj.value("+mods").toArray();
+	QJsonObject modObject;
+	modObject.insert(mod->uid(), QString());
+	plusmods.append(modObject);
+	obj.insert("+mods", plusmods);
+	userFile.seek(0);
+	userFile.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
+	userFile.close();
+	static_cast<OneSixInstance *>(m_instance)->reloadVersion(this);
+	// TODO notify the user of the success
 }
 void ChooseInstallModDialog::on_closeButton_clicked()
 {

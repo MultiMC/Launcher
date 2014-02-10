@@ -14,80 +14,6 @@
    <string>Browse mods</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QWidget" name="widget" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>250</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>250</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <layout class="QVBoxLayout" name="_2" stretch="0,1">
-      <item>
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string>Search</string>
-        </property>
-        <layout class="QFormLayout" name="formLayout_2">
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Category:</string>
-           </property>
-           <property name="buddy">
-            <cstring>categoryBox</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="categoryBox">
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Tags:</string>
-           </property>
-           <property name="buddy">
-            <cstring>tagsEdit</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="tagsEdit">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use commas (,) to separate tags:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;tag1, tag2, tag3, tag4&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="placeholderText">
-            <string>tag1, tag2, tag3</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0" colspan="2">
-          <widget class="QLineEdit" name="fulltextEdit">
-           <property name="placeholderText">
-            <string>Type your search here...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="viewLayout"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="1" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -254,6 +180,80 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QWidget" name="widget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>250</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>250</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <layout class="QVBoxLayout" name="_2" stretch="0,1">
+      <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Search</string>
+        </property>
+        <layout class="QFormLayout" name="formLayout_2">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Category:</string>
+           </property>
+           <property name="buddy">
+            <cstring>categoryBox</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="categoryBox">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Tags:</string>
+           </property>
+           <property name="buddy">
+            <cstring>tagsEdit</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="tagsEdit">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use commas (,) to separate tags:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;tag1, tag2, tag3, tag4&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="placeholderText">
+            <string>tag1, tag2, tag3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLineEdit" name="fulltextEdit">
+           <property name="placeholderText">
+            <string>Type your search here...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="viewLayout"/>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

@@ -95,6 +95,11 @@ struct VersionFile
 	QList<Library> addLibs;
 	QList<QString> removeLibs;
 
+	bool shouldOverwriteMods = false;
+	QPair<QStringList, QMap<QString, QString> > overwriteMods;
+	QPair<QStringList, QMap<QString, QString> > addMods;
+	QPair<QStringList, QMap<QString, QString> > removeMods;
+
 	static Library fromLibraryJson(const QJsonObject &libObj, const QString &filename,
 								   bool &isError)
 	{
@@ -497,6 +502,107 @@ struct VersionFile
 			}
 		}
 
+		if (root.contains("mods"))
+		{
+			out.shouldOverwriteMods = true;
+			QJsonValue modsVal = root.value("mods");
+			if (!modsVal.isArray())
+			{
+				QLOG_ERROR() << filename << "contains a 'mods' field, but it's not an array";
+				return out;
+			}
+			QJsonArray modsArray = modsVal.toArray();
+			QStringList fileMods;
+			QMap<QString, QString> quickmods;
+			for (auto modVal : modsArray)
+			{
+				if (modVal.isString())
+				{
+					fileMods += modVal.toString();
+				}
+				else if (modVal.isObject())
+				{
+					QJsonObject modObj = modVal.toObject();
+					if (!modObj.isEmpty())
+					{
+						const QString id = modObj.keys().first();
+						quickmods.insert(id, modObj.value(id).toString());
+					}
+				}
+				else
+				{
+					QLOG_WARN() << filename << "has an invalid value in the 'mod' field";
+				}
+			}
+			out.overwriteMods = qMakePair(fileMods, quickmods);
+		}
+		if (root.contains("+mods"))
+		{
+			QJsonValue modsVal = root.value("+mods");
+			if (!modsVal.isArray())
+			{
+				QLOG_ERROR() << filename << "contains a '+mods' field, but it's not an array";
+				return out;
+			}
+			QJsonArray modsArray = modsVal.toArray();
+			QStringList fileMods;
+			QMap<QString, QString> quickmods;
+			for (auto modVal : modsArray)
+			{
+				if (modVal.isString())
+				{
+					fileMods += modVal.toString();
+				}
+				else if (modVal.isObject())
+				{
+					QJsonObject modObj = modVal.toObject();
+					if (!modObj.isEmpty())
+					{
+						const QString id = modObj.keys().first();
+						quickmods.insert(id, modObj.value(id).toString());
+					}
+				}
+				else
+				{
+					QLOG_WARN() << filename << "has an invalid value in the '+mod' field";
+				}
+			}
+			out.addMods = qMakePair(fileMods, quickmods);
+		}
+		if (root.contains("-mods"))
+		{
+			QJsonValue modsVal = root.value("-mods");
+			if (!modsVal.isArray())
+			{
+				QLOG_ERROR() << filename << "contains a '-mods' field, but it's not an array";
+				return out;
+			}
+			QJsonArray modsArray = modsVal.toArray();
+			QStringList fileMods;
+			QMap<QString, QString> quickmods;
+			for (auto modVal : modsArray)
+			{
+				if (modVal.isString())
+				{
+					fileMods += modVal.toString();
+				}
+				else if (modVal.isObject())
+				{
+					QJsonObject modObj = modVal.toObject();
+					if (!modObj.isEmpty())
+					{
+						const QString id = modObj.keys().first();
+						quickmods.insert(id, modObj.value(id).toString());
+					}
+				}
+				else
+				{
+					QLOG_WARN() << filename << "has an invalid value in the '-mod' field";
+				}
+			}
+			out.removeMods = qMakePair(fileMods, quickmods);
+		}
+
 		isError = false;
 		return out;
 	}
@@ -756,6 +862,27 @@ struct VersionFile
 				QLOG_WARN() << "Couldn't find" << lib << "(skipping)";
 			}
 		}
+		if (shouldOverwriteMods)
+		{
+			version->modFiles = overwriteMods.first;
+			version->quickmods = overwriteMods.second;
+		}
+		version->modFiles += addMods.first;
+		for (auto mod = addMods.second.cbegin(); mod != addMods.second.cend(); ++mod)
+		{
+			version->quickmods.insert(mod.key(), mod.value());
+		}
+		for (auto mod : removeMods.first)
+		{
+			version->modFiles.removeAll(mod);
+		}
+		for (auto mod = removeMods.second.cbegin(); mod != removeMods.second.cend(); ++mod)
+		{
+			if (version->quickmods.contains(mod.key()) && version->quickmods.value(mod.key()) == mod.value())
+			{
+				version->quickmods.remove(mod.key());
+			}
+		}
 
 		OneSixVersion::VersionFile versionFile;
 		versionFile.name = name;
@@ -898,7 +1025,6 @@ bool OneSixVersionBuilder::build(const bool onlyVanilla)
 				}
 			}
 
-#if 0
 			// user.json
 			{
 				if (QFile::exists(root.absoluteFilePath("user.json")))
@@ -926,7 +1052,6 @@ bool OneSixVersionBuilder::build(const bool onlyVanilla)
 					}
 				}
 			}
-#endif
 		}
 	}
 

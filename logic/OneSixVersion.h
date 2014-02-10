@@ -97,6 +97,9 @@ public:
 	/// the list of libs - both active and inactive, native and java
 	QList<std::shared_ptr<OneSixLibrary>> libraries;
 
+	QStringList modFiles;
+	QMap<QString, QString> quickmods;
+
 	/*
 	FIXME: add support for those rules here? Looks like a pile of quick hacks to me though.
 
