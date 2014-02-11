@@ -22,6 +22,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QDataStream>
+#include <QMessageBox>
 
 #include "BaseInstance.h"
 #include "lists/MinecraftVersionList.h"
@@ -31,19 +32,19 @@
 #include "net/ForgeMirrors.h"
 #include "net/URLConstants.h"
 #include "assets/AssetsUtils.h"
+#include "gui/dialogs/quickmod/QuickModInstallDialog.h"
+#include "logic/quickmod/QuickModsList.h"
 
 #include "pathutils.h"
 #include <JlCompress.h>
 
-OneSixUpdate::OneSixUpdate(BaseInstance *inst, QObject *parent)
+OneSixUpdate::OneSixUpdate(OneSixInstance *inst, QObject *parent)
 	: Task(parent), m_inst(inst)
 {
 }
 
 void OneSixUpdate::executeTask()
 {
-	QString intendedVersion = m_inst->intendedVersionId();
-
 	// Make directories
 	QDir mcDir(m_inst->minecraftRoot());
 	if (!mcDir.exists() && !mcDir.mkpath("."))
@@ -52,6 +53,50 @@ void OneSixUpdate::executeTask()
 		return;
 	}
 
+	beginQuickModDownload();
+}
+
+void OneSixUpdate::beginQuickModDownload()
+{
+	const QMap<QString, QString> quickmods = m_inst->getFullVersion()->quickmods;
+	auto list = MMC->quickmodslist();
+	QList<QuickMod *> mods;
+	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
+	{
+		QuickMod *mod = list->mod(it.key());
+		if (mod == 0)
+		{
+			// TODO fetch info from somewhere?
+			int answer = QMessageBox::warning(0, tr("Mod not available"), tr("You seem to be missing the QuickMod file for %1. Skip it?").arg(it.key()), QMessageBox::No, QMessageBox::Yes);
+			if (answer == QMessageBox::No)
+			{
+				emitFailed(tr("Missing %1").arg(it.key()));
+				return;
+			}
+			else
+			{
+				continue;
+			}
+		}
+		else
+		{
+			if (!list->isModMarkedAsExists(mod, it.value()))
+			{
+				mods.append(mod);
+			}
+		}
+	}
+
+	QuickModInstallDialog dialog(m_inst);
+	connect(&dialog, &QuickModInstallDialog::accepted, this, &OneSixUpdate::beginMinecraftUpdate);
+	connect(&dialog, &QuickModInstallDialog::rejected, [this]() { emitFailed(QString()); });
+	dialog.setInitialMods(mods);
+	dialog.exec();
+}
+
+void OneSixUpdate::beginMinecraftUpdate()
+{
+	QString intendedVersion = m_inst->intendedVersionId();
 	if (m_inst->shouldUpdate())
 	{
 		// Get a pointer to the version object that corresponds to the instance's version.

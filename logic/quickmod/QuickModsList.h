@@ -78,6 +78,7 @@ public:
 	bool isModMarkedAsInstalled(QuickMod *mod, const BaseVersionPtr version,
 								BaseInstance *instance) const;
 	bool isModMarkedAsExists(QuickMod *mod, const BaseVersionPtr version) const;
+	bool isModMarkedAsExists(QuickMod *mod, const QString &version) const;
 	QString installedModFile(QuickMod *mod, const BaseVersionPtr version,
 							 BaseInstance *instance) const;
 	QString existingModFile(QuickMod *mod, const BaseVersionPtr version) const;

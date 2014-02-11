@@ -260,9 +260,13 @@ bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const BaseVersionPtr v
 }
 bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const BaseVersionPtr version) const
 {
+	return isModMarkedAsExists(mod, version->name());
+}
+bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const QString &version) const
+{
 	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
 	return mods.contains(mod->uid()) &&
-			mods.value(mod->uid()).toMap().contains(version->name());
+			mods.value(mod->uid()).toMap().contains(version);
 }
 QString QuickModsList::installedModFile(QuickMod *mod, const BaseVersionPtr version,
 										BaseInstance *instance) const

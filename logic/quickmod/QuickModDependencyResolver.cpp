@@ -6,6 +6,7 @@
 #include "QuickModVersion.h"
 #include "QuickMod.h"
 #include "QuickModsList.h"
+#include "logic/OneSixInstance.h"
 #include "MultiMC.h"
 #include "modutils.h"
 
@@ -41,6 +42,11 @@ QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const Q
 	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
 							   tr("Choose QuickMod version for %1").arg(mod->name()), m_widgetParent);
 	dialog.setFilter(BaseVersionList::NameColumn, filter);
+	const QString predefinedVersion = static_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods.value(mod->uid());
+	if (!predefinedVersion.isEmpty())
+	{
+		dialog.setFilter(BaseVersionList::NameColumn, predefinedVersion);
+	}
 	if (dialog.exec() == QDialog::Rejected)
 	{
 		*ok = false;
