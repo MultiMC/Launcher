@@ -4,6 +4,7 @@
 #include <QMimeDatabase>
 
 #include "logic/BaseInstance.h"
+#include "logic/OneSixInstance.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "MultiMC.h"
@@ -43,6 +44,10 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, BaseInstance *
 	switch (version->installType)
 	{
 	case QuickModVersion::ForgeMod:
+		if (qobject_cast<OneSixInstance *>(instance))
+		{
+			return true;
+		}
 		finalDir = dirEnsureExists(instance->minecraftRoot(), "mods");
 		break;
 	case QuickModVersion::ForgeCoreMod:

@@ -152,7 +152,7 @@ int QuickModInstallDialog::exec()
 			item->setTextColor(Qt::darkGreen);
 			ui->dependencyListWidget->addItem(item);
 		});
-		m_modVersions = resolver.resolve(m_initialMods);
+		m_modVersions = m_resolvedVersions = resolver.resolve(m_initialMods);
 		if (!error)
 		{
 			ui->tabWidget->setCurrentIndex(1);

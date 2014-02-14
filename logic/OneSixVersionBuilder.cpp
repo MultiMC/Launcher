@@ -506,32 +506,23 @@ struct VersionFile
 		{
 			out.shouldOverwriteMods = true;
 			QJsonValue modsVal = root.value("mods");
-			if (!modsVal.isArray())
+			if (!modsVal.isObject())
 			{
-				QLOG_ERROR() << filename << "contains a 'mods' field, but it's not an array";
+				QLOG_ERROR() << filename << "contains a 'mods' field, but it's not an object";
 				return out;
 			}
-			QJsonArray modsArray = modsVal.toArray();
+			QJsonObject modsObj = modsVal.toObject();
 			QStringList fileMods;
 			QMap<QString, QString> quickmods;
-			for (auto modVal : modsArray)
+			for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
 			{
-				if (modVal.isString())
+				if (it.value().toString() == "file")
 				{
-					fileMods += modVal.toString();
-				}
-				else if (modVal.isObject())
-				{
-					QJsonObject modObj = modVal.toObject();
-					if (!modObj.isEmpty())
-					{
-						const QString id = modObj.keys().first();
-						quickmods.insert(id, modObj.value(id).toString());
-					}
+					fileMods += it.key();
 				}
 				else
 				{
-					QLOG_WARN() << filename << "has an invalid value in the 'mod' field";
+					quickmods.insert(it.key(), it.value().toString());
 				}
 			}
 			out.overwriteMods = qMakePair(fileMods, quickmods);
@@ -539,32 +530,23 @@ struct VersionFile
 		if (root.contains("+mods"))
 		{
 			QJsonValue modsVal = root.value("+mods");
-			if (!modsVal.isArray())
+			if (!modsVal.isObject())
 			{
-				QLOG_ERROR() << filename << "contains a '+mods' field, but it's not an array";
+				QLOG_ERROR() << filename << "contains a '+mods' field, but it's not an object";
 				return out;
 			}
-			QJsonArray modsArray = modsVal.toArray();
+			QJsonObject modsObj = modsVal.toObject();
 			QStringList fileMods;
 			QMap<QString, QString> quickmods;
-			for (auto modVal : modsArray)
+			for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
 			{
-				if (modVal.isString())
+				if (it.value().toString() == "file")
 				{
-					fileMods += modVal.toString();
-				}
-				else if (modVal.isObject())
-				{
-					QJsonObject modObj = modVal.toObject();
-					if (!modObj.isEmpty())
-					{
-						const QString id = modObj.keys().first();
-						quickmods.insert(id, modObj.value(id).toString());
-					}
+					fileMods += it.key();
 				}
 				else
 				{
-					QLOG_WARN() << filename << "has an invalid value in the '+mod' field";
+					quickmods.insert(it.key(), it.value().toString());
 				}
 			}
 			out.addMods = qMakePair(fileMods, quickmods);
@@ -572,32 +554,23 @@ struct VersionFile
 		if (root.contains("-mods"))
 		{
 			QJsonValue modsVal = root.value("-mods");
-			if (!modsVal.isArray())
+			if (!modsVal.isObject())
 			{
-				QLOG_ERROR() << filename << "contains a '-mods' field, but it's not an array";
+				QLOG_ERROR() << filename << "contains a '-mods' field, but it's not an object";
 				return out;
 			}
-			QJsonArray modsArray = modsVal.toArray();
+			QJsonObject modsObj = modsVal.toObject();
 			QStringList fileMods;
 			QMap<QString, QString> quickmods;
-			for (auto modVal : modsArray)
+			for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
 			{
-				if (modVal.isString())
+				if (it.value().toString() == "file")
 				{
-					fileMods += modVal.toString();
-				}
-				else if (modVal.isObject())
-				{
-					QJsonObject modObj = modVal.toObject();
-					if (!modObj.isEmpty())
-					{
-						const QString id = modObj.keys().first();
-						quickmods.insert(id, modObj.value(id).toString());
-					}
+					fileMods += it.key();
 				}
 				else
 				{
-					QLOG_WARN() << filename << "has an invalid value in the '-mod' field";
+					quickmods.insert(it.key(), it.value().toString());
 				}
 			}
 			out.removeMods = qMakePair(fileMods, quickmods);

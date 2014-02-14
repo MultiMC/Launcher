@@ -27,8 +27,10 @@
 #include "icons/IconList.h"
 #include "MinecraftProcess.h"
 #include "gui/dialogs/OneSixModEditDialog.h"
+#include "logic/quickmod/QuickModsList.h"
 
-OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings, QObject *parent)
+OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings,
+							   QObject *parent)
 	: BaseInstance(new OneSixInstancePrivate(), rootDir, settings, parent)
 {
 	I_D(OneSixInstance);
@@ -113,7 +115,7 @@ QDir OneSixInstance::reconstructAssets(std::shared_ptr<OneSixVersion> version)
 			QString original_path =
 				PathCombine(PathCombine(objectDir.path(), tlk), asset_object.hash);
 			QFile original(original_path);
-			if(!original.exists())
+			if (!original.exists())
 				continue;
 			if (!target.exists())
 			{
@@ -125,7 +127,7 @@ QDir OneSixInstance::reconstructAssets(std::shared_ptr<OneSixVersion> version)
 
 				bool couldCopy = original.copy(target_path);
 				QLOG_DEBUG() << " Copying" << original_path << "to" << target_path
-								<< QString::number(couldCopy); // << original.errorString();
+							 << QString::number(couldCopy); // << original.errorString();
 			}
 		}
 
@@ -206,6 +208,13 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 		launchScript += "param " + param + "\n";
 	}
 
+	for (auto it = version->quickmods.begin(); it != version->quickmods.end(); ++it)
+	{
+		launchScript += "mods " + MMC->quickmodslist()->existingModFile(
+									 MMC->quickmodslist()->mod(it.key()), it.value()) +
+						"\n";
+	}
+
 	// Set the width and height for 1.6 instances
 	bool maximize = settings().get("LaunchMaximized").toBool();
 	if (maximize)
@@ -222,7 +231,7 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 	}
 	QDir natives_dir(PathCombine(instanceRoot(), "natives/"));
 	launchScript += "windowTitle " + windowTitle() + "\n";
-	for(auto native: version->getActiveNativeLibs())
+	for (auto native : version->getActiveNativeLibs())
 	{
 		QFileInfo finfo(PathCombine("libraries", native->storagePath()));
 		launchScript += "ext " + finfo.absoluteFilePath() + "\n";
@@ -304,9 +313,9 @@ bool OneSixInstance::shouldUpdate() const
 bool OneSixInstance::versionIsCustom()
 {
 	QDir patches(PathCombine(instanceRoot(), "patches/"));
-	return (patches.exists() && patches.count() >= 0)
-			|| QFile::exists(PathCombine(instanceRoot(), "custom.json"))
-			|| QFile::exists(PathCombine(instanceRoot(), "user.json"));
+	return (patches.exists() && patches.count() >= 0) ||
+		   QFile::exists(PathCombine(instanceRoot(), "custom.json")) ||
+		   QFile::exists(PathCombine(instanceRoot(), "user.json"));
 }
 
 QString OneSixInstance::currentVersionId() const

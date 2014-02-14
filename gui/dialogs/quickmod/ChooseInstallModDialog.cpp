@@ -190,10 +190,8 @@ void ChooseInstallModDialog::on_installButton_clicked()
 	}
 	// TODO more error reporting
 	QJsonObject obj = QJsonDocument::fromJson(userFile.readAll()).object();
-	QJsonArray plusmods = obj.value("+mods").toArray();
-	QJsonObject modObject;
-	modObject.insert(mod->uid(), QString());
-	plusmods.append(modObject);
+	QJsonObject plusmods = obj.value("+mods").toObject();
+	plusmods.insert(mod->uid(), QString());
 	obj.insert("+mods", plusmods);
 	userFile.seek(0);
 	userFile.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));

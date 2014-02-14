@@ -254,6 +254,10 @@ void QuickModsList::markModAsUninstalled(QuickMod *mod, const BaseVersionPtr ver
 bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const BaseVersionPtr version,
 										   BaseInstance *instance) const
 {
+	if (!isModMarkedAsExists(mod, version))
+	{
+		return false;
+	}
 	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
 	return mods.contains(mod->uid()) &&
 		   mods.value(mod->uid()).toMap().contains(version->name());
@@ -280,12 +284,16 @@ QString QuickModsList::installedModFile(QuickMod *mod, const BaseVersionPtr vers
 }
 QString QuickModsList::existingModFile(QuickMod *mod, const BaseVersionPtr version) const
 {
+	return existingModFile(mod, version->name());
+}
+QString QuickModsList::existingModFile(QuickMod *mod, const QString &version) const
+{
 	if (!isModMarkedAsExists(mod, version))
 	{
 		return QString();
 	}
 	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
-	return mods[mod->uid()].toMap()[version->name()].toString();
+	return mods[mod->uid()].toMap()[version].toString();
 }
 
 bool QuickModsList::isWebsiteTrusted(const QUrl &url) const

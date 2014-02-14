@@ -82,6 +82,7 @@ public:
 	QString installedModFile(QuickMod *mod, const BaseVersionPtr version,
 							 BaseInstance *instance) const;
 	QString existingModFile(QuickMod *mod, const BaseVersionPtr version) const;
+	QString existingModFile(QuickMod *mod, const QString &version) const;
 
 	bool isWebsiteTrusted(const QUrl &url) const;
 	void setWebsiteTrusted(const QUrl &url, const bool trusted);

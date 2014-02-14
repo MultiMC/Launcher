@@ -31,6 +31,10 @@ slots:
 	virtual int exec();
 
 	void setInitialMods(const QList<QuickMod *> mods);
+	QList<QuickModVersionPtr> modVersions() const
+	{
+		return m_resolvedVersions;
+	}
 
 private
 slots:
@@ -52,5 +56,6 @@ private:
 
 	QList<QuickMod *> m_initialMods;
 	QList<QuickModVersionPtr> m_modVersions;
+	QList<QuickModVersionPtr> m_resolvedVersions;
 	QList<QUrl> m_downloadingUrls;
 };

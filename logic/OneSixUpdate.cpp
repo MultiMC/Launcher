@@ -23,6 +23,9 @@
 #include <QTextStream>
 #include <QDataStream>
 #include <QMessageBox>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 
 #include "BaseInstance.h"
 #include "lists/MinecraftVersionList.h"
@@ -34,6 +37,7 @@
 #include "assets/AssetsUtils.h"
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
 
 #include "pathutils.h"
 #include <JlCompress.h>
@@ -80,18 +84,49 @@ void OneSixUpdate::beginQuickModDownload()
 		}
 		else
 		{
-			if (!list->isModMarkedAsExists(mod, it.value()))
+			if (it.value().isEmpty() || !list->isModMarkedAsExists(mod, it.value()))
 			{
 				mods.append(mod);
 			}
 		}
 	}
 
+	if (mods.isEmpty())
+	{
+		beginMinecraftUpdate();
+		return;
+	}
+
 	QuickModInstallDialog dialog(m_inst);
-	connect(&dialog, &QuickModInstallDialog::accepted, this, &OneSixUpdate::beginMinecraftUpdate);
-	connect(&dialog, &QuickModInstallDialog::rejected, [this]() { emitFailed(QString()); });
 	dialog.setInitialMods(mods);
-	dialog.exec();
+	if (dialog.exec() == QuickModInstallDialog::Accepted)
+	{
+		QFile f(m_inst->instanceRoot() + "/user.json");
+		if (f.open(QFile::ReadWrite))
+		{
+			QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
+			QJsonObject mods = obj.value("+mods").toObject();
+			for (auto version : dialog.modVersions())
+			{
+				mods.insert(version->mod->uid(), version->name());
+			}
+			obj.insert("+mods", mods);
+			qDebug() << mods;
+			f.seek(0);
+			f.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
+			f.close();
+		}
+		else
+		{
+			QLOG_ERROR() << "Couldn't open" << f.fileName() << ". This means that stuff will be downloaded on every instance launch";
+		}
+
+		beginMinecraftUpdate();
+	}
+	else
+	{
+		emitFailed(tr("Failure downloading QuickMods"));
+	}
 }
 
 void OneSixUpdate::beginMinecraftUpdate()
