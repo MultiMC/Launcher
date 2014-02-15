@@ -1,7 +1,6 @@
 #include "UpdateDialog.h"
 
-UpdateDialog::UpdateDialog()
-: m_autoClose(false)
+UpdateDialog::UpdateDialog() : m_autoClose(false)
 {
 }
 
@@ -15,11 +14,10 @@ bool UpdateDialog::autoClose() const
 	return m_autoClose;
 }
 
-void UpdateDialog::updateFinished()
+void UpdateDialog::updateFinished(bool showRestart)
 {
 	if (m_autoClose)
 	{
 		quit();
 	}
 }
-

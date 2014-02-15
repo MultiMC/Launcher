@@ -597,6 +597,10 @@ void MultiMC::installUpdates(const QString updateFilesDir, UpdateFlags flags)
 		args << "--finish-cmd" << finishCmd;
 		args << "--finish-dir" << data();
 	}
+	else
+	{
+		args << "--no-restart-msg";
+	}
 	QLOG_INFO() << "Running updater with command" << updaterBinary << args.join(" ");
 	QFile::setPermissions(updaterBinary, (QFileDevice::Permission)0x7755);
 

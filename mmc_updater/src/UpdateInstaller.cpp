@@ -51,6 +51,11 @@ void UpdateInstaller::setFinishDir(const std::string &dir)
 	m_finishDir = dir;
 }
 
+void UpdateInstaller::setShowRestartMsg(bool dontShow)
+{
+	m_dontShowRestartMsg = dontShow;
+}
+
 std::list<std::string> UpdateInstaller::updaterArgs() const
 {
 	std::list<std::string> args;
@@ -81,7 +86,7 @@ void UpdateInstaller::reportError(const std::string& error)
 	if (m_observer)
 	{
 		m_observer->updateError(error);
-		m_observer->updateFinished();
+		m_observer->updateFinished(false);
 	}
 }
 
@@ -94,8 +99,8 @@ std::string UpdateInstaller::friendlyErrorForError(const FileUtils::IOException&
 		case FileUtils::IOException::ReadOnlyFileSystem:
 #ifdef PLATFORM_MAC
 			friendlyError = AppInfo::appName() + " was started from a read-only location.  "
-			                "Copy it to the Applications folder on your Mac and run "
-			                "it from there.";
+							"Copy it to the Applications folder on your Mac and run "
+							"it from there.";
 #else
 			friendlyError = AppInfo::appName() + " was started from a read-only location.  "
 							"Re-install it to a location that can be updated and run it from there.";
@@ -239,7 +244,7 @@ void UpdateInstaller::run() throw ()
 
 		if (m_observer)
 		{
-			m_observer->updateFinished();
+			m_observer->updateFinished(!m_dontShowRestartMsg);
 		}
 	}
 }

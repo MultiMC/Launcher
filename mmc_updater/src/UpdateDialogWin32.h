@@ -22,7 +22,7 @@ class UpdateDialogWin32 : public UpdateDialog
 		// implements UpdateObserver
 		virtual void updateError(const std::string& errorMessage);
 		virtual void updateProgress(int percentage);
-		virtual void updateFinished();
+		virtual void updateFinished(bool showRestart);
 
 		LRESULT WINAPI windowProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
 

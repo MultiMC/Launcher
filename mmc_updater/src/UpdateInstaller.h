@@ -33,6 +33,7 @@ class UpdateInstaller
 		void setForceElevated(bool elevated);
 		void setAutoClose(bool autoClose);
 		void setDryRun(bool dryRun);
+		void setShowRestartMsg(bool dontShow);
 		void setFinishCmd(const std::string& cmd);
 		void setFinishDir(const std::string& dir);
 
@@ -71,4 +72,5 @@ class UpdateInstaller
 		bool m_forceElevated = false;
 		bool m_autoClose = false;
 		bool m_dryRun = false;
+		bool m_dontShowRestartMsg = false;
 };

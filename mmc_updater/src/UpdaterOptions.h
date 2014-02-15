@@ -22,5 +22,6 @@ class UpdaterOptions
 		bool dryRun;
 		bool forceElevated;
 		bool autoClose;
+		bool dontShowRestartMsg;
 };
 

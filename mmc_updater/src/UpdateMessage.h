@@ -30,6 +30,7 @@ class UpdateMessage
 		Type type;
 		std::string message;
 		int progress;
+		bool showRestart;
 
 	private:
 		void init(void* receiver, Type type)
