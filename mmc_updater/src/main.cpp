@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 #ifdef PLATFORM_MAC
 	void* pool = UpdateDialogCocoa::createAutoreleasePool();
 #endif
-	
+
 	Log::instance()->open(AppInfo::logFilePath());
 
 #ifdef PLATFORM_MAC
@@ -134,10 +134,10 @@ int main(int argc, char** argv)
 	}
 
 	LOG(Info,"started updater. install-dir: " + options.installDir
-	         + ", package-dir: " + options.packageDir
-	         + ", wait-pid: " + intToStr(options.waitPid)
-	         + ", script-path: " + options.scriptPath
-	         + ", mode: " + intToStr(options.mode)
+			 + ", package-dir: " + options.packageDir
+			 + ", wait-pid: " + intToStr(options.waitPid)
+			 + ", script-path: " + options.scriptPath
+			 + ", mode: " + intToStr(options.mode)
 			 + ", finish-cmd: " + options.finishCmd
 			 + ", finish-dir: " + options.finishDir);
 
@@ -151,6 +151,7 @@ int main(int argc, char** argv)
 	installer.setFinishCmd(options.finishCmd);
 	installer.setFinishDir(options.finishDir);
 	installer.setDryRun(options.dryRun);
+
 
 	if (options.mode == UpdateInstaller::Main)
 	{
@@ -194,9 +195,9 @@ UpdateDialog* createUpdateDialog()
 #ifdef PLATFORM_WINDOWS
 // application entry point under Windows
 int CALLBACK WinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPSTR lpCmdLine,
-                     int nCmdShow)
+					 HINSTANCE hPrevInstance,
+					 LPSTR lpCmdLine,
+					 int nCmdShow)
 {
 	int argc = 0;
 	char** argv;

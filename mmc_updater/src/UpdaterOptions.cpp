@@ -48,6 +48,7 @@ void UpdaterOptions::parse(int argc, char** argv)
 	parser.setFlag("force-elevated");
 	parser.setFlag("dry-run");
 	parser.setFlag("auto-close");
+	parser.setFlag("no-restart-msg");
 
 	parser.processCommandArgs(argc,argv);
 
@@ -84,4 +85,5 @@ void UpdaterOptions::parse(int argc, char** argv)
 	forceElevated = parser.getFlag("force-elevated");
 	dryRun = parser.getFlag("dry-run");
 	autoClose = parser.getFlag("auto-close");
+	dontShowRestartMsg = parser.getFlag("no-restart-msg");
 }

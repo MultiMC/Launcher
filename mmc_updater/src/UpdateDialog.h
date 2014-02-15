@@ -21,8 +21,8 @@ class UpdateDialog : public UpdateObserver
 		virtual void exec() = 0;
 		virtual void quit() = 0;
 
-		virtual void updateFinished();	
-	
+		virtual void updateFinished(bool showRestart);
+
 	private:
 		bool m_autoClose;
 };
