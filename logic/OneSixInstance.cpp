@@ -323,7 +323,15 @@ bool OneSixInstance::reloadVersion(QWidget *widgetParent)
 	{
 		ret = d->vanillaVersion->reload(widgetParent, true);
 	}
-	emit versionReloaded();
+	if (ret)
+	{
+		setFlags(flags() & ~VersionBrokenFlag);
+		emit versionReloaded();
+	}
+	else
+	{
+		setFlags(flags() | VersionBrokenFlag);
+	}
 	return ret;
 }
 
@@ -359,8 +367,14 @@ QString OneSixInstance::defaultCustomBaseJar() const
 
 bool OneSixInstance::menuActionEnabled(QString action_name) const
 {
-	if (action_name == "actionChangeInstLWJGLVersion")
+	if (flags() & VersionBrokenFlag)
+	{
 		return false;
+	}
+	if (action_name == "actionChangeInstLWJGLVersion")
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -369,7 +383,11 @@ QString OneSixInstance::getStatusbarDescription()
 	QString descr = "OneSix : " + intendedVersionId();
 	if (versionIsCustom())
 	{
-		descr + " (custom)";
+		descr += " (custom)";
+	}
+	if (flags() & VersionBrokenFlag)
+	{
+		descr += " (broken)";
 	}
 	return descr;
 }
