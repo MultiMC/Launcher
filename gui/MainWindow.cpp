@@ -33,6 +33,7 @@
 #include <QLabel>
 #include <QToolButton>
 #include <QWidgetAction>
+#include <QProgressDialog>
 
 #include "osutils.h"
 #include "userutils.h"
@@ -42,7 +43,6 @@
 #include "gui/groupview/InstanceDelegate.h"
 
 #include "gui/Platform.h"
-
 
 #include "gui/widgets/LabeledToolButton.h"
 
@@ -62,6 +62,7 @@
 #include "gui/dialogs/AccountSelectDialog.h"
 #include "gui/dialogs/UpdateDialog.h"
 #include "gui/dialogs/EditAccountDialog.h"
+#include "gui/dialogs/ScreenshotDialog.h"
 
 #include "gui/ConsoleWindow.h"
 
@@ -82,6 +83,7 @@
 #include "logic/status/StatusChecker.h"
 
 #include "logic/net/URLConstants.h"
+#include "logic/net/NetJob.h"
 
 #include "logic/BaseInstance.h"
 #include "logic/InstanceFactory.h"
@@ -98,6 +100,8 @@
 #include <logic/updater/UpdateChecker.h>
 #include <logic/updater/NotificationChecker.h>
 #include <logic/tasks/ThreadTask.h>
+
+#include "logic/tools/BaseProfiler.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -147,7 +151,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	{
 		view = new GroupView(ui->centralWidget);
 
-		
 		view->setSelectionMode(QAbstractItemView::SingleSelection);
 		// view->setCategoryDrawer(drawer);
 		// view->setCollapsibleBlocks(true);
@@ -360,7 +363,53 @@ void MainWindow::showInstanceContextMenu(const QPoint &pos)
 
 	QMenu myMenu;
 	myMenu.addActions(actions);
+	myMenu.setEnabled(m_selectedInstance->canLaunch());
 	myMenu.exec(view->mapToGlobal(pos));
+}
+
+void MainWindow::updateToolsMenu()
+{
+	if (ui->actionLaunchInstance->menu())
+	{
+		ui->actionLaunchInstance->menu()->deleteLater();
+	}
+	QMenu *launchMenu = new QMenu(this);
+	QAction *normalLaunch = launchMenu->addAction(tr("Launch"));
+	connect(normalLaunch, &QAction::triggered, [this](){doLaunch();});
+	launchMenu->addSeparator()->setText(tr("Profilers"));
+	for (auto profiler : MMC->profilers().values())
+	{
+		QAction *profilerAction = launchMenu->addAction(profiler->name());
+		QString error;
+		if (!profiler->check(&error))
+		{
+			profilerAction->setDisabled(true);
+			profilerAction->setToolTip(tr("Profiler not setup correctly. Go into settings, \"External Tools\"."));
+		}
+		else
+		{
+			connect(profilerAction, &QAction::triggered, [this, profiler](){doLaunch(true, profiler.get());});
+		}
+	}
+	launchMenu->addSeparator()->setText(tr("Tools"));
+	for (auto tool : MMC->tools().values())
+	{
+		QAction *toolAction = launchMenu->addAction(tool->name());
+		QString error;
+		if (!tool->check(&error))
+		{
+			toolAction->setDisabled(true);
+			toolAction->setToolTip(tr("Tool not setup correctly. Go into settings, \"External Tools\"."));
+		}
+		else
+		{
+			connect(toolAction, &QAction::triggered, [this, tool]()
+			{
+				tool->createDetachedTool(m_selectedInstance, this)->run();
+			});
+		}
+	}
+	ui->actionLaunchInstance->setMenu(launchMenu);
 }
 
 void MainWindow::repopulateAccountsMenu()
@@ -691,7 +740,7 @@ void MainWindow::setCatBackground(bool enabled)
 {
 	if (enabled)
 	{
-		view->setStyleSheet("QListView"
+		view->setStyleSheet("GroupView"
 							"{"
 							"background-image: url(:/backgrounds/kitteh);"
 							"background-attachment: fixed;"
@@ -960,6 +1009,7 @@ void MainWindow::on_actionSettings_triggered()
 	// FIXME: quick HACK to make this work. improve, optimize.
 	proxymodel->invalidate();
 	proxymodel->sort(0);
+	updateToolsMenu();
 }
 
 void MainWindow::on_actionManageAccounts_triggered()
@@ -1108,7 +1158,7 @@ void MainWindow::on_actionLaunchInstanceOffline_triggered()
 	}
 }
 
-void MainWindow::doLaunch(bool online)
+void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 {
 	if (!m_selectedInstance)
 		return;
@@ -1224,11 +1274,11 @@ void MainWindow::doLaunch(bool online)
 			// update first if the server actually responded
 			if (session->auth_server_online)
 			{
-				updateInstance(m_selectedInstance, session);
+				updateInstance(m_selectedInstance, session, profiler);
 			}
 			else
 			{
-				launchInstance(m_selectedInstance, session);
+				launchInstance(m_selectedInstance, session, profiler);
 			}
 			tryagain = false;
 		}
@@ -1236,22 +1286,22 @@ void MainWindow::doLaunch(bool online)
 	}
 }
 
-void MainWindow::updateInstance(BaseInstance *instance, AuthSessionPtr session)
+void MainWindow::updateInstance(BaseInstance *instance, AuthSessionPtr session, BaseProfilerFactory *profiler)
 {
 	auto updateTask = instance->doUpdate();
 	if (!updateTask)
 	{
-		launchInstance(instance, session);
+		launchInstance(instance, session, profiler);
 		return;
 	}
 	ProgressDialog tDialog(this);
-	connect(updateTask.get(), &Task::succeeded, [this, instance, session]
-	{ launchInstance(instance, session); });
+	connect(updateTask.get(), &Task::succeeded, [this, instance, session, profiler]
+	{ launchInstance(instance, session, profiler); });
 	connect(updateTask.get(), SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
 	tDialog.exec(updateTask.get());
 }
 
-void MainWindow::launchInstance(BaseInstance *instance, AuthSessionPtr session)
+void MainWindow::launchInstance(BaseInstance *instance, AuthSessionPtr session, BaseProfilerFactory *profiler)
 {
 	Q_ASSERT_X(instance != NULL, "launchInstance", "instance is NULL");
 	Q_ASSERT_X(session.get() != nullptr, "launchInstance", "session is NULL");
@@ -1264,9 +1314,59 @@ void MainWindow::launchInstance(BaseInstance *instance, AuthSessionPtr session)
 
 	console = new ConsoleWindow(proc);
 	connect(console, SIGNAL(isClosing()), this, SLOT(instanceEnded()));
+	connect(console, &ConsoleWindow::uploadScreenshots, this, &MainWindow::on_actionScreenshots_triggered);
 
 	proc->setLogin(session);
-	proc->launch();
+	proc->arm();
+
+	if (profiler)
+	{
+		QString error;
+		if (!profiler->check(&error))
+		{
+			QMessageBox::critical(this, tr("Error"), tr("Couldn't start profiler: %1").arg(error));
+			proc->abort();
+			return;
+		}
+		BaseProfiler *profilerInstance = profiler->createProfiler(instance, this);
+		QProgressDialog dialog;
+		dialog.setMinimum(0);
+		dialog.setMaximum(0);
+		dialog.setValue(0);
+		dialog.setLabelText(tr("Waiting for profiler..."));
+		connect(&dialog, &QProgressDialog::canceled, profilerInstance, &BaseProfiler::abortProfiling);
+		dialog.show();
+		connect(profilerInstance, &BaseProfiler::readyToLaunch, [&dialog, this](const QString &message)
+		{
+			dialog.accept();
+			QMessageBox msg;
+			msg.setText(tr("The launch of Minecraft itself is delayed until you press the "
+						   "button. This is the right time to setup the profiler, as the "
+						   "profiler server is running now.\n\n%1").arg(message));
+			msg.setWindowTitle(tr("Waiting"));
+			msg.setIcon(QMessageBox::Information);
+			msg.addButton(tr("Launch"), QMessageBox::AcceptRole);
+			msg.exec();
+			proc->launch();
+		});
+		connect(profilerInstance, &BaseProfiler::abortLaunch, [&dialog, this](const QString &message)
+		{
+			dialog.accept();
+			QMessageBox msg;
+			msg.setText(tr("Couldn't start the profiler: %1").arg(message));
+			msg.setWindowTitle(tr("Error"));
+			msg.setIcon(QMessageBox::Critical);
+			msg.addButton(QMessageBox::Ok);
+			msg.exec();
+			proc->abort();
+		});
+		profilerInstance->beginProfiling(proc);
+		dialog.exec();
+	}
+	else
+	{
+		proc->launch();
+	}
 }
 
 void MainWindow::onGameUpdateError(QString error)
@@ -1396,7 +1496,7 @@ void MainWindow::instanceChanged(const QModelIndex &current, const QModelIndex &
 						(BaseInstance *)current.data(InstanceList::InstancePointerRole)
 							.value<void *>()))
 	{
-		ui->instanceToolBar->setEnabled(true);
+		ui->instanceToolBar->setEnabled(m_selectedInstance->canLaunch());
 		renameButton->setText(m_selectedInstance->name());
 		ui->actionChangeInstLWJGLVersion->setEnabled(
 			m_selectedInstance->menuActionEnabled("actionChangeInstLWJGLVersion"));
@@ -1406,6 +1506,8 @@ void MainWindow::instanceChanged(const QModelIndex &current, const QModelIndex &
 			m_selectedInstance->menuActionEnabled("actionChangeInstMCVersion"));
 		m_statusLeft->setText(m_selectedInstance->getStatusbarDescription());
 		updateInstanceToolIcon(m_selectedInstance->iconKey());
+
+		updateToolsMenu();
 
 		MMC->settings()->set("SelectedInstance", m_selectedInstance->id());
 	}
@@ -1547,5 +1649,27 @@ void MainWindow::checkSetDefaultJava()
 			MMC->settings()->set("JavaPath", java->path);
 		else
 			MMC->settings()->set("JavaPath", QString("java"));
+	}
+}
+
+void MainWindow::on_actionScreenshots_triggered()
+{
+	if (!m_selectedInstance)
+		return;
+	ScreenshotList *list = new ScreenshotList(m_selectedInstance);
+	Task *task = list->load();
+	ProgressDialog prog(this);
+	prog.exec(task);
+	if (!task->successful())
+	{
+		CustomMessageBox::selectable(this, tr("Failed to load screenshots!"),
+									 task->failReason(), QMessageBox::Warning)->exec();
+		return;
+	}
+	ScreenshotDialog dialog(list, this);
+	if (dialog.exec() == ScreenshotDialog::Accepted)
+	{
+		CustomMessageBox::selectable(this, tr("Done uploading!"), dialog.message(),
+									 QMessageBox::Information)->exec();
 	}
 }

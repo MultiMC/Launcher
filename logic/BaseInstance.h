@@ -25,6 +25,7 @@
 #include "logic/auth/MojangAccount.h"
 
 class QDialog;
+class QDir;
 class Task;
 class MinecraftProcess;
 class OneSixUpdate;
@@ -50,6 +51,9 @@ protected:
 public:
 	/// virtual destructor to make sure the destruction is COMPLETE
 	virtual ~BaseInstance() {};
+
+	virtual void init() {}
+	virtual void copy(const QDir &newDir) {}
 
 	/// nuke thoroughly - deletes the instance contents, notifies the list/model which is
 	/// responsible of cleaning up the husk
@@ -175,6 +179,17 @@ public:
 	/// FIXME: this really should be elsewhere...
 	virtual QString instanceConfigFolder() const = 0;
 
+	enum InstanceFlag
+	{
+		NoFlags = 0x00,
+		VersionBrokenFlag = 0x01
+	};
+	Q_DECLARE_FLAGS(InstanceFlags, InstanceFlag)
+	InstanceFlags flags() const;
+	void setFlags(const BaseInstance::InstanceFlags flags);
+
+	bool canLaunch() const;
+
 signals:
 	/*!
 	 * \brief Signal emitted when properties relevant to the instance view change
@@ -189,6 +204,8 @@ signals:
 	 */
 	void nuked(BaseInstance *inst);
 
+	void flagsChanged();
+
 protected slots:
 	void iconUpdated(QString key);
 
@@ -198,3 +215,5 @@ protected:
 
 // pointer for lazy people
 typedef std::shared_ptr<BaseInstance> InstancePtr;
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(BaseInstance::InstanceFlags)

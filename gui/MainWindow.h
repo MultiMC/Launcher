@@ -29,6 +29,7 @@ class LabeledToolButton;
 class QLabel;
 class MinecraftProcess;
 class ConsoleWindow;
+class BaseProfilerFactory;
 
 namespace Ui
 {
@@ -115,18 +116,18 @@ slots:
 	 * Launches the currently selected instance with the default account.
 	 * If no default account is selected, prompts the user to pick an account.
 	 */
-	void doLaunch(bool online = true);
+	void doLaunch(bool online = true, BaseProfilerFactory *profiler = 0);
 
 	/*!
 	 * Launches the given instance with the given account.
 	 * This function assumes that the given account has a valid, usable access token.
 	 */
-	void launchInstance(BaseInstance *instance, AuthSessionPtr session);
+	void launchInstance(BaseInstance *instance, AuthSessionPtr session, BaseProfilerFactory *profiler = 0);
 
 	/*!
 	 * Prepares the given instance for launch with the given account.
 	 */
-	void updateInstance(BaseInstance *instance, AuthSessionPtr account);
+	void updateInstance(BaseInstance *instance, AuthSessionPtr account, BaseProfilerFactory *profiler = 0);
 
 	void onGameUpdateError(QString error);
 
@@ -142,7 +143,11 @@ slots:
 	// called when an icon is changed in the icon model.
 	void iconUpdated(QString);
 
-	void showInstanceContextMenu(const QPoint&);
+	void showInstanceContextMenu(const QPoint &);
+
+	void on_actionScreenshots_triggered();
+
+	void updateToolsMenu();
 
 public
 slots:
@@ -171,11 +176,11 @@ slots:
 	void updateStatusFailedUI();
 
 	void reloadStatus();
-	
+
 	/*!
 	 * Runs the DownloadUpdateTask and installs updates.
 	 */
-	void downloadUpdates(QString repo, int versionId, bool installOnExit=false);
+	void downloadUpdates(QString repo, int versionId, bool installOnExit = false);
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
@@ -195,7 +200,7 @@ private:
 	ConsoleWindow *console;
 	LabeledToolButton *renameButton;
 	QToolButton *changeIconButton;
-	QToolButton* newsLabel;
+	QToolButton *newsLabel;
 
 	BaseInstance *m_selectedInstance;
 	QString m_currentInstIcon;

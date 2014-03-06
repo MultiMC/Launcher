@@ -38,6 +38,10 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings,
 	d->m_settings->registerSetting("ShouldUpdate", false);
 	d->version.reset(new OneSixVersion(this, this));
 	d->vanillaVersion.reset(new OneSixVersion(this, this));
+}
+
+void OneSixInstance::init()
+{
 	if (QDir(instanceRoot()).exists("version.json"))
 	{
 		reloadVersion();
@@ -194,12 +198,10 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 		auto libs = version->getActiveNormalLibs();
 		for (auto lib : libs)
 		{
-			QFileInfo fi(QString("libraries/") + lib->storagePath());
-			launchScript += "cp " + fi.absoluteFilePath() + "\n";
+			launchScript += "cp " + librariesPath().absoluteFilePath(lib->storagePath()) + "\n";
 		}
-		QString targetstr = "versions/" + version->id + "/" + version->id + ".jar";
-		QFileInfo fi(targetstr);
-		launchScript += "cp " + fi.absoluteFilePath() + "\n";
+		QString targetstr = version->id + "/" + version->id + ".jar";
+		launchScript += "cp " + versionsPath().absoluteFilePath(targetstr) + "\n";
 	}
 	launchScript += "mainClass " + version->mainClass + "\n";
 
@@ -237,7 +239,7 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 		launchScript += "ext " + finfo.absoluteFilePath() + "\n";
 	}
 	launchScript += "natives " + natives_dir.absolutePath() + "\n";
-	launchScript += "launch onesix\n";
+	launchScript += "launcher onesix\n";
 
 	// create the process and set its parameters
 	MinecraftProcess *proc = new MinecraftProcess(this);
@@ -327,12 +329,20 @@ bool OneSixInstance::reloadVersion(QWidget *widgetParent)
 {
 	I_D(OneSixInstance);
 
-	bool ret = d->version->reload(widgetParent);
+	bool ret = d->version->reload(widgetParent, false, externalPatches());
 	if (ret)
 	{
-		ret = d->vanillaVersion->reload(widgetParent, true);
+		ret = d->vanillaVersion->reload(widgetParent, true, externalPatches());
 	}
-	emit versionReloaded();
+	if (ret)
+	{
+		setFlags(flags() & ~VersionBrokenFlag);
+		emit versionReloaded();
+	}
+	else
+	{
+		setFlags(flags() | VersionBrokenFlag);
+	}
 	return ret;
 }
 
@@ -368,8 +378,14 @@ QString OneSixInstance::defaultCustomBaseJar() const
 
 bool OneSixInstance::menuActionEnabled(QString action_name) const
 {
-	if (action_name == "actionChangeInstLWJGLVersion")
+	if (flags() & VersionBrokenFlag)
+	{
 		return false;
+	}
+	if (action_name == "actionChangeInstLWJGLVersion")
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -378,9 +394,32 @@ QString OneSixInstance::getStatusbarDescription()
 	QString descr = "OneSix : " + intendedVersionId();
 	if (versionIsCustom())
 	{
-		descr + " (custom)";
+		descr += " (custom)";
+	}
+	if (flags() & VersionBrokenFlag)
+	{
+		descr += " (broken)";
 	}
 	return descr;
+}
+
+QDir OneSixInstance::librariesPath() const
+{
+	return QDir::current().absoluteFilePath("libraries");
+}
+QDir OneSixInstance::versionsPath() const
+{
+	return QDir::current().absoluteFilePath("versions");
+}
+
+QStringList OneSixInstance::externalPatches() const
+{
+	return QStringList();
+}
+
+bool OneSixInstance::providesVersionFile() const
+{
+	return false;
 }
 
 QString OneSixInstance::loaderModsDir() const

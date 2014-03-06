@@ -17,12 +17,15 @@ class MojangAccountList;
 class IconList;
 class QNetworkAccessManager;
 class ForgeVersionList;
+class LiteLoaderVersionList;
 class JavaVersionList;
 class QuickModsList;
 class UpdateChecker;
 class NotificationChecker;
 class NewsChecker;
 class StatusChecker;
+class BaseProfilerFactory;
+class BaseDetachedToolFactory;
 
 #if defined(MMC)
 #undef MMC
@@ -124,9 +127,20 @@ public:
 
 	std::shared_ptr<ForgeVersionList> forgelist();
 
+	std::shared_ptr<LiteLoaderVersionList> liteloaderlist();
+
 	std::shared_ptr<MinecraftVersionList> minecraftlist();
 
 	std::shared_ptr<JavaVersionList> javalist();
+
+	QMap<QString, std::shared_ptr<BaseProfilerFactory>> profilers()
+	{
+		return m_profilers;
+	}
+	QMap<QString, std::shared_ptr<BaseDetachedToolFactory>> tools()
+	{
+		return m_tools;
+	}
 
 	std::shared_ptr<QuickModsList> quickmodslist();
 
@@ -169,7 +183,8 @@ public:
 		return origcwdPath;
 	}
 
-private slots:
+private
+slots:
 	/**
 	 * Do all the things that should be done before we exit
 	 */
@@ -202,8 +217,11 @@ private:
 	std::shared_ptr<HttpMetaCache> m_metacache;
 	std::shared_ptr<LWJGLVersionList> m_lwjgllist;
 	std::shared_ptr<ForgeVersionList> m_forgelist;
+	std::shared_ptr<LiteLoaderVersionList> m_liteloaderlist;
 	std::shared_ptr<MinecraftVersionList> m_minecraftlist;
 	std::shared_ptr<JavaVersionList> m_javalist;
+	QMap<QString, std::shared_ptr<BaseProfilerFactory>> m_profilers;
+	QMap<QString, std::shared_ptr<BaseDetachedToolFactory>> m_tools;
 	std::shared_ptr<QuickModsList> m_quickmodslist;
 	QsLogging::DestinationPtr m_fileDestination;
 	QsLogging::DestinationPtr m_debugDestination;

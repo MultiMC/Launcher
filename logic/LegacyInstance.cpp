@@ -77,7 +77,7 @@ MinecraftProcess *LegacyInstance::prepareForLaunch(AuthSessionPtr account)
 		launchScript += "windowTitle " + windowTitle() + "\n";
 		launchScript += "windowParams " + windowParams + "\n";
 		launchScript += "lwjgl " + lwjgl + "\n";
-		launchScript += "launch legacy\n";
+		launchScript += "launcher legacy\n";
 	}
 	proc->setLaunchScript(launchScript);
 
@@ -268,13 +268,23 @@ QString LegacyInstance::defaultCustomBaseJar() const
 
 bool LegacyInstance::menuActionEnabled(QString action_name) const
 {
-	if (action_name == "actionChangeInstMCVersion")
+	if (flags() & VersionBrokenFlag)
+	{
 		return false;
+	}
+	if (action_name == "actionChangeInstMCVersion")
+	{
+		return false;
+	}
 	return true;
 }
 
 QString LegacyInstance::getStatusbarDescription()
 {
+	if (flags() & VersionBrokenFlag)
+	{
+		return "Legacy : " + intendedVersionId() + " (broken)";
+	}
 	if (shouldUpdate())
 		return "Legacy : " + currentVersionId() + " -> " + intendedVersionId();
 	else

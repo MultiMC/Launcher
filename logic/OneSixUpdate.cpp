@@ -153,6 +153,11 @@ void OneSixUpdate::beginMinecraftUpdate()
 
 void OneSixUpdate::versionFileStart()
 {
+	if (m_inst->providesVersionFile())
+	{
+		jarlibStart();
+		return;
+	}
 	QLOG_INFO() << m_inst->name() << ": getting version file.";
 	setStatus(tr("Getting the version files from Mojang..."));
 
