@@ -87,6 +87,8 @@ public:
 	bool isWebsiteTrusted(const QUrl &url) const;
 	void setWebsiteTrusted(const QUrl &url, const bool trusted);
 
+	bool haveUid(const QString &uid) const;
+
 public
 slots:
 	void registerMod(const QString &fileName);

@@ -22,68 +22,7 @@ bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 {
 	name_ = object.value("name").toString();
 	url = QUrl(object.value("url").toString());
-	// checksum
-	{
-		if (object.contains("checksum_md4"))
-		{
-			checksum = object.value("checksum_md4").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Md4;
-		}
-		else if (object.contains("checksum_md5"))
-		{
-			checksum = object.value("checksum_md5").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Md5;
-		}
-		else if (object.contains("checksum_sha1"))
-		{
-			checksum = object.value("checksum_sha1").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha1;
-		}
-		else if (object.contains("checksum_sha224"))
-		{
-			checksum = object.value("checksum_sha224").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha224;
-		}
-		else if (object.contains("checksum_sha256"))
-		{
-			checksum = object.value("checksum_sha256").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha256;
-		}
-		else if (object.contains("checksum_sha384"))
-		{
-			checksum = object.value("checksum_sha384").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha384;
-		}
-		else if (object.contains("checksum_sha512"))
-		{
-			checksum = object.value("checksum_sha512").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha512;
-		}
-		else if (object.contains("checksum_sha3_224"))
-		{
-			checksum = object.value("checksum_sha3_224").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha3_224;
-		}
-		else if (object.contains("checksum_sha3_256"))
-		{
-			checksum = object.value("checksum_sha3_256").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha3_256;
-		}
-		else if (object.contains("checksum_sha3_384"))
-		{
-			checksum = object.value("checksum_sha3_384").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha3_384;
-		}
-		else if (object.contains("checksum_sha3_512"))
-		{
-			checksum = object.value("checksum_sha3_512").toString().toLatin1();
-			checksum_algorithm = QCryptographicHash::Sha3_512;
-		}
-		else
-		{
-			checksum = QByteArray();
-		}
-	}
+	md5 = object.value("md5").toString();
 	forgeVersionFilter = object.value("forgeCompat").toString();
 	compatibleVersions.clear();
 	foreach(const QJsonValue & val, object.value("mcCompat").toArray())

@@ -24,8 +24,7 @@ slots:
 		version->compatibleVersions << "1.6.2" << "1.6.4";
 		version->dependencies = {{"stuff", "1.0.0.0.0"}};
 		version->recommendations = {{"OtherName", "1.2.3"}};
-		version->checksum = "a68b86df2f3fff44";
-		version->checksum_algorithm = QCryptographicHash::Md5;
+		version->md5 = "a68b86df2f3fff44";
 		return version;
 	}
 
@@ -82,8 +81,7 @@ slots:
 		QCOMPARE(parsed->breaks, version->breaks);
 		QCOMPARE(parsed->conflicts, version->conflicts);
 		QCOMPARE(parsed->provides, version->provides);
-		QCOMPARE(parsed->checksum_algorithm, version->checksum_algorithm);
-		QCOMPARE(parsed->checksum, version->checksum);
+		QCOMPARE(parsed->md5, version->md5);
 		QCOMPARE((int)parsed->downloadType, (int)version->downloadType);
 		QCOMPARE((int)parsed->installType, (int)version->installType);
 		QVERIFY(parsed->operator ==(*version));

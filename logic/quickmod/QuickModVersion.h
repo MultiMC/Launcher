@@ -45,10 +45,10 @@ public:
 					const QString &forge = QString(),
 					const QMap<QString, QString> &deps = QMap<QString, QString>(),
 					const QMap<QString, QString> &recs = QMap<QString, QString>(),
-					const QByteArray &checksum = QByteArray(), const DownloadType downloadType = Parallel)
+					const QString &md5 = QString(), const DownloadType downloadType = Parallel)
 		: mod(mod), valid(true), name_(name), url(url), compatibleVersions(mc),
 		  forgeVersionFilter(forge), dependencies(deps), recommendations(recs),
-		  checksum_algorithm(QCryptographicHash::Md5), checksum(checksum), downloadType(downloadType)
+		  md5(md5), downloadType(downloadType)
 	{
 	}
 
@@ -80,8 +80,7 @@ public:
 	QMap<QString, QString> breaks;
 	QMap<QString, QString> conflicts;
 	QMap<QString, QString> provides;
-	QCryptographicHash::Algorithm checksum_algorithm;
-	QByteArray checksum;
+	QString md5;
 	DownloadType downloadType;
 	InstallType installType;
 
@@ -91,7 +90,7 @@ public:
 			   url == other.url && compatibleVersions == other.compatibleVersions &&
 			   forgeVersionFilter == other.forgeVersionFilter &&
 			   dependencies == other.dependencies && recommendations == other.recommendations &&
-			   checksum == other.checksum;
+			   md5 == other.md5;
 	}
 
 	static QuickModVersionPtr invalid(QuickMod *mod);

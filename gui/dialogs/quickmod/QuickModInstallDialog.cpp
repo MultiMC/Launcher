@@ -375,11 +375,11 @@ void QuickModInstallDialog::downloadCompleted()
 	QByteArray data = reply->readAll();
 
 	const QByteArray actual =
-			QCryptographicHash::hash(data, version->checksum_algorithm).toHex();
-	if (!version->checksum.isNull() && actual != version->checksum)
+			QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
+	if (!version->md5.isNull() && actual != version->md5)
 	{
 		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
-					<< ". Actual: " << actual << " Expected: " << version->checksum;
+					<< ". Actual: " << actual << " Expected: " << version->md5;
 		item->setText(3, tr("Error: Checksum mismatch"));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
 		return;

@@ -15,6 +15,6 @@
 	    },
             "downloadType": "sequential",
             "installType": "configPack",
-	    "checksum_md5": "a68b86df2f3fff44"
+	    "md5": "a68b86df2f3fff44"
 	}
     ]

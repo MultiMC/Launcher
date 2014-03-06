@@ -90,18 +90,25 @@ void QuickModFilesUpdater::receivedMod(int notused)
 
 	// index?
 	{
-		QJsonObject obj = QJsonDocument::fromJson(download->m_data).object();
-		if (obj.contains("isIndex") && obj.value("isIndex").toBool(false))
+		const QJsonObject obj = QJsonDocument::fromJson(download->m_data).object();
+		if (obj.contains("index") && obj.value("index").isArray())
 		{
-			const QUrl base = Util::expandQMURL(obj.value("baseUrl").toString());
-			for (auto it = obj.begin(); it != obj.end(); ++it)
+			const QJsonArray array = obj.value("index").toArray();
+			for (auto it = array.begin(); it != array.end(); ++it)
 			{
-				if (it.key() != "isIndex")
+				const QJsonObject itemObj = (*it).toObject();
+				const QString baseUrlString = obj.value("baseUrl").toString();
+				if (!m_list->haveUid(itemObj.value("uid").toString()))
 				{
-					QUrl url = Util::expandQMURL(it.value().toString());
-					if (!base.isEmpty() && url.isRelative())
+					const QString urlString = itemObj.value("url").toString();
+					QUrl url;
+					if (baseUrlString.contains("{}"))
 					{
-						url = base.resolved(url);
+						url = QUrl(QString(baseUrlString).replace("{}", urlString));
+					}
+					else
+					{
+						url = Util::expandQMURL(baseUrlString).resolved(Util::expandQMURL(itemObj.value("url").toString()));
 					}
 					registerFile(url);
 				}

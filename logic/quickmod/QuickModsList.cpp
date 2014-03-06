@@ -315,6 +315,18 @@ void QuickModsList::setWebsiteTrusted(const QUrl &url, const bool trusted)
 	m_settings->getSetting("TrustedWebsites")->set(websites);
 }
 
+bool QuickModsList::haveUid(const QString &uid) const
+{
+	for (auto mod : m_mods)
+	{
+		if (mod->uid() == uid)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void QuickModsList::registerMod(const QString &fileName)
 {
 	registerMod(QUrl::fromLocalFile(fileName));
