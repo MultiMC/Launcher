@@ -196,7 +196,7 @@ void ChooseInstallModDialog::on_installButton_clicked()
 	userFile.seek(0);
 	userFile.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
 	userFile.close();
-	static_cast<OneSixInstance *>(m_instance)->reloadVersion(this);
+	static_cast<OneSixInstance *>(m_instance)->reloadVersion();
 	// TODO notify the user of the success
 }
 void ChooseInstallModDialog::on_closeButton_clicked()
