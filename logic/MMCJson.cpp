@@ -1,6 +1,19 @@
 #include "MMCJson.h"
+
 #include <QString>
+#include <QUrl>
 #include <math.h>
+
+QJsonDocument MMCJson::parseDocument(const QByteArray &data, const QString &what)
+{
+	QJsonParseError error;
+	QJsonDocument doc = QJsonDocument::fromJson(data, &error);
+	if (error.error != QJsonParseError::NoError)
+	{
+		throw JSONValidationError(what + " is not valid JSON: " + error.errorString() + " at " + error.offset);
+	}
+	return doc;
+}
 
 bool MMCJson::ensureBoolean(const QJsonValue val, const QString what)
 {
@@ -21,6 +34,15 @@ QJsonArray MMCJson::ensureArray(const QJsonValue val, const QString what)
 	if (!val.isArray())
 		throw JSONValidationError(what + " is not an array");
 	return val.toArray();
+}
+
+QJsonArray MMCJson::ensureArray(const QJsonDocument &val, const QString &what)
+{
+	if (!val.isArray())
+	{
+		throw JSONValidationError(what + " is not an array");
+	}
+	return val.array();
 }
 
 double MMCJson::ensureDouble(const QJsonValue val, const QString what)
@@ -59,3 +81,12 @@ QString MMCJson::ensureString(const QJsonValue val, const QString what)
 	return val.toString();
 }
 
+QUrl MMCJson::ensureUrl(const QJsonValue &val, const QString &what)
+{
+	const QUrl url = QUrl(ensureString(val, what));
+	if (!url.isValid())
+	{
+		throw JSONValidationError(what + " is not an url");
+	}
+	return url;
+}

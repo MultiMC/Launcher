@@ -7,10 +7,18 @@
 #include <QStringList>
 #include <QIcon>
 #include <memory>
+#include <MMCError.h>
 
 class QuickMod;
 class QuickModVersion;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
+
+class QuickModParseError : public MMCError
+{
+public:
+	QuickModParseError(QString cause) : MMCError(cause) {}
+	virtual ~QuickModParseError() noexcept {}
+};
 
 class QuickMod : public QObject
 {
@@ -100,7 +108,7 @@ public:
 	{
 		return m_hash;
 	}
-	bool parse(const QByteArray &data, QString *errorMessage = 0);
+	void parse(const QByteArray &data);
 
 	bool compare(const QuickMod *other) const;
 

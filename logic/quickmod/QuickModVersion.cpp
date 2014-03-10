@@ -7,27 +7,28 @@
 #include "logic/net/HttpMetaCache.h"
 #include "QuickMod.h"
 #include "MultiMC.h"
+#include "logic/MMCJson.h"
 
 static QMap<QString, QString> jsonObjectToStringStringMap(const QJsonObject &obj)
 {
 	QMap<QString, QString> out;
 	for (auto it = obj.begin(); it != obj.end(); ++it)
 	{
-		out.insert(it.key(), it.value().toString());
+		out.insert(it.key(), MMCJson::ensureString(it.value()));
 	}
 	return out;
 }
 
 bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 {
-	name_ = object.value("name").toString();
-	url = QUrl(object.value("url").toString());
+	name_ = MMCJson::ensureString(object.value("name"));
+	url = MMCJson::ensureUrl(object.value("url"));
 	md5 = object.value("md5").toString();
 	forgeVersionFilter = object.value("forgeCompat").toString();
 	compatibleVersions.clear();
-	foreach(const QJsonValue & val, object.value("mcCompat").toArray())
+	for (auto val : MMCJson::ensureArray(object.value("mcCompat")))
 	{
-		compatibleVersions.append(val.toString());
+		compatibleVersions.append(MMCJson::ensureString(val));
 	}
 	dependencies = jsonObjectToStringStringMap(object.value("depends").toObject());
 	recommendations = jsonObjectToStringStringMap(object.value("recommends").toObject());
@@ -165,7 +166,6 @@ void QuickModVersionListLoadTask::listDownloaded()
 {
 	setStatus(tr("Parsing reply..."));
 	QList<QuickModVersionPtr> list;
-	QJsonParseError error;
 	QFile file(listDownload->getTargetFilepath());
 	if (!file.open(QFile::ReadOnly))
 	{
@@ -174,27 +174,23 @@ void QuickModVersionListLoadTask::listDownloaded()
 		emitFailed(tr("Couldn't parse reply. See the log for details."));
 		return;
 	}
-	QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &error);
-	if (error.error != QJsonParseError::NoError)
+	try
+	{
+		const QJsonDocument doc = MMCJson::parseDocument(file.readAll(), "QuickMod Version file");
+		QJsonArray root = doc.array();
+		for (auto value : root)
+		{
+			QuickModVersionPtr version = QuickModVersionPtr(new QuickModVersion(m_vlist->m_mod, true));
+			version->parse(value.toObject());
+			list.append(version);
+		}
+	}
+	catch (MMCError &e)
 	{
 		QLOG_ERROR() << "Error parsing JSON in " << file.fileName() << ":"
-					 << error.errorString();
+					 << e.cause();
 		emitFailed(tr("Couldn't parse reply. See the log for details."));
 		return;
-	}
-	QJsonArray root = doc.array();
-	foreach(const QJsonValue & value, root)
-	{
-		QuickModVersionPtr version = QuickModVersionPtr(new QuickModVersion(m_vlist->m_mod, true));
-		QString errorMessage;
-		version->parse(value.toObject(), &errorMessage);
-		if (!errorMessage.isNull())
-		{
-			QLOG_ERROR() << "Error parsing JSON in " << file.fileName() << ":" << errorMessage;
-			emitFailed(tr("Couldn't parse reply. See the log for details."));
-			return;
-		}
-		list.append(version);
 	}
 
 	QList<BaseVersionPtr> baseList;

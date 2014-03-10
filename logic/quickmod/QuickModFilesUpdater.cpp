@@ -118,13 +118,15 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	}
 
 	auto mod = new QuickMod;
-	QString errorMessage;
-	mod->parse(download->m_data, &errorMessage);
-	if (!errorMessage.isNull())
+	try
 	{
-		QLOG_ERROR() << "QuickMod parse error: " << errorMessage;
+		mod->parse(download->m_data);
+	}
+	catch (MMCError &e)
+	{
+		QLOG_ERROR() << "QuickMod parse error: " + e.cause();
 		QLOG_INFO() << "While reading " << download->m_url.toString();
-		emit error(tr("QuickMod parse error: %1").arg(errorMessage));
+		emit error(tr("QuickMod parse error"));
 		return;
 	}
 
@@ -218,11 +220,13 @@ bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickMod *mod)
 		return false;
 	}
 
-	QString errorMessage;
-	mod->parse(file.readAll(), &errorMessage);
-	if (!errorMessage.isNull())
+	try
 	{
-		emit error(tr("QuickMod parse error: %1").arg(errorMessage));
+		mod->parse(file.readAll());
+	}
+	catch (MMCError &e)
+	{
+		emit error(tr("QuickMod parse error"));
 		return false;
 	}
 

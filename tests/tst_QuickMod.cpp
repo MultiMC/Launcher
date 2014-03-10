@@ -52,9 +52,17 @@ private slots:
 
 		QuickMod *parsed = new QuickMod;
 
-		QString errorString;
-		QBENCHMARK { parsed->parse(input, &errorString); }
-		QCOMPARE(errorString, QString(""));
+		QBENCHMARK
+		{
+			try
+			{
+				parsed->parse(input);
+			}
+			catch (MMCError &e)
+			{
+				qFatal(e.what());
+			}
+		}
 
 		QCOMPARE(parsed->m_name, mod->m_name);
 		QCOMPARE(parsed->m_description, mod->m_description);

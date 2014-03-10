@@ -10,6 +10,7 @@
 #include "MultiMC.h"
 #include "QuickModVersion.h"
 #include "modutils.h"
+#include "logic/MMCJson.h"
 
 QuickMod::QuickMod(QObject *parent)
 	: QObject(parent), m_stub(false), m_imagesLoaded(false)
@@ -39,35 +40,13 @@ QuickModVersionPtr QuickMod::version(const QString &name) const
 	return QuickModVersionPtr();
 }
 
-#define MALFORMED_JSON_X(message)                                                              \
-	if (errorMessage)                                                                          \
-	{                                                                                          \
-		*errorMessage = message;                                                               \
-	}                                                                                          \
-	return false
-#define MALFORMED_JSON MALFORMED_JSON_X(tr("Malformed QuickMod file"))
-#define JSON_ASSERT_X(assertation, message)                                                    \
-	if (!(assertation))                                                                        \
-	{                                                                                          \
-		MALFORMED_JSON_X(message);                                                             \
-	}                                                                                          \
-	qt_noop()
-#define JSON_ASSERT(assertation)                                                               \
-	if (!(assertation))                                                                        \
-	{                                                                                          \
-		MALFORMED_JSON;                                                                        \
-	}                                                                                          \
-	qt_noop()
-bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
+void QuickMod::parse(const QByteArray &data)
 {
-	QJsonParseError error;
-	QJsonDocument doc = QJsonDocument::fromJson(data, &error);
-	JSON_ASSERT_X(error.error == QJsonParseError::NoError, error.errorString() + " at " + QString::number(error.offset));
-	JSON_ASSERT(doc.isObject());
-	QJsonObject mod = doc.object();
+	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
+	const QJsonObject mod = MMCJson::ensureObject(doc);
+	m_uid = MMCJson::ensureString(mod.value("uid"));
+	m_name = MMCJson::ensureString(mod.value("name"));
 	m_stub = mod.value("stub").toBool(false);
-	m_uid = mod.value("uid").toString();
-	m_name = mod.value("name").toString();
 	m_description = mod.value("description").toString();
 	m_nemName = mod.value("nemName").toString();
 	m_modId = mod.value("modId").toString();
@@ -75,38 +54,30 @@ bool QuickMod::parse(const QByteArray &data, QString *errorMessage)
 	m_verifyUrl = Util::expandQMURL(mod.value("verifyUrl").toString());
 	m_iconUrl = Util::expandQMURL(mod.value("iconUrl").toString());
 	m_logoUrl = Util::expandQMURL(mod.value("logoUrl").toString());
-	m_updateUrl = Util::expandQMURL(mod.value("updateUrl").toString());
 	m_references.clear();
-	QVariantMap references = mod.value("references").toObject().toVariantMap();
+	const QJsonObject references = mod.value("references").toObject();
 	for (auto key : references.keys())
 	{
-		m_references.insert(key, Util::expandQMURL(references[key].toString()));
+		m_references.insert(key, Util::expandQMURL(MMCJson::ensureString(references[key])));
 	}
 	m_categories.clear();
-	foreach(const QJsonValue & val, mod.value("categories").toArray())
+	for (auto val : mod.value("categories").toArray())
 	{
-		m_categories.append(val.toString());
+		m_categories.append(MMCJson::ensureString(val));
 	}
 	m_tags.clear();
-	foreach(const QJsonValue & val, mod.value("tags").toArray())
+	for (auto val : mod.value("tags").toArray())
 	{
-		m_tags.append(val.toString());
+		m_tags.append(MMCJson::ensureString(val));
 	}
-	m_versionsUrl = Util::expandQMURL(mod.value("versionsUrl").toString());
+	m_versionsUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("versionsUrl")));
+	m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl")));
 
-	if (uid().isNull() || uid().isEmpty())
+	if (uid().isEmpty())
 	{
-		QLOG_INFO() << "QuickMod" << m_name << ":";
-		MALFORMED_JSON_X(
-			tr("There needs to be a 'uid' field in the QuickMod file"));
+		throw QuickModParseError("The 'uid' field in the QuickMod file for " + m_name + " is empty");
 	}
-
-	return true;
 }
-#undef MALFORMED_JSON_X
-#undef MALFORMED_JSON
-#undef JSON_ASSERT_X
-#undef JSON_ASSERT
 
 bool QuickMod::compare(const QuickMod *other) const
 {
