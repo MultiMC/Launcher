@@ -13,6 +13,7 @@
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
 #include "logic/Mod.h"
+#include "logic/MMCJson.h"
 #include "modutils.h"
 
 #include "logger/QsLog.h"
@@ -89,18 +90,20 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	ByteArrayDownload *download = qobject_cast<ByteArrayDownload *>(sender());
 
 	// index?
+	try
 	{
-		const QJsonObject obj = QJsonDocument::fromJson(download->m_data).object();
-		if (obj.contains("index") && obj.value("index").isArray())
+		const QJsonDocument doc = QJsonDocument::fromJson(download->m_data);
+		if (doc.isObject() && doc.object().contains("index"))
 		{
-			const QJsonArray array = obj.value("index").toArray();
+			const QJsonObject obj = doc.object();
+			const QJsonArray array = MMCJson::ensureArray(obj.value("index"));
 			for (auto it = array.begin(); it != array.end(); ++it)
 			{
 				const QJsonObject itemObj = (*it).toObject();
-				const QString baseUrlString = obj.value("baseUrl").toString();
-				if (!m_list->haveUid(itemObj.value("uid").toString()))
+				const QString baseUrlString = MMCJson::ensureUrl(obj.value("baseUrl")).toString();
+				if (!m_list->haveUid(MMCJson::ensureString(itemObj.value("uid"))))
 				{
-					const QString urlString = itemObj.value("url").toString();
+					const QString urlString = MMCJson::ensureUrl(itemObj.value("url")).toString();
 					QUrl url;
 					if (baseUrlString.contains("{}"))
 					{
@@ -108,13 +111,18 @@ void QuickModFilesUpdater::receivedMod(int notused)
 					}
 					else
 					{
-						url = Util::expandQMURL(baseUrlString).resolved(Util::expandQMURL(itemObj.value("url").toString()));
+						url = Util::expandQMURL(baseUrlString).resolved(Util::expandQMURL(urlString));
 					}
 					registerFile(url);
 				}
 			}
 			return;
 		}
+	}
+	catch (MMCError &e)
+	{
+		QLOG_ERROR() << "Error parsing QuickMod index:" << e.cause();
+		return;
 	}
 
 	auto mod = new QuickMod;
