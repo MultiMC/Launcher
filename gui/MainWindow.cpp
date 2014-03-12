@@ -758,10 +758,14 @@ void MainWindow::setCatBackground(bool enabled)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-	if (event->mimeData()->hasUrls()) {
-		if (event->dropAction() == Qt::CopyAction) {
+	if (event->mimeData()->hasUrls())
+	{
+		if (event->dropAction() == Qt::CopyAction)
+		{
 			event->acceptProposedAction();
-		} else {
+		}
+		else
+		{
 			event->setDropAction(Qt::CopyAction);
 			event->accept();
 		}
@@ -772,8 +776,10 @@ void MainWindow::dropEvent(QDropEvent *event)
 {
 	event->setDropAction(Qt::CopyAction);
 
-	if(event->mimeData()->hasUrls()) {
-		foreach (const QUrl& url, event->mimeData()->urls()) {
+	if(event->mimeData()->hasUrls())
+	{
+		foreach (const QUrl& url, event->mimeData()->urls())
+		{
 			MMC->quickmodslist()->registerMod(url);
 		}
 		event->accept();
@@ -1551,8 +1557,10 @@ void MainWindow::on_actionEditInstNotes_triggered()
 void MainWindow::on_actionAddQuickModFile_triggered()
 {
 	QuickModAddFileDialog dialog(this);
-	if (dialog.exec() == QDialog::Accepted) {
-		switch (dialog.type()) {
+	if (dialog.exec() == QDialog::Accepted)
+	{
+		switch (dialog.type())
+		{
 		case QuickModAddFileDialog::FileName:
 			MMC->quickmodslist()->registerMod(dialog.fileName());
 			break;

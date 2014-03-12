@@ -28,7 +28,7 @@
 #include "libutil_config.h"
 
 /**
- * @file util/include/cmdutils.h
+ * @file libutil/include/cmdutils.h
  * @brief commandline parsing and processing utilities
  */
 

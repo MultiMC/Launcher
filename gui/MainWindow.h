@@ -187,8 +187,8 @@ protected:
 	void setCatBackground(bool enabled);
 	void updateInstanceToolIcon(QString new_icon);
 
-	void dragEnterEvent(QDragEnterEvent* event);
-	void dropEvent(QDropEvent* event);
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 
 	void setSelectedInstanceById(const QString &id);
 

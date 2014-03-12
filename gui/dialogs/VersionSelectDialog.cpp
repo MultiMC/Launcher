@@ -129,7 +129,7 @@ void VersionSelectDialog::loadList()
 	Task *loadTask = m_vlist->getLoadTask();
 	loadTask->setParent(taskDlg);
 	taskDlg->exec(loadTask);
-	delete taskDlg; // without this the dialog won't dissapear?
+	delete taskDlg;
 }
 
 BaseVersionPtr VersionSelectDialog::selectedVersion() const
