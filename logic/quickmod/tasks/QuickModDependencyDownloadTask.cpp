@@ -1,7 +1,7 @@
 #include "QuickModDependencyDownloadTask.h"
 
-#include "QuickMod.h"
-#include "QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModsList.h"
 #include "MultiMC.h"
 
 QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickMod *> mods,

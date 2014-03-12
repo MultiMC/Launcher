@@ -144,9 +144,6 @@ public:
 
 	std::shared_ptr<QuickModsList> quickmodslist();
 
-	/*!
-	 * Installs update from the given update files directory.
-	 */
 	void installUpdates(const QString updateFilesDir, UpdateFlags flags = None);
 
 	/*!

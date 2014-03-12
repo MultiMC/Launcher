@@ -41,7 +41,7 @@ QString INIFile::escape(QString orig)
 	return orig;
 }
 
-QString INIFile::variantToString(const QVariant &variant)
+QString variantToString(const QVariant &variant)
 {
 	if (variant.canConvert(QMetaType::QString))
 	{
@@ -53,7 +53,7 @@ QString INIFile::variantToString(const QVariant &variant)
 	}
 }
 
-QVariant INIFile::stringToVariant(const QString &string)
+QVariant stringToVariant(const QString &string)
 {
 	if ((string.startsWith('{') && string.endsWith('}')) || (string.startsWith('[') && string.endsWith(']')))
 	{

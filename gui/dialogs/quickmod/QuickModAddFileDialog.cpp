@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "AddQuickModFileDialog.h"
-#include "ui_AddQuickModFileDialog.h"
+#include "QuickModAddFileDialog.h"
+#include "ui_QuickModAddFileDialog.h"
 
 #include <QIcon>
 #include <QFileDialog>
@@ -62,32 +62,32 @@ public:
 	}
 };
 
-AddQuickModFileDialog::AddQuickModFileDialog(QWidget *parent)
-	: QDialog(parent), ui(new Ui::AddQuickModFileDialog)
+QuickModAddFileDialog::QuickModAddFileDialog(QWidget *parent)
+	: QDialog(parent), ui(new Ui::QuickModAddFileDialog)
 {
 	MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
 
 	ui->fileEdit->setValidator(new FileValidator(this));
 
-	connect(ui->cancelButton, &QPushButton::clicked, this, &AddQuickModFileDialog::reject);
+	connect(ui->cancelButton, &QPushButton::clicked, this, &QuickModAddFileDialog::reject);
 }
 
-AddQuickModFileDialog::~AddQuickModFileDialog()
+QuickModAddFileDialog::~QuickModAddFileDialog()
 {
 	delete ui;
 }
 
-QString AddQuickModFileDialog::fileName() const
+QString QuickModAddFileDialog::fileName() const
 {
 	return ui->fileEdit->text();
 }
-QUrl AddQuickModFileDialog::url() const
+QUrl QuickModAddFileDialog::url() const
 {
 	return QUrl::fromUserInput(ui->urlEdit->text());
 }
 
-void AddQuickModFileDialog::on_addButton_clicked()
+void QuickModAddFileDialog::on_addButton_clicked()
 {
 	if ((ui->fileButton->isChecked() && ui->fileEdit->hasAcceptableInput()) ||
 		(ui->urlButton->isChecked() && ui->urlEdit->hasAcceptableInput()))
@@ -108,7 +108,7 @@ void AddQuickModFileDialog::on_addButton_clicked()
 	}
 }
 
-void AddQuickModFileDialog::on_browseButton_clicked()
+void QuickModAddFileDialog::on_browseButton_clicked()
 {
 	if (!ui->fileButton->isChecked())
 	{
@@ -125,4 +125,4 @@ void AddQuickModFileDialog::on_browseButton_clicked()
 	}
 }
 
-#include "AddQuickModFileDialog.moc"
+#include "QuickModAddFileDialog.moc"

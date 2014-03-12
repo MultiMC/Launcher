@@ -12,13 +12,12 @@
 #include <QCryptographicHash>
 
 #include "gui/widgets/WebDownloadNavigator.h"
-#include "gui/dialogs/quickmod/ChooseQuickModVersionDialog.h"
 #include "gui/dialogs/ProgressDialog.h"
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
-#include "logic/quickmod/QuickModDependencyDownloadTask.h"
+#include "logic/quickmod/tasks/QuickModDependencyDownloadTask.h"
 #include "logic/quickmod/QuickModDependencyResolver.h"
 #include "logic/BaseInstance.h"
 #include "logic/net/ByteArrayDownload.h"

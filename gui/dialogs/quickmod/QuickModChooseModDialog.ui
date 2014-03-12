@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ChooseInstallModDialog</class>
- <widget class="QDialog" name="ChooseInstallModDialog">
+ <class>QuickModChooseModDialog</class>
+ <widget class="QDialog" name="QuickModChooseModDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

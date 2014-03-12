@@ -35,8 +35,4 @@ public:
 	void set(QString key, QVariant val);
 	QString unescape(QString orig);
 	QString escape(QString orig);
-
-private:
-	QString variantToString(const QVariant &variant);
-	QVariant stringToVariant(const QString &string);
 };

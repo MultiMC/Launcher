@@ -19,16 +19,16 @@
 
 namespace Ui
 {
-class AddQuickModFileDialog;
+class QuickModAddFileDialog;
 }
 
-class AddQuickModFileDialog : public QDialog
+class QuickModAddFileDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit AddQuickModFileDialog(QWidget *parent = 0);
-	~AddQuickModFileDialog();
+	explicit QuickModAddFileDialog(QWidget *parent = 0);
+	~QuickModAddFileDialog();
 
 	enum Type
 	{
@@ -48,6 +48,6 @@ slots:
 	void on_browseButton_clicked();
 
 private:
-	Ui::AddQuickModFileDialog *ui;
+	Ui::QuickModAddFileDialog *ui;
 	Type m_type;
 };

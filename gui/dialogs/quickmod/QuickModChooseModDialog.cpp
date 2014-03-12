@@ -1,5 +1,5 @@
-#include "ChooseInstallModDialog.h"
-#include "ui_ChooseInstallModDialog.h"
+#include "QuickModChooseModDialog.h"
+#include "ui_QuickModChooseModDialog.h"
 
 #include <QSortFilterProxyModel>
 #include <QListView>
@@ -7,8 +7,7 @@
 
 #include "logic/quickmod/QuickModsList.h"
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
-#include "ChooseQuickModVersionDialog.h"
-#include "AddQuickModFileDialog.h"
+#include "QuickModAddFileDialog.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/OneSixInstance.h"
 
@@ -141,8 +140,8 @@ protected:
 	}
 };
 
-ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance *instance, QWidget *parent)
-	: QDialog(parent), ui(new Ui::ChooseInstallModDialog), m_currentMod(0),
+QuickModChooseModDialog::QuickModChooseModDialog(BaseInstance *instance, QWidget *parent)
+	: QDialog(parent), ui(new Ui::QuickModChooseModDialog), m_currentMod(0),
 	  m_instance(instance), m_view(new QListView(this)), m_model(new ModFilterProxyModel(this))
 {
 	ui->setupUi(this);
@@ -157,19 +156,19 @@ ChooseInstallModDialog::ChooseInstallModDialog(BaseInstance *instance, QWidget *
 	m_view->setModel(m_model);
 
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
-			&ChooseInstallModDialog::modSelectionChanged);
+			&QuickModChooseModDialog::modSelectionChanged);
 	connect(MMC->quickmodslist().get(), &QuickModsList::modsListChanged, this,
-			&ChooseInstallModDialog::setupCategoryBox);
+			&QuickModChooseModDialog::setupCategoryBox);
 
 	setupCategoryBox();
 }
 
-ChooseInstallModDialog::~ChooseInstallModDialog()
+QuickModChooseModDialog::~QuickModChooseModDialog()
 {
 	delete ui;
 }
 
-void ChooseInstallModDialog::on_installButton_clicked()
+void QuickModChooseModDialog::on_installButton_clicked()
 {
 	if (m_view->selectionModel()->selection().isEmpty())
 	{
@@ -199,43 +198,43 @@ void ChooseInstallModDialog::on_installButton_clicked()
 	static_cast<OneSixInstance *>(m_instance)->reloadVersion();
 	// TODO notify the user of the success
 }
-void ChooseInstallModDialog::on_closeButton_clicked()
+void QuickModChooseModDialog::on_closeButton_clicked()
 {
 	reject();
 }
 
-void ChooseInstallModDialog::on_categoriesLabel_linkActivated(const QString &link)
+void QuickModChooseModDialog::on_categoriesLabel_linkActivated(const QString &link)
 {
 	ui->categoryBox->setCurrentText(link);
 	ui->tagsEdit->setText(QString());
 }
-void ChooseInstallModDialog::on_tagsLabel_linkActivated(const QString &link)
+void QuickModChooseModDialog::on_tagsLabel_linkActivated(const QString &link)
 {
 	ui->tagsEdit->setText(ui->tagsEdit->text() + ", " + link);
 	ui->categoryBox->setCurrentText(QString());
 	on_tagsEdit_textChanged();
 }
-void ChooseInstallModDialog::on_fulltextEdit_textChanged()
+void QuickModChooseModDialog::on_fulltextEdit_textChanged()
 {
 	m_model->setFulltext(ui->fulltextEdit->text());
 }
-void ChooseInstallModDialog::on_tagsEdit_textChanged()
+void QuickModChooseModDialog::on_tagsEdit_textChanged()
 {
 	m_model->setTags(
 		ui->tagsEdit->text().split(QRegularExpression(", {0,1}"), QString::SkipEmptyParts));
 }
-void ChooseInstallModDialog::on_categoryBox_currentTextChanged()
+void QuickModChooseModDialog::on_categoryBox_currentTextChanged()
 {
 	m_model->setCategory(ui->categoryBox->currentText());
 }
 
-void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
+void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected,
 												 const QItemSelection &deselected)
 {
 	if (m_currentMod)
 	{
 		disconnect(m_currentMod, &QuickMod::logoUpdated, this,
-				   &ChooseInstallModDialog::modLogoUpdated);
+				   &QuickModChooseModDialog::modLogoUpdated);
 	}
 
 	if (selected.isEmpty())
@@ -273,16 +272,16 @@ void ChooseInstallModDialog::modSelectionChanged(const QItemSelection &selected,
 		ui->logoLabel->setPixmap(m_currentMod->logo());
 
 		connect(m_currentMod, &QuickMod::logoUpdated, this,
-				&ChooseInstallModDialog::modLogoUpdated);
+				&QuickModChooseModDialog::modLogoUpdated);
 	}
 }
 
-void ChooseInstallModDialog::modLogoUpdated()
+void QuickModChooseModDialog::modLogoUpdated()
 {
 	ui->logoLabel->setPixmap(m_currentMod->logo());
 }
 
-void ChooseInstallModDialog::setupCategoryBox()
+void QuickModChooseModDialog::setupCategoryBox()
 {
 	QStringList categories;
 	categories.append("");
@@ -298,25 +297,25 @@ void ChooseInstallModDialog::setupCategoryBox()
 	ui->categoryBox->addItems(categories);
 }
 
-void ChooseInstallModDialog::on_addButton_clicked()
+void QuickModChooseModDialog::on_addButton_clicked()
 {
-	AddQuickModFileDialog dialog(this);
+	QuickModAddFileDialog dialog(this);
 	if (dialog.exec() == QDialog::Accepted)
 	{
 		switch (dialog.type())
 		{
-		case AddQuickModFileDialog::FileName:
+		case QuickModAddFileDialog::FileName:
 			MMC->quickmodslist()->registerMod(dialog.fileName());
 			break;
-		case AddQuickModFileDialog::Url:
+		case QuickModAddFileDialog::Url:
 			MMC->quickmodslist()->registerMod(dialog.url());
 			break;
 		}
 	}
 }
-void ChooseInstallModDialog::on_updateButton_clicked()
+void QuickModChooseModDialog::on_updateButton_clicked()
 {
 	MMC->quickmodslist()->updateFiles();
 }
 
-#include "ChooseInstallModDialog.moc"
+#include "QuickModChooseModDialog.moc"

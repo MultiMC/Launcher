@@ -645,16 +645,6 @@ std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
 	return m_quickmodslist;
 }
 
-#ifdef WINDOWS
-#define UPDATER_BIN "updater.exe"
-#elif LINUX
-#define UPDATER_BIN "updater"
-#elif OSX
-#define UPDATER_BIN "updater"
-#else
-#error Unsupported operating system.
-#endif
-
 void MultiMC::installUpdates(const QString updateFilesDir, UpdateFlags flags)
 {
 	// if we are going to update on exit, save the params now

@@ -4,9 +4,9 @@
 #include <QPushButton>
 
 #include "logic/net/ByteArrayDownload.h"
-#include "QuickMod.h"
-#include "QuickModVersion.h"
-#include "QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModVersion.h"
+#include "logic/quickmod/QuickModsList.h"
 #include "MultiMC.h"
 
 // TODO all of this might need some more work

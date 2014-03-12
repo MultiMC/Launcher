@@ -275,10 +275,10 @@ gui/ConsoleWindow.h
 gui/ConsoleWindow.cpp
 
 # GUI - dialogs
-gui/dialogs/quickmod/AddQuickModFileDialog.h
-gui/dialogs/quickmod/AddQuickModFileDialog.cpp
-gui/dialogs/quickmod/ChooseInstallModDialog.h
-gui/dialogs/quickmod/ChooseInstallModDialog.cpp
+gui/dialogs/quickmod/QuickModAddFileDialog.h
+gui/dialogs/quickmod/QuickModAddFileDialog.cpp
+gui/dialogs/quickmod/QuickModChooseModDialog.h
+gui/dialogs/quickmod/QuickModChooseModDialog.cpp
 gui/dialogs/quickmod/QuickModInstallDialog.h
 gui/dialogs/quickmod/QuickModInstallDialog.cpp
 gui/dialogs/SettingsDialog.h
@@ -498,6 +498,10 @@ logic/screenshots/ImgurAlbumCreation.h
 logic/screenshots/ImgurAlbumCreation.cpp
 
 # Quickmod
+logic/quickmod/tasks/QuickModVerificationTask.h
+logic/quickmod/tasks/QuickModVerificationTask.cpp
+logic/quickmod/tasks/QuickModDependencyDownloadTask.h
+logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp
 logic/quickmod/QuickModsList.h
 logic/quickmod/QuickModsList.cpp
 logic/quickmod/QuickModFilesUpdater.h
@@ -508,10 +512,6 @@ logic/quickmod/QuickModVersion.h
 logic/quickmod/QuickModVersion.cpp
 logic/quickmod/QuickModDependencyResolver.h
 logic/quickmod/QuickModDependencyResolver.cpp
-logic/quickmod/QuickModDependencyDownloadTask.h
-logic/quickmod/QuickModDependencyDownloadTask.cpp
-logic/quickmod/QuickModVerificationTask.h
-logic/quickmod/QuickModVerificationTask.cpp
 logic/quickmod/QuickModInstaller.h
 logic/quickmod/QuickModInstaller.cpp
 
@@ -587,8 +587,8 @@ gui/dialogs/IconPickerDialog.ui
 gui/dialogs/LegacyModEditDialog.ui
 gui/dialogs/OneSixModEditDialog.ui
 gui/dialogs/EditNotesDialog.ui
-gui/dialogs/quickmod/AddQuickModFileDialog.ui
-gui/dialogs/quickmod/ChooseInstallModDialog.ui
+gui/dialogs/quickmod/QuickModAddFileDialog.ui
+gui/dialogs/quickmod/QuickModChooseModDialog.ui
 gui/dialogs/quickmod/QuickModInstallDialog.ui
 gui/dialogs/AccountListDialog.ui
 gui/dialogs/AccountSelectDialog.ui
@@ -802,8 +802,6 @@ include_directories(${PROJECT_BINARY_DIR}/include)
 
 # Translations
 add_subdirectory(translations)
-
-add_subdirectory(docs)
 
 # Tests
 add_subdirectory(tests)

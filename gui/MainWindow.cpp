@@ -57,7 +57,7 @@
 #include "gui/dialogs/IconPickerDialog.h"
 #include "gui/dialogs/EditNotesDialog.h"
 #include "gui/dialogs/CopyInstanceDialog.h"
-#include "gui/dialogs/quickmod/AddQuickModFileDialog.h"
+#include "gui/dialogs/quickmod/QuickModAddFileDialog.h"
 #include "gui/dialogs/AccountListDialog.h"
 #include "gui/dialogs/AccountSelectDialog.h"
 #include "gui/dialogs/UpdateDialog.h"
@@ -1550,13 +1550,13 @@ void MainWindow::on_actionEditInstNotes_triggered()
 
 void MainWindow::on_actionAddQuickModFile_triggered()
 {
-	AddQuickModFileDialog dialog(this);
+	QuickModAddFileDialog dialog(this);
 	if (dialog.exec() == QDialog::Accepted) {
 		switch (dialog.type()) {
-		case AddQuickModFileDialog::FileName:
+		case QuickModAddFileDialog::FileName:
 			MMC->quickmodslist()->registerMod(dialog.fileName());
 			break;
-		case AddQuickModFileDialog::Url:
+		case QuickModAddFileDialog::Url:
 			MMC->quickmodslist()->registerMod(dialog.url());
 			break;
 		}

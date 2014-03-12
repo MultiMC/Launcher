@@ -4,7 +4,7 @@
 
 namespace Ui
 {
-class ChooseInstallModDialog;
+class QuickModChooseModDialog;
 }
 
 class QItemSelection;
@@ -13,13 +13,13 @@ class ModFilterProxyModel;
 class BaseInstance;
 class QuickMod;
 
-class ChooseInstallModDialog : public QDialog
+class QuickModChooseModDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit ChooseInstallModDialog(BaseInstance *instance, QWidget *parent = 0);
-	~ChooseInstallModDialog();
+	explicit QuickModChooseModDialog(BaseInstance *instance, QWidget *parent = 0);
+	~QuickModChooseModDialog();
 
 private
 slots:
@@ -39,7 +39,7 @@ slots:
 	void setupCategoryBox();
 
 private:
-	Ui::ChooseInstallModDialog *ui;
+	Ui::QuickModChooseModDialog *ui;
 
 	QuickMod *m_currentMod;
 
