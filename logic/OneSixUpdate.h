@@ -34,8 +34,6 @@ public:
 
 private
 slots:
-	void beginQuickModDownload();
-
 	void beginMinecraftUpdate();
 
 	void versionFileStart();

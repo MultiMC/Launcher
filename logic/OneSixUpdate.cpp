@@ -35,9 +35,6 @@
 #include "net/ForgeMirrors.h"
 #include "net/URLConstants.h"
 #include "assets/AssetsUtils.h"
-#include "gui/dialogs/quickmod/QuickModInstallDialog.h"
-#include "logic/quickmod/QuickModsList.h"
-#include "logic/quickmod/QuickMod.h"
 
 #include "pathutils.h"
 #include <JlCompress.h>
@@ -57,76 +54,7 @@ void OneSixUpdate::executeTask()
 		return;
 	}
 
-	beginQuickModDownload();
-}
-
-void OneSixUpdate::beginQuickModDownload()
-{
-	const QMap<QString, QString> quickmods = m_inst->getFullVersion()->quickmods;
-	auto list = MMC->quickmodslist();
-	QList<QuickMod *> mods;
-	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
-	{
-		QuickMod *mod = list->mod(it.key());
-		if (mod == 0)
-		{
-			// TODO fetch info from somewhere?
-			int answer = QMessageBox::warning(0, tr("Mod not available"), tr("You seem to be missing the QuickMod file for %1. Skip it?").arg(it.key()), QMessageBox::No, QMessageBox::Yes);
-			if (answer == QMessageBox::No)
-			{
-				emitFailed(tr("Missing %1").arg(it.key()));
-				return;
-			}
-			else
-			{
-				continue;
-			}
-		}
-		else
-		{
-			if (it.value().isEmpty() || !list->isModMarkedAsExists(mod, it.value()))
-			{
-				mods.append(mod);
-			}
-		}
-	}
-
-	if (mods.isEmpty())
-	{
-		beginMinecraftUpdate();
-		return;
-	}
-
-	QuickModInstallDialog dialog(m_inst);
-	dialog.setInitialMods(mods);
-	if (dialog.exec() == QuickModInstallDialog::Accepted)
-	{
-		QFile f(m_inst->instanceRoot() + "/user.json");
-		if (f.open(QFile::ReadWrite))
-		{
-			QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
-			QJsonObject mods = obj.value("+mods").toObject();
-			for (auto version : dialog.modVersions())
-			{
-				mods.insert(version->mod->uid(), version->name());
-			}
-			obj.insert("+mods", mods);
-			qDebug() << mods;
-			f.seek(0);
-			f.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
-			f.close();
-		}
-		else
-		{
-			QLOG_ERROR() << "Couldn't open" << f.fileName() << ". This means that stuff will be downloaded on every instance launch";
-		}
-
-		beginMinecraftUpdate();
-	}
-	else
-	{
-		emitFailed(tr("Failure downloading QuickMods"));
-	}
+	beginMinecraftUpdate();
 }
 
 void OneSixUpdate::beginMinecraftUpdate()

@@ -21,12 +21,12 @@ static QMap<QString, QString> jsonObjectToStringStringMap(const QJsonObject &obj
 
 bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 {
-	name_ = MMCJson::ensureString(object.value("name"));
-	url = MMCJson::ensureUrl(object.value("url"));
+	name_ = MMCJson::ensureString(object.value("name"), "'name'");
+	url = MMCJson::ensureUrl(object.value("url"), "'url'");
 	md5 = object.value("md5").toString();
 	forgeVersionFilter = object.value("forgeCompat").toString();
 	compatibleVersions.clear();
-	for (auto val : MMCJson::ensureArray(object.value("mcCompat")))
+	for (auto val : MMCJson::ensureArray(object.value("mcCompat"), "'mcCompat'"))
 	{
 		compatibleVersions.append(MMCJson::ensureString(val));
 	}

@@ -60,7 +60,6 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 {
 	if (!version)
 	{
-		emit error(tr("Unknown error"));
 		return;
 	}
 	if (m_mods.contains(version->mod) && Util::Version(version->name()) <= Util::Version(m_mods[version->mod]->name()))

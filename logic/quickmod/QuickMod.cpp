@@ -43,9 +43,9 @@ QuickModVersionPtr QuickMod::version(const QString &name) const
 void QuickMod::parse(const QByteArray &data)
 {
 	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
-	const QJsonObject mod = MMCJson::ensureObject(doc);
-	m_uid = MMCJson::ensureString(mod.value("uid"));
-	m_name = MMCJson::ensureString(mod.value("name"));
+	const QJsonObject mod = MMCJson::ensureObject(doc, "root");
+	m_uid = MMCJson::ensureString(mod.value("uid"), "'uid'");
+	m_name = MMCJson::ensureString(mod.value("name"), "'name'");
 	m_stub = mod.value("stub").toBool(false);
 	m_description = mod.value("description").toString();
 	m_nemName = mod.value("nemName").toString();
@@ -58,20 +58,20 @@ void QuickMod::parse(const QByteArray &data)
 	const QJsonObject references = mod.value("references").toObject();
 	for (auto key : references.keys())
 	{
-		m_references.insert(key, Util::expandQMURL(MMCJson::ensureString(references[key])));
+		m_references.insert(key, Util::expandQMURL(MMCJson::ensureString(references[key], "'reference'")));
 	}
 	m_categories.clear();
 	for (auto val : mod.value("categories").toArray())
 	{
-		m_categories.append(MMCJson::ensureString(val));
+		m_categories.append(MMCJson::ensureString(val, "'category'"));
 	}
 	m_tags.clear();
 	for (auto val : mod.value("tags").toArray())
 	{
-		m_tags.append(MMCJson::ensureString(val));
+		m_tags.append(MMCJson::ensureString(val, "'tag'"));
 	}
-	m_versionsUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("versionsUrl")));
-	m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl")));
+	m_versionsUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("versionsUrl"), "'versionsUrl'"));
+	m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
 
 	if (uid().isEmpty())
 	{

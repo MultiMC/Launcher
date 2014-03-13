@@ -106,6 +106,8 @@ slots:
 	void modIconUpdated();
 	void modLogoUpdated();
 
+	void cleanup();
+
 signals:
 	void modAdded(QuickMod *mod);
 	void modsListChanged();

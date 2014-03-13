@@ -28,6 +28,8 @@
 #include "MinecraftProcess.h"
 #include "gui/dialogs/OneSixModEditDialog.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "tasks/SequentialTask.h"
+#include "logic/quickmod/tasks/QuickModDownloadTask.h"
 
 #include <MMCError.h>
 
@@ -64,7 +66,10 @@ void OneSixInstance::init()
 
 std::shared_ptr<Task> OneSixInstance::doUpdate()
 {
-	return std::shared_ptr<Task>(new OneSixUpdate(this));
+	auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
+	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(this, this)));
+	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this, this)));
+	return task;
 }
 
 QString replaceTokensIn(QString text, QMap<QString, QString> with)

@@ -32,6 +32,8 @@ QuickModsList::QuickModsList(QObject *parent)
 	m_settings->registerSetting("TrustedWebsites", QVariantList());
 
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
+
+	cleanup();
 }
 
 QuickModsList::~QuickModsList()
@@ -219,7 +221,7 @@ void QuickModsList::modRemovedBy(const Mod &mod, BaseInstance *instance)
 void QuickModsList::markModAsExists(QuickMod *mod, const BaseVersionPtr version,
 									const QString &fileName)
 {
-	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
+	auto mods = m_settings->get("AvailableMods").toMap();
 	auto map = mods[mod->uid()].toMap();
 	map[version->name()] = fileName;
 	mods[mod->uid()] = map;
@@ -229,7 +231,7 @@ void QuickModsList::markModAsExists(QuickMod *mod, const BaseVersionPtr version,
 void QuickModsList::markModAsInstalled(QuickMod *mod, const BaseVersionPtr version,
 									   const QString &fileName, BaseInstance *instance)
 {
-	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
+	auto mods = instance->settings().get("InstalledMods").toMap();
 	auto map = mods[mod->uid()].toMap();
 	map[version->name()] = fileName;
 	mods[mod->uid()] = map;
@@ -238,7 +240,7 @@ void QuickModsList::markModAsInstalled(QuickMod *mod, const BaseVersionPtr versi
 void QuickModsList::markModAsUninstalled(QuickMod *mod, const BaseVersionPtr version,
 										 BaseInstance *instance)
 {
-	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
+	auto mods = instance->settings().get("InstalledMods").toMap();
 	auto map = mods[mod->uid()].toMap();
 	map.remove(version->name());
 	if (map.isEmpty())
@@ -258,7 +260,7 @@ bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const BaseVersionPtr v
 	{
 		return false;
 	}
-	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
+	auto mods = instance->settings().get("InstalledMods").toMap();
 	return mods.contains(mod->uid()) &&
 		   mods.value(mod->uid()).toMap().contains(version->name());
 }
@@ -268,7 +270,7 @@ bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const BaseVersionPtr vers
 }
 bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const QString &version) const
 {
-	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
+	auto mods = m_settings->get("AvailableMods").toMap();
 	return mods.contains(mod->uid()) &&
 			mods.value(mod->uid()).toMap().contains(version);
 }
@@ -279,7 +281,7 @@ QString QuickModsList::installedModFile(QuickMod *mod, const BaseVersionPtr vers
 	{
 		return QString();
 	}
-	auto mods = instance->settings().getSetting("InstalledMods")->get().toMap();
+	auto mods = instance->settings().get("InstalledMods").toMap();
 	return mods[mod->uid()].toMap()[version->name()].toString();
 }
 QString QuickModsList::existingModFile(QuickMod *mod, const BaseVersionPtr version) const
@@ -292,18 +294,18 @@ QString QuickModsList::existingModFile(QuickMod *mod, const QString &version) co
 	{
 		return QString();
 	}
-	auto mods = m_settings->getSetting("AvailableMods")->get().toMap();
+	auto mods = m_settings->get("AvailableMods").toMap();
 	return mods[mod->uid()].toMap()[version].toString();
 }
 
 bool QuickModsList::isWebsiteTrusted(const QUrl &url) const
 {
-	auto websites = m_settings->getSetting("TrustedWebsites")->get().toList();
+	auto websites = m_settings->get("TrustedWebsites").toList();
 	return websites.contains(url.toString());
 }
 void QuickModsList::setWebsiteTrusted(const QUrl &url, const bool trusted)
 {
-	auto websites = m_settings->getSetting("TrustedWebsites")->get().toList();
+	auto websites = m_settings->get("TrustedWebsites").toList();
 	if (trusted && !websites.contains(url.toString()))
 	{
 		websites.append(url.toString());
@@ -407,6 +409,32 @@ void QuickModsList::modLogoUpdated()
 	auto mod = qobject_cast<QuickMod *>(sender());
 	auto modIndex = index(m_mods.indexOf(mod), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << LogoRole);
+}
+
+void QuickModsList::cleanup()
+{
+	// ensure that only mods that really exist on the local filesystem are marked as available
+	QDir dir;
+	auto mods = m_settings->get("AvailableMods").toMap();
+	QMutableMapIterator<QString, QVariant> modIt(mods);
+	while (modIt.hasNext())
+	{
+		auto versions = modIt.next().value().toMap();
+		QMutableMapIterator<QString, QVariant> versionIt(versions);
+		while (versionIt.hasNext())
+		{
+			if (!dir.exists(versionIt.next().value().toString()))
+			{
+				versionIt.remove();
+			}
+		}
+		modIt.setValue(versions);
+		if (modIt.value().toMap().isEmpty())
+		{
+			modIt.remove();
+		}
+	}
+	m_settings->set("AvailableMods", mods);
 }
 
 void QuickModsList::unregisterMod(QuickMod *mod)

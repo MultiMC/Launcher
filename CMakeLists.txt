@@ -502,6 +502,8 @@ logic/quickmod/tasks/QuickModVerificationTask.h
 logic/quickmod/tasks/QuickModVerificationTask.cpp
 logic/quickmod/tasks/QuickModDependencyDownloadTask.h
 logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp
+logic/quickmod/tasks/QuickModDownloadTask.h
+logic/quickmod/tasks/QuickModDownloadTask.cpp
 logic/quickmod/QuickModsList.h
 logic/quickmod/QuickModsList.cpp
 logic/quickmod/QuickModFilesUpdater.h

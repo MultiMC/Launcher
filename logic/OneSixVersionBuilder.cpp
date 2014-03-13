@@ -133,17 +133,19 @@ void OneSixVersionBuilder::buildInternal(const bool onlyVanilla, const QStringLi
 			}
 
 			// user.json
-			QLOG_INFO() << "Reading user.json";
-			auto userFile = parseJsonFile(QFileInfo(root.absoluteFilePath("user.json")), false);
-			userFile->name = "user.json";
-			userFile->fileId = "org.multimc.user.json";
-			if (userFile->mcVersion.isEmpty())
+			if (root.exists("user.json"))
 			{
-				userFile->mcVersion = m_instance->intendedVersionId();
+				QLOG_INFO() << "Reading user.json";
+				auto userFile = parseJsonFile(QFileInfo(root.absoluteFilePath("user.json")), false);
+				userFile->name = "user.json";
+				userFile->fileId = "org.multimc.user.json";
+				if (userFile->mcVersion.isEmpty())
+				{
+					userFile->mcVersion = m_instance->intendedVersionId();
+				}
+				userFile->applyTo(m_version);
+				m_version->versionFiles.append(userFile);
 			}
-			userFile->applyTo(m_version);
-			m_version->versionFiles.append(userFile);
-
 		} while (0);
 
 	// some final touches
