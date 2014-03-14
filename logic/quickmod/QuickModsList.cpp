@@ -92,6 +92,8 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return mod->description();
 	case NameRole:
 		return mod->name();
+	case UidRole:
+		return mod->uid();
 	case DescriptionRole:
 		return mod->description();
 	case WebsiteRole:

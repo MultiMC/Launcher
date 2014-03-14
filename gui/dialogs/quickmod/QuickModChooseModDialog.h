@@ -10,6 +10,7 @@ class QuickModChooseModDialog;
 class QItemSelection;
 class QListView;
 class ModFilterProxyModel;
+class CheckboxProxyModel;
 class BaseInstance;
 class QuickMod;
 
@@ -46,5 +47,6 @@ private:
 	BaseInstance *m_instance;
 
 	QListView *m_view;
-	ModFilterProxyModel *m_model;
+	ModFilterProxyModel *m_filterModel;
+	CheckboxProxyModel *m_checkModel;
 };

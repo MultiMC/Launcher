@@ -2,6 +2,7 @@
 #include "ui_QuickModChooseModDialog.h"
 
 #include <QSortFilterProxyModel>
+#include <QIdentityProxyModel>
 #include <QListView>
 #include <QMessageBox>
 
@@ -140,9 +141,71 @@ protected:
 	}
 };
 
+class CheckboxProxyModel : public QIdentityProxyModel
+{
+	Q_OBJECT
+public:
+	CheckboxProxyModel(QObject *parent)
+		: QIdentityProxyModel(parent)
+	{
+	}
+
+	void setSourceModel(QAbstractItemModel *model)
+	{
+		QIdentityProxyModel::setSourceModel(model);
+		connect(model, &QAbstractItemModel::modelReset, [this](){m_items.clear();});
+	}
+
+	QStringList getCheckedItems() const
+	{
+		QStringList items;
+		for (auto item : m_items)
+		{
+			items.append(item);
+		}
+		return items;
+	}
+
+	Qt::ItemFlags flags(const QModelIndex &index) const
+	{
+		return QIdentityProxyModel::flags(index) | Qt::ItemIsUserCheckable;
+	}
+	bool setData(const QModelIndex &index, const QVariant &value, int role)
+	{
+		if (index.isValid() && role == Qt::CheckStateRole)
+		{
+			if (value == Qt::Checked)
+			{
+				m_items.insert(index.data(QuickModsList::UidRole).toString());
+				emit dataChanged(index, index, QVector<int>() << Qt::CheckStateRole);
+				return true;
+			}
+			else if (value == Qt::Unchecked)
+			{
+				m_items.remove(index.data(QuickModsList::UidRole).toString());
+				emit dataChanged(index, index, QVector<int>() << Qt::CheckStateRole);
+				return true;
+			}
+		}
+		return QIdentityProxyModel::setData(index, value, role);
+	}
+	QVariant data(const QModelIndex &proxyIndex, int role) const
+	{
+		if (proxyIndex.isValid() && role == Qt::CheckStateRole)
+		{
+			return m_items.contains(proxyIndex.data(QuickModsList::UidRole).toString()) ? Qt::Checked : Qt::Unchecked;
+		}
+		return QIdentityProxyModel::data(proxyIndex, role);
+	}
+
+private:
+	QSet<QString> m_items;
+};
+
 QuickModChooseModDialog::QuickModChooseModDialog(BaseInstance *instance, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModChooseModDialog), m_currentMod(0),
-	  m_instance(instance), m_view(new QListView(this)), m_model(new ModFilterProxyModel(this))
+	  m_instance(instance), m_view(new QListView(this)),
+	  m_filterModel(new ModFilterProxyModel(this)), m_checkModel(new CheckboxProxyModel(this))
 {
 	ui->setupUi(this);
 
@@ -152,8 +215,10 @@ QuickModChooseModDialog::QuickModChooseModDialog(BaseInstance *instance, QWidget
 
 	m_view->setSelectionBehavior(QListView::SelectRows);
 	m_view->setSelectionMode(QListView::SingleSelection);
-	m_model->setSourceModel(MMC->quickmodslist().get());
-	m_view->setModel(m_model);
+
+	m_filterModel->setSourceModel(MMC->quickmodslist().get());
+	m_checkModel->setSourceModel(m_filterModel);
+	m_view->setModel(m_checkModel);
 
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
 			&QuickModChooseModDialog::modSelectionChanged);
@@ -170,13 +235,13 @@ QuickModChooseModDialog::~QuickModChooseModDialog()
 
 void QuickModChooseModDialog::on_installButton_clicked()
 {
-	if (m_view->selectionModel()->selection().isEmpty())
+	auto items = m_checkModel->getCheckedItems();
+	auto alreadySelected = static_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods;
+	for (auto mod : alreadySelected.keys())
 	{
-		return;
+		items.removeAll(mod);
 	}
-
-	auto mod = m_view->selectionModel()->selectedIndexes().first().data(QuickModsList::QuickModRole).value<QuickMod *>();
-	if (static_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods.contains(mod->uid()))
+	if (items.isEmpty())
 	{
 		return;
 	}
@@ -190,13 +255,16 @@ void QuickModChooseModDialog::on_installButton_clicked()
 	// TODO more error reporting
 	QJsonObject obj = QJsonDocument::fromJson(userFile.readAll()).object();
 	QJsonObject plusmods = obj.value("+mods").toObject();
-	plusmods.insert(mod->uid(), QString());
+	for (auto mod : items)
+	{
+		plusmods.insert(mod, QString());
+	}
 	obj.insert("+mods", plusmods);
 	userFile.seek(0);
 	userFile.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
 	userFile.close();
 	static_cast<OneSixInstance *>(m_instance)->reloadVersion();
-	// TODO notify the user of the success
+	accept();
 }
 void QuickModChooseModDialog::on_closeButton_clicked()
 {
@@ -216,16 +284,16 @@ void QuickModChooseModDialog::on_tagsLabel_linkActivated(const QString &link)
 }
 void QuickModChooseModDialog::on_fulltextEdit_textChanged()
 {
-	m_model->setFulltext(ui->fulltextEdit->text());
+	m_filterModel->setFulltext(ui->fulltextEdit->text());
 }
 void QuickModChooseModDialog::on_tagsEdit_textChanged()
 {
-	m_model->setTags(
+	m_filterModel->setTags(
 		ui->tagsEdit->text().split(QRegularExpression(", {0,1}"), QString::SkipEmptyParts));
 }
 void QuickModChooseModDialog::on_categoryBox_currentTextChanged()
 {
-	m_model->setCategory(ui->categoryBox->currentText());
+	m_filterModel->setCategory(ui->categoryBox->currentText());
 }
 
 void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected,
@@ -249,7 +317,7 @@ void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected
 	}
 	else
 	{
-		m_currentMod = m_model->index(selected.first().top(), 0)
+		m_currentMod = m_filterModel->index(selected.first().top(), 0)
 						   .data(QuickModsList::QuickModRole)
 						   .value<QuickMod *>();
 		ui->nameLabel->setText(m_currentMod->name());
