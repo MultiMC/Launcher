@@ -173,7 +173,7 @@ bool Util::versionIsInInterval(const QString &version, const QString &interval)
 
 	// Interval notation is used
 	QRegularExpression exp(
-		"(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)])");
+		"(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)]),?");
 	QRegularExpressionMatch match = exp.match(interval);
 	if (match.hasMatch())
 	{
