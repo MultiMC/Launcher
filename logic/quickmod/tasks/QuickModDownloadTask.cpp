@@ -69,7 +69,6 @@ void QuickModDownloadTask::executeTask()
 				mods.insert(version->mod->uid(), version->name());
 			}
 			obj.insert("+mods", mods);
-			qDebug() << mods;
 			f.seek(0);
 			f.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
 			f.close();

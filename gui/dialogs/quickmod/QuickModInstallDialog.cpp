@@ -29,7 +29,6 @@
 
 Q_DECLARE_METATYPE(QTreeWidgetItem *)
 
-// TODO install forge / liteloader
 // TODO load parallel versions in parallel (makes sense, right?)
 
 struct ExtraRoles
@@ -118,7 +117,7 @@ int QuickModInstallDialog::exec()
 	{
 		ProgressDialog dialog(this);
 		if (dialog.exec(new QuickModDependencyDownloadTask(m_initialMods, this)) ==
-				QDialog::Rejected)
+			QDialog::Rejected)
 		{
 			return QDialog::Rejected;
 		}
@@ -130,22 +129,21 @@ int QuickModInstallDialog::exec()
 	{
 		bool error = false;
 		QuickModDependencyResolver resolver(m_instance, this);
-		connect(&resolver, &QuickModDependencyResolver::error, [this, &error](const QString &msg)
+		connect(&resolver, &QuickModDependencyResolver::error,
+				[this, &error](const QString &msg)
 		{
 			error = true;
 			QListWidgetItem *item = new QListWidgetItem(msg);
 			item->setTextColor(Qt::red);
 			ui->dependencyListWidget->addItem(item);
 		});
-		connect(&resolver, &QuickModDependencyResolver::warning,
-				[this](const QString &msg)
+		connect(&resolver, &QuickModDependencyResolver::warning, [this](const QString &msg)
 		{
 			QListWidgetItem *item = new QListWidgetItem(msg);
 			item->setTextColor(Qt::darkYellow);
 			ui->dependencyListWidget->addItem(item);
 		});
-		connect(&resolver, &QuickModDependencyResolver::success,
-				[this](const QString &msg)
+		connect(&resolver, &QuickModDependencyResolver::success, [this](const QString &msg)
 		{
 			QListWidgetItem *item = new QListWidgetItem(msg);
 			item->setTextColor(Qt::darkGreen);
@@ -230,8 +228,7 @@ void QuickModInstallDialog::downloadNextMod()
 	auto version = m_modVersions.takeFirst();
 	ui->webModsProgressBar->setValue(ui->webModsProgressBar->value() + 1);
 
-	QLOG_INFO() << "Downloading " << version->name() << "("
-				<< version->url.toString() << ")";
+	QLOG_INFO() << "Downloading " << version->name() << "(" << version->url.toString() << ")";
 
 	auto navigator = new WebDownloadNavigator(this);
 	navigator->setProperty("version", QVariant::fromValue(version));
@@ -313,13 +310,21 @@ void QuickModInstallDialog::downloadProgress(const qint64 current, const qint64 
 	item->setData(3, ExtraRoles::ProgressRole, current);
 	item->setData(3, ExtraRoles::TotalRole, max);
 	ui->progressList->update(
-				ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item), 3));
+		ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item), 3));
 }
 
-static QString fileName(const QUrl &url)
+static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 {
-	const QString path = url.path();
-	return path.mid(path.lastIndexOf('/') + 1);
+	QString ending = QMimeDatabase().mimeTypeForUrl(url).preferredSuffix();
+	if (!ending.isEmpty())
+	{
+		ending.prepend('.');
+	}
+	if (ending == ".bin")
+	{
+		ending.clear();
+	}
+	return version->mod->name() + "-" + version->name() + ending;
 }
 static QDir dirEnsureExists(const QString &dir, const QString &path)
 {
@@ -373,8 +378,7 @@ void QuickModInstallDialog::downloadCompleted()
 
 	QByteArray data = reply->readAll();
 
-	const QByteArray actual =
-			QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
+	const QByteArray actual = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
 	if (!version->md5.isNull() && actual != version->md5)
 	{
 		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
@@ -384,11 +388,11 @@ void QuickModInstallDialog::downloadCompleted()
 		return;
 	}
 
-	QFile file(dir.absoluteFilePath(fileName(reply->url())));
+	QFile file(dir.absoluteFilePath(fileName(version, reply->url())));
 	if (!file.open(QFile::WriteOnly | QFile::Truncate))
 	{
 		item->setText(
-					3, tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
+			3, tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
 		return;
 	}
