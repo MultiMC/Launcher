@@ -30,12 +30,50 @@ bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 	{
 		compatibleVersions.append(MMCJson::ensureString(val));
 	}
-	dependencies = jsonObjectToStringStringMap(object.value("depends").toObject());
-	recommendations = jsonObjectToStringStringMap(object.value("recommends").toObject());
-	suggestions = jsonObjectToStringStringMap(object.value("suggests").toObject());
-	breaks = jsonObjectToStringStringMap(object.value("breaks").toObject());
-	conflicts = jsonObjectToStringStringMap(object.value("conflicts").toObject());
-	provides = jsonObjectToStringStringMap(object.value("provides").toObject());
+	dependencies.clear();
+	recommendations.clear();
+	suggestions.clear();
+	breaks.clear();
+	conflicts.clear();
+	provides.clear();
+	if (object.contains("references"))
+	{
+		for (auto val : MMCJson::ensureArray(object.value("references"), "'references'"))
+		{
+			const QJsonObject obj = MMCJson::ensureObject(val, "'reference'");
+			const QString uid = MMCJson::ensureString(obj.value("uid"), "'uid'");
+			const QString version = MMCJson::ensureString(obj.value("version"), "'version'");
+			const QString type = MMCJson::ensureString(obj.value("type"), "'type'");
+			if (type == "depends")
+			{
+				dependencies.insert(uid, version);
+			}
+			else if (type == "recommends")
+			{
+				recommendations.insert(uid, version);
+			}
+			else if (type == "suggests")
+			{
+				suggestions.insert(uid, version);
+			}
+			else if (type == "breaks")
+			{
+				breaks.insert(uid, version);
+			}
+			else if (type == "conflicts")
+			{
+				conflicts.insert(uid, version);
+			}
+			else if (type == "provides")
+			{
+				provides.insert(uid, version);
+			}
+			else
+			{
+				throw MMCError(QObject::tr("Unknown reference type '%1'").arg(type));
+			}
+		}
+	}
 
 	// download type
 	{
