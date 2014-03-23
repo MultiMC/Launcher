@@ -227,12 +227,14 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 		launchScript += "param " + param + "\n";
 	}
 
+	QStringList mods;
 	for (auto it = version->quickmods.begin(); it != version->quickmods.end(); ++it)
 	{
-		launchScript += "mods " + MMC->quickmodslist()->existingModFile(
-									 MMC->quickmodslist()->mod(it.key()), it.value()) +
-						"\n";
+		mods.prepend("mods " + MMC->quickmodslist()->existingModFile(
+									 MMC->quickmodslist()->mod(it.key()), it.value()));
 	}
+	launchScript += mods.join('\n') + '\n';
+
 
 	// Set the width and height for 1.6 instances
 	bool maximize = settings().get("LaunchMaximized").toBool();

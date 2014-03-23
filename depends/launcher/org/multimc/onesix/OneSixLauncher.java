@@ -61,8 +61,8 @@ public class OneSixLauncher implements Launcher
 		}
 
 		List<String> allJars = new ArrayList<String>();
-		allJars.addAll(mods);
 		allJars.addAll(libraries);
+		allJars.addAll(mods);
 
 		if(!Utils.addToClassPath(allJars))
 		{
