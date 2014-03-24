@@ -167,6 +167,11 @@ void MinecraftProcess::logOutput(QString line, MessageLevel::Enum defaultLevel, 
 	if (censor)
 		line = censorPrivateInfo(line);
 
+	if (line.contains("ignoring option PermSize="))
+	{
+		return;
+	}
+
 	emit log(line, level);
 }
 
