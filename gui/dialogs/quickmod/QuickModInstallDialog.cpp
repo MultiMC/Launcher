@@ -30,6 +30,7 @@
 Q_DECLARE_METATYPE(QTreeWidgetItem *)
 
 // TODO load parallel versions in parallel (makes sense, right?)
+// TODO there's to much non-gui code in here
 
 struct ExtraRoles
 {
@@ -322,9 +323,9 @@ static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 	}
 	if (ending == ".bin")
 	{
-		ending.clear();
+		ending = ".jar";
 	}
-	return version->mod->name() + "-" + version->name() + ending;
+	return version->mod->uid() + "-" + version->name() + ending;
 }
 static QDir dirEnsureExists(const QString &dir, const QString &path)
 {

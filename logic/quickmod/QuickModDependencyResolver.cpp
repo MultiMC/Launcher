@@ -39,10 +39,10 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickM
 
 QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter, bool *ok)
 {
+	const QString predefinedVersion = static_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods.value(mod->uid());
 	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
 							   tr("Choose QuickMod version for %1").arg(mod->name()), m_widgetParent);
 	dialog.setFilter(BaseVersionList::NameColumn, filter);
-	const QString predefinedVersion = static_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods.value(mod->uid());
 	if (!predefinedVersion.isEmpty())
 	{
 		dialog.setFilter(BaseVersionList::NameColumn, predefinedVersion);

@@ -66,7 +66,14 @@ slots:
 		QString errorString;
 		QBENCHMARK
 		{
-			parsed->parse(QJsonDocument::fromJson(input).array().first().toObject(), &errorString);
+			try
+			{
+				parsed->parse(QJsonDocument::fromJson(input).array().first().toObject(), &errorString);
+			}
+			catch (MMCError &e)
+			{
+				qFatal(e.what());
+			}
 		}
 		QCOMPARE(errorString, QString(""));
 

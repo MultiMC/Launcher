@@ -6,6 +6,7 @@
 
 #include "logic/net/HttpMetaCache.h"
 #include "QuickMod.h"
+#include "modutils.h"
 #include "MultiMC.h"
 #include "logic/MMCJson.h"
 
@@ -162,8 +163,8 @@ void QuickModVersionList::sort()
 {
 	qSort(m_vlist.begin(), m_vlist.end(), [](const BaseVersionPtr v1, const BaseVersionPtr v2)
 	{
-		return std::dynamic_pointer_cast<QuickModVersion>(v1)->name() >
-			   std::dynamic_pointer_cast<QuickModVersion>(v2)->name();
+		return Util::Version(std::dynamic_pointer_cast<QuickModVersion>(v1)->name()) >
+			   Util::Version(std::dynamic_pointer_cast<QuickModVersion>(v2)->name());
 	});
 }
 

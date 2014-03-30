@@ -23,9 +23,9 @@
 
 // TODO updating of mods
 
-QuickModsList::QuickModsList(QObject *parent)
+QuickModsList::QuickModsList(const Flags flags, QObject *parent)
 	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)),
-	  m_settings(new INISettingsObject("quickmod.cfg", this))
+	  m_settings(new INISettingsObject(QDir::current().absoluteFilePath("quickmod.cfg"), this))
 {
 	m_settings->registerSetting("AvailableMods",
 								QVariant::fromValue(QMap<QString, QMap<QString, QString>>()));
@@ -33,11 +33,15 @@ QuickModsList::QuickModsList(QObject *parent)
 
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
 
-	cleanup();
+	if (!flags.testFlag(DontCleanup))
+	{
+		cleanup();
+	}
 }
 
 QuickModsList::~QuickModsList()
 {
+	delete m_settings;
 }
 
 QHash<int, QByteArray> QuickModsList::roleNames() const

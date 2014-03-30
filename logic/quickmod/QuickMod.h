@@ -142,6 +142,7 @@ private:
 	QStringList m_categories;
 	QStringList m_tags;
 	QUrl m_versionsUrl;
+	// TODO get rid of the stub concept
 	bool m_stub;
 
 	QList<QuickModVersionPtr> m_versions;

@@ -77,7 +77,7 @@ slots:
 		QFETCH(QVector<QString>, filenames);
 		Q_ASSERT(mods.size() == versions.size() && mods.size() == filenames.size());
 
-		QuickModsList *list = new QuickModsList;
+		QuickModsList *list = new QuickModsList(QuickModsList::DontCleanup);
 
 		for (int i = 0; i < mods.size(); ++i)
 		{
@@ -91,7 +91,7 @@ slots:
 		}
 
 		delete list;
-		list = new QuickModsList;
+		list = new QuickModsList(QuickModsList::DontCleanup);
 
 		for (int i = 0; i < mods.size(); ++i)
 		{
@@ -139,7 +139,7 @@ slots:
 		QFETCH(QVector<QString>, filenames);
 		Q_ASSERT(mods.size() == versions.size() && mods.size() == filenames.size());
 
-		QuickModsList *list = new QuickModsList;
+		QuickModsList *list = new QuickModsList(QuickModsList::DontCleanup);
 
 		// mark all as installed and check if it worked
 		for (int i = 0; i < mods.size(); ++i)
@@ -154,7 +154,7 @@ slots:
 
 		// reload
 		delete list;
-		list = new QuickModsList;
+		list = new QuickModsList(QuickModsList::DontCleanup);
 		BaseInstance *newInstance = NULL;
 		InstanceFactory::get().loadInstance(newInstance, instance->instanceRoot());
 
@@ -178,7 +178,7 @@ slots:
 
 		// reload again
 		delete list;
-		list = new QuickModsList;
+		list = new QuickModsList(QuickModsList::DontCleanup);
 		newInstance = NULL;
 		InstanceFactory::get().loadInstance(newInstance, instance->instanceRoot());
 

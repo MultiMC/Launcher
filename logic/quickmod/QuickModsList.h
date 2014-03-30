@@ -20,7 +20,14 @@ class QuickModsList : public QAbstractListModel
 {
 	Q_OBJECT
 public:
-	explicit QuickModsList(QObject *parent = 0);
+	enum Flag
+	{
+		NoFlags = 0x0,
+		DontCleanup = 0x1
+	};
+	Q_DECLARE_FLAGS(Flags, Flag)
+
+	explicit QuickModsList(const Flags flags = NoFlags, QObject *parent = 0);
 	~QuickModsList();
 
 	enum Roles
@@ -122,3 +129,5 @@ private:
 
 	SettingsObject *m_settings;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QuickModsList::Flags)

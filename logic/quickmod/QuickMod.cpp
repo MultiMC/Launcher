@@ -44,9 +44,9 @@ void QuickMod::parse(const QByteArray &data)
 {
 	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
 	const QJsonObject mod = MMCJson::ensureObject(doc, "root");
-	m_uid = MMCJson::ensureString(mod.value("uid"), "'uid'");
-	m_name = MMCJson::ensureString(mod.value("name"), "'name'");
 	m_stub = mod.value("stub").toBool(false);
+	m_uid = m_stub ? mod.value("uid").toString() : MMCJson::ensureString(mod.value("uid"), "'uid'");
+	m_name = MMCJson::ensureString(mod.value("name"), "'name'");
 	m_description = mod.value("description").toString();
 	m_nemName = mod.value("nemName").toString();
 	m_modId = mod.value("modId").toString();
@@ -70,8 +70,11 @@ void QuickMod::parse(const QByteArray &data)
 	{
 		m_tags.append(MMCJson::ensureString(val, "'tag'"));
 	}
-	m_versionsUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("versionsUrl"), "'versionsUrl'"));
-	m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
+	if (!m_stub)
+	{
+		m_versionsUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("versionsUrl"), "'versionsUrl'"));
+		m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
+	}
 
 	if (uid().isEmpty())
 	{
