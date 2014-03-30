@@ -1,64 +1,34 @@
 project(libUtil)
 
-######## Set compiler flags ########
-IF(APPLE)
-	# assume clang 4.1.0+, add C++0x/C++11 stuff
-	message(STATUS "Using APPLE CMAKE_CXX_FLAGS")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-ELSEIF(UNIX)
-	# assume GCC, add C++0x/C++11 stuff
-	MESSAGE(STATUS "Using UNIX CMAKE_CXX_FLAGS")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-ELSEIF(MINGW)
-	MESSAGE(STATUS "Using MINGW CMAKE_CXX_FLAGS")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
-ENDIF()
-
-
-# Find Qt
-find_package(Qt5Core REQUIRED)
+include(UseCXX11)
+include(Coverage)
+add_definitions(-DLIBUTIL_STATIC)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Include Qt headers.
-include_directories(${Qt5Base_INCLUDE_DIRS})
-# include_directories(${Qt5Network_INCLUDE_DIRS})
+include_directories(${Qt5Core_INCLUDE_DIRS})
 
-SET(LIBUTIL_SOURCES
-include/libutil_config.h
+set(LIBUTIL_SOURCES
+ include/libutil_config.h
 
-include/pathutils.h
-src/pathutils.cpp
+ include/pathutils.h
+ src/pathutils.cpp
 
-include/osutils.h
+ include/osutils.h
 
-include/userutils.h
-src/userutils.cpp
+ include/userutils.h
+ src/userutils.cpp
 
-include/cmdutils.h
-src/cmdutils.cpp
+ include/cmdutils.h
+ src/cmdutils.cpp
 
-include/modutils.h
-src/modutils.cpp
+ include/modutils.h
+ src/modutils.cpp
 )
 
 # Set the include dir path.
-SET(LIBUTIL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
-
-# Static link!
-ADD_DEFINITIONS(-DLIBUTIL_STATIC)
-
-add_definitions(-DLIBUTIL_LIBRARY)
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-IF(MultiMC_CODE_COVERAGE)
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 --coverage")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
-	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -O0 --coverage")
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O0 --coverage")
-ENDIF(MultiMC_CODE_COVERAGE)
+set(LIBUTIL_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
 
 add_library(libUtil STATIC ${LIBUTIL_SOURCES})
-# qt5_use_modules(libUtil Core Network)
 qt5_use_modules(libUtil Core)
-target_link_libraries(libUtil)
+cotire(libUtil)
