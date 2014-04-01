@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 2.8.9)
 
+string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" IS_IN_SOURCE_BUILD)
+if(IS_IN_SOURCE_BUILD)
+    message(AUTHOR_WARNING "You are building MultiMC in-source. This is NOT recommended!")
+endif()
+
 if(WIN32)
       # In Qt 5.1+ we have our own main() function, don't autolink to qtmain on Windows
       cmake_policy(SET CMP0020 OLD)
@@ -16,7 +21,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(FILES_TO_TRANSLATE )
 
 ######## Set module path ########
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/" "${PROJECT_SOURCE_DIR}")
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/" "${PROJECT_SOURCE_DIR}")
 set(MMC_SRC "${PROJECT_SOURCE_DIR}")
 set(MMC_BIN "${PROJECT_BINARY_DIR}")
 
@@ -408,8 +413,4 @@ if(Qt5Test_FOUND)
     add_subdirectory(tests)
 endif()
 
-if(NOT __FIRST_RUN__)
-    feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
-    set(__FIRST_RUN__ TRUE CACHE BOOLEAN "")
-    mark_as_advanced(__FIRST_RUN__)
-endif()
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

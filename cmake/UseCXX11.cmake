@@ -1,3 +1,8 @@
+if(__USECXX11_CMAKE__)
+    return()
+endif()
+set(__USECXX11_CMAKE__ TRUE)
+
 if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 elseif(UNIX)
