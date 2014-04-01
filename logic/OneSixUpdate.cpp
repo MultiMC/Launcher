@@ -111,6 +111,38 @@ void OneSixUpdate::versionFileFinished()
 			return;
 		}
 		auto data = std::dynamic_pointer_cast<ByteArrayDownload>(DlJob)->m_data;
+
+		// because mojang are screwing things up for april fools...
+		{
+			const QString assetsStartString = "\"assets\": \"";
+			const int assetsStartIndex =
+				data.indexOf(assetsStartString) + assetsStartString.size();
+			const int assetsEndIndex = data.indexOf("\",", assetsStartIndex);
+			const QString assetsType =
+				data.mid(assetsStartIndex, assetsEndIndex - assetsStartIndex);
+			if (assetsType.endsWith("_af"))
+			{
+				QLOG_INFO() << "April fools detected";
+				const int afStart = data.indexOf("_af", assetsStartIndex);
+				data = data.remove(afStart, assetsEndIndex - afStart);
+				const QString afFileName =
+					PathCombine(inst_dir, "/patches/net.minecraft.aprilfools.2014.json");
+				ensureFilePathExists(afFileName);
+				QSaveFile afFile(afFileName);
+				if (afFile.open(QSaveFile::Truncate | QSaveFile::WriteOnly))
+				{
+					afFile.write(QString("{\"fileId\":\"net.minecraft.aprilfools.2014\","
+										 "\"name\":\"Mojang April Fools 2014\",\"order\": "
+										 "500,\"version\": \"\",\"assets\":\"" +
+										 assetsType + "\"}").toLatin1());
+				}
+				if (!afFile.commit())
+				{
+					QLOG_ERROR() << "Couldn't write april fools file:" << afFile.errorString();
+				}
+			}
+		}
+
 		qint64 actual = 0;
 		if ((actual = vfile1.write(data)) != data.size())
 		{
