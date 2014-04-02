@@ -148,24 +148,9 @@ endif()
 add_custom_target(version echo "Version: ${MultiMC_VERSION_STRING}")
 
 #### Check the current Git commit
-if(GIT_FOUND)
-    execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
-     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-     RESULT_VARIABLE GIT_COMMIT_CHECK_RESULTVAR
-     OUTPUT_VARIABLE GIT_COMMIT_CHECK_OUTVAR
-     OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
-    if(GIT_COMMIT_CHECK_RESULTVAR EQUAL 0)
-	set(MultiMC_GIT_COMMIT "${GIT_COMMIT_CHECK_OUTVAR}")
-	message(STATUS "Git commit: ${MultiMC_GIT_COMMIT}")
-    else()
-	set(MultiMC_GIT_COMMIT "Unknown")
-	message(STATUS "Failed to check Git commit. ${GIT_COMMIT_CHECK_RESULTVAR}")
-    endif()
-else()
-    set(MultiMC_GIT_COMMIT "Unknown")
-endif()
+include(GitFunctions)
+git_run(COMMAND rev-parse HEAD DEFAULT "Unknown" OUTPUT_VAR MultiMC_GIT_COMMIT)
+message(STATUS "Git commit: ${MultiMC_GIT_COMMIT}")
 
 ######## Configure header ########
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in" "${PROJECT_BINARY_DIR}/include/config.h")
@@ -400,6 +385,10 @@ install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/install_prereqs.cmake" COMPONENT Run
 # Package with CPack
 include(CPackConfig)
 include(CPack)
+
+
+# Coverity
+include(Coverity)
 
 # Translations
 add_feature_info(Translations Qt5LinguistTools_FOUND "Translations")
