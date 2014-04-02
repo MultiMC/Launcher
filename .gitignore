@@ -7,6 +7,7 @@ resources/MultiMCLauncher.jar
 *~
 *.swp
 html/
+cmake/cotire.cmake
 
 # Project Files
 MultiMC5.kdev4
