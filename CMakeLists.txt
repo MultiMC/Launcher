@@ -91,7 +91,7 @@ set(MultiMC_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications
 ######## Set version numbers ########
 set(MultiMC_VERSION_MAJOR		0)
 set(MultiMC_VERSION_MINOR		3)
-set(MultiMC_VERSION_HOTFIX		0)
+set(MultiMC_VERSION_HOTFIX		2)
 
 set(MultiMC_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
 set(MultiMC_VERSION_TYPE "Custom" CACHE STRING "MultiMC's version type. This should be one of 'Custom', 'Release', 'ReleaseCandidate', or 'Development', depending on what type of version this is.")
