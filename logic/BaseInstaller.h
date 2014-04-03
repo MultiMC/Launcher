@@ -31,6 +31,7 @@ public:
 	BaseInstaller();
 
 	bool isApplied(OneSixInstance *on);
+	virtual bool canApply(const OneSixInstance *to) { return true; }
 
 	virtual bool add(OneSixInstance *to);
 	virtual bool remove(OneSixInstance *from);

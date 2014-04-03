@@ -454,6 +454,8 @@ logic/ForgeInstaller.h
 logic/ForgeInstaller.cpp
 logic/LiteLoaderInstaller.h
 logic/LiteLoaderInstaller.cpp
+logic/OptiFineInstaller.h
+logic/OptiFineInstaller.cpp
 
 # Nostalgia
 logic/NostalgiaInstance.h
