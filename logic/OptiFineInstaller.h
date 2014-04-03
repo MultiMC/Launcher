@@ -21,29 +21,8 @@
 #include <QMap>
 #include <QFileInfo>
 
-#include "BaseVersion.h"
+#include "lists/OptiFineVersionList.h"
 #include "tasks/Task.h"
-
-class OptiFineVersion : public BaseVersion
-{
-public:
-	explicit OptiFineVersion(const QFileInfo &file) : m_file(file)
-	{
-		// QString("optifine-") should mean we get rid of everything before the version, regardless of case and -/_
-		m_version = m_file.completeBaseName().mid(QString("optifine-").size());
-	}
-
-	QFileInfo file() const { return m_file; }
-
-	QString descriptor() override { return QString(); }
-	QString name() override { return m_version; }
-	QString typeString() const override { return QString(); }
-
-private:
-	QFileInfo m_file;
-	QString m_version;
-};
-typedef std::shared_ptr<OptiFineVersion> OptiFineVersionPtr;
 
 class OptiFineInstaller : public BaseInstaller
 {

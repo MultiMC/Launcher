@@ -268,29 +268,14 @@ void OneSixModEditDialog::on_optifineBtn_clicked()
 	{
 		return;
 	}
-	OptiFineInstaller installer;
-	bool ok = false;
-	const QString select = tr("Select other...");
-	const QString version = QInputDialog::getItem(this, tr("OptiFine"), tr("Select OptiFine version"), QStringList() << tr("Select other...") << installer.getExistingVersions(), 0, false, &ok);
-	if (!ok)
+	VersionSelectDialog vselect(new OptiFineVersionList(this), tr("Select OptiFine version"), this, true, true);
+	vselect.setFilter(0, m_inst->currentVersionId(), Qt::ToolTipRole);
+	vselect.setEmptyString(tr("No OptiFine versions are available, you might add some"));
+	if (vselect.exec() && vselect.selectedVersion())
 	{
-		return;
+		ProgressDialog dialog(this);
+		dialog.exec(OptiFineInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
 	}
-	QFileInfo file;
-	if (version == select)
-	{
-		file = QFileInfo(QFileDialog::getOpenFileName(this, tr("Select OptiFine"), QDir::homePath(), tr("Jars (*.jar)")));
-	}
-	else
-	{
-		file = installer.fileForVersion(version);
-	}
-	if (!file.isFile() || !file.exists())
-	{
-		return;
-	}
-	ProgressDialog dialog(this);
-	dialog.exec(installer.createInstallTask(m_inst, OptiFineVersionPtr(new OptiFineVersion(file)), this));
 }
 
 bool OneSixModEditDialog::loaderListFilter(QKeyEvent *keyEvent)

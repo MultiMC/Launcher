@@ -78,7 +78,7 @@ bool OptiFineInstaller::add(OneSixInstance *to)
 	// optifine
 	{
 		QJsonObject ofLib;
-		ofLib.insert("name", "optifine:OptiFine:" + m_version->name());
+		ofLib.insert("name", "optifine:OptiFine:" + m_version->fullVersionString());
 		ofLib.insert("MMC-hint", QString("local"));
 		ofLib.insert("MMC-depend", QString("hard"));
 		ofLib.insert("insert", QString("prepend"));
@@ -88,7 +88,7 @@ bool OptiFineInstaller::add(OneSixInstance *to)
 	obj.insert("+libraries", libraries);
 	obj.insert("name", QString("OptiFine").remove('_'));
 	obj.insert("fileId", id());
-	obj.insert("version", m_version->name());
+	obj.insert("version", m_version->versionString());
 	obj.insert("mcVersion", to->intendedVersionId());
 
 	QFile file(filename(to->instanceRoot()));
@@ -129,7 +129,7 @@ protected:
 			return;
 		}
 		setStatus(tr("Copying optifine..."));
-		const QString destFilename = QDir::current().absoluteFilePath("libraries/optifine/OptiFine/" + optifineVersion->name() + "/OptiFine-" + optifineVersion->name() + ".jar");
+		const QString destFilename = QDir::current().absoluteFilePath("libraries/optifine/OptiFine/" + optifineVersion->fullVersionString() + "/OptiFine-" + optifineVersion->fullVersionString() + ".jar");
 		if (!QFile::exists(destFilename))
 		{
 			if (!ensureFilePathExists(destFilename))

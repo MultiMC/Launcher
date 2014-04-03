@@ -28,7 +28,7 @@
 #include <logic/tasks/Task.h>
 
 VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, QWidget *parent,
-										 bool cancelable)
+										 bool cancelable, bool others)
 	: QDialog(parent), ui(new Ui::VersionSelectDialog)
 {
 	MultiMCPlatform::fixWM_CLASS(this);
@@ -49,6 +49,7 @@ VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, 
 	{
 		ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
 	}
+	ui->othersButton->setVisible(others);
 }
 
 void VersionSelectDialog::setEmptyString(QString emptyString)
@@ -97,21 +98,14 @@ void VersionSelectDialog::on_refreshButton_clicked()
 	loadList();
 }
 
-void VersionSelectDialog::setFilter(int column, QString filter)
+void VersionSelectDialog::on_othersButton_clicked()
+{
+	m_vlist->others(this);
+}
+
+void VersionSelectDialog::setFilter(int column, QString filter, int role)
 {
 	m_proxyModel->setFilterKeyColumn(column);
 	m_proxyModel->setFilterFixedString(filter);
-	/*
-	QStringList filteredTypes;
-	if (!ui->filterSnapshotsCheckbox->isChecked())
-		filteredTypes += "Snapshot";
-	if (!ui->filterMCNostalgiaCheckbox->isChecked())
-		filteredTypes += "Nostalgia";
-
-	QString regexStr = "^.*$";
-	if (filteredTypes.length() > 0)
-		regexStr = QString("^((?!%1).)*$").arg(filteredTypes.join('|'));
-
-	QLOG_DEBUG() << "Filter:" << regexStr;
-	*/
+	m_proxyModel->setFilterRole(role);
 }
