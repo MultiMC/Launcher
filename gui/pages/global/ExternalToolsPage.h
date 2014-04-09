@@ -69,5 +69,7 @@ slots:
 	void on_jvisualvmCheckBtn_clicked();
 	void on_mceditPathBtn_clicked();
 	void on_mceditCheckBtn_clicked();
+	void on_amidstPathBtn_clicked();
+	void on_amidstCheckBtn_clicked();
 	void on_jsonEditorBrowseBtn_clicked();
 };

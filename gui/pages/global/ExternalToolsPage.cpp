@@ -54,6 +54,7 @@ void ExternalToolsPage::loadSettings()
 	ui->jprofilerPathEdit->setText(s->get("JProfilerPath").toString());
 	ui->jvisualvmPathEdit->setText(s->get("JVisualVMPath").toString());
 	ui->mceditPathEdit->setText(s->get("MCEditPath").toString());
+	ui->amidstPathEdit->setText(s->get("AMIDSTPath").toString());
 
 	// Editors
 	ui->jsonEditorTextBox->setText(s->get("JsonEditor").toString());
@@ -64,6 +65,7 @@ void ExternalToolsPage::applySettings()
 	s->set("JProfilerPath", ui->jprofilerPathEdit->text());
 	s->set("JVisualVMPath", ui->jvisualvmPathEdit->text());
 	s->set("MCEditPath", ui->mceditPathEdit->text());
+	s->set("AMIDSTPath", ui->amidstPathEdit->text());
 
 	// Editors
 	QString jsonEditor = ui->jsonEditorTextBox->text();
@@ -198,6 +200,45 @@ void ExternalToolsPage::on_mceditCheckBtn_clicked()
 	else
 	{
 		QMessageBox::information(this, tr("OK"), tr("MCEdit setup seems to be OK"));
+	}
+}
+
+void ExternalToolsPage::on_amidstPathBtn_clicked()
+{
+	QString raw_dir = ui->amidstPathEdit->text();
+	QString error;
+	do
+	{
+		raw_dir = QFileDialog::getOpenFileName(this, tr("AMIDST Jar"), raw_dir, tr("Jars (*.jar)"));
+		if (raw_dir.isEmpty())
+		{
+			break;
+		}
+		QString cooked_dir = NormalizePath(raw_dir);
+		if (!MMC->tools()["amidst"]->check(cooked_dir, &error))
+		{
+			QMessageBox::critical(this, tr("Error"),
+								  tr("Error while checking AMIDST install:\n%1").arg(error));
+			continue;
+		}
+		else
+		{
+			ui->amidstPathEdit->setText(cooked_dir);
+			break;
+		}
+	} while (1);
+}
+void ExternalToolsPage::on_amidstCheckBtn_clicked()
+{
+	QString error;
+	if (!MMC->tools()["amidst"]->check(ui->amidstPathEdit->text(), &error))
+	{
+		QMessageBox::critical(this, tr("Error"),
+							  tr("Error while checking AMIDST install:\n%1").arg(error));
+	}
+	else
+	{
+		QMessageBox::information(this, tr("OK"), tr("AMIDST setup seems to be OK"));
 	}
 }
 
