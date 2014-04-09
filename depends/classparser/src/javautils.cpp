@@ -14,70 +14,77 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "classfile.h"
+
 #include "javautils.h"
+#include "ClassFile.h"
 
 #include <QFile>
+#include <QDebug>
 #include <quazipfile.h>
 
 namespace javautils
 {
 
-QString GetMinecraftJarVersion(QString jarName)
+template<typename T>
+T *getFinalStaticConstant(const Java::ClassFile *file, const std::string &field)
 {
-	QString version = MCVer_Unknown;
+	auto f = file->field(field);
+	for (auto attr : f.attributes())
+	{
+		if (attr.name() == "ConstantValue")
+		{
+			return attr.resolved()->getAs<Java::ConstantValueAttribute>()->value()->getAs<T>();
+		}
+	}
+	return 0;
+}
+
+OptiFineParsedVersion getOptiFineVersionInfoFromJar(const QString &jarName)
+{
+	OptiFineParsedVersion version;
 
 	// check if minecraft.jar exists
 	QFile jar(jarName);
 	if (!jar.exists())
+	{
 		return version;
+	}
 
 	// open minecraft.jar
 	QuaZip zip(&jar);
 	if (!zip.open(QuaZip::mdUnzip))
+	{
 		return version;
+	}
 
-	// open Minecraft.class
-	zip.setCurrentFile("net/minecraft/client/Minecraft.class", QuaZip::csSensitive);
-	QuaZipFile Minecraft(&zip);
-	if (!Minecraft.open(QuaZipFile::ReadOnly))
+	// open Config.class
+	zip.setCurrentFile("Config.class", QuaZip::csSensitive);
+	QuaZipFile Config(&zip);
+	if (!Config.open(QuaZipFile::ReadOnly))
+	{
 		return version;
+	}
 
-	// read Minecraft.class
-	qint64 size = Minecraft.size();
-	char *classfile = new char[size];
-	Minecraft.read(classfile, size);
+	QDataStream stream(&Config);
 
-	// parse Minecraft.class
+	// parse Config.class
 	try
 	{
-		char *temp = classfile;
-		java::classfile MinecraftClass(temp, size);
-		java::constant_pool constants = MinecraftClass.constants;
-		for (java::constant_pool::container_type::const_iterator iter = constants.begin();
-			 iter != constants.end(); iter++)
-		{
-			const java::constant &constant = *iter;
-			if (constant.type != java::constant::j_string_data)
-				continue;
-			const std::string &str = constant.str_data;
-			if (str.compare(0, 20, "Minecraft Minecraft ") == 0)
-			{
-				version = str.substr(20).data();
-				break;
-			}
-		}
+		Java::ClassFile file(stream);
+		version.MC_VERSION = QString::fromStdString(getFinalStaticConstant<Java::StringConstant>(&file, "MC_VERSION")->string());
+		version.OF_EDITION = QString::fromStdString(getFinalStaticConstant<Java::StringConstant>(&file, "OF_EDITION")->string());
+		version.OF_RELEASE = QString::fromStdString(getFinalStaticConstant<Java::StringConstant>(&file, "OF_RELEASE")->string());
 	}
-	catch (java::classfile_exception &)
+	catch (std::exception &e)
 	{
 	}
 
 	// clean up
-	delete[] classfile;
-	Minecraft.close();
+	Config.close();
 	zip.close();
 	jar.close();
 
 	return version;
 }
+
 }

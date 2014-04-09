@@ -45,6 +45,7 @@ slots:
 	void on_buttonBox_rejected();
 	void on_forgeBtn_clicked();
 	void on_liteloaderBtn_clicked();
+	void on_optifineBtn_clicked();
 	void on_reloadLibrariesBtn_clicked();
 	void on_removeLibraryBtn_clicked();
 	void on_resetLibraryOrderBtn_clicked();
@@ -67,6 +68,8 @@ private:
 	std::shared_ptr<ModList> m_resourcepacks;
 	EnabledItemFilter *main_model;
 	OneSixInstance *m_inst;
+
+	bool revertCustom();
 
 public
 slots:

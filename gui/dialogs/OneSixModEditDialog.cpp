@@ -21,7 +21,7 @@
 #include <QDebug>
 #include <QEvent>
 #include <QKeyEvent>
-#include <QDesktopServices>
+#include <QInputDialog>
 
 #include "OneSixModEditDialog.h"
 #include "ModEditDialogCommon.h"
@@ -40,6 +40,7 @@
 #include "logic/lists/LiteLoaderVersionList.h"
 #include "logic/ForgeInstaller.h"
 #include "logic/LiteLoaderInstaller.h"
+#include "logic/OptiFineInstaller.h"
 #include "logic/OneSixVersionBuilder.h"
 
 OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
@@ -100,12 +101,14 @@ void OneSixModEditDialog::updateVersionControls()
 {
 	ui->forgeBtn->setEnabled(true);
 	ui->liteloaderBtn->setEnabled(true);
+	ui->optifineBtn->setEnabled(OptiFineInstaller().canApply(m_inst));
 }
 
 void OneSixModEditDialog::disableVersionControls()
 {
 	ui->forgeBtn->setEnabled(false);
 	ui->liteloaderBtn->setEnabled(false);
+	ui->optifineBtn->setEnabled(false);
 	ui->reloadLibrariesBtn->setEnabled(false);
 	ui->removeLibraryBtn->setEnabled(false);
 }
@@ -129,6 +132,33 @@ bool OneSixModEditDialog::reloadInstanceVersion()
 			tr("Failed to load the version description file for reasons unknown."));
 		return false;
 	}
+}
+
+bool OneSixModEditDialog::revertCustom()
+{
+	if (m_version->hasFtbPack())
+	{
+		if (QMessageBox::question(this, tr("Revert?"),
+								  tr("This action will remove the FTB pack version patch. Continue?")) !=
+			QMessageBox::Yes)
+		{
+			return false;
+		}
+		m_version->removeFtbPack();
+		reloadInstanceVersion();
+	}
+	if (m_version->isCustom())
+	{
+		if (QMessageBox::question(this, tr("Revert?"),
+								  tr("This action will remove your custom.json. Continue?")) !=
+			QMessageBox::Yes)
+		{
+			return false;
+		}
+		m_version->revertToBase();
+		reloadInstanceVersion();
+	}
+	return true;
 }
 
 void OneSixModEditDialog::on_reloadLibrariesBtn_clicked()
@@ -199,27 +229,9 @@ void OneSixModEditDialog::on_moveLibraryDownBtn_clicked()
 void OneSixModEditDialog::on_forgeBtn_clicked()
 {
 	// FIXME: use actual model, not reloading. Move logic to model.
-	if (m_version->hasFtbPack())
+	if (!revertCustom())
 	{
-		if (QMessageBox::question(this, tr("Revert?"),
-								  tr("This action will remove the FTB pack version patch. Continue?")) !=
-			QMessageBox::Yes)
-		{
-			return;
-		}
-		m_version->removeFtbPack();
-		reloadInstanceVersion();
-	}
-	if (m_version->isCustom())
-	{
-		if (QMessageBox::question(this, tr("Revert?"),
-								  tr("This action will remove your custom.json. Continue?")) !=
-			QMessageBox::Yes)
-		{
-			return;
-		}
-		m_version->revertToBase();
-		reloadInstanceVersion();
+		return;
 	}
 	VersionSelectDialog vselect(MMC->forgelist().get(), tr("Select Forge version"), this);
 	vselect.setFilter(1, m_inst->currentVersionId());
@@ -234,27 +246,9 @@ void OneSixModEditDialog::on_forgeBtn_clicked()
 
 void OneSixModEditDialog::on_liteloaderBtn_clicked()
 {
-	if (m_version->hasFtbPack())
+	if (!revertCustom())
 	{
-		if (QMessageBox::question(this, tr("Revert?"),
-								  tr("This action will remove the FTB pack version patch. Continue?")) !=
-			QMessageBox::Yes)
-		{
-			return;
-		}
-		m_version->removeFtbPack();
-		reloadInstanceVersion();
-	}
-	if (m_version->isCustom())
-	{
-		if (QMessageBox::question(this, tr("Revert?"),
-								  tr("This action will remove your custom.json. Continue?")) !=
-			QMessageBox::Yes)
-		{
-			return;
-		}
-		m_version->revertToBase();
-		reloadInstanceVersion();
+		return;
 	}
 	VersionSelectDialog vselect(MMC->liteloaderlist().get(), tr("Select LiteLoader version"),
 								this);
@@ -265,6 +259,22 @@ void OneSixModEditDialog::on_liteloaderBtn_clicked()
 	{
 		ProgressDialog dialog(this);
 		dialog.exec(LiteLoaderInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+	}
+}
+
+void OneSixModEditDialog::on_optifineBtn_clicked()
+{
+	if (!revertCustom())
+	{
+		return;
+	}
+	VersionSelectDialog vselect(new OptiFineVersionList(this), tr("Select OptiFine version"), this, true, true);
+	vselect.setFilter(0, m_inst->currentVersionId(), Qt::ToolTipRole);
+	vselect.setEmptyString(tr("No OptiFine versions are available, you might add some"));
+	if (vselect.exec() && vselect.selectedVersion())
+	{
+		ProgressDialog dialog(this);
+		dialog.exec(OptiFineInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
 	}
 }
 

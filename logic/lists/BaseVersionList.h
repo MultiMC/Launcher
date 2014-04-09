@@ -102,6 +102,11 @@ public:
 	 */
 	virtual void sort() = 0;
 
+	/*!
+	 * Called when the "Others..." button in the VersionSelectDialog is clicked
+	 */
+	virtual void others(QWidget *widgetParent) {}
+
 protected
 slots:
 	/*!
