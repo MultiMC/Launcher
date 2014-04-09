@@ -67,7 +67,7 @@ void OptiFineVersionList::others(QWidget *widgetParent)
 		return;
 	}
 	beginResetModel();
-	m_vlist.append(OptiFineVersionPtr(new OptiFineVersion(QFileInfo(filename), ofv.MC_VERSION, ofv.OF_RELEASE, ofv.OF_EDITON)));
+	m_vlist.append(OptiFineVersionPtr(new OptiFineVersion(QFileInfo(filename), ofv.MC_VERSION, ofv.OF_RELEASE, ofv.OF_EDITION)));
 	qSort(m_vlist);
 	endResetModel();
 }
@@ -109,7 +109,7 @@ void OptiFineListLoadTask::executeTask()
 		{
 			continue;
 		}
-		out += OptiFineVersionPtr(new OptiFineVersion(QFileInfo(filename), ofv.MC_VERSION, ofv.OF_RELEASE, ofv.OF_EDITON));
+		out += OptiFineVersionPtr(new OptiFineVersion(QFileInfo(filename), ofv.MC_VERSION, ofv.OF_RELEASE, ofv.OF_EDITION));
 	}
 	m_list->updateListData(out);
 	emitSucceeded();

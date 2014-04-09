@@ -22,21 +22,15 @@
 
 namespace javautils
 {
-struct OptiFineParsedVersion
+struct CLASSPARSER_EXPORT OptiFineParsedVersion
 {
 	QString MC_VERSION;
-	QString OF_EDITON;
+	QString OF_EDITION;
 	QString OF_RELEASE;
-	bool isValid() const { return !MC_VERSION.isNull() && !OF_EDITON.isNull() && !OF_RELEASE.isNull(); }
+	bool isValid() const { return !MC_VERSION.isNull() && !OF_EDITION.isNull() && !OF_RELEASE.isNull(); }
 };
-
-/**
- * @brief Get the version from a minecraft.jar by parsing its class files. Expensive!
- */
-QString GetMinecraftJarVersion(QString jar);
-
 /**
  * @brief Get some info from the optifine jar
  */
-OptiFineParsedVersion getOptiFineVersionInfoFromJar(const QString &jarName);
+CLASSPARSER_EXPORT OptiFineParsedVersion getOptiFineVersionInfoFromJar(const QString &jarName);
 }

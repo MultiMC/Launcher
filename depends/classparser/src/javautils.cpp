@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "classfile.h"
+
 #include "javautils.h"
+#include "ClassFile.h"
 
 #include <QFile>
 #include <QDebug>
@@ -24,62 +25,18 @@
 namespace javautils
 {
 
-QString GetMinecraftJarVersion(QString jarName)
+template<typename T>
+T *getFinalStaticConstant(const Java::ClassFile *file, const std::string &field)
 {
-	QString version = MCVer_Unknown;
-
-	// check if minecraft.jar exists
-	QFile jar(jarName);
-	if (!jar.exists())
-		return version;
-
-	// open minecraft.jar
-	QuaZip zip(&jar);
-	if (!zip.open(QuaZip::mdUnzip))
-		return version;
-
-	// open Minecraft.class
-	zip.setCurrentFile("net/minecraft/client/Minecraft.class", QuaZip::csSensitive);
-	QuaZipFile Minecraft(&zip);
-	if (!Minecraft.open(QuaZipFile::ReadOnly))
-		return version;
-
-	// read Minecraft.class
-	qint64 size = Minecraft.size();
-	char *classfile = new char[size];
-	Minecraft.read(classfile, size);
-
-	// parse Minecraft.class
-	try
+	auto f = file->field(field);
+	for (auto attr : f.attributes())
 	{
-		char *temp = classfile;
-		java::classfile MinecraftClass(temp, size);
-		java::constant_pool constants = MinecraftClass.constants;
-		for (java::constant_pool::container_type::const_iterator iter = constants.begin();
-			 iter != constants.end(); iter++)
+		if (attr.name() == "ConstantValue")
 		{
-			const java::constant &constant = *iter;
-			if (constant.type != java::constant::j_string_data)
-				continue;
-			const std::string &str = constant.str_data;
-			if (str.compare(0, 20, "Minecraft Minecraft ") == 0)
-			{
-				version = str.substr(20).data();
-				break;
-			}
+			return attr.resolved()->getAs<Java::ConstantValueAttribute>()->value()->getAs<T>();
 		}
 	}
-	catch (java::classfile_exception &)
-	{
-	}
-
-	// clean up
-	delete[] classfile;
-	Minecraft.close();
-	zip.close();
-	jar.close();
-
-	return version;
+	return 0;
 }
 
 OptiFineParsedVersion getOptiFineVersionInfoFromJar(const QString &jarName)
@@ -89,7 +46,9 @@ OptiFineParsedVersion getOptiFineVersionInfoFromJar(const QString &jarName)
 	// check if minecraft.jar exists
 	QFile jar(jarName);
 	if (!jar.exists())
+	{
 		return version;
+	}
 
 	// open minecraft.jar
 	QuaZip zip(&jar);
@@ -106,68 +65,21 @@ OptiFineParsedVersion getOptiFineVersionInfoFromJar(const QString &jarName)
 		return version;
 	}
 
-	// read Class.class
-	qint64 size = Config.size();
-	char *classfile = new char[size];
-	Config.read(classfile, size);
+	QDataStream stream(&Config);
 
 	// parse Config.class
 	try
 	{
-		char *temp = classfile;
-		java::classfile ConfigClass(temp, size);
-		java::constant_pool constants = ConfigClass.constants;
-		enum { MCVer, Edition, Release, None } in = None;
-		for (java::constant_pool::container_type::const_iterator iter = constants.begin();
-			 iter != constants.end(); iter++)
-		{
-			const java::constant &constant = *iter;
-			if (constant.type != java::constant::j_string_data)
-				continue;
-			const QString str = QString::fromStdString(constant.str_data);
-			if (str.startsWith('L') && str.endsWith(';'))
-			{
-				continue;
-			}
-			switch (in)
-			{
-			case MCVer:
-				version.MC_VERSION = str;
-				break;
-			case Edition:
-				version.OF_EDITON = str;
-				break;
-			case Release:
-				version.OF_RELEASE = str;
-				break;
-			case None:
-				break;
-			}
-
-			if (str == "MC_VERSION")
-			{
-				in = MCVer;
-			}
-			else if (str == "OF_EDITION")
-			{
-				in = Edition;
-			}
-			else if (str == "OF_RELEASE")
-			{
-				in = Release;
-			}
-			else
-			{
-				in = None;
-			}
-		}
+		Java::ClassFile file(stream);
+		version.MC_VERSION = QString::fromStdString(getFinalStaticConstant<Java::StringConstant>(&file, "MC_VERSION")->string());
+		version.OF_EDITION = QString::fromStdString(getFinalStaticConstant<Java::StringConstant>(&file, "OF_EDITION")->string());
+		version.OF_RELEASE = QString::fromStdString(getFinalStaticConstant<Java::StringConstant>(&file, "OF_RELEASE")->string());
 	}
-	catch (java::classfile_exception &)
+	catch (std::exception &e)
 	{
 	}
 
 	// clean up
-	delete[] classfile;
 	Config.close();
 	zip.close();
 	jar.close();
