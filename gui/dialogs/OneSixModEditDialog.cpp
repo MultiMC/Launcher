@@ -43,16 +43,6 @@
 #include "logic/LiteLoaderInstaller.h"
 #include "logic/OneSixVersionBuilder.h"
 
-template <typename A, typename B> QMap<A, B> invert(const QMap<B, A> &in)
-{
-	QMap<A, B> out;
-	for (auto it = in.begin(); it != in.end(); ++it)
-	{
-		out.insert(it.value(), it.key());
-	}
-	return out;
-}
-
 OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 	: QDialog(parent), ui(new Ui::OneSixModEditDialog), m_inst(inst)
 {
@@ -156,34 +146,72 @@ void OneSixModEditDialog::on_removeLibraryBtn_clicked()
 		{
 			QMessageBox::critical(this, tr("Error"), tr("Couldn't remove file"));
 		}
-		else
-		{
-			reloadInstanceVersion();
-		}
 	}
 }
 
 void OneSixModEditDialog::on_resetLibraryOrderBtn_clicked()
 {
-	// FIXME: IMPLEMENT LOGIC IN MODEL. SEE LEGACY DIALOG FOR EXAMPLE(S).
+	try
+	{
+		m_version->resetOrder();
+	}
+	catch (MMCError &e)
+	{
+		QMessageBox::critical(this, tr("Error"), e.cause());
+	}
 }
 
 void OneSixModEditDialog::on_moveLibraryUpBtn_clicked()
 {
-	// FIXME: IMPLEMENT LOGIC IN MODEL. SEE LEGACY DIALOG FOR EXAMPLE(S).
+	if (ui->libraryTreeView->selectionModel()->selectedRows().isEmpty())
+	{
+		return;
+	}
+	try
+	{
+		const int row = ui->libraryTreeView->selectionModel()->selectedRows().first().row();
+		const int newRow = 0;m_version->move(row, VersionFinal::MoveUp);
+		//ui->libraryTreeView->selectionModel()->setCurrentIndex(m_version->index(newRow), QItemSelectionModel::ClearAndSelect);
+	}
+	catch (MMCError &e)
+	{
+		QMessageBox::critical(this, tr("Error"), e.cause());
+	}
 }
 
 void OneSixModEditDialog::on_moveLibraryDownBtn_clicked()
 {
-	// FIXME: IMPLEMENT LOGIC IN MODEL. SEE LEGACY DIALOG FOR EXAMPLE(S).
+	if (ui->libraryTreeView->selectionModel()->selectedRows().isEmpty())
+	{
+		return;
+	}
+	try
+	{
+		const int row = ui->libraryTreeView->selectionModel()->selectedRows().first().row();
+		const int newRow = 0;m_version->move(row, VersionFinal::MoveDown);
+		//ui->libraryTreeView->selectionModel()->setCurrentIndex(m_version->index(newRow), QItemSelectionModel::ClearAndSelect);
+	}
+	catch (MMCError &e)
+	{
+		QMessageBox::critical(this, tr("Error"), e.cause());
+	}
 }
 
 void OneSixModEditDialog::on_forgeBtn_clicked()
 {
 	// FIXME: use actual model, not reloading. Move logic to model.
-
-	// FIXME: model::isCustom();
-	if (QDir(m_inst->instanceRoot()).exists("custom.json"))
+	if (m_version->hasFtbPack())
+	{
+		if (QMessageBox::question(this, tr("Revert?"),
+								  tr("This action will remove the FTB pack version patch. Continue?")) !=
+			QMessageBox::Yes)
+		{
+			return;
+		}
+		m_version->removeFtbPack();
+		reloadInstanceVersion();
+	}
+	if (m_version->isCustom())
 	{
 		if (QMessageBox::question(this, tr("Revert?"),
 								  tr("This action will remove your custom.json. Continue?")) !=
@@ -191,8 +219,7 @@ void OneSixModEditDialog::on_forgeBtn_clicked()
 		{
 			return;
 		}
-		// FIXME: model::revertToBase();
-		QDir(m_inst->instanceRoot()).remove("custom.json");
+		m_version->revertToBase();
 		reloadInstanceVersion();
 	}
 	VersionSelectDialog vselect(MMC->forgelist().get(), tr("Select Forge version"), this);
@@ -208,8 +235,18 @@ void OneSixModEditDialog::on_forgeBtn_clicked()
 
 void OneSixModEditDialog::on_liteloaderBtn_clicked()
 {
-	// FIXME: model...
-	if (QDir(m_inst->instanceRoot()).exists("custom.json"))
+	if (m_version->hasFtbPack())
+	{
+		if (QMessageBox::question(this, tr("Revert?"),
+								  tr("This action will remove the FTB pack version patch. Continue?")) !=
+			QMessageBox::Yes)
+		{
+			return;
+		}
+		m_version->removeFtbPack();
+		reloadInstanceVersion();
+	}
+	if (m_version->isCustom())
 	{
 		if (QMessageBox::question(this, tr("Revert?"),
 								  tr("This action will remove your custom.json. Continue?")) !=
@@ -217,7 +254,7 @@ void OneSixModEditDialog::on_liteloaderBtn_clicked()
 		{
 			return;
 		}
-		QDir(m_inst->instanceRoot()).remove("custom.json");
+		m_version->revertToBase();
 		reloadInstanceVersion();
 	}
 	VersionSelectDialog vselect(MMC->liteloaderlist().get(), tr("Select LiteLoader version"),

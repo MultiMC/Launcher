@@ -58,13 +58,15 @@ void OneSixVersionBuilder::readJsonAndApplyToVersion(VersionFinal *version,
 
 void OneSixVersionBuilder::buildInternal(const bool onlyVanilla, const QStringList &external)
 {
-	m_version->clear();
+	m_version->versionFiles.clear();
 
 	QDir root(m_instance->instanceRoot());
 	QDir patches(root.absoluteFilePath("patches/"));
 
 	// if we do external files, do just those.
 	if (!external.isEmpty())
+	{
+		int externalOrder = -1;
 		for (auto fileName : external)
 		{
 			QLOG_INFO() << "Reading" << fileName;
@@ -72,11 +74,12 @@ void OneSixVersionBuilder::buildInternal(const bool onlyVanilla, const QStringLi
 				parseJsonFile(QFileInfo(fileName), false, fileName.endsWith("pack.json"));
 			file->name = QFileInfo(fileName).fileName();
 			file->fileId = "org.multimc.external." + file->name;
+			file->order = (externalOrder += 1);
 			file->version = QString();
 			file->mcVersion = QString();
-			file->applyTo(m_version);
 			m_version->versionFiles.append(file);
 		}
+	}
 	// else, if there's custom json, we just do that.
 	else if (QFile::exists(root.absoluteFilePath("custom.json")))
 	{
@@ -85,8 +88,8 @@ void OneSixVersionBuilder::buildInternal(const bool onlyVanilla, const QStringLi
 		file->name = "custom.json";
 		file->filename = "custom.json";
 		file->fileId = "org.multimc.custom.json";
+		file->order = -1;
 		file->version = QString();
-		file->applyTo(m_version);
 		m_version->versionFiles.append(file);
 		// QObject::tr("The version descriptors of this instance are not compatible with the
 		// current version of MultiMC"));
@@ -101,9 +104,9 @@ void OneSixVersionBuilder::buildInternal(const bool onlyVanilla, const QStringLi
 			auto file = parseJsonFile(QFileInfo(root.absoluteFilePath("version.json")), false);
 			file->name = "Minecraft";
 			file->fileId = "org.multimc.version.json";
+			file->order = -1;
 			file->version = m_instance->intendedVersionId();
 			file->mcVersion = m_instance->intendedVersionId();
-			file->applyTo(m_version);
 			m_version->versionFiles.append(file);
 
 			if (onlyVanilla)
@@ -126,9 +129,7 @@ void OneSixVersionBuilder::buildInternal(const bool onlyVanilla, const QStringLi
 			}
 			for (auto order : files.keys())
 			{
-				QLOG_DEBUG() << "Applying file with order" << order;
 				auto &filePair = files[order];
-				filePair.second->applyTo(m_version);
 				m_version->versionFiles.append(filePair.second);
 			}
 
@@ -149,35 +150,10 @@ void OneSixVersionBuilder::buildInternal(const bool onlyVanilla, const QStringLi
 		} while (0);
 
 	// some final touches
-	finalizeVersion();
+	m_version->finalize();
 }
 
-void OneSixVersionBuilder::finalizeVersion()
-{
-	if (m_version->assets.isEmpty())
-	{
-		m_version->assets = "legacy";
-	}
-	if (m_version->minecraftArguments.isEmpty())
-	{
-		QString toCompare = m_version->processArguments.toLower();
-		if (toCompare == "legacy")
-		{
-			m_version->minecraftArguments = " ${auth_player_name} ${auth_session}";
-		}
-		else if (toCompare == "username_session")
-		{
-			m_version->minecraftArguments =
-				"--username ${auth_player_name} --session ${auth_session}";
-		}
-		else if (toCompare == "username_session_version")
-		{
-			m_version->minecraftArguments = "--username ${auth_player_name} "
-											"--session ${auth_session} "
-											"--version ${profile_name}";
-		}
-	}
-}
+
 
 void OneSixVersionBuilder::readJsonAndApply(const QJsonObject &obj)
 {

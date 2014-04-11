@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 2.8.9)
 
+string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" IS_IN_SOURCE_BUILD)
+if(IS_IN_SOURCE_BUILD)
+    message(AUTHOR_WARNING "You are building MultiMC in-source. This is NOT recommended!")
+endif()
+
 IF(WIN32)
       # In Qt 5.1+ we have our own main() function, don't autolink to qtmain on Windows
       cmake_policy(SET CMP0020 OLD)
@@ -28,17 +33,9 @@ ENDIF()
 set(CMAKE_JAVA_TARGET_OUTPUT_DIR ${PROJECT_BINARY_DIR}/jars)
 
 ######## Set compiler flags ########
-IF(APPLE)
-      message(STATUS "Using APPLE CMAKE_CXX_FLAGS")
-      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-ELSEIF(UNIX)
-      # assume GCC, add C++0x/C++11 stuff
-      MESSAGE(STATUS "Using UNIX CMAKE_CXX_FLAGS")
-      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-ELSEIF(MINGW)
-      MESSAGE(STATUS "Using MINGW CMAKE_CXX_FLAGS")
-      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall")
-ENDIF()
+include(UseCXX11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror=return-type")
 
 ################################ 3rd Party Libs ################################
 
@@ -60,15 +57,7 @@ include_directories(
   )
 
 # The Qt5 cmake files don't provide its install paths, so ask qmake.
-get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
-function(QUERY_QMAKE VAR RESULT)
-      exec_program(${QMAKE_EXECUTABLE} ARGS "-query ${VAR}" RETURN_VALUE return_code OUTPUT_VARIABLE output )
-      if(NOT return_code)
-            file(TO_CMAKE_PATH "${output}" output)
-            set(${RESULT} ${output} PARENT_SCOPE)
-      endif(NOT return_code)
-endfunction(QUERY_QMAKE)
-
+include(QMakeQuery)
 query_qmake(QT_INSTALL_PLUGINS QT_PLUGINS_DIR)
 query_qmake(QT_INSTALL_IMPORTS QT_IMPORTS_DIR)
 query_qmake(QT_INSTALL_LIBS QT_LIBS_DIR)
@@ -93,8 +82,8 @@ SET(MultiMC_NEWS_RSS_URL "http://multimc.org/rss.xml" CACHE STRING "URL to fetch
 
 ######## Set version numbers ########
 SET(MultiMC_VERSION_MAJOR		0)
-SET(MultiMC_VERSION_MINOR		2)
-SET(MultiMC_VERSION_HOTFIX		1)
+SET(MultiMC_VERSION_MINOR		3)
+SET(MultiMC_VERSION_HOTFIX		2)
 
 # Build number
 SET(MultiMC_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
@@ -159,34 +148,41 @@ IF (MultiMC_UPDATER)
       MESSAGE(STATUS "Updater is enabled. Channel list URL: ${MultiMC_CHANLIST_URL}")
 ENDIF ()
 
+#### Updater-related build config options ####
+option(MultiMC_UPDATER_DRY_RUN "Enable updater dry-run mode -- for updater development." OFF)
+option(MultiMC_UPDATER_FORCE_LOCAL "Do not download updated updater -- for updater development." OFF)
+
+if(MultiMC_UPDATER_DRY_RUN)
+	set(MultiMC_UPDATER_DRY_RUN_value "true")
+else()
+	set(MultiMC_UPDATER_DRY_RUN_value "false")
+endif()
+
+if(MultiMC_UPDATER_FORCE_LOCAL)
+	set(MultiMC_UPDATER_FORCE_LOCAL_value "true")
+else()
+	set(MultiMC_UPDATER_FORCE_LOCAL_value "false")
+endif()
+
 #### Custom target to just print the version.
 ADD_CUSTOM_TARGET(version echo "Version: ${MultiMC_VERSION_STRING}")
 
 #### Check the current Git commit
-execute_process(COMMAND git rev-parse HEAD
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      RESULT_VARIABLE GIT_COMMIT_CHECK_RESULTVAR
-      OUTPUT_VARIABLE GIT_COMMIT_CHECK_OUTVAR
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+include(GitFunctions)
+git_run(COMMAND rev-parse HEAD DEFAULT "Unknown" OUTPUT_VAR MultiMC_GIT_COMMIT)
+message(STATUS "Git commit: ${MultiMC_GIT_COMMIT}")
 
-IF(GIT_COMMIT_CHECK_RESULTVAR EQUAL 0)
-      SET(MultiMC_GIT_COMMIT "${GIT_COMMIT_CHECK_OUTVAR}")
-      MESSAGE(STATUS "Git commit: ${MultiMC_GIT_COMMIT}")
-ELSE()
-      SET(MultiMC_GIT_COMMIT "Unknown")
-      MESSAGE(STATUS "Failed to check Git commit. ${GIT_COMMIT_CHECK_RESULTVAR}")
-ENDIF()
+OPTION(MultiMC_CODE_COVERAGE "Compiles for code coverage" OFF)
+IF(MultiMC_CODE_COVERAGE)
+      SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 --coverage")
+      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
+      SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
+      SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -O0 --coverage")
+      SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O0 --coverage")
+ENDIF(MultiMC_CODE_COVERAGE)
 
 ######## Configure header ########
-configure_file("${PROJECT_SOURCE_DIR}/config.h.in" "${PROJECT_BINARY_DIR}/include/config.h")
-
-
-######## Other Stuff ########
-
-ADD_DEFINITIONS(-DQUAZIP_STATIC)
-ADD_DEFINITIONS(-DLIBSETTINGS_STATIC)
-ADD_DEFINITIONS(-DLIBUTIL_STATIC)
+configure_file("${PROJECT_SOURCE_DIR}/BuildConfig.cpp.in" "${PROJECT_BINARY_DIR}/BuildConfig.cpp")
 
 ######## Packaging/install paths setup ########
 
@@ -222,6 +218,7 @@ SET(DIRS "${QT_LIBS_DIR}")
 ################################ Included Libs ################################
 
 # Add quazip
+ADD_DEFINITIONS(-DQUAZIP_STATIC)
 add_subdirectory(depends/quazip)
 include_directories(depends/quazip)
 
@@ -240,10 +237,12 @@ include_directories(${PACK200_INCLUDE_DIR})
 ######## MultiMC Libs ########
 
 # Add the util library.
+ADD_DEFINITIONS(-DLIBUTIL_STATIC)
 add_subdirectory(depends/util)
 include_directories(${LIBUTIL_INCLUDE_DIR})
 
 # Add the settings library.
+ADD_DEFINITIONS(-DLIBSETTINGS_STATIC)
 add_subdirectory(depends/settings)
 include_directories(${LIBSETTINGS_INCLUDE_DIR})
 
@@ -257,8 +256,9 @@ SET(MULTIMC_SOURCES
 # Application base
 MultiMC.h
 MultiMC.cpp
-MultiMCVersion.h
 MMCError.h
+BuildConfig.h
+${PROJECT_BINARY_DIR}/BuildConfig.cpp
 
 # Logging
 logger/QsDebugOutput.cpp
@@ -318,6 +318,8 @@ gui/dialogs/UpdateDialog.h
 gui/dialogs/UpdateDialog.cpp
 gui/dialogs/ScreenshotDialog.h
 gui/dialogs/ScreenshotDialog.cpp
+gui/dialogs/NotificationDialog.h
+gui/dialogs/NotificationDialog.cpp
 
 # GUI - widgets
 gui/widgets/Common.h
@@ -599,12 +601,22 @@ gui/dialogs/AccountSelectDialog.ui
 gui/dialogs/EditAccountDialog.ui
 gui/dialogs/UpdateDialog.ui
 gui/dialogs/ScreenshotDialog.ui
+gui/dialogs/NotificationDialog.ui
 
 # Widgets/other
 gui/widgets/MCModInfoFrame.ui
 )
 
-set (FILES_TO_TRANSLATE ${FILES_TO_TRANSLATE} ${MULTIMC_SOURCES} ${MULTIMC_UIS})
+set(FILES_TO_TRANSLATE)
+foreach(file ${MULTIMC_SOURCES})
+	get_filename_component(absfile "${file}" ABSOLUTE)
+    list(APPEND FILES_TO_TRANSLATE "${absfile}")
+endforeach()
+
+foreach(file ${MULTIMC_UIS})
+	get_filename_component(absfile "${file}" ABSOLUTE)
+    list(APPEND FILES_TO_TRANSLATE "${absfile}")
+endforeach()
 
 SET(MULTIMC_QRCS
 resources/backgrounds/backgrounds.qrc
@@ -632,22 +644,8 @@ ENDIF()
 
 # Link additional libraries
 IF(WIN32)
-      SET(MultiMC_LINK_ADDITIONAL_LIBS ${MultiMC_LINK_ADDITIONAL_LIBS}
-            Qt5::WinMain # Link WinMain
-      )
+      SET(MultiMC_LINK_ADDITIONAL_LIBS ${MultiMC_LINK_ADDITIONAL_LIBS} Qt5::WinMain)
 ENDIF(WIN32)
-
-OPTION(MultiMC_UPDATER_DRY_RUN "Enable updater dry-run mode -- for updater development." OFF)
-OPTION(MultiMC_UPDATER_FORCE_LOCAL "Do not download updated updater -- for updater development." OFF)
-
-OPTION(MultiMC_CODE_COVERAGE "Compiles for code coverage" OFF)
-IF(MultiMC_CODE_COVERAGE)
-      SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 --coverage")
-      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
-      SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
-      SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g -O0 --coverage")
-      SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O0 --coverage")
-ENDIF(MultiMC_CODE_COVERAGE)
 
 # Tell CMake that MultiMCLauncher.jar is generated.
 #SET_SOURCE_FILES_PROPERTIES(${PROJECT_BINARY_DIR}/depends/launcher/MultiMCLauncher.jar GENERATED)
@@ -801,6 +799,8 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "MultiMC 5")
 ENDIF()
 
 INCLUDE(CPack)
+
+include(Coverity)
 
 include_directories(${PROJECT_BINARY_DIR}/include)
 

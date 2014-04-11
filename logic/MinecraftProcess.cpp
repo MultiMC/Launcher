@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include "MultiMC.h"
+#include "BuildConfig.h"
 
 #include "MinecraftProcess.h"
 
@@ -259,7 +260,14 @@ void MinecraftProcess::finish(int code, ExitStatus status)
 void MinecraftProcess::killMinecraft()
 {
 	killed = true;
-	kill();
+	if (m_prepostlaunchprocess.state() == QProcess::Running)
+	{
+		m_prepostlaunchprocess.kill();
+	}
+	else
+	{
+		kill();
+	}
 }
 
 bool MinecraftProcess::preLaunch()
@@ -271,8 +279,11 @@ bool MinecraftProcess::preLaunch()
 		// Launch
 		emit log(tr("Running Pre-Launch command: %1").arg(prelaunch_cmd));
 		m_prepostlaunchprocess.start(prelaunch_cmd);
-		// Wait
-		m_prepostlaunchprocess.waitForFinished();
+		if (!waitForPrePost())
+		{
+			emit log(tr("The command failed to start"), MessageLevel::Fatal);
+			return false;
+		}
 		// Flush console window
 		if (!m_err_leftover.isEmpty())
 		{
@@ -310,7 +321,10 @@ bool MinecraftProcess::postLaunch()
 		postlaunch_cmd = substituteVariables(postlaunch_cmd);
 		emit log(tr("Running Post-Launch command: %1").arg(postlaunch_cmd));
 		m_prepostlaunchprocess.start(postlaunch_cmd);
-		m_prepostlaunchprocess.waitForFinished();
+		if (!waitForPrePost())
+		{
+			return false;
+		}
 		// Flush console window
 		if (!m_err_leftover.isEmpty())
 		{
@@ -336,6 +350,24 @@ bool MinecraftProcess::postLaunch()
 		return m_instance->reload();
 	}
 	return true;
+}
+
+bool MinecraftProcess::waitForPrePost()
+{
+	if(!m_prepostlaunchprocess.waitForStarted())
+		return false;
+	QEventLoop eventLoop;
+	auto finisher = [this, &eventLoop](QProcess::ProcessState state)
+	{
+		if (state == QProcess::NotRunning)
+		{
+			eventLoop.quit();
+		}
+	};
+	auto connection = connect(&m_prepostlaunchprocess, &QProcess::stateChanged, finisher);
+	int ret = eventLoop.exec();
+	disconnect(connection);
+	return ret == 0;
 }
 
 QMap<QString, QString> MinecraftProcess::getVariables() const
@@ -386,7 +418,11 @@ QStringList MinecraftProcess::javaArguments() const
 
 	args << QString("-Xms%1m").arg(m_instance->settings().get("MinMemAlloc").toInt());
 	args << QString("-Xmx%1m").arg(m_instance->settings().get("MaxMemAlloc").toInt());
-	args << QString("-XX:PermSize=%1m").arg(m_instance->settings().get("PermGen").toInt());
+	auto permgen = m_instance->settings().get("PermGen").toInt();
+	if(permgen != 64)
+	{
+		args << QString("-XX:PermSize=%1m").arg(permgen);
+	}
 	args << "-Duser.language=en";
 	if (!m_nativeFolder.isEmpty())
 		args << QString("-Djava.library.path=%1").arg(m_nativeFolder);
@@ -397,11 +433,12 @@ QStringList MinecraftProcess::javaArguments() const
 
 void MinecraftProcess::arm()
 {
-	emit log("MultiMC version: " + MMC->version().toString() + "\n\n");
+	emit log("MultiMC version: " + BuildConfig.printableVersionString() + "\n\n");
 	emit log("Minecraft folder is:\n" + workingDirectory() + "\n\n");
 
 	if (!preLaunch())
 	{
+		emit ended(m_instance, 1, QProcess::CrashExit);
 		return;
 	}
 

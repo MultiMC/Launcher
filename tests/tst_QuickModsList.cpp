@@ -7,7 +7,7 @@
 #include "logic/BaseInstance.h"
 #include "TestUtil.h"
 
-Q_DECLARE_METATYPE(BaseInstance *)
+Q_DECLARE_METATYPE(InstancePtr)
 
 class QuickModsListTest : public QObject
 {
@@ -106,10 +106,10 @@ slots:
 	{
 		QTest::addColumn<QVector<QuickMod *>>("mods");
 		QTest::addColumn<QVector<QuickModVersionPtr>>("versions");
-		QTest::addColumn<BaseInstance *>("instance");
+		QTest::addColumn<InstancePtr>("instance");
 		QTest::addColumn<QVector<QString>>("filenames");
 
-		BaseInstance *instance = NULL;
+		InstancePtr instance;
 		std::shared_ptr<MinecraftVersion> version;
 		version.reset(new MinecraftVersion);
 		version->type = MinecraftVersion::OneSix;
@@ -135,7 +135,7 @@ slots:
 	{
 		QFETCH(QVector<QuickMod *>, mods);
 		QFETCH(QVector<QuickModVersionPtr>, versions);
-		QFETCH(BaseInstance *, instance);
+		QFETCH(InstancePtr, instance);
 		QFETCH(QVector<QString>, filenames);
 		Q_ASSERT(mods.size() == versions.size() && mods.size() == filenames.size());
 
@@ -144,49 +144,49 @@ slots:
 		// mark all as installed and check if it worked
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			list->markModAsInstalled(mods[i], versions[i], filenames[i], instance);
+			list->markModAsInstalled(mods[i], versions[i], filenames[i], instance.get());
 		}
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], instance), true);
-			QCOMPARE(list->installedModFile(mods[i], versions[i], instance), filenames[i]);
+			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], instance.get()), true);
+			QCOMPARE(list->installedModFile(mods[i], versions[i], instance.get()), filenames[i]);
 		}
 
 		// reload
 		delete list;
 		list = new QuickModsList(QuickModsList::DontCleanup);
-		BaseInstance *newInstance = NULL;
+		InstancePtr newInstance;
 		InstanceFactory::get().loadInstance(newInstance, instance->instanceRoot());
 
 		// re-check after reloading
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), true);
-			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance), filenames[i]);
+			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance.get()), true);
+			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance.get()), filenames[i]);
 		}
 
 		// "uninstall" all of them
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			list->markModAsUninstalled(mods[i], versions[i], newInstance);
+			list->markModAsUninstalled(mods[i], versions[i], newInstance.get());
 		}
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), false);
-			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance), QString());
+			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance.get()), false);
+			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance.get()), QString());
 		}
 
 		// reload again
 		delete list;
 		list = new QuickModsList(QuickModsList::DontCleanup);
-		newInstance = NULL;
+		newInstance.reset();
 		InstanceFactory::get().loadInstance(newInstance, instance->instanceRoot());
 
 		// re-check after reloading
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), false);
-			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance), QString());
+			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance.get()), false);
+			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance.get()), QString());
 		}
 
 		delete list;

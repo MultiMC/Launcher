@@ -35,9 +35,8 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 	: QObject(parent), inst_d(d_in)
 {
 	I_D(BaseInstance);
-	d->m_settings = settings_obj;
+	d->m_settings = std::shared_ptr<SettingsObject>(settings_obj);
 	d->m_rootDir = rootDir;
-	d->m_flags = 0;
 
 	settings().registerSetting("name", "Unnamed Instance");
 	settings().registerSetting("iconKey", "default");
@@ -150,13 +149,13 @@ SettingsObject &BaseInstance::settings() const
 	return *d->m_settings;
 }
 
-BaseInstance::InstanceFlags BaseInstance::flags() const
+QSet<BaseInstance::InstanceFlag> BaseInstance::flags() const
 {
 	I_D(const BaseInstance);
-	return InstanceFlags(d->m_flags);
+	return QSet<InstanceFlag>(d->m_flags);
 }
 
-void BaseInstance::setFlags(const BaseInstance::InstanceFlags flags)
+void BaseInstance::setFlags(const QSet<InstanceFlag> &flags)
 {
 	I_D(BaseInstance);
 	if (flags != d->m_flags)
@@ -169,7 +168,7 @@ void BaseInstance::setFlags(const BaseInstance::InstanceFlags flags)
 
 bool BaseInstance::canLaunch() const
 {
-	return !(flags() & VersionBrokenFlag);
+	return !flags().contains(VersionBrokenFlag);
 }
 
 bool BaseInstance::reload()

@@ -341,6 +341,17 @@ bool OneSixInstance::versionIsCustom()
 		   QFile::exists(PathCombine(instanceRoot(), "user.json"));
 }
 
+bool OneSixInstance::versionIsFTBPack()
+{
+	I_D(const OneSixInstance);
+	auto ver = d->version;
+	if(ver)
+	{
+		return ver->hasFtbPack();
+	}
+	return false;
+}
+
 QString OneSixInstance::currentVersionId() const
 {
 	return intendedVersionId();
@@ -354,14 +365,14 @@ void OneSixInstance::reloadVersion()
 	{
 		d->version->reload(false, externalPatches());
 		d->vanillaVersion->reload(true, externalPatches());
-		setFlags(flags() & ~VersionBrokenFlag);
+		d->m_flags.remove(VersionBrokenFlag);
 		emit versionReloaded();
 	}
 	catch(MMCError & error)
 	{
 		d->version->clear();
 		d->vanillaVersion->clear();
-		setFlags(flags() | VersionBrokenFlag);
+		d->m_flags.insert(VersionBrokenFlag);
 		//TODO: rethrow to show some error message(s)?
 		emit versionReloaded();
 		throw;
@@ -400,7 +411,7 @@ QString OneSixInstance::defaultCustomBaseJar() const
 
 bool OneSixInstance::menuActionEnabled(QString action_name) const
 {
-	if (flags() & VersionBrokenFlag)
+	if (flags().contains(VersionBrokenFlag))
 	{
 		return false;
 	}
@@ -418,7 +429,7 @@ QString OneSixInstance::getStatusbarDescription()
 	{
 		descr += " (custom)";
 	}
-	if (flags() & VersionBrokenFlag)
+	if (flags().contains(VersionBrokenFlag))
 	{
 		descr += " (broken)";
 	}

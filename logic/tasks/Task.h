@@ -24,6 +24,7 @@ class Task : public ProgressProvider
 	Q_OBJECT
 public:
 	explicit Task(QObject *parent = 0);
+	virtual ~Task() {};
 
 	virtual QString getStatus() const;
 	virtual void getProgress(qint64 &current, qint64 &total);
@@ -60,7 +61,7 @@ slots:
 	void setProgress(int progress);
 
 protected:
-	QString m_status;
+	QString m_statusString;
 	int m_progress = 0;
 	bool m_running = false;
 	bool m_succeeded = false;

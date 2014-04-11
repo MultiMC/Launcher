@@ -104,7 +104,6 @@ void OneSixUpdate::versionFileStart()
 void OneSixUpdate::versionFileFinished()
 {
 	NetActionPtr DlJob = specificVersionDownloadJob->first();
-	OneSixInstance *inst = (OneSixInstance *)m_inst;
 
 	QString version_id = targetVersion->descriptor();
 	QString inst_dir = m_inst->instanceRoot();
@@ -160,7 +159,7 @@ void OneSixUpdate::assetIndexStart()
 	QString assetName = version->assets;
 	QUrl indexUrl = "http://" + URLConstants::AWS_DOWNLOAD_INDEXES + assetName + ".json";
 	QString localPath = assetName + ".json";
-	auto job = new NetJob("Asset index for " + inst->name());
+	auto job = new NetJob(tr("Asset index for %1").arg(inst->name()));
 
 	auto metacache = MMC->metacache();
 	auto entry = metacache->resolveEntry("asset_indexes", localPath);
@@ -206,7 +205,7 @@ void OneSixUpdate::assetIndexFinished()
 	if (dls.size())
 	{
 		setStatus(tr("Getting the assets files from Mojang..."));
-		auto job = new NetJob("Assets for " + inst->name());
+		auto job = new NetJob(tr("Assets for %1").arg(inst->name()));
 		for (auto dl : dls)
 			job->addNetAction(dl);
 		jarlibDownloadJob.reset(job);
@@ -263,7 +262,7 @@ void OneSixUpdate::jarlibStart()
 		QString localPath = version_id + "/" + version_id + ".jar";
 		QString urlstr = "http://" + URLConstants::AWS_DOWNLOAD_VERSIONS + localPath;
 
-		auto job = new NetJob("Libraries for instance " + inst->name());
+		auto job = new NetJob(tr("Libraries for instance %1").arg(inst->name()));
 
 		auto metacache = MMC->metacache();
 		auto entry = metacache->resolveEntry("versions", localPath);

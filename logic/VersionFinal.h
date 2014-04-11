@@ -38,18 +38,35 @@ public:
 	virtual int columnCount(const QModelIndex &parent) const;
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-	bool reload(const bool onlyVanilla = false, const QStringList &external = QStringList());
+	void reload(const bool onlyVanilla = false, const QStringList &external = QStringList());
 	void clear();
-
-	void dump() const;
 
 	bool canRemove(const int index) const;
 
 	QString versionFileId(const int index) const;
 
+	// does this instance have an all overriding custom.json
+	bool isCustom();
+	// remove custom.json
+	bool revertToBase();
+	// does this instance have an FTB pack patch file?
+	bool hasFtbPack();
+	// remove FTB pack
+	bool removeFtbPack();
+	
+
+	enum MoveDirection { MoveUp, MoveDown };
+	void move(const int index, const MoveDirection direction);
+	void resetOrder();
+
+	// clears and reapplies all version files
+	void reapply(const bool alreadyReseting = false);
+	void finalize();
+
 public
 slots:
 	bool remove(const int index);
+	bool remove(const QString id);
 
 public:
 	QList<std::shared_ptr<OneSixLibrary>> getActiveNormalLibs();
@@ -123,7 +140,9 @@ public:
 	// QList<Rule> rules;
 
 	QList<VersionFilePtr> versionFiles;
+	VersionFilePtr versionFile(const QString &id);
 
 private:
 	OneSixInstance *m_instance;
+	QMap<QString, int> getExistingOrder() const;
 };

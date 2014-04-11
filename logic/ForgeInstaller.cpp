@@ -26,7 +26,6 @@
 #include "MultiMC.h"
 #include "tasks/Task.h"
 #include "OneSixInstance.h"
-#include "gui/dialogs/VersionSelectDialog.h"
 #include "lists/ForgeVersionList.h"
 #include "gui/dialogs/ProgressDialog.h"
 
@@ -34,8 +33,6 @@
 #include <QJsonArray>
 #include <QSaveFile>
 #include <QCryptographicHash>
-
-// FIXME: there's gui code in here. nuke it.
 
 ForgeInstaller::ForgeInstaller()
 	: BaseInstaller()
@@ -277,6 +274,7 @@ protected:
 						reload();
 					}
 				});
+				fjob->start();
 			}
 			else
 			{
