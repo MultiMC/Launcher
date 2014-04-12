@@ -42,6 +42,7 @@
 #include "logic/ForgeInstaller.h"
 #include "logic/LiteLoaderInstaller.h"
 #include "logic/OneSixVersionBuilder.h"
+#include "logic/quickmod/QuickModInstanceModList.h"
 
 OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 	: QDialog(parent), ui(new Ui::OneSixModEditDialog), m_inst(inst)
@@ -70,7 +71,8 @@ OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 	{
 		ensureFolderPathExists(m_inst->loaderModsDir());
 		m_mods = m_inst->loaderModList();
-		ui->loaderModTreeView->setModel(m_mods.get());
+		m_modsModel = new QuickModInstanceModList(m_inst, m_mods, this);
+		ui->loaderModTreeView->setModel(new QuickModInstanceModListProxy(m_modsModel, this));
 		ui->loaderModTreeView->installEventFilter(this);
 		m_mods->startWatching();
 		auto smodel = ui->loaderModTreeView->selectionModel();

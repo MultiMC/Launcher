@@ -38,7 +38,6 @@ ModList::ModList(BaseInstance *instance, const QString &dir, const QString &list
 	is_watching = false;
 	connect(m_watcher, SIGNAL(directoryChanged(QString)), this,
 			SLOT(directoryChanged(QString)));
-	connect(MMC->quickmodslist().get(), &QuickModsList::dataChanged, this, &ModList::quickmodDataChanged);
 }
 
 void ModList::startWatching()
@@ -444,31 +443,12 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 	if (row < 0 || row >= mods.size())
 		return QVariant();
 
-	auto quickmod = MMC->quickmodslist()->modForModId(mods[row].mod_id());
-
 	switch (role)
 	{
-	case Qt::DecorationRole:
-		switch (index.column())
-		{
-		case NameColumn:
-			if (quickmod)
-			{
-				return quickmod->icon();
-			}
-
-		default:
-			return QVariant();
-		}
-
 	case Qt::DisplayRole:
 		switch (index.column())
 		{
 		case NameColumn:
-			if (quickmod)
-			{
-				return quickmod->name();
-			}
 			return mods[row].name();
 		case VersionColumn:
 			return mods[row].version();
@@ -476,10 +456,8 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 		default:
 			return QVariant();
 		}
-
 	case Qt::ToolTipRole:
 		return mods[row].mmc_id();
-
 	case Qt::CheckStateRole:
 		switch (index.column())
 		{
@@ -488,6 +466,8 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 		default:
 			return QVariant();
 		}
+	case ModFileRole:
+		return mods[row].filename().absoluteFilePath();
 	default:
 		return QVariant();
 	}

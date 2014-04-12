@@ -520,6 +520,8 @@ logic/quickmod/QuickModDependencyResolver.h
 logic/quickmod/QuickModDependencyResolver.cpp
 logic/quickmod/QuickModInstaller.h
 logic/quickmod/QuickModInstaller.cpp
+logic/quickmod/QuickModInstanceModList.h
+logic/quickmod/QuickModInstanceModList.cpp
 
 # Icons
 logic/icons/MMCIcon.h

@@ -24,6 +24,8 @@ namespace Ui
 class OneSixModEditDialog;
 }
 
+class QuickModInstanceModList;
+
 class OneSixModEditDialog : public QDialog
 {
 	Q_OBJECT
@@ -66,6 +68,7 @@ private:
 	std::shared_ptr<VersionFinal> m_version;
 	std::shared_ptr<ModList> m_mods;
 	std::shared_ptr<ModList> m_resourcepacks;
+	QuickModInstanceModList *m_modsModel;
 	EnabledItemFilter *main_model;
 	OneSixInstance *m_inst;
 

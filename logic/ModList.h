@@ -40,6 +40,11 @@ public:
 		NameColumn,
 		VersionColumn
 	};
+	enum Roles
+	{
+		ModFileRole = Qt::UserRole
+	};
+
 	ModList(BaseInstance *instance, const QString &dir, const QString &list_file = QString());
 
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
