@@ -65,6 +65,7 @@ public:
 	void setFilter(int column, QString filter);
 	void setEmptyString(QString emptyString);
 	void setResizeOn(int column);
+	void setUseLatest(const bool useLatest);
 
 private
 slots:
@@ -78,4 +79,5 @@ private:
 	VersionSelectProxyModel *m_proxyModel;
 
 	int resizeOnColumn = 0;
+	bool m_useLatest;
 };
