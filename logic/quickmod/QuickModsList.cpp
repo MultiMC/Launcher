@@ -280,15 +280,16 @@ bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const QString &version) c
 	return mods.contains(mod->uid()) &&
 			mods.value(mod->uid()).toMap().contains(version);
 }
-QString QuickModsList::installedModFile(QuickMod *mod, const BaseVersionPtr version,
-										BaseInstance *instance) const
+QMap<QString, QString> QuickModsList::installedModFiles(QuickMod *mod, BaseInstance *instance) const
 {
-	if (!isModMarkedAsInstalled(mod, version, instance))
-	{
-		return QString();
-	}
 	auto mods = instance->settings().get("InstalledMods").toMap();
-	return mods[mod->uid()].toMap()[version->name()].toString();
+	auto tmp = mods[mod->uid()].toMap();
+	QMap<QString, QString> out;
+	for (auto it = tmp.begin(); it != tmp.end(); ++it)
+	{
+		out.insert(it.key(), it.value().toString());
+	}
+	return out;
 }
 QString QuickModsList::existingModFile(QuickMod *mod, const BaseVersionPtr version) const
 {
@@ -347,6 +348,11 @@ void QuickModsList::registerMod(const QUrl &url)
 void QuickModsList::updateFiles()
 {
 	m_updater->update();
+}
+
+void QuickModsList::touchMod(QuickMod *mod)
+{
+	emit modAdded(mod);
 }
 
 void QuickModsList::addMod(QuickMod *mod)

@@ -188,7 +188,6 @@ void QuickModVersionListLoadTask::executeTask()
 	auto job = new NetJob("Version list");
 	auto entry =
 		MMC->metacache()->resolveEntry("quickmod/versions", m_vlist->m_mod->uid() + ".json");
-	entry->stale = true;
 
 	job->addNetAction(listDownload = CacheDownload::make(m_vlist->m_mod->versionsUrl(), entry));
 
@@ -215,25 +214,26 @@ void QuickModVersionListLoadTask::listDownloaded()
 	}
 	try
 	{
-		const QJsonDocument doc = MMCJson::parseDocument(file.readAll(), "QuickMod Version file");
+		const QJsonDocument doc =
+			MMCJson::parseDocument(file.readAll(), "QuickMod Version file");
 		QJsonArray root = doc.array();
 		for (auto value : root)
 		{
-			QuickModVersionPtr version = QuickModVersionPtr(new QuickModVersion(m_vlist->m_mod, true));
+			QuickModVersionPtr version =
+				QuickModVersionPtr(new QuickModVersion(m_vlist->m_mod, true));
 			version->parse(value.toObject());
 			list.append(version);
 		}
 	}
 	catch (MMCError &e)
 	{
-		QLOG_ERROR() << "Error parsing JSON in " << file.fileName() << ":"
-					 << e.cause();
+		QLOG_ERROR() << "Error parsing JSON in " << file.fileName() << ":" << e.cause();
 		emitFailed(tr("Couldn't parse reply. See the log for details."));
 		return;
 	}
 
 	QList<BaseVersionPtr> baseList;
-	foreach (QuickModVersionPtr ptr, list)
+	foreach(QuickModVersionPtr ptr, list)
 	{
 		baseList.append(ptr);
 	}

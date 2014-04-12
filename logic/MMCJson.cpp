@@ -90,3 +90,13 @@ QUrl MMCJson::ensureUrl(const QJsonValue &val, const QString &what)
 	}
 	return url;
 }
+
+QJsonDocument MMCJson::parseFile(const QString &filename, const QString &what)
+{
+	QFile f(filename);
+	if (!f.open(QFile::ReadOnly))
+	{
+		throw FileOpenError(f);
+	}
+	return parseDocument(f.readAll(), what);
+}

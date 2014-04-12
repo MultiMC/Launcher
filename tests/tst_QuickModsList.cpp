@@ -149,7 +149,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], instance.get()), true);
-			QCOMPARE(list->installedModFile(mods[i], versions[i], instance.get()), filenames[i]);
+			QCOMPARE(list->installedModFiles(mods[i], instance.get())[versions[i]->name()], filenames[i]);
 		}
 
 		// reload
@@ -162,7 +162,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance.get()), true);
-			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance.get()), filenames[i]);
+			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], filenames[i]);
 		}
 
 		// "uninstall" all of them
@@ -173,7 +173,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance.get()), false);
-			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance.get()), QString());
+			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], QString());
 		}
 
 		// reload again
@@ -186,7 +186,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance.get()), false);
-			QCOMPARE(list->installedModFile(mods[i], versions[i], newInstance.get()), QString());
+			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], QString());
 		}
 
 		delete list;

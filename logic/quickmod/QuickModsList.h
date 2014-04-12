@@ -87,8 +87,7 @@ public:
 								BaseInstance *instance) const;
 	bool isModMarkedAsExists(QuickMod *mod, const BaseVersionPtr version) const;
 	bool isModMarkedAsExists(QuickMod *mod, const QString &version) const;
-	QString installedModFile(QuickMod *mod, const BaseVersionPtr version,
-							 BaseInstance *instance) const;
+	QMap<QString, QString> installedModFiles(QuickMod *mod, BaseInstance *instance) const;
 	QString existingModFile(QuickMod *mod, const BaseVersionPtr version) const;
 	QString existingModFile(QuickMod *mod, const QString &version) const;
 
@@ -107,6 +106,7 @@ slots:
 
 private
 slots:
+	void touchMod(QuickMod *mod);
 	void addMod(QuickMod *mod);
 	void clearMods();
 	void removeMod(QuickMod *mod);

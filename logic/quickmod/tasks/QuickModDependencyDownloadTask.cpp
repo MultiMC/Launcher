@@ -60,10 +60,13 @@ void QuickModDependencyDownloadTask::updateProgress()
 void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickMod *mod)
 {
 	auto references = mod->references();
-	qDebug() << mod->uid() << references;
 	for (auto it = references.begin(); it != references.end(); ++it)
 	{
 		const QString modUid = it.key();
+		if (MMC->quickmodslist()->mod(modUid))
+		{
+			return;
+		}
 		if (!m_requestedMods.contains(modUid))
 		{
 			MMC->quickmodslist()->registerMod(it.value());

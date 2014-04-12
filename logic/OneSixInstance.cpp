@@ -28,6 +28,7 @@
 #include "MinecraftProcess.h"
 #include "gui/dialogs/OneSixModEditDialog.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
 #include "tasks/SequentialTask.h"
 #include "logic/quickmod/tasks/QuickModDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"
@@ -230,10 +231,15 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 	if (!version->quickmods.isEmpty())
 	{
 		QStringList mods;
+		auto list = MMC->quickmodslist().get();
 		for (auto it = version->quickmods.begin(); it != version->quickmods.end(); ++it)
 		{
-			mods.prepend("mods " + MMC->quickmodslist()->existingModFile(
-							 MMC->quickmodslist()->mod(it.key()), it.value()));
+			const auto mod = list->mod(it.key());
+			const auto modVersion = mod->version(it.value());
+			if (modVersion->installType == QuickModVersion::ForgeMod)
+			{
+				mods.prepend("mods " + list->existingModFile(mod, modVersion));
+			}
 		}
 		launchScript += mods.join('\n') + '\n';
 	}

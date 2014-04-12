@@ -45,4 +45,5 @@ private:
 	bool parseQuickMod(const QString &fileName, QuickMod *mod);
 
 	static QString fileName(const QuickMod *mod);
+	static QString fileName(const QString &uid);
 };

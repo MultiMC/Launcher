@@ -76,7 +76,7 @@ void QuickMod::parse(const QByteArray &data)
 		m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
 	}
 
-	if (uid().isEmpty())
+	if (m_uid.isEmpty())
 	{
 		throw QuickModParseError("The 'uid' field in the QuickMod file for " + m_name + " is empty");
 	}
@@ -84,7 +84,7 @@ void QuickMod::parse(const QByteArray &data)
 
 bool QuickMod::compare(const QuickMod *other) const
 {
-	return m_name == other->name();
+	return m_name == other->name() || m_uid == other->uid();
 }
 
 void QuickMod::iconDownloadFinished(int index)

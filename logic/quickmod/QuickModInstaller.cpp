@@ -7,6 +7,7 @@
 #include "logic/OneSixInstance.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
 #include "MultiMC.h"
 #include "JlCompress.h"
 
@@ -39,6 +40,16 @@ static QDir dirEnsureExists(const QString &dir, const QString &path)
 
 bool QuickModInstaller::install(const QuickModVersionPtr version, BaseInstance *instance, QString *errorString)
 {
+	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance);
+	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)
+	{
+		if (!QFile::remove(it.value()))
+		{
+			QLOG_ERROR() << "Unable to remove previous version file" << it.value() << ", this may cause problems";
+		}
+		MMC->quickmodslist()->markModAsUninstalled(version->mod, version->mod->version(it.key()), instance);
+	}
+
 	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
 	QDir finalDir;
 	switch (version->installType)
@@ -51,7 +62,14 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, BaseInstance *
 		finalDir = dirEnsureExists(instance->minecraftRoot(), "mods");
 		break;
 	case QuickModVersion::ForgeCoreMod:
-		finalDir = dirEnsureExists(instance->minecraftRoot(), "coremods");
+		if (qobject_cast<OneSixInstance *>(instance))
+		{
+			finalDir = dirEnsureExists(instance->minecraftRoot(), "mods");
+		}
+		else
+		{
+			finalDir = dirEnsureExists(instance->minecraftRoot(), "coremods");
+		}
 		break;
 	case QuickModVersion::Extract:
 		finalDir = dirEnsureExists(instance->minecraftRoot(), ".");

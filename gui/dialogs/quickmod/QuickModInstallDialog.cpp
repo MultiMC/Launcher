@@ -271,6 +271,12 @@ bool QuickModInstallDialog::install(QuickModVersionPtr version, QTreeWidgetItem 
 
 void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 {
+	if (reply->url().path().endsWith(".exe"))
+	{
+		// because bad things
+		QLOG_WARN() << "Caught .exe from" << reply->url().toString();
+		return;
+	}
 	QLOG_INFO() << "Caught " << reply->url().toString();
 	downloadNextMod();
 

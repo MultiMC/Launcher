@@ -14,6 +14,7 @@
 #include "logic/net/NetJob.h"
 #include "logic/Mod.h"
 #include "logic/MMCJson.h"
+#include "MultiMC.h"
 #include "modutils.h"
 
 #include "logger/QsLog.h"
@@ -25,7 +26,6 @@ QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list) : QObject(list),
 	m_quickmodDir.cd("quickmod");
 
 	QTimer::singleShot(1, this, SLOT(readModFiles()));
-	QTimer::singleShot(2, this, SLOT(update()));
 }
 
 void QuickModFilesUpdater::registerFile(const QUrl &url)
@@ -49,6 +49,10 @@ void QuickModFilesUpdater::update()
 	auto job = new NetJob("QuickMod download");
 	for (int i = 0; i < m_list->numMods(); ++i)
 	{
+		if (m_list->modAt(i)->isStub())
+		{
+			continue;
+		}
 		auto url = m_list->modAt(i)->updateUrl();
 		if (url.isValid())
 		{
@@ -59,12 +63,55 @@ void QuickModFilesUpdater::update()
 			job->addNetAction(download);
 		}
 	}
+	connect(job, &NetJob::succeeded, [this]()
+	{
+		NetJob *versionsJob = new NetJob("QuickMod Versions Update");
+		for (int i = 0; i < m_list->numMods(); ++i)
+		{
+			auto mod = m_list->modAt(i);
+			if (mod->isStub())
+			{
+				continue;
+			}
+			auto entry =
+				MMC->metacache()->resolveEntry("quickmod/versions", mod->uid() + ".json");
+			entry->stale = true;
+
+			CacheDownloadPtr download;
+			versionsJob->addNetAction(download =
+										  CacheDownload::make(mod->versionsUrl(), entry));
+			connect(download.get(), &CacheDownload::succeeded, [mod, download](int)
+			{
+				try
+				{
+					const QJsonDocument doc = MMCJson::parseFile(download->getTargetFilepath(),
+																 "QuickMod Version file");
+					QJsonArray root = doc.array();
+					QList<QuickModVersionPtr> versions;
+					for (auto value : root)
+					{
+						QuickModVersionPtr version =
+							QuickModVersionPtr(new QuickModVersion(mod, true));
+						version->parse(value.toObject());
+						versions.append(version);
+					}
+					mod->setVersions(versions);
+				}
+				catch (MMCError &e)
+				{
+					QLOG_ERROR() << e.cause();
+				}
+			});
+		}
+		versionsJob->start();
+	});
 	job->start();
 }
 
 QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 {
-	if (QuickMod *qMod = m_list->modForModId(mod.mod_id().isEmpty() ? mod.name() : mod.mod_id()))
+	if (QuickMod *qMod =
+			m_list->modForModId(mod.mod_id().isEmpty() ? mod.name() : mod.mod_id()))
 	{
 		if (!qMod->isStub())
 		{
@@ -100,10 +147,12 @@ void QuickModFilesUpdater::receivedMod(int notused)
 			for (auto it = array.begin(); it != array.end(); ++it)
 			{
 				const QJsonObject itemObj = (*it).toObject();
-				const QString baseUrlString = MMCJson::ensureUrl(obj.value("baseUrl")).toString();
+				const QString baseUrlString =
+					MMCJson::ensureUrl(obj.value("baseUrl")).toString();
 				if (!m_list->haveUid(MMCJson::ensureString(itemObj.value("uid"))))
 				{
-					const QString urlString = MMCJson::ensureUrl(itemObj.value("url")).toString();
+					const QString urlString =
+						MMCJson::ensureUrl(itemObj.value("url")).toString();
 					QUrl url;
 					if (baseUrlString.contains("{}"))
 					{
@@ -111,7 +160,8 @@ void QuickModFilesUpdater::receivedMod(int notused)
 					}
 					else
 					{
-						url = Util::expandQMURL(baseUrlString).resolved(Util::expandQMURL(urlString));
+						url = Util::expandQMURL(baseUrlString)
+								  .resolved(Util::expandQMURL(urlString));
 					}
 					registerFile(url);
 				}
@@ -123,6 +173,23 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	{
 		QLOG_ERROR() << "Error parsing QuickMod index:" << e.cause();
 		return;
+	}
+
+	try
+	{
+		QFile file(m_quickmodDir.absoluteFilePath(fileName(MMCJson::ensureString(
+			MMCJson::ensureObject(MMCJson::parseDocument(download->m_data, QString())).value("uid")))));
+		if (file.open(QFile::ReadOnly))
+		{
+			if (file.readAll() == download->m_data)
+			{
+				return;
+			}
+			file.close();
+		}
+	}
+	catch (...)
+	{
 	}
 
 	auto mod = new QuickMod;
@@ -187,6 +254,8 @@ void QuickModFilesUpdater::readModFiles()
 			m_list->addMod(mod);
 		}
 	}
+
+	update();
 }
 
 void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
@@ -214,7 +283,11 @@ void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
 
 QString QuickModFilesUpdater::fileName(const QuickMod *mod)
 {
-	return mod->uid() + ".json";
+	return fileName(mod->uid());
+}
+QString QuickModFilesUpdater::fileName(const QString &uid)
+{
+	return uid + ".json";
 }
 
 bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickMod *mod)

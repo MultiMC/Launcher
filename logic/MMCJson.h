@@ -9,19 +9,27 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QFile>
 #include "MMCError.h"
 
 class JSONValidationError : public MMCError
 {
 public:
-	JSONValidationError(QString cause) : MMCError(cause) {};
-	virtual ~JSONValidationError() noexcept {}
+	JSONValidationError(QString cause) : MMCError(cause) {}
+};
+class FileOpenError : public MMCError
+{
+public:
+	FileOpenError(const QFile &file) : MMCError(QObject::tr("Error opening %1: %2").arg(file.fileName(), file.errorString())) {}
 };
 
 namespace MMCJson
 {
 /// parses the data into a json document. throws if there's a parse error
 QJsonDocument parseDocument(const QByteArray &data, const QString &what);
+
+/// tries to open and then parses the specified file. throws if there's an error
+QJsonDocument parseFile(const QString &filename, const QString &what);
 
 /// make sure the value exists. throw otherwise.
 QJsonValue ensureExists(QJsonValue val, const QString what = "value");
