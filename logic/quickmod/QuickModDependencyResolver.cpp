@@ -44,7 +44,8 @@ QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const Q
 							   tr("Choose QuickMod version for %1").arg(mod->name()), m_widgetParent);
 	dialog.setFilter(BaseVersionList::NameColumn, filter);
 	dialog.setUseLatest(true); // TODO: Make a setting
-	if (!predefinedVersion.isEmpty())
+	// TODO currently, if the version isn't existing anymore it will be updated
+	if (!predefinedVersion.isEmpty() && mod->version(predefinedVersion))
 	{
 		dialog.setFilter(BaseVersionList::NameColumn, predefinedVersion);
 	}
