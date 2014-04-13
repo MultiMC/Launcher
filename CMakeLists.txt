@@ -522,6 +522,8 @@ logic/quickmod/QuickModInstaller.h
 logic/quickmod/QuickModInstaller.cpp
 logic/quickmod/QuickModInstanceModList.h
 logic/quickmod/QuickModInstanceModList.cpp
+logic/quickmod/QuickModUpdateMonitor.h
+logic/quickmod/QuickModUpdateMonitor.cpp
 
 # Icons
 logic/icons/MMCIcon.h

@@ -19,9 +19,10 @@
 #include <QMessageBox>
 #include <QString>
 #include <QUrl>
+
 bool lastfirst(QModelIndexList &list, int &first, int &last)
 {
-	if (!list.size())
+	if (list.isEmpty())
 		return false;
 	first = last = list[0].row();
 	for (auto item : list)

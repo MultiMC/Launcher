@@ -72,7 +72,6 @@ public:
 	QString name_;
 	QUrl url;
 	QStringList compatibleVersions;
-	// TODO actually make use of the forge version provided
 	QString forgeVersionFilter;
 	QMap<QString, QString> dependencies;
 	QMap<QString, QString> recommendations;

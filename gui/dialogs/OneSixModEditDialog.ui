@@ -26,7 +26,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="libTab">
       <attribute name="title">
@@ -181,16 +181,30 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="rmModBtn">
+            <widget class="QPushButton" name="installModBtn">
              <property name="text">
-              <string>&amp;Remove</string>
+              <string>&amp;Install</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="installModBtn">
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="updateModBtn">
              <property name="text">
-              <string>&amp;Install</string>
+              <string>Update</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="rmModBtn">
+             <property name="text">
+              <string>&amp;Remove</string>
              </property>
             </widget>
            </item>

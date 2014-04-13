@@ -183,10 +183,13 @@ public:
 	enum InstanceFlag
 	{
 		NoFlags = 0x00,
-		VersionBrokenFlag = 0x01
+		VersionBrokenFlag = 0x01,
+		UpdateAvailable = 0x02
 	};
 	QSet<InstanceFlag> flags() const;
 	void setFlags(const QSet<InstanceFlag> &flags);
+	void setFlag(const InstanceFlag flag);
+	void unsetFlag(const InstanceFlag flag);
 
 	bool canLaunch() const;
 

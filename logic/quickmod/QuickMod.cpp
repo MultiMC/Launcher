@@ -28,6 +28,16 @@ QPixmap QuickMod::logo()
 	return m_logo;
 }
 
+void QuickMod::setVersions(const QList<QuickModVersionPtr> &versions)
+{
+	m_versions = versions;
+	qSort(m_versions.begin(), m_versions.end(), [](const QuickModVersionPtr &v1, const QuickModVersionPtr &v2)
+	{
+		return Util::Version(v1->name()) > Util::Version(v2->name());
+	});
+	emit versionsUpdated();
+}
+
 QuickModVersionPtr QuickMod::version(const QString &name) const
 {
 	foreach (QuickModVersionPtr ptr, m_versions)
@@ -35,6 +45,18 @@ QuickModVersionPtr QuickMod::version(const QString &name) const
 		if (ptr->name() == name)
 		{
 			return ptr;
+		}
+	}
+	return QuickModVersionPtr();
+}
+
+QuickModVersionPtr QuickMod::latestVersion(const QString &mcVersion) const
+{
+	for (auto version : m_versions)
+	{
+		if (version->compatibleVersions.contains(mcVersion))
+		{
+			return version;
 		}
 	}
 	return QuickModVersionPtr();

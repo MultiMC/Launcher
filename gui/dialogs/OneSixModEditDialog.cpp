@@ -72,7 +72,7 @@ OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 		ensureFolderPathExists(m_inst->loaderModsDir());
 		m_mods = m_inst->loaderModList();
 		m_modsModel = new QuickModInstanceModList(m_inst, m_mods, this);
-		ui->loaderModTreeView->setModel(new QuickModInstanceModListProxy(m_modsModel, this));
+		ui->loaderModTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
 		ui->loaderModTreeView->installEventFilter(this);
 		m_mods->startWatching();
 		auto smodel = ui->loaderModTreeView->selectionModel();
@@ -131,6 +131,31 @@ bool OneSixModEditDialog::reloadInstanceVersion()
 			this, tr("Error"),
 			tr("Failed to load the version description file for reasons unknown."));
 		return false;
+	}
+}
+
+QModelIndex OneSixModEditDialog::mapToModsList(const QModelIndex &view) const
+{
+	return m_modsModel->mapToModList(m_proxy->mapToSource(view));
+}
+
+void OneSixModEditDialog::sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods)
+{
+	for (auto index : view)
+	{
+		if (!index.isValid())
+		{
+			continue;
+		}
+		const QModelIndex mappedOne = m_proxy->mapToSource(index);
+		if (m_modsModel->isModListArea(mappedOne))
+		{
+			mods->append(m_modsModel->mapToModList(mappedOne));
+		}
+		else
+		{
+			quickmods->append(mappedOne);
+		}
 	}
 }
 
@@ -336,13 +361,51 @@ void OneSixModEditDialog::on_addModBtn_clicked()
 void OneSixModEditDialog::on_rmModBtn_clicked()
 {
 	int first, last;
-	auto list = ui->loaderModTreeView->selectionModel()->selectedRows();
+	auto tmp = ui->loaderModTreeView->selectionModel()->selectedRows();
+	QModelIndexList quickmods, mods;
+	sortMods(tmp, &quickmods, &mods);
+	qDebug() << quickmods.size() << mods.size();
 
-	if (!lastfirst(list, first, last))
-		return;
-	m_mods->stopWatching();
-	m_mods->deleteMods(first, last);
-	m_mods->startWatching();
+	// mods
+	{
+		if (lastfirst(mods, first, last))
+		{
+			m_mods->stopWatching();
+			m_mods->deleteMods(first, last);
+			m_mods->startWatching();
+		}
+	}
+	// quickmods
+	{
+		try
+		{
+			for (auto quickmod : quickmods)
+			{
+				m_modsModel->scheduleModForRemoval(quickmod);
+			}
+		}
+		catch (MMCError &error)
+		{
+			QMessageBox::critical(this, tr("Error"), tr("Unable to schedule mod for removal:\n\n%1").arg(error.cause()));
+		}
+	}
+}
+void OneSixModEditDialog::on_updateModBtn_clicked()
+{
+	auto tmp = ui->loaderModTreeView->selectionModel()->selectedRows();
+	QModelIndexList quickmods, mods;
+	sortMods(tmp, &quickmods, &mods);
+	try
+	{
+		for (auto quickmod : quickmods)
+		{
+			m_modsModel->scheduleModForUpdate(quickmod);
+		}
+	}
+	catch (MMCError &error)
+	{
+		QMessageBox::critical(this, tr("Error"), tr("Unable to schedule mod for update:\n\n%1").arg(error.cause()));
+	}
 }
 void OneSixModEditDialog::on_installModBtn_clicked()
 {
@@ -383,12 +446,13 @@ void OneSixModEditDialog::on_viewResPackBtn_clicked()
 
 void OneSixModEditDialog::loaderCurrent(QModelIndex current, QModelIndex previous)
 {
-	if (!current.isValid())
+	const QModelIndex index = mapToModsList(current);
+	if (!index.isValid())
 	{
 		ui->frame->clear();
 		return;
 	}
-	int row = current.row();
+	int row = index.row();
 	Mod &m = m_mods->operator[](row);
 	ui->frame->updateWithMod(m);
 }

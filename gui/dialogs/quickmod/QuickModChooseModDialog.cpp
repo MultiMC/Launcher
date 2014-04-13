@@ -246,24 +246,22 @@ void QuickModChooseModDialog::on_installButton_clicked()
 		return;
 	}
 
-	QFile userFile(m_instance->instanceRoot() + "/user.json");
-	if (!userFile.open(QFile::ReadWrite))
+	QMap<QString, QString> mods;
+	for (auto item : items)
 	{
-		QMessageBox::critical(this, tr("Error"), tr("Couldn't open %1 for reading and writing: %2").arg(userFile.fileName(), userFile.errorString()));
+		mods[item] = QString();
+	}
+
+	try
+	{
+		static_cast<OneSixInstance *>(m_instance)->setQuickModVersions(mods);
+	}
+	catch (MMCError &e)
+	{
+		QMessageBox::critical(this, tr("Error"), e.cause());
+		reject();
 		return;
 	}
-	// TODO more error reporting
-	QJsonObject obj = QJsonDocument::fromJson(userFile.readAll()).object();
-	QJsonObject plusmods = obj.value("+mods").toObject();
-	for (auto mod : items)
-	{
-		plusmods.insert(mod, QString());
-	}
-	obj.insert("+mods", plusmods);
-	userFile.seek(0);
-	userFile.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
-	userFile.close();
-	static_cast<OneSixInstance *>(m_instance)->reloadVersion();
 	accept();
 }
 void QuickModChooseModDialog::on_closeButton_clicked()

@@ -318,6 +318,7 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 	}
 	if (root.contains("-mods"))
 	{
+		// TODO exceptions
 		QJsonValue modsVal = root.value("-mods");
 		if (!modsVal.isObject())
 		{

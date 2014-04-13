@@ -25,6 +25,7 @@ class OneSixModEditDialog;
 }
 
 class QuickModInstanceModList;
+class QuickModInstanceModListProxy;
 
 class OneSixModEditDialog : public QDialog
 {
@@ -38,6 +39,7 @@ private
 slots:
 	void on_addModBtn_clicked();
 	void on_rmModBtn_clicked();
+	void on_updateModBtn_clicked();
 	void on_installModBtn_clicked();
 	void on_viewModBtn_clicked();
 
@@ -69,8 +71,12 @@ private:
 	std::shared_ptr<ModList> m_mods;
 	std::shared_ptr<ModList> m_resourcepacks;
 	QuickModInstanceModList *m_modsModel;
+	QuickModInstanceModListProxy *m_proxy;
 	EnabledItemFilter *main_model;
 	OneSixInstance *m_inst;
+
+	QModelIndex mapToModsList(const QModelIndex &view) const;
+	void sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods);
 
 public
 slots:

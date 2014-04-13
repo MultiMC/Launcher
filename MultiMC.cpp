@@ -19,6 +19,7 @@
 #include "logic/lists/MinecraftVersionList.h"
 #include "logic/lists/ForgeVersionList.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModUpdateMonitor.h"
 #include "logic/lists/LiteLoaderVersionList.h"
 
 #include "logic/news/NewsChecker.h"
@@ -282,6 +283,7 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override)
 
 	// ensure we always create the quickmods list
 	quickmodslist();
+	m_quickmodUpdateMonitor.reset(new QuickModUpdateMonitor(m_instances, m_quickmodslist, this));
 
 	connect(this, SIGNAL(aboutToQuit()), SLOT(onExit()));
 	m_status = MultiMC::Initialized;

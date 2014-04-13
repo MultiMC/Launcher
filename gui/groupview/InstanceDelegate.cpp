@@ -120,6 +120,8 @@ void drawBadges(QPainter *painter, const QStyleOptionViewItemV4 &option, BaseIns
 		case BaseInstance::VersionBrokenFlag:
 			pixmaps.append("broken");
 			break;
+		case BaseInstance::UpdateAvailable:
+			pixmaps.append("updateavailable");
 		}
 	}
 
@@ -158,7 +160,7 @@ void drawBadges(QPainter *painter, const QStyleOptionViewItemV4 &option, BaseIns
 			{
 				return;
 			}
-			const QPixmap pixmap = ListViewDelegate::requestPixmap(it.next()).scaled(
+			const QPixmap pixmap = ListViewDelegate::requestBadgePixmap(it.next()).scaled(
 				itemSide, itemSide, Qt::KeepAspectRatio, Qt::FastTransformation);
 			painter->drawPixmap(option.rect.width() - x * itemSide + qMax(x - 1, 0) * spacing - itemSide,
 								y * itemSide + qMax(y - 1, 0) * spacing, itemSide, itemSide,
@@ -352,7 +354,7 @@ QSize ListViewDelegate::sizeHint(const QStyleOptionViewItem &option,
 	return sz;
 }
 
-QPixmap ListViewDelegate::requestPixmap(const QString &key)
+QPixmap ListViewDelegate::requestBadgePixmap(const QString &key)
 {
 	if (!m_pixmapCache.contains(key))
 	{

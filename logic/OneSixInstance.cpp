@@ -478,6 +478,68 @@ bool OneSixInstance::reload()
 	return false;
 }
 
+void OneSixInstance::setQuickModVersion(const QString &uid, const QString &version)
+{
+	setQuickModVersions(QMap<QString, QString>({{uid, version}}));
+}
+void OneSixInstance::setQuickModVersions(const QMap<QString, QString> &mods)
+{
+	QFile userFile(instanceRoot() + "/user.json");
+	if (!userFile.open(QFile::ReadWrite))
+	{
+		throw MMCError(tr("Couldn't open %1 for writing: %2").arg(userFile.fileName(), userFile.errorString()));
+	}
+	// TODO more error reporting
+	QJsonObject obj = QJsonDocument::fromJson(userFile.readAll()).object();
+	QJsonObject plusmods = obj.value("+mods").toObject();
+	QJsonObject minusmods = obj.value("-mods").toObject();
+	for (auto it = mods.begin(); it != mods.end(); ++it)
+	{
+		minusmods.remove(it.key());
+		plusmods.insert(it.key(), it.value());
+	}
+	obj.insert("+mods", plusmods);
+	userFile.seek(0);
+	userFile.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
+	userFile.resize(userFile.pos());
+	userFile.close();
+	reloadVersion();
+}
+void OneSixInstance::removeQuickMod(const QString &uid)
+{
+	removeQuickMods(QStringList() << uid);
+}
+void OneSixInstance::removeQuickMods(const QStringList &uids)
+{
+	QFile userFile(instanceRoot() + "/user.json");
+	if (!userFile.open(QFile::ReadWrite))
+	{
+		throw MMCError(tr("Couldn't open %1 for writing: %2").arg(userFile.fileName(), userFile.errorString()));
+	}
+	// TODO more error reporting
+	QJsonObject obj = QJsonDocument::fromJson(userFile.readAll()).object();
+	QJsonObject plusmods = obj.value("+mods").toObject();
+	QJsonObject minusmods = obj.value("-mods").toObject();
+	for (auto uid : uids)
+	{
+		if (plusmods.contains(uid))
+		{
+			plusmods.remove(uid);
+		}
+		else
+		{
+			minusmods.insert(uid, QString());
+		}
+	}
+	obj.insert("+mods", plusmods);
+	obj.insert("-mods", minusmods);
+	userFile.seek(0);
+	userFile.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
+	userFile.resize(userFile.pos());
+	userFile.close();
+	reloadVersion();
+}
+
 QString OneSixInstance::loaderModsDir() const
 {
 	return PathCombine(minecraftRoot(), "mods");

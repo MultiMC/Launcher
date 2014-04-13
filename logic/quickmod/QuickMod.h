@@ -98,11 +98,9 @@ public:
 	{
 		return m_versions;
 	}
-	void setVersions(const QList<QuickModVersionPtr> &versions)
-	{
-		m_versions = versions;
-	}
+	void setVersions(const QList<QuickModVersionPtr> &versions);
 	QuickModVersionPtr version(const QString &name) const;
+	QuickModVersionPtr latestVersion(const QString &mcVersion) const;
 
 	QByteArray hash() const
 	{
@@ -115,6 +113,7 @@ public:
 signals:
 	void iconUpdated();
 	void logoUpdated();
+	void versionsUpdated();
 
 private
 slots:

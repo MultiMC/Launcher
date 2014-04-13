@@ -20,11 +20,11 @@ public:
 
 	QuickModInstanceModList(OneSixInstance *instance, std::shared_ptr<ModList> modList, QObject *parent = 0);
 
-	int rowCount(const QModelIndex &parent) const;
-	int columnCount(const QModelIndex &parent) const;
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const;
 	QVariant data(const QModelIndex &index, int role) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	Qt::ItemFlags flags(const QModelIndex &index) const;
+	Qt::ItemFlags flags(const QModelIndex &index = QModelIndex()) const;
 
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	QMimeData *mimeData(const QModelIndexList &indexes) const;
@@ -34,16 +34,27 @@ public:
 	Qt::DropActions supportedDragActions() const;
 	Qt::DropActions supportedDropActions() const;
 
+	QModelIndex mapToModList(const QModelIndex &index) const;
+	QModelIndex mapFromModList(const QModelIndex &index) const;
+	bool isModListArea(const QModelIndex &index) const;
+
+public
+slots:
+	void scheduleModForUpdate(const QModelIndex &index);
+	void scheduleModForRemoval(const QModelIndex &index);
+
+private
+slots:
+	void quickmodVersionUpdated();
+	void quickmodIconUpdated();
+
 private:
 	friend class QuickModInstanceModListProxy;
 	OneSixInstance *m_instance;
 	std::shared_ptr<ModList> m_modList;
 
 	QMap<QString, QString> quickmods() const;
-
-	QModelIndex externalIndexToModList(const QModelIndex &index) const;
-	QModelIndex modListIndexToExternal(const QModelIndex &index) const;
-	bool isModListArea(const QModelIndex &index) const;
+	QuickMod *modAt(const int row) const;
 };
 
 class QuickModInstanceModListProxy : public QSortFilterProxyModel

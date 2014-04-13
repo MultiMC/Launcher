@@ -154,7 +154,6 @@ QSet<BaseInstance::InstanceFlag> BaseInstance::flags() const
 	I_D(const BaseInstance);
 	return QSet<InstanceFlag>(d->m_flags);
 }
-
 void BaseInstance::setFlags(const QSet<InstanceFlag> &flags)
 {
 	I_D(BaseInstance);
@@ -164,6 +163,20 @@ void BaseInstance::setFlags(const QSet<InstanceFlag> &flags)
 		emit flagsChanged();
 		emit propertiesChanged(this);
 	}
+}
+void BaseInstance::setFlag(const BaseInstance::InstanceFlag flag)
+{
+	I_D(BaseInstance);
+	d->m_flags.insert(flag);
+	emit flagsChanged();
+	emit propertiesChanged(this);
+}
+void BaseInstance::unsetFlag(const BaseInstance::InstanceFlag flag)
+{
+	I_D(BaseInstance);
+	d->m_flags.remove(flag);
+	emit flagsChanged();
+	emit propertiesChanged(this);
 }
 
 bool BaseInstance::canLaunch() const

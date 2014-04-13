@@ -84,6 +84,11 @@ public:
 
 	bool reload() override;
 
+	void setQuickModVersion(const QString &uid, const QString &version);
+	void setQuickModVersions(const QMap<QString, QString > &mods);
+	void removeQuickMod(const QString &uid);
+	void removeQuickMods(const QStringList &uids);
+
 signals:
 	void versionReloaded();
 

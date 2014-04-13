@@ -15,9 +15,11 @@
 #include "QuickModVersion.h"
 #include "logic/Mod.h"
 #include "logic/BaseInstance.h"
+#include "logic/OneSixInstance.h"
 #include "depends/settings/setting.h"
 #include "MultiMC.h"
 #include "logic/lists/InstanceList.h"
+#include "modutils.h"
 
 #include "depends/settings/inisettingsobject.h"
 
@@ -334,6 +336,29 @@ bool QuickModsList::haveUid(const QString &uid) const
 		}
 	}
 	return false;
+}
+
+QList<QuickMod *> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const
+{
+	QList<QuickMod *> mods;
+	std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(instance);
+	for (auto it = onesix->getFullVersion()->quickmods.begin(); it != onesix->getFullVersion()->quickmods.end(); ++it)
+	{
+		QuickMod *m = mod(it.key());
+		if (!m)
+		{
+			continue;
+		}
+		if (!m->latestVersion(instance->intendedVersionId()))
+		{
+			continue;
+		}
+		if (Util::Version(it.value()) < Util::Version(m->latestVersion(instance->intendedVersionId())->name()))
+		{
+			mods.append(m);
+		}
+	}
+	return mods;
 }
 
 void QuickModsList::registerMod(const QString &fileName)

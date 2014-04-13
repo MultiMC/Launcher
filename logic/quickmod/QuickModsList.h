@@ -96,6 +96,8 @@ public:
 
 	bool haveUid(const QString &uid) const;
 
+	QList<QuickMod *> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;
+
 public
 slots:
 	void registerMod(const QString &fileName);
