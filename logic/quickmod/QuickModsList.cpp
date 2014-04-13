@@ -344,6 +344,10 @@ QList<QuickMod *> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInst
 	std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(instance);
 	for (auto it = onesix->getFullVersion()->quickmods.begin(); it != onesix->getFullVersion()->quickmods.end(); ++it)
 	{
+		if (it.value().isEmpty())
+		{
+			continue;
+		}
 		QuickMod *m = mod(it.key());
 		if (!m)
 		{

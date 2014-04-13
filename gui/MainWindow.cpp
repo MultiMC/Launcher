@@ -74,6 +74,7 @@
 #include "logic/icons/IconList.h"
 #include "logic/lists/JavaVersionList.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
 
 #include "logic/auth/flows/AuthenticateTask.h"
 #include "logic/auth/flows/RefreshTask.h"
@@ -88,6 +89,7 @@
 #include "logic/net/NetJob.h"
 
 #include "logic/BaseInstance.h"
+#include "logic/OneSixInstance.h"
 #include "logic/InstanceFactory.h"
 #include "logic/MinecraftProcess.h"
 #include "logic/OneSixUpdate.h"
@@ -1315,8 +1317,34 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 	}
 }
 
-void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session, BaseProfilerFactory *profiler)
+void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
+								BaseProfilerFactory *profiler)
 {
+	QList<QuickMod *> mods = MMC->quickmodslist()->updatedModsForInstance(instance);
+	if (!mods.isEmpty())
+	{
+		QStringList names;
+		for (auto mod : mods)
+		{
+			names.append(mod->name());
+		}
+		int res = QMessageBox::question(
+			this, tr("Update"),
+			tr("The following mods have new updates:\n\n%1\n\n Update now?").arg(names.join(", ")),
+			QMessageBox::Yes, QMessageBox::No);
+		if (res == QMessageBox::Yes)
+		{
+			if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(instance))
+			{
+				QMap<QString, QString> modsToUpdate;
+				for (auto mod : mods)
+				{
+					modsToUpdate.insert(mod->uid(), QString());
+				}
+				onesix->setQuickModVersions(modsToUpdate);
+			}
+		}
+	}
 	auto updateTask = instance->doUpdate();
 	if (!updateTask)
 	{
