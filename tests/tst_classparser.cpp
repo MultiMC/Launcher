@@ -48,7 +48,8 @@ slots:
 		QCOMPARE((int)file->interfaces().size(), 2);
 		QCOMPARE(file->interfaces().at(0)->name(), std::string("java/lang/Comparable"));
 		QCOMPARE(file->interfaces().at(1)->name(), std::string("java/io/Serializable"));
-		QVERIFY(file->majorVersion() >= 50);
+		// make sure the jar is for java 6
+		QCOMPARE(file->majorVersion(), 50);
 		QCOMPARE(QString::fromStdString(file->superClass()->name()), QString("java/util/AbstractList"));
 		QCOMPARE(QString::fromStdString(file->thisClass()->name()), QString("ClassParserTestClass"));
 		for (auto attribute : file->attributes())
