@@ -32,6 +32,9 @@ public:
 
 	bool isApplied(OneSixInstance *on);
 	virtual bool canApply(const OneSixInstance *to) { return true; }
+	virtual QString id() const = 0;
+
+	virtual void aboutToInstallOther(std::shared_ptr<BaseInstaller> other, OneSixInstance *instance) {}
 
 	virtual bool add(OneSixInstance *to);
 	virtual bool remove(OneSixInstance *from);
@@ -39,7 +42,6 @@ public:
 	virtual ProgressProvider *createInstallTask(OneSixInstance *instance, BaseVersionPtr version, QObject *parent) = 0;
 
 protected:
-	virtual QString id() const = 0;
 	QString filename(const QString &root) const;
 	QDir patchesDir(const QString &root) const;
 };

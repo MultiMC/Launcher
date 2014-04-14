@@ -32,6 +32,8 @@ public:
 	QFileInfo fileForVersion(const QString &version) const;
 	QStringList getExistingVersions() const;
 
+	void aboutToInstallOther(std::shared_ptr<BaseInstaller> other, OneSixInstance *instance) override;
+
 	void prepare(OptiFineVersionPtr version);
 	bool add(OneSixInstance *to) override;
 	bool canApply(const OneSixInstance *to) override;

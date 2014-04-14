@@ -48,8 +48,13 @@ OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 {
 	MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
-	// libraries!
 
+	// TODO use this to populate the buttons
+	addInstaller(new ForgeInstaller);
+	addInstaller(new LiteLoaderInstaller);
+	addInstaller(new OptiFineInstaller);
+
+	// libraries!
 	m_version = m_inst->getFullVersion();
 	if (m_version)
 	{
@@ -99,9 +104,15 @@ OneSixModEditDialog::~OneSixModEditDialog()
 
 void OneSixModEditDialog::updateVersionControls()
 {
-	ui->forgeBtn->setEnabled(true);
-	ui->liteloaderBtn->setEnabled(true);
-	ui->optifineBtn->setEnabled(OptiFineInstaller().canApply(m_inst));
+	try
+	{
+		ui->forgeBtn->setEnabled(m_installers["net.minecraftforge"]->canApply(m_inst));
+		ui->liteloaderBtn->setEnabled(m_installers["com.mumfrey.liteloader"]->canApply(m_inst));
+		ui->optifineBtn->setEnabled(m_installers["optifine"]->canApply(m_inst));
+	}
+	catch (...)
+	{
+	}
 }
 
 void OneSixModEditDialog::disableVersionControls()
@@ -159,6 +170,32 @@ bool OneSixModEditDialog::revertCustom()
 		reloadInstanceVersion();
 	}
 	return true;
+}
+
+bool OneSixModEditDialog::canInstall(const QString &id)
+{
+	try
+	{
+		for (auto installer : m_installers.values())
+		{
+			if (!installer->canApply(m_inst))
+			{
+				return false;
+			}
+			installer->aboutToInstallOther(m_installers[id], m_inst);
+		}
+	}
+	catch (MMCError &error)
+	{
+		QMessageBox::critical(this, tr("Error"), tr("Something went wrong: %1").arg(error.cause()));
+		return false;
+	}
+	return true;
+}
+
+void OneSixModEditDialog::addInstaller(BaseInstaller *installer)
+{
+	m_installers[installer->id()] = std::shared_ptr<BaseInstaller>(installer);
 }
 
 void OneSixModEditDialog::on_reloadLibrariesBtn_clicked()
@@ -233,6 +270,10 @@ void OneSixModEditDialog::on_forgeBtn_clicked()
 	{
 		return;
 	}
+	if (!canInstall("net.minecraftforge"))
+	{
+		return;
+	}
 	VersionSelectDialog vselect(MMC->forgelist().get(), tr("Select Forge version"), this);
 	vselect.setFilter(1, m_inst->currentVersionId());
 	vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft ") +
@@ -240,13 +281,17 @@ void OneSixModEditDialog::on_forgeBtn_clicked()
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(ForgeInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		dialog.exec(m_installers["net.minecraftforge"]->createInstallTask(m_inst, vselect.selectedVersion(), this));
 	}
 }
 
 void OneSixModEditDialog::on_liteloaderBtn_clicked()
 {
 	if (!revertCustom())
+	{
+		return;
+	}
+	if (!canInstall("com.mumfrey.liteloader"))
 	{
 		return;
 	}
@@ -258,7 +303,7 @@ void OneSixModEditDialog::on_liteloaderBtn_clicked()
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(LiteLoaderInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		dialog.exec(m_installers["com.mumfrey.liteloader"]->createInstallTask(m_inst, vselect.selectedVersion(), this));
 	}
 }
 
@@ -268,13 +313,17 @@ void OneSixModEditDialog::on_optifineBtn_clicked()
 	{
 		return;
 	}
+	if (!canInstall("optifine"))
+	{
+		return;
+	}
 	VersionSelectDialog vselect(new OptiFineVersionList(this), tr("Select OptiFine version"), this, true, true);
 	vselect.setFilter(0, m_inst->currentVersionId(), Qt::ToolTipRole);
 	vselect.setEmptyString(tr("No OptiFine versions are available, you might add some"));
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(OptiFineInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		dialog.exec(m_installers["optifine"]->createInstallTask(m_inst, vselect.selectedVersion(), this));
 	}
 }
 

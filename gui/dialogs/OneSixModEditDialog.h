@@ -19,6 +19,8 @@
 #include <logic/OneSixInstance.h>
 
 class EnabledItemFilter;
+class BaseInstaller;
+
 namespace Ui
 {
 class OneSixModEditDialog;
@@ -66,10 +68,13 @@ private:
 	std::shared_ptr<VersionFinal> m_version;
 	std::shared_ptr<ModList> m_mods;
 	std::shared_ptr<ModList> m_resourcepacks;
+	QMap<QString, std::shared_ptr<BaseInstaller>> m_installers;
 	EnabledItemFilter *main_model;
 	OneSixInstance *m_inst;
 
 	bool revertCustom();
+	bool canInstall(const QString &id);
+	void addInstaller(BaseInstaller *installer);
 
 public
 slots:

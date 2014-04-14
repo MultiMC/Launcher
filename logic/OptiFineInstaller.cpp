@@ -41,11 +41,53 @@ OptiFineInstaller::OptiFineInstaller() : BaseInstaller()
 
 QFileInfo OptiFineInstaller::fileForVersion(const QString &version) const
 {
-	return QFileInfo(QDir::current().absoluteFilePath("libraries/optifine/OptiFine/" + version), "OptiFine-" + version + ".jar");
+	return QFileInfo(QDir::current().absoluteFilePath("libraries/optifine/OptiFine/" + version),
+					 "OptiFine-" + version + ".jar");
 }
 QStringList OptiFineInstaller::getExistingVersions() const
 {
-	return QDir(QDir::current().absoluteFilePath("libraries/optifine/OptiFine")).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+	return QDir(QDir::current().absoluteFilePath("libraries/optifine/OptiFine"))
+		.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+}
+
+void OptiFineInstaller::aboutToInstallOther(std::shared_ptr<BaseInstaller> other,
+											OneSixInstance *instance)
+{
+	if (other->id() != "net.minecraftforge" && other->id() != "com.mumfrey.liteloader")
+	{
+		return;
+	}
+	if (VersionFilePtr file = instance->getFullVersion()->versionFile(id()))
+	{
+		QString optifineLib;
+		for (auto lib : file->addLibs)
+		{
+			if (lib->name.startsWith("optifine:OptiFine:"))
+			{
+				optifineLib = QDir::current().absoluteFilePath(
+					PathCombine("libraries", VersionFile::createLibrary(lib)->storagePath()));
+			}
+		}
+		if (optifineLib.isNull())
+		{
+			return;
+		}
+		const QString optifineModsLib = QDir::current().absoluteFilePath(
+			PathCombine(instance->minecraftRoot(), "mods", QFileInfo(optifineLib).fileName()));
+		if (!ensureFilePathExists(optifineModsLib))
+		{
+			throw MMCError(QObject::tr("Unable to create mods/ directory"));
+		}
+		QLOG_INFO() << "Attempting to copy" << optifineLib << "to" << optifineModsLib;
+		if (!QFile::copy(optifineLib, optifineModsLib))
+		{
+			throw MMCError(QObject::tr("Unable to copy OptiFine to mods/"));
+		}
+		if (!QFile::remove(file->filename))
+		{
+			throw MMCError(QObject::tr("Unable to remove OptiFine patch"));
+		}
+	}
 }
 
 void OptiFineInstaller::prepare(OptiFineVersionPtr version)
@@ -63,7 +105,8 @@ bool OptiFineInstaller::add(OneSixInstance *to)
 	QJsonObject obj;
 
 	obj.insert("mainClass", QString("net.minecraft.launchwrapper.Launch"));
-	obj.insert("+tweakers", QJsonArray::fromStringList(QStringList() << "optifine.OptiFineTweaker"));
+	obj.insert("+tweakers",
+			   QJsonArray::fromStringList(QStringList() << "optifine.OptiFineTweaker"));
 	obj.insert("order", 15);
 
 	QJsonArray libraries;
@@ -71,7 +114,9 @@ bool OptiFineInstaller::add(OneSixInstance *to)
 	// launchwrapper
 	{
 		QJsonObject lwLib;
-		lwLib.insert("name", "net.minecraft:launchwrapper:" + m_mcVersionLaunchWrapperVersionMapping[to->intendedVersionId()]);
+		lwLib.insert("name",
+					 "net.minecraft:launchwrapper:" +
+						 m_mcVersionLaunchWrapperVersionMapping[to->intendedVersionId()]);
 		lwLib.insert("insert", QString("prepend"));
 		libraries.append(lwLib);
 	}
@@ -106,6 +151,12 @@ bool OptiFineInstaller::add(OneSixInstance *to)
 
 bool OptiFineInstaller::canApply(const OneSixInstance *to)
 {
+	if (to->getFullVersion()->versionFile("net.minecraftforge") ||
+		to->getFullVersion()->versionFile("com.mumfrey.liteloader"))
+	{
+		throw MMCError(QObject::tr("MinecraftForge or LiteLoader installed. You need to remove "
+								   "those before installing OptiFine."));
+	}
 	return m_mcVersionLaunchWrapperVersionMapping.contains(to->intendedVersionId());
 }
 
@@ -114,7 +165,7 @@ class OptiFineInstallTask : public Task
 	Q_OBJECT
 public:
 	OptiFineInstallTask(OptiFineInstaller *installer, OneSixInstance *instance,
-						  BaseVersionPtr version, QObject *parent)
+						BaseVersionPtr version, QObject *parent)
 		: Task(parent), m_installer(installer), m_instance(instance), m_version(version)
 	{
 	}
@@ -129,7 +180,9 @@ protected:
 			return;
 		}
 		setStatus(tr("Copying optifine..."));
-		const QString destFilename = QDir::current().absoluteFilePath("libraries/optifine/OptiFine/" + optifineVersion->fullVersionString() + "/OptiFine-" + optifineVersion->fullVersionString() + ".jar");
+		const QString destFilename = QDir::current().absoluteFilePath(
+			"libraries/optifine/OptiFine/" + optifineVersion->fullVersionString() +
+			"/OptiFine-" + optifineVersion->fullVersionString() + ".jar");
 		if (!QFile::exists(destFilename))
 		{
 			if (!ensureFilePathExists(destFilename))
@@ -140,7 +193,8 @@ protected:
 			QFile f(optifineVersion->file().absoluteFilePath());
 			if (!f.copy(destFilename))
 			{
-				emitFailed(tr("Couldn't copy OptiFine to it's destination: %1").arg(f.errorString()));
+				emitFailed(
+					tr("Couldn't copy OptiFine to it's destination: %1").arg(f.errorString()));
 				return;
 			}
 		}
@@ -176,8 +230,7 @@ private:
 };
 
 ProgressProvider *OptiFineInstaller::createInstallTask(OneSixInstance *instance,
-													   BaseVersionPtr version,
-													   QObject *parent)
+													   BaseVersionPtr version, QObject *parent)
 {
 	return new OptiFineInstallTask(this, instance, version, parent);
 }
