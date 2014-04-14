@@ -29,8 +29,8 @@ SET(LIBGROUPVIEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_BINARY_DIR}/include)
 
-add_definitions(-DCLASSPARSER_LIBRARY)
+add_definitions(-DCLASSPARSER_STATIC)
 
-add_library(classparser SHARED ${CLASSPARSER_SOURCES})
+add_library(classparser STATIC ${CLASSPARSER_SOURCES})
 target_link_libraries(classparser quazip)
 qt5_use_modules(classparser Core)

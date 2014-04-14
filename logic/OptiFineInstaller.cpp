@@ -64,7 +64,7 @@ bool OptiFineInstaller::add(OneSixInstance *to)
 
 	obj.insert("mainClass", QString("net.minecraft.launchwrapper.Launch"));
 	obj.insert("+tweakers", QJsonArray::fromStringList(QStringList() << "optifine.OptiFineTweaker"));
-	obj.insert("order", 10);
+	obj.insert("order", 15);
 
 	QJsonArray libraries;
 
