@@ -15,8 +15,12 @@
 
 #include <QtCore/QtGlobal>
 
+#ifdef CLASSPARSER_STATIC
+#define CLASSPARSER_EXPORT
+#else
 #ifdef CLASSPARSER_LIBRARY
 #define CLASSPARSER_EXPORT Q_DECL_EXPORT
 #else
 #define CLASSPARSER_EXPORT Q_DECL_IMPORT
+#endif
 #endif

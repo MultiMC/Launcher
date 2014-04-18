@@ -70,6 +70,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="optifineBtn">
+           <property name="text">
+            <string>Install OptiFine</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="Line" name="line">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>

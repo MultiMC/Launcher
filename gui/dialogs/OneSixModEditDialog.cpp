@@ -21,7 +21,7 @@
 #include <QDebug>
 #include <QEvent>
 #include <QKeyEvent>
-#include <QDesktopServices>
+#include <QInputDialog>
 
 #include "OneSixModEditDialog.h"
 #include "ModEditDialogCommon.h"
@@ -40,6 +40,7 @@
 #include "logic/lists/LiteLoaderVersionList.h"
 #include "logic/ForgeInstaller.h"
 #include "logic/LiteLoaderInstaller.h"
+#include "logic/OptiFineInstaller.h"
 #include "logic/OneSixVersionBuilder.h"
 
 OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
@@ -47,8 +48,13 @@ OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 {
 	MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
-	// libraries!
 
+	// TODO use this to populate the buttons
+	addInstaller(new ForgeInstaller);
+	addInstaller(new LiteLoaderInstaller);
+	addInstaller(new OptiFineInstaller);
+
+	// libraries!
 	m_version = m_inst->getFullVersion();
 	if (m_version)
 	{
@@ -98,14 +104,22 @@ OneSixModEditDialog::~OneSixModEditDialog()
 
 void OneSixModEditDialog::updateVersionControls()
 {
-	ui->forgeBtn->setEnabled(true);
-	ui->liteloaderBtn->setEnabled(true);
+	try
+	{
+		ui->forgeBtn->setEnabled(m_installers["net.minecraftforge"]->canApply(m_inst));
+		ui->liteloaderBtn->setEnabled(m_installers["com.mumfrey.liteloader"]->canApply(m_inst));
+		ui->optifineBtn->setEnabled(m_installers["optifine"]->canApply(m_inst));
+	}
+	catch (...)
+	{
+	}
 }
 
 void OneSixModEditDialog::disableVersionControls()
 {
 	ui->forgeBtn->setEnabled(false);
 	ui->liteloaderBtn->setEnabled(false);
+	ui->optifineBtn->setEnabled(false);
 	ui->reloadLibrariesBtn->setEnabled(false);
 	ui->removeLibraryBtn->setEnabled(false);
 }
@@ -129,6 +143,59 @@ bool OneSixModEditDialog::reloadInstanceVersion()
 			tr("Failed to load the version description file for reasons unknown."));
 		return false;
 	}
+}
+
+bool OneSixModEditDialog::revertCustom()
+{
+	if (m_version->hasFtbPack())
+	{
+		if (QMessageBox::question(this, tr("Revert?"),
+								  tr("This action will remove the FTB pack version patch. Continue?")) !=
+			QMessageBox::Yes)
+		{
+			return false;
+		}
+		m_version->removeFtbPack();
+		reloadInstanceVersion();
+	}
+	if (m_version->isCustom())
+	{
+		if (QMessageBox::question(this, tr("Revert?"),
+								  tr("This action will remove your custom.json. Continue?")) !=
+			QMessageBox::Yes)
+		{
+			return false;
+		}
+		m_version->revertToBase();
+		reloadInstanceVersion();
+	}
+	return true;
+}
+
+bool OneSixModEditDialog::canInstall(const QString &id)
+{
+	try
+	{
+		for (auto installer : m_installers.values())
+		{
+			if (!installer->canApply(m_inst))
+			{
+				return false;
+			}
+			installer->aboutToInstallOther(m_installers[id], m_inst);
+		}
+	}
+	catch (MMCError &error)
+	{
+		QMessageBox::critical(this, tr("Error"), tr("Something went wrong: %1").arg(error.cause()));
+		return false;
+	}
+	return true;
+}
+
+void OneSixModEditDialog::addInstaller(BaseInstaller *installer)
+{
+	m_installers[installer->id()] = std::shared_ptr<BaseInstaller>(installer);
 }
 
 void OneSixModEditDialog::on_reloadLibrariesBtn_clicked()
@@ -199,27 +266,13 @@ void OneSixModEditDialog::on_moveLibraryDownBtn_clicked()
 void OneSixModEditDialog::on_forgeBtn_clicked()
 {
 	// FIXME: use actual model, not reloading. Move logic to model.
-	if (m_version->hasFtbPack())
+	if (!revertCustom())
 	{
-		if (QMessageBox::question(this, tr("Revert?"),
-								  tr("This action will remove the FTB pack version patch. Continue?")) !=
-			QMessageBox::Yes)
-		{
-			return;
-		}
-		m_version->removeFtbPack();
-		reloadInstanceVersion();
+		return;
 	}
-	if (m_version->isCustom())
+	if (!canInstall("net.minecraftforge"))
 	{
-		if (QMessageBox::question(this, tr("Revert?"),
-								  tr("This action will remove your custom.json. Continue?")) !=
-			QMessageBox::Yes)
-		{
-			return;
-		}
-		m_version->revertToBase();
-		reloadInstanceVersion();
+		return;
 	}
 	VersionSelectDialog vselect(MMC->forgelist().get(), tr("Select Forge version"), this);
 	vselect.setFilter(1, m_inst->currentVersionId());
@@ -228,33 +281,19 @@ void OneSixModEditDialog::on_forgeBtn_clicked()
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(ForgeInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		dialog.exec(m_installers["net.minecraftforge"]->createInstallTask(m_inst, vselect.selectedVersion(), this));
 	}
 }
 
 void OneSixModEditDialog::on_liteloaderBtn_clicked()
 {
-	if (m_version->hasFtbPack())
+	if (!revertCustom())
 	{
-		if (QMessageBox::question(this, tr("Revert?"),
-								  tr("This action will remove the FTB pack version patch. Continue?")) !=
-			QMessageBox::Yes)
-		{
-			return;
-		}
-		m_version->removeFtbPack();
-		reloadInstanceVersion();
+		return;
 	}
-	if (m_version->isCustom())
+	if (!canInstall("com.mumfrey.liteloader"))
 	{
-		if (QMessageBox::question(this, tr("Revert?"),
-								  tr("This action will remove your custom.json. Continue?")) !=
-			QMessageBox::Yes)
-		{
-			return;
-		}
-		m_version->revertToBase();
-		reloadInstanceVersion();
+		return;
 	}
 	VersionSelectDialog vselect(MMC->liteloaderlist().get(), tr("Select LiteLoader version"),
 								this);
@@ -264,7 +303,27 @@ void OneSixModEditDialog::on_liteloaderBtn_clicked()
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(LiteLoaderInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		dialog.exec(m_installers["com.mumfrey.liteloader"]->createInstallTask(m_inst, vselect.selectedVersion(), this));
+	}
+}
+
+void OneSixModEditDialog::on_optifineBtn_clicked()
+{
+	if (!revertCustom())
+	{
+		return;
+	}
+	if (!canInstall("optifine"))
+	{
+		return;
+	}
+	VersionSelectDialog vselect(new OptiFineVersionList(this), tr("Select OptiFine version"), this, true, true);
+	vselect.setFilter(0, m_inst->currentVersionId(), Qt::ToolTipRole);
+	vselect.setEmptyString(tr("No OptiFine versions are available, you might add some"));
+	if (vselect.exec() && vselect.selectedVersion())
+	{
+		ProgressDialog dialog(this);
+		dialog.exec(m_installers["optifine"]->createInstallTask(m_inst, vselect.selectedVersion(), this));
 	}
 }
 

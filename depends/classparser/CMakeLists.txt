@@ -8,24 +8,18 @@ find_package(Qt5Core REQUIRED)
 # Include Qt headers.
 include_directories(${Qt5Base_INCLUDE_DIRS})
 
-SET(CLASSPARSER_HEADERS
-include/classparser_config.h
-
-# Public headers
-include/javautils.h
-
-# Private headers
-src/annotations.h
-src/classfile.h
-src/constants.h
-src/errors.h
-src/javaendian.h
-src/membuffer.h
-)
-
 SET(CLASSPARSER_SOURCES
-src/javautils.cpp
-src/annotations.cpp
+ include/classparser_config.h
+
+ include/javautils.h
+ src/javautils.cpp
+
+ src/ClassFile.h
+ src/ClassFile.cpp
+ src/ConstantPool.h
+ src/ConstantPool.cpp
+ src/Attribute.h
+ src/Attribute.cpp
 )
 
 # Set the include dir path.
@@ -35,7 +29,8 @@ SET(LIBGROUPVIEW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" PARENT_SCOPE)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_BINARY_DIR}/include)
 
-add_definitions(-DCLASSPARSER_LIBRARY)
+add_definitions(-DCLASSPARSER_STATIC)
 
-add_library(classparser SHARED ${CLASSPARSER_SOURCES} ${CLASSPARSER_HEADERS})
+add_library(classparser STATIC ${CLASSPARSER_SOURCES})
+target_link_libraries(classparser quazip)
 qt5_use_modules(classparser Core)

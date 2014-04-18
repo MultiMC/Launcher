@@ -225,6 +225,10 @@ include_directories(depends/quazip)
 add_subdirectory(depends/launcher)
 add_subdirectory(depends/javacheck)
 
+# Add the classparser
+add_subdirectory(depends/classparser)
+include_directories(${LIBGROUPVIEW_INCLUDE_DIR})
+
 # Add xz decompression
 add_subdirectory(depends/xz-embedded)
 include_directories(${XZ_INCLUDE_DIR})
@@ -453,6 +457,8 @@ logic/ForgeInstaller.h
 logic/ForgeInstaller.cpp
 logic/LiteLoaderInstaller.h
 logic/LiteLoaderInstaller.cpp
+logic/OptiFineInstaller.h
+logic/OptiFineInstaller.cpp
 
 # Nostalgia
 logic/NostalgiaInstance.h
@@ -479,6 +485,8 @@ logic/lists/JavaVersionList.h
 logic/lists/JavaVersionList.cpp
 logic/lists/LiteLoaderVersionList.h
 logic/lists/LiteLoaderVersionList.cpp
+logic/lists/OptiFineVersionList.h
+logic/lists/OptiFineVersionList.cpp
 
 # the screenshots feature
 logic/screenshots/Screenshot.h
@@ -629,7 +637,7 @@ ADD_EXECUTABLE(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_RCS})
 
 # Link
 TARGET_LINK_LIBRARIES(MultiMC MultiMC_common)
-TARGET_LINK_LIBRARIES(MultiMC_common xz-embedded unpack200 quazip libUtil libSettings ${MultiMC_LINK_ADDITIONAL_LIBS})
+TARGET_LINK_LIBRARIES(MultiMC_common xz-embedded unpack200 quazip libUtil libSettings classparser ${MultiMC_LINK_ADDITIONAL_LIBS})
 QT5_USE_MODULES(MultiMC Core Widgets Network Xml Concurrent ${MultiMC_QT_ADDITIONAL_MODULES})
 QT5_USE_MODULES(MultiMC_common Core Widgets Network Xml Concurrent ${MultiMC_QT_ADDITIONAL_MODULES})
 

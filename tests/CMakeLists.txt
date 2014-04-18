@@ -26,6 +26,17 @@ add_unit_test(userutils tst_userutils.cpp)
 add_unit_test(inifile tst_inifile.cpp)
 add_unit_test(UpdateChecker tst_UpdateChecker.cpp)
 add_unit_test(DownloadUpdateTask tst_DownloadUpdateTask.cpp)
+add_unit_test(classparser tst_classparser.cpp)
+
+include(CMakeJavaInformation) # why do we need this?!?!
+find_package(Java QUIET REQUIRED COMPONENTS Development)
+add_custom_target(ClassParserTestClass
+ COMMAND ${CMAKE_Java_COMPILER} -d ${CMAKE_CURRENT_BINARY_DIR}/data -source 1.6 -target 1.6 -encoding utf8 ClassParserTestClass.java
+ WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+ COMMENT "Building ClassParserTestClass.class..."
+ SOURCES ClassParserTestClass.java
+)
+add_dependencies(tst_classparser ClassParserTestClass)
 
 # Tests END #
 	

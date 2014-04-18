@@ -363,6 +363,7 @@ void MainWindow::showInstanceContextMenu(const QPoint &pos)
 	{
 		actions = ui->instanceToolBar->actions();
 
+
 		QAction *actionVoid = new QAction(m_selectedInstance->name(), this);
 		actionVoid->setEnabled(false);
 

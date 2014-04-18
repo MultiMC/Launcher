@@ -52,6 +52,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="othersButton">
+       <property name="text">
+        <string>Others...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

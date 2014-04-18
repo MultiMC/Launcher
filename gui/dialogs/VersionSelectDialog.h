@@ -33,7 +33,7 @@ class VersionSelectDialog : public QDialog
 
 public:
 	explicit VersionSelectDialog(BaseVersionList *vlist, QString title, QWidget *parent = 0,
-								 bool cancelable = true);
+								 bool cancelable = true, bool others = false);
 	~VersionSelectDialog();
 
 	virtual int exec();
@@ -43,13 +43,14 @@ public:
 
 	BaseVersionPtr selectedVersion() const;
 
-	void setFilter(int column, QString filter);
+	void setFilter(int column, QString filter, int role = Qt::DisplayRole);
 	void setEmptyString(QString emptyString);
 	void setResizeOn(int column);
 
 private
 slots:
 	void on_refreshButton_clicked();
+	void on_othersButton_clicked();
 
 private:
 	Ui::VersionSelectDialog *ui;
