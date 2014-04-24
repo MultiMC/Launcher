@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr_FR" sourcelanguage="en">
+<TS version="2.1" language="fr_FR" sourcelanguage="en">
 <context>
     <name>AboutDialog</name>
     <message>
         <source>Dialog</source>
-        <translation>Dialogue</translation>
+        <translation type="vanished">Dialogue</translation>
     </message>
     <message>
         <source>MultiMC</source>
-        <translation>MultiMC</translation>
+        <translation type="vanished">MultiMC</translation>
     </message>
     <message>
         <location filename="../gui/dialogs/AboutDialog.ui" line="+111"/>
@@ -18,7 +18,7 @@
     </message>
     <message>
         <source>MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once.</source>
-        <translation>MultiMC est un lanceur personalisé qui permet de configurer minecraft plus facilement en permettant l&apos;installation de plusieures instances de minecraft en une.</translation>
+        <translation type="vanished">MultiMC est un lanceur personalisé qui permet de configurer minecraft plus facilement en permettant l&apos;installation de plusieures instances de minecraft en une.</translation>
     </message>
     <message>
         <location line="-91"/>
@@ -301,7 +301,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Jan (02JanDal) &amp;lt;&lt;/span&gt;&lt;a href=&quot;mailto:02jandal@gmail.com&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;02jandal@gmail.com&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Robotbrain &amp;lt;&lt;/span&gt;&lt;a href=&quot;https://twitter.com/skylordelros&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;@skylordelros&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Rootbear75 &amp;lt;&lt;/span&gt;&lt;a href=&quot;https://twitter.com/rootbear75&quot;&gt;&lt;span style=&quot; font-size:10pt; text-decoration: underline; color:#0000ff;&quot;&gt;@rootbear75&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;&amp;gt; (build server)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -325,134 +325,6 @@ p, li { white-space: pre-wrap; }
         <translation>Traduction FR par un mystérieu inconnu au coeur gros comme une montagne :p .</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans Mono&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:18pt; font-weight:600;&quot;&gt;MultiMC&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Copyright 2012-2014 MultiMC Contributors&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Licensed under the Apache License, Version 2.0 (the &amp;quot;License&amp;quot;);&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;you may not use this file except in compliance with the License.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;You may obtain a copy of the License at&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;	http://www.apache.org/licenses/LICENSE-2.0&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Unless required by applicable law or agreed to in writing, software&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;distributed under the License is distributed on an &amp;quot;AS IS&amp;quot; BASIS,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;See the License for the specific language governing permissions and&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;limitations under the License.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:18pt; font-weight:600;&quot;&gt;QSLog&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Copyright (c) 2010, Razvan Petru&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;All rights reserved.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Redistribution and use in source and binary forms, with or without modification,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;are permitted provided that the following conditions are met:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;*	Redistributions of source code must retain the above copyright notice, this&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;	list of conditions and the following disclaimer.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;*	Redistributions in binary form must reproduce the above copyright notice, this&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;	list of conditions and the following disclaimer in the documentation and/or other&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;	materials provided with the distribution.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;*	The name of the contributors may not be used to endorse or promote products&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;	derived from this software without specific prior written permission.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &amp;quot;AS IS&amp;quot; AND&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;OF THE POSSIBILITY OF SUCH DAMAGE.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:18pt; font-weight:600;&quot;&gt;Group View (instance view)&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; /*&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * Copyright (C) 2007 Rafael Fernández López &amp;lt;ereslibre@kde.org&amp;gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * Copyright (C) 2007 John Tapsell &amp;lt;tapsell@kde.org&amp;gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  *&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * This library is free software; you can redistribute it and/or&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * modify it under the terms of the GNU Library General Public&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * License as published by the Free Software Foundation; either&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * version 2 of the License, or (at your option) any later version.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  *&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * This library is distributed in the hope that it will be useful,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * but WITHOUT ANY WARRANTY; without even the implied warranty of&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * Library General Public License for more details.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  *&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * You should have received a copy of the GNU Library General Public License&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * along with this library; see the file COPYING.LIB.  If not, write to&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  * Boston, MA 02110-1301, USA.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;  */&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:18pt; font-weight:600;&quot;&gt;Pack200&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The GNU General Public License (GPL)&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 2, June 1991&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;+ &amp;quot;CLASSPATH&amp;quot; EXCEPTION TO THE GPL&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Certain source files distributed by Oracle America and/or its affiliates are&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;subject to the following clarification and special exception to the GPL, but&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;only where Oracle has expressly included in the particular source file&apos;s header&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;the words &amp;quot;Oracle designates this particular file as subject to the &amp;quot;Classpath&amp;quot;&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;exception as provided by Oracle in the LICENSE file that accompanied this code.&amp;quot;&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    Linking this library statically or dynamically with other modules is making&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    a combined work based on this library.  Thus, the terms and conditions of&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    the GNU General Public License cover the whole combination.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    As a special exception, the copyright holders of this library give you&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    permission to link this library with independent modules to produce an&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    executable, regardless of the license terms of these independent modules,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    and to copy and distribute the resulting executable under terms of your&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    choice, provided that you also meet, for each linked independent module,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    the terms and conditions of the license of that module.  An independent&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    module is a module which is not derived from or based on this library.  If&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    you modify this library, you may extend this exception to your version of&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    the library, but you are not obligated to do so.  If you do not wish to do&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;    so, delete this exception statement from your version.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:18pt; font-weight:600;&quot;&gt;Quazip&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Copyright (C) 2005-2011 Sergey A. Tachenov&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This program is free software; you can redistribute it and/or modify it&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;under the terms of the GNU Lesser General Public License as published by&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;the Free Software Foundation; either version 2 of the License, or (at&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;your option) any later version.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This program is distributed in the hope that it will be useful, but&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;WITHOUT ANY WARRANTY; without even the implied warranty of&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;General Public License for more details.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;You should have received a copy of the GNU Lesser General Public License&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;along with this program; if not, write to the Free Software Foundation,&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;See COPYING file for the full LGPL text.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Original ZIP package is copyrighted by Gilles Vollant, see&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;quazip/(un)zip.h files for details, basically it&apos;s zlib license.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:18pt; font-weight:600;&quot;&gt;xz-minidec&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;/*&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; * XZ decompressor&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; *&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; * Authors: Lasse Collin &amp;lt;lasse.collin@tukaani.org&amp;gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; *          Igor Pavlov &amp;lt;http://7-zip.org/&amp;gt;&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; *&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; * This file has been put into the public domain.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; * You can do whatever you want with this file.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; */&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
         <location line="+208"/>
         <source>Forking/Redistribution</source>
         <translation></translation>
@@ -467,7 +339,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:11pt;&quot;&gt;Part of the reason for using the Apache license is we don&apos;t want people using the &amp;quot;MultiMC&amp;quot; name when redistributing the project. This means people must take the time to go through the source code and remove all references to &amp;quot;MultiMC&amp;quot;, including but not limited to the project icon and the title of windows, (no *MultiMC-fork* in the title).&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Bitstream Vera Sans&apos;; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:11pt;&quot;&gt;The Apache license covers reasonable use for the name - a mention of the project&apos;s origins in the About dialog and the license is acceptable. However, it should be abundantly clear that the project is a fork &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:11pt; font-weight:600;&quot;&gt;without&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Bitstream Vera Sans&apos;; font-size:11pt;&quot;&gt; implying that you have our blessing.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -566,14 +438,13 @@ p, li { white-space: pre-wrap; }
         <translation>&amp;Pas de compte par défaut</translation>
     </message>
     <message>
-        <location filename="../gui/dialogs/AccountListDialog.cpp" line="+71"/>
+        <location filename="../gui/dialogs/AccountListDialog.cpp" line="+73"/>
         <source>Please enter your Mojang or Minecraft account username and password to add your account.</source>
         <translation>Veuillez entrer le nom d&apos;utilisateur et le mot de passe de votre compte Mojang ou Minecraft pour ajouter celui-ci.</translation>
     </message>
     <message>
-        <location line="+84"/>
         <source>Login error.</source>
-        <translation>Erreur de connexion.</translation>
+        <translation type="vanished">Erreur de connexion.</translation>
     </message>
 </context>
 <context>
@@ -610,7 +481,32 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AuthenticateTask</name>
     <message>
-        <location filename="../logic/auth/flows/AuthenticateTask.cpp" line="+197"/>
+        <location filename="../logic/auth/flows/AuthenticateTask.cpp" line="+87"/>
+        <source>Authentication server didn&apos;t send a client token.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Authentication server attempted to change the client token. This isn&apos;t supported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Authentication server didn&apos;t send an access token.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Authentication server didn&apos;t specify a currently selected profile. The account exists, but likely isn&apos;t premium.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Authentication server specified a selected profile that wasn&apos;t in the available profiles list.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
         <source>Authenticating: Sending request...</source>
         <translation>Authentification: Envoi de la requête...</translation>
     </message>
@@ -670,7 +566,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Kill Minecraft</source>
-        <translation>Tuer le processus</translation>
+        <translation type="vanished">Tuer le processus</translation>
     </message>
     <message>
         <location filename="../gui/ConsoleWindow.cpp" line="+58"/>
@@ -948,11 +844,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Account Settings</source>
-        <translation>Options de compte</translation>
+        <translation type="vanished">Options de compte</translation>
     </message>
     <message>
         <source>Login automatically when an instance icon is double clicked?</source>
-        <translation>Se connecter automatiquement quand un double clic est effectué sur une icone d&apos;instance?</translation>
+        <translation type="vanished">Se connecter automatiquement quand un double clic est effectué sur une icone d&apos;instance?</translation>
     </message>
     <message>
         <location line="-160"/>
@@ -1001,7 +897,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Auto-detect</source>
-        <translation>Auto-détection</translation>
+        <translation type="vanished">Auto-détection</translation>
     </message>
     <message>
         <location line="+33"/>
@@ -1185,14 +1081,14 @@ p, li { white-space: pre-wrap; }
         <translation>Pack de ressource</translation>
     </message>
     <message>
-        <location filename="../gui/dialogs/OneSixModEditDialog.cpp" line="+325"/>
+        <location filename="../gui/dialogs/OneSixModEditDialog.cpp" line="+361"/>
         <location filename="../gui/dialogs/LegacyModEditDialog.cpp" line="+258"/>
         <source>Select Loader Mods</source>
         <extracomment>Title of regular mod selection dialog</extracomment>
         <translation>Sélectionner les Mods Normaux</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+78"/>
         <source>Select Resource Packs</source>
         <translation>Sélectionner le Pack de ressource</translation>
     </message>
@@ -1223,7 +1119,32 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LegacyUpdate</name>
     <message>
-        <location filename="../logic/LegacyUpdate.cpp" line="+80"/>
+        <location filename="../logic/LegacyUpdate.cpp" line="+122"/>
+        <source>Checking for FML libraries...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Dowloading FML libraries...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Copying FML libraries into the instance...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Failed creating FML library folder inside the instance.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Failed copying Forge/FML library: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
         <source>Downloading new LWJGL...</source>
         <translation>Téléchargement d&apos;un nouveau LWJGL...</translation>
     </message>
@@ -1285,72 +1206,88 @@ p, li { white-space: pre-wrap; }
     <name>LoginDialog</name>
     <message>
         <source>Login</source>
-        <translation>Connexion</translation>
+        <translation type="vanished">Connexion</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation>Nom d&apos;utilisateur:</translation>
+        <translation type="vanished">Nom d&apos;utilisateur:</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation>Mot de passe:</translation>
+        <translation type="vanished">Mot de passe:</translation>
     </message>
     <message>
+        <location filename="../gui/dialogs/LoginDialog.ui" line="+20"/>
+        <source>Add Account</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Message label placeholder.</source>
+        <translation type="unfinished">Espace réservé pour le méssage du label.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Email / Username</source>
+        <translation type="unfinished">E-Mail / Nom d&apos;utilisateur</translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Password</source>
         <translation>Mot de passe</translation>
     </message>
     <message>
         <source>Forget</source>
-        <translation>Oublier</translation>
+        <translation type="vanished">Oublier</translation>
     </message>
     <message>
         <source>&amp;Remember Username?</source>
-        <translation>&amp;Se souvenir du nom d&apos;utilisateur?</translation>
+        <translation type="vanished">&amp;Se souvenir du nom d&apos;utilisateur?</translation>
     </message>
     <message>
         <source>R&amp;emember Password?</source>
-        <translation>&amp;Se souvenir du mot de passe?</translation>
+        <translation type="vanished">&amp;Se souvenir du mot de passe?</translation>
     </message>
     <message>
         <source>Offline Once</source>
         <extracomment>Use offline mode one time</extracomment>
-        <translation>Hors ligne 1 fois</translation>
+        <translation type="vanished">Hors ligne 1 fois</translation>
     </message>
     <message>
         <source>Name</source>
         <extracomment>The username during login (placeholder)</extracomment>
-        <translation>Nom</translation>
+        <translation type="vanished">Nom</translation>
     </message>
 </context>
 <context>
     <name>LoginTask</name>
     <message>
         <source>Logging in...</source>
-        <translation>Connexion en cour...</translation>
+        <translation type="vanished">Connexion en cour...</translation>
     </message>
     <message>
         <source>Invalid username or password.</source>
-        <translation>Nom d&apos;utilisateur ou mots de passe incorrect.</translation>
+        <translation type="vanished">Nom d&apos;utilisateur ou mots de passe incorrect.</translation>
     </message>
     <message>
         <source>Launcher outdated, please update.</source>
-        <translation>Le lanceur n&apos;est pas à jour, mettez le à jour s&apos;il vous plaît.</translation>
+        <translation type="vanished">Le lanceur n&apos;est pas à jour, mettez le à jour s&apos;il vous plaît.</translation>
     </message>
     <message>
         <source>Login failed: %1</source>
-        <translation>Échec de la connexion: %1</translation>
+        <translation type="vanished">Échec de la connexion: %1</translation>
     </message>
     <message>
         <source>The login servers are currently unavailable. Check http://help.mojang.com/ for more info.</source>
-        <translation>Le serveur de connexion est actuellement indisponible. Visitez http://help.mojang.com/ pour plus d&apos;information.</translation>
+        <translation type="vanished">Le serveur de connexion est actuellement indisponible. Visitez http://help.mojang.com/ pour plus d&apos;information.</translation>
     </message>
     <message>
         <source>Login failed: Unknown HTTP error %1 occurred.</source>
-        <translation>Échec de la connexion: Une erreur inconnue HTTP %1 est survenue.</translation>
+        <translation type="vanished">Échec de la connexion: Une erreur inconnue HTTP %1 est survenue.</translation>
     </message>
     <message>
         <source>Login canceled.</source>
-        <translation>Connexion annulé.</translation>
+        <translation type="vanished">Connexion annulé.</translation>
     </message>
 </context>
 <context>
@@ -1399,7 +1336,7 @@ p, li { white-space: pre-wrap; }
         <translation>Barre d&apos;outils principale</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+45"/>
         <source>Instance Toolbar</source>
         <translation>Barre d&apos;outils des instances</translation>
     </message>
@@ -1416,12 +1353,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+3"/>
         <location line="+3"/>
-        <location line="+342"/>
+        <location line="+358"/>
         <source>Add a new instance.</source>
         <translation>Ajouter une nouvelle instance.</translation>
     </message>
     <message>
-        <location line="-332"/>
+        <location line="-348"/>
         <source>View Instance Folder</source>
         <translation>Voir le dossier des instances</translation>
     </message>
@@ -1466,12 +1403,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location line="+10"/>
-        <location line="+136"/>
+        <location line="+152"/>
         <source>Settings</source>
         <translation>Options</translation>
     </message>
     <message>
-        <location line="-133"/>
+        <location line="-149"/>
         <location line="+3"/>
         <source>Change settings.</source>
         <translation>Modifier les options.</translation>
@@ -1488,15 +1425,11 @@ p, li { white-space: pre-wrap; }
         <translation>Ouvrir le traqueur de bug pour reporter un bug avec MultiMC.</translation>
     </message>
     <message>
-        <source>News</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Open the MultiMC dev blog to read news about MultiMC.</source>
-        <translation>Ouvrir le dev blogue MultiMC pour lire les nouvelles sur MultiMC.</translation>
+        <translation type="vanished">Ouvrir le dev blogue MultiMC pour lire les nouvelles sur MultiMC.</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+26"/>
         <source>More News</source>
         <translation>Plus de nouvelles</translation>
     </message>
@@ -1530,12 +1463,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+3"/>
         <location line="+3"/>
-        <location line="+213"/>
+        <location line="+223"/>
         <source>Launch the selected instance.</source>
         <translation>Lancer l&apos;instance sélectionné.</translation>
     </message>
     <message>
-        <location line="-208"/>
+        <location line="-218"/>
         <source>Instance Name</source>
         <translation>Nom de l&apos;instance</translation>
     </message>
@@ -1682,7 +1615,17 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;C&apos;est un minou moelleux :3&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+21"/>
+        <source>Add QuickMod File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Update QuickMod Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
         <source>Launch the selected instance in offline mode.</source>
         <translation>Lancer l&apos;instance sélectionnée en mode hors ligne.</translation>
     </message>
@@ -1697,18 +1640,29 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Voir et envoyer les captures d&apos;écrans pour cette instance&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="-33"/>
+        <location line="-43"/>
         <source>Copy Instance</source>
         <translation>Copier une instance</translation>
     </message>
     <message>
+        <location line="-243"/>
+        <source>Support us on Patreon!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+3"/>
+        <location line="+3"/>
+        <source>Open the MultiMC Patreon page.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+240"/>
         <source>Copy the selected instance.</source>
         <translation>Copier l&apos;instance sélectionnée.</translation>
     </message>
     <message>
-        <location line="+8"/>
-        <location filename="../gui/MainWindow.cpp" line="+241"/>
+        <location line="+18"/>
+        <location filename="../gui/MainWindow.cpp" line="+255"/>
         <source>Manage Accounts</source>
         <translation>Gérer les comptes</translation>
     </message>
@@ -1745,18 +1699,33 @@ You are using the latest version.</source>
 Vous utilisez la dernière version.</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+47"/>
         <source>Rename</source>
         <translation>renommer</translation>
     </message>
     <message>
-        <location line="+20"/>
-        <location line="+929"/>
+        <location line="+3"/>
+        <source>Copy instance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>MultiMC</source>
+        <translation type="unfinished">MultiMC</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Create instance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <location line="+990"/>
         <source>Launch</source>
         <translation>Lancer</translation>
     </message>
     <message>
-        <location line="-927"/>
+        <location line="-988"/>
         <source>Profilers</source>
         <translation></translation>
     </message>
@@ -1796,7 +1765,7 @@ Vous utilisez la dernière version.</translation>
         <translation>Pas de nouvelles disponibles.</translation>
     </message>
     <message>
-        <location line="+190"/>
+        <location line="+220"/>
         <location line="+71"/>
         <source>Failed to create instance %1: </source>
         <translation>Impossible de créer une instance %1: </translation>
@@ -1816,14 +1785,14 @@ Vous utilisez la dernière version.</translation>
         <location line="+37"/>
         <location line="+7"/>
         <location line="+7"/>
-        <location line="+424"/>
+        <location line="+455"/>
         <location line="+30"/>
         <location line="+80"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
-        <location line="-613"/>
+        <location line="-644"/>
         <location line="+71"/>
         <source>Failed to create the instance directory.</source>
         <translation>Impossible de créer le répertoire de l&apos;instance.</translation>
@@ -1836,14 +1805,14 @@ Vous utilisez la dernière version.</translation>
     </message>
     <message>
         <location line="-49"/>
-        <location line="+585"/>
+        <location line="+616"/>
         <source>MultiMC cannot download Minecraft or update instances unless you have at least one account added.
 Please add your Mojang or Minecraft account.</source>
         <translation>MultiMC ne peut pas télécharger ou mettre à jour l&apos;instance Minecraft, sauf si vous avez au moins un compte ajouté. 
 S&apos;il vous plaît ajouter votre compte Mojang ou Minecraft.</translation>
     </message>
     <message>
-        <location line="-473"/>
+        <location line="-504"/>
         <source>Group name</source>
         <translation>Nom du groupe</translation>
     </message>
@@ -1853,7 +1822,7 @@ S&apos;il vous plaît ajouter votre compte Mojang ou Minecraft.</translation>
         <translation>Entrez le nom du nouveau groupe.</translation>
     </message>
     <message>
-        <location line="+92"/>
+        <location line="+97"/>
         <source>CAREFUL</source>
         <translation>ATTENTION</translation>
     </message>
@@ -1905,7 +1874,21 @@ Instance en question: </translation>
         <translation>Choisissez votre nom de joueur en mode hors ligne.</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location line="+43"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The following mods have new updates:
+
+%1
+
+ Update now?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+51"/>
         <source>Couldn&apos;t start profiler: %1</source>
         <translation>Impossible de démarrer le profiler: %1</translation>
     </message>
@@ -1934,7 +1917,7 @@ Instance en question: </translation>
         <translation>Impossible de démarrer le profiler: %1</translation>
     </message>
     <message>
-        <location line="+294"/>
+        <location line="+304"/>
         <source>Failed to load screenshots!</source>
         <translation>Impossible de charger les captures d&apos;écran!</translation>
     </message>
@@ -1945,12 +1928,12 @@ Instance en question: </translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.ui" line="+5"/>
-        <location filename="../gui/MainWindow.cpp" line="-433"/>
+        <location filename="../gui/MainWindow.cpp" line="-469"/>
         <source>Play Offline</source>
         <translation>Jouer Hors ligne</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="+150"/>
+        <location filename="../gui/MainWindow.cpp" line="+176"/>
         <source>Error updating instance</source>
         <translation>Erreur de mise à jour de l&apos;instance</translation>
     </message>
@@ -2000,7 +1983,7 @@ Instance en question: </translation>
         <translation>Renommer l&apos;instance</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+89"/>
         <source>Select a Java version</source>
         <translation>Sélectionner une version de Java</translation>
     </message>
@@ -2172,19 +2155,28 @@ Instance en question: </translation>
     <name>OneSixFTBInstanceForge</name>
     <message>
         <source>Downloading Forge...</source>
-        <translation>Téléchargement de Forge...</translation>
+        <translation type="vanished">Téléchargement de Forge...</translation>
     </message>
     <message>
         <source>Installing Forge...</source>
-        <translation>Installation de Forge...</translation>
+        <translation type="vanished">Installation de Forge...</translation>
     </message>
     <message>
         <source>Couldn&apos;t load the version config</source>
-        <translation>Impossible de charger la version de la configuration</translation>
+        <translation type="vanished">Impossible de charger la version de la configuration</translation>
     </message>
     <message>
         <source>Couldn&apos;t install Forge</source>
-        <translation>Impossible d&apos;installer Forge</translation>
+        <translation type="vanished">Impossible d&apos;installer Forge</translation>
+    </message>
+</context>
+<context>
+    <name>OneSixInstance</name>
+    <message>
+        <location filename="../logic/OneSixInstance.cpp" line="+490"/>
+        <location line="+27"/>
+        <source>Couldn&apos;t open %1 for writing: %2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2192,7 +2184,7 @@ Instance en question: </translation>
     <message>
         <source>Dialog</source>
         <translatorcomment>Am i really responsible for this? yes you are ;p</translatorcomment>
-        <translation>Éditer Mods</translation>
+        <translation type="vanished">Éditer Mods</translation>
     </message>
     <message>
         <location filename="../gui/dialogs/OneSixModEditDialog.ui" line="+149"/>
@@ -2201,12 +2193,12 @@ Instance en question: </translation>
     </message>
     <message>
         <location line="+30"/>
-        <location line="+67"/>
+        <location line="+88"/>
         <source>&amp;Add</source>
         <translation>&amp;Ajouter</translation>
     </message>
     <message>
-        <location line="-232"/>
+        <location line="-253"/>
         <source>Manage Mods</source>
         <translation>Gérer les Mods</translation>
     </message>
@@ -2217,7 +2209,7 @@ Instance en question: </translation>
     </message>
     <message>
         <source>Main Class:</source>
-        <translation>Class principale:</translation>
+        <translation type="vanished">Class principale:</translation>
     </message>
     <message>
         <location line="+25"/>
@@ -2257,7 +2249,17 @@ Instance en question: </translation>
         <translation>Réinitialiser l&apos;ordre</translation>
     </message>
     <message>
-        <location line="-20"/>
+        <location line="+60"/>
+        <source>&amp;Install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-94"/>
         <source>Move up</source>
         <translation>Déplacer vers le haut</translation>
     </message>
@@ -2268,37 +2270,37 @@ Instance en question: </translation>
     </message>
     <message>
         <source>Create an customized copy of the base version</source>
-        <translation>Créer une copie personnalisée de la version de base</translation>
+        <translation type="vanished">Créer une copie personnalisée de la version de base</translation>
     </message>
     <message>
         <source>Customize</source>
-        <translation>Personnaliser</translation>
+        <translation type="vanished">Personnaliser</translation>
     </message>
     <message>
         <source>Revert to original base version</source>
-        <translation>Revenir à la version d&apos;origine de base</translation>
+        <translation type="vanished">Revenir à la version d&apos;origine de base</translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation>Revenir</translation>
+        <translation type="vanished">Revenir</translation>
     </message>
     <message>
         <source>Add new libraries</source>
-        <translation>Ajouter de nouvelles libraries</translation>
+        <translation type="vanished">Ajouter de nouvelles libraries</translation>
     </message>
     <message>
         <source>Remove selected libraries</source>
-        <translation>Retirer les bibliothèques sélectionnées</translation>
+        <translation type="vanished">Retirer les bibliothèques sélectionnées</translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+91"/>
         <location line="+67"/>
         <source>&amp;Remove</source>
         <translation>&amp;Supprimer</translation>
     </message>
     <message>
         <source>Open custom.json</source>
-        <translation>Ouvrir custom.json</translation>
+        <translation type="vanished">Ouvrir custom.json</translation>
     </message>
     <message>
         <location line="-47"/>
@@ -2312,17 +2314,17 @@ Instance en question: </translation>
         <translation>Packs de ressources</translation>
     </message>
     <message>
-        <location filename="../gui/dialogs/OneSixModEditDialog.cpp" line="-206"/>
+        <location filename="../gui/dialogs/OneSixModEditDialog.cpp" line="-257"/>
         <source>Couldn&apos;t remove file</source>
         <translation>Impossible de supprimer le fichier</translation>
     </message>
     <message>
-        <location line="-17"/>
+        <location line="-47"/>
         <source>Failed to load the version description file for reasons unknown.</source>
         <translation>Impossible de charger le fichier de description de la version pour des raisons inconnues.</translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+105"/>
         <location line="+11"/>
         <location line="+24"/>
         <location line="+11"/>
@@ -2357,58 +2359,74 @@ Instance en question: </translation>
         <translation>Aucune versions de LiteLoader sont actuellement disponibles pour Minecraft</translation>
     </message>
     <message>
-        <source>Do you want to revert the version of this instance to its original configuration?</source>
-        <translation>Voulez-vous remettre la version de cette instance en sa configuration d&apos;origine?</translation>
+        <location line="+99"/>
+        <source>Unable to schedule mod for removal:
+
+%1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-140"/>
-        <location line="+6"/>
         <location line="+18"/>
+        <source>Unable to schedule mod for update:
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to revert the version of this instance to its original configuration?</source>
+        <translation type="vanished">Voulez-vous remettre la version de cette instance en sa configuration d&apos;origine?</translation>
+    </message>
+    <message>
+        <location line="-287"/>
+        <location line="+6"/>
+        <location line="+48"/>
         <location line="+13"/>
         <location line="+18"/>
+        <location line="+18"/>
+        <location line="+166"/>
         <location line="+18"/>
         <source>Error</source>
         <translation>Erreur</translation>
     </message>
     <message>
         <source>Unable to open custom.json, check the settings</source>
-        <translation>Impossible d&apos;ouvrir custom.json, vérifiez les paramètres</translation>
+        <translation type="vanished">Impossible d&apos;ouvrir custom.json, vérifiez les paramètres</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="-155"/>
         <source>Select Forge version</source>
         <translation>Sélectionnez la version de Forge</translation>
     </message>
     <message>
         <source>This will revert any changes you did to the version up to this point. Is that OK?</source>
-        <translation>Cela remattra tout changement que vous avez fait à la version jusqu&apos;à ce point. êtes vous d&apos;accord?</translation>
+        <translation type="vanished">Cela remattra tout changement que vous avez fait à la version jusqu&apos;à ce point. êtes vous d&apos;accord?</translation>
     </message>
     <message>
         <source>LiteLoader</source>
-        <translation>LiteLoader</translation>
+        <translation type="vanished">LiteLoader</translation>
     </message>
     <message>
         <source>There is no information available on how to install LiteLoader into this version of Minecraft</source>
-        <translation>Il n&apos;y a pas d&apos;informations sur la façon d&apos;installer LiteLoader dans cette version de Minecraft</translation>
+        <translation type="vanished">Il n&apos;y a pas d&apos;informations sur la façon d&apos;installer LiteLoader dans cette version de Minecraft</translation>
     </message>
     <message>
         <source>For reasons unknown, the LiteLoader installation failed. Check your MultiMC log files for details.</source>
-        <translation>Pour des raisons inconnues, l&apos;installation de LiteLoader a échoué. Vérifiez les fichiers logs de MultiMC pour plus de détails.</translation>
+        <translation type="vanished">Pour des raisons inconnues, l&apos;installation de LiteLoader a échoué. Vérifiez les fichiers logs de MultiMC pour plus de détails.</translation>
     </message>
 </context>
 <context>
     <name>OneSixUpdate</name>
     <message>
         <source>Testing the Java installation...</source>
-        <translation>Test de l&apos;installation de Java...</translation>
+        <translation type="vanished">Test de l&apos;installation de Java...</translation>
     </message>
     <message>
-        <location filename="../logic/OneSixUpdate.cpp" line="+51"/>
+        <location filename="../logic/OneSixUpdate.cpp" line="+53"/>
         <source>Failed to create folder for minecraft binaries.</source>
         <translation>Impossible de créer un dossier pour les fichiers binaires de Minecraft.</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+18"/>
         <source>The specified Minecraft version is invalid. Choose a different one.</source>
         <translation>La version Minecraft spécifié n&apos;est pas valide. Choisissez en une autre.</translation>
     </message>
@@ -2488,7 +2506,15 @@ Instance en question: </translation>
         <translation>Libraries pour l&apos;instance %1</translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+66"/>
+        <source>Some libraries marked as &apos;local&apos; are missing their jar files:
+%1
+
+You&apos;ll have to correct this problem manually. If this is an externally tracked instance, make sure to run it at least once outside of MultiMC.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
         <source>Failed to download the following files:
 %1
 
@@ -2500,7 +2526,7 @@ Essayez de nouveau.</translation>
     </message>
     <message>
         <source>Preparing for launch...</source>
-        <translation>Préparation pour le lancement...</translation>
+        <translation type="vanished">Préparation pour le lancement...</translation>
     </message>
 </context>
 <context>
@@ -2546,7 +2572,7 @@ Vos réglages manuels seront remplacés par les options dédiées.
 Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</translation>
     </message>
     <message>
-        <location filename="../gui/dialogs/ModEditDialogCommon.cpp" line="+53"/>
+        <location filename="../gui/dialogs/ModEditDialogCommon.cpp" line="+54"/>
         <source>How sad!</source>
         <translation>Quelle tristesse!</translation>
     </message>
@@ -2593,7 +2619,7 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
         <translation>Dernier</translation>
     </message>
     <message>
-        <location filename="../logic/VersionFile.cpp" line="+475"/>
+        <location filename="../logic/VersionFile.cpp" line="+551"/>
         <location line="+27"/>
         <source>Error resolving library dependencies between %1 and %2 in %3.</source>
         <translation>Résolution de l&apos;erreur des dépendances de la bibliothèque entre %1 et %2 dans %3.</translation>
@@ -2610,13 +2636,13 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
         <translation>Le patch %1 est pour une version différente de Minecraft (%2) que celle de l&apos;instance (%3).</translation>
     </message>
     <message>
-        <location filename="../logic/OneSixVersionBuilder.cpp" line="+127"/>
+        <location filename="../logic/OneSixVersionBuilder.cpp" line="+125"/>
         <source>%1 has the same order as %2</source>
         <translatorcomment>a revoir</translatorcomment>
         <translation>%1 a le même nom que %2</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+53"/>
         <source>Unable to open the version file %1: %2.</source>
         <translation>Impossible d&apos;ouvrir le fichier de la version %1: %2.</translation>
     </message>
@@ -2625,11 +2651,473 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
         <source>Unable to process the version file %1: %2 at %3.</source>
         <translation>Impossible de traiter la version du fichier %1: %2 à %3.</translation>
     </message>
+    <message>
+        <location filename="../logic/quickmod/QuickModVersion.cpp" line="+74"/>
+        <source>Unknown reference type &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Unknown value for &quot;downloadType&quot; field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Unknown value for &quot;installType&quot; field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../logic/MMCJson.h" line="+23"/>
+        <source>Error opening %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModAddFileDialog</name>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModAddFileDialog.ui" line="+20"/>
+        <source>Add QuickMod file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Browse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Protip:&lt;/span&gt; You can also drag and drop files and URLs to anywhere onto MultiMC&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModAddFileDialog.cpp" line="+127"/>
+        <source>Add QuickMod File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>QuickMod files (*.quickmod *.json)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModChooseModDialog</name>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModChooseModDialog.ui" line="+14"/>
+        <source>Browse mods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Download/Add QuickMod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Update QuickMods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Description:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Website:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Categories:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tags:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+46"/>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Category:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Tags:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use commas (,) to separate tags:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;tag1, tag2, tag3, tag4&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>tag1, tag2, tag3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Type your search here...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModChooseModDialog.cpp" line="+257"/>
+        <source>Error</source>
+        <translation type="unfinished">Erreur</translation>
+    </message>
+</context>
+<context>
+    <name>QuickModDependencyDownloadTask</name>
+    <message>
+        <location filename="../logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp" line="+18"/>
+        <source>Fetching QuickMods files...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModDependencyResolver</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModDependencyResolver.cpp" line="+33"/>
+        <source>Didn&apos;t select a version for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Choose QuickMod version for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>The dependency from %1 (%2) to %3 cannot be resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Didn&apos;t select a version while resolving from %1 (%2) to %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Successfully resolved dependency from %1 (%2) to %3 (%4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>The dependency from %1 (%2) to %3 (%4) cannot be resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModDownloadTask</name>
+    <message>
+        <location filename="../logic/quickmod/tasks/QuickModDownloadTask.cpp" line="+32"/>
+        <source>Mod not available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>You seem to be missing the QuickMod file for %1. Skip it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Missing %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+50"/>
+        <source>Failure downloading QuickMods</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModFilesUpdater</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModFilesUpdater.cpp" line="+172"/>
+        <location line="+76"/>
+        <source>QuickMod parse error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-59"/>
+        <source>Error opening %1 for writing: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Error downloading %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Error opening %1 for reading: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModForgeDownloadTask</name>
+    <message>
+        <location filename="../logic/quickmod/tasks/QuickModForgeDownloadTask.cpp" line="+53"/>
+        <source>Select Forge version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>No Forge versions are currently available for Minecraft </source>
+        <translation type="unfinished">Pas de versions Forge actuellement disponibles pour Minecraft</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>No forge version selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModInstallDialog</name>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModInstallDialog.ui" line="+14"/>
+        <source>Installing mod...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Dependencies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Web</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Previous</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Downloads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Name</source>
+        <translation type="unfinished">Nom</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Version</source>
+        <translation type="unfinished">Version</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Finish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModInstallDialog.cpp" line="+187"/>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Nothing to do</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+143"/>
+        <source>Installing...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Success: Installed successfully</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModInstaller</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModInstaller.cpp" line="+110"/>
+        <source>Error: Trying to extract an unknown file type %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <location line="+5"/>
+        <source>Error: Deploying %1 to %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Error: Checksum mismatch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Error: Trying to save %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModInstanceModList</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModInstanceModList.cpp" line="+102"/>
+        <source>TBD</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModVerificationTask</name>
+    <message>
+        <location filename="../logic/quickmod/tasks/QuickModVerificationTask.cpp" line="+22"/>
+        <source>QuickMod verification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <location line="+22"/>
+        <source>Trust website?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-21"/>
+        <source>The QuickMod %1 verifies against %2.
+Trust %2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Once</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Always</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <location line="+24"/>
+        <source>%1 did not pass verification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-12"/>
+        <source>The QuickMod %1 does NOT verify against %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>You may add a one-time exception, but it&apos;s strictly recommended that you don&apos;t.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Add one-time exception</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModVersionListLoadTask</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModVersion.cpp" line="+62"/>
+        <source>Fetching QuickMod version list...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Parsing reply...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+19"/>
+        <source>Couldn&apos;t parse reply. See the log for details.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RefreshTask</name>
     <message>
-        <location filename="../logic/auth/flows/RefreshTask.cpp" line="+146"/>
+        <location filename="../logic/auth/flows/RefreshTask.cpp" line="+76"/>
+        <source>Authentication server didn&apos;t send a client token.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Authentication server attempted to change the client token. This isn&apos;t supported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Authentication server didn&apos;t send an access token.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Authentication server didn&apos;t specify the same prefile as expected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
         <source>Refreshing login token...</source>
         <translation>Rafraîchissement du token de connexion...</translation>
     </message>
@@ -2696,9 +3184,8 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
         <translation>Impossible d&apos;actualiser la liste: %1</translation>
     </message>
     <message>
-        <location line="-41"/>
         <source>Selected instance does not have any screenshots!</source>
-        <translation>L&apos;instance sélectionné ne contient aucune capture d&apos;écran!</translation>
+        <translation type="vanished">L&apos;instance sélectionné ne contient aucune capture d&apos;écran!</translation>
     </message>
 </context>
 <context>
@@ -2710,7 +3197,7 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
     </message>
     <message>
         <source>General</source>
-        <translation>Général</translation>
+        <translation type="vanished">Général</translation>
     </message>
     <message>
         <location line="+283"/>
@@ -2734,7 +3221,7 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
     </message>
     <message>
         <source>Use development builds?</source>
-        <translation>Utilisez les versions de développement?</translation>
+        <translation type="vanished">Utilisez les versions de développement?</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -2999,11 +3486,21 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
         <translation></translation>
     </message>
     <message>
-        <source>Login automatically when an instance icon is double clicked?</source>
-        <translation>Se connecter automatiquement quand un double clic est effectué sur une icone d&apos;instance?</translation>
+        <location line="+24"/>
+        <source>QuickMods</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-507"/>
+        <location line="+6"/>
+        <source>Always use latest version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Login automatically when an instance icon is double clicked?</source>
+        <translation type="vanished">Se connecter automatiquement quand un double clic est effectué sur une icone d&apos;instance?</translation>
+    </message>
+    <message>
+        <location line="-537"/>
         <source>Java</source>
         <translation>Java</translation>
     </message>
@@ -3076,11 +3573,11 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
     </message>
     <message>
         <source>Browse...</source>
-        <translation>Parcourir...</translation>
+        <translation type="vanished">Parcourir...</translation>
     </message>
     <message>
         <source>Auto-detect</source>
-        <translation>Auto-détection</translation>
+        <translation type="vanished">Auto-détection</translation>
     </message>
     <message>
         <location line="+39"/>
@@ -3148,12 +3645,12 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
         <translation>Le fichier choisi ne semble pas être un exécutable</translation>
     </message>
     <message>
-        <location line="+206"/>
+        <location line="+209"/>
         <source>English</source>
         <translation></translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+147"/>
         <source>JProfiler Directory</source>
         <translation>Répertoire de JProfiler</translation>
     </message>
@@ -3230,11 +3727,11 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
     </message>
     <message>
         <source>Development builds</source>
-        <translation>Builds en dévellopements</translation>
+        <translation type="vanished">Builds en dévellopements</translation>
     </message>
     <message>
         <source>Development builds contain experimental features and may be unstable. Are you sure you want to enable them?</source>
-        <translation>Les builds en dévellopements peuvent contenir des fonctionnalités expérimentales et peuvent êtres instables. Etes-vous sûr que vous voulez les permettres?</translation>
+        <translation type="vanished">Les builds en dévellopements peuvent contenir des fonctionnalités expérimentales et peuvent êtres instables. Etes-vous sûr que vous voulez les permettres?</translation>
     </message>
     <message>
         <location line="-170"/>
@@ -3294,7 +3791,7 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
 <context>
     <name>ValidateTask</name>
     <message>
-        <location filename="../logic/auth/flows/ValidateTask.cpp" line="+58"/>
+        <location filename="../logic/auth/flows/ValidateTask.cpp" line="+57"/>
         <source>Validating access token: Sending request...</source>
         <translation>Validation du token d&apos;accès: Envoi de la requête...</translation>
     </message>
@@ -3334,7 +3831,7 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
     <name>VersionSelectDialog</name>
     <message>
         <source>Dialog</source>
-        <translation>Dialogue</translation>
+        <translation type="vanished">Dialogue</translation>
     </message>
     <message>
         <location filename="../gui/dialogs/VersionSelectDialog.ui" line="+14"/>
@@ -3353,25 +3850,51 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
     </message>
 </context>
 <context>
+    <name>WebDownloadNavigator</name>
+    <message>
+        <location filename="../gui/widgets/WebDownloadNavigator.cpp" line="+14"/>
+        <source>&lt;h1&gt;Loading...&lt;/h1&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>YggdrasilTask</name>
     <message>
-        <location filename="../logic/auth/YggdrasilTask.cpp" line="+104"/>
+        <location filename="../logic/auth/YggdrasilTask.cpp" line="+119"/>
         <source>&lt;b&gt;SSL Handshake failed.&lt;/b&gt;&lt;br/&gt;There might be a few causes for it:&lt;br/&gt;&lt;ul&gt;&lt;li&gt;You use Windows XP and need to &lt;a href=&quot;http://www.microsoft.com/en-us/download/details.aspx?id=38918&quot;&gt;update your root certificates&lt;/a&gt;&lt;/li&gt;&lt;li&gt;Some device on your network is interfering with SSL traffic. In that case, you have bigger worries than Minecraft not starting.&lt;/li&gt;&lt;li&gt;Possibly something else. Check the MultiMC log file for details&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>&lt;b&gt;La négociation SSL a échoué.&lt;/b&gt;&lt;br/&gt;Il pourrait y avoir quelques causes pour cela:&lt;br/&gt;&lt;ul&gt;&lt;li&gt;Vous utilisez Windows XP et vous devez &lt;a href=&quot;http://www.microsoft.com/fr-fr/download/details.aspx?id=38918&quot;&gt;mettre à jour vos certificats ROOT&lt;/a&gt;&lt;/li&gt;&lt;li&gt;Certains appareils sur votre réseau interfère avec le trafic SSL. Dans ce cas, vous avez de plus grands soucis car Minecraftne démarrera pas.&lt;/li&gt;&lt;li&gt;Peut-être quelque chose d&apos;autre. Consultez le fichier log de MultiMC pour plus de détails&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <location line="+47"/>
         <source>An unknown error occurred when processing the response from the authentication server.</source>
-        <translation>Une erreur inconnue s&apos;est produite lors du traitement de la réponse du serveur d&apos;authentification.</translation>
+        <translation type="vanished">Une erreur inconnue s&apos;est produite lors du traitement de la réponse du serveur d&apos;authentification.</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Failed to parse Yggdrasil JSON response: %1 at offset %2.</source>
         <translatorcomment>a voir</translatorcomment>
-        <translation>Impossible d&apos;analyser la réponse Yggdrasil JSON: %1 à compensé %2.</translation>
+        <translation type="vanished">Impossible d&apos;analyser la réponse Yggdrasil JSON: %1 à compensé %2.</translation>
+    </message>
+    <message>
+        <location line="-8"/>
+        <source>Authentication operation timed out.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Authentication operation cancelled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Authentication operation failed due to a network error: %1 (%2)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+26"/>
+        <source>Failed to parse authentication server response JSON response: %1 at offset %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
         <source>An unknown error occurred when trying to communicate with the authentication server: %1</source>
         <translation>Une erreur inconnue s&apos;est produite lors de la tentative de communication avec le serveur d&apos;authentification: %1</translation>
     </message>
@@ -3381,7 +3904,7 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
         <translation>Une erreur Yggdrasil inconnue s&apos;est produite..</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+11"/>
         <source>Sending request to auth servers...</source>
         <translation>Envoie de la requête aux serveur d&apos;authentification...</translation>
     </message>
@@ -3392,8 +3915,27 @@ Ce message sera affiché jusqu&apos;à ce que vous retirez les arguments JVM.</t
     </message>
     <message>
         <location line="+2"/>
+        <source>Authentication task succeeded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Failed to contact the authentication server.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Failed to authenticate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
         <source>Processing. Please wait...</source>
-        <translation>Traitement. Veuillez patienter...</translation>
+        <translation type="vanished">Traitement. Veuillez patienter...</translation>
     </message>
 </context>
 </TS>
