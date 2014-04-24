@@ -243,7 +243,7 @@ add_subdirectory(mmc_updater)
 ################################ FILES ################################
 
 ######## Sources and headers ########
-SET(MULTIMC_SOURCES
+set(MULTIMC_SOURCES
 	# Application base
 	MultiMC.h
 	MultiMC.cpp
@@ -325,6 +325,8 @@ SET(MULTIMC_SOURCES
 	gui/widgets/LabeledToolButton.cpp
 	gui/widgets/MCModInfoFrame.h
 	gui/widgets/MCModInfoFrame.cpp
+	gui/widgets/WebDownloadNavigator.h
+	gui/widgets/WebDownloadNavigator.cpp
 
 	# GUI - instance group view
 	gui/groupview/Group.cpp
@@ -569,7 +571,7 @@ SET(MULTIMC_SOURCES
 
 
 ######## UIs ########
-SET(MULTIMC_UIS
+set(MULTIMC_UIS
 	# Windows
 	gui/MainWindow.ui
 	gui/ConsoleWindow.ui

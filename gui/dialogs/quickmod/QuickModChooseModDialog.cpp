@@ -236,7 +236,7 @@ QuickModChooseModDialog::~QuickModChooseModDialog()
 void QuickModChooseModDialog::on_installButton_clicked()
 {
 	auto items = m_checkModel->getCheckedItems();
-	auto alreadySelected = static_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods;
+	auto alreadySelected = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	for (auto mod : alreadySelected.keys())
 	{
 		items.removeAll(mod);
@@ -254,7 +254,7 @@ void QuickModChooseModDialog::on_installButton_clicked()
 
 	try
 	{
-		static_cast<OneSixInstance *>(m_instance)->setQuickModVersions(mods);
+		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->setQuickModVersions(mods);
 	}
 	catch (MMCError &e)
 	{

@@ -55,7 +55,7 @@ void QuickModDownloadTask::executeTask()
 		return;
 	}
 
-	QuickModInstallDialog dialog(m_instance);
+	QuickModInstallDialog dialog(InstancePtr(m_instance), 0);
 	dialog.setInitialMods(mods);
 	if (dialog.exec() == QuickModInstallDialog::Accepted)
 	{

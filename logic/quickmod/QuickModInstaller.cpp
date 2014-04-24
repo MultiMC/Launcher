@@ -40,14 +40,14 @@ static QDir dirEnsureExists(const QString &dir, const QString &path)
 
 bool QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance, QString *errorString)
 {
-	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance);
+	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance.get());
 	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)
 	{
 		if (!QFile::remove(it.value()))
 		{
 			QLOG_ERROR() << "Unable to remove previous version file" << it.value() << ", this may cause problems";
 		}
-		MMC->quickmodslist()->markModAsUninstalled(version->mod, version->mod->version(it.key()), instance);
+		MMC->quickmodslist()->markModAsUninstalled(version->mod, version->mod->version(it.key()), instance.get());
 	}
 
 	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
@@ -55,14 +55,14 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 	switch (version->installType)
 	{
 	case QuickModVersion::ForgeMod:
-		if (qobject_cast<OneSixInstance *>(instance))
+		if (std::dynamic_pointer_cast<OneSixInstance>(instance))
 		{
 			return true;
 		}
 		finalDir = dirEnsureExists(instance->minecraftRoot(), "mods");
 		break;
 	case QuickModVersion::ForgeCoreMod:
-		if (qobject_cast<OneSixInstance *>(instance))
+		if (std::dynamic_pointer_cast<OneSixInstance>(instance))
 		{
 			finalDir = dirEnsureExists(instance->minecraftRoot(), "mods");
 		}
