@@ -94,7 +94,6 @@ public:
 
 	static QuickModVersionPtr invalid(QuickModPtr mod);
 };
-Q_DECLARE_METATYPE(QuickModVersion*);
 
 class QuickModVersionList : public BaseVersionList
 {

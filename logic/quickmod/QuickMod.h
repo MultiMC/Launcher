@@ -148,6 +148,5 @@ private:
 	void fetchImages();
 	QString fileName(const QUrl &url) const;
 };
-Q_DECLARE_METATYPE(QuickMod *)
 Q_DECLARE_METATYPE(QuickModPtr)
 

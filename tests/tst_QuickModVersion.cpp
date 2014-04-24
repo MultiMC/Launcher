@@ -15,9 +15,9 @@ slots:
 	{
 	}
 
-	QuickModVersion *createTestingVersion()
+	QuickModVersionPtr createTestingVersion()
 	{
-		auto version = new QuickModVersion(TestsInternal::createMod("TheMod"));
+		auto version = QuickModVersionPtr(new QuickModVersion(TestsInternal::createMod("TheMod")));
 		version->name_ = "1.42";
 		version->url = QUrl("http://downloads.com/deadbeaf");
 		version->forgeVersionFilter = "(9.8.42,)";
@@ -31,8 +31,8 @@ slots:
 	void testParsing_data()
 	{
 		QTest::addColumn<QByteArray>("input");
-		QTest::addColumn<QuickModVersion *>("version");
-		QuickModVersion *version;
+		QTest::addColumn<QuickModVersionPtr>("version");
+		QuickModVersionPtr version;
 
 		version = createTestingVersion();
 		version->downloadType = QuickModVersion::Direct;
@@ -58,9 +58,9 @@ slots:
 	void testParsing()
 	{
 		QFETCH(QByteArray, input);
-		QFETCH(QuickModVersion *, version);
+		QFETCH(QuickModVersionPtr, version);
 
-		QuickModVersion *parsed = new QuickModVersion;
+		QuickModVersionPtr parsed(new QuickModVersion);
 		parsed->mod = version->mod;
 
 		QString errorString;

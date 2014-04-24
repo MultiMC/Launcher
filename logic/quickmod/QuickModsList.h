@@ -119,7 +119,8 @@ signals:
 
 private:
 	/// Gets the index of the given mod in the list.
-	int getQMIndex(QuickMod *mod) const;
+	int getQMIndex(QuickModPtr mod) const;
+	QuickModPtr getQMPtr(QuickMod *mod) const;
 
 	friend class QuickModFilesUpdater;
 	QuickModFilesUpdater *m_updater;

@@ -47,16 +47,28 @@ QuickModsList::~QuickModsList()
 }
 
 
-int QuickModsList::getQMIndex(QuickMod *mod) const
+int QuickModsList::getQMIndex(QuickModPtr mod) const
 {
 	for (int i = 0; i < m_mods.count(); i++)
 	{
-		if (mod == m_mods[i].get())
+		if (mod == m_mods[i])
 		{
 			return i;
 		}
 	}
 	return -1;
+}
+
+QuickModPtr QuickModsList::getQMPtr(QuickMod *mod) const
+{
+	for (auto m : m_mods)
+	{
+		if (m.get() == mod)
+		{
+			return m;
+		}
+	}
+	return QuickModPtr();
 }
 
 QHash<int, QByteArray> QuickModsList::roleNames() const
@@ -439,14 +451,12 @@ void QuickModsList::removeMod(QuickModPtr mod)
 
 void QuickModsList::modIconUpdated()
 {
-	auto mod = qobject_cast<QuickMod*>(sender());
-	auto modIndex = index(getQMIndex(mod), 0);
+	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickMod*>(sender()))), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << Qt::DecorationRole << IconRole);
 }
 void QuickModsList::modLogoUpdated()
 {
-	auto mod = qobject_cast<QuickMod*>(sender());
-	auto modIndex = index(getQMIndex(mod), 0);
+	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickMod*>(sender()))), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << LogoRole);
 }
 
