@@ -66,11 +66,11 @@ void OneSixInstance::init()
 	}
 }
 
-std::shared_ptr<Task> OneSixInstance::doUpdate()
+std::shared_ptr<Task> OneSixInstance::doUpdate(InstancePtr ptr)
 {
 	auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
-	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(this, this)));
-	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(this, this)));
+	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(ptr, this)));
+	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(ptr, this)));
 	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this, this)));
 	return task;
 }
@@ -305,9 +305,9 @@ std::shared_ptr<ModList> OneSixInstance::resourcePackList()
 	return d->resource_pack_list;
 }
 
-QDialog *OneSixInstance::createModEditDialog(QWidget *parent)
+QDialog *OneSixInstance::createModEditDialog(InstancePtr ptr, QWidget *parent)
 {
-	return new OneSixModEditDialog(this, parent);
+	return new OneSixModEditDialog(ptr, parent);
 }
 
 bool OneSixInstance::setIntendedVersionId(QString version)

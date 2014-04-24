@@ -197,7 +197,7 @@ private:
 	QSet<QString> m_items;
 };
 
-QuickModChooseModDialog::QuickModChooseModDialog(OneSixInstance* instance, QWidget *parent)
+QuickModChooseModDialog::QuickModChooseModDialog(InstancePtr instance, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModChooseModDialog), m_currentMod(0),
 	  m_instance(instance), m_view(new QListView(this)),
 	  m_filterModel(new ModFilterProxyModel(this)), m_checkModel(new CheckboxProxyModel(this))
@@ -232,7 +232,7 @@ QuickModChooseModDialog::~QuickModChooseModDialog()
 void QuickModChooseModDialog::on_installButton_clicked()
 {
 	auto items = m_checkModel->getCheckedItems();
-	auto alreadySelected = m_instance->getFullVersion()->quickmods;
+	auto alreadySelected = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	for (auto mod : alreadySelected.keys())
 	{
 		items.removeAll(mod);
@@ -250,7 +250,7 @@ void QuickModChooseModDialog::on_installButton_clicked()
 
 	try
 	{
-		m_instance->setQuickModVersions(mods);
+		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->setQuickModVersions(mods);
 	}
 	catch (MMCError &e)
 	{

@@ -39,7 +39,7 @@ public:
 	QString loaderModsDir() const;
 	virtual QString instanceConfigFolder() const override;
 
-	virtual std::shared_ptr<Task> doUpdate() override;
+	virtual std::shared_ptr<Task> doUpdate(InstancePtr ptr) override;
 	virtual MinecraftProcess *prepareForLaunch(AuthSessionPtr session) override;
 
 	virtual void cleanupAfterRun() override;
@@ -52,7 +52,7 @@ public:
 	virtual bool shouldUpdate() const override;
 	virtual void setShouldUpdate(bool val) override;
 
-	virtual QDialog *createModEditDialog(QWidget *parent) override;
+	virtual QDialog *createModEditDialog(InstancePtr ptr, QWidget *parent) override;
 
 	/**
 	 * reload the full version json files. return true on success!

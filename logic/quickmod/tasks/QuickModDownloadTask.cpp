@@ -12,7 +12,7 @@
 #include "logic/OneSixInstance.h"
 #include "MultiMC.h"
 
-QuickModDownloadTask::QuickModDownloadTask(OneSixInstance *instance, QObject *parent)
+QuickModDownloadTask::QuickModDownloadTask(InstancePtr instance, QObject *parent)
 	: Task(parent), m_instance(instance)
 {
 
@@ -20,7 +20,7 @@ QuickModDownloadTask::QuickModDownloadTask(OneSixInstance *instance, QObject *pa
 
 void QuickModDownloadTask::executeTask()
 {
-	const QMap<QString, QString> quickmods = m_instance->getFullVersion()->quickmods;
+	const QMap<QString, QString> quickmods = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
 	QList<QuickModPtr> mods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)

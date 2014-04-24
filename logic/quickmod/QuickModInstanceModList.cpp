@@ -4,7 +4,7 @@
 #include "QuickModsList.h"
 #include "modutils.h"
 
-QuickModInstanceModList::QuickModInstanceModList(OneSixInstance *instance, std::shared_ptr<ModList> modList, QObject *parent)
+QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance, std::shared_ptr<ModList> modList, QObject *parent)
 	: QAbstractListModel(parent), m_instance(instance), m_modList(modList)
 {
 	connect(m_modList.get(), &ModList::modelAboutToBeReset, this, &QuickModInstanceModList::beginResetModel);
@@ -18,7 +18,7 @@ QuickModInstanceModList::QuickModInstanceModList(OneSixInstance *instance, std::
 	{
 		emit dataChanged(mapFromModList(tl), mapFromModList(br), roles);
 	});
-	connect(m_instance, &OneSixInstance::versionReloaded, this, &QuickModInstanceModList::resetModel);
+	connect(std::dynamic_pointer_cast<OneSixInstance>(m_instance).get(), &OneSixInstance::versionReloaded, this, &QuickModInstanceModList::resetModel);
 
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsInserted, [this](const QModelIndex &parent, const int first, const int last)
 	{
@@ -184,7 +184,7 @@ void QuickModInstanceModList::quickmodIconUpdated()
 
 QMap<QString, QString> QuickModInstanceModList::quickmods() const
 {
-	return m_instance->getFullVersion()->quickmods;
+	return std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 }
 
 QuickModPtr QuickModInstanceModList::modAt(const int row) const
@@ -212,7 +212,7 @@ void QuickModInstanceModList::scheduleModForUpdate(const QModelIndex &index)
 		return;
 	}
 	// TODO allow updating in bulk
-	m_instance->setQuickModVersion(modAt(index.row())->uid(), QString());
+	std::dynamic_pointer_cast<OneSixInstance>(m_instance)->setQuickModVersion(modAt(index.row())->uid(), QString());
 }
 
 void QuickModInstanceModList::scheduleModForRemoval(const QModelIndex &index)
@@ -222,7 +222,7 @@ void QuickModInstanceModList::scheduleModForRemoval(const QModelIndex &index)
 		return;
 	}
 	// TODO allow removing in bulk
-	m_instance->removeQuickMod(modAt(index.row())->uid());
+	std::dynamic_pointer_cast<OneSixInstance>(m_instance)->removeQuickMod(modAt(index.row())->uid());
 }
 
 QuickModInstanceModListProxy::QuickModInstanceModListProxy(QuickModInstanceModList *list, QObject *parent)

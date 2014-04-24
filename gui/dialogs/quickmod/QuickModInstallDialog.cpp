@@ -74,7 +74,7 @@ public:
 	}
 };
 
-QuickModInstallDialog::QuickModInstallDialog(BaseInstance* instance, QWidget *parent)
+QuickModInstallDialog::QuickModInstallDialog(InstancePtr instance, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModInstallDialog), m_installer(new QuickModInstaller(this, this)), m_instance(instance)
 {
 	ui->setupUi(this);

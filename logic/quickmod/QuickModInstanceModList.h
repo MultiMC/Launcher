@@ -18,7 +18,7 @@ public:
 		VersionColumn
 	};
 
-	QuickModInstanceModList(OneSixInstance *instance, std::shared_ptr<ModList> modList, QObject *parent = 0);
+	QuickModInstanceModList(InstancePtr instance, std::shared_ptr<ModList> modList, QObject *parent = 0);
 
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -43,7 +43,7 @@ slots:
 	void scheduleModForUpdate(const QModelIndex &index);
 	void scheduleModForRemoval(const QModelIndex &index);
 
-	void resetModel() {beginResetModel();endResetModel();};
+	void resetModel() {beginResetModel();endResetModel();}
 
 private
 slots:
@@ -52,7 +52,7 @@ slots:
 
 private:
 	friend class QuickModInstanceModListProxy;
-	OneSixInstance *m_instance;
+	InstancePtr m_instance;
 	std::shared_ptr<ModList> m_modList;
 
 	QMap<QString, QString> quickmods() const;

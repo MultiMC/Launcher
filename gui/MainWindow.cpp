@@ -876,7 +876,7 @@ void MainWindow::on_actionAddInstance_triggered()
 	if (MMC->accounts()->anyAccountIsValid())
 	{
 		ProgressDialog loadDialog(this);
-		auto update = newInstance->doUpdate();
+		auto update = newInstance->doUpdate(newInstance);
 		connect(update.get(), &Task::failed, [this](QString reason)
 		{
 			QString error = QString("Instance load failed: %1").arg(reason);
@@ -1142,7 +1142,7 @@ void MainWindow::on_actionEditInstMods_triggered()
 {
 	if (m_selectedInstance)
 	{
-		auto dialog = m_selectedInstance->createModEditDialog(this);
+		auto dialog = m_selectedInstance->createModEditDialog(m_selectedInstance, this);
 		if (dialog)
 			dialog->exec();
 		dialog->deleteLater();
@@ -1358,7 +1358,7 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 			}
 		}
 	}
-	auto updateTask = instance->doUpdate();
+	auto updateTask = instance->doUpdate(instance);
 	if (!updateTask)
 	{
 		launchInstance(instance, session, profiler);
@@ -1525,7 +1525,7 @@ void MainWindow::on_actionChangeInstMCVersion_triggered()
 	}
 	m_selectedInstance->setIntendedVersionId(vselect.selectedVersion()->descriptor());
 
-	auto updateTask = m_selectedInstance->doUpdate();
+	auto updateTask = m_selectedInstance->doUpdate(m_selectedInstance);
 	if (!updateTask)
 	{
 		return;

@@ -14,6 +14,7 @@
 #include "logic/quickmod/QuickMod.h"
 
 class BaseInstance;
+typedef std::shared_ptr<BaseInstance> InstancePtr;
 
 class QuickModVersion;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
@@ -99,7 +100,7 @@ class QuickModVersionList : public BaseVersionList
 {
 	Q_OBJECT
 public:
-	explicit QuickModVersionList(QuickModPtr mod, BaseInstance *instance, QObject *parent = 0);
+	explicit QuickModVersionList(QuickModPtr mod, InstancePtr instance, QObject *parent = 0);
 
 	Task *getLoadTask();
 	bool isLoaded();
@@ -117,7 +118,7 @@ private:
 	bool m_loaded = false;
 
 	QuickModPtr m_mod;
-	BaseInstance *m_instance;
+	InstancePtr m_instance;
 };
 
 class QuickModVersionListLoadTask : public Task

@@ -16,7 +16,7 @@
 #pragma once
 #include <QDialog>
 
-#include <logic/OneSixInstance.h>
+#include "logic/OneSixInstance.h"
 
 class EnabledItemFilter;
 namespace Ui
@@ -32,7 +32,7 @@ class OneSixModEditDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit OneSixModEditDialog(OneSixInstance *inst, QWidget *parent = 0);
+	explicit OneSixModEditDialog(InstancePtr inst, QWidget *parent = 0);
 	virtual ~OneSixModEditDialog();
 
 private
@@ -73,10 +73,12 @@ private:
 	QuickModInstanceModList *m_modsModel;
 	QuickModInstanceModListProxy *m_proxy;
 	EnabledItemFilter *main_model;
-	OneSixInstance *m_inst;
+	InstancePtr m_inst;
 
 	QModelIndex mapToModsList(const QModelIndex &view) const;
 	void sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods);
+
+	std::shared_ptr<OneSixInstance> instanceAsOneSix() const;
 
 public
 slots:

@@ -12,13 +12,12 @@ public:
 							QObject *parent = 0);
     virtual ~OneSixFTBInstance(){};
 
-	void init() override;
 	void copy(const QDir &newDir) override;
 
 	virtual QString getStatusbarDescription();
 	virtual bool menuActionEnabled(QString action_name) const;
 
-	virtual std::shared_ptr<Task> doUpdate() override;
+	virtual std::shared_ptr<Task> doUpdate(InstancePtr ptr) override;
 
 	virtual QString id() const;
 

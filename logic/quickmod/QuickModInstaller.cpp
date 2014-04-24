@@ -51,7 +51,7 @@ static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 	return version->mod->uid() + "-" + version->name() + ending;
 }
 
-void QuickModInstaller::install(const QuickModVersionPtr version, BaseInstance* instance)
+void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance)
 {
 	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance);
 	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)

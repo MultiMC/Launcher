@@ -2,17 +2,20 @@
 
 #include "logic/tasks/Task.h"
 
-class OneSixInstance;
+#include <memory>
+
+class BaseInstance;
+typedef std::shared_ptr<BaseInstance> InstancePtr;
 
 class QuickModForgeDownloadTask : public Task
 {
 	Q_OBJECT
 public:
-	QuickModForgeDownloadTask(OneSixInstance *instance, QObject *parent = 0);
+	QuickModForgeDownloadTask(InstancePtr instance, QObject *parent = 0);
 
 protected:
 	void executeTask();
 
 private:
-	OneSixInstance *m_instance;
+	InstancePtr m_instance;
 };

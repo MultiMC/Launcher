@@ -33,6 +33,10 @@ class OneSixUpdate;
 class InstanceList;
 class BaseInstancePrivate;
 
+// pointer for lazy people
+class BaseInstance;
+typedef std::shared_ptr<BaseInstance> InstancePtr;
+
 /*!
  * \brief Base class for instances.
  * This class implements many functions that are common between instances and
@@ -160,7 +164,7 @@ public:
 	virtual SettingsObject &settings() const;
 
 	/// returns a valid update task
-	virtual std::shared_ptr<Task> doUpdate() = 0;
+	virtual std::shared_ptr<Task> doUpdate(InstancePtr ptr) = 0;
 
 	/// returns a valid minecraft process, ready for launch with the given account.
 	virtual MinecraftProcess *prepareForLaunch(AuthSessionPtr account) = 0;
@@ -170,7 +174,7 @@ public:
 	virtual void cleanupAfterRun() = 0;
 
 	/// create a mod edit dialog for the instance
-	virtual QDialog *createModEditDialog(QWidget *parent) = 0;
+	virtual QDialog *createModEditDialog(InstancePtr ptr, QWidget *parent) = 0;
 
 	/// is a particular action enabled with this instance selected?
 	virtual bool menuActionEnabled(QString action_name) const = 0;
@@ -217,8 +221,5 @@ protected slots:
 protected:
 	std::shared_ptr<BaseInstancePrivate> inst_d;
 };
-
-// pointer for lazy people
-typedef std::shared_ptr<BaseInstance> InstancePtr;
 
 Q_DECLARE_METATYPE(BaseInstance::InstanceFlag)

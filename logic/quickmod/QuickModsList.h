@@ -74,14 +74,14 @@ public:
 
 	void markModAsExists(QuickModPtr mod, const BaseVersionPtr version, const QString &fileName);
 	void markModAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
-							const QString &fileName, BaseInstance *instance);
+							const QString &fileName, InstancePtr instance);
 	void markModAsUninstalled(QuickModPtr mod, const BaseVersionPtr version,
-							  BaseInstance *instance);
+							  InstancePtr instance);
 	bool isModMarkedAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
-								BaseInstance *instance) const;
+								InstancePtr instance) const;
 	bool isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const;
 	bool isModMarkedAsExists(QuickModPtr mod, const QString &version) const;
-	QMap<QString, QString> installedModFiles(QuickModPtr mod, BaseInstance *instance) const;
+	QMap<QString, QString> installedModFiles(QuickModPtr mod, InstancePtr instance) const;
 	QString existingModFile(QuickModPtr mod, const BaseVersionPtr version) const;
 	QString existingModFile(QuickModPtr mod, const QString &version) const;
 

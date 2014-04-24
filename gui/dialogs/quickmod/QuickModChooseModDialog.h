@@ -22,7 +22,7 @@ class QuickModChooseModDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuickModChooseModDialog(OneSixInstance* instance, QWidget *parent = 0);
+	explicit QuickModChooseModDialog(InstancePtr instance, QWidget *parent = 0);
 	~QuickModChooseModDialog();
 
 private
@@ -46,7 +46,7 @@ private:
 
 	QuickModPtr m_currentMod;
 
-	OneSixInstance* m_instance;
+	InstancePtr m_instance;
 
 	QListView *m_view;
 	ModFilterProxyModel *m_filterModel;

@@ -9,6 +9,7 @@
 class QWidget;
 
 class BaseInstance;
+typedef std::shared_ptr<BaseInstance> InstancePtr;
 class QuickModVersion;
 class QuickMod;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
@@ -17,8 +18,8 @@ class QuickModDependencyResolver : public QObject
 {
 	Q_OBJECT
 public:
-	explicit QuickModDependencyResolver(BaseInstance* instance, QWidget *parent = 0);
-	explicit QuickModDependencyResolver(BaseInstance* instance, QWidget *widgetParent,
+	explicit QuickModDependencyResolver(InstancePtr instance, QWidget *parent = 0);
+	explicit QuickModDependencyResolver(InstancePtr instance, QWidget *widgetParent,
 										QObject *parent);
 
 	QList<QuickModVersionPtr> resolve(const QList<QuickModPtr> &mods);
@@ -30,7 +31,7 @@ signals:
 
 private:
 	QWidget *m_widgetParent;
-	BaseInstance* m_instance;
+	InstancePtr m_instance;
 
 	QHash<QuickMod *, QuickModVersionPtr> m_mods;
 

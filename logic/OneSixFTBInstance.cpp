@@ -15,18 +15,6 @@ OneSixFTBInstance::OneSixFTBInstance(const QString &rootDir, SettingsObject *set
 {
 }
 
-void OneSixFTBInstance::init()
-{
-	try
-	{
-		reloadVersion();
-	}
-	catch(MMCError & e)
-	{
-		// QLOG_ERROR() << "Caught exception on instance init: " << e.cause();
-	}
-}
-
 void OneSixFTBInstance::copy(const QDir &newDir)
 {
 	QStringList libraryNames;
@@ -130,9 +118,9 @@ bool OneSixFTBInstance::menuActionEnabled(QString action_name) const
 	return false;
 }
 
-std::shared_ptr<Task> OneSixFTBInstance::doUpdate()
+std::shared_ptr<Task> OneSixFTBInstance::doUpdate(InstancePtr ptr)
 {
-	return OneSixInstance::doUpdate();
+	return OneSixInstance::doUpdate(ptr);
 }
 
 #include "OneSixFTBInstance.moc"

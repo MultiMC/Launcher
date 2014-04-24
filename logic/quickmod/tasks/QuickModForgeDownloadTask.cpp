@@ -9,7 +9,7 @@
 
 #include "gui/dialogs/VersionSelectDialog.h"
 
-QuickModForgeDownloadTask::QuickModForgeDownloadTask(OneSixInstance *instance, QObject *parent)
+QuickModForgeDownloadTask::QuickModForgeDownloadTask(InstancePtr instance, QObject *parent)
 	: Task(parent), m_instance(instance)
 {
 
@@ -17,7 +17,7 @@ QuickModForgeDownloadTask::QuickModForgeDownloadTask(OneSixInstance *instance, Q
 
 void QuickModForgeDownloadTask::executeTask()
 {
-	auto mods = m_instance->getFullVersion()->quickmods;
+	auto mods = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	if (mods.isEmpty())
 	{
 		emitSucceeded();
@@ -63,7 +63,7 @@ void QuickModForgeDownloadTask::executeTask()
 						   m_instance->currentVersionId());
 	if (vselect.exec() && vselect.selectedVersion())
 	{
-		auto task = installer->createInstallTask(m_instance, vselect.selectedVersion(), this);
+		auto task = installer->createInstallTask(std::dynamic_pointer_cast<OneSixInstance>(m_instance).get(), vselect.selectedVersion(), this);
 		connect(task, &Task::progress, [this](qint64 current, qint64 total){setProgress(100 * current / qMax((qint64)1, total));});
 		connect(task, &Task::status, [this](const QString &msg){setStatus(msg);});
 		connect(task, &Task::failed, [this,installer](const QString &reason){delete installer;qDebug("failed");emitFailed(reason);});

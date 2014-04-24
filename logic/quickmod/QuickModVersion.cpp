@@ -134,7 +134,7 @@ QuickModVersionPtr QuickModVersion::invalid(QuickModPtr mod)
 	return QuickModVersionPtr(new QuickModVersion(mod, false));
 }
 
-QuickModVersionList::QuickModVersionList(QuickModPtr mod, BaseInstance *instance, QObject *parent)
+QuickModVersionList::QuickModVersionList(QuickModPtr mod, InstancePtr instance, QObject *parent)
 	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
 {
 }

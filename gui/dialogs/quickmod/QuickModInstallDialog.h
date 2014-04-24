@@ -28,7 +28,7 @@ class QuickModInstallDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuickModInstallDialog(BaseInstance* instance, QWidget *parent = 0);
+	explicit QuickModInstallDialog(InstancePtr instance, QWidget *parent = 0);
 	~QuickModInstallDialog();
 
 public
@@ -56,7 +56,7 @@ private:
 	Ui::QuickModInstallDialog *ui;
 	QuickModInstaller *m_installer;
 
-	BaseInstance* m_instance;
+	InstancePtr m_instance;
 
 	bool install(QuickModVersionPtr version, QTreeWidgetItem *item = 0);
 

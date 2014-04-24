@@ -47,14 +47,14 @@
 #include "logic/quickmod/tasks/QuickModDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"
 
-OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
+OneSixModEditDialog::OneSixModEditDialog(InstancePtr inst, QWidget *parent)
 	: QDialog(parent), ui(new Ui::OneSixModEditDialog), m_inst(inst)
 {
 	MultiMCPlatform::fixWM_CLASS(this);
 	ui->setupUi(this);
 	// libraries!
 
-	m_version = m_inst->getFullVersion();
+	m_version = instanceAsOneSix()->getFullVersion();
 	if (m_version)
 	{
 		main_model = new EnabledItemFilter(this);
@@ -72,8 +72,8 @@ OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 	}
 	// Loader mods
 	{
-		ensureFolderPathExists(m_inst->loaderModsDir());
-		m_mods = m_inst->loaderModList();
+		ensureFolderPathExists(instanceAsOneSix()->loaderModsDir());
+		m_mods = instanceAsOneSix()->loaderModList();
 		m_modsModel = new QuickModInstanceModList(m_inst, m_mods, this);
 		ui->loaderModTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
 		ui->loaderModTreeView->installEventFilter(this);
@@ -84,14 +84,14 @@ OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 	}
 	// resource packs
 	{
-		ensureFolderPathExists(m_inst->resourcePacksDir());
-		m_resourcepacks = m_inst->resourcePackList();
+		ensureFolderPathExists(instanceAsOneSix()->resourcePacksDir());
+		m_resourcepacks = instanceAsOneSix()->resourcePackList();
 		ui->resPackTreeView->setModel(m_resourcepacks.get());
 		ui->resPackTreeView->installEventFilter(this);
 		m_resourcepacks->startWatching();
 	}
 
-	connect(m_inst, &OneSixInstance::versionReloaded, this,
+	connect(instanceAsOneSix().get(), &OneSixInstance::versionReloaded, this,
 			&OneSixModEditDialog::updateVersionControls);
 }
 
@@ -120,7 +120,7 @@ bool OneSixModEditDialog::reloadInstanceVersion()
 {
 	try
 	{
-		m_inst->reloadVersion();
+		instanceAsOneSix()->reloadVersion();
 		return true;
 	}
 	catch (MMCError &e)
@@ -160,6 +160,11 @@ void OneSixModEditDialog::sortMods(const QModelIndexList &view, QModelIndexList 
 			quickmods->append(mappedOne);
 		}
 	}
+}
+
+std::shared_ptr<OneSixInstance> OneSixModEditDialog::instanceAsOneSix() const
+{
+	return std::dynamic_pointer_cast<OneSixInstance>(m_inst);
 }
 
 void OneSixModEditDialog::on_reloadLibrariesBtn_clicked()
@@ -259,7 +264,7 @@ void OneSixModEditDialog::on_forgeBtn_clicked()
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(ForgeInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		dialog.exec(ForgeInstaller().createInstallTask(instanceAsOneSix().get(), vselect.selectedVersion(), this));
 	}
 }
 
@@ -295,7 +300,7 @@ void OneSixModEditDialog::on_liteloaderBtn_clicked()
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(LiteLoaderInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		dialog.exec(LiteLoaderInstaller().createInstallTask(instanceAsOneSix().get(), vselect.selectedVersion(), this));
 	}
 }
 
@@ -425,7 +430,7 @@ void OneSixModEditDialog::on_installModBtn_clicked()
 }
 void OneSixModEditDialog::on_viewModBtn_clicked()
 {
-	openDirInDefaultProgram(m_inst->loaderModsDir(), true);
+	openDirInDefaultProgram(std::dynamic_pointer_cast<OneSixInstance>(m_inst)->loaderModsDir(), true);
 }
 
 void OneSixModEditDialog::on_addResPackBtn_clicked()
@@ -452,7 +457,7 @@ void OneSixModEditDialog::on_rmResPackBtn_clicked()
 }
 void OneSixModEditDialog::on_viewResPackBtn_clicked()
 {
-	openDirInDefaultProgram(m_inst->resourcePacksDir(), true);
+	openDirInDefaultProgram(instanceAsOneSix()->resourcePacksDir(), true);
 }
 
 void OneSixModEditDialog::loaderCurrent(QModelIndex current, QModelIndex previous)

@@ -77,11 +77,11 @@ public:
 
 	virtual bool shouldUpdate() const override;
 	virtual void setShouldUpdate(bool val) override;
-	virtual std::shared_ptr<Task> doUpdate() override;
+	virtual std::shared_ptr<Task> doUpdate(InstancePtr ptr) override;
 
 	virtual MinecraftProcess *prepareForLaunch(AuthSessionPtr account) override;
 	virtual void cleanupAfterRun() override;
-	virtual QDialog *createModEditDialog(QWidget *parent) override;
+	virtual QDialog *createModEditDialog(InstancePtr ptr, QWidget *parent) override;
 
 	virtual QString defaultBaseJar() const override;
 	virtual QString defaultCustomBaseJar() const override;

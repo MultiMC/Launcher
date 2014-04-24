@@ -42,7 +42,7 @@ LegacyInstance::LegacyInstance(const QString &rootDir, SettingsObject *settings,
 	settings->registerSetting("IntendedJarVersion", "");
 }
 
-std::shared_ptr<Task> LegacyInstance::doUpdate()
+std::shared_ptr<Task> LegacyInstance::doUpdate(InstancePtr ptr)
 {
 	// make sure the jar mods list is initialized by asking for it.
 	auto list = jarModList();
@@ -144,7 +144,7 @@ std::shared_ptr<ModList> LegacyInstance::texturePackList()
 	return d->texture_pack_list;
 }
 
-QDialog *LegacyInstance::createModEditDialog(QWidget *parent)
+QDialog *LegacyInstance::createModEditDialog(InstancePtr ptr, QWidget *parent)
 {
 	return new LegacyModEditDialog(this, parent);
 }
