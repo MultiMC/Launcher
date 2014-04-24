@@ -18,7 +18,7 @@ QuickModInstanceModList::QuickModInstanceModList(OneSixInstance *instance, std::
 	{
 		emit dataChanged(mapFromModList(tl), mapFromModList(br), roles);
 	});
-	connect(m_instance, &OneSixInstance::versionReloaded, [this](){beginResetModel();endResetModel();});
+	connect(m_instance, &OneSixInstance::versionReloaded, this, &QuickModInstanceModList::resetModel);
 
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsInserted, [this](const QModelIndex &parent, const int first, const int last)
 	{
@@ -36,8 +36,6 @@ QuickModInstanceModList::QuickModInstanceModList(OneSixInstance *instance, std::
 			disconnect(MMC->quickmodslist()->modAt(i).get(), 0, this, 0);
 		}
 	});
-
-	connect(m_instance, &OneSixInstance::versionReloaded, [this](){beginResetModel();endResetModel();});
 }
 
 int QuickModInstanceModList::rowCount(const QModelIndex &parent) const

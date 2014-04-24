@@ -51,16 +51,16 @@ static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 	return version->mod->uid() + "-" + version->name() + ending;
 }
 
-void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance)
+void QuickModInstaller::install(const QuickModVersionPtr version, BaseInstance* instance)
 {
-	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance.get());
+	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance);
 	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)
 	{
 		if (!QFile::remove(it.value()))
 		{
 			QLOG_ERROR() << "Unable to remove previous version file" << it.value() << ", this may cause problems";
 		}
-		MMC->quickmodslist()->markModAsUninstalled(version->mod, version->mod->version(it.key()), instance.get());
+		MMC->quickmodslist()->markModAsUninstalled(version->mod, version->mod->version(it.key()), instance);
 	}
 
 	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
@@ -68,14 +68,15 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 	switch (version->installType)
 	{
 	case QuickModVersion::ForgeMod:
-		if (std::dynamic_pointer_cast<OneSixInstance>(instance))
+		// FIXME: This will break if the type name changes.
+		if (instance->instanceType() == "OneSix")
 		{
 			return;
 		}
 		finalDir = dirEnsureExists(instance->minecraftRoot(), "mods");
 		break;
 	case QuickModVersion::ForgeCoreMod:
-		if (std::dynamic_pointer_cast<OneSixInstance>(instance))
+		if (instance->instanceType() == "OneSix")
 		{
 			finalDir = dirEnsureExists(instance->minecraftRoot(), "mods");
 		}
@@ -123,7 +124,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		{
 			throw new MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
 		}
-		MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, instance.get());
+		MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, instance);
 	}
 }
 

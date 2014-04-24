@@ -3,8 +3,6 @@
 #include <QObject>
 #include <memory>
 
-#include <logic/BaseInstance.h>
-
 class QuickModVersion;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 class BaseInstance;
@@ -18,7 +16,7 @@ class QuickModInstaller : public QObject
 public:
 	explicit QuickModInstaller(QWidget *widgetParent, QObject *parent = 0);
 
-	void install(const QuickModVersionPtr version, InstancePtr instance);
+	void install(const QuickModVersionPtr version, BaseInstance* instance);
 
 	void handleDownload(QuickModVersionPtr version, const QByteArray &data, const QUrl &url);
 

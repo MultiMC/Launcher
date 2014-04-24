@@ -61,6 +61,7 @@ void Task::emitFailed(QString reason)
 
 void Task::emitSucceeded()
 {
+	if (!m_running) { return; } // Don't succeed twice.
 	m_running = false;
 	m_succeeded = true;
 	QLOG_INFO() << "Task succeeded";

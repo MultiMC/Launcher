@@ -18,6 +18,7 @@ class QuickModInstallDialog;
 class QNetworkReply;
 class WebDownloadNavigator;
 class BaseInstance;
+class OneSixInstance;
 class QuickMod;
 class QuickModInstaller;
 class QTreeWidgetItem;
@@ -27,7 +28,7 @@ class QuickModInstallDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuickModInstallDialog(InstancePtr instance, QWidget *parent = 0);
+	explicit QuickModInstallDialog(BaseInstance* instance, QWidget *parent = 0);
 	~QuickModInstallDialog();
 
 public
@@ -55,7 +56,7 @@ private:
 	Ui::QuickModInstallDialog *ui;
 	QuickModInstaller *m_installer;
 
-	InstancePtr m_instance;
+	BaseInstance* m_instance;
 
 	bool install(QuickModVersionPtr version, QTreeWidgetItem *item = 0);
 

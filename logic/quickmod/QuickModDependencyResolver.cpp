@@ -10,13 +10,13 @@
 #include "MultiMC.h"
 #include "modutils.h"
 
-QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance, QWidget *parent)
+QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance* instance, QWidget *parent)
 	: QuickModDependencyResolver(instance, parent, parent)
 {
 
 }
 
-QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance, QWidget *widgetParent, QObject *parent)
+QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance* instance, QWidget *widgetParent, QObject *parent)
 	: QObject(parent), m_widgetParent(widgetParent), m_instance(instance)
 {
 
@@ -39,8 +39,9 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickM
 
 QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickModPtr mod, const QString &filter, bool *ok)
 {
-	const QString predefinedVersion = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods.value(mod->uid());
-	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance.get(), this),
+	// FIXME: This only works with 1.6
+	const QString predefinedVersion = ((OneSixInstance*)m_instance)->getFullVersion()->quickmods.value(mod->uid());
+	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
 							   tr("Choose QuickMod version for %1").arg(mod->name()), m_widgetParent);
 	dialog.setFilter(BaseVersionList::NameColumn, filter);
 	dialog.setUseLatest(MMC->settings()->get("QuickModAlwaysLatestVersion").toBool());
