@@ -7,13 +7,13 @@
 #include <QPixmap>
 #include <QCryptographicHash>
 #include <logic/quickmod/QuickModVersion.h>
+#include <logic/BaseInstance.h>
 
 class QuickModFilesUpdater;
 class QuickMod;
 class QuickModVersion;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 class Mod;
-class BaseInstance;
 class SettingsObject;
 
 class QuickModsList : public QAbstractListModel

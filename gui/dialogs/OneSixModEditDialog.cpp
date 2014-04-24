@@ -409,7 +409,7 @@ void OneSixModEditDialog::on_updateModBtn_clicked()
 }
 void OneSixModEditDialog::on_installModBtn_clicked()
 {
-	QuickModChooseModDialog dialog(m_inst, this);
+	QuickModChooseModDialog dialog(InstancePtr(m_inst), this);
 	dialog.exec();
 }
 void OneSixModEditDialog::on_viewModBtn_clicked()

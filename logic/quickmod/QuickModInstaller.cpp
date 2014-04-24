@@ -38,7 +38,7 @@ static QDir dirEnsureExists(const QString &dir, const QString &path)
 	return dir_;
 }
 
-bool QuickModInstaller::install(const QuickModVersionPtr version, BaseInstance *instance, QString *errorString)
+bool QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance, QString *errorString)
 {
 	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance);
 	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)
@@ -118,7 +118,7 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, BaseInstance *
 								  tr("Error deploying %1 to %2").arg(file, dest));
 			return false;
 		}
-		MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, instance);
+		MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, instance.get());
 
 		return true;
 	}

@@ -7,6 +7,8 @@
 
 #include "logic/quickmod/QuickModVersion.h"
 
+#include "logic/BaseInstance.h"
+
 namespace Ui
 {
 class QuickModInstallDialog;
@@ -23,7 +25,7 @@ class QuickModInstallDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuickModInstallDialog(BaseInstance *instance, QWidget *parent = 0);
+	explicit QuickModInstallDialog(InstancePtr instance, QWidget *parent = 0);
 	~QuickModInstallDialog();
 
 public
@@ -50,7 +52,7 @@ slots:
 private:
 	Ui::QuickModInstallDialog *ui;
 
-	BaseInstance *m_instance;
+	InstancePtr m_instance;
 
 	bool install(QuickModVersionPtr version, QTreeWidgetItem *item = 0);
 

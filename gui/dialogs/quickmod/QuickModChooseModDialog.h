@@ -2,6 +2,8 @@
 
 #include <QDialog>
 
+#include "logic/BaseInstance.h"
+
 namespace Ui
 {
 class QuickModChooseModDialog;
@@ -11,7 +13,6 @@ class QItemSelection;
 class QListView;
 class ModFilterProxyModel;
 class CheckboxProxyModel;
-class BaseInstance;
 class QuickMod;
 
 class QuickModChooseModDialog : public QDialog
@@ -19,7 +20,7 @@ class QuickModChooseModDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuickModChooseModDialog(BaseInstance *instance, QWidget *parent = 0);
+	explicit QuickModChooseModDialog(InstancePtr instance, QWidget *parent = 0);
 	~QuickModChooseModDialog();
 
 private
@@ -44,7 +45,7 @@ private:
 
 	QuickMod *m_currentMod;
 
-	BaseInstance *m_instance;
+	InstancePtr m_instance;
 
 	QListView *m_view;
 	ModFilterProxyModel *m_filterModel;

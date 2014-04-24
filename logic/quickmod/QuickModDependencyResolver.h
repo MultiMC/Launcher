@@ -4,6 +4,8 @@
 #include <QHash>
 #include <memory>
 
+#include <logic/BaseInstance.h>
+
 class QWidget;
 
 class BaseInstance;
@@ -15,8 +17,8 @@ class QuickModDependencyResolver : public QObject
 {
 	Q_OBJECT
 public:
-	explicit QuickModDependencyResolver(BaseInstance *instance, QWidget *parent = 0);
-	explicit QuickModDependencyResolver(BaseInstance *instance, QWidget *widgetParent,
+	explicit QuickModDependencyResolver(InstancePtr instance, QWidget *parent = 0);
+	explicit QuickModDependencyResolver(InstancePtr instance, QWidget *widgetParent,
 										QObject *parent);
 
 	QList<QuickModVersionPtr> resolve(const QList<QuickMod *> &mods);
@@ -28,7 +30,7 @@ signals:
 
 private:
 	QWidget *m_widgetParent;
-	BaseInstance *m_instance;
+	InstancePtr m_instance;
 
 	QHash<QuickMod *, QuickModVersionPtr> m_mods;
 

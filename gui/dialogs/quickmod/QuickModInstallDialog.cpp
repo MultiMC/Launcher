@@ -75,7 +75,7 @@ public:
 	}
 };
 
-QuickModInstallDialog::QuickModInstallDialog(BaseInstance *instance, QWidget *parent)
+QuickModInstallDialog::QuickModInstallDialog(InstancePtr instance, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModInstallDialog), m_instance(instance)
 {
 	ui->setupUi(this);
@@ -164,7 +164,7 @@ int QuickModInstallDialog::exec()
 	foreach(QuickModVersionPtr version, m_modVersions)
 	{
 		// TODO any installed version should prevent another version from being installed
-		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, version, m_instance))
+		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, version, m_instance.get()))
 		{
 			QLOG_INFO() << version->mod->uid() << " is already installed";
 			m_modVersions.removeAll(version);

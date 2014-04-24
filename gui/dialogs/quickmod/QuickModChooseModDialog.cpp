@@ -202,7 +202,7 @@ private:
 	QSet<QString> m_items;
 };
 
-QuickModChooseModDialog::QuickModChooseModDialog(BaseInstance *instance, QWidget *parent)
+QuickModChooseModDialog::QuickModChooseModDialog(InstancePtr instance, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModChooseModDialog), m_currentMod(0),
 	  m_instance(instance), m_view(new QListView(this)),
 	  m_filterModel(new ModFilterProxyModel(this)), m_checkModel(new CheckboxProxyModel(this))

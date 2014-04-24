@@ -10,13 +10,13 @@
 #include "MultiMC.h"
 #include "modutils.h"
 
-QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance *instance, QWidget *parent)
+QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance, QWidget *parent)
 	: QuickModDependencyResolver(instance, parent, parent)
 {
 
 }
 
-QuickModDependencyResolver::QuickModDependencyResolver(BaseInstance *instance, QWidget *widgetParent, QObject *parent)
+QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance, QWidget *widgetParent, QObject *parent)
 	: QObject(parent), m_widgetParent(widgetParent), m_instance(instance)
 {
 
@@ -40,7 +40,7 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickM
 QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter, bool *ok)
 {
 	const QString predefinedVersion = static_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods.value(mod->uid());
-	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
+	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance.get(), this),
 							   tr("Choose QuickMod version for %1").arg(mod->name()), m_widgetParent);
 	dialog.setFilter(BaseVersionList::NameColumn, filter);
 	dialog.setUseLatest(true); // TODO: Make a setting
