@@ -43,6 +43,9 @@
 #include "logic/LiteLoaderInstaller.h"
 #include "logic/OneSixVersionBuilder.h"
 #include "logic/quickmod/QuickModInstanceModList.h"
+#include "logic/tasks/SequentialTask.h"
+#include "logic/quickmod/tasks/QuickModDownloadTask.h"
+#include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"
 
 OneSixModEditDialog::OneSixModEditDialog(OneSixInstance *inst, QWidget *parent)
 	: QDialog(parent), ui(new Ui::OneSixModEditDialog), m_inst(inst)
@@ -410,7 +413,15 @@ void OneSixModEditDialog::on_updateModBtn_clicked()
 void OneSixModEditDialog::on_installModBtn_clicked()
 {
 	QuickModChooseModDialog dialog(m_inst, this);
-	dialog.exec();
+	if (dialog.exec())
+	{
+		// If the user clicked install, run the QuickMod installer.
+		auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
+		task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(m_inst, this)));
+		task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(m_inst, this)));
+		ProgressDialog tDialog(this);
+		tDialog.exec(task.get());
+	}
 }
 void OneSixModEditDialog::on_viewModBtn_clicked()
 {
