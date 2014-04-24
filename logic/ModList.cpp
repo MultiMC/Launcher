@@ -160,10 +160,6 @@ bool ModList::update()
 				}
 			}
 	}
-	for (auto mod : newMods)
-	{
-		MMC->quickmodslist()->modAddedBy(mod, m_instance);
-	}
 	beginResetModel();
 	mods.swap(orderedMods);
 	endResetModel();
@@ -276,8 +272,6 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	if (!m.valid())
 		return false;
 
-	MMC->quickmodslist()->modAddedBy(m, m_instance);
-
 	// if it's already there, replace the original mod (in place)
 	int idx = mods.indexOf(m);
 	if (idx != -1)
@@ -337,7 +331,6 @@ bool ModList::deleteMod(int index)
 	if (index >= mods.size() || index < 0)
 		return false;
 	Mod &m = mods[index];
-	MMC->quickmodslist()->modRemovedBy(m, m_instance);
 	if (m.destroy())
 	{
 		beginRemoveRows(QModelIndex(), index, index);
@@ -355,7 +348,6 @@ bool ModList::deleteMods(int first, int last)
 	for (int i = first; i <= last; i++)
 	{
 		Mod &m = mods[i];
-		MMC->quickmodslist()->modRemovedBy(m, m_instance);
 		m.destroy();
 	}
 	beginRemoveRows(QModelIndex(), first, last);

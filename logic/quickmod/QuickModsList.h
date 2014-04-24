@@ -43,8 +43,7 @@ public:
 		ModIdRole,
 		CategoriesRole,
 		TagsRole,
-		QuickModRole,
-		IsStubRole
+		QuickModRole
 	};
 	QHash<int, QByteArray> roleNames() const;
 
@@ -72,9 +71,6 @@ public:
 	QuickModPtr modForModId(const QString &modId) const;
 	QuickModPtr mod(const QString &uid) const;
 	QuickModVersionPtr modVersion(const QString &modUid, const QString &versionName) const;
-
-	void modAddedBy(const Mod &mod, BaseInstance *instance);
-	void modRemovedBy(const Mod &mod, BaseInstance *instance);
 
 	void markModAsExists(QuickModPtr mod, const BaseVersionPtr version, const QString &fileName);
 	void markModAsInstalled(QuickModPtr mod, const BaseVersionPtr version,

@@ -13,7 +13,7 @@
 #include "logic/MMCJson.h"
 
 QuickMod::QuickMod(QObject *parent)
-	: QObject(parent), m_stub(false), m_imagesLoaded(false)
+	: QObject(parent), m_imagesLoaded(false)
 {
 }
 
@@ -66,8 +66,7 @@ void QuickMod::parse(const QByteArray &data)
 {
 	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
 	const QJsonObject mod = MMCJson::ensureObject(doc, "root");
-	m_stub = mod.value("stub").toBool(false);
-	m_uid = m_stub ? mod.value("uid").toString() : MMCJson::ensureString(mod.value("uid"), "'uid'");
+	m_uid = MMCJson::ensureString(mod.value("uid"), "'uid'");
 	m_name = MMCJson::ensureString(mod.value("name"), "'name'");
 	m_description = mod.value("description").toString();
 	m_nemName = mod.value("nemName").toString();
@@ -92,11 +91,8 @@ void QuickMod::parse(const QByteArray &data)
 	{
 		m_tags.append(MMCJson::ensureString(val, "'tag'"));
 	}
-	if (!m_stub)
-	{
-		m_versionsUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("versionsUrl"), "'versionsUrl'"));
-		m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
-	}
+	m_versionsUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("versionsUrl"), "'versionsUrl'"));
+	m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
 
 	if (m_uid.isEmpty())
 	{

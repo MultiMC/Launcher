@@ -32,7 +32,6 @@ private slots:
 		mod->m_modId = "modid";
 		mod->m_categories << "cat" << "grep" << "ls" << "cp";
 		mod->m_tags << "tag" << "tictactoe";
-		mod->m_stub = false;
 		return mod;
 	}
 
@@ -75,7 +74,6 @@ private slots:
 		QCOMPARE(parsed->m_modId, mod->m_modId);
 		QCOMPARE(parsed->m_categories, mod->m_categories);
 		QCOMPARE(parsed->m_tags, mod->m_tags);
-		QCOMPARE(parsed->m_stub, mod->m_stub);
 	}
 
 	void testFileName_data()

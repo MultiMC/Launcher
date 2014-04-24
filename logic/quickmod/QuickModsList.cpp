@@ -135,8 +135,6 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return mod->tags();
 	case QuickModRole:
 		return QVariant::fromValue(mod);
-	case IsStubRole:
-		return mod->isStub();
 	}
 
 	return QVariant();
@@ -225,18 +223,6 @@ QuickModVersionPtr QuickModsList::modVersion(const QString &modUid, const QStrin
 	{
 		return 0;
 	}
-}
-
-void QuickModsList::modAddedBy(const Mod &mod, BaseInstance *instance)
-{
-	QuickModPtr qMod = m_updater->ensureExists(mod);
-	markModAsInstalled(qMod, QuickModVersion::invalid(qMod), mod.filename().absoluteFilePath(),
-					   instance);
-}
-void QuickModsList::modRemovedBy(const Mod &mod, BaseInstance *instance)
-{
-	QuickModPtr qMod = m_updater->ensureExists(mod);
-	markModAsUninstalled(qMod, QuickModVersion::invalid(qMod), instance);
 }
 
 void QuickModsList::markModAsExists(QuickModPtr mod, const BaseVersionPtr version,

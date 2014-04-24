@@ -49,10 +49,6 @@ void QuickModFilesUpdater::update()
 	auto job = new NetJob("QuickMod download");
 	for (int i = 0; i < m_list->numMods(); ++i)
 	{
-		if (m_list->modAt(i)->isStub())
-		{
-			continue;
-		}
 		auto url = m_list->modAt(i)->updateUrl();
 		if (url.isValid())
 		{
@@ -69,10 +65,6 @@ void QuickModFilesUpdater::update()
 		for (int i = 0; i < m_list->numMods(); ++i)
 		{
 			auto mod = m_list->modAt(i);
-			if (mod->isStub())
-			{
-				continue;
-			}
 			auto entry =
 				MMC->metacache()->resolveEntry("quickmod/versions", mod->uid() + ".json");
 			entry->stale = true;
@@ -106,30 +98,6 @@ void QuickModFilesUpdater::update()
 		versionsJob->start();
 	});
 	job->start();
-}
-
-QuickModPtr QuickModFilesUpdater::ensureExists(const Mod &mod)
-{
-	if (QuickModPtr qMod =
-			m_list->modForModId(mod.mod_id().isEmpty() ? mod.name() : mod.mod_id()))
-	{
-		if (!qMod->isStub())
-		{
-			return qMod;
-		}
-	}
-
-	auto qMod = QuickModPtr(new QuickMod);
-	qMod->m_name = mod.name();
-	qMod->m_modId = mod.mod_id().isEmpty() ? mod.name() : mod.mod_id();
-	qMod->m_uid = qMod->modId();
-	qMod->m_websiteUrl = QUrl(mod.homeurl());
-	qMod->m_description = mod.description();
-	qMod->m_stub = true;
-
-	saveQuickMod(qMod);
-
-	return qMod;
 }
 
 void QuickModFilesUpdater::receivedMod(int notused)
@@ -212,13 +180,6 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	{
 		m_list->unregisterMod(old);
 	}
-	if (!mod->modId().isEmpty())
-	{
-		while (QuickModPtr old = m_list->modForModId(mod->modId()))
-		{
-			m_list->unregisterMod(old);
-		}
-	}
 
 	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
 	if (!file.open(QFile::WriteOnly))
@@ -256,29 +217,6 @@ void QuickModFilesUpdater::readModFiles()
 	}
 
 	update();
-}
-
-void QuickModFilesUpdater::saveQuickMod(QuickModPtr mod)
-{
-	QJsonObject obj;
-	obj.insert("name", mod->name());
-	obj.insert("modId", mod->modId());
-	obj.insert("websiteUrl", mod->websiteUrl().toString());
-	obj.insert("description", mod->description());
-	obj.insert("stub", mod->isStub());
-
-	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
-	if (!file.open(QFile::WriteOnly | QFile::Truncate))
-	{
-		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
-		emit error(
-			tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
-		return;
-	}
-	file.write(QJsonDocument(obj).toJson());
-	file.close();
-
-	m_list->addMod(mod);
 }
 
 QString QuickModFilesUpdater::fileName(const QuickModPtr mod)

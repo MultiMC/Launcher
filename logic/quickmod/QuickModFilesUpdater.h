@@ -42,7 +42,6 @@ private:
 	QuickModsList *m_list;
 	QDir m_quickmodDir;
 
-	void saveQuickMod(QuickModPtr mod);
 	bool parseQuickMod(const QString &fileName, QuickModPtr mod);
 
 	static QString fileName(const QuickModPtr mod);

@@ -84,11 +84,6 @@ protected:
 	{
 		const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
 
-		if (index.data(QuickModsList::IsStubRole).toBool())
-		{
-			return false;
-		}
-
 		if (!m_tags.isEmpty())
 		{
 			if (!intersectLists(m_tags, index.data(QuickModsList::TagsRole).toStringList()))

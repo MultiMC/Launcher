@@ -91,11 +91,6 @@ public:
 	{
 		return m_versionsUrl;
 	}
-	bool isStub() const
-	{
-		return m_stub;
-	}
-
 	QList<QuickModVersionPtr> versions() const
 	{
 		return m_versions;
@@ -143,8 +138,6 @@ private:
 	QStringList m_categories;
 	QStringList m_tags;
 	QUrl m_versionsUrl;
-	// TODO get rid of the stub concept
-	bool m_stub;
 
 	QList<QuickModVersionPtr> m_versions;
 
