@@ -99,7 +99,7 @@ void QuickModAddFileDialog::run(QWidget *parent)
 		}
 		else
 		{
-			MMC->quickmodslist()->registerMod(dialog.ui->urlEdit->text());
+			MMC->quickmodslist()->registerMod(QUrl(dialog.ui->urlEdit->text()));
 		}
 	}
 }
