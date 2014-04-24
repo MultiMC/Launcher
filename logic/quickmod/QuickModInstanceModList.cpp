@@ -25,15 +25,15 @@ QuickModInstanceModList::QuickModInstanceModList(OneSixInstance *instance, std::
 		for (int i = first; i < (last + 1); ++i)
 		{
 			auto mod = MMC->quickmodslist()->modAt(i);
-			connect(mod, &QuickMod::versionsUpdated, this, &QuickModInstanceModList::quickmodVersionUpdated);
-			connect(mod, &QuickMod::iconUpdated, this, &QuickModInstanceModList::quickmodIconUpdated);
+			connect(mod.get(), &QuickMod::versionsUpdated, this, &QuickModInstanceModList::quickmodVersionUpdated);
+			connect(mod.get(), &QuickMod::iconUpdated, this, &QuickModInstanceModList::quickmodIconUpdated);
 		}
 	});
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsAboutToBeRemoved, [this](const QModelIndex &parent, const int first, const int last)
 	{
 		for (int i = first; i < (last + 1); ++i)
 		{
-			disconnect(MMC->quickmodslist()->modAt(i), 0, this, 0);
+			disconnect(MMC->quickmodslist()->modAt(i).get(), 0, this, 0);
 		}
 	});
 
@@ -59,7 +59,7 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 	const int row = index.row();
 	const int col = index.column();
 
-	QuickMod *mod = modAt(row);
+	QuickModPtr mod = modAt(row);
 	if (!mod)
 	{
 		return QVariant();
@@ -189,7 +189,7 @@ QMap<QString, QString> QuickModInstanceModList::quickmods() const
 	return m_instance->getFullVersion()->quickmods;
 }
 
-QuickMod *QuickModInstanceModList::modAt(const int row) const
+QuickModPtr QuickModInstanceModList::modAt(const int row) const
 {
 	return MMC->quickmodslist()->mod(quickmods().keys()[row]);
 }

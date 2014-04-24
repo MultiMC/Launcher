@@ -16,9 +16,9 @@ private slots:
 
 	}
 
-	QuickMod *createTestingMod()
+	QuickModPtr createTestingMod()
 	{
-		auto mod = new QuickMod;
+		auto mod = QuickModPtr(new QuickMod);
 		mod->m_name = "testmodname";
 		mod->m_uid = "this.should.be.unique";
 		mod->m_description = "test mod description\nsome more";
@@ -39,8 +39,8 @@ private slots:
 	void testParsing_data()
 	{
 		QTest::addColumn<QByteArray>("input");
-		QTest::addColumn<QuickMod *>("mod");
-		QuickMod *mod;
+		QTest::addColumn<QuickModPtr>("mod");
+		QuickModPtr mod;
 
 		mod = createTestingMod();
 		QTest::newRow("basic test") << TestsInternal::readFile(QFINDTESTDATA("data/tst_QuickMod_basic test")) << mod;
@@ -48,9 +48,9 @@ private slots:
 	void testParsing()
 	{
 		QFETCH(QByteArray, input);
-		QFETCH(QuickMod *, mod);
+		QFETCH(QuickModPtr, mod);
 
-		QuickMod *parsed = new QuickMod;
+		QuickModPtr parsed = QuickModPtr(new QuickMod);
 
 		QBENCHMARK
 		{
@@ -81,7 +81,7 @@ private slots:
 	void testFileName_data()
 	{
 		QTest::addColumn<QUrl>("url");
-		QTest::addColumn<QuickMod *>("mod");
+		QTest::addColumn<QuickModPtr>("mod");
 		QTest::addColumn<QString>("result");
 
 		QTest::newRow("jar") << QUrl("http://downloads.org/filename.jar") << TestsInternal::createMod("SomeMod") << "SomeMod.jar";
@@ -90,7 +90,7 @@ private slots:
 	void testFileName()
 	{
 		QFETCH(QUrl, url);
-		QFETCH(QuickMod *, mod);
+		QFETCH(QuickModPtr, mod);
 		QFETCH(QString, result);
 
 		QCOMPARE(mod->fileName(url), result);

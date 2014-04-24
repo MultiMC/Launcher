@@ -11,10 +11,9 @@
 #include "logic/net/NetJob.h"
 #include "logic/net/CacheDownload.h"
 #include "logic/tasks/Task.h"
+#include "logic/quickmod/QuickMod.h"
 
 class BaseInstance;
-
-class QuickMod;
 
 class QuickModVersion;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
@@ -38,10 +37,10 @@ public:
 		Group
 	};
 
-	QuickModVersion(QuickMod *mod = 0, bool valid = true) : mod(mod), valid(valid)
+	QuickModVersion(QuickModPtr mod = 0, bool valid = true) : mod(mod), valid(valid)
 	{
 	}
-	QuickModVersion(QuickMod *mod, const QString &name, const QUrl &url, const QStringList &mc,
+	QuickModVersion(QuickModPtr mod, const QString &name, const QUrl &url, const QStringList &mc,
 					const QString &forge = QString(),
 					const QMap<QString, QString> &deps = QMap<QString, QString>(),
 					const QMap<QString, QString> &recs = QMap<QString, QString>(),
@@ -67,7 +66,7 @@ public:
 		return QString(); // TODO add type field
 	}
 
-	QuickMod *mod;
+	QuickModPtr mod;
 	bool valid;
 	QString name_;
 	QUrl url;
@@ -92,7 +91,7 @@ public:
 			   md5 == other.md5;
 	}
 
-	static QuickModVersionPtr invalid(QuickMod *mod);
+	static QuickModVersionPtr invalid(QuickModPtr mod);
 };
 Q_DECLARE_METATYPE(QuickModVersion*);
 
@@ -100,7 +99,7 @@ class QuickModVersionList : public BaseVersionList
 {
 	Q_OBJECT
 public:
-	explicit QuickModVersionList(QuickMod *mod, BaseInstance *instance, QObject *parent = 0);
+	explicit QuickModVersionList(QuickModPtr mod, BaseInstance *instance, QObject *parent = 0);
 
 	Task *getLoadTask();
 	bool isLoaded();
@@ -117,7 +116,7 @@ private:
 	QList<BaseVersionPtr> m_vlist;
 	bool m_loaded = false;
 
-	QuickMod *m_mod;
+	QuickModPtr m_mod;
 	BaseInstance *m_instance;
 };
 

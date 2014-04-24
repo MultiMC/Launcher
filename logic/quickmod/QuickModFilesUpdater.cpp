@@ -39,7 +39,7 @@ void QuickModFilesUpdater::registerFile(const QUrl &url)
 	job->start();
 }
 
-void QuickModFilesUpdater::unregisterMod(const QuickMod *mod)
+void QuickModFilesUpdater::unregisterMod(const QuickModPtr mod)
 {
 	m_quickmodDir.remove(fileName(mod));
 }
@@ -108,9 +108,9 @@ void QuickModFilesUpdater::update()
 	job->start();
 }
 
-QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
+QuickModPtr QuickModFilesUpdater::ensureExists(const Mod &mod)
 {
-	if (QuickMod *qMod =
+	if (QuickModPtr qMod =
 			m_list->modForModId(mod.mod_id().isEmpty() ? mod.name() : mod.mod_id()))
 	{
 		if (!qMod->isStub())
@@ -119,7 +119,7 @@ QuickMod *QuickModFilesUpdater::ensureExists(const Mod &mod)
 		}
 	}
 
-	auto qMod = new QuickMod;
+	auto qMod = QuickModPtr(new QuickMod);
 	qMod->m_name = mod.name();
 	qMod->m_modId = mod.mod_id().isEmpty() ? mod.name() : mod.mod_id();
 	qMod->m_uid = qMod->modId();
@@ -192,7 +192,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	{
 	}
 
-	auto mod = new QuickMod;
+	auto mod = QuickModPtr(new QuickMod);
 	try
 	{
 		mod->parse(download->m_data);
@@ -208,13 +208,13 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	mod->m_hash = QCryptographicHash::hash(download->m_data, QCryptographicHash::Sha512);
 
 	// assume this is an updated version
-	if (QuickMod *old = m_list->mod(mod->uid()))
+	if (QuickModPtr old = m_list->mod(mod->uid()))
 	{
 		m_list->unregisterMod(old);
 	}
 	if (!mod->modId().isEmpty())
 	{
-		while (QuickMod *old = m_list->modForModId(mod->modId()))
+		while (QuickModPtr old = m_list->modForModId(mod->modId()))
 		{
 			m_list->unregisterMod(old);
 		}
@@ -248,7 +248,7 @@ void QuickModFilesUpdater::readModFiles()
 	foreach(const QFileInfo & info,
 			m_quickmodDir.entryInfoList(QStringList() << "*.json", QDir::Files))
 	{
-		auto mod = new QuickMod;
+		auto mod = QuickModPtr(new QuickMod);
 		if (parseQuickMod(info.absoluteFilePath(), mod))
 		{
 			m_list->addMod(mod);
@@ -258,7 +258,7 @@ void QuickModFilesUpdater::readModFiles()
 	update();
 }
 
-void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
+void QuickModFilesUpdater::saveQuickMod(QuickModPtr mod)
 {
 	QJsonObject obj;
 	obj.insert("name", mod->name());
@@ -281,7 +281,7 @@ void QuickModFilesUpdater::saveQuickMod(QuickMod *mod)
 	m_list->addMod(mod);
 }
 
-QString QuickModFilesUpdater::fileName(const QuickMod *mod)
+QString QuickModFilesUpdater::fileName(const QuickModPtr mod)
 {
 	return fileName(mod->uid());
 }
@@ -290,7 +290,7 @@ QString QuickModFilesUpdater::fileName(const QString &uid)
 	return uid + ".json";
 }
 
-bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickMod *mod)
+bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickModPtr mod)
 {
 	QFile file(fileName);
 	if (!file.open(QFile::ReadOnly))

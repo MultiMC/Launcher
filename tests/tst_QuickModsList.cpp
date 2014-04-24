@@ -36,7 +36,7 @@ slots:
 		current.cdUp();
 	}
 
-	QuickModVersionPtr createTestingVersion(QuickMod *mod)
+	QuickModVersionPtr createTestingVersion(QuickModPtr mod)
 	{
 		auto version = new QuickModVersion(mod);
 		version->name_ = "1.42";
@@ -52,14 +52,14 @@ slots:
 
 	void testMarkAsExisting_data()
 	{
-		QTest::addColumn<QVector<QuickMod *>>("mods");
+		QTest::addColumn<QVector<QuickModPtr>>("mods");
 		QTest::addColumn<QVector<QuickModVersionPtr>>("versions");
 		QTest::addColumn<QVector<QString>>("filenames");
 
-		QuickMod *testMod = TestsInternal::createMod("TestMod");
-		QuickMod *testMod2 = TestsInternal::createMod("TestMod2");
-		QuickMod *testMod3 = TestsInternal::createMod("TestMod3");
-		QTest::newRow("basic test") << (QVector<QuickMod *>() << testMod << testMod2
+		QuickModPtr testMod = TestsInternal::createMod("TestMod");
+		QuickModPtr testMod2 = TestsInternal::createMod("TestMod2");
+		QuickModPtr testMod3 = TestsInternal::createMod("TestMod3");
+		QTest::newRow("basic test") << (QVector<QuickModPtr>() << testMod << testMod2
 															  << testMod3)
 									<< (QVector<QuickModVersionPtr>()
 										<< createTestingVersion(testMod)
@@ -72,7 +72,7 @@ slots:
 	}
 	void testMarkAsExisting()
 	{
-		QFETCH(QVector<QuickMod *>, mods);
+		QFETCH(QVector<QuickModPtr>, mods);
 		QFETCH(QVector<QuickModVersionPtr>, versions);
 		QFETCH(QVector<QString>, filenames);
 		Q_ASSERT(mods.size() == versions.size() && mods.size() == filenames.size());
@@ -104,7 +104,7 @@ slots:
 
 	void testMarkAsInstalledUninstalled_data()
 	{
-		QTest::addColumn<QVector<QuickMod *>>("mods");
+		QTest::addColumn<QVector<QuickModPtr>>("mods");
 		QTest::addColumn<QVector<QuickModVersionPtr>>("versions");
 		QTest::addColumn<InstancePtr>("instance");
 		QTest::addColumn<QVector<QString>>("filenames");
@@ -116,10 +116,10 @@ slots:
 		version->m_name = "1.6.4";
 		InstanceFactory::get().createInstance(
 			instance, version, QDir::current().absoluteFilePath("instances/TestInstance"));
-		QuickMod *testMod = TestsInternal::createMod("TestMod");
-		QuickMod *testMod2 = TestsInternal::createMod("TestMod2");
-		QuickMod *testMod3 = TestsInternal::createMod("TestMod3");
-		QTest::newRow("basic test") << (QVector<QuickMod *>() << testMod << testMod2
+		QuickModPtr testMod = TestsInternal::createMod("TestMod");
+		QuickModPtr testMod2 = TestsInternal::createMod("TestMod2");
+		QuickModPtr testMod3 = TestsInternal::createMod("TestMod3");
+		QTest::newRow("basic test") << (QVector<QuickModPtr>() << testMod << testMod2
 															  << testMod3)
 									<< (QVector<QuickModVersionPtr>()
 										<< createTestingVersion(testMod)
@@ -133,7 +133,7 @@ slots:
 	}
 	void testMarkAsInstalledUninstalled()
 	{
-		QFETCH(QVector<QuickMod *>, mods);
+		QFETCH(QVector<QuickModPtr>, mods);
 		QFETCH(QVector<QuickModVersionPtr>, versions);
 		QFETCH(InstancePtr, instance);
 		QFETCH(QVector<QString>, filenames);

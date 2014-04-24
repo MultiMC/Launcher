@@ -129,12 +129,12 @@ bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 	return true;
 }
 
-QuickModVersionPtr QuickModVersion::invalid(QuickMod *mod)
+QuickModVersionPtr QuickModVersion::invalid(QuickModPtr mod)
 {
 	return QuickModVersionPtr(new QuickModVersion(mod, false));
 }
 
-QuickModVersionList::QuickModVersionList(QuickMod *mod, BaseInstance *instance, QObject *parent)
+QuickModVersionList::QuickModVersionList(QuickModPtr mod, BaseInstance *instance, QObject *parent)
 	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
 {
 }

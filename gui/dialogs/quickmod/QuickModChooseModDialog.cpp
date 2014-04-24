@@ -202,7 +202,7 @@ private:
 	QSet<QString> m_items;
 };
 
-QuickModChooseModDialog::QuickModChooseModDialog(InstancePtr instance, QWidget *parent)
+QuickModChooseModDialog::QuickModChooseModDialog(OneSixInstance* instance, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModChooseModDialog), m_currentMod(0),
 	  m_instance(instance), m_view(new QListView(this)),
 	  m_filterModel(new ModFilterProxyModel(this)), m_checkModel(new CheckboxProxyModel(this))
@@ -237,7 +237,7 @@ QuickModChooseModDialog::~QuickModChooseModDialog()
 void QuickModChooseModDialog::on_installButton_clicked()
 {
 	auto items = m_checkModel->getCheckedItems();
-	auto alreadySelected = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+	auto alreadySelected = m_instance->getFullVersion()->quickmods;
 	for (auto mod : alreadySelected.keys())
 	{
 		items.removeAll(mod);
@@ -255,7 +255,7 @@ void QuickModChooseModDialog::on_installButton_clicked()
 
 	try
 	{
-		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->setQuickModVersions(mods);
+		m_instance->setQuickModVersions(mods);
 	}
 	catch (MMCError &e)
 	{
@@ -295,7 +295,7 @@ void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected
 {
 	if (m_currentMod)
 	{
-		disconnect(m_currentMod, &QuickMod::logoUpdated, this,
+		disconnect(m_currentMod.get(), &QuickMod::logoUpdated, this,
 				   &QuickModChooseModDialog::modLogoUpdated);
 	}
 
@@ -312,8 +312,8 @@ void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected
 	else
 	{
 		m_currentMod = m_filterModel->index(selected.first().top(), 0)
-						   .data(QuickModsList::QuickModRole)
-						   .value<QuickMod *>();
+							.data(QuickModsList::QuickModRole)
+							.value<QuickModPtr>();
 		ui->nameLabel->setText(m_currentMod->name());
 		ui->descriptionLabel->setText(m_currentMod->description());
 		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>").arg(
@@ -333,7 +333,7 @@ void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected
 		ui->tagsLabel->setText(tags.join(", "));
 		ui->logoLabel->setPixmap(m_currentMod->logo());
 
-		connect(m_currentMod, &QuickMod::logoUpdated, this,
+		connect(m_currentMod.get(), &QuickMod::logoUpdated, this,
 				&QuickModChooseModDialog::modLogoUpdated);
 	}
 }

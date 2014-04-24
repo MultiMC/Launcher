@@ -1333,7 +1333,7 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 								BaseProfilerFactory *profiler)
 {
-	QList<QuickMod *> mods = MMC->quickmodslist()->updatedModsForInstance(instance);
+	QList<QuickModPtr> mods = MMC->quickmodslist()->updatedModsForInstance(instance);
 	if (!mods.isEmpty())
 	{
 		QStringList names;

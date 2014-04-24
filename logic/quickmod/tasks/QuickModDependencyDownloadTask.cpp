@@ -4,7 +4,7 @@
 #include "logic/quickmod/QuickModsList.h"
 #include "MultiMC.h"
 
-QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickMod *> mods,
+QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickModPtr> mods,
 															   QObject *parent)
 	: Task(parent), m_mods(mods)
 {
@@ -22,7 +22,7 @@ void QuickModDependencyDownloadTask::executeTask()
 	// TODO we cannot know if this is about us
 	connect(MMC->quickmodslist().get(), &QuickModsList::error, this, &QuickModDependencyDownloadTask::emitFailed);
 
-	foreach(const QuickMod * mod, m_mods)
+	foreach(const QuickModPtr mod, m_mods)
 	{
 		requestDependenciesOf(mod);
 	}
@@ -33,7 +33,7 @@ void QuickModDependencyDownloadTask::executeTask()
 	updateProgress();
 }
 
-void QuickModDependencyDownloadTask::modAdded(QuickMod *mod)
+void QuickModDependencyDownloadTask::modAdded(QuickModPtr mod)
 {
 	if (m_pendingMods.contains(mod->uid()))
 	{
@@ -57,7 +57,7 @@ void QuickModDependencyDownloadTask::updateProgress()
 	}
 }
 
-void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickMod *mod)
+void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModPtr mod)
 {
 	auto references = mod->references();
 	for (auto it = references.begin(); it != references.end(); ++it)

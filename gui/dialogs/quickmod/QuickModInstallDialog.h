@@ -5,6 +5,7 @@
 #include <QPair>
 #include <memory>
 
+#include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
 
 #include "logic/BaseInstance.h"
@@ -33,7 +34,7 @@ public
 slots:
 	virtual int exec();
 
-	void setInitialMods(const QList<QuickMod *> mods);
+	void setInitialMods(const QList<QuickModPtr> mods);
 	QList<QuickModVersionPtr> modVersions() const
 	{
 		return m_resolvedVersions;
@@ -58,7 +59,7 @@ private:
 
 	bool install(QuickModVersionPtr version, QTreeWidgetItem *item = 0);
 
-	QList<QuickMod *> m_initialMods;
+	QList<QuickModPtr> m_initialMods;
 	QList<QuickModVersionPtr> m_modVersions;
 	QList<QuickModVersionPtr> m_resolvedVersions;
 	QList<QUrl> m_downloadingUrls;

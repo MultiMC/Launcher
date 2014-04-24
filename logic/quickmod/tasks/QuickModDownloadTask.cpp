@@ -22,10 +22,10 @@ void QuickModDownloadTask::executeTask()
 {
 	const QMap<QString, QString> quickmods = m_instance->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
-	QList<QuickMod *> mods;
+	QList<QuickModPtr> mods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
-		QuickMod *mod = list->mod(it.key());
+		QuickModPtr mod = list->mod(it.key());
 		if (mod == 0)
 		{
 			// TODO fetch info from somewhere?

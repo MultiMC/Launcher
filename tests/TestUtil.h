@@ -23,9 +23,9 @@ struct TestsInternal
 			return QString::fromUtf8(readFile(fileName));
 		}
 
-		static QuickMod * createMod(QString name)
+		static QuickModPtr createMod(QString name)
 		{
-			auto mod = new QuickMod;
+			auto mod = QuickModPtr(new QuickMod);
 			mod->m_uid = name;
 			mod->m_name = name;
 			mod->m_nemName = name;

@@ -54,7 +54,7 @@ private:
 	std::shared_ptr<ModList> m_modList;
 
 	QMap<QString, QString> quickmods() const;
-	QuickMod *modAt(const int row) const;
+	QuickModPtr modAt(const int row) const;
 };
 
 class QuickModInstanceModListProxy : public QSortFilterProxyModel

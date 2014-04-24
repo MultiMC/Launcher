@@ -22,9 +22,9 @@ QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance, QWi
 
 }
 
-QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickMod *> &mods)
+QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickModPtr> &mods)
 {
-	foreach (QuickMod *mod, mods)
+	foreach (QuickModPtr mod, mods)
 	{
 		bool ok;
 		resolve(getVersion(mod, QString(), &ok));
@@ -37,7 +37,7 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickM
 	return m_mods.values();
 }
 
-QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickMod *mod, const QString &filter, bool *ok)
+QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickModPtr mod, const QString &filter, bool *ok)
 {
 	const QString predefinedVersion = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods.value(mod->uid());
 	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance.get(), this),
@@ -64,14 +64,14 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 	{
 		return;
 	}
-	if (m_mods.contains(version->mod) && Util::Version(version->name()) <= Util::Version(m_mods[version->mod]->name()))
+	if (m_mods.contains(version->mod.get()) && Util::Version(version->name()) <= Util::Version(m_mods[version->mod.get()]->name()))
 	{
 		return;
 	}
-	m_mods.insert(version->mod, version);
+	m_mods.insert(version->mod.get(), version);
 	for (auto it = version->dependencies.begin(); it != version->dependencies.end(); ++it)
 	{
-		QuickMod *depMod = MMC->quickmodslist()->mod(it.key());
+		QuickModPtr depMod = MMC->quickmodslist()->mod(it.key());
 		if (!depMod)
 		{
 			emit warning(tr("The dependency from %1 (%2) to %3 cannot be resolved")
@@ -89,7 +89,7 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 		{
 			emit success(tr("Successfully resolved dependency from %1 (%2) to %3 (%4)")
 						 .arg(version->mod->name(), version->name(), dep->mod->name(), dep->name()));
-			if (m_mods.contains(version->mod) && Util::Version(dep->name()) > Util::Version(m_mods[version->mod]->name()))
+			if (m_mods.contains(version->mod.get()) && Util::Version(dep->name()) > Util::Version(m_mods[version->mod.get()]->name()))
 			{
 				resolve(dep);
 			}

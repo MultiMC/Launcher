@@ -46,6 +46,19 @@ QuickModsList::~QuickModsList()
 	delete m_settings;
 }
 
+
+int QuickModsList::getQMIndex(QuickMod *mod) const
+{
+	for (int i = 0; i < m_mods.count(); i++)
+	{
+		if (mod == m_mods[i].get())
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 QHash<int, QByteArray> QuickModsList::roleNames() const
 {
 	QHash<int, QByteArray> roles;
@@ -79,7 +92,7 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 
-	QuickMod *mod = m_mods.at(index.row());
+	QuickModPtr mod = m_mods.at(index.row());
 
 	switch (role)
 	{
@@ -173,13 +186,13 @@ Qt::DropActions QuickModsList::supportedDragActions() const
 	return 0;
 }
 
-QuickMod *QuickModsList::modForModId(const QString &modId) const
+QuickModPtr QuickModsList::modForModId(const QString &modId) const
 {
 	if (modId.isEmpty())
 	{
 		return 0;
 	}
-	foreach (QuickMod *mod, m_mods)
+	foreach (QuickModPtr mod, m_mods)
 	{
 		if (mod->modId() == modId)
 		{
@@ -189,9 +202,9 @@ QuickMod *QuickModsList::modForModId(const QString &modId) const
 
 	return 0;
 }
-QuickMod *QuickModsList::mod(const QString &uid) const
+QuickModPtr QuickModsList::mod(const QString &uid) const
 {
-	foreach (QuickMod *mod, m_mods)
+	foreach (QuickModPtr mod, m_mods)
 	{
 		if (mod->uid() == uid)
 		{
@@ -203,7 +216,7 @@ QuickMod *QuickModsList::mod(const QString &uid) const
 }
 QuickModVersionPtr QuickModsList::modVersion(const QString &modUid, const QString &versionName) const
 {
-	QuickMod *m = mod(modUid);
+	QuickModPtr m = mod(modUid);
 	if (m)
 	{
 		return m->version(versionName);
@@ -216,17 +229,17 @@ QuickModVersionPtr QuickModsList::modVersion(const QString &modUid, const QStrin
 
 void QuickModsList::modAddedBy(const Mod &mod, BaseInstance *instance)
 {
-	QuickMod *qMod = m_updater->ensureExists(mod);
+	QuickModPtr qMod = m_updater->ensureExists(mod);
 	markModAsInstalled(qMod, QuickModVersion::invalid(qMod), mod.filename().absoluteFilePath(),
 					   instance);
 }
 void QuickModsList::modRemovedBy(const Mod &mod, BaseInstance *instance)
 {
-	QuickMod *qMod = m_updater->ensureExists(mod);
+	QuickModPtr qMod = m_updater->ensureExists(mod);
 	markModAsUninstalled(qMod, QuickModVersion::invalid(qMod), instance);
 }
 
-void QuickModsList::markModAsExists(QuickMod *mod, const BaseVersionPtr version,
+void QuickModsList::markModAsExists(QuickModPtr mod, const BaseVersionPtr version,
 									const QString &fileName)
 {
 	auto mods = m_settings->get("AvailableMods").toMap();
@@ -236,7 +249,7 @@ void QuickModsList::markModAsExists(QuickMod *mod, const BaseVersionPtr version,
 	m_settings->getSetting("AvailableMods")->set(QVariant(mods));
 }
 
-void QuickModsList::markModAsInstalled(QuickMod *mod, const BaseVersionPtr version,
+void QuickModsList::markModAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
 									   const QString &fileName, BaseInstance *instance)
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
@@ -245,7 +258,7 @@ void QuickModsList::markModAsInstalled(QuickMod *mod, const BaseVersionPtr versi
 	mods[mod->uid()] = map;
 	instance->settings().getSetting("InstalledMods")->set(QVariant(mods));
 }
-void QuickModsList::markModAsUninstalled(QuickMod *mod, const BaseVersionPtr version,
+void QuickModsList::markModAsUninstalled(QuickModPtr mod, const BaseVersionPtr version,
 										 BaseInstance *instance)
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
@@ -261,7 +274,7 @@ void QuickModsList::markModAsUninstalled(QuickMod *mod, const BaseVersionPtr ver
 	}
 	instance->settings().set("InstalledMods", QVariant(mods));
 }
-bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const BaseVersionPtr version,
+bool QuickModsList::isModMarkedAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
 										   BaseInstance *instance) const
 {
 	if (!isModMarkedAsExists(mod, version))
@@ -272,17 +285,17 @@ bool QuickModsList::isModMarkedAsInstalled(QuickMod *mod, const BaseVersionPtr v
 	return mods.contains(mod->uid()) &&
 		   mods.value(mod->uid()).toMap().contains(version->name());
 }
-bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const BaseVersionPtr version) const
+bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const
 {
 	return isModMarkedAsExists(mod, version->name());
 }
-bool QuickModsList::isModMarkedAsExists(QuickMod *mod, const QString &version) const
+bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const QString &version) const
 {
 	auto mods = m_settings->get("AvailableMods").toMap();
 	return mods.contains(mod->uid()) &&
 			mods.value(mod->uid()).toMap().contains(version);
 }
-QMap<QString, QString> QuickModsList::installedModFiles(QuickMod *mod, BaseInstance *instance) const
+QMap<QString, QString> QuickModsList::installedModFiles(QuickModPtr mod, BaseInstance *instance) const
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
 	auto tmp = mods[mod->uid()].toMap();
@@ -293,11 +306,11 @@ QMap<QString, QString> QuickModsList::installedModFiles(QuickMod *mod, BaseInsta
 	}
 	return out;
 }
-QString QuickModsList::existingModFile(QuickMod *mod, const BaseVersionPtr version) const
+QString QuickModsList::existingModFile(QuickModPtr mod, const BaseVersionPtr version) const
 {
 	return existingModFile(mod, version->name());
 }
-QString QuickModsList::existingModFile(QuickMod *mod, const QString &version) const
+QString QuickModsList::existingModFile(QuickModPtr mod, const QString &version) const
 {
 	if (!isModMarkedAsExists(mod, version))
 	{
@@ -338,9 +351,9 @@ bool QuickModsList::haveUid(const QString &uid) const
 	return false;
 }
 
-QList<QuickMod *> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const
+QList<QuickModPtr> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const
 {
-	QList<QuickMod *> mods;
+	QList<QuickModPtr> mods;
 	std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(instance);
 	for (auto it = onesix->getFullVersion()->quickmods.begin(); it != onesix->getFullVersion()->quickmods.end(); ++it)
 	{
@@ -348,7 +361,7 @@ QList<QuickMod *> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInst
 		{
 			continue;
 		}
-		QuickMod *m = mod(it.key());
+		QuickModPtr m = mod(it.key());
 		if (!m)
 		{
 			continue;
@@ -379,23 +392,23 @@ void QuickModsList::updateFiles()
 	m_updater->update();
 }
 
-void QuickModsList::touchMod(QuickMod *mod)
+void QuickModsList::touchMod(QuickModPtr mod)
 {
 	emit modAdded(mod);
 }
 
-void QuickModsList::addMod(QuickMod *mod)
+void QuickModsList::addMod(QuickModPtr mod)
 {
-	connect(mod, &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
-	connect(mod, &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
+	connect(mod.get(), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
+	connect(mod.get(), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 
 	for (int i = 0; i < m_mods.size(); ++i)
 	{
 		if (m_mods.at(i)->compare(mod))
 		{
-			disconnect(m_mods.at(i), &QuickMod::iconUpdated, this,
+			disconnect(m_mods.at(i).get(), &QuickMod::iconUpdated, this,
 					   &QuickModsList::modIconUpdated);
-			disconnect(m_mods.at(i), &QuickMod::logoUpdated, this,
+			disconnect(m_mods.at(i).get(), &QuickMod::logoUpdated, this,
 					   &QuickModsList::modLogoUpdated);
 			m_mods.replace(i, mod);
 
@@ -416,21 +429,20 @@ void QuickModsList::addMod(QuickMod *mod)
 void QuickModsList::clearMods()
 {
 	beginResetModel();
-	qDeleteAll(m_mods);
 	m_mods.clear();
 	endResetModel();
 
 	emit modsListChanged();
 }
-void QuickModsList::removeMod(QuickMod *mod)
+void QuickModsList::removeMod(QuickModPtr mod)
 {
 	if (!m_mods.contains(mod))
 	{
 		return;
 	}
 
-	disconnect(mod, &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
-	disconnect(mod, &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
+	disconnect(mod.get(), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
+	disconnect(mod.get(), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
 
 	beginRemoveRows(QModelIndex(), m_mods.indexOf(mod), m_mods.indexOf(mod));
 	m_mods.takeAt(m_mods.indexOf(mod));
@@ -441,14 +453,14 @@ void QuickModsList::removeMod(QuickMod *mod)
 
 void QuickModsList::modIconUpdated()
 {
-	auto mod = qobject_cast<QuickMod *>(sender());
-	auto modIndex = index(m_mods.indexOf(mod), 0);
+	auto mod = qobject_cast<QuickMod*>(sender());
+	auto modIndex = index(getQMIndex(mod), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << Qt::DecorationRole << IconRole);
 }
 void QuickModsList::modLogoUpdated()
 {
-	auto mod = qobject_cast<QuickMod *>(sender());
-	auto modIndex = index(m_mods.indexOf(mod), 0);
+	auto mod = qobject_cast<QuickMod*>(sender());
+	auto modIndex = index(getQMIndex(mod), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << LogoRole);
 }
 
@@ -478,7 +490,7 @@ void QuickModsList::cleanup()
 	m_settings->set("AvailableMods", mods);
 }
 
-void QuickModsList::unregisterMod(QuickMod *mod)
+void QuickModsList::unregisterMod(QuickModPtr mod)
 {
 	int row = m_mods.indexOf(mod);
 	if (row == -1)

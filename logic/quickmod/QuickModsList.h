@@ -8,11 +8,9 @@
 #include <QCryptographicHash>
 #include <logic/quickmod/QuickModVersion.h>
 #include <logic/BaseInstance.h>
+#include <logic/quickmod/QuickMod.h>
 
 class QuickModFilesUpdater;
-class QuickMod;
-class QuickModVersion;
-typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 class Mod;
 class SettingsObject;
 
@@ -66,52 +64,52 @@ public:
 	{
 		return m_mods.size();
 	}
-	QuickMod *modAt(const int index) const
+	QuickModPtr modAt(const int index) const
 	{
 		return m_mods[index];
 	}
 
-	QuickMod *modForModId(const QString &modId) const;
-	QuickMod *mod(const QString &uid) const;
+	QuickModPtr modForModId(const QString &modId) const;
+	QuickModPtr mod(const QString &uid) const;
 	QuickModVersionPtr modVersion(const QString &modUid, const QString &versionName) const;
 
 	void modAddedBy(const Mod &mod, BaseInstance *instance);
 	void modRemovedBy(const Mod &mod, BaseInstance *instance);
 
-	void markModAsExists(QuickMod *mod, const BaseVersionPtr version, const QString &fileName);
-	void markModAsInstalled(QuickMod *mod, const BaseVersionPtr version,
+	void markModAsExists(QuickModPtr mod, const BaseVersionPtr version, const QString &fileName);
+	void markModAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
 							const QString &fileName, BaseInstance *instance);
-	void markModAsUninstalled(QuickMod *mod, const BaseVersionPtr version,
+	void markModAsUninstalled(QuickModPtr mod, const BaseVersionPtr version,
 							  BaseInstance *instance);
-	bool isModMarkedAsInstalled(QuickMod *mod, const BaseVersionPtr version,
+	bool isModMarkedAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
 								BaseInstance *instance) const;
-	bool isModMarkedAsExists(QuickMod *mod, const BaseVersionPtr version) const;
-	bool isModMarkedAsExists(QuickMod *mod, const QString &version) const;
-	QMap<QString, QString> installedModFiles(QuickMod *mod, BaseInstance *instance) const;
-	QString existingModFile(QuickMod *mod, const BaseVersionPtr version) const;
-	QString existingModFile(QuickMod *mod, const QString &version) const;
+	bool isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const;
+	bool isModMarkedAsExists(QuickModPtr mod, const QString &version) const;
+	QMap<QString, QString> installedModFiles(QuickModPtr mod, BaseInstance *instance) const;
+	QString existingModFile(QuickModPtr mod, const BaseVersionPtr version) const;
+	QString existingModFile(QuickModPtr mod, const QString &version) const;
 
 	bool isWebsiteTrusted(const QUrl &url) const;
 	void setWebsiteTrusted(const QUrl &url, const bool trusted);
 
 	bool haveUid(const QString &uid) const;
 
-	QList<QuickMod *> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;
+	QList<QuickModPtr> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;
 
 public
 slots:
 	void registerMod(const QString &fileName);
 	void registerMod(const QUrl &url);
-	void unregisterMod(QuickMod *mod);
+	void unregisterMod(QuickModPtr mod);
 
 	void updateFiles();
 
 private
 slots:
-	void touchMod(QuickMod *mod);
-	void addMod(QuickMod *mod);
+	void touchMod(QuickModPtr mod);
+	void addMod(QuickModPtr mod);
 	void clearMods();
-	void removeMod(QuickMod *mod);
+	void removeMod(QuickModPtr mod);
 
 	void modIconUpdated();
 	void modLogoUpdated();
@@ -119,15 +117,18 @@ slots:
 	void cleanup();
 
 signals:
-	void modAdded(QuickMod *mod);
+	void modAdded(QuickModPtr mod);
 	void modsListChanged();
 	void error(const QString &message);
 
 private:
+	/// Gets the index of the given mod in the list.
+	int getQMIndex(QuickMod *mod) const;
+
 	friend class QuickModFilesUpdater;
 	QuickModFilesUpdater *m_updater;
 
-	QList<QuickMod *> m_mods;
+	QList<QuickModPtr> m_mods;
 
 	SettingsObject *m_settings;
 };

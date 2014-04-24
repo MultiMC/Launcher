@@ -104,7 +104,7 @@ void QuickMod::parse(const QByteArray &data)
 	}
 }
 
-bool QuickMod::compare(const QuickMod *other) const
+bool QuickMod::compare(const QuickModPtr other) const
 {
 	return m_name == other->name() || m_uid == other->uid();
 }

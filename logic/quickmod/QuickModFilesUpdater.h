@@ -4,9 +4,10 @@
 #include <QDir>
 #include <memory>
 
+#include "logic/quickmod/QuickMod.h"
+
 class QuickModsList;
 class Mod;
-class QuickMod;
 
 /**
  * Takes care of regulary checking for updates to quickmod files, and is also responsible for
@@ -19,10 +20,10 @@ public:
 	QuickModFilesUpdater(QuickModsList *list);
 
 	// TODO use some sort of lookup
-	QuickMod *ensureExists(const Mod &mod);
+	QuickModPtr ensureExists(const Mod &mod);
 
 	void registerFile(const QUrl &url);
-	void unregisterMod(const QuickMod *mod);
+	void unregisterMod(const QuickModPtr mod);
 
 public
 slots:
@@ -41,9 +42,9 @@ private:
 	QuickModsList *m_list;
 	QDir m_quickmodDir;
 
-	void saveQuickMod(QuickMod *mod);
-	bool parseQuickMod(const QString &fileName, QuickMod *mod);
+	void saveQuickMod(QuickModPtr mod);
+	bool parseQuickMod(const QString &fileName, QuickModPtr mod);
 
-	static QString fileName(const QuickMod *mod);
+	static QString fileName(const QuickModPtr mod);
 	static QString fileName(const QString &uid);
 };

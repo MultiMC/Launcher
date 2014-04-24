@@ -3,6 +3,9 @@
 #include <QDialog>
 
 #include "logic/BaseInstance.h"
+#include "logic/quickmod/QuickMod.h"
+
+class OneSixInstance;
 
 namespace Ui
 {
@@ -13,14 +16,13 @@ class QItemSelection;
 class QListView;
 class ModFilterProxyModel;
 class CheckboxProxyModel;
-class QuickMod;
 
 class QuickModChooseModDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit QuickModChooseModDialog(InstancePtr instance, QWidget *parent = 0);
+	explicit QuickModChooseModDialog(OneSixInstance* instance, QWidget *parent = 0);
 	~QuickModChooseModDialog();
 
 private
@@ -42,9 +44,9 @@ slots:
 private:
 	Ui::QuickModChooseModDialog *ui;
 
-	QuickMod *m_currentMod;
+	QuickModPtr m_currentMod;
 
-	InstancePtr m_instance;
+	OneSixInstance* m_instance;
 
 	QListView *m_view;
 	ModFilterProxyModel *m_filterModel;

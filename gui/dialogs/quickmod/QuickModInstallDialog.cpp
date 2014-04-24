@@ -208,7 +208,7 @@ int QuickModInstallDialog::exec()
 	return QDialog::exec();
 }
 
-void QuickModInstallDialog::setInitialMods(const QList<QuickMod *> mods)
+void QuickModInstallDialog::setInitialMods(const QList<QuickModPtr> mods)
 {
 	m_initialMods = mods;
 }

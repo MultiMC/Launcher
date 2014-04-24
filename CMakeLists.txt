@@ -35,7 +35,18 @@ set(CMAKE_JAVA_TARGET_OUTPUT_DIR ${PROJECT_BINARY_DIR}/jars)
 ######## Set compiler flags ########
 include(UseCXX11)
 include(Coverage)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+
+option(SUPPRESS_WARNINGS "Suppress all warnings. This currently only works for Clang, and is meant for fixing lots of errors." OFF)
+if (SUPPRESS_WARNINGS)
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		message (AUTHOR_WARNING "Warnings have been suppressed for error fixing. This should only be used for fixing a large amount of errors!")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
+	else ()
+		message (ERROR "Warning suppression has been disabled, but it is not supported for the current compiler. Currently only Clang is supported.")
+	endif ()
+else ()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif ()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror=return-type")
 
 ################################ 3rd Party Libs ################################

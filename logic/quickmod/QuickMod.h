@@ -11,6 +11,8 @@
 
 class QuickMod;
 class QuickModVersion;
+
+typedef std::shared_ptr<QuickMod> QuickModPtr;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 
 class QuickModParseError : public MMCError
@@ -108,7 +110,7 @@ public:
 	}
 	void parse(const QByteArray &data);
 
-	bool compare(const QuickMod *other) const;
+	bool compare(const QuickModPtr other) const;
 
 signals:
 	void iconUpdated();
@@ -154,3 +156,5 @@ private:
 	QString fileName(const QUrl &url) const;
 };
 Q_DECLARE_METATYPE(QuickMod *)
+Q_DECLARE_METATYPE(QuickModPtr)
+
