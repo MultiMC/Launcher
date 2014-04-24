@@ -365,19 +365,7 @@ void QuickModChooseModDialog::setupCategoryBox()
 
 void QuickModChooseModDialog::on_addButton_clicked()
 {
-	QuickModAddFileDialog dialog(this);
-	if (dialog.exec() == QDialog::Accepted)
-	{
-		switch (dialog.type())
-		{
-		case QuickModAddFileDialog::FileName:
-			MMC->quickmodslist()->registerMod(dialog.fileName());
-			break;
-		case QuickModAddFileDialog::Url:
-			MMC->quickmodslist()->registerMod(dialog.url());
-			break;
-		}
-	}
+	QuickModAddFileDialog::run(this);
 }
 void QuickModChooseModDialog::on_updateButton_clicked()
 {

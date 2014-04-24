@@ -27,27 +27,21 @@ class QuickModAddFileDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuickModAddFileDialog(QWidget *parent = 0);
 	~QuickModAddFileDialog();
 
-	enum Type
-	{
-		FileName,
-		Url
-	};
-	Type type() const
-	{
-		return m_type;
-	}
-	QString fileName() const;
-	QUrl url() const;
+	static void run(QWidget *parent);
+
+private:
+	explicit QuickModAddFileDialog(QWidget *parent = 0);
+
+	Ui::QuickModAddFileDialog *ui;
 
 private
 slots:
 	void on_addButton_clicked();
 	void on_browseButton_clicked();
-
-private:
-	Ui::QuickModAddFileDialog *ui;
-	Type m_type;
+	void on_fileEdit_textChanged(const QString &);
+	void on_urlEdit_textChanged(const QString &);
+	void on_fileButton_clicked();
+	void on_urlButton_clicked();
 };

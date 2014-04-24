@@ -38,7 +38,11 @@
      <item row="0" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QLineEdit" name="fileEdit"/>
+        <widget class="QLineEdit" name="fileEdit">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="browseButton">
@@ -60,6 +64,9 @@
       <widget class="QLineEdit" name="urlEdit">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

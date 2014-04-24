@@ -22,6 +22,7 @@
 
 #include "MultiMC.h"
 #include "gui/Platform.h"
+#include "logic/quickmod/QuickModsList.h"
 
 class FileValidator : public QValidator
 {
@@ -33,19 +34,18 @@ public:
 
 	State validate(QString &input, int &pos) const
 	{
-		QFileInfo f(input);
-		if (!f.exists())
-		{
-			return Invalid;
-		}
-		else if (f.isDir())
+		if (input.isEmpty())
 		{
 			return Intermediate;
 		}
-		else
+		for (auto file : input.split(';'))
 		{
-			return Acceptable;
+			if (!QFileInfo(file).isFile())
+			{
+				return Intermediate;
+			}
 		}
+		return Acceptable;
 	}
 };
 class UrlValidator : public QValidator
@@ -58,7 +58,11 @@ public:
 
 	State validate(QString &input, int &pos) const
 	{
-		return QUrl::fromUserInput(input).isValid() ? Acceptable : Invalid;
+		if (input.isEmpty())
+		{
+			return Intermediate;
+		}
+		return QUrl::fromUserInput(input).isValid() ? Acceptable : Intermediate;
 	}
 };
 
@@ -69,8 +73,11 @@ QuickModAddFileDialog::QuickModAddFileDialog(QWidget *parent)
 	ui->setupUi(this);
 
 	ui->fileEdit->setValidator(new FileValidator(this));
+	ui->urlEdit->setValidator(new UrlValidator(this));
 
 	connect(ui->cancelButton, &QPushButton::clicked, this, &QuickModAddFileDialog::reject);
+
+	ui->addButton->setEnabled(false);
 }
 
 QuickModAddFileDialog::~QuickModAddFileDialog()
@@ -78,13 +85,23 @@ QuickModAddFileDialog::~QuickModAddFileDialog()
 	delete ui;
 }
 
-QString QuickModAddFileDialog::fileName() const
+void QuickModAddFileDialog::run(QWidget *parent)
 {
-	return ui->fileEdit->text();
-}
-QUrl QuickModAddFileDialog::url() const
-{
-	return QUrl::fromUserInput(ui->urlEdit->text());
+	QuickModAddFileDialog dialog(parent);
+	if (dialog.exec() == QDialog::Accepted)
+	{
+		if (dialog.ui->fileButton->isChecked())
+		{
+			for (auto filename : dialog.ui->fileEdit->text().split(';'))
+			{
+				MMC->quickmodslist()->registerMod(filename);
+			}
+		}
+		else
+		{
+			MMC->quickmodslist()->registerMod(dialog.ui->urlEdit->text());
+		}
+	}
 }
 
 void QuickModAddFileDialog::on_addButton_clicked()
@@ -92,14 +109,6 @@ void QuickModAddFileDialog::on_addButton_clicked()
 	if ((ui->fileButton->isChecked() && ui->fileEdit->hasAcceptableInput()) ||
 		(ui->urlButton->isChecked() && ui->urlEdit->hasAcceptableInput()))
 	{
-		if (ui->fileButton->isChecked())
-		{
-			m_type = FileName;
-		}
-		else
-		{
-			m_type = Url;
-		}
 		accept();
 	}
 	else
@@ -107,7 +116,6 @@ void QuickModAddFileDialog::on_addButton_clicked()
 		reject();
 	}
 }
-
 void QuickModAddFileDialog::on_browseButton_clicked()
 {
 	if (!ui->fileButton->isChecked())
@@ -115,14 +123,40 @@ void QuickModAddFileDialog::on_browseButton_clicked()
 		return;
 	}
 
-	// TODO batch opening
-	QString fileName =
-		QFileDialog::getOpenFileName(this, tr("Add QuickMod File"), ui->fileEdit->text(),
+	QStringList fileNames =
+		QFileDialog::getOpenFileNames(this, tr("Add QuickMod File"), ui->fileEdit->text(),
 									 tr("QuickMod files (*.quickmod *.json)"));
-	if (!fileName.isEmpty())
+	if (!fileNames.isEmpty())
 	{
-		ui->fileEdit->setText(fileName);
+		ui->fileEdit->setText(fileNames.join(';'));
 	}
+}
+
+void QuickModAddFileDialog::on_fileEdit_textChanged(const QString &)
+{
+	if (ui->fileButton->isChecked())
+	{
+		QString input = ui->fileEdit->text();
+		int pos = ui->fileEdit->cursorPosition();
+		ui->addButton->setEnabled(ui->fileEdit->validator()->validate(input, pos) == QValidator::Acceptable);
+		ui->fileEdit->setText(input);
+		ui->fileEdit->setCursorPosition(pos);
+	}
+}
+void QuickModAddFileDialog::on_urlEdit_textChanged(const QString &)
+{
+	if (ui->urlButton->isChecked())
+	{
+		ui->addButton->setEnabled(ui->urlEdit->hasAcceptableInput());
+	}
+}
+void QuickModAddFileDialog::on_fileButton_clicked()
+{
+	ui->addButton->setEnabled(ui->fileEdit->hasAcceptableInput());
+}
+void QuickModAddFileDialog::on_urlButton_clicked()
+{
+	ui->addButton->setEnabled(ui->urlEdit->hasAcceptableInput());
 }
 
 #include "QuickModAddFileDialog.moc"
