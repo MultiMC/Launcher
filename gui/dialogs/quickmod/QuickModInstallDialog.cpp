@@ -30,7 +30,6 @@
 Q_DECLARE_METATYPE(QTreeWidgetItem *)
 
 // TODO load parallel versions in parallel (makes sense, right?)
-// TODO there's to much non-gui code in here
 
 struct ExtraRoles
 {
@@ -76,7 +75,7 @@ public:
 };
 
 QuickModInstallDialog::QuickModInstallDialog(InstancePtr instance, QWidget *parent)
-	: QDialog(parent), ui(new Ui::QuickModInstallDialog), m_instance(instance)
+	: QDialog(parent), ui(new Ui::QuickModInstallDialog), m_installer(new QuickModInstaller(this, this)), m_instance(instance)
 {
 	ui->setupUi(this);
 	setWindowModality(Qt::WindowModal);
@@ -255,13 +254,15 @@ bool QuickModInstallDialog::checkForIsDone()
 
 bool QuickModInstallDialog::install(QuickModVersionPtr version, QTreeWidgetItem *item)
 {
-	QuickModInstaller installer(this);
-	QString errorString;
-	if (!installer.install(version, m_instance, &errorString))
+	try
+	{
+		m_installer->install(version, m_instance);
+	}
+	catch (MMCError &e)
 	{
 		if (item)
 		{
-			item->setText(3, errorString);
+			item->setText(3, e.cause());
 			item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
 		}
 		return false;
@@ -320,40 +321,6 @@ void QuickModInstallDialog::downloadProgress(const qint64 current, const qint64 
 		ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item), 3));
 }
 
-static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
-{
-	QString ending = QMimeDatabase().mimeTypeForUrl(url).preferredSuffix();
-	if (!ending.isEmpty())
-	{
-		ending.prepend('.');
-	}
-	if (ending == ".bin")
-	{
-		ending = ".jar";
-	}
-	return version->mod->uid() + "-" + version->name() + ending;
-}
-static QDir dirEnsureExists(const QString &dir, const QString &path)
-{
-	QDir dir_ = QDir::current();
-
-	// first stage
-	if (!dir_.exists(dir))
-	{
-		dir_.mkpath(dir);
-	}
-	dir_.cd(dir);
-
-	// second stage
-	if (!dir_.exists(path))
-	{
-		dir_.mkpath(path);
-	}
-	dir_.cd(path);
-
-	return dir_;
-}
-
 void QuickModInstallDialog::downloadCompleted()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
@@ -362,59 +329,26 @@ void QuickModInstallDialog::downloadCompleted()
 	item->setData(3, ExtraRoles::IgnoreRole, true);
 	item->setText(3, tr("Installing..."));
 	auto version = reply->property("version").value<QuickModVersionPtr>();
-	QDir dir;
-	switch (version->installType)
-	{
-	case QuickModVersion::ForgeMod:
-	case QuickModVersion::ForgeCoreMod:
-		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "mods");
-		break;
-	case QuickModVersion::Extract:
-	case QuickModVersion::ConfigPack:
-		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "archives");
-		break;
-	case QuickModVersion::Group:
-		item->setText(3, tr("Success: Installed successfully"));
-		item->setData(3, Qt::ForegroundRole, QColor(Qt::green));
 
-		checkForIsDone();
-		return;
+	try
+	{
+		m_installer->handleDownload(version, reply->readAll(), reply->url());
 	}
-
-	checkForIsDone();
-
-	QByteArray data = reply->readAll();
-
-	const QByteArray actual = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
-	if (!version->md5.isNull() && actual != version->md5)
+	catch (MMCError &e)
 	{
-		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
-					<< ". Actual: " << actual << " Expected: " << version->md5;
-		item->setText(3, tr("Error: Checksum mismatch"));
+		item->setText(3, e.cause());
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
-		return;
 	}
-
-	QFile file(dir.absoluteFilePath(fileName(version, reply->url())));
-	if (!file.open(QFile::WriteOnly | QFile::Truncate))
-	{
-		item->setText(
-			3, tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
-		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
-		return;
-	}
-	file.write(data);
-	file.close();
 	reply->close();
 	reply->deleteLater();
-
-	MMC->quickmodslist()->markModAsExists(version->mod, version, file.fileName());
 
 	if (install(version, item))
 	{
 		item->setText(3, tr("Success: Installed successfully"));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::darkGreen));
 	}
+
+	checkForIsDone();
 }
 
 #include "QuickModInstallDialog.moc"

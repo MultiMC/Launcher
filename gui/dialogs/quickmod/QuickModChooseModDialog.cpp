@@ -224,6 +224,7 @@ QuickModChooseModDialog::QuickModChooseModDialog(InstancePtr instance, QWidget *
 			&QuickModChooseModDialog::modSelectionChanged);
 	connect(MMC->quickmodslist().get(), &QuickModsList::modsListChanged, this,
 			&QuickModChooseModDialog::setupCategoryBox);
+	connect(ui->closeButton, &QPushButton::clicked, this, &QuickModChooseModDialog::reject);
 
 	setupCategoryBox();
 }
@@ -264,11 +265,6 @@ void QuickModChooseModDialog::on_installButton_clicked()
 	}
 	accept();
 }
-void QuickModChooseModDialog::on_closeButton_clicked()
-{
-	reject();
-}
-
 void QuickModChooseModDialog::on_categoriesLabel_linkActivated(const QString &link)
 {
 	ui->categoryBox->setCurrentText(link);

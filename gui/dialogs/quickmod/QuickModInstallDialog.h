@@ -18,6 +18,7 @@ class QNetworkReply;
 class WebDownloadNavigator;
 class BaseInstance;
 class QuickMod;
+class QuickModInstaller;
 class QTreeWidgetItem;
 
 class QuickModInstallDialog : public QDialog
@@ -51,6 +52,7 @@ slots:
 
 private:
 	Ui::QuickModInstallDialog *ui;
+	QuickModInstaller *m_installer;
 
 	InstancePtr m_instance;
 

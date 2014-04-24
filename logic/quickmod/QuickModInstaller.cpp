@@ -37,8 +37,21 @@ static QDir dirEnsureExists(const QString &dir, const QString &path)
 
 	return dir_;
 }
+static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
+{
+	QString ending = QMimeDatabase().mimeTypeForUrl(url).preferredSuffix();
+	if (!ending.isEmpty())
+	{
+		ending.prepend('.');
+	}
+	if (ending == ".bin")
+	{
+		ending = ".jar";
+	}
+	return version->mod->uid() + "-" + version->name() + ending;
+}
 
-bool QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance, QString *errorString)
+void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance)
 {
 	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance.get());
 	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)
@@ -57,7 +70,7 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 	case QuickModVersion::ForgeMod:
 		if (std::dynamic_pointer_cast<OneSixInstance>(instance))
 		{
-			return true;
+			return;
 		}
 		finalDir = dirEnsureExists(instance->minecraftRoot(), "mods");
 		break;
@@ -78,7 +91,7 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		finalDir = dirEnsureExists(instance->minecraftRoot(), "config");
 		break;
 	case QuickModVersion::Group:
-		return true;
+		return;
 	}
 
 	if (version->installType == QuickModVersion::Extract
@@ -93,12 +106,8 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		}
 		else
 		{
-			*errorString = tr("Error: Trying to extract an unknown file type %1")
-					.arg(finfo.completeSuffix());
-			return false;
+			throw new MMCError(tr("Error: Trying to extract an unknown file type %1").arg(finfo.completeSuffix()));
 		}
-
-		return true;
 	}
 	else
 	{
@@ -107,19 +116,50 @@ bool QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		{
 			if (!QFile::remove(dest))
 			{
-				QMessageBox::critical(m_widgetParent, tr("Error"),
-									  tr("Error deploying %1 to %2").arg(file, dest));
-				return false;
+				throw new MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
 			}
 		}
 		if (!QFile::copy(file, dest))
 		{
-			QMessageBox::critical(m_widgetParent, tr("Error"),
-								  tr("Error deploying %1 to %2").arg(file, dest));
-			return false;
+			throw new MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
 		}
 		MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, instance.get());
-
-		return true;
 	}
+}
+
+void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteArray &data, const QUrl &url)
+{
+	QDir dir;
+	switch (version->installType)
+	{
+	case QuickModVersion::ForgeMod:
+	case QuickModVersion::ForgeCoreMod:
+		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "mods");
+		break;
+	case QuickModVersion::Extract:
+	case QuickModVersion::ConfigPack:
+		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "archives");
+		break;
+	case QuickModVersion::Group:
+		return;
+	}
+
+	const QByteArray actual = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
+	if (!version->md5.isNull() && actual != version->md5)
+	{
+		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
+					<< ". Actual: " << actual << " Expected: " << version->md5;
+		throw new MMCError(tr("Error: Checksum mismatch"));
+	}
+
+	QFile file(dir.absoluteFilePath(fileName(version, url)));
+	if (!file.open(QFile::WriteOnly | QFile::Truncate))
+	{
+		throw new MMCError(tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
+		return;
+	}
+	file.write(data);
+	file.close();
+
+	MMC->quickmodslist()->markModAsExists(version->mod, version, file.fileName());
 }

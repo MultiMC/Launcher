@@ -26,7 +26,6 @@ public:
 private
 slots:
 	void on_installButton_clicked();
-	void on_closeButton_clicked();
 	void on_categoriesLabel_linkActivated(const QString &link);
 	void on_tagsLabel_linkActivated(const QString &link);
 	void on_fulltextEdit_textChanged();

@@ -498,6 +498,9 @@ void MultiMC::initGlobalSettings()
 	m_settings->registerSetting("ConsoleWindowGeometry", "");
 
 	m_settings->registerSetting("SettingsGeometry", "");
+
+	// QuickMods
+	m_settings->registerSetting("QuickModAlwaysLatestVersion", true);
 }
 
 void MultiMC::initHttpMetaCache()

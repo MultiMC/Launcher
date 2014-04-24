@@ -400,6 +400,9 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	s->set("JProfilerPath", ui->jprofilerPathEdit->text());
 	s->set("JVisualVMPath", ui->jvisualvmPathEdit->text());
 	s->set("MCEditPath", ui->mceditPathEdit->text());
+
+	// QuickMods
+	s->set("QuickModAlwaysLatestVersion", ui->quickmodAlwaysLatestBtn->isChecked());
 }
 
 void SettingsDialog::loadSettings(SettingsObject *s)
@@ -487,6 +490,9 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	ui->jprofilerPathEdit->setText(s->get("JProfilerPath").toString());
 	ui->jvisualvmPathEdit->setText(s->get("JVisualVMPath").toString());
 	ui->mceditPathEdit->setText(s->get("MCEditPath").toString());
+
+	// QuickMods
+	ui->quickmodAlwaysLatestBtn->setChecked(s->get("QuickModAlwaysLatestVersion").toBool());
 }
 
 void SettingsDialog::on_javaDetectBtn_clicked()
