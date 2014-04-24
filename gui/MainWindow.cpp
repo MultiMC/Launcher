@@ -35,6 +35,7 @@
 #include <QToolButton>
 #include <QWidgetAction>
 #include <QProgressDialog>
+#include <QShortcut>
 
 #include "osutils.h"
 #include "userutils.h"
@@ -121,6 +122,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	// OSX magic.
 	// setUnifiedTitleAndToolBarOnMac(true);
+
+	// Global shortcuts
+	{
+		//FIXME: This is kinda weird. and bad. We need some kind of managed shutdown.
+		auto q = new QShortcut(QKeySequence::Quit, this);
+		connect(q, SIGNAL(activated()), qApp, SLOT(quit()));
+	}
 
 	// The instance action toolbar customizations
 	{
@@ -1051,6 +1059,11 @@ void MainWindow::on_actionManageAccounts_triggered()
 void MainWindow::on_actionReportBug_triggered()
 {
 	openWebPage(QUrl("https://github.com/MultiMC/MultiMC5/issues"));
+}
+
+void MainWindow::on_actionPatreon_triggered()
+{
+	openWebPage(QUrl("http://www.patreon.com/multimc"));
 }
 
 void MainWindow::on_actionMoreNews_triggered()
