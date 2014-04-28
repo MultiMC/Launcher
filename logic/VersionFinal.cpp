@@ -52,6 +52,7 @@ void VersionFinal::clear()
 	id.clear();
 	time.clear();
 	releaseTime.clear();
+	quickmods.clear();
 	type.clear();
 	assets.clear();
 	processArguments.clear();

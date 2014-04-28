@@ -205,7 +205,7 @@ bool QuickModInstanceModList::isModListArea(const QModelIndex &index) const
 	return index.row() >= quickmods().size();
 }
 
-void QuickModInstanceModList::scheduleModForUpdate(const QModelIndex &index)
+void QuickModInstanceModList::updateMod(const QModelIndex &index)
 {
 	if (isModListArea(index))
 	{
@@ -215,13 +215,12 @@ void QuickModInstanceModList::scheduleModForUpdate(const QModelIndex &index)
 	std::dynamic_pointer_cast<OneSixInstance>(m_instance)->setQuickModVersion(modAt(index.row())->uid(), QString());
 }
 
-void QuickModInstanceModList::scheduleModForRemoval(const QModelIndex &index)
+void QuickModInstanceModList::removeMod(const QModelIndex &index)
 {
 	if (isModListArea(index))
 	{
 		return;
 	}
-	// TODO allow removing in bulk
 	std::dynamic_pointer_cast<OneSixInstance>(m_instance)->removeQuickMod(modAt(index.row())->uid());
 }
 

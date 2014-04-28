@@ -40,8 +40,8 @@ public:
 
 public
 slots:
-	void scheduleModForUpdate(const QModelIndex &index);
-	void scheduleModForRemoval(const QModelIndex &index);
+	void updateMod(const QModelIndex &index);
+	void removeMod(const QModelIndex &index);
 
 	void resetModel() {beginResetModel();endResetModel();}
 

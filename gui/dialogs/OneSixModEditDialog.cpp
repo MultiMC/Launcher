@@ -393,12 +393,12 @@ void OneSixModEditDialog::on_rmModBtn_clicked()
 		{
 			for (auto quickmod : quickmods)
 			{
-				m_modsModel->scheduleModForRemoval(quickmod);
+				m_modsModel->removeMod(quickmod);
 			}
 		}
 		catch (MMCError &error)
 		{
-			QMessageBox::critical(this, tr("Error"), tr("Unable to schedule mod for removal:\n\n%1").arg(error.cause()));
+			QMessageBox::critical(this, tr("Error"), tr("Unable to remove mod:\n%1").arg(error.cause()));
 		}
 	}
 }
@@ -411,12 +411,12 @@ void OneSixModEditDialog::on_updateModBtn_clicked()
 	{
 		for (auto quickmod : quickmods)
 		{
-			m_modsModel->scheduleModForUpdate(quickmod);
+			m_modsModel->updateMod(quickmod);
 		}
 	}
 	catch (MMCError &error)
 	{
-		QMessageBox::critical(this, tr("Error"), tr("Unable to schedule mod for update:\n\n%1").arg(error.cause()));
+		QMessageBox::critical(this, tr("Error"), tr("Unable to update mod:\n%1").arg(error.cause()));
 	}
 }
 void OneSixModEditDialog::on_installModBtn_clicked()
