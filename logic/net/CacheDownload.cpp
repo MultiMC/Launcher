@@ -101,6 +101,15 @@ void CacheDownload::downloadError(QNetworkReply::NetworkError error)
 }
 void CacheDownload::downloadFinished()
 {
+	QVariant redirect = m_reply->header(QNetworkRequest::LocationHeader);
+	if (m_followRedirects && redirect.isValid())
+	{
+		m_url = QUrl(redirect.toString());
+		QLOG_INFO() << "Following redirect to " << m_url.toString();
+		start();
+		return;
+	}
+
 	// if the download succeeded
 	if (m_status == Job_Failed)
 	{

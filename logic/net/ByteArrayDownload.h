@@ -33,6 +33,8 @@ public:
 
 	QString m_errorString;
 
+	bool m_followRedirects = false;
+
 public
 slots:
 	virtual void start();
