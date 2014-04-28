@@ -273,7 +273,7 @@ void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 	navigator->setProperty("version", QVariant::fromValue(version));
 	connect(navigator, &WebDownloadNavigator::caughtUrl, this, &QuickModInstallDialog::urlCaught);
 	navigator->load(version->url);
-	ui->webTabView->addTab(navigator, version->name());
+	ui->webTabView->addTab(navigator, (QString("%1 %2").arg(version->mod->name(), version->name())));
 
 	setWebViewShown(true);
 }
