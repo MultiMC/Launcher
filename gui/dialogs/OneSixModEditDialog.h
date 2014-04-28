@@ -65,6 +65,9 @@ protected:
 	/// FIXME: this shouldn't be necessary!
 	bool reloadInstanceVersion();
 
+	// Runs tasks to update and install QuickMods.
+	void Q_SLOT runQuickModInstall();
+
 private:
 	Ui::OneSixModEditDialog *ui;
 	std::shared_ptr<VersionFinal> m_version;

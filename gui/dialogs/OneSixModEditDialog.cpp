@@ -93,6 +93,10 @@ OneSixModEditDialog::OneSixModEditDialog(InstancePtr inst, QWidget *parent)
 
 	connect(instanceAsOneSix().get(), &OneSixInstance::versionReloaded, this,
 			&OneSixModEditDialog::updateVersionControls);
+
+	// Temporary button for forcing running QuickMod installs.
+	connect(ui->runQuickModInstallsBtn, &QPushButton::clicked,
+			this, &OneSixModEditDialog::runQuickModInstall);
 }
 
 OneSixModEditDialog::~OneSixModEditDialog()
@@ -421,11 +425,7 @@ void OneSixModEditDialog::on_installModBtn_clicked()
 	if (dialog.exec())
 	{
 		// If the user clicked install, run the QuickMod installer.
-		auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
-		task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(m_inst, this)));
-		task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(m_inst, this)));
-		ProgressDialog tDialog(this);
-		tDialog.exec(task.get());
+		runQuickModInstall();
 	}
 }
 void OneSixModEditDialog::on_viewModBtn_clicked()
@@ -485,3 +485,17 @@ void OneSixModEditDialog::versionCurrent(const QModelIndex &current,
 		ui->removeLibraryBtn->setEnabled(m_version->canRemove(current.row()));
 	}
 }
+
+void OneSixModEditDialog::runQuickModInstall()
+{
+	QLOG_DEBUG() << "Running QuickMod download tasks.";
+	auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
+	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(m_inst, this)));
+	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(m_inst, this)));
+	ProgressDialog tDialog(this);
+	tDialog.exec(task.get());
+
+	// Reload the instance.
+	m_inst->reload();
+}
+

@@ -222,6 +222,13 @@
             </spacer>
            </item>
            <item>
+            <widget class="QPushButton" name="runQuickModInstallsBtn">
+             <property name="text">
+              <string>Install QuickMods</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="viewModBtn">
              <property name="text">
               <string>&amp;View Folder</string>
