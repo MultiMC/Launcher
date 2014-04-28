@@ -31,8 +31,8 @@ QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list) : QObject(list),
 void QuickModFilesUpdater::registerFile(const QUrl &url)
 {
 	auto job = new NetJob("QuickMod download");
-	auto download =
-		ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+	auto download = ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+	download->m_followRedirects = true;
 	connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
 	connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
 	job->addNetAction(download);
@@ -52,8 +52,8 @@ void QuickModFilesUpdater::update()
 		auto url = m_list->modAt(i)->updateUrl();
 		if (url.isValid())
 		{
-			auto download =
-				ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+			auto download = ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+			download->m_followRedirects = true;
 			connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
 			connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
 			job->addNetAction(download);
@@ -72,6 +72,7 @@ void QuickModFilesUpdater::update()
 			CacheDownloadPtr download;
 			versionsJob->addNetAction(download =
 										  CacheDownload::make(mod->versionsUrl(), entry));
+			download->m_followRedirects = true;
 			connect(download.get(), &CacheDownload::succeeded, [mod, download](int)
 			{
 				try
