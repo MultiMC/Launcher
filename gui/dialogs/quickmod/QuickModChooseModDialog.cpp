@@ -66,6 +66,11 @@ public:
 		m_category = category;
 		invalidateFilter();
 	}
+	void setMCVersion(const QString &version)
+	{
+		m_mcVersion = version;
+		invalidateFilter();
+	}
 	void setFulltext(const QString &query)
 	{
 		m_fulltext = query;
@@ -99,6 +104,14 @@ protected:
 				return false;
 			}
 		}
+		if (!m_mcVersion.isEmpty())
+		{
+			if (!listContainsSubstring(index.data(QuickModsList::MCVersionsRole).toStringList(),
+									   m_mcVersion))
+			{
+				return false;
+			}
+		}
 		if (!m_fulltext.isEmpty())
 		{
 			bool inName = index.data(QuickModsList::NameRole).toString().contains(
@@ -117,6 +130,7 @@ protected:
 private:
 	QStringList m_tags;
 	QString m_category;
+	QString m_mcVersion;
 	QString m_fulltext;
 };
 
@@ -218,10 +232,10 @@ QuickModChooseModDialog::QuickModChooseModDialog(InstancePtr instance, QWidget *
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
 			&QuickModChooseModDialog::modSelectionChanged);
 	connect(MMC->quickmodslist().get(), &QuickModsList::modsListChanged, this,
-			&QuickModChooseModDialog::setupCategoryBox);
+			&QuickModChooseModDialog::setupComboBoxes);
 	connect(ui->closeButton, &QPushButton::clicked, this, &QuickModChooseModDialog::reject);
 
-	setupCategoryBox();
+	setupComboBoxes();
 }
 
 QuickModChooseModDialog::~QuickModChooseModDialog()
@@ -284,6 +298,11 @@ void QuickModChooseModDialog::on_categoryBox_currentTextChanged()
 {
 	m_filterModel->setCategory(ui->categoryBox->currentText());
 }
+void QuickModChooseModDialog::on_mcVersionBox_currentTextChanged()
+{
+	m_filterModel->setMCVersion(ui->mcVersionBox->currentText());
+}
+
 
 void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected,
 												 const QItemSelection &deselected)
@@ -338,20 +357,28 @@ void QuickModChooseModDialog::modLogoUpdated()
 	ui->logoLabel->setPixmap(m_currentMod->logo());
 }
 
-void QuickModChooseModDialog::setupCategoryBox()
+void QuickModChooseModDialog::setupComboBoxes()
 {
 	QStringList categories;
 	categories.append("");
+	QStringList versions;
+	versions.append("");
+	versions.append(m_instance->intendedVersionId());
 
 	for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
 	{
 		categories.append(MMC->quickmodslist()->modAt(i)->categories());
+		versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
 	}
 
 	categories.removeDuplicates();
+	versions.removeDuplicates();
 
 	ui->categoryBox->clear();
 	ui->categoryBox->addItems(categories);
+	ui->mcVersionBox->clear();
+	ui->mcVersionBox->addItems(versions);
+	ui->mcVersionBox->setCurrentIndex(1);
 }
 
 void QuickModChooseModDialog::on_addButton_clicked()

@@ -143,6 +143,8 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return mod->modId();
 	case CategoriesRole:
 		return mod->categories();
+	case MCVersionsRole:
+		return mod->mcVersions();
 	case TagsRole:
 		return mod->tags();
 	case QuickModRole:

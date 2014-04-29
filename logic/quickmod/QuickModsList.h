@@ -42,6 +42,7 @@ public:
 		NemNameRole,
 		ModIdRole,
 		CategoriesRole,
+		MCVersionsRole,
 		TagsRole,
 		QuickModRole
 	};

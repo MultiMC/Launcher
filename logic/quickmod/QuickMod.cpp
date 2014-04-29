@@ -164,3 +164,21 @@ QString QuickMod::fileName(const QUrl &url) const
 	const QString path = url.path();
 	return uid() + path.mid(path.lastIndexOf("."));
 }
+
+QStringList QuickMod::mcVersions()
+{
+	if (m_mcVersionListCache.isEmpty())
+	{
+		QStringList mcvs;
+		for (auto quickModV : versions())
+		{
+			for (QString mcv : quickModV->compatibleVersions)
+			{
+				if (!mcvs.contains(mcv)) mcvs.append(mcv);
+			}
+		}
+		m_mcVersionListCache << mcvs;
+	}
+	return m_mcVersionListCache;
+}
+

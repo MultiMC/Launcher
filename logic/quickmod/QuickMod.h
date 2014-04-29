@@ -95,6 +95,8 @@ public:
 	{
 		return m_versions;
 	}
+	/// List of Minecraft versions this QuickMod is compatible with.
+	QStringList mcVersions();
 	void setVersions(const QList<QuickModVersionPtr> &versions);
 	QuickModVersionPtr version(const QString &name) const;
 	QuickModVersionPtr latestVersion(const QString &mcVersion) const;
@@ -133,6 +135,7 @@ private:
 	QPixmap m_logo;
 	QUrl m_updateUrl;
 	QMap<QString, QUrl> m_references;
+	QStringList m_mcVersionListCache;
 	QString m_nemName;
 	QString m_modId;
 	QStringList m_categories;

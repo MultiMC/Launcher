@@ -33,13 +33,14 @@ slots:
 	void on_fulltextEdit_textChanged();
 	void on_tagsEdit_textChanged();
 	void on_categoryBox_currentTextChanged();
+	void on_mcVersionBox_currentTextChanged();
 	void on_addButton_clicked();
 	void on_updateButton_clicked();
 	void modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 	void modLogoUpdated();
 
-	void setupCategoryBox();
+	void setupComboBoxes();
 
 private:
 	Ui::QuickModChooseModDialog *ui;
