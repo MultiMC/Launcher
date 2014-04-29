@@ -14,6 +14,8 @@
 
 #include "MultiMC.h"
 
+// {{{ Utility functions
+
 template <typename T> bool intersectLists(const QList<T> &l1, const QList<T> &l2)
 {
 	foreach(const T & item, l1)
@@ -37,6 +39,13 @@ bool listContainsSubstring(const QStringList &list, const QString &str)
 	}
 	return false;
 }
+
+// }}}
+
+
+// {{{ Model classes
+
+// {{{ Filter model
 
 class ModFilterProxyModel : public QSortFilterProxyModel
 {
@@ -134,6 +143,8 @@ private:
 	QString m_fulltext;
 };
 
+// }}}
+
 class TagsValidator : public QValidator
 {
 	Q_OBJECT
@@ -211,6 +222,13 @@ private:
 	QSet<QString> m_items;
 };
 
+// }}}
+
+
+// {{{ Initialization and updating
+
+// {{{ Constructor/destructor
+
 QuickModBrowseDialog::QuickModBrowseDialog(InstancePtr instance, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModBrowseDialog), m_currentMod(0),
 	  m_instance(instance), m_view(new QListView(this)),
@@ -243,6 +261,44 @@ QuickModBrowseDialog::~QuickModBrowseDialog()
 	delete ui;
 }
 
+// }}}
+
+void QuickModBrowseDialog::modLogoUpdated()
+{
+	ui->logoLabel->setPixmap(m_currentMod->logo());
+}
+
+void QuickModBrowseDialog::setupComboBoxes()
+{
+	QStringList categories;
+	categories.append("");
+	QStringList versions;
+	versions.append("");
+	versions.append(m_instance->intendedVersionId());
+
+	for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
+	{
+		categories.append(MMC->quickmodslist()->modAt(i)->categories());
+		versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
+	}
+
+	categories.removeDuplicates();
+	versions.removeDuplicates();
+
+	ui->categoryBox->clear();
+	ui->categoryBox->addItems(categories);
+	ui->mcVersionBox->clear();
+	ui->mcVersionBox->addItems(versions);
+	ui->mcVersionBox->setCurrentIndex(1);
+}
+
+// }}}
+
+
+// {{{ Event handling
+
+// {{{ Buttons
+
 void QuickModBrowseDialog::on_installButton_clicked()
 {
 	auto items = m_checkModel->getCheckedItems();
@@ -274,40 +330,66 @@ void QuickModBrowseDialog::on_installButton_clicked()
 	}
 	accept();
 }
+
+void QuickModBrowseDialog::on_addButton_clicked()
+{
+	QuickModAddFileDialog::run(this);
+}
+void QuickModBrowseDialog::on_updateButton_clicked()
+{
+	MMC->quickmodslist()->updateFiles();
+}
+
+// }}}
+
+// {{{ Link clicking
+
 void QuickModBrowseDialog::on_categoriesLabel_linkActivated(const QString &link)
 {
 	ui->categoryBox->setCurrentText(link);
 	ui->tagsEdit->setText(QString());
 }
+
 void QuickModBrowseDialog::on_tagsLabel_linkActivated(const QString &link)
 {
 	ui->tagsEdit->setText(ui->tagsEdit->text() + ", " + link);
 	ui->categoryBox->setCurrentText(QString());
 	on_tagsEdit_textChanged();
 }
+
 void QuickModBrowseDialog::on_mcVersionsLabel_linkActivated(const QString &link)
 {
 	ui->mcVersionBox->setCurrentText(link);
 }
 
+// }}}
+
+// {{{ Filtering
+
 void QuickModBrowseDialog::on_fulltextEdit_textChanged()
 {
 	m_filterModel->setFulltext(ui->fulltextEdit->text());
 }
+
 void QuickModBrowseDialog::on_tagsEdit_textChanged()
 {
 	m_filterModel->setTags(
 		ui->tagsEdit->text().split(QRegularExpression(", {0,1}"), QString::SkipEmptyParts));
 }
+
 void QuickModBrowseDialog::on_categoryBox_currentTextChanged()
 {
 	m_filterModel->setCategory(ui->categoryBox->currentText());
 }
+
 void QuickModBrowseDialog::on_mcVersionBox_currentTextChanged()
 {
 	m_filterModel->setMCVersion(ui->mcVersionBox->currentText());
 }
 
+// }}}
+
+// {{{ List selection
 
 void QuickModBrowseDialog::modSelectionChanged(const QItemSelection &selected,
 												 const QItemSelection &deselected)
@@ -364,42 +446,8 @@ void QuickModBrowseDialog::modSelectionChanged(const QItemSelection &selected,
 	}
 }
 
-void QuickModBrowseDialog::modLogoUpdated()
-{
-	ui->logoLabel->setPixmap(m_currentMod->logo());
-}
+// }}}
 
-void QuickModBrowseDialog::setupComboBoxes()
-{
-	QStringList categories;
-	categories.append("");
-	QStringList versions;
-	versions.append("");
-	versions.append(m_instance->intendedVersionId());
-
-	for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
-	{
-		categories.append(MMC->quickmodslist()->modAt(i)->categories());
-		versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
-	}
-
-	categories.removeDuplicates();
-	versions.removeDuplicates();
-
-	ui->categoryBox->clear();
-	ui->categoryBox->addItems(categories);
-	ui->mcVersionBox->clear();
-	ui->mcVersionBox->addItems(versions);
-	ui->mcVersionBox->setCurrentIndex(1);
-}
-
-void QuickModBrowseDialog::on_addButton_clicked()
-{
-	QuickModAddFileDialog::run(this);
-}
-void QuickModBrowseDialog::on_updateButton_clicked()
-{
-	MMC->quickmodslist()->updateFiles();
-}
+// }}}
 
 #include "QuickModBrowseDialog.moc"
