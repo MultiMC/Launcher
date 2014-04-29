@@ -30,6 +30,7 @@ slots:
 	void on_installButton_clicked();
 	void on_categoriesLabel_linkActivated(const QString &link);
 	void on_tagsLabel_linkActivated(const QString &link);
+	void on_mcVersionsLabel_linkActivated(const QString &link);
 	void on_fulltextEdit_textChanged();
 	void on_tagsEdit_textChanged();
 	void on_categoryBox_currentTextChanged();

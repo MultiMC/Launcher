@@ -285,6 +285,11 @@ void QuickModChooseModDialog::on_tagsLabel_linkActivated(const QString &link)
 	ui->categoryBox->setCurrentText(QString());
 	on_tagsEdit_textChanged();
 }
+void QuickModChooseModDialog::on_mcVersionsLabel_linkActivated(const QString &link)
+{
+	ui->mcVersionBox->setCurrentText(link);
+}
+
 void QuickModChooseModDialog::on_fulltextEdit_textChanged()
 {
 	m_filterModel->setFulltext(ui->fulltextEdit->text());
@@ -320,6 +325,7 @@ void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected
 		ui->descriptionLabel->setText("");
 		ui->websiteLabel->setText("");
 		ui->categoriesLabel->setText("");
+		ui->mcVersionsLabel->setText("");
 		ui->tagsLabel->setText("");
 		ui->logoLabel->setPixmap(QPixmap());
 	}
@@ -345,6 +351,12 @@ void QuickModChooseModDialog::modSelectionChanged(const QItemSelection &selected
 			tags.append(QString("<a href=\"%1\">%1</a>").arg(tag));
 		}
 		ui->tagsLabel->setText(tags.join(", "));
+		QStringList mcVersions;
+		foreach(const QString &mcv, m_currentMod->mcVersions())
+		{
+			mcVersions.append(QString("<a href=\"%1\">%1</a>").arg(mcv));
+		}
+		ui->mcVersionsLabel->setText(mcVersions.join(", "));
 		ui->logoLabel->setPixmap(m_currentMod->logo());
 
 		connect(m_currentMod.get(), &QuickMod::logoUpdated, this,
