@@ -64,12 +64,13 @@ public:
 	}
 	QString typeString() const
 	{
-		return QString(); // TODO add type field
+		return type;
 	}
 
 	QuickModPtr mod;
 	bool valid;
 	QString name_;
+	QString type;
 	QUrl url;
 	QStringList compatibleVersions;
 	QString forgeVersionFilter;

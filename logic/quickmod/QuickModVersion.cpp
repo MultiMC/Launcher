@@ -23,6 +23,7 @@ static QMap<QString, QString> jsonObjectToStringStringMap(const QJsonObject &obj
 void QuickModVersion::parse(const QJsonObject &object)
 {
 	name_ = MMCJson::ensureString(object.value("name"), "'name'");
+	type = object.contains("type") ? MMCJson::ensureString(object.value("type"), "'type'") : "Release";
 	url = MMCJson::ensureUrl(object.value("url"), "'url'");
 	md5 = object.value("md5").toString();
 	forgeVersionFilter = object.value("forgeCompat").toString();
