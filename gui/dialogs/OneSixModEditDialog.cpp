@@ -30,7 +30,7 @@
 #include "gui/Platform.h"
 #include "gui/dialogs/CustomMessageBox.h"
 #include "gui/dialogs/VersionSelectDialog.h"
-#include "gui/dialogs/quickmod/QuickModChooseModDialog.h"
+#include "gui/dialogs/quickmod/QuickModBrowseDialog.h"
 
 #include "gui/dialogs/ProgressDialog.h"
 
@@ -421,7 +421,7 @@ void OneSixModEditDialog::on_updateModBtn_clicked()
 }
 void OneSixModEditDialog::on_installModBtn_clicked()
 {
-	QuickModChooseModDialog dialog(m_inst, this);
+	QuickModBrowseDialog dialog(m_inst, this);
 	if (dialog.exec())
 	{
 		// If the user clicked install, run the QuickMod installer.

@@ -279,8 +279,8 @@ set(MULTIMC_SOURCES
 	# GUI - dialogs
 	gui/dialogs/quickmod/QuickModAddFileDialog.h
 	gui/dialogs/quickmod/QuickModAddFileDialog.cpp
-	gui/dialogs/quickmod/QuickModChooseModDialog.h
-	gui/dialogs/quickmod/QuickModChooseModDialog.cpp
+	gui/dialogs/quickmod/QuickModBrowseDialog.h
+	gui/dialogs/quickmod/QuickModBrowseDialog.cpp
 	gui/dialogs/quickmod/QuickModInstallDialog.h
 	gui/dialogs/quickmod/QuickModInstallDialog.cpp
 	gui/dialogs/SettingsDialog.h
@@ -608,7 +608,7 @@ set(MULTIMC_UIS
 	gui/dialogs/ScreenshotDialog.ui
 	gui/dialogs/NotificationDialog.ui
 	gui/dialogs/quickmod/QuickModAddFileDialog.ui
-	gui/dialogs/quickmod/QuickModChooseModDialog.ui
+	gui/dialogs/quickmod/QuickModBrowseDialog.ui
 	gui/dialogs/quickmod/QuickModInstallDialog.ui
 
 	# Widgets/other

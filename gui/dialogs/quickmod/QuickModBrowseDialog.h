@@ -9,7 +9,7 @@ class OneSixInstance;
 
 namespace Ui
 {
-class QuickModChooseModDialog;
+class QuickModBrowseDialog;
 }
 
 class QItemSelection;
@@ -17,13 +17,13 @@ class QListView;
 class ModFilterProxyModel;
 class CheckboxProxyModel;
 
-class QuickModChooseModDialog : public QDialog
+class QuickModBrowseDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit QuickModChooseModDialog(InstancePtr instance, QWidget *parent = 0);
-	~QuickModChooseModDialog();
+	explicit QuickModBrowseDialog(InstancePtr instance, QWidget *parent = 0);
+	~QuickModBrowseDialog();
 
 private
 slots:
@@ -44,7 +44,7 @@ slots:
 	void setupComboBoxes();
 
 private:
-	Ui::QuickModChooseModDialog *ui;
+	Ui::QuickModBrowseDialog *ui;
 
 	QuickModPtr m_currentMod;
 
