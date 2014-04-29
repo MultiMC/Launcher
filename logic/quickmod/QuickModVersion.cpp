@@ -20,7 +20,7 @@ static QMap<QString, QString> jsonObjectToStringStringMap(const QJsonObject &obj
 	return out;
 }
 
-bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
+void QuickModVersion::parse(const QJsonObject &object)
 {
 	name_ = MMCJson::ensureString(object.value("name"), "'name'");
 	url = MMCJson::ensureUrl(object.value("url"), "'url'");
@@ -93,8 +93,7 @@ bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 		}
 		else
 		{
-			*errorMessage = QObject::tr("Unknown value for \"downloadType\" field");
-			return false;
+			throw new MMCError(QObject::tr("Unknown value for \"downloadType\" field"));
 		}
 	}
 	// install type
@@ -122,11 +121,9 @@ bool QuickModVersion::parse(const QJsonObject &object, QString *errorMessage)
 		}
 		else
 		{
-			*errorMessage = QObject::tr("Unknown value for \"installType\" field");
-			return false;
+			throw new MMCError(QObject::tr("Unknown value for \"installType\" field"));
 		}
 	}
-	return true;
 }
 
 QuickModVersionPtr QuickModVersion::invalid(QuickModPtr mod)
@@ -141,119 +138,18 @@ QuickModVersionList::QuickModVersionList(QuickModPtr mod, InstancePtr instance, 
 
 Task *QuickModVersionList::getLoadTask()
 {
-	return new QuickModVersionListLoadTask(this);
+	return 0;
 }
-
 bool QuickModVersionList::isLoaded()
 {
-	return m_loaded;
+	return true;
 }
 
 const BaseVersionPtr QuickModVersionList::at(int i) const
 {
-	return m_vlist.at(i);
+	return m_mod->versions().at(i);
 }
-
 int QuickModVersionList::count() const
 {
-	return m_vlist.count();
-}
-
-void QuickModVersionList::sort()
-{
-	qSort(m_vlist.begin(), m_vlist.end(), [](const BaseVersionPtr v1, const BaseVersionPtr v2)
-	{
-		return Util::Version(std::dynamic_pointer_cast<QuickModVersion>(v1)->name()) >
-			   Util::Version(std::dynamic_pointer_cast<QuickModVersion>(v2)->name());
-	});
-}
-
-void QuickModVersionList::updateListData(QList<BaseVersionPtr> versions)
-{
-	beginResetModel();
-	m_vlist = versions;
-	m_loaded = true;
-	endResetModel();
-	sort();
-}
-
-QuickModVersionListLoadTask::QuickModVersionListLoadTask(QuickModVersionList *vlist)
-	: Task(), m_vlist(vlist)
-{
-}
-
-void QuickModVersionListLoadTask::executeTask()
-{
-	setStatus(tr("Fetching QuickMod version list..."));
-	auto job = new NetJob("Version list");
-	auto entry =
-		MMC->metacache()->resolveEntry("quickmod/versions", m_vlist->m_mod->uid() + ".json");
-
-	job->addNetAction(listDownload = CacheDownload::make(m_vlist->m_mod->versionsUrl(), entry));
-
-	connect(listDownload.get(), SIGNAL(failed(int)), SLOT(listFailed()));
-
-	listJob.reset(job);
-	connect(listJob.get(), SIGNAL(succeeded()), SLOT(listDownloaded()));
-	connect(listJob.get(), SIGNAL(progress(qint64, qint64)), this,
-			SIGNAL(progress(qint64, qint64)));
-	listJob->start();
-}
-
-void QuickModVersionListLoadTask::listDownloaded()
-{
-	setStatus(tr("Parsing reply..."));
-	QList<QuickModVersionPtr> list;
-	QFile file(listDownload->getTargetFilepath());
-	if (!file.open(QFile::ReadOnly))
-	{
-		QLOG_ERROR() << "Couldn't open QuickMod version file " << file.fileName()
-					 << " for parsing: " << file.errorString();
-		emitFailed(tr("Couldn't parse reply. See the log for details."));
-		return;
-	}
-	try
-	{
-		const QJsonDocument doc =
-			MMCJson::parseDocument(file.readAll(), "QuickMod Version file");
-		QJsonArray root = doc.array();
-		for (auto value : root)
-		{
-			QuickModVersionPtr version =
-				QuickModVersionPtr(new QuickModVersion(m_vlist->m_mod, true));
-			version->parse(value.toObject());
-			list.append(version);
-		}
-	}
-	catch (MMCError &e)
-	{
-		QLOG_ERROR() << "Error parsing JSON in " << file.fileName() << ":" << e.cause();
-		emitFailed(tr("Couldn't parse reply. See the log for details."));
-		return;
-	}
-
-	QList<BaseVersionPtr> baseList;
-	foreach(QuickModVersionPtr ptr, list)
-	{
-		baseList.append(ptr);
-	}
-
-	m_vlist->m_mod->setVersions(list);
-	m_vlist->updateListData(baseList);
-	emitSucceeded();
-	return;
-}
-
-void QuickModVersionListLoadTask::listFailed()
-{
-	auto reply = listDownload->m_reply;
-	if (reply)
-	{
-		QLOG_ERROR() << "Getting QuickMod version list failed for " << m_vlist->m_mod->name()
-					 << ": " << reply->errorString();
-	}
-	else
-	{
-		QLOG_ERROR() << "Getting QuickMod version list failed for reasons unknown.";
-	}
+	return m_mod->versions().count();
 }

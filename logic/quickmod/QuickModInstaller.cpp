@@ -150,6 +150,7 @@ void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteAr
 	{
 		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
 					<< ". Actual: " << actual << " Expected: " << version->md5;
+		// FIXME using exceptions generates crashes?
 		throw new MMCError(tr("Error: Checksum mismatch"));
 	}
 

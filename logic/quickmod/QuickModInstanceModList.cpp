@@ -25,7 +25,6 @@ QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance, std::shar
 		for (int i = first; i < (last + 1); ++i)
 		{
 			auto mod = MMC->quickmodslist()->modAt(i);
-			connect(mod.get(), &QuickMod::versionsUpdated, this, &QuickModInstanceModList::quickmodVersionUpdated);
 			connect(mod.get(), &QuickMod::iconUpdated, this, &QuickModInstanceModList::quickmodIconUpdated);
 		}
 	});
@@ -173,10 +172,6 @@ Qt::DropActions QuickModInstanceModList::supportedDropActions() const
 	return m_modList->supportedDropActions();
 }
 
-void QuickModInstanceModList::quickmodVersionUpdated()
-{
-	emit dataChanged(index(0, VersionColumn), index(rowCount(), VersionColumn), QVector<int>() << Qt::DecorationRole << Qt::DisplayRole);
-}
 void QuickModInstanceModList::quickmodIconUpdated()
 {
 	emit dataChanged(index(0, NameColumn), index(rowCount(), NameColumn), QVector<int>() << Qt::DecorationRole);

@@ -55,7 +55,7 @@ private slots:
 		{
 			try
 			{
-				parsed->parse(input);
+				parsed->parse(parsed, input);
 			}
 			catch (MMCError &e)
 			{

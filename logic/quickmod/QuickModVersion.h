@@ -52,7 +52,7 @@ public:
 	{
 	}
 
-	bool parse(const QJsonObject &object, QString *errorMessage = 0);
+	void parse(const QJsonObject &object);
 
 	QString descriptor()
 	{
@@ -105,37 +105,13 @@ public:
 	bool isLoaded();
 	const BaseVersionPtr at(int i) const;
 	int count() const;
-	void sort();
+	void sort() {}
 
 protected
 slots:
-	void updateListData(QList<BaseVersionPtr> versions);
+	void updateListData(QList<BaseVersionPtr> versions) {}
 
 private:
-	friend class QuickModVersionListLoadTask;
-	QList<BaseVersionPtr> m_vlist;
-	bool m_loaded = false;
-
 	QuickModPtr m_mod;
 	InstancePtr m_instance;
-};
-
-class QuickModVersionListLoadTask : public Task
-{
-	Q_OBJECT
-public:
-	explicit QuickModVersionListLoadTask(QuickModVersionList *vlist);
-
-	virtual void executeTask();
-
-protected
-slots:
-	void listDownloaded();
-	void listFailed();
-
-protected:
-	NetJobPtr listJob;
-	QuickModVersionList *m_vlist;
-
-	CacheDownloadPtr listDownload;
 };

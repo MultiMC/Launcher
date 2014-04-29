@@ -130,8 +130,12 @@ int VersionSelectDialog::exec()
 
 void VersionSelectDialog::loadList()
 {
-	ProgressDialog *taskDlg = new ProgressDialog(this);
 	Task *loadTask = m_vlist->getLoadTask();
+	if (!loadTask)
+	{
+		return;
+	}
+	ProgressDialog *taskDlg = new ProgressDialog(this);
 	loadTask->setParent(taskDlg);
 	taskDlg->exec(loadTask);
 	delete taskDlg;

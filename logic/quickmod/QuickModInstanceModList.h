@@ -47,7 +47,6 @@ slots:
 
 private
 slots:
-	void quickmodVersionUpdated();
 	void quickmodIconUpdated();
 
 private:

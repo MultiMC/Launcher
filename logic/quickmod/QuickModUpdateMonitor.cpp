@@ -46,7 +46,7 @@ void QuickModUpdateMonitor::quickmodsListRowsInserted(const QModelIndex &parent,
 	for (int i = start; i < (end + 1); ++i)
 	{
 		auto mod = m_quickmodsList->modAt(i);
-		connect(mod.get(), &QuickMod::versionsUpdated, this, &QuickModUpdateMonitor::quickmodUpdated);
+		// connect to signals here
 	}
 }
 void QuickModUpdateMonitor::quickmodsListRowsRemoved(const QModelIndex &parent, const int start, const int end)

@@ -63,19 +63,17 @@ slots:
 		QuickModVersionPtr parsed(new QuickModVersion);
 		parsed->mod = version->mod;
 
-		QString errorString;
 		QBENCHMARK
 		{
 			try
 			{
-				parsed->parse(QJsonDocument::fromJson(input).array().first().toObject(), &errorString);
+				parsed->parse(QJsonDocument::fromJson(input).array().first().toObject());
 			}
 			catch (MMCError &e)
 			{
 				qFatal(e.what());
 			}
 		}
-		QCOMPARE(errorString, QString(""));
 
 		QVERIFY(parsed->valid);
 		QCOMPARE(parsed->name(), version->name());

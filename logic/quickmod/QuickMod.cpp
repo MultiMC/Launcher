@@ -17,6 +17,11 @@ QuickMod::QuickMod(QObject *parent)
 {
 }
 
+QuickMod::~QuickMod()
+{
+	m_versions.clear(); // as they are shared pointers this will also delete them
+}
+
 QIcon QuickMod::icon()
 {
 	fetchImages();
@@ -26,16 +31,6 @@ QPixmap QuickMod::logo()
 {
 	fetchImages();
 	return m_logo;
-}
-
-void QuickMod::setVersions(const QList<QuickModVersionPtr> &versions)
-{
-	m_versions = versions;
-	qSort(m_versions.begin(), m_versions.end(), [](const QuickModVersionPtr &v1, const QuickModVersionPtr &v2)
-	{
-		return Util::Version(v1->name()) > Util::Version(v2->name());
-	});
-	emit versionsUpdated();
 }
 
 QuickModVersionPtr QuickMod::version(const QString &name) const
@@ -49,7 +44,6 @@ QuickModVersionPtr QuickMod::version(const QString &name) const
 	}
 	return QuickModVersionPtr();
 }
-
 QuickModVersionPtr QuickMod::latestVersion(const QString &mcVersion) const
 {
 	for (auto version : m_versions)
@@ -62,7 +56,7 @@ QuickModVersionPtr QuickMod::latestVersion(const QString &mcVersion) const
 	return QuickModVersionPtr();
 }
 
-void QuickMod::parse(const QByteArray &data)
+void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 {
 	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
 	const QJsonObject mod = MMCJson::ensureObject(doc, "root");
@@ -91,8 +85,19 @@ void QuickMod::parse(const QByteArray &data)
 	{
 		m_tags.append(MMCJson::ensureString(val, "'tag'"));
 	}
-	m_versionsUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("versionsUrl"), "'versionsUrl'"));
 	m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
+
+	m_versions.clear();
+	for (auto val : MMCJson::ensureArray(mod.value("versions"), "'versions'"))
+	{
+		QuickModVersionPtr ptr(new QuickModVersion(_this));
+		ptr->parse(MMCJson::ensureObject(val, "version"));
+		m_versions.append(ptr);
+	}
+	qSort(m_versions.begin(), m_versions.end(), [](const QuickModVersionPtr v1, const QuickModVersionPtr v2)
+	{
+		return Util::Version(v1->name()) < Util::Version(v2->name());
+	});
 
 	if (m_uid.isEmpty())
 	{

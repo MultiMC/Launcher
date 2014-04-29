@@ -59,45 +59,6 @@ void QuickModFilesUpdater::update()
 			job->addNetAction(download);
 		}
 	}
-	connect(job, &NetJob::succeeded, [this]()
-	{
-		NetJob *versionsJob = new NetJob("QuickMod Versions Update");
-		for (int i = 0; i < m_list->numMods(); ++i)
-		{
-			auto mod = m_list->modAt(i);
-			auto entry =
-				MMC->metacache()->resolveEntry("quickmod/versions", mod->uid() + ".json");
-			entry->stale = true;
-
-			CacheDownloadPtr download;
-			versionsJob->addNetAction(download =
-										  CacheDownload::make(mod->versionsUrl(), entry));
-			download->m_followRedirects = true;
-			connect(download.get(), &CacheDownload::succeeded, [mod, download](int)
-			{
-				try
-				{
-					const QJsonDocument doc = MMCJson::parseFile(download->getTargetFilepath(),
-																 "QuickMod Version file");
-					QJsonArray root = doc.array();
-					QList<QuickModVersionPtr> versions;
-					for (auto value : root)
-					{
-						QuickModVersionPtr version =
-							QuickModVersionPtr(new QuickModVersion(mod, true));
-						version->parse(value.toObject());
-						versions.append(version);
-					}
-					mod->setVersions(versions);
-				}
-				catch (MMCError &e)
-				{
-					QLOG_ERROR() << e.cause();
-				}
-			});
-		}
-		versionsJob->start();
-	});
 	job->start();
 }
 
@@ -164,7 +125,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	auto mod = QuickModPtr(new QuickMod);
 	try
 	{
-		mod->parse(download->m_data);
+		mod->parse(mod, download->m_data);
 	}
 	catch (MMCError &e)
 	{
@@ -242,7 +203,7 @@ bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickModPtr mo
 
 	try
 	{
-		mod->parse(file.readAll());
+		mod->parse(mod, file.readAll());
 	}
 	catch (MMCError &e)
 	{

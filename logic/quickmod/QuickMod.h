@@ -27,6 +27,7 @@ class QuickMod : public QObject
 	Q_OBJECT
 public:
 	explicit QuickMod(QObject *parent = 0);
+	~QuickMod();
 
 	bool isValid() const
 	{
@@ -87,32 +88,27 @@ public:
 	{
 		return m_tags;
 	}
-	QUrl versionsUrl() const
-	{
-		return m_versionsUrl;
-	}
 	QList<QuickModVersionPtr> versions() const
 	{
 		return m_versions;
 	}
 	/// List of Minecraft versions this QuickMod is compatible with.
 	QStringList mcVersions();
-	void setVersions(const QList<QuickModVersionPtr> &versions);
 	QuickModVersionPtr version(const QString &name) const;
 	QuickModVersionPtr latestVersion(const QString &mcVersion) const;
+	void sortVersions();
 
 	QByteArray hash() const
 	{
 		return m_hash;
 	}
-	void parse(const QByteArray &data);
+	void parse(QuickModPtr _this, const QByteArray &data);
 
 	bool compare(const QuickModPtr other) const;
 
 signals:
 	void iconUpdated();
 	void logoUpdated();
-	void versionsUpdated();
 
 private
 slots:
@@ -140,7 +136,6 @@ private:
 	QString m_modId;
 	QStringList m_categories;
 	QStringList m_tags;
-	QUrl m_versionsUrl;
 
 	QList<QuickModVersionPtr> m_versions;
 
