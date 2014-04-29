@@ -245,7 +245,17 @@ QuickModBrowseDialog::QuickModBrowseDialog(InstancePtr instance, QWidget *parent
 
 	m_filterModel->setSourceModel(MMC->quickmodslist().get());
 	m_checkModel->setSourceModel(m_filterModel);
-	m_view->setModel(m_checkModel);
+
+	if (m_instance.get() != nullptr)
+	{
+		m_view->setModel(m_checkModel);
+	}
+	else
+	{
+		m_view->setModel(m_filterModel);
+		ui->installButton->hide();
+		ui->closeButton->setText(tr("&Close"));
+	}
 
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
 			&QuickModBrowseDialog::modSelectionChanged);
@@ -263,6 +273,8 @@ QuickModBrowseDialog::~QuickModBrowseDialog()
 
 // }}}
 
+// {{{ GUI updates
+
 void QuickModBrowseDialog::modLogoUpdated()
 {
 	ui->logoLabel->setPixmap(m_currentMod->logo());
@@ -272,9 +284,14 @@ void QuickModBrowseDialog::setupComboBoxes()
 {
 	QStringList categories;
 	categories.append("");
+	int initialVsn = 0;
 	QStringList versions;
 	versions.append("");
-	versions.append(m_instance->intendedVersionId());
+	if (m_instance.get() != nullptr)
+	{
+		initialVsn = 1;
+		versions.append(m_instance->intendedVersionId());
+	}
 
 	for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
 	{
@@ -289,8 +306,10 @@ void QuickModBrowseDialog::setupComboBoxes()
 	ui->categoryBox->addItems(categories);
 	ui->mcVersionBox->clear();
 	ui->mcVersionBox->addItems(versions);
-	ui->mcVersionBox->setCurrentIndex(1);
+	ui->mcVersionBox->setCurrentIndex(initialVsn);
 }
+
+// }}}
 
 // }}}
 

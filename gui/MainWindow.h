@@ -111,9 +111,7 @@ slots:
 
 	void on_actionEditInstNotes_triggered();
 
-	void on_actionAddQuickModFile_triggered();
-
-	void on_actionUpdateQuickModFiles_triggered();
+	void on_actionBrowseQuickMods_triggered();
 
 	/*!
 	 * Launches the currently selected instance with the default account.

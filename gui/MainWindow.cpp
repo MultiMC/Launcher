@@ -59,7 +59,7 @@
 #include "gui/dialogs/IconPickerDialog.h"
 #include "gui/dialogs/EditNotesDialog.h"
 #include "gui/dialogs/CopyInstanceDialog.h"
-#include "gui/dialogs/quickmod/QuickModAddFileDialog.h"
+#include "gui/dialogs/quickmod/QuickModBrowseDialog.h"
 #include "gui/dialogs/AccountListDialog.h"
 #include "gui/dialogs/AccountSelectDialog.h"
 #include "gui/dialogs/UpdateDialog.h"
@@ -1623,14 +1623,10 @@ void MainWindow::on_actionEditInstNotes_triggered()
 	}
 }
 
-void MainWindow::on_actionAddQuickModFile_triggered()
+void MainWindow::on_actionBrowseQuickMods_triggered()
 {
-	QuickModAddFileDialog::run(this);
-}
-
-void MainWindow::on_actionUpdateQuickModFiles_triggered()
-{
-	MMC->quickmodslist()->updateFiles();
+	QuickModBrowseDialog dialog(InstancePtr(), this);
+	dialog.exec();
 }
 
 void MainWindow::instanceEnded()
