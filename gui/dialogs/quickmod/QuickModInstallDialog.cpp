@@ -298,11 +298,11 @@ bool QuickModInstallDialog::install(QuickModVersionPtr version, QTreeWidgetItem 
 	{
 		m_installer->install(version, m_instance);
 	}
-	catch (MMCError &e)
+	catch (MMCError* e)
 	{
 		if (item)
 		{
-			item->setText(3, e.cause());
+			item->setText(3, e->cause());
 			item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
 		}
 		return false;
@@ -366,19 +366,21 @@ void QuickModInstallDialog::downloadCompleted()
 	item->setText(3, tr("Installing..."));
 	auto version = reply->property("version").value<QuickModVersionPtr>();
 
+	bool fail = false;
 	try
 	{
 		m_installer->handleDownload(version, reply->readAll(), reply->url());
 	}
-	catch (MMCError &e)
+	catch (MMCError* e)
 	{
-		item->setText(3, e.cause());
+		item->setText(3, e->cause());
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
+		fail = true;
 	}
 	reply->close();
 	reply->deleteLater();
 
-	if (install(version, item))
+	if (!fail && install(version, item))
 	{
 		item->setText(3, tr("Success: Downloaded and installed successfully."));
 		item->setData(3, Qt::ForegroundRole, QColor(Qt::darkGreen));
