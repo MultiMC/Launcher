@@ -69,9 +69,6 @@ slots:
 	void runWebDownload(QuickModVersionPtr version);
 
 
-	/// Adds a given entry to the progress list.
-	QTreeWidgetItem* addProgressListEntry(QuickModVersionPtr version, const QString& url, const QString& progressMsg = "");
-
 
 	/** Checks if all downloads are finished and returns true if they are.
 	 *  Note that this function also updates the state of the "finish" button.
@@ -81,16 +78,39 @@ slots:
 	/// Sets whether the web view is shown or not.
 	void setWebViewShown(bool shown);
 
+
+	/// Adds an entry to the progress list for the given version.
+	void addProgressListEntry(QuickModVersionPtr version, const QString& url = tr("N/A"));
+
+	/// Sets the progress list message for the given item.
+	void setProgressListMsg(QuickModVersionPtr version, const QString& msg, const QColor& color = QColor(Qt::black));
+
+	/// Sets whether the given progress item has its progress bar shown.
+	void setShowProgressBar(QuickModVersionPtr version, bool show = true);
+
+	/// Sets the progress bar value for the given version.
+	void setVersionProgress(QuickModVersionPtr version, qint64 current, qint64 max);
+
+	/// Sets the URL shown for the given version in the progress list.
+	void setProgressListUrl(QuickModVersionPtr version, const QString& url);
+
+	/// Gets the tree widget item for the given version.
+	QTreeWidgetItem* itemForVersion(QuickModVersionPtr version) const;
+
 private:
 	Ui::QuickModInstallDialog *ui;
 	QuickModInstaller *m_installer;
 
 	InstancePtr m_instance;
 
-	bool install(QuickModVersionPtr version, QTreeWidgetItem *item = 0);
+	bool install(QuickModVersionPtr version);
 
 	QList<QuickModPtr> m_initialMods;
 	QList<QuickModVersionPtr> m_modVersions;
 	QList<QuickModVersionPtr> m_resolvedVersions;
 	QList<QUrl> m_downloadingUrls;
+
+	/// A list of progress entries.
+	/// The indices of the items in this list should correspond with the indices of each mod that's being installed.
+	QMap<QuickModVersion*, QTreeWidgetItem*> m_progressEntries;
 };

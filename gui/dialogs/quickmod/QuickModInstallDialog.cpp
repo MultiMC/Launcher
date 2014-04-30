@@ -109,26 +109,54 @@ QuickModInstallDialog::~QuickModInstallDialog()
 
 // {{{ Utility functions
 
-QTreeWidgetItem* QuickModInstallDialog::addProgressListEntry(QuickModVersionPtr version, const QString& url, const QString& progressMsg)
+// {{{ Progress list
+void QuickModInstallDialog::addProgressListEntry(QuickModVersionPtr version, const QString& url)
 {
 	auto item = new QTreeWidgetItem(ui->progressList);
+	m_progressEntries.insert(version.get(), item);
 	item->setText(0, version->mod->name());
 	item->setIcon(0, version->mod->icon());
 	item->setText(1, version->name());
 	item->setText(2, url);
-
-	if (progressMsg.isEmpty())
-		item->setData(3, ExtraRoles::IgnoreRole, false);
-	else
-	{
-		item->setData(3, ExtraRoles::IgnoreRole, true);
-		item->setText(3, progressMsg);
-		item->setData(3, Qt::ForegroundRole, QColor(Qt::darkGreen));
-	}
-
-	return item;
+	item->setData(3, ExtraRoles::IgnoreRole, true);
+	item->setText(3, tr("Download waiting."));
 }
 
+void QuickModInstallDialog::setProgressListUrl(QuickModVersionPtr version, const QString& url)
+{
+	auto item = itemForVersion(version);
+	item->setText(2, url);
+}
+
+void QuickModInstallDialog::setProgressListMsg(QuickModVersionPtr version, const QString& msg, const QColor& color)
+{
+	auto item = itemForVersion(version);
+	item->setData(3, ExtraRoles::IgnoreRole, true);
+	item->setText(3, msg);
+	item->setData(3, Qt::ForegroundRole, color);
+}
+
+void QuickModInstallDialog::setVersionProgress(QuickModVersionPtr version, qint64 current, qint64 max)
+{
+	auto item = itemForVersion(version);
+	item->setData(3, ExtraRoles::IgnoreRole, false);
+	item->setData(3, ExtraRoles::ProgressRole, current);
+	item->setData(3, ExtraRoles::TotalRole, max);
+}
+
+void QuickModInstallDialog::setShowProgressBar(QuickModVersionPtr version, bool show)
+{
+	auto item = itemForVersion(version);
+	item->setData(3, ExtraRoles::IgnoreRole, !show);
+}
+
+QTreeWidgetItem* QuickModInstallDialog::itemForVersion(QuickModVersionPtr version) const
+{
+	return m_progressEntries.value(version.get());
+}
+// }}}
+
+// {{{ Other
 bool QuickModInstallDialog::checkIsDone()
 {
 	if (m_downloadingUrls.isEmpty() && ui->webTabView->count() == 0 && m_modVersions.isEmpty())
@@ -153,6 +181,7 @@ void QuickModInstallDialog::setInitialMods(const QList<QuickModPtr> mods)
 {
 	m_initialMods = mods;
 }
+// }}}
 
 // }}}
 
@@ -205,6 +234,7 @@ int QuickModInstallDialog::exec()
 
 // {{{ Sub-functions
 
+// {{{ Dependency resolution and downloading
 bool QuickModInstallDialog::downloadDeps()
 {
 	// download all dependency files so they are ready for the dependency resolution
@@ -247,7 +277,9 @@ bool QuickModInstallDialog::resolveDeps()
 	m_modVersions = m_resolvedVersions = resolver.resolve(m_initialMods);
 	return !error;
 }
+// }}}
 
+// {{{ Process version list
 void QuickModInstallDialog::processVersionList()
 {
 	foreach(QuickModVersionPtr version, m_modVersions)
@@ -258,23 +290,30 @@ void QuickModInstallDialog::processVersionList()
 		{
 			QLOG_INFO() << version->mod->uid() << " is already installed";
 			m_modVersions.removeAll(version);
+			continue;
 		}
+
+		// Add a progress list entry for each download
+		addProgressListEntry(version);
 
 		if (MMC->quickmodslist()->isModMarkedAsExists(version->mod, version))
 		{
 			QLOG_INFO() << version->mod->uid() << " exists already. Only installing.";
 			install(version);
-			addProgressListEntry(version, "N/A", tr("Success: Installed from cache."));
+			setProgressListMsg(version, tr("Success: Installed from cache."), QColor(Qt::darkGreen));
 			m_modVersions.removeAll(version);
 		}
 
 		if (!version->url.isValid())
 		{
 			m_modVersions.removeAll(version);
+			setProgressListMsg(version, tr("Error: Invalid URL."), QColor(Qt::red));
 		}
 	}
 }
+// }}}
 
+// {{{ Run direct downloads
 void QuickModInstallDialog::runDirectDownloads()
 {
 	// do all of the direct download mods
@@ -290,7 +329,9 @@ void QuickModInstallDialog::runDirectDownloads()
 		}
 	}
 }
+// }}}
 
+// {{{ Webpage mod downloads
 void QuickModInstallDialog::downloadNextMod()
 {
 	if (checkIsDone()) return;
@@ -303,6 +344,8 @@ void QuickModInstallDialog::downloadNextMod()
 void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 {
 	QLOG_INFO() << "Downloading " << version->name() << "(" << version->url.toString() << ")";
+
+	setProgressListMsg(version, tr("Waiting on web page."), QColor(Qt::blue));
 
 	auto navigator = new WebDownloadNavigator(this);
 	navigator->load(version->url);
@@ -317,12 +360,13 @@ void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 
 	setWebViewShown(true);
 }
+// }}}
 
 // }}}
 
 // {{{ Other stuff
 
-bool QuickModInstallDialog::install(QuickModVersionPtr version, QTreeWidgetItem *item)
+bool QuickModInstallDialog::install(QuickModVersionPtr version)
 {
 	try
 	{
@@ -330,11 +374,7 @@ bool QuickModInstallDialog::install(QuickModVersionPtr version, QTreeWidgetItem 
 	}
 	catch (MMCError* e)
 	{
-		if (item)
-		{
-			item->setText(3, e->cause());
-			item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
-		}
+		setProgressListMsg(version, e->cause(), QColor(Qt::red));
 		return false;
 	}
 	return true;
@@ -375,33 +415,27 @@ void QuickModInstallDialog::processReply(QNetworkReply *reply, QuickModVersionPt
 {
 	m_downloadingUrls.append(reply->url());
 
-	auto item = addProgressListEntry(version, reply->url().toString(QUrl::PrettyDecoded));
-	reply->setProperty("item", QVariant::fromValue(item));
+	setProgressListUrl(version, reply->url().toString(QUrl::PrettyDecoded));
 	reply->setProperty("version", QVariant::fromValue(version));
 
-	connect(reply, &QNetworkReply::downloadProgress, this,
-			&QuickModInstallDialog::downloadProgress);
+	connect(reply, &QNetworkReply::downloadProgress, this, &QuickModInstallDialog::downloadProgress);
 	connect(reply, &QNetworkReply::finished, this, &QuickModInstallDialog::downloadCompleted);
 }
 
 void QuickModInstallDialog::downloadProgress(const qint64 current, const qint64 max)
 {
 	auto reply = qobject_cast<QNetworkReply *>(sender());
-	auto item = reply->property("item").value<QTreeWidgetItem *>();
-	item->setData(3, ExtraRoles::ProgressRole, current);
-	item->setData(3, ExtraRoles::TotalRole, max);
-	ui->progressList->update(
-		ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item), 3));
+	auto version = reply->property("version").value<QuickModVersionPtr>();
+	setVersionProgress(version, current, max);
+	//ui->progressList->update(ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item), 3));
 }
 
 void QuickModInstallDialog::downloadCompleted()
 {
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	m_downloadingUrls.removeAll(reply->url());
-	auto item = reply->property("item").value<QTreeWidgetItem *>();
-	item->setData(3, ExtraRoles::IgnoreRole, true);
-	item->setText(3, tr("Installing..."));
 	auto version = reply->property("version").value<QuickModVersionPtr>();
+	setProgressListMsg(version, tr("Installing"));
 
 	bool fail = false;
 	try
@@ -410,17 +444,15 @@ void QuickModInstallDialog::downloadCompleted()
 	}
 	catch (MMCError* e)
 	{
-		item->setText(3, e->cause());
-		item->setData(3, Qt::ForegroundRole, QColor(Qt::red));
+		setProgressListMsg(version, e->cause(), QColor(Qt::red));
 		fail = true;
 	}
 	reply->close();
 	reply->deleteLater();
 
-	if (!fail && install(version, item))
+	if (!fail && install(version))
 	{
-		item->setText(3, tr("Success: Downloaded and installed successfully."));
-		item->setData(3, Qt::ForegroundRole, QColor(Qt::darkGreen));
+		setProgressListMsg(version, tr("Success: Downloaded and installed successfully."), QColor(Qt::darkGreen));
 	}
 
 	checkIsDone();
