@@ -29,6 +29,9 @@
 
 Q_DECLARE_METATYPE(QTreeWidgetItem *)
 
+
+// {{{ Data structures and classes
+
 // TODO load parallel versions in parallel (makes sense, right?)
 
 struct ExtraRoles
@@ -74,6 +77,11 @@ public:
 	}
 };
 
+// }}}
+
+
+// {{{ Initialization and updating
+
 QuickModInstallDialog::QuickModInstallDialog(InstancePtr instance, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModInstallDialog), m_installer(new QuickModInstaller(this, this)), m_instance(instance)
 {
@@ -96,6 +104,11 @@ QuickModInstallDialog::~QuickModInstallDialog()
 	delete ui;
 }
 
+// }}}
+
+
+// {{{ Utility functions
+
 QTreeWidgetItem* QuickModInstallDialog::addProgressListEntry(QuickModVersionPtr version, const QString& url, const QString& progressMsg)
 {
 	auto item = new QTreeWidgetItem(ui->progressList);
@@ -116,12 +129,37 @@ QTreeWidgetItem* QuickModInstallDialog::addProgressListEntry(QuickModVersionPtr 
 	return item;
 }
 
+bool QuickModInstallDialog::checkIsDone()
+{
+	if (m_downloadingUrls.isEmpty() && ui->webTabView->count() == 0 && m_modVersions.isEmpty())
+	{
+		ui->finishButton->setEnabled(true);
+		return true;
+	}
+	else
+	{
+		ui->finishButton->setDisabled(true);
+		return false;
+	}
+}
+
 void QuickModInstallDialog::setWebViewShown(bool shown)
 {
 	if (shown) ui->downloadSplitter->setSizes(QList<int>({100, 500}));
 	else       ui->downloadSplitter->setSizes(QList<int>({100, 0}));
 }
 
+void QuickModInstallDialog::setInitialMods(const QList<QuickModPtr> mods)
+{
+	m_initialMods = mods;
+}
+
+// }}}
+
+
+// {{{ Installer execution
+
+// {{{ Main function
 
 int QuickModInstallDialog::exec()
 {
@@ -163,6 +201,9 @@ int QuickModInstallDialog::exec()
 	return QDialog::exec();
 }
 
+// }}}
+
+// {{{ Sub-functions
 
 bool QuickModInstallDialog::downloadDeps()
 {
@@ -250,11 +291,6 @@ void QuickModInstallDialog::runDirectDownloads()
 	}
 }
 
-void QuickModInstallDialog::setInitialMods(const QList<QuickModPtr> mods)
-{
-	m_initialMods = mods;
-}
-
 void QuickModInstallDialog::downloadNextMod()
 {
 	if (checkIsDone()) return;
@@ -282,19 +318,9 @@ void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 	setWebViewShown(true);
 }
 
-bool QuickModInstallDialog::checkIsDone()
-{
-	if (m_downloadingUrls.isEmpty() && ui->webTabView->count() == 0 && m_modVersions.isEmpty())
-	{
-		ui->finishButton->setEnabled(true);
-		return true;
-	}
-	else
-	{
-		ui->finishButton->setDisabled(true);
-		return false;
-	}
-}
+// }}}
+
+// {{{ Other stuff
 
 bool QuickModInstallDialog::install(QuickModVersionPtr version, QTreeWidgetItem *item)
 {
@@ -313,6 +339,13 @@ bool QuickModInstallDialog::install(QuickModVersionPtr version, QTreeWidgetItem 
 	}
 	return true;
 }
+
+// }}}
+
+// }}}
+
+
+// {{{ Event handlers
 
 void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 {
@@ -392,5 +425,7 @@ void QuickModInstallDialog::downloadCompleted()
 
 	checkIsDone();
 }
+
+// }}}
 
 #include "QuickModInstallDialog.moc"
