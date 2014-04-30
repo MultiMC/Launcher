@@ -261,7 +261,6 @@ void QuickModInstallDialog::downloadNextMod()
 	if (m_modVersions.isEmpty()) return;
 
 	auto version = m_modVersions.takeFirst();
-	ui->webModsProgressBar->setValue(ui->webModsProgressBar->value() + 1);
 	runWebDownload(version);
 }
 
@@ -270,10 +269,15 @@ void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 	QLOG_INFO() << "Downloading " << version->name() << "(" << version->url.toString() << ")";
 
 	auto navigator = new WebDownloadNavigator(this);
-	navigator->setProperty("version", QVariant::fromValue(version));
-	connect(navigator, &WebDownloadNavigator::caughtUrl, this, &QuickModInstallDialog::urlCaught);
 	navigator->load(version->url);
 	ui->webTabView->addTab(navigator, (QString("%1 %2").arg(version->mod->name(), version->name())));
+
+	navigator->setProperty("version", QVariant::fromValue(version));
+	connect(navigator, &WebDownloadNavigator::caughtUrl, this, [this](QNetworkReply *reply)
+	{
+		ui->webModsProgressBar->setValue(ui->webModsProgressBar->value() + 1);
+		urlCaught(reply);
+	});
 
 	setWebViewShown(true);
 }
