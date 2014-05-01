@@ -28,7 +28,6 @@ add_unit_test(inifile tst_inifile.cpp)
 add_unit_test(UpdateChecker tst_UpdateChecker.cpp)
 add_unit_test(DownloadUpdateTask tst_DownloadUpdateTask.cpp)
 add_unit_test(QuickMod tst_QuickMod.cpp)
-add_unit_test(QuickModVersion tst_QuickModVersion.cpp)
 add_unit_test(QuickModsList tst_QuickModsList.cpp)
 
 # Tests END #

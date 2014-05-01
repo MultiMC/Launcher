@@ -1,0 +1,54 @@
+{
+    "name": "testmodname",
+    "description": "test mod description\nsome more",
+    "nemName": "nemname",
+    "uid": "this.should.be.unique",
+    "modId": "modid",
+    "websiteUrl": "http://test.com/",
+    "iconUrl": "http://test.com/icon.png",
+    "logoUrl": "http://test.com/logo.png",
+    "updateUrl": "http://test.com/testmodname.json",
+    "versionsUrl": "http://test.com/testmodname.versions.json",
+    "references": {
+        "OtherName": "http://other.com/othername.json",
+        "Other2Name": "https://other2.com/other2name.json",
+        "stuff": "https://stuff.org/stuff.json",
+        "TheWikipediaMod": "ftp://wikipedia.org/thewikipediamod.quickmod"
+    },
+    "categories": [
+        "cat",
+        "grep",
+        "ls",
+        "cp"
+    ],
+    "tags": [
+        "tag",
+        "tictactoe"
+    ],
+    "versions": [
+        {
+            "name": "1.42",
+            "url": "http://downloads.com/deadbeaf",
+            "forgeCompat": "(9.8.42,)",
+            "mcCompat": [
+                "1.6.2",
+                "1.6.4"
+            ],
+            "references": [
+                {
+                    "uid": "stuff",
+                    "type": "depends",
+                    "version": "1.0.0.0.0"
+                },
+                {
+                    "uid": "OtherName",
+                    "type": "recommends",
+                    "version": "1.2.3"
+                }
+            ],
+            "downloadType": "parallel",
+            "installType": "forgeCoreMod",
+            "md5": "a68b86df2f3fff44"
+        }
+    ]
+}
