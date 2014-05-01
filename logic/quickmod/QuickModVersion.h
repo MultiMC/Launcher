@@ -46,16 +46,6 @@ public:
 	QuickModVersion(QuickModPtr mod = 0, bool valid = true) : mod(mod), valid(valid)
 	{
 	}
-	QuickModVersion(QuickModPtr mod, const QString &name, const QUrl &url, const QStringList &mc,
-					const QString &forge = QString(),
-					const QMap<QString, QString> &deps = QMap<QString, QString>(),
-					const QMap<QString, QString> &recs = QMap<QString, QString>(),
-					const QString &md5 = QString(), const DownloadType downloadType = Parallel)
-		: mod(mod), valid(true), name_(name), url(url), compatibleVersions(mc),
-		  forgeVersionFilter(forge), dependencies(deps), recommendations(recs),
-		  md5(md5), downloadType(downloadType)
-	{
-	}
 
 	void parse(const QJsonObject &object);
 
