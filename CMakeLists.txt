@@ -393,6 +393,8 @@ set(MULTIMC_SOURCES
 	logic/net/PasteUpload.cpp
 	logic/net/URLConstants.h
 	logic/net/URLConstants.cpp
+	logic/net/MavenResolver.h
+	logic/net/MavenResolver.cpp
 
 	# Yggdrasil login stuff
 	logic/auth/AuthSession.h
@@ -578,6 +580,8 @@ set(MULTIMC_SOURCES
 	logic/quickmod/QuickModInstanceModList.cpp
 	logic/quickmod/QuickModUpdateMonitor.h
 	logic/quickmod/QuickModUpdateMonitor.cpp
+	logic/quickmod/QuickModLibraryInstaller.h
+	logic/quickmod/QuickModLibraryInstaller.cpp
 )
 
 

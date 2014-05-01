@@ -37,6 +37,11 @@ public:
 		ConfigPack,
 		Group
 	};
+	struct Library
+	{
+		QString name;
+		QUrl url;
+	};
 
 	QuickModVersion(QuickModPtr mod = 0, bool valid = true) : mod(mod), valid(valid)
 	{
@@ -83,6 +88,7 @@ public:
 	QString md5;
 	DownloadType downloadType;
 	InstallType installType;
+	QList<Library> libraries;
 
 	bool operator==(const QuickModVersion &other) const
 	{

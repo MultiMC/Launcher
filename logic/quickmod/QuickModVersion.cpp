@@ -77,6 +77,26 @@ void QuickModVersion::parse(const QJsonObject &object)
 		}
 	}
 
+	libraries.clear();
+	if (object.contains("libraries"))
+	{
+		for (auto lib : MMCJson::ensureArray(object.value("libraries"), "'libraries'"))
+		{
+			const QJsonObject libObj = MMCJson::ensureObject(lib, "library");
+			Library library;
+			library.name = MMCJson::ensureString(libObj.value("name"), "library 'name'");
+			if (libObj.contains("url"))
+			{
+				library.url = MMCJson::ensureUrl(libObj.value("url"), "library url");
+			}
+			else
+			{
+				library.url = QUrl("http://repo1.maven.org/maven2/");
+			}
+			libraries.append(library);
+		}
+	}
+
 	// download type
 	{
 		const QString typeString = object.value("downloadType").toString("parallel");

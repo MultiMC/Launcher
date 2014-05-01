@@ -46,6 +46,8 @@ private:
 	// derived values used for real things
 	/// a decent name fit for display
 	QString m_decentname;
+	/// a decent group fit for display
+	QString m_decentgroup;
 	/// a decent version fit for display
 	QString m_decentversion;
 	/// a decent type fit for display
@@ -112,8 +114,18 @@ public:
 	{
 		return m_decenttype;
 	}
+	/// Get the decent-looking group
+	QString group() const
+	{
+		return m_decentgroup;
+	}
 	/// Set the url base for downloads
 	void setBaseUrl(const QString &base_url);
+	/// Get the url base for downloads
+	QString getBaseUrl() const
+	{
+		return m_base_url;
+	}
 
 	/// Call this to mark the library as 'native' (it's a zip archive with DLLs)
 	void setIsNative();

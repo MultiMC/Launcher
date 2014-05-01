@@ -32,6 +32,7 @@
 #include "tasks/SequentialTask.h"
 #include "logic/quickmod/tasks/QuickModDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"
+#include "logic/net/MavenResolver.h"
 
 #include <MMCError.h>
 
@@ -71,6 +72,7 @@ std::shared_ptr<Task> OneSixInstance::doUpdate(InstancePtr ptr)
 	auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
 	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(ptr, this)));
 	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(ptr, this)));
+	task->addTask(std::shared_ptr<Task>(new MavenResolver(ptr, this)));
 	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this, this)));
 	return task;
 }

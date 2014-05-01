@@ -45,6 +45,7 @@ void OneSixLibrary::finalize()
 		}
 	}
 
+	m_decentgroup = parts[0];
 	m_decentname = parts[1];
 	m_decentversion = minVersion = parts[2];
 	m_storage_path = relative;

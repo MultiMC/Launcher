@@ -510,6 +510,7 @@ void MultiMC::initHttpMetaCache()
 	m_metacache->addBase("asset_objects", QDir("assets/objects").absolutePath());
 	m_metacache->addBase("versions", QDir("versions").absolutePath());
 	m_metacache->addBase("libraries", QDir("libraries").absolutePath());
+	m_metacache->addBase("maven/pom", QDir("maven/pom").absolutePath());
 	m_metacache->addBase("minecraftforge", QDir("mods/minecraftforge").absolutePath());
 	m_metacache->addBase("fmllibs", QDir("mods/minecraftforge/libs").absolutePath());
 	m_metacache->addBase("liteloader", QDir("mods/liteloader").absolutePath());

@@ -8,6 +8,7 @@
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModLibraryInstaller.h"
 #include "MultiMC.h"
 #include "JlCompress.h"
 
@@ -125,6 +126,19 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 			throw new MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
 		}
 		MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, instance);
+	}
+
+	QuickModLibraryInstaller installer(version);
+	if (!version->libraries.isEmpty())
+	{
+		if (!installer.add(std::dynamic_pointer_cast<OneSixInstance>(instance).get()))
+		{
+			throw new MMCError(tr("Error installing JSON patch"));
+		}
+	}
+	else
+	{
+		installer.remove(std::dynamic_pointer_cast<OneSixInstance>(instance).get());
 	}
 }
 

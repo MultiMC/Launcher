@@ -2,6 +2,7 @@
 
 #include "MultiMC.h"
 #include "QuickModsList.h"
+#include "QuickModLibraryInstaller.h"
 #include "modutils.h"
 
 QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance, std::shared_ptr<ModList> modList, QObject *parent)
@@ -216,7 +217,13 @@ void QuickModInstanceModList::removeMod(const QModelIndex &index)
 	{
 		return;
 	}
-	std::dynamic_pointer_cast<OneSixInstance>(m_instance)->removeQuickMod(modAt(index.row())->uid());
+	auto mod = modAt(index.row());
+	auto instance = std::dynamic_pointer_cast<OneSixInstance>(m_instance);
+	if (auto version = mod->version(quickmods()[mod->uid()]))
+	{
+		QuickModLibraryInstaller(version).remove(instance.get());
+	}
+	instance->removeQuickMod(mod->uid());
 }
 
 QuickModInstanceModListProxy::QuickModInstanceModListProxy(QuickModInstanceModList *list, QObject *parent)

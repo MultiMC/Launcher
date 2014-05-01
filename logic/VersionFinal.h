@@ -58,6 +58,7 @@ public:
 	enum MoveDirection { MoveUp, MoveDown };
 	void move(const int index, const MoveDirection direction);
 	void resetOrder();
+	int getHighestOrder();
 
 	// clears and reapplies all version files
 	void reapply(const bool alreadyReseting = false);
@@ -113,7 +114,8 @@ public:
 	QString mainClass;
 
 	/// the list of libs - both active and inactive, native and java
-	QList<std::shared_ptr<OneSixLibrary>> libraries;
+	QList<OneSixLibraryPtr> libraries;
+	QList<OneSixLibraryPtr> mavenLibraries;
 
 	QStringList modFiles;
 	QMap<QString, QString> quickmods;

@@ -133,10 +133,17 @@ bool VersionFinal::removeFtbPack()
 QList<std::shared_ptr<OneSixLibrary> > VersionFinal::getActiveNormalLibs()
 {
 	QList<std::shared_ptr<OneSixLibrary> > output;
-	for (auto lib : libraries)
+	for (auto lib : libraries + mavenLibraries)
 	{
 		if (lib->isActive() && !lib->isNative())
 		{
+			for (auto other : output)
+			{
+				if (other->rawName() == lib->rawName())
+				{
+					continue;
+				}
+			}
 			output.append(lib);
 		}
 	}
@@ -315,6 +322,17 @@ void VersionFinal::resetOrder()
 {
 	QDir(m_instance->instanceRoot()).remove("order.json");
 	reapply();
+}
+
+int VersionFinal::getHighestOrder()
+{
+	auto orders = getExistingOrder().values();
+	if (orders.isEmpty())
+	{
+		return 0;
+	}
+	std::sort(orders.begin(), orders.end());
+	return orders.last();
 }
 
 void VersionFinal::reapply(const bool alreadyReseting)
