@@ -352,7 +352,7 @@ void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 	ui->webTabView->addTab(navigator, (QString("%1 %2").arg(version->mod->name(), version->name())));
 
 	navigator->setProperty("version", QVariant::fromValue(version));
-	connect(navigator, &WebDownloadNavigator::caughtUrl, this, [this](QNetworkReply *reply)
+	connect(navigator, &WebDownloadNavigator::caughtUrl, [this](QNetworkReply *reply)
 	{
 		ui->webModsProgressBar->setValue(ui->webModsProgressBar->value() + 1);
 		urlCaught(reply);
