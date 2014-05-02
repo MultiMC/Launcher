@@ -22,7 +22,7 @@ public:
 	explicit QuickModDependencyResolver(InstancePtr instance, QWidget *widgetParent,
 										QObject *parent);
 
-	QList<QuickModVersionPtr> resolve(const QList<QuickModPtr> &mods);
+	QList<QuickModVersionPtr> resolve(const QList<QuickModUid> &mods);
 
 signals:
 	void error(const QString &message);
@@ -35,7 +35,7 @@ private:
 
 	QHash<QuickMod *, QuickModVersionPtr> m_mods;
 
-	QuickModVersionPtr getVersion(QuickModPtr mod, const QString &filter, bool *ok);
+	QuickModVersionPtr getVersion(const QuickModUid &modUid, const QString &filter, bool *ok);
 	/// \param exclude Used for telling which versions are already included, so they won't have
 	/// to be added or checked now
 	void resolve(const QuickModVersionPtr version);

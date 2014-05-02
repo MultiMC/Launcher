@@ -7,7 +7,7 @@ class QuickModDependencyDownloadTask : public Task
 {
 	Q_OBJECT
 public:
-	explicit QuickModDependencyDownloadTask(QList<QuickModPtr> mods, QObject *parent = 0);
+	explicit QuickModDependencyDownloadTask(QList<QuickModUid> mods, QObject *parent = 0);
 
 protected:
 	void executeTask();
@@ -17,11 +17,11 @@ slots:
 	void modAdded(QuickModPtr mod);
 
 private:
-	QList<QuickModPtr> m_mods;
+	QList<QuickModUid> m_mods;
 	// list of mods we are still waiting for
-	QList<QString> m_pendingMods;
+	QList<QuickModUid> m_pendingMods;
 	// list of mods we have requested
-	QList<QString> m_requestedMods;
+	QList<QuickModUid> m_requestedMods;
 
 	int m_lastSetPercentage;
 	void updateProgress();

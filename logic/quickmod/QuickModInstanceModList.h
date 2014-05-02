@@ -54,7 +54,7 @@ private:
 	InstancePtr m_instance;
 	std::shared_ptr<ModList> m_modList;
 
-	QMap<QString, QString> quickmods() const;
+	QMap<QuickModUid, QString> quickmods() const;
 	QuickModPtr modAt(const int row) const;
 };
 

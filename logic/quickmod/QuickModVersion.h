@@ -69,12 +69,12 @@ public:
 	QUrl url;
 	QStringList compatibleVersions;
 	QString forgeVersionFilter;
-	QMap<QString, QString> dependencies;
-	QMap<QString, QString> recommendations;
-	QMap<QString, QString> suggestions;
-	QMap<QString, QString> breaks;
-	QMap<QString, QString> conflicts;
-	QMap<QString, QString> provides;
+	QMap<QuickModUid, QString> dependencies;
+	QMap<QuickModUid, QString> recommendations;
+	QMap<QuickModUid, QString> suggestions;
+	QMap<QuickModUid, QString> breaks;
+	QMap<QuickModUid, QString> conflicts;
+	QMap<QuickModUid, QString> provides;
 	QString md5;
 	DownloadType downloadType;
 	InstallType installType;
@@ -96,7 +96,7 @@ class QuickModVersionList : public BaseVersionList
 {
 	Q_OBJECT
 public:
-	explicit QuickModVersionList(QuickModPtr mod, InstancePtr instance, QObject *parent = 0);
+	explicit QuickModVersionList(QuickModUid mod, InstancePtr instance, QObject *parent = 0);
 
 	Task *getLoadTask();
 	bool isLoaded();
@@ -109,6 +109,8 @@ slots:
 	void updateListData(QList<BaseVersionPtr> versions) {}
 
 private:
-	QuickModPtr m_mod;
+	QuickModUid m_mod;
 	InstancePtr m_instance;
+
+	QList<QuickModVersionPtr> versions() const;
 };

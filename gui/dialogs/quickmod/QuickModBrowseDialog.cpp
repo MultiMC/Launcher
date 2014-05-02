@@ -176,9 +176,9 @@ public:
 		connect(model, &QAbstractItemModel::modelReset, [this](){m_items.clear();});
 	}
 
-	QStringList getCheckedItems() const
+	QList<QuickModUid> getCheckedItems() const
 	{
-		QStringList items;
+		QList<QuickModUid> items;
 		for (auto item : m_items)
 		{
 			items.append(item);
@@ -196,13 +196,13 @@ public:
 		{
 			if (value == Qt::Checked)
 			{
-				m_items.insert(index.data(QuickModsList::UidRole).toString());
+				m_items.insert(index.data(QuickModsList::UidRole).value<QuickModUid>());
 				emit dataChanged(index, index, QVector<int>() << Qt::CheckStateRole);
 				return true;
 			}
 			else if (value == Qt::Unchecked)
 			{
-				m_items.remove(index.data(QuickModsList::UidRole).toString());
+				m_items.remove(index.data(QuickModsList::UidRole).value<QuickModUid>());
 				emit dataChanged(index, index, QVector<int>() << Qt::CheckStateRole);
 				return true;
 			}
@@ -213,13 +213,13 @@ public:
 	{
 		if (proxyIndex.isValid() && role == Qt::CheckStateRole)
 		{
-			return m_items.contains(proxyIndex.data(QuickModsList::UidRole).toString()) ? Qt::Checked : Qt::Unchecked;
+			return m_items.contains(proxyIndex.data(QuickModsList::UidRole).value<QuickModUid>()) ? Qt::Checked : Qt::Unchecked;
 		}
 		return QIdentityProxyModel::data(proxyIndex, role);
 	}
 
 private:
-	QSet<QString> m_items;
+	QSet<QuickModUid> m_items;
 };
 
 // }}}
@@ -335,10 +335,10 @@ void QuickModBrowseDialog::on_installButton_clicked()
 		return;
 	}
 
-	QMap<QString, QString> mods;
+	QMap<QuickModUid, QString> mods;
 	for (auto item : items)
 	{
-		mods[item] = QString();
+		mods[QuickModUid(item)] = QString();
 	}
 
 	try

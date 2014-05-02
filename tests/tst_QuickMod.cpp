@@ -20,14 +20,14 @@ private slots:
 	{
 		auto mod = QuickModPtr(new QuickMod);
 		mod->m_name = "testmodname";
-		mod->m_uid = "this.should.be.unique";
+		mod->m_uid = QuickModUid("this.should.be.unique");
 		mod->m_description = "test mod description\nsome more";
 		mod->m_websiteUrl = QUrl("http://test.com/");
 		mod->m_iconUrl = QUrl("http://test.com/icon.png");
 		mod->m_logoUrl = QUrl("http://test.com/logo.png");
 		mod->m_updateUrl = QUrl("http://test.com/testmodname.json");
-		mod->m_references = {{"OtherName",QUrl("http://other.com/othername.json")}, {"Other2Name",QUrl("https://other2.com/other2name.json")},
-							 {"stuff",QUrl("https://stuff.org/stuff.json")}, {"TheWikipediaMod",QUrl("ftp://wikipedia.org/thewikipediamod.quickmod")}};
+		mod->m_references = {{QuickModUid("OtherName"),QUrl("http://other.com/othername.json")}, {QuickModUid("Other2Name"),QUrl("https://other2.com/other2name.json")},
+							 {QuickModUid("stuff"),QUrl("https://stuff.org/stuff.json")}, {QuickModUid("TheWikipediaMod"),QUrl("ftp://wikipedia.org/thewikipediamod.quickmod")}};
 		mod->m_nemName = "nemname";
 		mod->m_modId = "modid";
 		mod->m_categories << "cat" << "grep" << "ls" << "cp";
@@ -41,8 +41,8 @@ private slots:
 		version->url = QUrl("http://downloads.com/deadbeaf");
 		version->forgeVersionFilter = "(9.8.42,)";
 		version->compatibleVersions << "1.6.2" << "1.6.4";
-		version->dependencies = {{"stuff", "1.0.0.0.0"}};
-		version->recommendations = {{"OtherName", "1.2.3"}};
+		version->dependencies = {{QuickModUid("stuff"), "1.0.0.0.0"}};
+		version->recommendations = {{QuickModUid("OtherName"), "1.2.3"}};
 		version->md5 = "a68b86df2f3fff44";
 		return version;
 	}

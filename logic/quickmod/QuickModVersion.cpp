@@ -48,27 +48,27 @@ void QuickModVersion::parse(const QJsonObject &object)
 			const QString type = MMCJson::ensureString(obj.value("type"), "'type'");
 			if (type == "depends")
 			{
-				dependencies.insert(uid, version);
+				dependencies.insert(QuickModUid(uid), version);
 			}
 			else if (type == "recommends")
 			{
-				recommendations.insert(uid, version);
+				recommendations.insert(QuickModUid(uid), version);
 			}
 			else if (type == "suggests")
 			{
-				suggestions.insert(uid, version);
+				suggestions.insert(QuickModUid(uid), version);
 			}
 			else if (type == "breaks")
 			{
-				breaks.insert(uid, version);
+				breaks.insert(QuickModUid(uid), version);
 			}
 			else if (type == "conflicts")
 			{
-				conflicts.insert(uid, version);
+				conflicts.insert(QuickModUid(uid), version);
 			}
 			else if (type == "provides")
 			{
-				provides.insert(uid, version);
+				provides.insert(QuickModUid(uid), version);
 			}
 			else
 			{
@@ -152,7 +152,7 @@ QuickModVersionPtr QuickModVersion::invalid(QuickModPtr mod)
 	return QuickModVersionPtr(new QuickModVersion(mod, false));
 }
 
-QuickModVersionList::QuickModVersionList(QuickModPtr mod, InstancePtr instance, QObject *parent)
+QuickModVersionList::QuickModVersionList(QuickModUid mod, InstancePtr instance, QObject *parent)
 	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
 {
 }
@@ -168,9 +168,20 @@ bool QuickModVersionList::isLoaded()
 
 const BaseVersionPtr QuickModVersionList::at(int i) const
 {
-	return m_mod->versions().at(i);
+	return versions().at(i);
 }
 int QuickModVersionList::count() const
 {
-	return m_mod->versions().count();
+	return versions().count();
+}
+
+QList<QuickModVersionPtr> QuickModVersionList::versions() const
+{
+	// TODO repository priority
+	QList<QuickModVersionPtr> out;
+	for (auto mod : m_mod.mods())
+	{
+		out.append(mod->versions());
+	}
+	return out;
 }

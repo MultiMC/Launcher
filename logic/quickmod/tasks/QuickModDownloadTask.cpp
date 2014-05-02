@@ -12,6 +12,8 @@
 #include "logic/OneSixInstance.h"
 #include "MultiMC.h"
 
+// FIXME this entire thing needs work. possible remove it?
+
 QuickModDownloadTask::QuickModDownloadTask(InstancePtr instance, QObject *parent)
 	: Task(parent), m_instance(instance)
 {
@@ -20,19 +22,19 @@ QuickModDownloadTask::QuickModDownloadTask(InstancePtr instance, QObject *parent
 
 void QuickModDownloadTask::executeTask()
 {
-	const QMap<QString, QString> quickmods = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+	const QMap<QuickModUid, QString> quickmods = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
-	QList<QuickModPtr> mods;
+	QList<QuickModUid> mods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
-		QuickModPtr mod = list->mod(it.key());
+		QuickModPtr mod = it.value().isEmpty() ? list->mods(it.key()).first() : list->modVersion(it.key(), it.value())->mod;
 		if (mod == 0)
 		{
 			// TODO fetch info from somewhere?
-			int answer = QMessageBox::warning(0, tr("Mod not available"), tr("You seem to be missing the QuickMod file for %1. Skip it?").arg(it.key()), QMessageBox::No, QMessageBox::Yes);
+			int answer = QMessageBox::warning(0, tr("Mod not available"), tr("You seem to be missing the QuickMod file for %1. Skip it?").arg(it.key().toString()), QMessageBox::No, QMessageBox::Yes);
 			if (answer == QMessageBox::No)
 			{
-				emitFailed(tr("Missing %1").arg(it.key()));
+				emitFailed(tr("Missing %1").arg(it.key().toString()));
 				return;
 			}
 			else
@@ -44,7 +46,7 @@ void QuickModDownloadTask::executeTask()
 		{
 			if (it.value().isEmpty() || !list->isModMarkedAsExists(mod, it.value()))
 			{
-				mods.append(mod);
+				mods.append(mod->uid());
 			}
 		}
 	}
@@ -66,7 +68,7 @@ void QuickModDownloadTask::executeTask()
 			QJsonObject mods = obj.value("+mods").toObject();
 			for (auto version : dialog.modVersions())
 			{
-				mods.insert(version->mod->uid(), version->name());
+				mods.insert(version->mod->uid().toString(), version->name());
 			}
 			obj.insert("+mods", mods);
 			f.seek(0);

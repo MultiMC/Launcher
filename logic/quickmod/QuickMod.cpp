@@ -9,8 +9,39 @@
 #include "logic/net/NetJob.h"
 #include "MultiMC.h"
 #include "QuickModVersion.h"
+#include "QuickModsList.h"
 #include "modutils.h"
 #include "logic/MMCJson.h"
+
+QuickModUid::QuickModUid()
+	: m_uid(QString())
+{
+}
+QuickModUid::QuickModUid(const QString &uid)
+	: m_uid(uid)
+{
+}
+QString QuickModUid::toString() const
+{
+	return m_uid;
+}
+QuickModPtr QuickModUid::mod() const
+{
+	return mods().first();
+}
+QList<QuickModPtr> QuickModUid::mods() const
+{
+	return MMC->quickmodslist()->mods(*this);
+}
+QDebug operator<<(QDebug &dbg, const QuickModUid &uid)
+{
+	dbg.nospace() << uid.toString();
+	return dbg.maybeSpace();
+}
+uint qHash(const QuickModUid &uid)
+{
+	return qHash(uid.toString());
+}
 
 QuickMod::QuickMod(QObject *parent)
 	: QObject(parent), m_imagesLoaded(false)
@@ -60,7 +91,8 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 {
 	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
 	const QJsonObject mod = MMCJson::ensureObject(doc, "root");
-	m_uid = MMCJson::ensureString(mod.value("uid"), "'uid'");
+	m_uid = QuickModUid(MMCJson::ensureString(mod.value("uid"), "'uid'"));
+	m_repo = MMCJson::ensureString(mod.value("repo"), "'repo'");
 	m_name = MMCJson::ensureString(mod.value("name"), "'name'");
 	m_description = mod.value("description").toString();
 	m_nemName = mod.value("nemName").toString();
@@ -73,7 +105,7 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	const QJsonObject references = mod.value("references").toObject();
 	for (auto key : references.keys())
 	{
-		m_references.insert(key, Util::expandQMURL(MMCJson::ensureString(references[key], "'reference'")));
+		m_references.insert(QuickModUid(key), Util::expandQMURL(MMCJson::ensureString(references[key], "'reference'")));
 	}
 	m_categories.clear();
 	for (auto val : mod.value("categories").toArray())
@@ -99,15 +131,19 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 		return Util::Version(v1->name()) < Util::Version(v2->name());
 	});
 
-	if (m_uid.isEmpty())
+	if (!m_uid.isValid())
 	{
 		throw QuickModParseError("The 'uid' field in the QuickMod file for " + m_name + " is empty");
+	}
+	if (m_repo.isEmpty())
+	{
+		throw QuickModParseError("The 'repo' field in the QuickMod file for " + m_name + " is empty");
 	}
 }
 
 bool QuickMod::compare(const QuickModPtr other) const
 {
-	return m_name == other->name() || m_uid == other->uid();
+	return m_name == other->m_name || m_uid == other->m_uid;
 }
 
 void QuickMod::iconDownloadFinished(int index)
@@ -167,7 +203,7 @@ void QuickMod::fetchImages()
 QString QuickMod::fileName(const QUrl &url) const
 {
 	const QString path = url.path();
-	return uid() + path.mid(path.lastIndexOf("."));
+	return internalUid() + path.mid(path.lastIndexOf("."));
 }
 
 QStringList QuickMod::mcVersions()
@@ -186,4 +222,3 @@ QStringList QuickMod::mcVersions()
 	}
 	return m_mcVersionListCache;
 }
-

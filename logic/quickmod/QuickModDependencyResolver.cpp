@@ -22,31 +22,31 @@ QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance, QWi
 
 }
 
-QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickModPtr> &mods)
+QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickModUid> &mods)
 {
-	foreach (QuickModPtr mod, mods)
+	foreach (QuickModUid mod, mods)
 	{
 		bool ok;
 		resolve(getVersion(mod, QString(), &ok));
 		if (!ok)
 		{
-			emit error(tr("Didn't select a version for %1").arg(mod->name()));
+			emit error(tr("Didn't select a version for %1").arg(mod.mod()->name()));
 			return QList<QuickModVersionPtr>();
 		}
 	}
 	return m_mods.values();
 }
 
-QuickModVersionPtr QuickModDependencyResolver::getVersion(QuickModPtr mod, const QString &filter, bool *ok)
+QuickModVersionPtr QuickModDependencyResolver::getVersion(const QuickModUid &modUid, const QString &filter, bool *ok)
 {
 	// FIXME: This only works with 1.6
-	const QString predefinedVersion = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods.value(mod->uid());
-	VersionSelectDialog dialog(new QuickModVersionList(mod, m_instance, this),
-							   tr("Choose QuickMod version for %1").arg(mod->name()), m_widgetParent);
+	const QString predefinedVersion = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods[modUid];
+	VersionSelectDialog dialog(new QuickModVersionList(modUid, m_instance, this),
+							   tr("Choose QuickMod version for %1").arg(modUid.mod()->name()), m_widgetParent);
 	dialog.setFilter(BaseVersionList::NameColumn, filter);
 	dialog.setUseLatest(MMC->settings()->get("QuickModAlwaysLatestVersion").toBool());
 	// TODO currently, if the version isn't existing anymore it will be updated
-	if (!predefinedVersion.isEmpty() && mod->version(predefinedVersion))
+	if (!predefinedVersion.isEmpty() && MMC->quickmodslist()->modVersion(modUid, predefinedVersion))
 	{
 		dialog.setFilter(BaseVersionList::NameColumn, predefinedVersion);
 	}
@@ -72,19 +72,18 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 	m_mods.insert(version->mod.get(), version);
 	for (auto it = version->dependencies.begin(); it != version->dependencies.end(); ++it)
 	{
-		QuickModPtr depMod = MMC->quickmodslist()->mod(it.key());
-		if (!depMod)
+		if (MMC->quickmodslist()->mods(it.key()).isEmpty())
 		{
 			emit warning(tr("The dependency from %1 (%2) to %3 cannot be resolved")
-						 .arg(version->mod->name(), version->name(), it.key()));
+						 .arg(version->mod->name(), version->name(), it.key().toString()));
 			continue;
 		}
 		bool ok;
-		QuickModVersionPtr dep = getVersion(depMod, it.value(), &ok);
+		QuickModVersionPtr dep = getVersion(it.key(), it.value(), &ok);
 		if (!ok)
 		{
 			emit warning(tr("Didn't select a version while resolving from %1 (%2) to %3")
-						 .arg(version->mod->name(), version->name(), it.key()));
+						 .arg(version->mod->name(), version->name(), it.key().toString()));
 		}
 		if (dep)
 		{
@@ -102,7 +101,7 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 		else
 		{
 			emit warning(tr("The dependency from %1 (%2) to %3 (%4) cannot be resolved")
-						 .arg(version->mod->name(), version->name(), it.key(), it.value()));
+						 .arg(version->mod->name(), version->name(), it.key().toString(), it.value()));
 		}
 	}
 }

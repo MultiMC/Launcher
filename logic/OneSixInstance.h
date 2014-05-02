@@ -20,6 +20,8 @@
 #include "VersionFinal.h"
 #include "ModList.h"
 
+class QuickModUid;
+
 class OneSixInstance : public BaseInstance
 {
 	Q_OBJECT
@@ -84,10 +86,10 @@ public:
 
 	bool reload() override;
 
-	void setQuickModVersion(const QString &uid, const QString &version);
-	void setQuickModVersions(const QMap<QString, QString > &mods);
-	void removeQuickMod(const QString &uid);
-	void removeQuickMods(const QStringList &uids);
+	void setQuickModVersion(const QuickModUid &uid, const QString &version);
+	void setQuickModVersions(const QMap<QuickModUid, QString> &mods);
+	void removeQuickMod(const QuickModUid &uid);
+	void removeQuickMods(const QList<QuickModUid> &uids);
 
 signals:
 	void versionReloaded();

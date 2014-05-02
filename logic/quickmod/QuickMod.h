@@ -22,6 +22,39 @@ public:
 	virtual ~QuickModParseError() noexcept {}
 };
 
+class QuickModUid
+{
+public:
+	QuickModUid();
+	explicit QuickModUid(const QString &uid);
+
+	QString toString() const;
+	QuickModPtr mod() const;
+	QList<QuickModPtr> mods() const;
+
+	bool isValid() const
+	{
+		return !m_uid.isEmpty();
+	}
+	bool operator==(const QuickModUid &other) const
+	{
+		return m_uid == other.m_uid;
+	}
+	bool operator==(const QString &other) const
+	{
+		return m_uid == other;
+	}
+	bool operator<(const QuickModUid &other) const
+	{
+		return m_uid < other.m_uid;
+	}
+
+private:
+	QString m_uid;
+};
+QDebug operator<<(QDebug &dbg, const QuickModUid &uid);
+uint qHash(const QuickModUid &uid);
+
 class QuickMod : public QObject
 {
 	Q_OBJECT
@@ -34,9 +67,17 @@ public:
 		return !m_name.isEmpty();
 	}
 
-	QString uid() const
+	QuickModUid uid() const
 	{
 		return m_uid;
+	}
+	QString internalUid() const
+	{
+		return m_repo + '.' + m_uid.toString();
+	}
+	QString repo() const
+	{
+		return m_repo;
 	}
 	QString name() const
 	{
@@ -68,7 +109,7 @@ public:
 	{
 		return m_updateUrl;
 	}
-	QMap<QString, QUrl> references() const
+	QMap<QuickModUid, QUrl> references() const
 	{
 		return m_references;
 	}
@@ -120,7 +161,8 @@ private:
 	friend class QuickModTest;
 	friend class QuickModsListTest;
 	friend class TestsInternal;
-	QString m_uid;
+	QuickModUid m_uid;
+	QString m_repo;
 	QString m_name;
 	QString m_description;
 	QUrl m_websiteUrl;
@@ -130,7 +172,7 @@ private:
 	QUrl m_logoUrl;
 	QPixmap m_logo;
 	QUrl m_updateUrl;
-	QMap<QString, QUrl> m_references;
+	QMap<QuickModUid, QUrl> m_references;
 	QStringList m_mcVersionListCache;
 	QString m_nemName;
 	QString m_modId;
@@ -146,5 +188,6 @@ private:
 	void fetchImages();
 	QString fileName(const QUrl &url) const;
 };
-Q_DECLARE_METATYPE(QuickModPtr)
 
+Q_DECLARE_METATYPE(QuickModPtr)
+Q_DECLARE_METATYPE(QuickModUid)

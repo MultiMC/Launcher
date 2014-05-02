@@ -21,6 +21,7 @@
 #include <QList>
 #include <memory>
 
+#include "quickmod/QuickMod.h"
 #include "OneSixLibrary.h"
 #include "VersionFile.h"
 
@@ -118,7 +119,7 @@ public:
 	QList<OneSixLibraryPtr> mavenLibraries;
 
 	QStringList modFiles;
-	QMap<QString, QString> quickmods;
+	QMap<QuickModUid, QString> quickmods;
 
 	/*
 	FIXME: add support for those rules here? Looks like a pile of quick hacks to me though.

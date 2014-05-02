@@ -177,7 +177,7 @@ void QuickModInstallDialog::setWebViewShown(bool shown)
 	else       ui->downloadSplitter->setSizes(QList<int>({100, 0}));
 }
 
-void QuickModInstallDialog::setInitialMods(const QList<QuickModPtr> mods)
+void QuickModInstallDialog::setInitialMods(const QList<QuickModUid> mods)
 {
 	m_initialMods = mods;
 }
@@ -352,10 +352,10 @@ void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 	ui->webTabView->addTab(navigator, (QString("%1 %2").arg(version->mod->name(), version->name())));
 
 	navigator->setProperty("version", QVariant::fromValue(version));
-	connect(navigator, &WebDownloadNavigator::caughtUrl, [this](QNetworkReply *reply)
+	connect(navigator, &WebDownloadNavigator::caughtUrl, [this, navigator](QNetworkReply *reply)
 	{
 		ui->webModsProgressBar->setValue(ui->webModsProgressBar->value() + 1);
-		urlCaught(reply);
+		urlCaught(reply, navigator);
 	});
 
 	setWebViewShown(true);
@@ -387,7 +387,7 @@ bool QuickModInstallDialog::install(QuickModVersionPtr version)
 
 // {{{ Event handlers
 
-void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
+void QuickModInstallDialog::urlCaught(QNetworkReply *reply, WebDownloadNavigator *navigator)
 {
 	// TODO: Do more to verify that the correct file is being downloaded.
 	if (reply->url().path().endsWith(".exe"))
@@ -399,7 +399,10 @@ void QuickModInstallDialog::urlCaught(QNetworkReply *reply)
 	QLOG_INFO() << "Caught " << reply->url().toString();
 	downloadNextMod();
 
-	auto navigator = qobject_cast<WebDownloadNavigator *>(sender());
+	if (!navigator)
+	{
+		navigator = qobject_cast<WebDownloadNavigator *>(sender());
+	}
 
 	processReply(reply, navigator->property("version").value<QuickModVersionPtr>());
 

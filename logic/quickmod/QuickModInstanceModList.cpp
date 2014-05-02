@@ -26,6 +26,7 @@ QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance, std::shar
 		for (int i = first; i < (last + 1); ++i)
 		{
 			auto mod = MMC->quickmodslist()->modAt(i);
+			qDebug() << mod.get();
 			connect(mod.get(), &QuickMod::iconUpdated, this, &QuickModInstanceModList::quickmodIconUpdated);
 		}
 	});
@@ -104,7 +105,7 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 			return QVariant();
 		}
 	case Qt::ToolTipRole:
-		return mod->uid();
+		return mod->internalUid();
 	case Qt::FontRole:
 		if (col == VersionColumn)
 		{
@@ -178,14 +179,29 @@ void QuickModInstanceModList::quickmodIconUpdated()
 	emit dataChanged(index(0, NameColumn), index(rowCount(), NameColumn), QVector<int>() << Qt::DecorationRole);
 }
 
-QMap<QString, QString> QuickModInstanceModList::quickmods() const
+QMap<QuickModUid, QString> QuickModInstanceModList::quickmods() const
 {
-	return std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+	QMap<QuickModUid, QString> out;
+	auto mods = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+	for (auto it = mods.begin(); it != mods.end(); ++it)
+	{
+		out.insert(QuickModUid(it.key()), it.value());
+	}
+	return out;
 }
 
 QuickModPtr QuickModInstanceModList::modAt(const int row) const
 {
-	return MMC->quickmodslist()->mod(quickmods().keys()[row]);
+	auto uid = quickmods().keys()[row];
+	if (MMC->quickmodslist()->mods(uid).isEmpty())
+	{
+		return 0;
+	}
+	if (quickmods()[uid].isEmpty())
+	{
+		return MMC->quickmodslist()->mods(uid).first();
+	}
+	return MMC->quickmodslist()->modVersion(uid, quickmods()[uid])->mod;
 }
 
 QModelIndex QuickModInstanceModList::mapToModList(const QModelIndex &index) const
@@ -242,12 +258,12 @@ bool QuickModInstanceModListProxy::filterAcceptsRow(int source_row, const QModel
 		const QString file = index.data(ModList::ModFileRole).toString();
 		for (auto it = m_list->quickmods().begin(); it != m_list->quickmods().end(); ++it)
 		{
-			const QString uid = it.key();
-			if (uid.isEmpty())
+			const QuickModUid uid = it.key();
+			if (!uid.isValid() || !MMC->quickmodslist()->mods(uid).isEmpty())
 			{
 				continue;
 			}
-			auto mod = MMC->quickmodslist()->mod(uid);
+			auto mod = MMC->quickmodslist()->mods(uid).first();
 			if (!mod)
 			{
 				continue;

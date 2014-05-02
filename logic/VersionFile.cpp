@@ -7,6 +7,7 @@
 #include "logic/VersionFile.h"
 #include "logic/OneSixLibrary.h"
 #include "logic/VersionFinal.h"
+#include "logic/quickmod/QuickMod.h"
 #include "MMCJson.h"
 
 using namespace MMCJson;
@@ -626,12 +627,16 @@ void VersionFile::applyTo(VersionFinal *version)
 	if (shouldOverwriteMods)
 	{
 		version->modFiles = overwriteMods.first;
-		version->quickmods = overwriteMods.second;
+		version->quickmods.clear();
+		for (auto it = overwriteMods.second.begin(); it != overwriteMods.second.end(); ++it)
+		{
+			version->quickmods.insert(QuickModUid(it.key()), it.value());
+		}
 	}
 	version->modFiles += addMods.first;
 	for (auto mod = addMods.second.cbegin(); mod != addMods.second.cend(); ++mod)
 	{
-		version->quickmods.insert(mod.key(), mod.value());
+		version->quickmods.insert(QuickModUid(mod.key()), mod.value());
 	}
 	for (auto mod : removeMods.first)
 	{
@@ -639,9 +644,9 @@ void VersionFile::applyTo(VersionFinal *version)
 	}
 	for (auto mod = removeMods.second.cbegin(); mod != removeMods.second.cend(); ++mod)
 	{
-		if (version->quickmods.contains(mod.key()) && version->quickmods.value(mod.key()) == mod.value())
+		if (version->quickmods.contains(QuickModUid(mod.key())) && version->quickmods.value(QuickModUid(mod.key())) == mod.value())
 		{
-			version->quickmods.remove(mod.key());
+			version->quickmods.remove(QuickModUid(mod.key()));
 		}
 	}
 }

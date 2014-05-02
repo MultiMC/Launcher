@@ -1333,13 +1333,16 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 								BaseProfilerFactory *profiler)
 {
-	QList<QuickModPtr> mods = MMC->quickmodslist()->updatedModsForInstance(instance);
+	QList<QuickModUid> mods = MMC->quickmodslist()->updatedModsForInstance(instance);
 	if (!mods.isEmpty())
 	{
 		QStringList names;
+		QMap<QuickModUid, QString> modsToUpdate;
 		for (auto mod : mods)
 		{
-			names.append(mod->name());
+			auto ptr = MMC->quickmodslist()->mods(mod).first();
+			names.append(ptr->name());
+			modsToUpdate.insert(ptr->uid(), QString());
 		}
 		int res = QMessageBox::question(
 			this, tr("Update"),
@@ -1349,11 +1352,6 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 		{
 			if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(instance))
 			{
-				QMap<QString, QString> modsToUpdate;
-				for (auto mod : mods)
-				{
-					modsToUpdate.insert(mod->uid(), QString());
-				}
 				onesix->setQuickModVersions(modsToUpdate);
 			}
 		}

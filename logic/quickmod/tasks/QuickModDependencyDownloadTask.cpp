@@ -4,7 +4,7 @@
 #include "logic/quickmod/QuickModsList.h"
 #include "MultiMC.h"
 
-QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickModPtr> mods,
+QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickModUid> mods,
 															   QObject *parent)
 	: Task(parent), m_mods(mods)
 {
@@ -22,9 +22,12 @@ void QuickModDependencyDownloadTask::executeTask()
 	// TODO we cannot know if this is about us
 	connect(MMC->quickmodslist().get(), &QuickModsList::error, this, &QuickModDependencyDownloadTask::emitFailed);
 
-	foreach(const QuickModPtr mod, m_mods)
+	foreach(const QuickModUid mod, m_mods)
 	{
-		requestDependenciesOf(mod);
+		for (auto variant : mod.mods())
+		{
+			requestDependenciesOf(variant);
+		}
 	}
 	if (m_pendingMods.isEmpty())
 	{
@@ -38,7 +41,7 @@ void QuickModDependencyDownloadTask::modAdded(QuickModPtr mod)
 	if (m_pendingMods.contains(mod->uid()))
 	{
 		m_pendingMods.removeAll(mod->uid());
-		m_mods.append(mod);
+		m_mods.append(mod->uid());
 		requestDependenciesOf(mod);
 	}
 	updateProgress();
@@ -62,8 +65,8 @@ void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModPtr mod
 	auto references = mod->references();
 	for (auto it = references.begin(); it != references.end(); ++it)
 	{
-		const QString modUid = it.key();
-		if (MMC->quickmodslist()->mod(modUid))
+		const QuickModUid modUid = it.key();
+		if (MMC->quickmodslist()->mods(modUid).isEmpty())
 		{
 			return;
 		}

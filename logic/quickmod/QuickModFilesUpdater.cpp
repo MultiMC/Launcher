@@ -79,7 +79,8 @@ void QuickModFilesUpdater::receivedMod(int notused)
 				const QJsonObject itemObj = (*it).toObject();
 				const QString baseUrlString =
 					MMCJson::ensureUrl(obj.value("baseUrl")).toString();
-				if (!m_list->haveUid(MMCJson::ensureString(itemObj.value("uid"))))
+				// FIXME should check if the have uid + repo, not only uid
+				if (!m_list->haveUid(QuickModUid(MMCJson::ensureString(itemObj.value("uid")))))
 				{
 					const QString urlString =
 						MMCJson::ensureUrl(itemObj.value("url")).toString();
@@ -138,9 +139,12 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	mod->m_hash = QCryptographicHash::hash(download->m_data, QCryptographicHash::Sha512);
 
 	// assume this is an updated version
-	if (QuickModPtr old = m_list->mod(mod->uid()))
+	for (auto old : m_list->mods(mod->uid()))
 	{
-		m_list->unregisterMod(old);
+		if (old->repo() == mod->repo())
+		{
+			m_list->unregisterMod(old);
+		}
 	}
 
 	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
@@ -183,7 +187,7 @@ void QuickModFilesUpdater::readModFiles()
 
 QString QuickModFilesUpdater::fileName(const QuickModPtr mod)
 {
-	return fileName(mod->uid());
+	return fileName(mod->internalUid());
 }
 QString QuickModFilesUpdater::fileName(const QString &uid)
 {

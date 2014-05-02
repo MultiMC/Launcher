@@ -35,7 +35,7 @@ public
 slots:
 	virtual int exec();
 
-	void setInitialMods(const QList<QuickModPtr> mods);
+	void setInitialMods(const QList<QuickModUid> mods);
 	QList<QuickModVersionPtr> modVersions() const
 	{
 		return m_resolvedVersions;
@@ -45,7 +45,7 @@ private
 slots:
 	void downloadNextMod();
 
-	void urlCaught(QNetworkReply *reply);
+	void urlCaught(QNetworkReply *reply, WebDownloadNavigator *navigator);
 	void processReply(QNetworkReply *reply, QuickModVersionPtr version);
 	void downloadProgress(const qint64 current, const qint64 max);
 	void downloadCompleted();
@@ -105,7 +105,7 @@ private:
 
 	bool install(QuickModVersionPtr version);
 
-	QList<QuickModPtr> m_initialMods;
+	QList<QuickModUid> m_initialMods;
 	QList<QuickModVersionPtr> m_modVersions;
 	QList<QuickModVersionPtr> m_resolvedVersions;
 	QList<QUrl> m_downloadingUrls;

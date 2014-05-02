@@ -49,7 +49,7 @@ static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 	{
 		ending = ".jar";
 	}
-	return version->mod->uid() + "-" + version->name() + ending;
+	return version->mod->internalUid() + "-" + version->name() + ending;
 }
 
 void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance)

@@ -236,11 +236,10 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 		auto list = MMC->quickmodslist().get();
 		for (auto it = version->quickmods.begin(); it != version->quickmods.end(); ++it)
 		{
-			const auto mod = list->mod(it.key());
-			const auto modVersion = mod->version(it.value());
+			const auto modVersion = list->modVersion(it.key(), it.value());
 			if (modVersion->installType == QuickModVersion::ForgeMod)
 			{
-				mods.prepend("mods " + list->existingModFile(mod, modVersion));
+				mods.prepend("mods " + list->existingModFile(modVersion->mod, modVersion));
 			}
 		}
 		launchScript += mods.join('\n') + '\n';
@@ -480,11 +479,11 @@ bool OneSixInstance::reload()
 	return false;
 }
 
-void OneSixInstance::setQuickModVersion(const QString &uid, const QString &version)
+void OneSixInstance::setQuickModVersion(const QuickModUid &uid, const QString &version)
 {
-	setQuickModVersions(QMap<QString, QString>({{uid, version}}));
+	setQuickModVersions(QMap<QuickModUid, QString>({{uid, version}}));
 }
-void OneSixInstance::setQuickModVersions(const QMap<QString, QString> &mods)
+void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QString> &mods)
 {
 	QFile userFile(instanceRoot() + "/user.json");
 	if (!userFile.open(QFile::ReadWrite))
@@ -497,8 +496,8 @@ void OneSixInstance::setQuickModVersions(const QMap<QString, QString> &mods)
 	QJsonObject minusmods = obj.value("-mods").toObject();
 	for (auto it = mods.begin(); it != mods.end(); ++it)
 	{
-		minusmods.remove(it.key());
-		plusmods.insert(it.key(), it.value());
+		minusmods.remove(it.key().toString());
+		plusmods.insert(it.key().toString(), it.value());
 	}
 	obj.insert("+mods", plusmods);
 	userFile.seek(0);
@@ -507,11 +506,11 @@ void OneSixInstance::setQuickModVersions(const QMap<QString, QString> &mods)
 	userFile.close();
 	reloadVersion();
 }
-void OneSixInstance::removeQuickMod(const QString &uid)
+void OneSixInstance::removeQuickMod(const QuickModUid &uid)
 {
-	removeQuickMods(QStringList() << uid);
+	removeQuickMods(QList<QuickModUid>() << uid);
 }
-void OneSixInstance::removeQuickMods(const QStringList &uids)
+void OneSixInstance::removeQuickMods(const QList<QuickModUid> &uids)
 {
 	QFile userFile(instanceRoot() + "/user.json");
 	if (!userFile.open(QFile::ReadWrite))
@@ -524,13 +523,13 @@ void OneSixInstance::removeQuickMods(const QStringList &uids)
 	QJsonObject minusmods = obj.value("-mods").toObject();
 	for (auto uid : uids)
 	{
-		if (plusmods.contains(uid))
+		if (plusmods.contains(uid.toString()))
 		{
-			plusmods.remove(uid);
+			plusmods.remove(uid.toString());
 		}
 		else
 		{
-			minusmods.insert(uid, QString());
+			minusmods.insert(uid.toString(), QString());
 		}
 	}
 	obj.insert("+mods", plusmods);

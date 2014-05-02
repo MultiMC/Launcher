@@ -124,7 +124,9 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 	case NameRole:
 		return mod->name();
 	case UidRole:
-		return mod->uid();
+		return QVariant::fromValue(mod->uid());
+	case RepoRole:
+		return mod->repo();
 	case DescriptionRole:
 		return mod->description();
 	case WebsiteRole:
@@ -214,38 +216,56 @@ QuickModPtr QuickModsList::modForModId(const QString &modId) const
 
 	return 0;
 }
-QuickModPtr QuickModsList::mod(const QString &uid) const
+QList<QuickModPtr> QuickModsList::mods(const QuickModUid &uid) const
 {
+	// TODO repository priority
+	QList<QuickModPtr> out;
 	foreach (QuickModPtr mod, m_mods)
 	{
 		if (mod->uid() == uid)
 		{
-			return mod;
+			out.append(mod);
 		}
 	}
-
+	return out;
+}
+QuickModVersionPtr QuickModsList::modVersion(const QuickModUid &modUid, const QString &versionName) const
+{
+	for (auto mod : mods(modUid))
+	{
+		if (auto v = mod->version(versionName))
+		{
+			return v;
+		}
+	}
 	return 0;
 }
-QuickModVersionPtr QuickModsList::modVersion(const QString &modUid, const QString &versionName) const
+
+QuickModVersionPtr QuickModsList::latestVersion(const QuickModUid &modUid, const QString &mcVersion) const
 {
-	QuickModPtr m = mod(modUid);
-	if (m)
+	QuickModVersionPtr latest;
+	for (auto mod : mods(modUid))
 	{
-		return m->version(versionName);
+		auto modLatest = mod->latestVersion(mcVersion);
+		if (!latest)
+		{
+			latest = modLatest;
+		}
+		else if (modLatest && Util::Version(modLatest->name()) > Util::Version(latest->name()))
+		{
+			latest = modLatest;
+		}
 	}
-	else
-	{
-		return 0;
-	}
+	return latest;
 }
 
 void QuickModsList::markModAsExists(QuickModPtr mod, const BaseVersionPtr version,
 									const QString &fileName)
 {
 	auto mods = m_settings->get("AvailableMods").toMap();
-	auto map = mods[mod->uid()].toMap();
+	auto map = mods[mod->internalUid()].toMap();
 	map[version->name()] = fileName;
-	mods[mod->uid()] = map;
+	mods[mod->internalUid()] = map;
 	m_settings->getSetting("AvailableMods")->set(QVariant(mods));
 }
 
@@ -253,24 +273,24 @@ void QuickModsList::markModAsInstalled(QuickModPtr mod, const BaseVersionPtr ver
 									   const QString &fileName, InstancePtr instance)
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
-	auto map = mods[mod->uid()].toMap();
+	auto map = mods[mod->uid().toString()].toMap();
 	map[version->name()] = fileName;
-	mods[mod->uid()] = map;
+	mods[mod->uid().toString()] = map;
 	instance->settings().getSetting("InstalledMods")->set(QVariant(mods));
 }
 void QuickModsList::markModAsUninstalled(QuickModPtr mod, const BaseVersionPtr version,
 										 InstancePtr instance)
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
-	auto map = mods[mod->uid()].toMap();
+	auto map = mods[mod->uid().toString()].toMap();
 	map.remove(version->name());
 	if (map.isEmpty())
 	{
-		mods.remove(mod->uid());
+		mods.remove(mod->uid().toString());
 	}
 	else
 	{
-		mods[mod->uid()] = map;
+		mods[mod->uid().toString()] = map;
 	}
 	instance->settings().set("InstalledMods", QVariant(mods));
 }
@@ -282,8 +302,8 @@ bool QuickModsList::isModMarkedAsInstalled(QuickModPtr mod, const BaseVersionPtr
 		return false;
 	}
 	auto mods = instance->settings().get("InstalledMods").toMap();
-	return mods.contains(mod->uid()) &&
-		   mods.value(mod->uid()).toMap().contains(version->name());
+	return mods.contains(mod->uid().toString()) &&
+		   mods.value(mod->uid().toString()).toMap().contains(version->name());
 }
 bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const
 {
@@ -292,13 +312,13 @@ bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr ve
 bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const QString &version) const
 {
 	auto mods = m_settings->get("AvailableMods").toMap();
-	return mods.contains(mod->uid()) &&
-			mods.value(mod->uid()).toMap().contains(version);
+	return mods.contains(mod->internalUid()) &&
+			mods.value(mod->internalUid()).toMap().contains(version);
 }
 QMap<QString, QString> QuickModsList::installedModFiles(QuickModPtr mod, InstancePtr instance) const
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
-	auto tmp = mods[mod->uid()].toMap();
+	auto tmp = mods[mod->uid().toString()].toMap();
 	QMap<QString, QString> out;
 	for (auto it = tmp.begin(); it != tmp.end(); ++it)
 	{
@@ -317,7 +337,7 @@ QString QuickModsList::existingModFile(QuickModPtr mod, const QString &version) 
 		return QString();
 	}
 	auto mods = m_settings->get("AvailableMods").toMap();
-	return mods[mod->uid()].toMap()[version].toString();
+	return mods[mod->internalUid()].toMap()[version].toString();
 }
 
 bool QuickModsList::isWebsiteTrusted(const QUrl &url) const
@@ -339,7 +359,7 @@ void QuickModsList::setWebsiteTrusted(const QUrl &url, const bool trusted)
 	m_settings->getSetting("TrustedWebsites")->set(websites);
 }
 
-bool QuickModsList::haveUid(const QString &uid) const
+bool QuickModsList::haveUid(const QuickModUid &uid) const
 {
 	for (auto mod : m_mods)
 	{
@@ -351,9 +371,9 @@ bool QuickModsList::haveUid(const QString &uid) const
 	return false;
 }
 
-QList<QuickModPtr> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const
+QList<QuickModUid> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const
 {
-	QList<QuickModPtr> mods;
+	QList<QuickModUid> mods;
 	std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(instance);
 	for (auto it = onesix->getFullVersion()->quickmods.begin(); it != onesix->getFullVersion()->quickmods.end(); ++it)
 	{
@@ -361,18 +381,14 @@ QList<QuickModPtr> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseIns
 		{
 			continue;
 		}
-		QuickModPtr m = mod(it.key());
-		if (!m)
+		auto latest = latestVersion(it.key(), instance->intendedVersionId());
+		if (!latest)
 		{
 			continue;
 		}
-		if (!m->latestVersion(instance->intendedVersionId()))
+		if (Util::Version(it.value()) < Util::Version(latest->name()))
 		{
-			continue;
-		}
-		if (Util::Version(it.value()) < Util::Version(m->latestVersion(instance->intendedVersionId())->name()))
-		{
-			mods.append(m);
+			mods.append(QuickModUid(it.key()));
 		}
 	}
 	return mods;

@@ -32,6 +32,7 @@ public:
 	{
 		NameRole = Qt::UserRole,
 		UidRole,
+		RepoRole,
 		DescriptionRole,
 		WebsiteRole,
 		IconRole,
@@ -70,8 +71,9 @@ public:
 	}
 
 	QuickModPtr modForModId(const QString &modId) const;
-	QuickModPtr mod(const QString &uid) const;
-	QuickModVersionPtr modVersion(const QString &modUid, const QString &versionName) const;
+	QList<QuickModPtr> mods(const QuickModUid &uid) const;
+	QuickModVersionPtr modVersion(const QuickModUid &modUid, const QString &versionName) const;
+	QuickModVersionPtr latestVersion(const QuickModUid &modUid, const QString &mcVersion) const;
 
 	void markModAsExists(QuickModPtr mod, const BaseVersionPtr version, const QString &fileName);
 	void markModAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
@@ -89,9 +91,9 @@ public:
 	bool isWebsiteTrusted(const QUrl &url) const;
 	void setWebsiteTrusted(const QUrl &url, const bool trusted);
 
-	bool haveUid(const QString &uid) const;
+	bool haveUid(const QuickModUid &uid) const;
 
-	QList<QuickModPtr> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;
+	QList<QuickModUid> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;
 
 public
 slots:
