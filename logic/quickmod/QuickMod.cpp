@@ -142,7 +142,7 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	}
 	qSort(m_versions.begin(), m_versions.end(),
 		  [](const QuickModVersionPtr v1, const QuickModVersionPtr v2)
-	{ return Util::Version(v1->name()) < Util::Version(v2->name()); });
+	{ return Util::Version(v1->name()) > Util::Version(v2->name()); });
 
 	if (!m_uid.isValid())
 	{
