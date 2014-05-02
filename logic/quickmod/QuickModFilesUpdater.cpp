@@ -1,3 +1,18 @@
+/* Copyright 2013 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "QuickModFilesUpdater.h"
 
 #include <QFile>
@@ -31,7 +46,8 @@ QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list) : QObject(list),
 void QuickModFilesUpdater::registerFile(const QUrl &url)
 {
 	auto job = new NetJob("QuickMod download");
-	auto download = ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+	auto download =
+		ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
 	download->m_followRedirects = true;
 	connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
 	connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
@@ -52,7 +68,8 @@ void QuickModFilesUpdater::update()
 		auto url = m_list->modAt(i)->updateUrl();
 		if (url.isValid())
 		{
-			auto download = ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+			auto download =
+				ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
 			download->m_followRedirects = true;
 			connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
 			connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
@@ -108,8 +125,9 @@ void QuickModFilesUpdater::receivedMod(int notused)
 
 	try
 	{
-		QFile file(m_quickmodDir.absoluteFilePath(fileName(MMCJson::ensureString(
-			MMCJson::ensureObject(MMCJson::parseDocument(download->m_data, QString())).value("uid")))));
+		QFile file(
+			m_quickmodDir.absoluteFilePath(fileName(MMCJson::ensureString(MMCJson::ensureObject(
+				MMCJson::parseDocument(download->m_data, QString())).value("uid")))));
 		if (file.open(QFile::ReadOnly))
 		{
 			if (file.readAll() == download->m_data)

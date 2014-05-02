@@ -32,9 +32,13 @@ public:
 
 	bool add(OneSixInstance *to) override;
 
-	QString id() const override { return m_version->mod->uid().toString(); }
+	QString id() const override
+	{
+		return m_version->mod->uid().toString();
+	}
 
-	ProgressProvider *createInstallTask(OneSixInstance *instance, BaseVersionPtr version, QObject *parent) override;
+	ProgressProvider *createInstallTask(OneSixInstance *instance, BaseVersionPtr version,
+										QObject *parent) override;
 
 private:
 	QuickModVersionPtr m_version;

@@ -1,3 +1,18 @@
+/* Copyright 2013 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "QuickModInstaller.h"
 
 #include <QMessageBox>
@@ -15,7 +30,6 @@
 QuickModInstaller::QuickModInstaller(QWidget *widgetParent, QObject *parent)
 	: QObject(parent), m_widgetParent(widgetParent)
 {
-
 }
 
 static QDir dirEnsureExists(const QString &dir, const QString &path)
@@ -54,14 +68,17 @@ static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 
 void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance)
 {
-	QMap<QString, QString> otherVersions = MMC->quickmodslist()->installedModFiles(version->mod, instance);
+	QMap<QString, QString> otherVersions =
+		MMC->quickmodslist()->installedModFiles(version->mod, instance);
 	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)
 	{
 		if (!QFile::remove(it.value()))
 		{
-			QLOG_ERROR() << "Unable to remove previous version file" << it.value() << ", this may cause problems";
+			QLOG_ERROR() << "Unable to remove previous version file" << it.value()
+						 << ", this may cause problems";
 		}
-		MMC->quickmodslist()->markModAsUninstalled(version->mod, version->mod->version(it.key()), instance);
+		MMC->quickmodslist()->markModAsUninstalled(version->mod,
+												   version->mod->version(it.key()), instance);
 	}
 
 	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
@@ -96,8 +113,8 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		return;
 	}
 
-	if (version->installType == QuickModVersion::Extract
-			|| version->installType == QuickModVersion::ConfigPack)
+	if (version->installType == QuickModVersion::Extract ||
+		version->installType == QuickModVersion::ConfigPack)
 	{
 		QFileInfo finfo(file);
 		// TODO more file formats. KArchive?
@@ -108,7 +125,8 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		}
 		else
 		{
-			throw new MMCError(tr("Error: Trying to extract an unknown file type %1").arg(finfo.completeSuffix()));
+			throw new MMCError(tr("Error: Trying to extract an unknown file type %1")
+								   .arg(finfo.completeSuffix()));
 		}
 	}
 	else
@@ -142,7 +160,8 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 	}
 }
 
-void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteArray &data, const QUrl &url)
+void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteArray &data,
+									   const QUrl &url)
 {
 	QDir dir;
 	switch (version->installType)
@@ -171,7 +190,8 @@ void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteAr
 	QFile file(dir.absoluteFilePath(fileName(version, url)));
 	if (!file.open(QFile::WriteOnly | QFile::Truncate))
 	{
-		throw new MMCError(tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
+		throw new MMCError(
+			tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
 		return;
 	}
 	file.write(data);

@@ -1,3 +1,18 @@
+/* Copyright 2013 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "QuickModBrowseDialog.h"
 #include "ui_QuickModBrowseDialog.h"
 
@@ -41,7 +56,6 @@ bool listContainsSubstring(const QStringList &list, const QString &str)
 }
 
 // }}}
-
 
 // {{{ Model classes
 
@@ -165,15 +179,15 @@ class CheckboxProxyModel : public QIdentityProxyModel
 {
 	Q_OBJECT
 public:
-	CheckboxProxyModel(QObject *parent)
-		: QIdentityProxyModel(parent)
+	CheckboxProxyModel(QObject *parent) : QIdentityProxyModel(parent)
 	{
 	}
 
 	void setSourceModel(QAbstractItemModel *model)
 	{
 		QIdentityProxyModel::setSourceModel(model);
-		connect(model, &QAbstractItemModel::modelReset, [this](){m_items.clear();});
+		connect(model, &QAbstractItemModel::modelReset, [this]()
+		{ m_items.clear(); });
 	}
 
 	QList<QuickModUid> getCheckedItems() const
@@ -213,7 +227,10 @@ public:
 	{
 		if (proxyIndex.isValid() && role == Qt::CheckStateRole)
 		{
-			return m_items.contains(proxyIndex.data(QuickModsList::UidRole).value<QuickModUid>()) ? Qt::Checked : Qt::Unchecked;
+			return m_items.contains(
+					   proxyIndex.data(QuickModsList::UidRole).value<QuickModUid>())
+					   ? Qt::Checked
+					   : Qt::Unchecked;
 		}
 		return QIdentityProxyModel::data(proxyIndex, role);
 	}
@@ -224,15 +241,14 @@ private:
 
 // }}}
 
-
 // {{{ Initialization and updating
 
 // {{{ Constructor/destructor
 
 QuickModBrowseDialog::QuickModBrowseDialog(InstancePtr instance, QWidget *parent)
-	: QDialog(parent), ui(new Ui::QuickModBrowseDialog), m_currentMod(0),
-	  m_instance(instance), m_view(new QListView(this)),
-	  m_filterModel(new ModFilterProxyModel(this)), m_checkModel(new CheckboxProxyModel(this))
+	: QDialog(parent), ui(new Ui::QuickModBrowseDialog), m_currentMod(0), m_instance(instance),
+	  m_view(new QListView(this)), m_filterModel(new ModFilterProxyModel(this)),
+	  m_checkModel(new CheckboxProxyModel(this))
 {
 	ui->setupUi(this);
 
@@ -317,7 +333,6 @@ void QuickModBrowseDialog::setupComboBoxes()
 
 // }}}
 
-
 // {{{ Event handling
 
 // {{{ Buttons
@@ -325,7 +340,8 @@ void QuickModBrowseDialog::setupComboBoxes()
 void QuickModBrowseDialog::on_installButton_clicked()
 {
 	auto items = m_checkModel->getCheckedItems();
-	auto alreadySelected = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+	auto alreadySelected =
+		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	for (auto mod : alreadySelected.keys())
 	{
 		items.removeAll(mod);
@@ -415,7 +431,7 @@ void QuickModBrowseDialog::on_mcVersionBox_currentTextChanged()
 // {{{ List selection
 
 void QuickModBrowseDialog::modSelectionChanged(const QItemSelection &selected,
-												 const QItemSelection &deselected)
+											   const QItemSelection &deselected)
 {
 	if (m_currentMod)
 	{

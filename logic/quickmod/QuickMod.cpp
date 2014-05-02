@@ -1,3 +1,18 @@
+/* Copyright 2013 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "QuickMod.h"
 
 #include <QJsonDocument>
@@ -13,12 +28,10 @@
 #include "modutils.h"
 #include "logic/MMCJson.h"
 
-QuickModUid::QuickModUid()
-	: m_uid(QString())
+QuickModUid::QuickModUid() : m_uid(QString())
 {
 }
-QuickModUid::QuickModUid(const QString &uid)
-	: m_uid(uid)
+QuickModUid::QuickModUid(const QString &uid) : m_uid(uid)
 {
 }
 QString QuickModUid::toString() const
@@ -43,8 +56,7 @@ uint qHash(const QuickModUid &uid)
 	return qHash(uid.toString());
 }
 
-QuickMod::QuickMod(QObject *parent)
-	: QObject(parent), m_imagesLoaded(false)
+QuickMod::QuickMod(QObject *parent) : QObject(parent), m_imagesLoaded(false)
 {
 }
 
@@ -105,7 +117,8 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	const QJsonObject references = mod.value("references").toObject();
 	for (auto key : references.keys())
 	{
-		m_references.insert(QuickModUid(key), Util::expandQMURL(MMCJson::ensureString(references[key], "'reference'")));
+		m_references.insert(QuickModUid(key), Util::expandQMURL(MMCJson::ensureString(
+												  references[key], "'reference'")));
 	}
 	m_categories.clear();
 	for (auto val : mod.value("categories").toArray())
@@ -117,7 +130,8 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	{
 		m_tags.append(MMCJson::ensureString(val, "'tag'"));
 	}
-	m_updateUrl = Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
+	m_updateUrl =
+		Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
 
 	m_versions.clear();
 	for (auto val : MMCJson::ensureArray(mod.value("versions"), "'versions'"))
@@ -126,18 +140,19 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 		ptr->parse(MMCJson::ensureObject(val, "version"));
 		m_versions.append(ptr);
 	}
-	qSort(m_versions.begin(), m_versions.end(), [](const QuickModVersionPtr v1, const QuickModVersionPtr v2)
-	{
-		return Util::Version(v1->name()) < Util::Version(v2->name());
-	});
+	qSort(m_versions.begin(), m_versions.end(),
+		  [](const QuickModVersionPtr v1, const QuickModVersionPtr v2)
+	{ return Util::Version(v1->name()) < Util::Version(v2->name()); });
 
 	if (!m_uid.isValid())
 	{
-		throw QuickModParseError("The 'uid' field in the QuickMod file for " + m_name + " is empty");
+		throw QuickModParseError("The 'uid' field in the QuickMod file for " + m_name +
+								 " is empty");
 	}
 	if (m_repo.isEmpty())
 	{
-		throw QuickModParseError("The 'repo' field in the QuickMod file for " + m_name + " is empty");
+		throw QuickModParseError("The 'repo' field in the QuickMod file for " + m_name +
+								 " is empty");
 	}
 }
 
@@ -215,7 +230,8 @@ QStringList QuickMod::mcVersions()
 		{
 			for (QString mcv : quickModV->compatibleVersions)
 			{
-				if (!mcvs.contains(mcv)) mcvs.append(mcv);
+				if (!mcvs.contains(mcv))
+					mcvs.append(mcv);
 			}
 		}
 		m_mcVersionListCache << mcvs;

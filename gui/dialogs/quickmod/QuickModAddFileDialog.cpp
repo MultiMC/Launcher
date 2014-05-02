@@ -77,7 +77,8 @@ QuickModAddFileDialog::QuickModAddFileDialog(QWidget *parent)
 	ui->fileEdit->setValidator(new FileValidator(this));
 	ui->urlEdit->setValidator(new UrlValidator(this));
 
-	QCompleter *urlCompleter = new QCompleter(QStringList() << "github://02JanDal@QuickMod/index.json", this);
+	QCompleter *urlCompleter =
+		new QCompleter(QStringList() << "github://02JanDal@QuickMod/index.json", this);
 	urlCompleter->setCompletionMode(QCompleter::PopupCompletion);
 	ui->urlEdit->setCompleter(urlCompleter);
 
@@ -142,7 +143,7 @@ void QuickModAddFileDialog::on_browseButton_clicked()
 
 	QStringList fileNames =
 		QFileDialog::getOpenFileNames(this, tr("Add QuickMod File"), ui->fileEdit->text(),
-									 tr("QuickMod files (*.quickmod *.json)"));
+									  tr("QuickMod files (*.quickmod *.json)"));
 	if (!fileNames.isEmpty())
 	{
 		ui->fileEdit->setText(fileNames.join(';'));
@@ -155,7 +156,8 @@ void QuickModAddFileDialog::on_fileEdit_textChanged(const QString &)
 	{
 		QString input = ui->fileEdit->text();
 		int pos = ui->fileEdit->cursorPosition();
-		ui->addButton->setEnabled(ui->fileEdit->validator()->validate(input, pos) == QValidator::Acceptable);
+		ui->addButton->setEnabled(ui->fileEdit->validator()->validate(input, pos) ==
+								  QValidator::Acceptable);
 		ui->fileEdit->setText(input);
 		ui->fileEdit->setCursorPosition(pos);
 	}

@@ -70,7 +70,9 @@ bool QuickModLibraryInstaller::add(OneSixInstance *to)
 	return true;
 }
 
-ProgressProvider *QuickModLibraryInstaller::createInstallTask(OneSixInstance *instance, BaseVersionPtr version, QObject *parent)
+ProgressProvider *QuickModLibraryInstaller::createInstallTask(OneSixInstance *instance,
+															  BaseVersionPtr version,
+															  QObject *parent)
 {
 	return 0;
 }

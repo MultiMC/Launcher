@@ -1,3 +1,18 @@
+/* Copyright 2013 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "QuickModDownloadTask.h"
 
 #include <QMessageBox>
@@ -17,21 +32,26 @@
 QuickModDownloadTask::QuickModDownloadTask(InstancePtr instance, QObject *parent)
 	: Task(parent), m_instance(instance)
 {
-
 }
 
 void QuickModDownloadTask::executeTask()
 {
-	const QMap<QuickModUid, QString> quickmods = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+	const QMap<QuickModUid, QString> quickmods =
+		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
 	QList<QuickModUid> mods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
-		QuickModPtr mod = it.value().isEmpty() ? list->mods(it.key()).first() : list->modVersion(it.key(), it.value())->mod;
+		QuickModPtr mod = it.value().isEmpty() ? list->mods(it.key()).first()
+											   : list->modVersion(it.key(), it.value())->mod;
 		if (mod == 0)
 		{
 			// TODO fetch info from somewhere?
-			int answer = QMessageBox::warning(0, tr("Mod not available"), tr("You seem to be missing the QuickMod file for %1. Skip it?").arg(it.key().toString()), QMessageBox::No, QMessageBox::Yes);
+			int answer = QMessageBox::warning(
+				0, tr("Mod not available"),
+				tr("You seem to be missing the QuickMod file for %1. Skip it?")
+					.arg(it.key().toString()),
+				QMessageBox::No, QMessageBox::Yes);
 			if (answer == QMessageBox::No)
 			{
 				emitFailed(tr("Missing %1").arg(it.key().toString()));
@@ -77,7 +97,9 @@ void QuickModDownloadTask::executeTask()
 		}
 		else
 		{
-			QLOG_ERROR() << "Couldn't open" << f.fileName() << ". This means that stuff will be downloaded on every instance launch";
+			QLOG_ERROR()
+				<< "Couldn't open" << f.fileName()
+				<< ". This means that stuff will be downloaded on every instance launch";
 		}
 
 		emitSucceeded();

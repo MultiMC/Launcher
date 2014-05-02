@@ -1,3 +1,18 @@
+/* Copyright 2013 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "QuickModsList.h"
 
 #include <QMimeData>
@@ -45,7 +60,6 @@ QuickModsList::~QuickModsList()
 {
 	delete m_settings;
 }
-
 
 int QuickModsList::getQMIndex(QuickModPtr mod) const
 {
@@ -179,7 +193,7 @@ bool QuickModsList::dropMimeData(const QMimeData *data, Qt::DropAction action, i
 	}
 	else if (data->hasUrls())
 	{
-		for (const QUrl & url : data->urls())
+		for (const QUrl &url : data->urls())
 		{
 			registerMod(url);
 		}
@@ -229,7 +243,8 @@ QList<QuickModPtr> QuickModsList::mods(const QuickModUid &uid) const
 	}
 	return out;
 }
-QuickModVersionPtr QuickModsList::modVersion(const QuickModUid &modUid, const QString &versionName) const
+QuickModVersionPtr QuickModsList::modVersion(const QuickModUid &modUid,
+											 const QString &versionName) const
 {
 	for (auto mod : mods(modUid))
 	{
@@ -241,7 +256,8 @@ QuickModVersionPtr QuickModsList::modVersion(const QuickModUid &modUid, const QS
 	return 0;
 }
 
-QuickModVersionPtr QuickModsList::latestVersion(const QuickModUid &modUid, const QString &mcVersion) const
+QuickModVersionPtr QuickModsList::latestVersion(const QuickModUid &modUid,
+												const QString &mcVersion) const
 {
 	QuickModVersionPtr latest;
 	for (auto mod : mods(modUid))
@@ -313,9 +329,10 @@ bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const QString &version)
 {
 	auto mods = m_settings->get("AvailableMods").toMap();
 	return mods.contains(mod->internalUid()) &&
-			mods.value(mod->internalUid()).toMap().contains(version);
+		   mods.value(mod->internalUid()).toMap().contains(version);
 }
-QMap<QString, QString> QuickModsList::installedModFiles(QuickModPtr mod, InstancePtr instance) const
+QMap<QString, QString> QuickModsList::installedModFiles(QuickModPtr mod,
+														InstancePtr instance) const
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
 	auto tmp = mods[mod->uid().toString()].toMap();
@@ -371,11 +388,14 @@ bool QuickModsList::haveUid(const QuickModUid &uid) const
 	return false;
 }
 
-QList<QuickModUid> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const
+QList<QuickModUid>
+QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const
 {
 	QList<QuickModUid> mods;
-	std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(instance);
-	for (auto it = onesix->getFullVersion()->quickmods.begin(); it != onesix->getFullVersion()->quickmods.end(); ++it)
+	std::shared_ptr<OneSixInstance> onesix =
+		std::dynamic_pointer_cast<OneSixInstance>(instance);
+	for (auto it = onesix->getFullVersion()->quickmods.begin();
+		 it != onesix->getFullVersion()->quickmods.end(); ++it)
 	{
 		if (it.value().isEmpty())
 		{
@@ -469,12 +489,12 @@ void QuickModsList::removeMod(QuickModPtr mod)
 
 void QuickModsList::modIconUpdated()
 {
-	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickMod*>(sender()))), 0);
+	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickMod *>(sender()))), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << Qt::DecorationRole << IconRole);
 }
 void QuickModsList::modLogoUpdated()
 {
-	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickMod*>(sender()))), 0);
+	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickMod *>(sender()))), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << LogoRole);
 }
 

@@ -1,3 +1,18 @@
+/* Copyright 2013 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "QuickModInstallDialog.h"
 #include "ui_QuickModInstallDialog.h"
 
@@ -28,7 +43,6 @@
 #include "logic/quickmod/QuickModInstaller.h"
 
 Q_DECLARE_METATYPE(QTreeWidgetItem *)
-
 
 // {{{ Data structures and classes
 
@@ -79,11 +93,11 @@ public:
 
 // }}}
 
-
 // {{{ Initialization and updating
 
 QuickModInstallDialog::QuickModInstallDialog(InstancePtr instance, QWidget *parent)
-	: QDialog(parent), ui(new Ui::QuickModInstallDialog), m_installer(new QuickModInstaller(this, this)), m_instance(instance)
+	: QDialog(parent), ui(new Ui::QuickModInstallDialog),
+	  m_installer(new QuickModInstaller(this, this)), m_instance(instance)
 {
 	ui->setupUi(this);
 	setWindowModality(Qt::WindowModal);
@@ -106,11 +120,10 @@ QuickModInstallDialog::~QuickModInstallDialog()
 
 // }}}
 
-
 // {{{ Utility functions
 
 // {{{ Progress list
-void QuickModInstallDialog::addProgressListEntry(QuickModVersionPtr version, const QString& url)
+void QuickModInstallDialog::addProgressListEntry(QuickModVersionPtr version, const QString &url)
 {
 	auto item = new QTreeWidgetItem(ui->progressList);
 	m_progressEntries.insert(version.get(), item);
@@ -122,13 +135,14 @@ void QuickModInstallDialog::addProgressListEntry(QuickModVersionPtr version, con
 	item->setText(3, tr("Download waiting."));
 }
 
-void QuickModInstallDialog::setProgressListUrl(QuickModVersionPtr version, const QString& url)
+void QuickModInstallDialog::setProgressListUrl(QuickModVersionPtr version, const QString &url)
 {
 	auto item = itemForVersion(version);
 	item->setText(2, url);
 }
 
-void QuickModInstallDialog::setProgressListMsg(QuickModVersionPtr version, const QString& msg, const QColor& color)
+void QuickModInstallDialog::setProgressListMsg(QuickModVersionPtr version, const QString &msg,
+											   const QColor &color)
 {
 	auto item = itemForVersion(version);
 	item->setData(3, ExtraRoles::IgnoreRole, true);
@@ -136,7 +150,8 @@ void QuickModInstallDialog::setProgressListMsg(QuickModVersionPtr version, const
 	item->setData(3, Qt::ForegroundRole, color);
 }
 
-void QuickModInstallDialog::setVersionProgress(QuickModVersionPtr version, qint64 current, qint64 max)
+void QuickModInstallDialog::setVersionProgress(QuickModVersionPtr version, qint64 current,
+											   qint64 max)
 {
 	auto item = itemForVersion(version);
 	item->setData(3, ExtraRoles::IgnoreRole, false);
@@ -150,7 +165,7 @@ void QuickModInstallDialog::setShowProgressBar(QuickModVersionPtr version, bool 
 	item->setData(3, ExtraRoles::IgnoreRole, !show);
 }
 
-QTreeWidgetItem* QuickModInstallDialog::itemForVersion(QuickModVersionPtr version) const
+QTreeWidgetItem *QuickModInstallDialog::itemForVersion(QuickModVersionPtr version) const
 {
 	return m_progressEntries.value(version.get());
 }
@@ -173,8 +188,10 @@ bool QuickModInstallDialog::checkIsDone()
 
 void QuickModInstallDialog::setWebViewShown(bool shown)
 {
-	if (shown) ui->downloadSplitter->setSizes(QList<int>({100, 500}));
-	else       ui->downloadSplitter->setSizes(QList<int>({100, 0}));
+	if (shown)
+		ui->downloadSplitter->setSizes(QList<int>({100, 500}));
+	else
+		ui->downloadSplitter->setSizes(QList<int>({100, 0}));
 }
 
 void QuickModInstallDialog::setInitialMods(const QList<QuickModUid> mods)
@@ -184,7 +201,6 @@ void QuickModInstallDialog::setInitialMods(const QList<QuickModUid> mods)
 // }}}
 
 // }}}
-
 
 // {{{ Installer execution
 
@@ -196,7 +212,8 @@ int QuickModInstallDialog::exec()
 
 	if (!downloadDeps())
 	{
-		QMessageBox::critical(this, tr("Error"), tr("Failed to download QuickMod dependencies."));
+		QMessageBox::critical(this, tr("Error"),
+							  tr("Failed to download QuickMod dependencies."));
 		return QDialog::Rejected;
 	}
 	if (resolveDeps())
@@ -216,7 +233,7 @@ int QuickModInstallDialog::exec()
 
 	if (checkIsDone())
 	{
-		//displayMessage(tr("No mods need to be downloaded."));
+		// displayMessage(tr("No mods need to be downloaded."));
 		return QDialog::exec();
 	}
 
@@ -240,7 +257,8 @@ bool QuickModInstallDialog::downloadDeps()
 	// download all dependency files so they are ready for the dependency resolution
 	ProgressDialog dialog(this);
 	auto task = new QuickModDependencyDownloadTask(m_initialMods, this);
-	return dialog.exec(task) != QDialog::Rejected; // Is this really the best way to check for failure?
+	return dialog.exec(task) !=
+		   QDialog::Rejected; // Is this really the best way to check for failure?
 }
 
 bool QuickModInstallDialog::resolveDeps()
@@ -300,7 +318,8 @@ void QuickModInstallDialog::processVersionList()
 		{
 			QLOG_INFO() << version->mod->uid() << " exists already. Only installing.";
 			install(version);
-			setProgressListMsg(version, tr("Success: Installed from cache."), QColor(Qt::darkGreen));
+			setProgressListMsg(version, tr("Success: Installed from cache."),
+							   QColor(Qt::darkGreen));
 			m_modVersions.removeAll(version);
 		}
 
@@ -334,8 +353,10 @@ void QuickModInstallDialog::runDirectDownloads()
 // {{{ Webpage mod downloads
 void QuickModInstallDialog::downloadNextMod()
 {
-	if (checkIsDone()) return;
-	if (m_modVersions.isEmpty()) return;
+	if (checkIsDone())
+		return;
+	if (m_modVersions.isEmpty())
+		return;
 
 	auto version = m_modVersions.takeFirst();
 	runWebDownload(version);
@@ -349,7 +370,8 @@ void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 
 	auto navigator = new WebDownloadNavigator(this);
 	navigator->load(version->url);
-	ui->webTabView->addTab(navigator, (QString("%1 %2").arg(version->mod->name(), version->name())));
+	ui->webTabView->addTab(navigator,
+						   (QString("%1 %2").arg(version->mod->name(), version->name())));
 
 	navigator->setProperty("version", QVariant::fromValue(version));
 	connect(navigator, &WebDownloadNavigator::caughtUrl, [this, navigator](QNetworkReply *reply)
@@ -372,7 +394,7 @@ bool QuickModInstallDialog::install(QuickModVersionPtr version)
 	{
 		m_installer->install(version, m_instance);
 	}
-	catch (MMCError* e)
+	catch (MMCError *e)
 	{
 		setProgressListMsg(version, e->cause(), QColor(Qt::red));
 		return false;
@@ -383,7 +405,6 @@ bool QuickModInstallDialog::install(QuickModVersionPtr version)
 // }}}
 
 // }}}
-
 
 // {{{ Event handlers
 
@@ -421,7 +442,8 @@ void QuickModInstallDialog::processReply(QNetworkReply *reply, QuickModVersionPt
 	setProgressListUrl(version, reply->url().toString(QUrl::PrettyDecoded));
 	reply->setProperty("version", QVariant::fromValue(version));
 
-	connect(reply, &QNetworkReply::downloadProgress, this, &QuickModInstallDialog::downloadProgress);
+	connect(reply, &QNetworkReply::downloadProgress, this,
+			&QuickModInstallDialog::downloadProgress);
 	connect(reply, &QNetworkReply::finished, this, &QuickModInstallDialog::downloadCompleted);
 }
 
@@ -430,7 +452,8 @@ void QuickModInstallDialog::downloadProgress(const qint64 current, const qint64 
 	auto reply = qobject_cast<QNetworkReply *>(sender());
 	auto version = reply->property("version").value<QuickModVersionPtr>();
 	setVersionProgress(version, current, max);
-	//ui->progressList->update(ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item), 3));
+	// ui->progressList->update(ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item),
+	// 3));
 }
 
 void QuickModInstallDialog::downloadCompleted()
@@ -445,7 +468,7 @@ void QuickModInstallDialog::downloadCompleted()
 	{
 		m_installer->handleDownload(version, reply->readAll(), reply->url());
 	}
-	catch (MMCError* e)
+	catch (MMCError *e)
 	{
 		setProgressListMsg(version, e->cause(), QColor(Qt::red));
 		fail = true;
@@ -455,7 +478,8 @@ void QuickModInstallDialog::downloadCompleted()
 
 	if (!fail && install(version))
 	{
-		setProgressListMsg(version, tr("Success: Downloaded and installed successfully."), QColor(Qt::darkGreen));
+		setProgressListMsg(version, tr("Success: Downloaded and installed successfully."),
+						   QColor(Qt::darkGreen));
 	}
 
 	checkIsDone();
