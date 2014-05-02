@@ -19,6 +19,8 @@
 #include <QIcon>
 #include <QFileDialog>
 #include <QUrl>
+#include <QCompleter>
+#include <QFileSystemModel>
 
 #include "MultiMC.h"
 #include "gui/Platform.h"
@@ -74,6 +76,16 @@ QuickModAddFileDialog::QuickModAddFileDialog(QWidget *parent)
 
 	ui->fileEdit->setValidator(new FileValidator(this));
 	ui->urlEdit->setValidator(new UrlValidator(this));
+
+	QCompleter *urlCompleter = new QCompleter(QStringList() << "github://02JanDal@QuickMod/index.json", this);
+	urlCompleter->setCompletionMode(QCompleter::PopupCompletion);
+	ui->urlEdit->setCompleter(urlCompleter);
+
+	QFileSystemModel *fileModel = new QFileSystemModel(this);
+	fileModel->setRootPath(QDir::currentPath());
+	QCompleter *fileCompleter = new QCompleter(fileModel, this);
+	fileCompleter->setCompletionMode(QCompleter::InlineCompletion);
+	ui->fileEdit->setCompleter(fileCompleter);
 
 	connect(ui->cancelButton, &QPushButton::clicked, this, &QuickModAddFileDialog::reject);
 
