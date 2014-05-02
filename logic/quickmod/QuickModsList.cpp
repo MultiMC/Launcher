@@ -179,7 +179,7 @@ bool QuickModsList::dropMimeData(const QMimeData *data, Qt::DropAction action, i
 	}
 	else if (data->hasUrls())
 	{
-		foreach(const QUrl & url, data->urls())
+		for (const QUrl & url : data->urls())
 		{
 			registerMod(url);
 		}
@@ -206,7 +206,7 @@ QuickModPtr QuickModsList::modForModId(const QString &modId) const
 	{
 		return 0;
 	}
-	foreach (QuickModPtr mod, m_mods)
+	for (QuickModPtr mod : m_mods)
 	{
 		if (mod->modId() == modId)
 		{
@@ -220,7 +220,7 @@ QList<QuickModPtr> QuickModsList::mods(const QuickModUid &uid) const
 {
 	// TODO repository priority
 	QList<QuickModPtr> out;
-	foreach (QuickModPtr mod, m_mods)
+	for (QuickModPtr mod : m_mods)
 	{
 		if (mod->uid() == uid)
 		{

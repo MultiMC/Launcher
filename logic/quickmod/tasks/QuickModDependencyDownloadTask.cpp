@@ -22,7 +22,7 @@ void QuickModDependencyDownloadTask::executeTask()
 	// TODO we cannot know if this is about us
 	connect(MMC->quickmodslist().get(), &QuickModsList::error, this, &QuickModDependencyDownloadTask::emitFailed);
 
-	foreach(const QuickModUid mod, m_mods)
+	for (const QuickModUid mod : m_mods)
 	{
 		for (auto variant : mod.mods())
 		{

@@ -20,7 +20,7 @@ QuickModVerificationTask::QuickModVerificationTask(const QList<QuickModVersionPt
 void QuickModVerificationTask::executeTask()
 {
 	m_netJob = NetJobPtr(new NetJob(tr("QuickMod verification")));
-	foreach (const QuickModVersionPtr modVersion, m_modVersions)
+	for (const QuickModVersionPtr modVersion : m_modVersions)
 	{
 		if (!modVersion->mod->verifyUrl().isValid())
 		{

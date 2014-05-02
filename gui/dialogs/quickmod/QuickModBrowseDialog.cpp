@@ -18,7 +18,7 @@
 
 template <typename T> bool intersectLists(const QList<T> &l1, const QList<T> &l2)
 {
-	foreach(const T & item, l1)
+	for (const T &item : l1)
 	{
 		if (!l2.contains(item))
 		{
@@ -30,7 +30,7 @@ template <typename T> bool intersectLists(const QList<T> &l1, const QList<T> &l2
 }
 bool listContainsSubstring(const QStringList &list, const QString &str)
 {
-	foreach(const QString & item, list)
+	for (const QString &item : list)
 	{
 		if (item.contains(str))
 		{
@@ -437,27 +437,27 @@ void QuickModBrowseDialog::modSelectionChanged(const QItemSelection &selected,
 	else
 	{
 		m_currentMod = m_filterModel->index(selected.first().top(), 0)
-							.data(QuickModsList::QuickModRole)
-							.value<QuickModPtr>();
+						   .data(QuickModsList::QuickModRole)
+						   .value<QuickModPtr>();
 		ui->nameLabel->setText(m_currentMod->name());
 		ui->descriptionLabel->setText(m_currentMod->description());
 		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>").arg(
 			m_currentMod->websiteUrl().toString(QUrl::FullyEncoded),
 			m_currentMod->websiteUrl().toString(QUrl::PrettyDecoded)));
 		QStringList categories;
-		foreach(const QString & category, m_currentMod->categories())
+		for (const QString &category : m_currentMod->categories())
 		{
 			categories.append(QString("<a href=\"%1\">%1</a>").arg(category));
 		}
 		ui->categoriesLabel->setText(categories.join(", "));
 		QStringList tags;
-		foreach(const QString & tag, m_currentMod->tags())
+		for (const QString &tag : m_currentMod->tags())
 		{
 			tags.append(QString("<a href=\"%1\">%1</a>").arg(tag));
 		}
 		ui->tagsLabel->setText(tags.join(", "));
 		QStringList mcVersions;
-		foreach(const QString &mcv, m_currentMod->mcVersions())
+		for (const QString &mcv : m_currentMod->mcVersions())
 		{
 			mcVersions.append(QString("<a href=\"%1\">%1</a>").arg(mcv));
 		}

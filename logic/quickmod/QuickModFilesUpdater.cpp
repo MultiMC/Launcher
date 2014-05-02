@@ -172,8 +172,8 @@ void QuickModFilesUpdater::readModFiles()
 {
 	QLOG_TRACE() << "Reloading quickmod files";
 	m_list->clearMods();
-	foreach(const QFileInfo & info,
-			m_quickmodDir.entryInfoList(QStringList() << "*.json", QDir::Files))
+	for (const QFileInfo &info :
+		 m_quickmodDir.entryInfoList(QStringList() << "*.json", QDir::Files))
 	{
 		auto mod = QuickModPtr(new QuickMod);
 		if (parseQuickMod(info.absoluteFilePath(), mod))

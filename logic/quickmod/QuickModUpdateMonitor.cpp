@@ -18,7 +18,6 @@ QuickModUpdateMonitor::QuickModUpdateMonitor(std::shared_ptr<InstanceList> insta
 
 void QuickModUpdateMonitor::instanceListRowsInserted(const QModelIndex &parent, const int start, const int end)
 {
-	qDebug() << "###########################################" << start << end;
 	for (int i = start; i < end; ++i)
 	{
 		auto instance = std::dynamic_pointer_cast<OneSixInstance>(m_instanceList->at(i));

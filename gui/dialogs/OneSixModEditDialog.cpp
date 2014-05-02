@@ -376,7 +376,6 @@ void OneSixModEditDialog::on_rmModBtn_clicked()
 	auto tmp = ui->loaderModTreeView->selectionModel()->selectedRows();
 	QModelIndexList quickmods, mods;
 	sortMods(tmp, &quickmods, &mods);
-	qDebug() << quickmods.size() << mods.size();
 
 	// mods
 	{

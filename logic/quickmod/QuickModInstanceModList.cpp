@@ -26,7 +26,6 @@ QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance, std::shar
 		for (int i = first; i < (last + 1); ++i)
 		{
 			auto mod = MMC->quickmodslist()->modAt(i);
-			qDebug() << mod.get();
 			connect(mod.get(), &QuickMod::iconUpdated, this, &QuickModInstanceModList::quickmodIconUpdated);
 		}
 	});

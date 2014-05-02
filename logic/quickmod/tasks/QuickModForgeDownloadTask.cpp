@@ -61,8 +61,8 @@ void QuickModForgeDownloadTask::executeTask()
 		auto task = installer->createInstallTask(std::dynamic_pointer_cast<OneSixInstance>(m_instance).get(), vselect.selectedVersion(), this);
 		connect(task, &Task::progress, [this](qint64 current, qint64 total){setProgress(100 * current / qMax((qint64)1, total));});
 		connect(task, &Task::status, [this](const QString &msg){setStatus(msg);});
-		connect(task, &Task::failed, [this,installer](const QString &reason){delete installer;qDebug("failed");emitFailed(reason);});
-		connect(task, &Task::succeeded, [this,installer](){delete installer;qDebug("succeeded");emitSucceeded();});
+		connect(task, &Task::failed, [this,installer](const QString &reason){delete installer;emitFailed(reason);});
+		connect(task, &Task::succeeded, [this,installer](){delete installer;emitSucceeded();});
 		task->start();
 	}
 	else

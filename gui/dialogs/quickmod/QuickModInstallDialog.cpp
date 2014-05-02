@@ -282,7 +282,7 @@ bool QuickModInstallDialog::resolveDeps()
 // {{{ Process version list
 void QuickModInstallDialog::processVersionList()
 {
-	foreach(QuickModVersionPtr version, m_modVersions)
+	for (QuickModVersionPtr version : m_modVersions)
 	{
 		// TODO: Any installed version should prevent another version from being installed
 		// TODO: Notify the user when this happens.

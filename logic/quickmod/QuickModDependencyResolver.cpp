@@ -24,7 +24,7 @@ QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance, QWi
 
 QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickModUid> &mods)
 {
-	foreach (QuickModUid mod, mods)
+	for (QuickModUid mod : mods)
 	{
 		bool ok;
 		resolve(getVersion(mod, QString(), &ok));

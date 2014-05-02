@@ -66,7 +66,7 @@ QPixmap QuickMod::logo()
 
 QuickModVersionPtr QuickMod::version(const QString &name) const
 {
-	foreach (QuickModVersionPtr ptr, m_versions)
+	for (QuickModVersionPtr ptr : m_versions)
 	{
 		if (ptr->name() == name)
 		{
