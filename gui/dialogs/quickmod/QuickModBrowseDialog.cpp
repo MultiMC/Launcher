@@ -264,6 +264,10 @@ QuickModBrowseDialog::QuickModBrowseDialog(InstancePtr instance, QWidget *parent
 	connect(ui->closeButton, &QPushButton::clicked, this, &QuickModBrowseDialog::reject);
 
 	setupComboBoxes();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+	ui->modInfoArea->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+#endif
 }
 
 QuickModBrowseDialog::~QuickModBrowseDialog()
