@@ -21,6 +21,7 @@ private slots:
 		auto mod = QuickModPtr(new QuickMod);
 		mod->m_name = "testmodname";
 		mod->m_uid = QuickModUid("this.should.be.unique");
+		mod->m_repo = "some.testing.repo";
 		mod->m_description = "test mod description\nsome more";
 		mod->m_websiteUrl = QUrl("http://test.com/");
 		mod->m_iconUrl = QUrl("http://test.com/icon.png");
@@ -101,6 +102,8 @@ private slots:
 		}
 
 		QCOMPARE(parsed->m_name, mod->m_name);
+		QCOMPARE(parsed->m_uid, mod->m_uid);
+		QCOMPARE(parsed->m_repo, mod->m_repo);
 		QCOMPARE(parsed->m_description, mod->m_description);
 		QCOMPARE(parsed->m_websiteUrl, mod->m_websiteUrl);
 		QCOMPARE(parsed->m_iconUrl, mod->m_iconUrl);
@@ -138,8 +141,8 @@ private slots:
 		QTest::addColumn<QuickModPtr>("mod");
 		QTest::addColumn<QString>("result");
 
-		QTest::newRow("jar") << QUrl("http://downloads.org/filename.jar") << TestsInternal::createMod("SomeMod") << "SomeMod.jar";
-		QTest::newRow("jar, with version") << QUrl("https://notthewebpageyouarelookingfor.droids/mymod-4.2.jar") << TestsInternal::createMod("MyMod") << "MyMod.jar";
+		QTest::newRow("jar") << QUrl("http://downloads.org/filename.jar") << TestsInternal::createMod("SomeMod") << "test_repo.SomeMod.jar";
+		QTest::newRow("jar, with version") << QUrl("https://notthewebpageyouarelookingfor.droids/mymod-4.2.jar") << TestsInternal::createMod("MyMod") << "test_repo.MyMod.jar";
 	}
 	void testFileName()
 	{

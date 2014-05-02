@@ -3,6 +3,7 @@
     "description": "test mod description\nsome more",
     "nemName": "nemname",
     "uid": "this.should.be.unique",
+	"repo": "some.testing.repo",
     "modId": "modid",
     "websiteUrl": "http://test.com/",
     "iconUrl": "http://test.com/icon.png",
