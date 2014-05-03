@@ -82,7 +82,7 @@ void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModPtr mod
 	for (auto it = references.begin(); it != references.end(); ++it)
 	{
 		const QuickModUid modUid = it.key();
-		if (MMC->quickmodslist()->mods(modUid).isEmpty())
+		if (!MMC->quickmodslist()->mods(modUid).isEmpty())
 		{
 			return;
 		}

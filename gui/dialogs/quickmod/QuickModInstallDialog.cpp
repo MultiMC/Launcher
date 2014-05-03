@@ -300,14 +300,17 @@ bool QuickModInstallDialog::resolveDeps()
 // {{{ Process version list
 void QuickModInstallDialog::processVersionList()
 {
-	for (QuickModVersionPtr version : m_modVersions)
+	QMutableListIterator<QuickModVersionPtr> it(m_modVersions);
+	while (it.hasNext())
 	{
+		QuickModVersionPtr version = it.next();
+
 		// TODO: Any installed version should prevent another version from being installed
 		// TODO: Notify the user when this happens.
 		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, version, m_instance))
 		{
 			QLOG_INFO() << version->mod->uid() << " is already installed";
-			m_modVersions.removeAll(version);
+			it.remove();
 			continue;
 		}
 
@@ -320,12 +323,12 @@ void QuickModInstallDialog::processVersionList()
 			install(version);
 			setProgressListMsg(version, tr("Success: Installed from cache."),
 							   QColor(Qt::darkGreen));
-			m_modVersions.removeAll(version);
+			it.remove();
 		}
 
 		if (!version->url.isValid())
 		{
-			m_modVersions.removeAll(version);
+			it.remove();
 			setProgressListMsg(version, tr("Error: Invalid URL."), QColor(Qt::red));
 		}
 	}
@@ -461,6 +464,17 @@ void QuickModInstallDialog::downloadCompleted()
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 	m_downloadingUrls.removeAll(reply->url());
 	auto version = reply->property("version").value<QuickModVersionPtr>();
+
+	// redirection
+	const QVariant location = reply->header(QNetworkRequest::LocationHeader);
+	if (location.isValid())
+	{
+		const QUrl locationUrl = QUrl(location.toString());
+		processReply(MMC->qnam()->get(QNetworkRequest(locationUrl)), version);
+		m_downloadingUrls.append(locationUrl);
+		return;
+	}
+
 	setProgressListMsg(version, tr("Installing"));
 
 	bool fail = false;

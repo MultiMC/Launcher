@@ -116,6 +116,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 	if (version->installType == QuickModVersion::Extract ||
 		version->installType == QuickModVersion::ConfigPack)
 	{
+		QLOG_INFO() << "Extracting" << file << "to" << finalDir.absolutePath();
 		QFileInfo finfo(file);
 		// TODO more file formats. KArchive?
 		const QMimeType mimeType = QMimeDatabase().mimeTypeForFile(finfo);

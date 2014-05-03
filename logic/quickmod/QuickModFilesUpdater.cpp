@@ -47,7 +47,7 @@ void QuickModFilesUpdater::registerFile(const QUrl &url)
 {
 	auto job = new NetJob("QuickMod download");
 	auto download =
-		ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+			ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
 	download->m_followRedirects = true;
 	connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
 	connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
@@ -69,7 +69,7 @@ void QuickModFilesUpdater::update()
 		if (url.isValid())
 		{
 			auto download =
-				ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+					ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
 			download->m_followRedirects = true;
 			connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
 			connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
@@ -95,12 +95,12 @@ void QuickModFilesUpdater::receivedMod(int notused)
 			{
 				const QJsonObject itemObj = (*it).toObject();
 				const QString baseUrlString =
-					MMCJson::ensureUrl(obj.value("baseUrl")).toString();
+						MMCJson::ensureString(obj.value("baseUrl"));
 				// FIXME should check if the have uid + repo, not only uid
 				if (!m_list->haveUid(QuickModUid(MMCJson::ensureString(itemObj.value("uid")))))
 				{
 					const QString urlString =
-						MMCJson::ensureUrl(itemObj.value("url")).toString();
+							MMCJson::ensureString(itemObj.value("url"));
 					QUrl url;
 					if (baseUrlString.contains("{}"))
 					{
@@ -109,7 +109,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 					else
 					{
 						url = Util::expandQMURL(baseUrlString)
-								  .resolved(Util::expandQMURL(urlString));
+								.resolved(Util::expandQMURL(urlString));
 					}
 					registerFile(url);
 				}
@@ -126,8 +126,8 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	try
 	{
 		QFile file(
-			m_quickmodDir.absoluteFilePath(fileName(MMCJson::ensureString(MMCJson::ensureObject(
-				MMCJson::parseDocument(download->m_data, QString())).value("uid")))));
+					m_quickmodDir.absoluteFilePath(fileName(MMCJson::ensureString(MMCJson::ensureObject(
+																					  MMCJson::parseDocument(download->m_data, QString())).value("uid")))));
 		if (file.open(QFile::ReadOnly))
 		{
 			if (file.readAll() == download->m_data)
@@ -170,7 +170,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	{
 		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
 		emit error(
-			tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
+					tr("Error opening %1 for writing: %2").arg(file.fileName(), file.errorString()));
 		return;
 	}
 	file.write(download->m_data);
@@ -219,7 +219,7 @@ bool QuickModFilesUpdater::parseQuickMod(const QString &fileName, QuickModPtr mo
 	{
 		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
 		emit error(
-			tr("Error opening %1 for reading: %2").arg(file.fileName(), file.errorString()));
+					tr("Error opening %1 for reading: %2").arg(file.fileName(), file.errorString()));
 		return false;
 	}
 
