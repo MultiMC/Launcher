@@ -158,6 +158,14 @@ QUrl Util::expandQMURL(const QString &in)
 		out.setPath(QString("/topic/%1-").arg(inUrl.path()));
 		return out;
 	}
+	else if (inUrl.scheme() == "curse")
+	{
+		QUrl out;
+		out.setScheme("http");
+		out.setHost("www.curse.com");
+		out.setPath(QString("/mc-mods/minecraft/%1").arg(inUrl.path()));
+		return out;
+	}
 	else
 	{
 		return in;

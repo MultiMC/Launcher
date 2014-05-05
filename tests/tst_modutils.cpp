@@ -90,6 +90,10 @@ private slots:
 		QTest::newRow("mcf")
 				<< "mcf:123456"
 				<< "http://www.minecraftforum.net/topic/123456-";
+
+		QTest::newRow("curse")
+				<< "curse:buildcraft"
+				<< "http://www.curse.com/mc-mods/minecraft/buildcraft";
 	}
 	void test_expandQMURL()
 	{
