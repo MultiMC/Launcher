@@ -47,7 +47,7 @@ void QuickModFilesUpdater::registerFile(const QUrl &url)
 {
 	auto job = new NetJob("QuickMod download");
 	auto download =
-			ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+			ByteArrayDownload::make(url);
 	download->m_followRedirects = true;
 	connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
 	connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));

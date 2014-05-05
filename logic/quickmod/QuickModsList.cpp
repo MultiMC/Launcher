@@ -189,7 +189,7 @@ bool QuickModsList::dropMimeData(const QMimeData *data, Qt::DropAction action, i
 
 	if (data->hasText())
 	{
-		registerMod(data->text().toUtf8());
+		registerMod(Util::expandQMURL(data->text()));
 	}
 	else if (data->hasUrls())
 	{

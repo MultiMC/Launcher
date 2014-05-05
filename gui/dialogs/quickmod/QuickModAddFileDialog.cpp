@@ -25,6 +25,7 @@
 #include "MultiMC.h"
 #include "gui/Platform.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "modutils.h"
 
 class FileValidator : public QValidator
 {
@@ -117,7 +118,7 @@ void QuickModAddFileDialog::run(QWidget *parent)
 		}
 		else
 		{
-			MMC->quickmodslist()->registerMod(QUrl(dialog.ui->urlEdit->text()));
+			MMC->quickmodslist()->registerMod(Util::expandQMURL(dialog.ui->urlEdit->text()));
 		}
 	}
 }
