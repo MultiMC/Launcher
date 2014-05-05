@@ -38,9 +38,9 @@ private slots:
 		mod->m_uid = QuickModUid("this.should.be.unique");
 		mod->m_repo = "some.testing.repo";
 		mod->m_description = "test mod description\nsome more";
-		mod->m_websiteUrl = QUrl("http://test.com/");
-		mod->m_iconUrl = QUrl("http://test.com/icon.png");
-		mod->m_logoUrl = QUrl("http://test.com/logo.png");
+		mod->m_urls["website"] = QUrl("http://test.com/");
+		mod->m_urls["icon"] = QUrl("http://test.com/icon.png");
+		mod->m_urls["logo"] = QUrl("http://test.com/logo.png");
 		mod->m_updateUrl = QUrl("http://test.com/testmodname.json");
 		mod->m_references = {{QuickModUid("OtherName"),QUrl("http://other.com/othername.json")}, {QuickModUid("Other2Name"),QUrl("https://other2.com/other2name.json")},
 							 {QuickModUid("stuff"),QUrl("https://stuff.org/stuff.json")}, {QuickModUid("TheWikipediaMod"),QUrl("ftp://wikipedia.org/thewikipediamod.quickmod")}};
@@ -48,6 +48,7 @@ private slots:
 		mod->m_modId = "modid";
 		mod->m_categories << "cat" << "grep" << "ls" << "cp";
 		mod->m_tags << "tag" << "tictactoe";
+		mod->m_license = "WTFPL";
 		return mod;
 	}
 	QuickModVersionPtr createTestingVersion()
@@ -120,15 +121,16 @@ private slots:
 		QCOMPARE(parsed->m_uid, mod->m_uid);
 		QCOMPARE(parsed->m_repo, mod->m_repo);
 		QCOMPARE(parsed->m_description, mod->m_description);
-		QCOMPARE(parsed->m_websiteUrl, mod->m_websiteUrl);
-		QCOMPARE(parsed->m_iconUrl, mod->m_iconUrl);
-		QCOMPARE(parsed->m_logoUrl, mod->m_logoUrl);
+		QCOMPARE(parsed->websiteUrl(), mod->websiteUrl());
+		QCOMPARE(parsed->iconUrl(), mod->iconUrl());
+		QCOMPARE(parsed->logoUrl(), mod->logoUrl());
 		QCOMPARE(parsed->m_updateUrl, mod->m_updateUrl);
 		QCOMPARE(parsed->m_references, mod->m_references);
 		QCOMPARE(parsed->m_nemName, mod->m_nemName);
 		QCOMPARE(parsed->m_modId, mod->m_modId);
 		QCOMPARE(parsed->m_categories, mod->m_categories);
 		QCOMPARE(parsed->m_tags, mod->m_tags);
+		QCOMPARE(parsed->m_license, mod->m_license);
 
 		QuickModVersionPtr parsedVersion = parsed->versions().first();
 		QuickModVersionPtr version = mod->versions().first();

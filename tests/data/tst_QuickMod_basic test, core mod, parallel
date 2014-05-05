@@ -4,10 +4,13 @@
     "nemName": "nemname",
     "uid": "this.should.be.unique",
 	"repo": "some.testing.repo",
-    "modId": "modid",
-    "websiteUrl": "http://test.com/",
-    "iconUrl": "http://test.com/icon.png",
-    "logoUrl": "http://test.com/logo.png",
+	"modId": "modid",
+	"urls": [
+		{ "type": "website", "url": "http://test.com/" },
+		{ "type": "icon", "url": "http://test.com/icon.png" },
+		{ "type": "logo", "url": "http://test.com/logo.png" }
+	],
+	"license": "WTFPL",
     "updateUrl": "http://test.com/testmodname.json",
     "versionsUrl": "http://test.com/testmodname.versions.json",
     "references": {

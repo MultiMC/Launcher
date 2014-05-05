@@ -86,6 +86,18 @@ public:
 		return !m_name.isEmpty();
 	}
 
+	enum UrlType
+	{
+		Website,
+		Wiki,
+		Forum,
+		Donation,
+		Issues,
+		Source,
+		Icon,
+		Logo
+	};
+
 	QuickModUid uid() const
 	{
 		return m_uid;
@@ -106,9 +118,10 @@ public:
 	{
 		return m_description;
 	}
+	QUrl url(const UrlType type) const;
 	QUrl websiteUrl() const
 	{
-		return m_websiteUrl;
+		return url(Website);
 	}
 	QUrl verifyUrl() const
 	{
@@ -116,12 +129,12 @@ public:
 	}
 	QUrl iconUrl() const
 	{
-		return m_iconUrl;
+		return url(Icon);
 	}
 	QIcon icon();
 	QUrl logoUrl() const
 	{
-		return m_logoUrl;
+		return url(Logo);
 	}
 	QPixmap logo();
 	QUrl updateUrl() const
@@ -147,6 +160,10 @@ public:
 	QStringList tags() const
 	{
 		return m_tags;
+	}
+	QString license() const
+	{
+		return m_license;
 	}
 	QList<QuickModVersionPtr> versions() const
 	{
@@ -184,11 +201,9 @@ private:
 	QString m_repo;
 	QString m_name;
 	QString m_description;
-	QUrl m_websiteUrl;
+	QMap<QString, QUrl> m_urls;
 	QUrl m_verifyUrl;
-	QUrl m_iconUrl;
 	QIcon m_icon;
-	QUrl m_logoUrl;
 	QPixmap m_logo;
 	QUrl m_updateUrl;
 	QMap<QuickModUid, QUrl> m_references;
@@ -197,6 +212,7 @@ private:
 	QString m_modId;
 	QStringList m_categories;
 	QStringList m_tags;
+	QString m_license;
 
 	QList<QuickModVersionPtr> m_versions;
 

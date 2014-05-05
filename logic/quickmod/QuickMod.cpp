@@ -65,6 +65,31 @@ QuickMod::~QuickMod()
 	m_versions.clear(); // as they are shared pointers this will also delete them
 }
 
+QUrl QuickMod::url(const QuickMod::UrlType type) const
+{
+	switch (type)
+	{
+	case Website:
+		return m_urls["website"];
+	case Wiki:
+		return m_urls["wiki"];
+	case Forum:
+		return m_urls["forum"];
+	case Donation:
+		return m_urls["donation"];
+	case Issues:
+		return m_urls["issues"];
+	case Source:
+		return m_urls["source"];
+	case Icon:
+		return m_urls["icon"];
+	case Logo:
+		return m_urls["logo"];
+	default:
+		return QUrl();
+	}
+}
+
 QIcon QuickMod::icon()
 {
 	fetchImages();
@@ -109,10 +134,17 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	m_description = mod.value("description").toString();
 	m_nemName = mod.value("nemName").toString();
 	m_modId = mod.value("modId").toString();
-	m_websiteUrl = Util::expandQMURL(mod.value("websiteUrl").toString());
+	m_license = mod.value("license").toString();
+	if (mod.contains("urls"))
+	{
+		for (auto url : MMCJson::ensureArray(mod.value("urls"), "'urls'"))
+		{
+			const QJsonObject obj = url.toObject();
+			m_urls[MMCJson::ensureString(obj.value("type"), "url 'type'")] =
+				Util::expandQMURL(MMCJson::ensureString(obj.value("url"), "url 'url'"));
+		}
+	}
 	m_verifyUrl = Util::expandQMURL(mod.value("verifyUrl").toString());
-	m_iconUrl = Util::expandQMURL(mod.value("iconUrl").toString());
-	m_logoUrl = Util::expandQMURL(mod.value("logoUrl").toString());
 	m_references.clear();
 	const QJsonObject references = mod.value("references").toObject();
 	for (auto key : references.keys())
@@ -189,18 +221,18 @@ void QuickMod::fetchImages()
 	auto job = new NetJob("QuickMod image download: " + m_name);
 	bool download = false;
 	m_imagesLoaded = true;
-	if (m_iconUrl.isValid() && m_icon.isNull())
+	if (iconUrl().isValid() && m_icon.isNull())
 	{
 		auto icon = CacheDownload::make(
-			m_iconUrl, MMC->metacache()->resolveEntry("quickmod/icons", fileName(m_iconUrl)));
+			iconUrl(), MMC->metacache()->resolveEntry("quickmod/icons", fileName(iconUrl())));
 		connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
 		job->addNetAction(icon);
 		download = true;
 	}
-	if (m_logoUrl.isValid() && m_logo.isNull())
+	if (logoUrl().isValid() && m_logo.isNull())
 	{
 		auto logo = CacheDownload::make(
-			m_logoUrl, MMC->metacache()->resolveEntry("quickmod/logos", fileName(m_logoUrl)));
+			logoUrl(), MMC->metacache()->resolveEntry("quickmod/logos", fileName(logoUrl())));
 		connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
 		job->addNetAction(logo);
 		download = true;
