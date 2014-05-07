@@ -244,6 +244,13 @@ MinecraftProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 		}
 		launchScript += mods.join('\n') + '\n';
 	}
+	if (!version->modFiles.isEmpty())
+	{
+		for (auto mod : version->modFiles)
+		{
+			launchScript += "mods " + mod + '\n';
+		}
+	}
 
 	// Set the width and height for 1.6 instances
 	bool maximize = settings().get("LaunchMaximized").toBool();

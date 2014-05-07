@@ -53,6 +53,7 @@ void VersionFinal::clear()
 	time.clear();
 	releaseTime.clear();
 	quickmods.clear();
+	modFiles.clear();
 	type.clear();
 	assets.clear();
 	processArguments.clear();
