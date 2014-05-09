@@ -38,9 +38,9 @@ private slots:
 		mod->m_uid = QuickModUid("this.should.be.unique");
 		mod->m_repo = "some.testing.repo";
 		mod->m_description = "test mod description\nsome more";
-		mod->m_urls["website"] = QUrl("http://test.com/");
-		mod->m_urls["icon"] = QUrl("http://test.com/icon.png");
-		mod->m_urls["logo"] = QUrl("http://test.com/logo.png");
+		mod->m_urls["website"] = QList<QUrl>() << QUrl("http://test.com/");
+		mod->m_urls["icon"] = QList<QUrl>() << QUrl("http://test.com/icon.png");
+		mod->m_urls["logo"] = QList<QUrl>() << QUrl("http://test.com/logo.png");
 		mod->m_updateUrl = QUrl("http://test.com/testmodname.json");
 		mod->m_references = {{QuickModUid("OtherName"),QUrl("http://other.com/othername.json")}, {QuickModUid("Other2Name"),QUrl("https://other2.com/other2name.json")},
 							 {QuickModUid("stuff"),QUrl("https://stuff.org/stuff.json")}, {QuickModUid("TheWikipediaMod"),QUrl("ftp://wikipedia.org/thewikipediamod.quickmod")}};
@@ -113,7 +113,7 @@ private slots:
 			}
 			catch (MMCError &e)
 			{
-				qFatal(e.what());
+				qFatal("%s", e.what());
 			}
 		}
 

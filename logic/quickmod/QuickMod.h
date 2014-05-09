@@ -118,10 +118,11 @@ public:
 	{
 		return m_description;
 	}
-	QUrl url(const UrlType type) const;
+	QList<QUrl> url(const UrlType type) const;
 	QUrl websiteUrl() const
 	{
-		return url(Website);
+		auto websites = url(Website);
+		return websites.isEmpty() ? QUrl() : websites.first();
 	}
 	QUrl verifyUrl() const
 	{
@@ -129,12 +130,14 @@ public:
 	}
 	QUrl iconUrl() const
 	{
-		return url(Icon);
+		auto websites = url(Icon);
+		return websites.isEmpty() ? QUrl() : websites.first();
 	}
 	QIcon icon();
 	QUrl logoUrl() const
 	{
-		return url(Logo);
+		auto websites = url(Logo);
+		return websites.isEmpty() ? QUrl() : websites.first();
 	}
 	QPixmap logo();
 	QUrl updateUrl() const
@@ -201,7 +204,7 @@ private:
 	QString m_repo;
 	QString m_name;
 	QString m_description;
-	QMap<QString, QUrl> m_urls;
+	QMap<QString, QList<QUrl>> m_urls;
 	QUrl m_verifyUrl;
 	QIcon m_icon;
 	QPixmap m_logo;

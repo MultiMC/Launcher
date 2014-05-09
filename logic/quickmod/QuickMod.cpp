@@ -65,7 +65,7 @@ QuickMod::~QuickMod()
 	m_versions.clear(); // as they are shared pointers this will also delete them
 }
 
-QUrl QuickMod::url(const QuickMod::UrlType type) const
+QList<QUrl> QuickMod::url(const QuickMod::UrlType type) const
 {
 	switch (type)
 	{
@@ -86,7 +86,7 @@ QUrl QuickMod::url(const QuickMod::UrlType type) const
 	case Logo:
 		return m_urls["logo"];
 	default:
-		return QUrl();
+		return QList<QUrl>();
 	}
 }
 
@@ -137,11 +137,16 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	m_license = mod.value("license").toString();
 	if (mod.contains("urls"))
 	{
-		for (auto url : MMCJson::ensureArray(mod.value("urls"), "'urls'"))
+		auto urls = MMCJson::ensureObject(mod.value("urls"), "'urls'");
+		for (auto it = urls.begin(); it != urls.end(); ++it)
 		{
-			const QJsonObject obj = url.toObject();
-			m_urls[MMCJson::ensureString(obj.value("type"), "url 'type'")] =
-				Util::expandQMURL(MMCJson::ensureString(obj.value("url"), "url 'url'"));
+			const QJsonArray list = MMCJson::ensureArray(it.value());
+			QList<QUrl> urlList;
+			for (auto listItem : list)
+			{
+				urlList.append(Util::expandQMURL(MMCJson::ensureString(listItem, "url item")));
+			}
+			m_urls[it.key()] = urlList;
 		}
 	}
 	m_verifyUrl = Util::expandQMURL(mod.value("verifyUrl").toString());
