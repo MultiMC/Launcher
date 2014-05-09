@@ -28,6 +28,8 @@
 #include "modutils.h"
 #include "logic/MMCJson.h"
 
+#define CURRENT_QUICKMOD_VERSION 1
+
 QuickModUid::QuickModUid() : m_uid(QString())
 {
 }
@@ -128,6 +130,10 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 {
 	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
 	const QJsonObject mod = MMCJson::ensureObject(doc, "root");
+	if (MMCJson::ensureInteger(mod.value("formatVersion"), "'formatVersion'") > CURRENT_QUICKMOD_VERSION)
+	{
+		throw MMCError(tr("QuickMod format to new"));
+	}
 	m_uid = QuickModUid(MMCJson::ensureString(mod.value("uid"), "'uid'"));
 	m_repo = MMCJson::ensureString(mod.value("repo"), "'repo'");
 	m_name = MMCJson::ensureString(mod.value("name"), "'name'");

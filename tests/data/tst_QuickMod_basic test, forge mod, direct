@@ -1,4 +1,5 @@
 {
+	"formatVersion": 1,
     "name": "testmodname",
     "description": "test mod description\nsome more",
     "nemName": "nemname",
