@@ -21,6 +21,7 @@
 #include "gui/Platform.h"
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "gui/dialogs/CustomMessageBox.h"
+#include "gui/dialogs/quickmod/QuickModRepoDialog.h"
 
 #include "logic/JavaUtils.h"
 #include "logic/NagUtils.h"
@@ -671,4 +672,11 @@ void SettingsDialog::on_mceditCheckBtn_clicked()
 	{
 		QMessageBox::information(this, tr("OK"), tr("MCEdit setup seems to be OK"));
 	}
+}
+
+
+void SettingsDialog::on_quickmodRepoBtn_clicked()
+{
+	QuickModRepoDialog dlg;
+	dlg.exec();
 }

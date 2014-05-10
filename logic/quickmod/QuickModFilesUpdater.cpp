@@ -154,8 +154,6 @@ void QuickModFilesUpdater::receivedMod(int notused)
 		return;
 	}
 
-	mod->m_hash = QCryptographicHash::hash(download->m_data, QCryptographicHash::Sha512);
-
 	// assume this is an updated version
 	for (auto old : m_list->mods(mod->uid()))
 	{

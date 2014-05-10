@@ -155,7 +155,6 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 			m_urls[it.key()] = urlList;
 		}
 	}
-	m_verifyUrl = Util::expandQMURL(mod.value("verifyUrl").toString());
 	m_references.clear();
 	const QJsonObject references = mod.value("references").toObject();
 	for (auto key : references.keys())

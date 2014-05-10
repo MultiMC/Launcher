@@ -124,10 +124,6 @@ public:
 		auto websites = url(Website);
 		return websites.isEmpty() ? QUrl() : websites.first();
 	}
-	QUrl verifyUrl() const
-	{
-		return m_verifyUrl;
-	}
 	QUrl iconUrl() const
 	{
 		auto websites = url(Icon);
@@ -178,10 +174,6 @@ public:
 	QuickModVersionPtr latestVersion(const QString &mcVersion) const;
 	void sortVersions();
 
-	QByteArray hash() const
-	{
-		return m_hash;
-	}
 	void parse(QuickModPtr _this, const QByteArray &data);
 
 	bool compare(const QuickModPtr other) const;
@@ -205,7 +197,6 @@ private:
 	QString m_name;
 	QString m_description;
 	QMap<QString, QList<QUrl>> m_urls;
-	QUrl m_verifyUrl;
 	QIcon m_icon;
 	QPixmap m_logo;
 	QUrl m_updateUrl;
@@ -218,8 +209,6 @@ private:
 	QString m_license;
 
 	QList<QuickModVersionPtr> m_versions;
-
-	QByteArray m_hash;
 
 	bool m_imagesLoaded;
 

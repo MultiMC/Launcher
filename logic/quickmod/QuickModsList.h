@@ -104,9 +104,6 @@ public:
 	QString existingModFile(QuickModPtr mod, const BaseVersionPtr version) const;
 	QString existingModFile(QuickModPtr mod, const QString &version) const;
 
-	bool isWebsiteTrusted(const QUrl &url) const;
-	void setWebsiteTrusted(const QUrl &url, const bool trusted);
-
 	bool haveUid(const QuickModUid &uid) const;
 
 	QList<QuickModUid> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;

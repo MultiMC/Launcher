@@ -1020,6 +1020,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="quickmodRepoBtn">
+         <property name="text">
+          <string>Repositories</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

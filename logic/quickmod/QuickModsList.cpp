@@ -357,25 +357,6 @@ QString QuickModsList::existingModFile(QuickModPtr mod, const QString &version) 
 	return mods[mod->internalUid()].toMap()[version].toString();
 }
 
-bool QuickModsList::isWebsiteTrusted(const QUrl &url) const
-{
-	auto websites = m_settings->get("TrustedWebsites").toList();
-	return websites.contains(url.toString());
-}
-void QuickModsList::setWebsiteTrusted(const QUrl &url, const bool trusted)
-{
-	auto websites = m_settings->get("TrustedWebsites").toList();
-	if (trusted && !websites.contains(url.toString()))
-	{
-		websites.append(url.toString());
-	}
-	else if (!trusted)
-	{
-		websites.removeAll(url.toString());
-	}
-	m_settings->getSetting("TrustedWebsites")->set(websites);
-}
-
 bool QuickModsList::haveUid(const QuickModUid &uid) const
 {
 	for (auto mod : m_mods)
