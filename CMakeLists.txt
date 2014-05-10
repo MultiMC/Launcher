@@ -285,6 +285,8 @@ set(MULTIMC_SOURCES
 	gui/dialogs/quickmod/QuickModInstallDialog.cpp
 	gui/dialogs/quickmod/QuickModRepoDialog.h
 	gui/dialogs/quickmod/QuickModRepoDialog.cpp
+	gui/dialogs/quickmod/QuickModVerifyModsDialog.h
+	gui/dialogs/quickmod/QuickModVerifyModsDialog.cpp
 	gui/dialogs/SettingsDialog.h
 	gui/dialogs/SettingsDialog.cpp
 	gui/dialogs/CopyInstanceDialog.h
@@ -615,6 +617,7 @@ set(MULTIMC_UIS
 	gui/dialogs/quickmod/QuickModBrowseDialog.ui
 	gui/dialogs/quickmod/QuickModInstallDialog.ui
 	gui/dialogs/quickmod/QuickModRepoDialog.ui
+	gui/dialogs/quickmod/QuickModVerifyModsDialog.ui
 
 	# Widgets/other
 	gui/widgets/MCModInfoFrame.ui

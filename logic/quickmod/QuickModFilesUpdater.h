@@ -37,8 +37,11 @@ public:
 	// TODO use some sort of lookup
 	QuickModPtr ensureExists(const Mod &mod);
 
-	void registerFile(const QUrl &url);
+	void registerFile(const QUrl &url, bool sandbox = true);
 	void unregisterMod(const QuickModPtr mod);
+
+	void releaseFromSandbox(QuickModPtr mod);
+	void cleanupSandboxedFiles();
 
 public
 slots:
@@ -46,6 +49,7 @@ slots:
 
 signals:
 	void error(const QString &message);
+	void addedSandboxedMod(QuickModPtr mod);
 
 private
 slots:

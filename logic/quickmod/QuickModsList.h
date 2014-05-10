@@ -108,10 +108,12 @@ public:
 
 	QList<QuickModUid> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;
 
+	void releaseFromSandbox(QuickModPtr mod);
+
 public
 slots:
 	void registerMod(const QString &fileName);
-	void registerMod(const QUrl &url);
+	void registerMod(const QUrl &url, bool sandbox);
 	void unregisterMod(QuickModPtr mod);
 
 	void updateFiles();
@@ -129,6 +131,7 @@ slots:
 	void cleanup();
 
 signals:
+	void sandboxModAdded(QuickModPtr mod);
 	void modAdded(QuickModPtr mod);
 	void modsListChanged();
 	void error(const QString &message);

@@ -812,7 +812,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 	{
 		foreach (const QUrl& url, event->mimeData()->urls())
 		{
-			MMC->quickmodslist()->registerMod(url);
+			MMC->quickmodslist()->registerMod(url, false);
 		}
 		event->accept();
 	}

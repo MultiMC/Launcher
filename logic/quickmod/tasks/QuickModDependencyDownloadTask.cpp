@@ -17,6 +17,7 @@
 
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "gui/dialogs/quickmod/QuickModVerifyModsDialog.h"
 #include "MultiMC.h"
 
 QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickModUid> mods,
@@ -32,7 +33,7 @@ void QuickModDependencyDownloadTask::executeTask()
 
 	setStatus(tr("Fetching QuickMods files..."));
 
-	connect(MMC->quickmodslist().get(), &QuickModsList::modAdded, this,
+	connect(MMC->quickmodslist().get(), &QuickModsList::sandboxModAdded, this,
 			&QuickModDependencyDownloadTask::modAdded);
 	// TODO we cannot know if this is about us
 	connect(MMC->quickmodslist().get(), &QuickModsList::error, this,
@@ -58,6 +59,7 @@ void QuickModDependencyDownloadTask::modAdded(QuickModPtr mod)
 	{
 		m_pendingMods.removeAll(mod->uid());
 		m_mods.append(mod->uid());
+		m_sandboxedMods.append(mod);
 		requestDependenciesOf(mod);
 	}
 	updateProgress();
@@ -72,7 +74,24 @@ void QuickModDependencyDownloadTask::updateProgress()
 	setProgress(m_lastSetPercentage);
 	if (m_pendingMods.isEmpty())
 	{
+		finish();
+	}
+}
+
+void QuickModDependencyDownloadTask::finish()
+{
+	QuickModVerifyModsDialog dlg(m_sandboxedMods);
+	if (dlg.exec() == QDialog::Accepted)
+	{
+		for (auto mod : m_sandboxedMods)
+		{
+			MMC->quickmodslist()->releaseFromSandbox(mod);
+		}
 		emitSucceeded();
+	}
+	else
+	{
+		emitFailed(tr("Didn't verify files"));
 	}
 }
 
@@ -88,7 +107,7 @@ void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModPtr mod
 		}
 		if (!m_requestedMods.contains(modUid))
 		{
-			MMC->quickmodslist()->registerMod(it.value());
+			MMC->quickmodslist()->registerMod(it.value(), true);
 			m_pendingMods.append(modUid);
 			m_requestedMods.append(modUid);
 		}

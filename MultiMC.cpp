@@ -274,7 +274,7 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override)
 		{
 			url = QUrl::fromUserInput(opt);
 		}
-		quickmodslist()->registerMod(url);
+		quickmodslist()->registerMod(url, false);
 		connect(quickmodslist().get(), SIGNAL(modAdded(QuickMod*)), this, SLOT(quit()));
 		exec();
 		m_status = MultiMC::Succeeded;

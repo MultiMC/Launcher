@@ -38,8 +38,12 @@ private:
 	// list of mods we have requested
 	QList<QuickModUid> m_requestedMods;
 
+	// list of mods we have received that are in the sandbox
+	QList<QuickModPtr> m_sandboxedMods;
+
 	int m_lastSetPercentage;
 	void updateProgress();
+	void finish();
 
 	void requestDependenciesOf(const QuickModPtr mod);
 };

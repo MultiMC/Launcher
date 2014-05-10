@@ -49,6 +49,7 @@ QuickModsList::QuickModsList(const Flags flags, QObject *parent)
 	m_settings->registerSetting("TrustedWebsites", QVariantList());
 
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
+	connect(m_updater, &QuickModFilesUpdater::addedSandboxedMod, this, &QuickModsList::sandboxModAdded);
 
 	if (!flags.testFlag(DontCleanup))
 	{
@@ -189,13 +190,13 @@ bool QuickModsList::dropMimeData(const QMimeData *data, Qt::DropAction action, i
 
 	if (data->hasText())
 	{
-		registerMod(Util::expandQMURL(data->text()));
+		registerMod(Util::expandQMURL(data->text()), false);
 	}
 	else if (data->hasUrls())
 	{
 		for (const QUrl &url : data->urls())
 		{
-			registerMod(url);
+			registerMod(url, false);
 		}
 	}
 	else
@@ -395,13 +396,18 @@ QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) co
 	return mods;
 }
 
+void QuickModsList::releaseFromSandbox(QuickModPtr mod)
+{
+	m_updater->releaseFromSandbox(mod);
+}
+
 void QuickModsList::registerMod(const QString &fileName)
 {
-	registerMod(QUrl::fromLocalFile(fileName));
+	registerMod(QUrl::fromLocalFile(fileName), false);
 }
-void QuickModsList::registerMod(const QUrl &url)
+void QuickModsList::registerMod(const QUrl &url, bool sandbox)
 {
-	m_updater->registerFile(url);
+	m_updater->registerFile(url, sandbox);
 }
 
 void QuickModsList::updateFiles()
@@ -503,6 +509,8 @@ void QuickModsList::cleanup()
 		}
 	}
 	m_settings->set("AvailableMods", mods);
+
+	m_updater->cleanupSandboxedFiles();
 }
 
 void QuickModsList::unregisterMod(QuickModPtr mod)

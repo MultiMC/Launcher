@@ -31,6 +31,7 @@
 #include "logic/MMCJson.h"
 #include "MultiMC.h"
 #include "modutils.h"
+#include "pathutils.h"
 
 #include "logger/QsLog.h"
 
@@ -43,12 +44,13 @@ QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list) : QObject(list),
 	QTimer::singleShot(1, this, SLOT(readModFiles()));
 }
 
-void QuickModFilesUpdater::registerFile(const QUrl &url)
+void QuickModFilesUpdater::registerFile(const QUrl &url, bool sandbox)
 {
 	auto job = new NetJob("QuickMod download");
 	auto download =
 			ByteArrayDownload::make(url);
 	download->m_followRedirects = true;
+	download->setProperty("sandbox", sandbox);
 	connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
 	connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
 	job->addNetAction(download);
@@ -58,6 +60,22 @@ void QuickModFilesUpdater::registerFile(const QUrl &url)
 void QuickModFilesUpdater::unregisterMod(const QuickModPtr mod)
 {
 	m_quickmodDir.remove(fileName(mod));
+}
+
+void QuickModFilesUpdater::releaseFromSandbox(QuickModPtr mod)
+{
+	QFile::rename(m_quickmodDir.absoluteFilePath("sandbox/" + fileName(mod)),
+				  m_quickmodDir.absoluteFilePath(fileName(mod)));
+	m_list->addMod(mod);
+}
+
+void QuickModFilesUpdater::cleanupSandboxedFiles()
+{
+	QDir dir(m_quickmodDir.absoluteFilePath("sandbox"));
+	for (auto entry : dir.entryInfoList(QDir::Files))
+	{
+		dir.remove(entry.absoluteFilePath());
+	}
 }
 
 void QuickModFilesUpdater::update()
@@ -82,45 +100,49 @@ void QuickModFilesUpdater::update()
 void QuickModFilesUpdater::receivedMod(int notused)
 {
 	ByteArrayDownload *download = qobject_cast<ByteArrayDownload *>(sender());
+	bool sandbox = download->property("sandbox").toBool();
 
 	// index?
-	try
+	if (!sandbox)
 	{
-		const QJsonDocument doc = QJsonDocument::fromJson(download->m_data);
-		if (doc.isObject() && doc.object().contains("index"))
+		try
 		{
-			const QJsonObject obj = doc.object();
-			const QJsonArray array = MMCJson::ensureArray(obj.value("index"));
-			for (auto it = array.begin(); it != array.end(); ++it)
+			const QJsonDocument doc = QJsonDocument::fromJson(download->m_data);
+			if (doc.isObject() && doc.object().contains("index"))
 			{
-				const QJsonObject itemObj = (*it).toObject();
-				const QString baseUrlString =
-						MMCJson::ensureString(obj.value("baseUrl"));
-				// FIXME should check if the have uid + repo, not only uid
-				if (!m_list->haveUid(QuickModUid(MMCJson::ensureString(itemObj.value("uid")))))
+				const QJsonObject obj = doc.object();
+				const QJsonArray array = MMCJson::ensureArray(obj.value("index"));
+				for (auto it = array.begin(); it != array.end(); ++it)
 				{
-					const QString urlString =
-							MMCJson::ensureString(itemObj.value("url"));
-					QUrl url;
-					if (baseUrlString.contains("{}"))
+					const QJsonObject itemObj = (*it).toObject();
+					const QString baseUrlString =
+							MMCJson::ensureString(obj.value("baseUrl"));
+					// FIXME should check if the have uid + repo, not only uid
+					if (!m_list->haveUid(QuickModUid(MMCJson::ensureString(itemObj.value("uid")))))
 					{
-						url = QUrl(QString(baseUrlString).replace("{}", urlString));
+						const QString urlString =
+								MMCJson::ensureString(itemObj.value("url"));
+						QUrl url;
+						if (baseUrlString.contains("{}"))
+						{
+							url = QUrl(QString(baseUrlString).replace("{}", urlString));
+						}
+						else
+						{
+							url = Util::expandQMURL(baseUrlString)
+									.resolved(Util::expandQMURL(urlString));
+						}
+						registerFile(url);
 					}
-					else
-					{
-						url = Util::expandQMURL(baseUrlString)
-								.resolved(Util::expandQMURL(urlString));
-					}
-					registerFile(url);
 				}
+				return;
 			}
+		}
+		catch (MMCError &e)
+		{
+			QLOG_ERROR() << "Error parsing QuickMod index:" << e.cause();
 			return;
 		}
-	}
-	catch (MMCError &e)
-	{
-		QLOG_ERROR() << "Error parsing QuickMod index:" << e.cause();
-		return;
 	}
 
 	try
@@ -163,7 +185,9 @@ void QuickModFilesUpdater::receivedMod(int notused)
 		}
 	}
 
-	QFile file(m_quickmodDir.absoluteFilePath(fileName(mod)));
+	auto filename = m_quickmodDir.absoluteFilePath((sandbox ? "sandbox/" : "") + fileName(mod));
+	ensureFilePathExists(filename);
+	QFile file(filename);
 	if (!file.open(QFile::WriteOnly))
 	{
 		QLOG_ERROR() << "Failed to open" << file.fileName() << ":" << file.errorString();
@@ -174,7 +198,14 @@ void QuickModFilesUpdater::receivedMod(int notused)
 	file.write(download->m_data);
 	file.close();
 
-	m_list->addMod(mod);
+	if (sandbox)
+	{
+		emit addedSandboxedMod(mod);
+	}
+	else
+	{
+		m_list->addMod(mod);
+	}
 }
 
 void QuickModFilesUpdater::failedMod(int index)
