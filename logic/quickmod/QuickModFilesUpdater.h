@@ -37,7 +37,7 @@ public:
 	// TODO use some sort of lookup
 	QuickModPtr ensureExists(const Mod &mod);
 
-	void registerFile(const QUrl &url, bool sandbox = true);
+	void registerFile(const QUrl &url, bool sandbox);
 	void unregisterMod(const QuickModPtr mod);
 
 	void releaseFromSandbox(QuickModPtr mod);

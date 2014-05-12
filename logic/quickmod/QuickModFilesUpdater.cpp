@@ -132,7 +132,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 							url = Util::expandQMURL(baseUrlString)
 									.resolved(Util::expandQMURL(urlString));
 						}
-						registerFile(url);
+						registerFile(url, false);
 					}
 				}
 				return;
