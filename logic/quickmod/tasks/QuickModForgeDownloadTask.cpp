@@ -63,11 +63,11 @@ void QuickModForgeDownloadTask::executeTask()
 	VersionSelectDialog vselect(MMC->forgelist().get(), tr("Select Forge version"));
 	if (versionFilters.isEmpty())
 	{
-		vselect.setFilter(1, m_instance->currentVersionId());
+		vselect.setExactFilter(1, m_instance->currentVersionId());
 	}
 	else
 	{
-		vselect.setFilter(0, versionFilters.join(','));
+		vselect.setExactFilter(0, versionFilters.join(','));
 	}
 	vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft ") +
 						   m_instance->currentVersionId());

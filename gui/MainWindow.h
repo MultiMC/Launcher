@@ -173,12 +173,6 @@ slots:
 
 	void updateNewsLabel();
 
-	void updateStatusUI();
-
-	void updateStatusFailedUI();
-
-	void reloadStatus();
-
 	/*!
 	 * Runs the DownloadUpdateTask and installs updates.
 	 */
@@ -211,12 +205,9 @@ private:
 	Task *m_versionLoadTask;
 
 	QLabel *m_statusLeft;
-	QLabel *m_statusRight;
-	QToolButton *m_statusRefresh;
+	class ServerStatus *m_statusRight;
 
 	QMenu *accountMenu;
 	QToolButton *accountMenuButton;
 	QAction *manageAccountsAction;
-
-	QTimer statusTimer;
 };

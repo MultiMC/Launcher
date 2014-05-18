@@ -19,6 +19,7 @@
 #include <QStringList>
 #include <QMap>
 #include <QJsonObject>
+#include <QDir>
 #include <memory>
 
 #include "logic/net/URLConstants.h"
@@ -154,6 +155,6 @@ public:
 	QString hint() const;
 
 	bool extractTo(QString target_dir);
-	bool filesExist();
+	bool filesExist(const QDir &base);
 	QStringList files();
 };

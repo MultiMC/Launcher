@@ -95,7 +95,7 @@ set(MultiMC_NEWS_RSS_URL "http://multimc.org/rss.xml" CACHE STRING "URL to fetch
 ######## Set version numbers ########
 set(MultiMC_VERSION_MAJOR	 0)
 set(MultiMC_VERSION_MINOR	 3)
-set(MultiMC_VERSION_HOTFIX   2)
+set(MultiMC_VERSION_HOTFIX   5)
 
 # Build number
 set(MultiMC_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
@@ -330,18 +330,24 @@ set(MULTIMC_SOURCES
 	gui/dialogs/NotificationDialog.cpp
 
 	# GUI - widgets
-	gui/widgets/Common.h
 	gui/widgets/Common.cpp
-	gui/widgets/ModListView.h
-	gui/widgets/ModListView.cpp
-	gui/widgets/VersionListView.h
-	gui/widgets/VersionListView.cpp
-	gui/widgets/LabeledToolButton.h
+	gui/widgets/Common.h
+	gui/widgets/IconLabel.cpp
+	gui/widgets/IconLabel.h
 	gui/widgets/LabeledToolButton.cpp
-	gui/widgets/MCModInfoFrame.h
+	gui/widgets/LabeledToolButton.h
+	gui/widgets/LineSeparator.cpp
+	gui/widgets/LineSeparator.h
 	gui/widgets/MCModInfoFrame.cpp
 	gui/widgets/WebDownloadNavigator.h
 	gui/widgets/WebDownloadNavigator.cpp
+	gui/widgets/MCModInfoFrame.h
+	gui/widgets/ModListView.cpp
+	gui/widgets/ModListView.h
+	gui/widgets/ServerStatus.cpp
+	gui/widgets/ServerStatus.h
+	gui/widgets/VersionListView.cpp
+	gui/widgets/VersionListView.h
 
 	# GUI - instance group view
 	gui/groupview/Group.cpp
