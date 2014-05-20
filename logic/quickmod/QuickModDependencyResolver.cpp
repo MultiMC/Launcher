@@ -61,7 +61,7 @@ QuickModVersionPtr QuickModDependencyResolver::getVersion(const QuickModUid &mod
 	VersionSelectDialog dialog(new QuickModVersionList(modUid, m_instance, this),
 							   tr("Choose QuickMod version for %1").arg(modUid.mod()->name()),
 							   m_widgetParent);
-	dialog.setExactFilter(BaseVersionList::NameColumn, filter);
+	dialog.setFuzzyFilter(BaseVersionList::NameColumn, filter);
 	dialog.setUseLatest(MMC->settings()->get("QuickModAlwaysLatestVersion").toBool());
 	// TODO currently, if the version isn't existing anymore it will be updated
 	if (!predefinedVersion.isEmpty() &&

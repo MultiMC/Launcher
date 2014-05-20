@@ -33,17 +33,20 @@ class VersionSelectProxyModel : public QSortFilterProxyModel
 public:
 	VersionSelectProxyModel(QObject *parent = 0);
 
-	QString filter() const;
-	void setFilter(const QString &filter);
+	struct Filter
+	{
+		QString string;
+		bool exact = false;
+	};
 
-	int column() const;
-	void setColumn(int column);
+	QHash<int, Filter> filters() const;
+	void setFilter(const int column, const QString &filter, const bool exact);
+	void clearFilters();
 
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
-	QString m_filter;
-	int m_column;
+	QHash<int, Filter> m_filters;
 };
 
 class VersionSelectDialog : public QDialog

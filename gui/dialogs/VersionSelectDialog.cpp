@@ -36,27 +36,41 @@ VersionSelectProxyModel::VersionSelectProxyModel(QObject *parent)
 bool VersionSelectProxyModel::filterAcceptsRow(int source_row,
 											   const QModelIndex &source_parent) const
 {
-	const QString version = sourceModel()->index(source_row, m_column).data().toString();
+	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	{
+		const QString version = sourceModel()->index(source_row, it.key()).data().toString();
 
-	bool ret = Util::versionIsInInterval(version, m_filter);
-	return ret;
+		if (it.value().exact)
+		{
+			if (version != it.value().string)
+			{
+				return false;
+			}
+			continue;
+		}
+
+		if (!Util::versionIsInInterval(version, it.value().string))
+		{
+			return false;
+		}
+	}
+	return true;
 }
-QString VersionSelectProxyModel::filter() const
+QHash<int, VersionSelectProxyModel::Filter> VersionSelectProxyModel::filters() const
 {
-	return m_filter;
+	return m_filters;
 }
-void VersionSelectProxyModel::setFilter(const QString &filter)
+void VersionSelectProxyModel::setFilter(const int column, const QString &filter, const bool exact)
 {
-	m_filter = filter;
+	Filter f;
+	f.string = filter;
+	f.exact = exact;
+	m_filters[column] = f;
 	invalidateFilter();
 }
-int VersionSelectProxyModel::column() const
+void VersionSelectProxyModel::clearFilters()
 {
-	return m_column;
-}
-void VersionSelectProxyModel::setColumn(int column)
-{
-	m_column = column;
+	m_filters.clear();
 	invalidateFilter();
 }
 
@@ -155,12 +169,10 @@ void VersionSelectDialog::on_refreshButton_clicked()
 
 void VersionSelectDialog::setExactFilter(int column, QString filter)
 {
-	m_proxyModel->setColumn(column);
-	m_proxyModel->setFilter(filter);
+	m_proxyModel->setFilter(column, filter, true);
 }
 
 void VersionSelectDialog::setFuzzyFilter(int column, QString filter)
 {
-	m_proxyModel->setFilterKeyColumn(column);
-	m_proxyModel->setFilterWildcard(filter);
+	m_proxyModel->setFilter(column, filter, false);
 }

@@ -80,6 +80,11 @@ void QuickModDependencyDownloadTask::updateProgress()
 
 void QuickModDependencyDownloadTask::finish()
 {
+	if (m_sandboxedMods.isEmpty())
+	{
+		emitSucceeded();
+		return;
+	}
 	QuickModVerifyModsDialog dlg(m_sandboxedMods);
 	if (dlg.exec() == QDialog::Accepted)
 	{

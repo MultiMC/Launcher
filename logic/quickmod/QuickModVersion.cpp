@@ -24,6 +24,7 @@
 #include "modutils.h"
 #include "MultiMC.h"
 #include "logic/MMCJson.h"
+#include "logic/BaseInstance.h"
 
 static QMap<QString, QString> jsonObjectToStringStringMap(const QJsonObject &obj)
 {
@@ -197,7 +198,13 @@ QList<QuickModVersionPtr> QuickModVersionList::versions() const
 	QList<QuickModVersionPtr> out;
 	for (auto mod : m_mod.mods())
 	{
-		out.append(mod->versions());
+		for (auto version : mod->versions())
+		{
+			if (version->compatibleVersions.contains(m_instance->intendedVersionId()))
+			{
+				out.append(version);
+			}
+		}
 	}
 	return out;
 }
