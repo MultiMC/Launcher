@@ -13,7 +13,6 @@
 	},
 	"license": "WTFPL",
     "updateUrl": "http://test.com/testmodname.json",
-    "versionsUrl": "http://test.com/testmodname.versions.json",
     "references": {
         "OtherName": "http://other.com/othername.json",
         "Other2Name": "https://other2.com/other2name.json",
