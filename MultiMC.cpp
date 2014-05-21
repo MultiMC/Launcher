@@ -172,6 +172,17 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override)
 	#endif
 	}
 
+	// static data paths... mostly just for translations
+	#ifdef Q_OS_LINUX
+		QDir foo(PathCombine(binPath, ".."));
+		staticDataPath = foo.absolutePath();
+	#elif defined(Q_OS_WIN32)
+		staticDataPath = binPath;
+	#elif defined(Q_OS_MAC)
+		QDir foo(PathCombine(rootPath, "Contents/Resources"));
+		staticDataPath = foo.absolutePath();
+	#endif
+
 	// init the logger
 	initLogger();
 
@@ -190,6 +201,7 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override)
 	}
 	QLOG_INFO() << "Binary path                : " << binPath;
 	QLOG_INFO() << "Application root path      : " << rootPath;
+	QLOG_INFO() << "Static data path           : " << staticDataPath;
 
 	// load settings
 	initGlobalSettings();
@@ -324,7 +336,8 @@ void MultiMC::initTranslations()
 	}
 
 	m_mmc_translator.reset(new QTranslator());
-	if (m_mmc_translator->load("mmc_" + locale.bcp47Name(), MMC->root() + "/translations"))
+	if (m_mmc_translator->load("mmc_" + locale.bcp47Name(),
+							   MMC->staticData() + "/translations"))
 	{
 		QLOG_DEBUG() << "Loading MMC Language File for"
 					 << locale.bcp47Name().toLocal8Bit().constData() << "...";
@@ -364,7 +377,10 @@ void MultiMC::initLogger()
 	logger.addDestination(m_debugDestination.get());
 	// log all the things
 	logger.setLoggingLevel(QsLogging::TraceLevel);
+	loggerInitialized = true;
 }
+
+bool loggerInitialized = false;
 
 void MultiMC::initGlobalSettings()
 {

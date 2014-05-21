@@ -113,6 +113,9 @@ slots:
 
 	void on_actionBrowseQuickMods_triggered();
 
+	void on_actionScreenshots_triggered();
+
+
 	/*!
 	 * Launches the currently selected instance with the default account.
 	 * If no default account is selected, prompts the user to pick an account.
@@ -145,8 +148,6 @@ slots:
 	void iconUpdated(QString);
 
 	void showInstanceContextMenu(const QPoint &);
-
-	void on_actionScreenshots_triggered();
 
 	void updateToolsMenu();
 

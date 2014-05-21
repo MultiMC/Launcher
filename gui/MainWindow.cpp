@@ -65,8 +65,8 @@
 #include "gui/dialogs/AccountSelectDialog.h"
 #include "gui/dialogs/UpdateDialog.h"
 #include "gui/dialogs/EditAccountDialog.h"
-#include "gui/dialogs/ScreenshotDialog.h"
 #include "gui/dialogs/NotificationDialog.h"
+#include "dialogs/ScreenshotDialog.h"
 
 #include "gui/ConsoleWindow.h"
 
@@ -747,6 +747,11 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::on_actionAddInstance_triggered()
 {
+#ifdef TEST_SEGV
+	// For further testing stuff.
+	int v = *((int*)-1);
+#endif
+	
 	if (!MMC->minecraftlist()->isLoaded() && m_versionLoadTask &&
 		m_versionLoadTask->isRunning())
 	{
@@ -1301,15 +1306,19 @@ void MainWindow::launchInstance(InstancePtr instance, AuthSessionPtr session, Ba
 	Q_ASSERT_X(instance != NULL, "launchInstance", "instance is NULL");
 	Q_ASSERT_X(session.get() != nullptr, "launchInstance", "session is NULL");
 
-	proc = instance->prepareForLaunch(session);
-	if (!proc)
+	QString launchScript;
+
+	if(!instance->prepareForLaunch(session, launchScript))
 		return;
+
+	MinecraftProcess *proc = new MinecraftProcess(instance);
+	proc->setLaunchScript(launchScript);
+	proc->setWorkdir(instance->minecraftRoot());
 
 	this->hide();
 
 	console = new ConsoleWindow(proc);
 	connect(console, SIGNAL(isClosing()), this, SLOT(instanceEnded()));
-	connect(console, &ConsoleWindow::uploadScreenshots, this, &MainWindow::on_actionScreenshots_triggered);
 
 	proc->setLogin(session);
 	proc->arm();
@@ -1331,7 +1340,7 @@ void MainWindow::launchInstance(InstancePtr instance, AuthSessionPtr session, Ba
 		dialog.setLabelText(tr("Waiting for profiler..."));
 		connect(&dialog, &QProgressDialog::canceled, profilerInstance, &BaseProfiler::abortProfiling);
 		dialog.show();
-		connect(profilerInstance, &BaseProfiler::readyToLaunch, [&dialog, this](const QString &message)
+		connect(profilerInstance, &BaseProfiler::readyToLaunch, [&dialog, this, proc](const QString &message)
 		{
 			dialog.accept();
 			QMessageBox msg;
@@ -1344,7 +1353,7 @@ void MainWindow::launchInstance(InstancePtr instance, AuthSessionPtr session, Ba
 			msg.exec();
 			proc->launch();
 		});
-		connect(profilerInstance, &BaseProfiler::abortLaunch, [&dialog, this](const QString &message)
+		connect(profilerInstance, &BaseProfiler::abortLaunch, [&dialog, this, proc](const QString &message)
 		{
 			dialog.accept();
 			QMessageBox msg;

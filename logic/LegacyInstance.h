@@ -79,7 +79,7 @@ public:
 	virtual void setShouldUpdate(bool val) override;
 	virtual std::shared_ptr<Task> doUpdate(InstancePtr ptr) override;
 
-	virtual MinecraftProcess *prepareForLaunch(AuthSessionPtr account) override;
+	virtual bool prepareForLaunch(AuthSessionPtr account, QString & launchScript) override;
 	virtual void cleanupAfterRun() override;
 	virtual QDialog *createModEditDialog(InstancePtr ptr, QWidget *parent) override;
 

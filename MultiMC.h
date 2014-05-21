@@ -50,6 +50,9 @@ enum UpdateFlag
 Q_DECLARE_FLAGS(UpdateFlags, UpdateFlag);
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpdateFlags);
 
+// Global var used by the crash handling system to determine if a log file should be included in a crash report.
+extern bool loggerInitialized;
+
 class MultiMC : public QApplication
 {
 	Q_OBJECT
@@ -155,6 +158,11 @@ public:
 	 */
 	bool openJsonEditor(const QString &filename);
 
+	/// this is the static data. it stores things that don't move.
+	const QString &staticData()
+	{
+		return staticDataPath;
+	}
 	/// this is the root of the 'installation'. Used for automatic updates
 	const QString &root()
 	{
@@ -226,6 +234,7 @@ private:
 	UpdateFlags m_updateOnExitFlags = None;
 
 	QString rootPath;
+	QString staticDataPath;
 	QString binPath;
 	QString dataPath;
 	QString origcwdPath;
