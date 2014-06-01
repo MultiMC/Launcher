@@ -237,6 +237,8 @@ int QuickModInstallDialog::exec()
 		return QDialog::exec();
 	}
 
+	selectDownloadUrls();
+
 	runDirectDownloads();
 
 	// Initialize the web mods progress bar.
@@ -326,11 +328,29 @@ void QuickModInstallDialog::processVersionList()
 			it.remove();
 		}
 
-		if (!version->url.isValid())
+		if (version->downloads.isEmpty())
 		{
 			it.remove();
-			setProgressListMsg(version, tr("Error: Invalid URL."), QColor(Qt::red));
+			setProgressListMsg(version, tr("Error: No download URLs"), QColor(Qt::red));
 		}
+	}
+}
+// }}}
+
+// {{{ Select download urls
+void QuickModInstallDialog::selectDownloadUrls()
+{
+	QMutableListIterator<QuickModVersionPtr> it(m_modVersions);
+	while (it.hasNext())
+	{
+		QuickModVersionPtr version = it.next();
+		setProgressListMsg(version, tr("Selecting URL..."));
+
+		// TODO ask the user + settings
+
+		m_selectedDownloadUrls.insert(version, version->downloads.first());
+
+		clearProgressListMsg(version);
 	}
 }
 // }}}
@@ -343,10 +363,11 @@ void QuickModInstallDialog::runDirectDownloads()
 	while (it.hasNext())
 	{
 		QuickModVersionPtr version = it.next();
-		if (version->downloadType == QuickModVersion::Direct)
+		QuickModDownload download = m_selectedDownloadUrls[version];
+		if (download.type == QuickModDownload::Direct)
 		{
-			QLOG_DEBUG() << "Direct download used for " << version->url.toString();
-			processReply(MMC->qnam()->get(QNetworkRequest(version->url)), version);
+			QLOG_DEBUG() << "Direct download used for " << download.url.toString();
+			processReply(MMC->qnam()->get(QNetworkRequest(download.url)), version);
 			it.remove();
 		}
 	}
@@ -367,12 +388,13 @@ void QuickModInstallDialog::downloadNextMod()
 
 void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 {
-	QLOG_INFO() << "Downloading " << version->name() << "(" << version->url.toString() << ")";
+	const QUrl url = m_selectedDownloadUrls[version].url;
+	QLOG_INFO() << "Downloading " << version->name() << "(" << url.toString() << ")";
 
 	setProgressListMsg(version, tr("Waiting on web page."), QColor(Qt::blue));
 
 	auto navigator = new WebDownloadNavigator(this);
-	navigator->load(version->url);
+	navigator->load(url);
 	ui->webTabView->addTab(navigator,
 						   (QString("%1 %2").arg(version->mod->name(), version->name())));
 

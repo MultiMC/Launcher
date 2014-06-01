@@ -100,3 +100,10 @@ QJsonDocument MMCJson::parseFile(const QString &filename, const QString &what)
 	}
 	return parseDocument(f.readAll(), what);
 }
+
+int MMCJson::ensureInteger(const QJsonValue val, QString what, const int def)
+{
+	if (val.isUndefined())
+		return def;
+	return ensureInteger(val, what);
+}

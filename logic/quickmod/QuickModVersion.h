@@ -35,15 +35,27 @@ class QuickModVersion;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 Q_DECLARE_METATYPE(QuickModVersionPtr)
 
-class QuickModVersion : public BaseVersion
+class QuickModDownload
 {
 public:
 	enum DownloadType
 	{
 		Direct,
 		Parallel,
-		Sequential
+		Sequential,
+		Encoded
 	};
+
+	QUrl url;
+	DownloadType type;
+	int priority;
+	QString hint;
+	QString group;
+};
+
+class QuickModVersion : public BaseVersion
+{
+public:
 	enum InstallType
 	{
 		ForgeMod,
@@ -81,7 +93,6 @@ public:
 	bool valid;
 	QString name_;
 	QString type;
-	QUrl url;
 	QStringList compatibleVersions;
 	QString forgeVersionFilter;
 	QMap<QuickModUid, QString> dependencies;
@@ -91,14 +102,14 @@ public:
 	QMap<QuickModUid, QString> conflicts;
 	QMap<QuickModUid, QString> provides;
 	QString md5;
-	DownloadType downloadType;
 	InstallType installType;
 	QList<Library> libraries;
+	QList<QuickModDownload> downloads;
 
 	bool operator==(const QuickModVersion &other) const
 	{
 		return mod == other.mod && valid == other.valid && name_ == other.name_ &&
-			   url == other.url && compatibleVersions == other.compatibleVersions &&
+			   compatibleVersions == other.compatibleVersions &&
 			   forgeVersionFilter == other.forgeVersionFilter &&
 			   dependencies == other.dependencies && recommendations == other.recommendations &&
 			   md5 == other.md5;

@@ -74,6 +74,9 @@ slots:
 	/// Processes the version list. Installs any mods that are already downloaded.
 	void processVersionList();
 
+	/// Selects the which download URL to use for each mod. May prompt the user
+	void selectDownloadUrls();
+
 	/// Downloads all mods with direct download links.
 	void runDirectDownloads();
 
@@ -94,6 +97,12 @@ slots:
 	/// Sets the progress list message for the given item.
 	void setProgressListMsg(QuickModVersionPtr version, const QString &msg,
 							const QColor &color = QColor(Qt::black));
+
+	/// Clears the progress list message for the given item.
+	void clearProgressListMsg(QuickModVersionPtr version)
+	{
+		setProgressListMsg(version, QString());
+	}
 
 	/// Sets whether the given progress item has its progress bar shown.
 	void setShowProgressBar(QuickModVersionPtr version, bool show = true);
@@ -119,6 +128,8 @@ private:
 	QList<QuickModVersionPtr> m_modVersions;
 	QList<QuickModVersionPtr> m_resolvedVersions;
 	QList<QUrl> m_downloadingUrls;
+
+	QMap<QuickModVersionPtr, QuickModDownload> m_selectedDownloadUrls;
 
 	/// A list of progress entries.
 	/// The indices of the items in this list should correspond with the indices of each mod

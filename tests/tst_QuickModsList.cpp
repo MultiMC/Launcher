@@ -55,7 +55,9 @@ slots:
 	{
 		auto version = new QuickModVersion(mod);
 		version->name_ = "1.42";
-		version->url = QUrl("http://downloads.com/deadbeaf");
+		QuickModDownload download;
+		download.url = QUrl("http://downloads.com/deadbeaf");
+		version->downloads.append(download);
 		version->forgeVersionFilter = "(9.8.42,)";
 		version->compatibleVersions << "1.6.2"
 									<< "1.6.4";

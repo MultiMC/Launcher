@@ -32,7 +32,6 @@
     "versions": [
         {
             "name": "1.42",
-            "url": "http://downloads.com/deadbeaf",
             "forgeCompat": "(9.8.42,)",
             "mcCompat": [
                 "1.6.2",
@@ -50,7 +49,10 @@
                     "version": "1.2.3"
                 }
             ],
-            "downloadType": "sequential",
+            "urls": [ {
+                "url": "http://downloads.com/deadbeaf",
+                "downloadType": "sequential"
+            } ],
             "installType": "configPack",
             "md5": "a68b86df2f3fff44"
         }

@@ -41,7 +41,6 @@ void QuickModVersion::parse(const QJsonObject &object)
 	name_ = MMCJson::ensureString(object.value("name"), "'name'");
 	type = object.contains("type") ? MMCJson::ensureString(object.value("type"), "'type'")
 								   : "Release";
-	url = MMCJson::ensureUrl(object.value("url"), "'url'");
 	md5 = object.value("md5").toString();
 	forgeVersionFilter = object.value("forgeCompat").toString();
 	compatibleVersions.clear();
@@ -114,26 +113,46 @@ void QuickModVersion::parse(const QJsonObject &object)
 		}
 	}
 
-	// download type
+	downloads.clear();
+	for (auto dlValue : MMCJson::ensureArray(object.value("urls"), "'urls'"))
 	{
-		const QString typeString = object.value("downloadType").toString("parallel");
-		if (typeString == "direct")
+		const QJsonObject dlObject = dlValue.toObject();
+		QuickModDownload download;
+		download.url = MMCJson::ensureUrl(dlObject.value("url"), "'url'");
+		download.priority = MMCJson::ensureInteger(dlObject.value("priority"), "'priority'", 0);
+		// download type
 		{
-			downloadType = Direct;
+			const QString typeString = dlObject.value("downloadType").toString("parallel");
+			if (typeString == "direct")
+			{
+				download.type = QuickModDownload::Direct;
+			}
+			else if (typeString == "parallel")
+			{
+				download.type = QuickModDownload::Parallel;
+			}
+			else if (typeString == "sequential")
+			{
+				download.type = QuickModDownload::Sequential;
+			}
+			else if (typeString == "encoded")
+			{
+				download.type = QuickModDownload::Encoded;
+			}
+			else
+			{
+				throw new MMCError(QObject::tr("Unknown value for \"downloadType\" field"));
+			}
 		}
-		else if (typeString == "parallel")
-		{
-			downloadType = Parallel;
-		}
-		else if (typeString == "sequential")
-		{
-			downloadType = Sequential;
-		}
-		else
-		{
-			throw new MMCError(QObject::tr("Unknown value for \"downloadType\" field"));
-		}
+		download.hint = dlObject.value("hint").toString();
+		download.group = dlObject.value("group").toString();
+		downloads.append(download);
 	}
+	std::sort(downloads.begin(), downloads.end(), [](const QuickModDownload dl1, const QuickModDownload dl2)
+	{
+		return dl1.priority < dl2.priority;
+	});
+
 	// install type
 	{
 		const QString typeString = object.value("installType").toString("forgeMod");

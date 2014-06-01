@@ -58,6 +58,9 @@ bool ensureBoolean(const QJsonValue val, QString what = "value");
 /// make sure the value is converted into an integer. throw otherwise.
 int ensureInteger(const QJsonValue val, QString what = "value");
 
+/// make sure the value is converted into an integer. throw otherwise. this version will return the default value if the field is undefined.
+int ensureInteger(const QJsonValue val, QString what, const int def);
+
 /// make sure the value is converted into a double precision floating number. throw otherwise.
 double ensureDouble(const QJsonValue val, QString what = "value");
 }
