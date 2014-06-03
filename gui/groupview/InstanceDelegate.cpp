@@ -113,16 +113,14 @@ void drawProgressOverlay(QPainter *painter, const QStyleOptionViewItemV4 &option
 void drawBadges(QPainter *painter, const QStyleOptionViewItemV4 &option, BaseInstance *instance)
 {
 	QList<QString> pixmaps;
-	for (auto flag : instance->flags())
+	const BaseInstance::InstanceFlags flags = instance->flags();
+	if (flags & BaseInstance::VersionBrokenFlag)
 	{
-		switch (flag)
-		{
-		case BaseInstance::VersionBrokenFlag:
-			pixmaps.append("broken");
-			break;
-		case BaseInstance::UpdateAvailable:
-			pixmaps.append("updateavailable");
-		}
+		pixmaps.append("broken");
+	}
+	if (flags & BaseInstance::UpdateAvailable)
+	{
+		pixmaps.append("updateavailable");
 	}
 
 	// begin easter eggs

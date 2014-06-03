@@ -372,14 +372,14 @@ void OneSixInstance::reloadVersion()
 	{
 		d->version->reload(false, externalPatches());
 		d->vanillaVersion->reload(true, externalPatches());
-		d->m_flags.remove(VersionBrokenFlag);
+		unsetFlag(VersionBrokenFlag);
 		emit versionReloaded();
 	}
 	catch(MMCError & error)
 	{
 		d->version->clear();
 		d->vanillaVersion->clear();
-		d->m_flags.insert(VersionBrokenFlag);
+		setFlag(VersionBrokenFlag);
 		//TODO: rethrow to show some error message(s)?
 		emit versionReloaded();
 		throw;
@@ -418,7 +418,7 @@ QString OneSixInstance::defaultCustomBaseJar() const
 
 bool OneSixInstance::menuActionEnabled(QString action_name) const
 {
-	if (flags().contains(VersionBrokenFlag))
+	if (flags() & VersionBrokenFlag)
 	{
 		return false;
 	}
@@ -436,7 +436,7 @@ QString OneSixInstance::getStatusbarDescription()
 	{
 		descr += " (custom)";
 	}
-	if (flags().contains(VersionBrokenFlag))
+	if (flags() & VersionBrokenFlag)
 	{
 		descr += " (broken)";
 	}

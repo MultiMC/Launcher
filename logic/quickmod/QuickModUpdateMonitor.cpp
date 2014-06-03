@@ -30,21 +30,27 @@ QuickModUpdateMonitor::QuickModUpdateMonitor(std::shared_ptr<InstanceList> insta
 	connect(m_instanceList.get(), &InstanceList::rowsAboutToBeRemoved, this,
 			&QuickModUpdateMonitor::instanceListRowsRemoved);
 	connect(m_instanceList.get(), &InstanceList::modelAboutToBeReset, this,
+			&QuickModUpdateMonitor::instanceListAboutToBeReset);
+	connect(m_instanceList.get(), &InstanceList::modelReset, this,
 			&QuickModUpdateMonitor::instanceListReset);
+
 	connect(m_quickmodsList.get(), &QuickModsList::rowsInserted, this,
 			&QuickModUpdateMonitor::quickmodsListRowsInserted);
 	connect(m_quickmodsList.get(), &QuickModsList::rowsAboutToBeRemoved, this,
 			&QuickModUpdateMonitor::quickmodsListRowsRemoved);
 	connect(m_quickmodsList.get(), &QuickModsList::modelAboutToBeReset, this,
+			&QuickModUpdateMonitor::quickmodsListAboutToBeReset);
+	connect(m_quickmodsList.get(), &QuickModsList::modelReset, this,
 			&QuickModUpdateMonitor::quickmodsListReset);
 }
 
 void QuickModUpdateMonitor::instanceListRowsInserted(const QModelIndex &parent, const int start,
 													 const int end)
 {
-	for (int i = start; i < end; ++i)
+	for (int i = start; i < (end + 1); ++i)
 	{
 		auto instance = std::dynamic_pointer_cast<OneSixInstance>(m_instanceList->at(i));
+		m_instances.insert(instance.get(), instance);
 		connect(instance.get(), &OneSixInstance::versionReloaded, this,
 				&QuickModUpdateMonitor::instanceReloaded);
 		checkForInstance(instance);
@@ -56,16 +62,22 @@ void QuickModUpdateMonitor::instanceListRowsRemoved(const QModelIndex &parent, c
 	for (int i = start; i < end; ++i)
 	{
 		auto instance = m_instanceList->at(i);
+		m_instances.remove(instance.get());
 		disconnect(instance.get(), 0, this, 0);
 	}
 }
-void QuickModUpdateMonitor::instanceListReset()
+void QuickModUpdateMonitor::instanceListAboutToBeReset()
 {
 	for (int i = 0; i < m_instanceList->count(); ++i)
 	{
 		disconnect(m_instanceList->at(i).get(), 0, this, 0);
 	}
 }
+void QuickModUpdateMonitor::instanceListReset()
+{
+	instanceListRowsInserted(QModelIndex(), 0, m_instanceList->rowCount(QModelIndex()) - 1);
+}
+
 void QuickModUpdateMonitor::quickmodsListRowsInserted(const QModelIndex &parent,
 													  const int start, const int end)
 {
@@ -84,14 +96,17 @@ void QuickModUpdateMonitor::quickmodsListRowsRemoved(const QModelIndex &parent, 
 		disconnect(mod.get(), 0, this, 0);
 	}
 }
-void QuickModUpdateMonitor::quickmodsListReset()
+void QuickModUpdateMonitor::quickmodsListAboutToBeReset()
 {
 	for (int i = 0; i < m_quickmodsList->numMods(); ++i)
 	{
 		disconnect(m_quickmodsList->modAt(i).get(), 0, this, 0);
 	}
 }
-
+void QuickModUpdateMonitor::quickmodsListReset()
+{
+	quickmodsListRowsInserted(QModelIndex(), 0, m_quickmodsList->rowCount(QModelIndex()) - 1);
+}
 void QuickModUpdateMonitor::quickmodUpdated()
 {
 	for (int i = 0; i < m_instanceList->count(); ++i)
@@ -99,9 +114,10 @@ void QuickModUpdateMonitor::quickmodUpdated()
 		checkForInstance(std::dynamic_pointer_cast<OneSixInstance>(m_instanceList->at(i)));
 	}
 }
+
 void QuickModUpdateMonitor::instanceReloaded()
 {
-	checkForInstance(std::shared_ptr<OneSixInstance>(qobject_cast<OneSixInstance *>(sender())));
+	checkForInstance(std::dynamic_pointer_cast<OneSixInstance>(m_instances[qobject_cast<BaseInstance *>(sender())]));
 }
 
 void QuickModUpdateMonitor::checkForInstance(std::shared_ptr<OneSixInstance> instance)
@@ -109,5 +125,9 @@ void QuickModUpdateMonitor::checkForInstance(std::shared_ptr<OneSixInstance> ins
 	if (!m_quickmodsList->updatedModsForInstance(instance).isEmpty())
 	{
 		instance->setFlag(BaseInstance::UpdateAvailable);
+	}
+	else
+	{
+		instance->unsetFlag(BaseInstance::UpdateAvailable);
 	}
 }

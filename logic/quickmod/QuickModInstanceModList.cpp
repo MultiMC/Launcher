@@ -25,6 +25,7 @@ QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance,
 												 QObject *parent)
 	: QAbstractListModel(parent), m_instance(instance), m_modList(modList)
 {
+	Q_ASSERT(dynamic_cast<OneSixInstance *>(instance.get()));
 	connect(m_modList.get(), &ModList::modelAboutToBeReset, this,
 			&QuickModInstanceModList::beginResetModel);
 	connect(m_modList.get(), &ModList::modelReset, this,
@@ -58,6 +59,11 @@ QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance,
 			disconnect(MMC->quickmodslist()->modAt(i).get(), 0, this, 0);
 		}
 	});
+}
+
+QuickModInstanceModList::~QuickModInstanceModList()
+{
+	disconnect(this, 0, 0, 0);
 }
 
 int QuickModInstanceModList::rowCount(const QModelIndex &parent) const
@@ -207,8 +213,9 @@ void QuickModInstanceModList::quickmodIconUpdated()
 QMap<QuickModUid, QString> QuickModInstanceModList::quickmods() const
 {
 	QMap<QuickModUid, QString> out;
+	auto temp_instance = std::dynamic_pointer_cast<OneSixInstance>(m_instance);
 	auto mods =
-		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+		temp_instance->getFullVersion()->quickmods;
 	for (auto it = mods.begin(); it != mods.end(); ++it)
 	{
 		out.insert(QuickModUid(it.key()), it.value());

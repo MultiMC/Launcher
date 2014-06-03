@@ -149,12 +149,12 @@ SettingsObject &BaseInstance::settings() const
 	return *d->m_settings;
 }
 
-QSet<BaseInstance::InstanceFlag> BaseInstance::flags() const
+BaseInstance::InstanceFlags BaseInstance::flags() const
 {
 	I_D(const BaseInstance);
-	return QSet<InstanceFlag>(d->m_flags);
+	return d->m_flags;
 }
-void BaseInstance::setFlags(const QSet<InstanceFlag> &flags)
+void BaseInstance::setFlags(const InstanceFlags &flags)
 {
 	I_D(BaseInstance);
 	if (flags != d->m_flags)
@@ -167,21 +167,21 @@ void BaseInstance::setFlags(const QSet<InstanceFlag> &flags)
 void BaseInstance::setFlag(const BaseInstance::InstanceFlag flag)
 {
 	I_D(BaseInstance);
-	d->m_flags.insert(flag);
+	d->m_flags |= flag;
 	emit flagsChanged();
 	emit propertiesChanged(this);
 }
 void BaseInstance::unsetFlag(const BaseInstance::InstanceFlag flag)
 {
 	I_D(BaseInstance);
-	d->m_flags.remove(flag);
+	d->m_flags &= ~flag;
 	emit flagsChanged();
 	emit propertiesChanged(this);
 }
 
 bool BaseInstance::canLaunch() const
 {
-	return !flags().contains(VersionBrokenFlag);
+	return !(flags() & VersionBrokenFlag);
 }
 
 bool BaseInstance::reload()

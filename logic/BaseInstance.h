@@ -55,7 +55,10 @@ protected:
 
 public:
 	/// virtual destructor to make sure the destruction is COMPLETE
-	virtual ~BaseInstance() {};
+	virtual ~BaseInstance()
+	{
+
+	};
 
 	virtual void init() {}
 	virtual void copy(const QDir &newDir) {}
@@ -186,12 +189,12 @@ public:
 
 	enum InstanceFlag
 	{
-		NoFlags = 0x00,
 		VersionBrokenFlag = 0x01,
 		UpdateAvailable = 0x02
 	};
-	QSet<InstanceFlag> flags() const;
-	void setFlags(const QSet<InstanceFlag> &flags);
+	Q_DECLARE_FLAGS(InstanceFlags, InstanceFlag)
+	InstanceFlags flags() const;
+	void setFlags(const InstanceFlags &flags);
 	void setFlag(const InstanceFlag flag);
 	void unsetFlag(const InstanceFlag flag);
 
@@ -223,3 +226,4 @@ protected:
 };
 
 Q_DECLARE_METATYPE(BaseInstance::InstanceFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(BaseInstance::InstanceFlags)

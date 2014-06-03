@@ -16,6 +16,7 @@
 #pragma once
 
 #include <QObject>
+#include <QMap>
 #include <memory>
 
 class InstanceList;
@@ -35,9 +36,11 @@ private
 slots:
 	void instanceListRowsInserted(const QModelIndex &parent, const int start, const int end);
 	void instanceListRowsRemoved(const QModelIndex &parent, const int start, const int end);
+	void instanceListAboutToBeReset();
 	void instanceListReset();
 	void quickmodsListRowsInserted(const QModelIndex &parent, const int start, const int end);
 	void quickmodsListRowsRemoved(const QModelIndex &parent, const int start, const int end);
+	void quickmodsListAboutToBeReset();
 	void quickmodsListReset();
 
 	void quickmodUpdated();
@@ -46,6 +49,8 @@ slots:
 private:
 	std::shared_ptr<InstanceList> m_instanceList;
 	std::shared_ptr<QuickModsList> m_quickmodsList;
+
+	QMap<BaseInstance *, std::shared_ptr<BaseInstance>> m_instances;
 
 	void checkForInstance(std::shared_ptr<OneSixInstance> instance);
 };

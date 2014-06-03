@@ -265,7 +265,7 @@ QString LegacyInstance::defaultCustomBaseJar() const
 
 bool LegacyInstance::menuActionEnabled(QString action_name) const
 {
-	if (flags().contains(VersionBrokenFlag))
+	if (flags() & VersionBrokenFlag)
 	{
 		return false;
 	}
@@ -278,7 +278,7 @@ bool LegacyInstance::menuActionEnabled(QString action_name) const
 
 QString LegacyInstance::getStatusbarDescription()
 {
-	if (flags().contains(VersionBrokenFlag))
+	if (flags() & VersionBrokenFlag)
 	{
 		return "Legacy : " + intendedVersionId() + " (broken)";
 	}

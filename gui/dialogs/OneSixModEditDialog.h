@@ -65,8 +65,10 @@ protected:
 	/// FIXME: this shouldn't be necessary!
 	bool reloadInstanceVersion();
 
+protected
+slots:
 	// Runs tasks to update and install QuickMods.
-	void Q_SLOT runQuickModInstall();
+	void runQuickModInstall();
 
 private:
 	Ui::OneSixModEditDialog *ui;

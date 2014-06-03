@@ -35,6 +35,7 @@ public:
 
 	QuickModInstanceModList(InstancePtr instance, std::shared_ptr<ModList> modList,
 							QObject *parent = 0);
+	~QuickModInstanceModList();
 
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	int columnCount(const QModelIndex &parent = QModelIndex()) const;
