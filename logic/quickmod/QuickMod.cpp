@@ -172,6 +172,11 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	{
 		m_tags.append(MMCJson::ensureString(val, "'tag'"));
 	}
+	m_mavenRepos.clear();
+	for (auto val : mod.value("mavenRepos").toArray())
+	{
+		m_mavenRepos.append(MMCJson::ensureUrl(val, "maven repository"));
+	}
 	m_updateUrl =
 		Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
 

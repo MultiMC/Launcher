@@ -56,14 +56,14 @@ private slots:
 		auto version = QuickModVersionPtr(new QuickModVersion(TestsInternal::createMod("TheMod")));
 		version->name_ = "1.42";
 		QuickModDownload download;
-		download.url = QUrl("http://downloads.com/deadbeaf");
+		download.url = "http://downloads.com/deadbeaf";
 		download.type = type;
 		version->downloads.append(download);
 		version->forgeVersionFilter = "(9.8.42,)";
 		version->compatibleVersions << "1.6.2" << "1.6.4";
 		version->dependencies = {{QuickModUid("stuff"), "1.0.0.0.0"}};
 		version->recommendations = {{QuickModUid("OtherName"), "1.2.3"}};
-		version->md5 = "a68b86df2f3fff44";
+		version->sha1 = "a68b86df2f3fff44";
 		return version;
 	}
 
@@ -148,7 +148,7 @@ private slots:
 		QCOMPARE(parsedVersion->breaks, version->breaks);
 		QCOMPARE(parsedVersion->conflicts, version->conflicts);
 		QCOMPARE(parsedVersion->provides, version->provides);
-		QCOMPARE(parsedVersion->md5, version->md5);
+		QCOMPARE(parsedVersion->sha1, version->sha1);
 		QCOMPARE((int)parsedVersion->installType, (int)version->installType);
 		parsedVersion->mod = version->mod; // otherwise the below breaks
 		QVERIFY(parsedVersion->operator ==(*version));

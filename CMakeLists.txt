@@ -599,6 +599,8 @@ set(MULTIMC_SOURCES
 	logic/quickmod/tasks/QuickModDownloadTask.cpp
 	logic/quickmod/tasks/QuickModForgeDownloadTask.h
 	logic/quickmod/tasks/QuickModForgeDownloadTask.cpp
+	logic/quickmod/tasks/QuickModMavenFindTask.h
+	logic/quickmod/tasks/QuickModMavenFindTask.cpp
 	logic/quickmod/QuickModsList.h
 	logic/quickmod/QuickModsList.cpp
 	logic/quickmod/QuickModFilesUpdater.h

@@ -41,7 +41,7 @@ void QuickModVersion::parse(const QJsonObject &object)
 	name_ = MMCJson::ensureString(object.value("name"), "'name'");
 	type = object.contains("type") ? MMCJson::ensureString(object.value("type"), "'type'")
 								   : "Release";
-	md5 = object.value("md5").toString();
+	sha1 = object.value("sha1").toString();
 	forgeVersionFilter = object.value("forgeCompat").toString();
 	compatibleVersions.clear();
 	for (auto val : MMCJson::ensureArray(object.value("mcCompat"), "'mcCompat'"))
@@ -118,7 +118,7 @@ void QuickModVersion::parse(const QJsonObject &object)
 	{
 		const QJsonObject dlObject = dlValue.toObject();
 		QuickModDownload download;
-		download.url = MMCJson::ensureUrl(dlObject.value("url"), "'url'");
+		download.url = MMCJson::ensureString(dlObject.value("url"), "'url'");
 		download.priority = MMCJson::ensureInteger(dlObject.value("priority"), "'priority'", 0);
 		// download type
 		{
@@ -138,6 +138,10 @@ void QuickModVersion::parse(const QJsonObject &object)
 			else if (typeString == "encoded")
 			{
 				download.type = QuickModDownload::Encoded;
+			}
+			else if (typeString == "maven")
+			{
+				download.type = QuickModDownload::Maven;
 			}
 			else
 			{

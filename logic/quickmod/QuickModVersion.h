@@ -43,10 +43,11 @@ public:
 		Direct,
 		Parallel,
 		Sequential,
-		Encoded
+		Encoded,
+		Maven
 	};
 
-	QUrl url;
+	QString url;
 	DownloadType type;
 	int priority;
 	QString hint;
@@ -101,7 +102,7 @@ public:
 	QMap<QuickModUid, QString> breaks;
 	QMap<QuickModUid, QString> conflicts;
 	QMap<QuickModUid, QString> provides;
-	QString md5;
+	QString sha1;
 	InstallType installType;
 	QList<Library> libraries;
 	QList<QuickModDownload> downloads;
@@ -112,7 +113,7 @@ public:
 			   compatibleVersions == other.compatibleVersions &&
 			   forgeVersionFilter == other.forgeVersionFilter &&
 			   dependencies == other.dependencies && recommendations == other.recommendations &&
-			   md5 == other.md5;
+			   sha1 == other.sha1;
 	}
 
 	static QuickModVersionPtr invalid(QuickModPtr mod);

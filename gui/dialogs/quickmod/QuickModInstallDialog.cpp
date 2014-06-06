@@ -33,6 +33,7 @@
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/tasks/QuickModDependencyDownloadTask.h"
+#include "logic/quickmod/tasks/QuickModMavenFindTask.h"
 #include "logic/quickmod/QuickModDependencyResolver.h"
 #include "logic/BaseInstance.h"
 #include "logic/net/ByteArrayDownload.h"
@@ -174,7 +175,7 @@ QTreeWidgetItem *QuickModInstallDialog::itemForVersion(QuickModVersionPtr versio
 // {{{ Other
 bool QuickModInstallDialog::checkIsDone()
 {
-	if (m_downloadingUrls.isEmpty() && ui->webTabView->count() == 0 && m_modVersions.isEmpty())
+	if (m_downloadingUrls.isEmpty() && m_mavenFindTasks.isEmpty() && ui->webTabView->count() == 0 && m_modVersions.isEmpty())
 	{
 		ui->finishButton->setEnabled(true);
 		return true;
@@ -240,6 +241,8 @@ int QuickModInstallDialog::exec()
 	selectDownloadUrls();
 
 	runDirectDownloads();
+
+	runMavenDownloads();
 
 	// Initialize the web mods progress bar.
 	ui->webModsProgressBar->setMaximum(m_modVersions.size());
@@ -366,8 +369,38 @@ void QuickModInstallDialog::runDirectDownloads()
 		QuickModDownload download = m_selectedDownloadUrls[version];
 		if (download.type == QuickModDownload::Direct)
 		{
-			QLOG_DEBUG() << "Direct download used for " << download.url.toString();
-			processReply(MMC->qnam()->get(QNetworkRequest(download.url)), version);
+			QLOG_DEBUG() << "Direct download used for" << download.url;
+			processReply(MMC->qnam()->get(QNetworkRequest(QUrl(download.url))), version);
+			it.remove();
+		}
+	}
+}
+
+void QuickModInstallDialog::runMavenDownloads()
+{
+	// do all of the maven downloads
+	QMutableListIterator<QuickModVersionPtr> it(m_modVersions);
+	while (it.hasNext())
+	{
+		QuickModVersionPtr version = it.next();
+		QuickModDownload download = m_selectedDownloadUrls[version];
+		if (download.type == QuickModDownload::Maven)
+		{
+			QLOG_DEBUG() << "Checking Maven repositories for " << download.url;
+			setProgressListMsg(version, tr("Checking Maven repositories"));
+			QuickModMavenFindTask *task = new QuickModMavenFindTask(version->mod->mavenRepos(), download.url);
+			connect(task, &QuickModMavenFindTask::failed, [this, version, download]()
+			{
+				QLOG_ERROR() << "Couldn't find a maven download for" << download.url;
+				setProgressListMsg(version, tr("Couldn't find a Maven repository"), Qt::red);
+			});
+			connect(task, &QuickModMavenFindTask::succeeded, [this, version, download, task]()
+			{
+				QLOG_DEBUG() << "Found Maven download for" << download.url << "at" << task->url().toString();
+				processReply(MMC->qnam()->get(QNetworkRequest(task->url())), version);
+			});
+			m_mavenFindTasks.append(task);
+			task->start();
 			it.remove();
 		}
 	}
@@ -388,7 +421,7 @@ void QuickModInstallDialog::downloadNextMod()
 
 void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 {
-	const QUrl url = m_selectedDownloadUrls[version].url;
+	const QUrl url = QUrl(m_selectedDownloadUrls[version].url);
 	QLOG_INFO() << "Downloading " << version->name() << "(" << url.toString() << ")";
 
 	setProgressListMsg(version, tr("Waiting on web page."), QColor(Qt::blue));

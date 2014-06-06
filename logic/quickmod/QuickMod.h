@@ -164,6 +164,10 @@ public:
 	{
 		return m_license;
 	}
+	QList<QUrl> mavenRepos() const
+	{
+		return m_mavenRepos;
+	}
 	QList<QuickModVersionPtr> versions() const
 	{
 		return m_versions;
@@ -207,6 +211,7 @@ private:
 	QStringList m_categories;
 	QStringList m_tags;
 	QString m_license;
+	QList<QUrl> m_mavenRepos;
 
 	QList<QuickModVersionPtr> m_versions;
 

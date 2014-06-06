@@ -179,11 +179,11 @@ void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteAr
 		return;
 	}
 
-	const QByteArray actual = QCryptographicHash::hash(data, QCryptographicHash::Md5).toHex();
-	if (!version->md5.isNull() && actual != version->md5)
+	const QByteArray actual = QCryptographicHash::hash(data, QCryptographicHash::Sha1).toHex();
+	if (!version->sha1.isNull() && actual != version->sha1)
 	{
 		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
-					<< ". Actual: " << actual << " Expected: " << version->md5;
+					<< ". Actual: " << actual << " Expected: " << version->sha1;
 		// FIXME using exceptions generates crashes?
 		throw new MMCError(tr("Error: Checksum mismatch"));
 	}
