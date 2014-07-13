@@ -14,13 +14,18 @@
  */
 
 #include "ModList.h"
-#include "LegacyInstance.h"
-#include <pathutils.h>
+
 #include <QMimeData>
 #include <QUrl>
 #include <QUuid>
 #include <QString>
 #include <QFileSystemWatcher>
+
+#include <pathutils.h>
+
+#include "LegacyInstance.h"
+#include "MultiMC.h"
+#include "settings/SettingsObject.h"
 #include "logger/QsLog.h"
 
 ModList::ModList(const QString &dir, const QString &list_file)
@@ -241,7 +246,26 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	{
 		return false;
 	}
-	Mod m(filename);
+
+	// copy it to the central mods dir, if it's not already there
+	QFileInfo cookedFilename(QDir(MMC->settings()->get("CentralModsDir").toString())
+									   .absoluteFilePath(filename.fileName()));
+	if (!filename.absolutePath().startsWith(cookedFilename.absolutePath())
+			&& !cookedFilename.exists()
+			&& MMC->settings()->get("CopyToCentralMods").toBool())
+	{
+		if (!QFile::copy(filename.absoluteFilePath(), cookedFilename.absoluteFilePath()))
+		{
+			QLOG_ERROR() << "Couldn't copy" << filename.absoluteFilePath()
+						 << "to the central mods directory";
+		}
+	}
+	else
+	{
+		cookedFilename = filename;
+	}
+
+	Mod m(cookedFilename);
 	if (!m.valid())
 		return false;
 
@@ -270,8 +294,8 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 		return false;
 	if (type == Mod::MOD_SINGLEFILE || type == Mod::MOD_ZIPFILE || type == Mod::MOD_LITEMOD)
 	{
-		QString newpath = PathCombine(m_dir.path(), filename.fileName());
-		if (!QFile::copy(filename.filePath(), newpath))
+		QString newpath = PathCombine(m_dir.path(), cookedFilename.fileName());
+		if (!QFile::copy(cookedFilename.filePath(), newpath))
 			return false;
 		m.repath(newpath);
 		beginInsertRows(QModelIndex(), index, index);
@@ -284,8 +308,8 @@ bool ModList::installMod(const QFileInfo &filename, int index)
 	else if (type == Mod::MOD_FOLDER)
 	{
 
-		QString from = filename.filePath();
-		QString to = PathCombine(m_dir.path(), filename.fileName());
+		QString from = cookedFilename.filePath();
+		QString to = PathCombine(m_dir.path(), cookedFilename.fileName());
 		if (!copyPath(from, to))
 			return false;
 		m.repath(to);

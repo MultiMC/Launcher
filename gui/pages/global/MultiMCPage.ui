@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>487</width>
-    <height>519</height>
+    <height>594</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -86,6 +86,22 @@
             </property>
             <property name="wordWrap">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Behaviour</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_14">
+          <item>
+           <widget class="QCheckBox" name="copyCentralModsBox">
+            <property name="text">
+             <string>Automatically copy mods to central mods folder</string>
             </property>
            </widget>
           </item>
