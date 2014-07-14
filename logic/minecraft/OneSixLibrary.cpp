@@ -47,6 +47,11 @@ void OneSixLibrary::finalize()
 	relative.replace('.', '/');
 	relative += '/' + parts[1] + '/' + parts[2] + '/' + parts[1] + '-' + parts[2];
 
+	if (parts.length() == 4)
+	{
+		relative += '-' + parts[3];
+	}
+
 	if (!isNative())
 		relative += ".jar";
 	else
@@ -169,7 +174,7 @@ QStringList OneSixLibrary::files()
 bool OneSixLibrary::filesExist(const QDir &base)
 {
 	auto libFiles = files();
-	for(auto file: libFiles)
+	for (auto file : libFiles)
 	{
 		QFileInfo info(base, file);
 		QLOG_WARN() << info.absoluteFilePath() << "doesn't exist";
