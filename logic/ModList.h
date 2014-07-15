@@ -45,7 +45,7 @@ public:
 		ModFileRole = Qt::UserRole
 	};
 
-	ModList(BaseInstance *instance, const QString &dir, const QString &list_file = QString());
+	ModList(const QString &dir, const QString &list_file = QString());
 
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value,
@@ -150,7 +150,6 @@ signals:
 	void changed();
 
 protected:
-	BaseInstance *m_instance;
 	QFileSystemWatcher *m_watcher;
 	bool is_watching;
 	QDir m_dir;

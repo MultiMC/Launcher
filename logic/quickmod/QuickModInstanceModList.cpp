@@ -20,12 +20,12 @@
 #include "QuickModLibraryInstaller.h"
 #include "modutils.h"
 
-QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance,
+QuickModInstanceModList::QuickModInstanceModList(BaseInstance *instance,
 												 std::shared_ptr<ModList> modList,
 												 QObject *parent)
 	: QAbstractListModel(parent), m_instance(instance), m_modList(modList)
 {
-	Q_ASSERT(dynamic_cast<OneSixInstance *>(instance.get()));
+	Q_ASSERT(dynamic_cast<OneSixInstance *>(instance));
 	connect(m_modList.get(), &ModList::modelAboutToBeReset, this,
 			&QuickModInstanceModList::beginResetModel);
 	connect(m_modList.get(), &ModList::modelReset, this,
@@ -38,7 +38,7 @@ QuickModInstanceModList::QuickModInstanceModList(InstancePtr instance,
 	connect(m_modList.get(), &ModList::dataChanged,
 			[this](const QModelIndex &tl, const QModelIndex &br, const QVector<int> &roles)
 	{ emit dataChanged(mapFromModList(tl), mapFromModList(br), roles); });
-	connect(std::dynamic_pointer_cast<OneSixInstance>(m_instance).get(),
+	connect(dynamic_cast<OneSixInstance *>(m_instance),
 			&OneSixInstance::versionReloaded, this, &QuickModInstanceModList::resetModel);
 
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsInserted,
@@ -213,7 +213,7 @@ void QuickModInstanceModList::quickmodIconUpdated()
 QMap<QuickModUid, QString> QuickModInstanceModList::quickmods() const
 {
 	QMap<QuickModUid, QString> out;
-	auto temp_instance = std::dynamic_pointer_cast<OneSixInstance>(m_instance);
+	auto temp_instance = dynamic_cast<OneSixInstance *>(m_instance);
 	auto mods =
 		temp_instance->getFullVersion()->quickmods;
 	for (auto it = mods.begin(); it != mods.end(); ++it)
@@ -257,7 +257,7 @@ void QuickModInstanceModList::updateMod(const QModelIndex &index)
 		return;
 	}
 	// TODO allow updating in bulk
-	std::dynamic_pointer_cast<OneSixInstance>(m_instance)
+	dynamic_cast<OneSixInstance *>(m_instance)
 		->setQuickModVersion(modAt(index.row())->uid(), QString());
 }
 
@@ -268,10 +268,10 @@ void QuickModInstanceModList::removeMod(const QModelIndex &index)
 		return;
 	}
 	auto mod = modAt(index.row());
-	auto instance = std::dynamic_pointer_cast<OneSixInstance>(m_instance);
+	auto instance = dynamic_cast<OneSixInstance *>(m_instance);
 	if (auto version = mod->version(quickmods()[mod->uid()]))
 	{
-		QuickModLibraryInstaller(version).remove(instance.get());
+		QuickModLibraryInstaller(version).remove(instance);
 	}
 	instance->removeQuickMod(mod->uid());
 }

@@ -21,13 +21,13 @@
 #include <QDir>
 #include "MultiMC.h"
 
-#include "inisettingsobject.h"
-#include "setting.h"
-#include "overridesetting.h"
+#include "logic/settings/INISettingsObject.h"
+#include "logic/settings/Setting.h"
+#include "logic/settings/OverrideSetting.h"
 
 #include "pathutils.h"
 #include <cmdutils.h>
-#include "lists/MinecraftVersionList.h"
+#include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/icons/IconList.h"
 
 BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
@@ -58,6 +58,8 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 
 	// Java Settings
 	settings().registerSetting("OverrideJava", false);
+	settings().registerSetting("OverrideJavaLocation", false);
+	settings().registerSetting("OverrideJavaArgs", false);
 	settings().registerOverride(globalSettings->getSetting("JavaPath"));
 	settings().registerOverride(globalSettings->getSetting("JvmArgs"));
 
@@ -105,6 +107,18 @@ void BaseInstance::nuke()
 QString BaseInstance::id() const
 {
 	return QFileInfo(instanceRoot()).fileName();
+}
+
+bool BaseInstance::isRunning() const
+{
+	I_D(BaseInstance);
+	return d->m_isRunning;
+}
+
+void BaseInstance::setRunning(bool running) const
+{
+	I_D(BaseInstance);
+	d->m_isRunning = running;
 }
 
 QString BaseInstance::instanceType() const

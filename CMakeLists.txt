@@ -35,18 +35,7 @@ set(CMAKE_JAVA_TARGET_OUTPUT_DIR ${PROJECT_BINARY_DIR}/jars)
 ######## Set compiler flags ########
 include(UseCXX11)
 include(Coverage)
-
-option(SUPPRESS_WARNINGS "Suppress all warnings. This currently only works for Clang, and is meant for fixing lots of errors." OFF)
-if (SUPPRESS_WARNINGS)
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		message (AUTHOR_WARNING "Warnings have been suppressed for error fixing. This should only be used for fixing a large amount of errors!")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
-	else ()
-		message (ERROR "Warning suppression has been disabled, but it is not supported for the current compiler. Currently only Clang is supported.")
-	endif ()
-else ()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-endif ()
+set(CMAKE_CXX_FLAGS " -Wall ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror=return-type")
 
 ################################ 3rd Party Libs ################################
@@ -115,8 +104,8 @@ set(MultiMC_NEWS_RSS_URL "http://multimc.org/rss.xml" CACHE STRING "URL to fetch
 
 ######## Set version numbers ########
 set(MultiMC_VERSION_MAJOR	 0)
-set(MultiMC_VERSION_MINOR	 3)
-set(MultiMC_VERSION_HOTFIX   6)
+set(MultiMC_VERSION_MINOR	 5)
+set(MultiMC_VERSION_HOTFIX   0)
 
 # Build number
 set(MultiMC_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
@@ -264,11 +253,6 @@ add_definitions(-DLIBUTIL_STATIC)
 add_subdirectory(depends/util)
 include_directories(${LIBUTIL_INCLUDE_DIR})
 
-# Add the settings library.
-add_definitions(-DLIBSETTINGS_STATIC)
-add_subdirectory(depends/settings)
-include_directories(${LIBSETTINGS_INCLUDE_DIR})
-
 # Add the updater
 add_subdirectory(mmc_updater)
 
@@ -297,11 +281,38 @@ set(MULTIMC_SOURCES
 	logger/QsLogDest.cpp
 	logger/QsLogDest.h
 
+	# GUI - general utilities
+	gui/GuiUtil.h
+	gui/GuiUtil.cpp
+
 	# GUI - windows
 	gui/MainWindow.h
 	gui/MainWindow.cpp
 	gui/ConsoleWindow.h
 	gui/ConsoleWindow.cpp
+
+	# GUI - page dialog pages
+	gui/pages/BasePage.h
+	gui/pages/VersionPage.cpp
+	gui/pages/VersionPage.h
+	gui/pages/TexturePackPage.h
+	gui/pages/ResourcePackPage.h
+	gui/pages/ModFolderPage.cpp
+	gui/pages/ModFolderPage.h
+	gui/pages/NotesPage.cpp
+	gui/pages/NotesPage.h
+	gui/pages/LegacyUpgradePage.cpp
+	gui/pages/LegacyUpgradePage.h
+	gui/pages/LegacyJarModPage.cpp
+	gui/pages/LegacyJarModPage.h
+	gui/pages/LogPage.cpp
+	gui/pages/LogPage.h
+	gui/pages/InstanceSettingsPage.cpp
+	gui/pages/InstanceSettingsPage.h
+	gui/pages/ScreenshotsPage.cpp
+	gui/pages/ScreenshotsPage.h
+	gui/pages/OtherLogsPage.cpp
+	gui/pages/OtherLogsPage.h
 
 	# GUI - dialogs
 	gui/dialogs/quickmod/QuickModAddFileDialog.h
@@ -314,47 +325,41 @@ set(MULTIMC_SOURCES
 	gui/dialogs/quickmod/QuickModRepoDialog.cpp
 	gui/dialogs/quickmod/QuickModVerifyModsDialog.h
 	gui/dialogs/quickmod/QuickModVerifyModsDialog.cpp
-	gui/dialogs/SettingsDialog.h
-	gui/dialogs/SettingsDialog.cpp
-	gui/dialogs/CopyInstanceDialog.h
-	gui/dialogs/CopyInstanceDialog.cpp
-	gui/dialogs/NewInstanceDialog.cpp
-	gui/dialogs/ProgressDialog.h
-	gui/dialogs/ProgressDialog.cpp
-	gui/dialogs/AboutDialog.h
 	gui/dialogs/AboutDialog.cpp
-	gui/dialogs/VersionSelectDialog.h
-	gui/dialogs/VersionSelectDialog.cpp
-	gui/dialogs/LwjglSelectDialog.h
-	gui/dialogs/LwjglSelectDialog.cpp
-	gui/dialogs/InstanceSettings.h
-	gui/dialogs/InstanceSettings.cpp
-	gui/dialogs/IconPickerDialog.h
-	gui/dialogs/IconPickerDialog.cpp
-	gui/dialogs/LegacyModEditDialog.h
-	gui/dialogs/LegacyModEditDialog.cpp
-	gui/dialogs/OneSixModEditDialog.h
-	gui/dialogs/OneSixModEditDialog.cpp
-	gui/dialogs/ModEditDialogCommon.h
-	gui/dialogs/ModEditDialogCommon.cpp
-	gui/dialogs/EditNotesDialog.h
-	gui/dialogs/EditNotesDialog.cpp
-	gui/dialogs/CustomMessageBox.h
-	gui/dialogs/CustomMessageBox.cpp
-	gui/dialogs/EditAccountDialog.h
-	gui/dialogs/EditAccountDialog.cpp
-	gui/dialogs/LoginDialog.h
-	gui/dialogs/LoginDialog.cpp
-	gui/dialogs/AccountListDialog.h
+	gui/dialogs/AboutDialog.h
 	gui/dialogs/AccountListDialog.cpp
-	gui/dialogs/AccountSelectDialog.h
+	gui/dialogs/AccountListDialog.h
 	gui/dialogs/AccountSelectDialog.cpp
-	gui/dialogs/UpdateDialog.h
-	gui/dialogs/UpdateDialog.cpp
-	gui/dialogs/ScreenshotDialog.h
-	gui/dialogs/ScreenshotDialog.cpp
-	gui/dialogs/NotificationDialog.h
+	gui/dialogs/AccountSelectDialog.h
+	gui/dialogs/CopyInstanceDialog.cpp
+	gui/dialogs/CopyInstanceDialog.h
+	gui/dialogs/CustomMessageBox.cpp
+	gui/dialogs/CustomMessageBox.h
+	gui/dialogs/EditAccountDialog.cpp
+	gui/dialogs/EditAccountDialog.h
+	gui/dialogs/IconPickerDialog.cpp
+	gui/dialogs/IconPickerDialog.h
+	gui/dialogs/LoginDialog.cpp
+	gui/dialogs/LoginDialog.h
+	gui/dialogs/LwjglSelectDialog.cpp
+	gui/dialogs/LwjglSelectDialog.h
+	gui/dialogs/ModEditDialogCommon.cpp
+	gui/dialogs/ModEditDialogCommon.h
+	gui/dialogs/NewInstanceDialog.cpp
+	gui/dialogs/NewInstanceDialog.h
 	gui/dialogs/NotificationDialog.cpp
+	gui/dialogs/NotificationDialog.h
+	gui/pagedialog/PageDialog.cpp
+	gui/pagedialog/PageDialog.h
+	gui/dialogs/ProgressDialog.cpp
+	gui/dialogs/ProgressDialog.h
+	gui/dialogs/SettingsDialog.cpp
+	gui/dialogs/SettingsDialog.h
+	gui/dialogs/UpdateDialog.cpp
+	gui/dialogs/UpdateDialog.h
+	gui/dialogs/VersionSelectDialog.cpp
+	gui/dialogs/VersionSelectDialog.h
+
 
 	# GUI - widgets
 	gui/widgets/Common.cpp
@@ -371,44 +376,68 @@ set(MULTIMC_SOURCES
 	gui/widgets/MCModInfoFrame.h
 	gui/widgets/ModListView.cpp
 	gui/widgets/ModListView.h
+	gui/widgets/PageContainer.cpp
+	gui/widgets/PageContainer.h
+	gui/widgets/PageContainer_p.h
 	gui/widgets/ServerStatus.cpp
 	gui/widgets/ServerStatus.h
 	gui/widgets/VersionListView.cpp
 	gui/widgets/VersionListView.h
 
 	# GUI - instance group view
-	gui/groupview/Group.cpp
-	gui/groupview/Group.h
 	gui/groupview/GroupedProxyModel.cpp
 	gui/groupview/GroupedProxyModel.h
 	gui/groupview/GroupView.cpp
 	gui/groupview/GroupView.h
 	gui/groupview/InstanceDelegate.cpp
 	gui/groupview/InstanceDelegate.h
+	gui/groupview/VisualGroup.cpp
+	gui/groupview/VisualGroup.h
 
-	# Base classes and infrastructure
+	# LOGIC - Base classes and infrastructure
 	logic/BaseVersion.h
-	logic/MinecraftVersion.h
 	logic/InstanceFactory.h
 	logic/InstanceFactory.cpp
 	logic/BaseInstance.h
 	logic/BaseInstance.cpp
 	logic/BaseInstance_p.h
-
-	logic/MinecraftProcess.h
-	logic/MinecraftProcess.cpp
 	logic/Mod.h
 	logic/Mod.cpp
 	logic/ModList.h
 	logic/ModList.cpp
+	
+	# sets and maps for deciding based on versions
+	logic/VersionFilterData.h
+	logic/VersionFilterData.cpp
 
-	# Basic instance launcher for starting from terminal
+	# Instance launch
 	logic/InstanceLauncher.h
 	logic/InstanceLauncher.cpp
+	logic/MinecraftProcess.h
+	logic/MinecraftProcess.cpp
+
+	# URN parser/resolver
+	logic/URNResolver.cpp
+	logic/URNResolver.h
+
+	# Annoying nag screen logic
+	logic/NagUtils.h
+	logic/NagUtils.cpp
+
+	# Player skin utilities
+	logic/SkinUtils.h
+	logic/SkinUtils.cpp
+	
+	# misc model filter
+	logic/EnabledItemFilter.h
+	logic/EnabledItemFilter.cpp
 
 	# JSON parsing helpers
 	logic/MMCJson.h
 	logic/MMCJson.cpp
+
+	# RW lock protected map
+	logic/RWStorage.h
 
 	# network stuffs
 	logic/net/NetAction.h
@@ -418,10 +447,6 @@ set(MULTIMC_SOURCES
 	logic/net/ByteArrayDownload.cpp
 	logic/net/CacheDownload.h
 	logic/net/CacheDownload.cpp
-	logic/net/ForgeMirrors.h
-	logic/net/ForgeMirrors.cpp
-	logic/net/ForgeXzDownload.h
-	logic/net/ForgeXzDownload.cpp
 	logic/net/NetJob.h
 	logic/net/NetJob.cpp
 	logic/net/HttpMetaCache.h
@@ -474,9 +499,6 @@ set(MULTIMC_SOURCES
 	logic/LegacyUpdate.h
 	logic/LegacyUpdate.cpp
 
-	logic/LegacyForge.h
-	logic/LegacyForge.cpp
-
 	# OneSix instances
 	logic/OneSixUpdate.h
 	logic/OneSixUpdate.cpp
@@ -485,30 +507,46 @@ set(MULTIMC_SOURCES
 	logic/OneSixInstance_p.h
 
 	# OneSix version json infrastructure
-	logic/OneSixVersionBuilder.h
-	logic/OneSixVersionBuilder.cpp
-	logic/VersionFile.h
-	logic/VersionFile.cpp
-	logic/VersionFinal.h
-	logic/VersionFinal.cpp
-	logic/OneSixLibrary.h
-	logic/OneSixLibrary.cpp
-	logic/OneSixRule.h
-	logic/OneSixRule.cpp
-	logic/OpSys.h
-	logic/OpSys.cpp
+	logic/minecraft/InstanceVersion.cpp
+	logic/minecraft/InstanceVersion.h
+	logic/minecraft/JarMod.cpp
+	logic/minecraft/JarMod.h
+	logic/minecraft/MinecraftVersion.cpp
+	logic/minecraft/MinecraftVersion.h
+	logic/minecraft/MinecraftVersionList.cpp
+	logic/minecraft/MinecraftVersionList.h
+	logic/minecraft/OneSixLibrary.cpp
+	logic/minecraft/OneSixLibrary.h
+	logic/minecraft/OneSixRule.cpp
+	logic/minecraft/OneSixRule.h
+	logic/minecraft/OpSys.cpp
+	logic/minecraft/OpSys.h
+	logic/minecraft/ParseUtils.cpp
+	logic/minecraft/ParseUtils.h
+	logic/minecraft/RawLibrary.cpp
+	logic/minecraft/RawLibrary.h
+	logic/minecraft/VersionBuilder.cpp
+	logic/minecraft/VersionBuilder.h
+	logic/minecraft/VersionBuildError.h
+	logic/minecraft/VersionFile.cpp
+	logic/minecraft/VersionFile.h
+	logic/minecraft/VersionPatch.h
+	logic/minecraft/VersionSource.h
 
-	# Mod installers
+	# A Recursive file system watcher
+	logic/RecursiveFileSystemWatcher.h
+	logic/RecursiveFileSystemWatcher.cpp
+
+	# Various base classes
 	logic/BaseInstaller.h
 	logic/BaseInstaller.cpp
-	logic/ForgeInstaller.h
-	logic/ForgeInstaller.cpp
-	logic/LiteLoaderInstaller.h
-	logic/LiteLoaderInstaller.cpp
+	logic/BaseVersionList.h
+	logic/BaseVersionList.cpp
 
-	# Nostalgia
-	logic/NostalgiaInstance.h
-	logic/NostalgiaInstance.cpp
+	logic/InstanceList.h
+	logic/InstanceList.cpp
+	logic/LwjglVersionList.h
+	logic/LwjglVersionList.cpp
 
 	# FTB
 	logic/OneSixFTBInstance.h
@@ -516,27 +554,8 @@ set(MULTIMC_SOURCES
 	logic/LegacyFTBInstance.h
 	logic/LegacyFTBInstance.cpp
 
-	# Lists
-	logic/lists/InstanceList.h
-	logic/lists/InstanceList.cpp
-	logic/lists/BaseVersionList.h
-	logic/lists/BaseVersionList.cpp
-	logic/lists/MinecraftVersionList.h
-	logic/lists/MinecraftVersionList.cpp
-	logic/lists/LwjglVersionList.h
-	logic/lists/LwjglVersionList.cpp
-	logic/lists/ForgeVersionList.h
-	logic/lists/ForgeVersionList.cpp
-	logic/lists/JavaVersionList.h
-	logic/lists/JavaVersionList.cpp
-	logic/lists/LiteLoaderVersionList.h
-	logic/lists/LiteLoaderVersionList.cpp
-
 	# the screenshots feature
 	logic/screenshots/Screenshot.h
-	logic/screenshots/Screenshot.cpp
-	logic/screenshots/ScreenshotList.h
-	logic/screenshots/ScreenshotList.cpp
 	logic/screenshots/ImgurUpload.h
 	logic/screenshots/ImgurUpload.cpp
 	logic/screenshots/ImgurAlbumCreation.h
@@ -548,11 +567,6 @@ set(MULTIMC_SOURCES
 	logic/icons/IconList.h
 	logic/icons/IconList.cpp
 
-
-	# misc model/view
-	logic/EnabledItemFilter.h
-	logic/EnabledItemFilter.cpp
-
 	# Tasks
 	logic/tasks/ProgressProvider.h
 	logic/tasks/Task.h
@@ -562,17 +576,27 @@ set(MULTIMC_SOURCES
 	logic/tasks/SequentialTask.h
 	logic/tasks/SequentialTask.cpp
 
-	# Utilities
-	logic/JavaChecker.h
-	logic/JavaChecker.cpp
-	logic/JavaUtils.h
-	logic/JavaUtils.cpp
-	logic/NagUtils.h
-	logic/NagUtils.cpp
-	logic/SkinUtils.h
-	logic/SkinUtils.cpp
-	logic/JavaCheckerJob.h
-	logic/JavaCheckerJob.cpp
+	# Settings
+	logic/settings/INIFile.cpp
+	logic/settings/INIFile.h
+	logic/settings/INISettingsObject.cpp
+	logic/settings/INISettingsObject.h
+	logic/settings/OverrideSetting.cpp
+	logic/settings/OverrideSetting.h
+	logic/settings/Setting.cpp
+	logic/settings/Setting.h
+	logic/settings/SettingsObject.cpp
+	logic/settings/SettingsObject.h
+
+	# Java related code
+	logic/java/JavaChecker.h
+	logic/java/JavaChecker.cpp
+	logic/java/JavaUtils.h
+	logic/java/JavaUtils.cpp
+	logic/java/JavaVersionList.h
+	logic/java/JavaVersionList.cpp
+	logic/java/JavaCheckerJob.h
+	logic/java/JavaCheckerJob.cpp
 
 	# Assets
 	logic/assets/AssetsMigrateTask.h
@@ -619,6 +643,27 @@ set(MULTIMC_SOURCES
 	logic/quickmod/QuickModUpdateMonitor.cpp
 	logic/quickmod/QuickModLibraryInstaller.h
 	logic/quickmod/QuickModLibraryInstaller.cpp
+	
+	# Forge and all things forge related
+	logic/forge/ForgeVersion.h
+	logic/forge/ForgeVersion.cpp
+	logic/forge/ForgeVersionList.h
+	logic/forge/ForgeVersionList.cpp
+	logic/forge/ForgeMirror.h
+	logic/forge/ForgeMirrors.h
+	logic/forge/ForgeMirrors.cpp
+	logic/forge/ForgeXzDownload.h
+	logic/forge/ForgeXzDownload.cpp
+	logic/forge/LegacyForge.h
+	logic/forge/LegacyForge.cpp
+	logic/forge/ForgeInstaller.h
+	logic/forge/ForgeInstaller.cpp
+	
+	# Liteloader and related things
+	logic/liteloader/LiteLoaderInstaller.h
+	logic/liteloader/LiteLoaderInstaller.cpp
+	logic/liteloader/LiteLoaderVersionList.h
+	logic/liteloader/LiteLoaderVersionList.cpp
 )
 
 
@@ -626,7 +671,17 @@ set(MULTIMC_SOURCES
 set(MULTIMC_UIS
 	# Windows
 	gui/MainWindow.ui
-	gui/ConsoleWindow.ui
+
+	# Option pages
+	gui/pages/VersionPage.ui
+	gui/pages/ModFolderPage.ui
+	gui/pages/LegacyUpgradePage.ui
+	gui/pages/LegacyJarModPage.ui
+	gui/pages/LogPage.ui
+	gui/pages/InstanceSettingsPage.ui
+	gui/pages/NotesPage.ui
+	gui/pages/ScreenshotsPage.ui
+	gui/pages/OtherLogsPage.ui
 
 	# Dialogs
 	gui/dialogs/SettingsDialog.ui
@@ -635,18 +690,13 @@ set(MULTIMC_UIS
 	gui/dialogs/AboutDialog.ui
 	gui/dialogs/VersionSelectDialog.ui
 	gui/dialogs/LwjglSelectDialog.ui
-	gui/dialogs/InstanceSettings.ui
 	gui/dialogs/ProgressDialog.ui
 	gui/dialogs/IconPickerDialog.ui
-	gui/dialogs/LegacyModEditDialog.ui
-	gui/dialogs/OneSixModEditDialog.ui
-	gui/dialogs/EditNotesDialog.ui
 	gui/dialogs/AccountListDialog.ui
 	gui/dialogs/AccountSelectDialog.ui
 	gui/dialogs/EditAccountDialog.ui
 	gui/dialogs/LoginDialog.ui
 	gui/dialogs/UpdateDialog.ui
-	gui/dialogs/ScreenshotDialog.ui
 	gui/dialogs/NotificationDialog.ui
 	gui/dialogs/quickmod/QuickModAddFileDialog.ui
 	gui/dialogs/quickmod/QuickModBrowseDialog.ui
@@ -672,7 +722,10 @@ endforeach()
 set(MULTIMC_QRCS
 	resources/backgrounds/backgrounds.qrc
 	resources/multimc/multimc.qrc
+	resources/pe_dark/pe_dark.qrc
+	resources/pe_light/pe_light.qrc
 	resources/instances/instances.qrc
+	resources/versions/versions.qrc
 )
 
 
@@ -714,7 +767,7 @@ add_executable(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_RCS})
 
 # Link
 target_link_libraries(MultiMC MultiMC_common)
-target_link_libraries(MultiMC_common xz-embedded unpack200 quazip libUtil libSettings ${MultiMC_LINK_ADDITIONAL_LIBS})
+target_link_libraries(MultiMC_common xz-embedded unpack200 quazip libUtil ${MultiMC_LINK_ADDITIONAL_LIBS})
 qt5_use_modules(MultiMC Core Widgets Network Xml Concurrent WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
 qt5_use_modules(MultiMC_common Core Widgets Network Xml Concurrent WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
 
@@ -752,7 +805,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
 		DIRECTORY "${QT_PLUGINS_DIR}/imageformats"
 		DESTINATION ${PLUGIN_DEST_DIR}
 		COMPONENT Runtime
-		REGEX "tga|svg|tiff|mng" EXCLUDE
+		REGEX "tga|tiff|mng" EXCLUDE
 	)
 
 	# Platform plugins
@@ -768,7 +821,7 @@ else()
 		DIRECTORY "${QT_PLUGINS_DIR}/imageformats"
 		DESTINATION ${PLUGIN_DEST_DIR}
 		COMPONENT Runtime
-		REGEX "tga|svg|tiff|mng" EXCLUDE
+		REGEX "tga|tiff|mng" EXCLUDE
 		REGEX "d\\." EXCLUDE
 		REGEX "_debug\\." EXCLUDE
 	)
@@ -852,8 +905,6 @@ endif()
 include(CPack)
 
 include(Coverity)
-
-include_directories(${PROJECT_BINARY_DIR}/include)
 
 # Translations
 add_subdirectory(translations)

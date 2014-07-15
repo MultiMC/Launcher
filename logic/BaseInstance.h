@@ -19,12 +19,13 @@
 #include <QDateTime>
 #include <QSet>
 
-#include <settingsobject.h>
+#include "logic/settings/SettingsObject.h"
 
-#include "inifile.h"
-#include "lists/BaseVersionList.h"
+#include "logic/settings/INIFile.h"
+#include "logic/BaseVersionList.h"
 #include "logic/auth/MojangAccount.h"
 
+class ModList;
 class QDialog;
 class QDir;
 class Task;
@@ -71,6 +72,9 @@ public:
 	/// be unique.
 	virtual QString id() const;
 
+	virtual void setRunning(bool running) const;
+	virtual bool isRunning() const;
+
 	/// get the type of this instance
 	QString instanceType() const;
 
@@ -96,7 +100,7 @@ public:
 	void setGroupInitial(QString val);
 	void setGroupPost(QString val);
 
-	QStringList extraArguments() const;
+	virtual QStringList extraArguments() const;
 
 	virtual QString intendedVersionId() const = 0;
 	virtual bool setIntendedVersionId(QString version) = 0;
@@ -116,6 +120,19 @@ public:
 	 */
 	virtual bool shouldUpdate() const = 0;
 	virtual void setShouldUpdate(bool val) = 0;
+
+	//////  Mod Lists  //////
+	virtual std::shared_ptr<ModList> resourcePackList()
+	{
+		return nullptr;
+	}
+	virtual std::shared_ptr<ModList> texturePackList()
+	{
+		return nullptr;
+	}
+	
+	/// Traits. Normally inside the version, depends on instance implementation.
+	virtual QSet <QString> traits() = 0;
 
 	/// Get the curent base jar of this instance. By default, it's the
 	/// versions/$version/$version.jar
@@ -167,7 +184,7 @@ public:
 	virtual SettingsObject &settings() const;
 
 	/// returns a valid update task
-	virtual std::shared_ptr<Task> doUpdate(InstancePtr ptr) = 0;
+	virtual std::shared_ptr<Task> doUpdate() = 0;
 
 	/// returns a valid minecraft process, ready for launch with the given account.
 	virtual bool prepareForLaunch(AuthSessionPtr account, QString & launchScript) = 0;
@@ -175,12 +192,6 @@ public:
 	/// do any necessary cleanups after the instance finishes. also runs before
 	/// 'prepareForLaunch'
 	virtual void cleanupAfterRun() = 0;
-
-	/// create a mod edit dialog for the instance
-	virtual QDialog *createModEditDialog(InstancePtr ptr, QWidget *parent) = 0;
-
-	/// is a particular action enabled with this instance selected?
-	virtual bool menuActionEnabled(QString action_name) const = 0;
 
 	virtual QString getStatusbarDescription() = 0;
 

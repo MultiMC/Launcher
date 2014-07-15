@@ -16,11 +16,12 @@
 #pragma once
 
 #include "BaseInstance.h"
+#include "gui/pages/BasePageProvider.h"
 
 class ModList;
 class Task;
 
-class LegacyInstance : public BaseInstance
+class LegacyInstance : public BaseInstance, public BasePageProvider
 {
 	Q_OBJECT
 public:
@@ -33,6 +34,10 @@ public:
 
 	//! Path to the instance's modlist file.
 	QString modListFile() const;
+
+	////// Edit Instance Dialog stuff //////
+	virtual QList<BasePage *> getPages();
+	virtual QString dialogTitle();
 
 	//////  Mod Lists  //////
 	std::shared_ptr<ModList> jarModList();
@@ -75,18 +80,21 @@ public:
 		return false;
 	}
 
+	virtual QSet<QString> traits()
+	{
+		return {"legacy-instance", "texturepacks"};
+	};
+
 	virtual bool shouldUpdate() const override;
 	virtual void setShouldUpdate(bool val) override;
-	virtual std::shared_ptr<Task> doUpdate(InstancePtr ptr) override;
+	virtual std::shared_ptr<Task> doUpdate() override;
 
 	virtual bool prepareForLaunch(AuthSessionPtr account, QString & launchScript) override;
 	virtual void cleanupAfterRun() override;
-	virtual QDialog *createModEditDialog(InstancePtr ptr, QWidget *parent) override;
 
 	virtual QString defaultBaseJar() const override;
 	virtual QString defaultCustomBaseJar() const override;
 
-	bool menuActionEnabled(QString action_name) const;
 	virtual QString getStatusbarDescription() override;
 
 protected

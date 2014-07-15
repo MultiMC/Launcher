@@ -17,24 +17,36 @@
 
 #include <QIcon>
 
-#include "OneSixInstance_p.h"
-#include "OneSixUpdate.h"
-#include "VersionFinal.h"
-#include "pathutils.h"
-#include "logger/QsLog.h"
-#include "assets/AssetsUtils.h"
-#include "MultiMC.h"
-#include "icons/IconList.h"
-#include "MinecraftProcess.h"
-#include "gui/dialogs/OneSixModEditDialog.h"
+#include <pathutils.h>
+
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
-#include "tasks/SequentialTask.h"
 #include "logic/quickmod/tasks/QuickModDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"
+#include "logic/tasks/SequentialTask.h"
 #include "logic/net/MavenResolver.h"
+#include "logic/minecraft/InstanceVersion.h"
+#include "logic/minecraft/VersionBuildError.h"
+#include "logic/assets/AssetsUtils.h"
+#include "logic/icons/IconList.h"
+#include "logic/OneSixInstance_p.h"
+#include "logic/OneSixUpdate.h"
+#include "logic/MinecraftProcess.h"
+#include "logic/InstanceList.h"
 
-#include <MMCError.h>
+#include "gui/pagedialog/PageDialog.h"
+#include "gui/pages/VersionPage.h"
+#include "gui/pages/ModFolderPage.h"
+#include "gui/pages/ResourcePackPage.h"
+#include "gui/pages/TexturePackPage.h"
+#include "gui/pages/InstanceSettingsPage.h"
+#include "gui/pages/NotesPage.h"
+#include "gui/pages/ScreenshotsPage.h"
+#include "gui/pages/OtherLogsPage.h"
+
+#include "logger/QsLog.h"
+#include "MultiMC.h"
+#include "MMCError.h"
 
 OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings,
 							   QObject *parent)
@@ -42,37 +54,61 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings,
 {
 	I_D(OneSixInstance);
 	d->m_settings->registerSetting("IntendedVersion", "");
-	d->m_settings->registerSetting("ShouldUpdate", false);
-	d->version.reset(new VersionFinal(this, this));
-	d->vanillaVersion.reset(new VersionFinal(this, this));
+	d->version.reset(new InstanceVersion(this, this));
 }
 
 void OneSixInstance::init()
 {
-	// FIXME: why is this decided here? what does this even mean?
-	if (QDir(instanceRoot()).exists("version.json"))
+	try
 	{
-		try
-		{
-			reloadVersion();
-		}
-		catch(MMCError & e)
-		{
-			// QLOG_ERROR() << "Caught exception on instance init: " << e.cause();
-		}
+		reloadVersion();
 	}
-	else
+	catch (MMCError &e)
 	{
-		clearVersion();
+		QLOG_ERROR() << "Caught exception on instance init: " << e.cause();
 	}
 }
 
-std::shared_ptr<Task> OneSixInstance::doUpdate(InstancePtr ptr)
+QList<BasePage *> OneSixInstance::getPages()
 {
+	QList<BasePage *> values;
+	values.append(new VersionPage(this));
+	values.append(new ModFolderPage(this, loaderModList(), "mods", "plugin-blue",
+									tr("Loader mods"), "Loader-mods"));
+	values.append(new CoreModFolderPage(this, coreModList(), "coremods", "plugin-green",
+										tr("Core mods"), "Core-mods"));
+	values.append(new ResourcePackPage(this));
+	values.append(new TexturePackPage(this));
+	values.append(new NotesPage(this));
+	values.append(new ScreenshotsPage(this));
+	values.append(new InstanceSettingsPage(this));
+	values.append(new OtherLogsPage(this));
+	return values;
+}
+
+QString OneSixInstance::dialogTitle()
+{
+	return tr("Edit Instance (%1)").arg(name());
+}
+
+QSet<QString> OneSixInstance::traits()
+{
+	auto version = getFullVersion();
+	if (!version)
+	{
+		return {"version-incomplete"};
+	}
+	else
+		return version->traits;
+}
+
+std::shared_ptr<Task> OneSixInstance::doUpdate()
+{
+	auto sharedptr = instList()->getInstanceById(id());
 	auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
-	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(ptr, this)));
-	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(ptr, this)));
-	task->addTask(std::shared_ptr<Task>(new MavenResolver(ptr, this)));
+	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(sharedptr, this)));
+	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(sharedptr, this)));
+	task->addTask(std::shared_ptr<Task>(new MavenResolver(sharedptr, this)));
 	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this, this)));
 	return task;
 }
@@ -101,7 +137,7 @@ QString replaceTokensIn(QString text, QMap<QString, QString> with)
 	return result;
 }
 
-QDir OneSixInstance::reconstructAssets(std::shared_ptr<VersionFinal> version)
+QDir OneSixInstance::reconstructAssets(std::shared_ptr<InstanceVersion> version)
 {
 	QDir assetsDir = QDir("assets/");
 	QDir indexDir = QDir(PathCombine(assetsDir.path(), "indexes"));
@@ -202,7 +238,7 @@ QStringList OneSixInstance::processMinecraftArgs(AuthSessionPtr session)
 	return parts;
 }
 
-bool OneSixInstance::prepareForLaunch(AuthSessionPtr account, QString &launchScript)
+bool OneSixInstance::prepareForLaunch(AuthSessionPtr session, QString &launchScript)
 {
 	I_D(OneSixInstance);
 
@@ -213,18 +249,40 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr account, QString &launchScr
 	auto version = d->version;
 	if (!version)
 		return nullptr;
+
+	// libraries and class path.
 	{
 		auto libs = version->getActiveNormalLibs();
 		for (auto lib : libs)
 		{
 			launchScript += "cp " + librariesPath().absoluteFilePath(lib->storagePath()) + "\n";
 		}
-		QString targetstr = version->id + "/" + version->id + ".jar";
-		launchScript += "cp " + versionsPath().absoluteFilePath(targetstr) + "\n";
+		QString minecraftjarpath;
+		if (version->hasJarMods())
+		{
+			for (auto jarmod : version->jarMods)
+			{
+				launchScript += "cp " + jarmodsPath().absoluteFilePath(jarmod->name) + "\n";
+			}
+			minecraftjarpath = version->id + "/" + version->id + "-stripped.jar";
+		}
+		else
+		{
+			minecraftjarpath = version->id + "/" + version->id + ".jar";
+		}
+		launchScript += "cp " + versionsPath().absoluteFilePath(minecraftjarpath) + "\n";
 	}
-	launchScript += "mainClass " + version->mainClass + "\n";
+	if (!version->mainClass.isEmpty())
+	{
+		launchScript += "mainClass " + version->mainClass + "\n";
+	}
+	if (!version->appletClass.isEmpty())
+	{
+		launchScript += "appletClass " + version->appletClass + "\n";
+	}
 
-	for (auto param : processMinecraftArgs(account))
+	// generic minecraft params
+	for (auto param : processMinecraftArgs(session))
 	{
 		launchScript += "param " + param + "\n";
 	}
@@ -251,28 +309,41 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr account, QString &launchScr
 		}
 	}
 
-	// Set the width and height for 1.6 instances
-	bool maximize = settings().get("LaunchMaximized").toBool();
-	if (maximize)
+	// window size, title and state, legacy
 	{
-		// this is probably a BAD idea
-		// launchScript += "param --fullscreen\n";
+		QString windowParams;
+		if (settings().get("LaunchMaximized").toBool())
+			windowParams = "max";
+		else
+			windowParams = QString("%1x%2")
+							   .arg(settings().get("MinecraftWinWidth").toInt())
+							   .arg(settings().get("MinecraftWinHeight").toInt());
+		launchScript += "windowTitle " + windowTitle() + "\n";
+		launchScript += "windowParams " + windowParams + "\n";
 	}
-	else
+
+	// legacy auth
 	{
-		launchScript +=
-			"param --width\nparam " + settings().get("MinecraftWinWidth").toString() + "\n";
-		launchScript +=
-			"param --height\nparam " + settings().get("MinecraftWinHeight").toString() + "\n";
+		launchScript += "userName " + session->player_name + "\n";
+		launchScript += "sessionId " + session->session + "\n";
 	}
-	QDir natives_dir(PathCombine(instanceRoot(), "natives/"));
-	launchScript += "windowTitle " + windowTitle() + "\n";
-	for (auto native : version->getActiveNativeLibs())
+
+	// native libraries (mostly LWJGL)
 	{
-		QFileInfo finfo(PathCombine("libraries", native->storagePath()));
-		launchScript += "ext " + finfo.absoluteFilePath() + "\n";
+		QDir natives_dir(PathCombine(instanceRoot(), "natives/"));
+		for (auto native : version->getActiveNativeLibs())
+		{
+			QFileInfo finfo(PathCombine("libraries", native->storagePath()));
+			launchScript += "ext " + finfo.absoluteFilePath() + "\n";
+		}
+		launchScript += "natives " + natives_dir.absolutePath() + "\n";
 	}
-	launchScript += "natives " + natives_dir.absolutePath() + "\n";
+
+	// traits. including legacyLaunch and others ;)
+	for (auto trait : version->traits)
+	{
+		launchScript += "traits " + trait + "\n";
+	}
 	launchScript += "launcher onesix\n";
 	return true;
 }
@@ -289,10 +360,21 @@ std::shared_ptr<ModList> OneSixInstance::loaderModList()
 	I_D(OneSixInstance);
 	if (!d->loader_mod_list)
 	{
-		d->loader_mod_list.reset(new ModList(this, loaderModsDir()));
+		d->loader_mod_list.reset(new ModList(loaderModsDir()));
 	}
 	d->loader_mod_list->update();
 	return d->loader_mod_list;
+}
+
+std::shared_ptr<ModList> OneSixInstance::coreModList()
+{
+	I_D(OneSixInstance);
+	if (!d->core_mod_list)
+	{
+		d->core_mod_list.reset(new ModList(coreModsDir()));
+	}
+	d->core_mod_list->update();
+	return d->core_mod_list;
 }
 
 std::shared_ptr<ModList> OneSixInstance::resourcePackList()
@@ -300,21 +382,26 @@ std::shared_ptr<ModList> OneSixInstance::resourcePackList()
 	I_D(OneSixInstance);
 	if (!d->resource_pack_list)
 	{
-		d->resource_pack_list.reset(new ModList(this, resourcePacksDir()));
+		d->resource_pack_list.reset(new ModList(resourcePacksDir()));
 	}
 	d->resource_pack_list->update();
 	return d->resource_pack_list;
 }
 
-QDialog *OneSixInstance::createModEditDialog(InstancePtr ptr, QWidget *parent)
+std::shared_ptr<ModList> OneSixInstance::texturePackList()
 {
-	return new OneSixModEditDialog(ptr, parent);
+	I_D(OneSixInstance);
+	if (!d->texture_pack_list)
+	{
+		d->texture_pack_list.reset(new ModList(texturePacksDir()));
+	}
+	d->texture_pack_list->update();
+	return d->texture_pack_list;
 }
 
 bool OneSixInstance::setIntendedVersionId(QString version)
 {
 	settings().set("IntendedVersion", version);
-	setShouldUpdate(true);
 	QFile::remove(PathCombine(instanceRoot(), "version.json"));
 	clearVersion();
 	return true;
@@ -325,34 +412,31 @@ QString OneSixInstance::intendedVersionId() const
 	return settings().get("IntendedVersion").toString();
 }
 
-void OneSixInstance::setShouldUpdate(bool val)
+void OneSixInstance::setShouldUpdate(bool)
 {
-	settings().set("ShouldUpdate", val);
 }
 
 bool OneSixInstance::shouldUpdate() const
 {
-	QVariant var = settings().get("ShouldUpdate");
-	if (!var.isValid() || var.toBool() == false)
-	{
-		return intendedVersionId() != currentVersionId();
-	}
 	return true;
 }
 
 bool OneSixInstance::versionIsCustom()
 {
-	QDir patches(PathCombine(instanceRoot(), "patches/"));
-	return (patches.exists() && patches.count() >= 0) ||
-		   QFile::exists(PathCombine(instanceRoot(), "custom.json")) ||
-		   QFile::exists(PathCombine(instanceRoot(), "user.json"));
+	I_D(const OneSixInstance);
+	auto ver = d->version;
+	if (ver)
+	{
+		return !ver->isVanilla();
+	}
+	return false;
 }
 
 bool OneSixInstance::versionIsFTBPack()
 {
 	I_D(const OneSixInstance);
 	auto ver = d->version;
-	if(ver)
+	if (ver)
 	{
 		return ver->hasFtbPack();
 	}
@@ -370,17 +454,18 @@ void OneSixInstance::reloadVersion()
 
 	try
 	{
-		d->version->reload(false, externalPatches());
-		d->vanillaVersion->reload(true, externalPatches());
+		d->version->reload(externalPatches());
 		unsetFlag(VersionBrokenFlag);
 		emit versionReloaded();
 	}
-	catch(MMCError & error)
+	catch (VersionIncomplete &error)
+	{
+	}
+	catch (MMCError &error)
 	{
 		d->version->clear();
-		d->vanillaVersion->clear();
 		setFlag(VersionBrokenFlag);
-		//TODO: rethrow to show some error message(s)?
+		// TODO: rethrow to show some error message(s)?
 		emit versionReloaded();
 		throw;
 	}
@@ -390,20 +475,13 @@ void OneSixInstance::clearVersion()
 {
 	I_D(OneSixInstance);
 	d->version->clear();
-	d->vanillaVersion->clear();
 	emit versionReloaded();
 }
 
-std::shared_ptr<VersionFinal> OneSixInstance::getFullVersion() const
+std::shared_ptr<InstanceVersion> OneSixInstance::getFullVersion() const
 {
 	I_D(const OneSixInstance);
 	return d->version;
-}
-
-std::shared_ptr<VersionFinal> OneSixInstance::getVanillaVersion() const
-{
-	I_D(const OneSixInstance);
-	return d->vanillaVersion;
 }
 
 QString OneSixInstance::defaultBaseJar() const
@@ -416,37 +494,38 @@ QString OneSixInstance::defaultCustomBaseJar() const
 	return PathCombine(instanceRoot(), "custom.jar");
 }
 
-bool OneSixInstance::menuActionEnabled(QString action_name) const
-{
-	if (flags() & VersionBrokenFlag)
-	{
-		return false;
-	}
-	if (action_name == "actionChangeInstLWJGLVersion")
-	{
-		return false;
-	}
-	return true;
-}
-
 QString OneSixInstance::getStatusbarDescription()
 {
-	QString descr = "OneSix : " + intendedVersionId();
+	QStringList traits;
 	if (versionIsCustom())
 	{
-		descr += " (custom)";
+		traits.append(tr("custom"));
 	}
 	if (flags() & VersionBrokenFlag)
 	{
-		descr += " (broken)";
+		traits.append(tr("broken"));
 	}
-	return descr;
+
+	if (traits.size())
+	{
+		return tr("Minecraft %1 (%2)").arg(intendedVersionId()).arg(traits.join(", "));
+	}
+	else
+	{
+		return tr("Minecraft %1").arg(intendedVersionId());
+	}
 }
 
 QDir OneSixInstance::librariesPath() const
 {
 	return QDir::current().absoluteFilePath("libraries");
 }
+
+QDir OneSixInstance::jarmodsPath() const
+{
+	return QDir(jarModsDir());
+}
+
 QDir OneSixInstance::versionsPath() const
 {
 	return QDir::current().absoluteFilePath("versions");
@@ -464,7 +543,7 @@ bool OneSixInstance::providesVersionFile() const
 
 bool OneSixInstance::reload()
 {
-	if(BaseInstance::reload())
+	if (BaseInstance::reload())
 	{
 		try
 		{
@@ -546,12 +625,46 @@ QString OneSixInstance::loaderModsDir() const
 	return PathCombine(minecraftRoot(), "mods");
 }
 
+QString OneSixInstance::coreModsDir() const
+{
+	return PathCombine(minecraftRoot(), "coremods");
+}
+
 QString OneSixInstance::resourcePacksDir() const
 {
 	return PathCombine(minecraftRoot(), "resourcepacks");
 }
 
+QString OneSixInstance::texturePacksDir() const
+{
+	return PathCombine(minecraftRoot(), "texturepacks");
+}
+
 QString OneSixInstance::instanceConfigFolder() const
 {
 	return PathCombine(minecraftRoot(), "config");
+}
+
+QString OneSixInstance::jarModsDir() const
+{
+	return PathCombine(instanceRoot(), "jarmods");
+}
+
+QString OneSixInstance::libDir() const
+{
+	return PathCombine(minecraftRoot(), "lib");
+}
+
+QStringList OneSixInstance::extraArguments() const
+{
+	auto list = BaseInstance::extraArguments();
+	auto version = getFullVersion();
+	if (!version)
+		return list;
+	if (version->hasJarMods())
+	{
+		list.append({"-Dfml.ignoreInvalidMinecraftCertificates=true",
+					 "-Dfml.ignorePatchDiscrepancies=true"});
+	}
+	return list;
 }

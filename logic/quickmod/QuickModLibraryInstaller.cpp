@@ -30,7 +30,7 @@ bool QuickModLibraryInstaller::add(OneSixInstance *to)
 	}
 
 	QJsonObject obj;
-	obj.insert("order", qMax(to->getFullVersion()->getHighestOrder(), 99) + 1);
+	obj.insert("order", qMin(to->getFullVersion()->getHighestOrder(), 99) + 1);
 	obj.insert("name", m_version->mod->name());
 	obj.insert("fileId", id());
 	obj.insert("version", m_version->name());

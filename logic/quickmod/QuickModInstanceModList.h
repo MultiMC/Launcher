@@ -33,7 +33,7 @@ public:
 		VersionColumn
 	};
 
-	QuickModInstanceModList(InstancePtr instance, std::shared_ptr<ModList> modList,
+	QuickModInstanceModList(BaseInstance *instance, std::shared_ptr<ModList> modList,
 							QObject *parent = 0);
 	~QuickModInstanceModList();
 
@@ -72,7 +72,7 @@ slots:
 
 private:
 	friend class QuickModInstanceModListProxy;
-	InstancePtr m_instance;
+	BaseInstance *m_instance;
 	std::shared_ptr<ModList> m_modList;
 
 	QMap<QuickModUid, QString> quickmods() const;

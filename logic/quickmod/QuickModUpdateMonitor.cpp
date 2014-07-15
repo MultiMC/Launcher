@@ -17,7 +17,7 @@
 
 #include "QuickModsList.h"
 #include "QuickMod.h"
-#include "logic/lists/InstanceList.h"
+#include "logic/InstanceList.h"
 #include "logic/OneSixInstance.h"
 
 QuickModUpdateMonitor::QuickModUpdateMonitor(std::shared_ptr<InstanceList> instances,

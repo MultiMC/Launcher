@@ -1,8 +1,8 @@
 #include <QTest>
 #include <QSignalSpy>
 
-#include "depends/settings/settingsobject.h"
-#include "depends/settings/setting.h"
+#include "logic/settings/SettingsObject.h"
+#include "logic/settings/Setting.h"
 
 #include "BuildConfig.h"
 #include "TestUtil.h"
@@ -116,7 +116,7 @@ slots:
 
 		checker.setChannelListUrl(channelUrl);
 
-		checker.updateChanList();
+		checker.updateChanList(false);
 
 		if (valid)
 		{
@@ -165,7 +165,7 @@ slots:
 		QSignalSpy channelListLoadedSpy(&checker, SIGNAL(channelListLoaded()));
 		QVERIFY(channelListLoadedSpy.isValid());
 
-		checker.updateChanList();
+		checker.updateChanList(false);
 		QVERIFY(channelListLoadedSpy.wait());
 
 		checker.m_channels[0].url = QUrl::fromLocalFile(QDir::current().absoluteFilePath("tests/data/")).toString();

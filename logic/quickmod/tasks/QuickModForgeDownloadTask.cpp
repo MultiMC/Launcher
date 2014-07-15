@@ -15,8 +15,8 @@
 
 #include "QuickModForgeDownloadTask.h"
 
-#include "logic/ForgeInstaller.h"
-#include "logic/lists/ForgeVersionList.h"
+#include "logic/forge/ForgeInstaller.h"
+#include "logic/forge/ForgeVersionList.h"
 #include "logic/OneSixInstance.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"

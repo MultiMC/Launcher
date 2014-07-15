@@ -4,8 +4,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QUrl>
+#include <QStringList>
 
-#include "logic/screenshots//ScreenshotList.h"
 #include "logic/net/URLConstants.h"
 #include "MultiMC.h"
 #include "logger/QsLog.h"
@@ -28,7 +28,7 @@ void ImgurAlbumCreation::start()
 	QStringList ids;
 	for (auto shot : m_screenshots)
 	{
-		ids.append(shot->imgurId);
+		ids.append(shot->m_imgurId);
 	}
 
 	const QByteArray data = "ids=" + ids.join(',').toUtf8() + "&title=Minecraft%20Screenshots&privacy=hidden";

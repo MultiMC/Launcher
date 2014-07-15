@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QUrl>
+#include <QStringList>
 #include <math.h>
 
 QJsonDocument MMCJson::parseDocument(const QByteArray &data, const QString &what)
@@ -24,7 +25,7 @@ bool MMCJson::ensureBoolean(const QJsonValue val, const QString what)
 
 QJsonValue MMCJson::ensureExists(QJsonValue val, const QString what)
 {
-	if(val.isNull())
+	if(val.isUndefined() || val.isUndefined())
 		throw JSONValidationError(what + " does not exist");
 	return val;
 }
@@ -106,4 +107,25 @@ int MMCJson::ensureInteger(const QJsonValue val, QString what, const int def)
 	if (val.isUndefined())
 		return def;
 	return ensureInteger(val, what);
+}
+
+void MMCJson::writeString(QJsonObject &to, QString key, QString value)
+{
+	if(value.size())
+	{
+		to.insert(key, value);
+	}
+}
+
+void MMCJson::writeStringList(QJsonObject &to, QString key, QStringList values)
+{
+	if(values.size())
+	{
+		QJsonArray array;
+		for(auto value: values)
+		{
+			array.append(value);
+		}
+		to.insert(key, array);
+	}
 }

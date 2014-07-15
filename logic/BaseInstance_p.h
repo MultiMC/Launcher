@@ -18,7 +18,7 @@
 #include <QString>
 #include <QSet>
 
-#include <settingsobject.h>
+#include "logic/settings/SettingsObject.h"
 
 #include "BaseInstance.h"
 
@@ -32,4 +32,5 @@ public:
 	QString m_group;
 	std::shared_ptr<SettingsObject> m_settings;
 	BaseInstance::InstanceFlags m_flags;
+	bool m_isRunning = false;
 };

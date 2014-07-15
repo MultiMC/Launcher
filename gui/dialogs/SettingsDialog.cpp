@@ -23,20 +23,30 @@
 #include "gui/dialogs/CustomMessageBox.h"
 #include "gui/dialogs/quickmod/QuickModRepoDialog.h"
 
-#include "logic/JavaUtils.h"
 #include "logic/NagUtils.h"
-#include "logic/lists/JavaVersionList.h"
-#include <logic/JavaChecker.h>
+
+#include "logic/java/JavaUtils.h"
+#include "logic/java/JavaVersionList.h"
+#include "logic/java/JavaChecker.h"
 
 #include "logic/updater/UpdateChecker.h"
 
 #include "logic/tools/BaseProfiler.h"
 
-#include <settingsobject.h>
+#include "logic/settings/SettingsObject.h"
 #include <pathutils.h>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDir>
+
+// FIXME: possibly move elsewhere
+enum InstSortMode
+{
+	// Sort alphabetically by name.
+	Sort_Name,
+	// Sort by which instance was launched most recently.
+	Sort_LastLaunch
+};
 
 SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::SettingsDialog)
 {
@@ -64,7 +74,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent), ui(new Ui::Se
 	}
 	else
 	{
-		MMC->updateChecker()->updateChanList();
+		MMC->updateChecker()->updateChanList(false);
 	}
 	connect(ui->proxyGroup, SIGNAL(buttonClicked(int)), SLOT(proxyChanged(int)));
 	ui->mceditLink->setOpenExternalLinks(true);
@@ -317,7 +327,20 @@ void SettingsDialog::applySettings(SettingsObject *s)
 	// Updates
 	s->set("AutoUpdate", ui->autoUpdateCheckBox->isChecked());
 	s->set("UpdateChannel", m_currentUpdateChannel);
-
+	//FIXME: make generic
+	switch (ui->themeComboBox->currentIndex())
+	{
+	case 1:
+		s->set("IconTheme", "pe_dark");
+		break;
+	case 2:
+		s->set("IconTheme", "pe_light");
+		break;
+	case 0:
+	default:
+		s->set("IconTheme", "multimc");
+		break;
+	}
 	// FTB
 	s->set("TrackFTBInstances", ui->trackFtbBox->isChecked());
 	s->set("FTBLauncherRoot", ui->ftbLauncherBox->text());
@@ -414,7 +437,7 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	foreach(const QString & lang, QDir(MMC->staticData() + "/translations")
 									  .entryList(QStringList() << "*.qm", QDir::Files))
 	{
-		QLocale locale(lang.section(QRegExp("[_\.]"), 1));
+		QLocale locale(lang.section(QRegExp("[_\\.]"), 1));
 		ui->languageBox->addItem(QLocale::languageToString(locale.language()), locale);
 	}
 	ui->languageBox->setCurrentIndex(
@@ -423,7 +446,20 @@ void SettingsDialog::loadSettings(SettingsObject *s)
 	// Updates
 	ui->autoUpdateCheckBox->setChecked(s->get("AutoUpdate").toBool());
 	m_currentUpdateChannel = s->get("UpdateChannel").toString();
-
+	//FIXME: make generic
+	auto theme = s->get("IconTheme").toString();
+	if (theme == "pe_dark")
+	{
+		ui->themeComboBox->setCurrentIndex(1);
+	}
+	else if (theme == "pe_light")
+	{
+		ui->themeComboBox->setCurrentIndex(2);
+	}
+	else
+	{
+		ui->themeComboBox->setCurrentIndex(0);
+	}
 	// FTB
 	ui->trackFtbBox->setChecked(s->get("TrackFTBInstances").toBool());
 	ui->ftbLauncherBox->setText(s->get("FTBLauncherRoot").toString());

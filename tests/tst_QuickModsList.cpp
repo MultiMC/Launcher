@@ -18,7 +18,7 @@
 
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/InstanceFactory.h"
-#include "logic/MinecraftVersion.h"
+#include "logic/minecraft/MinecraftVersion.h"
 #include "logic/BaseInstance.h"
 #include "TestUtil.h"
 
@@ -129,7 +129,6 @@ slots:
 		InstancePtr instance;
 		std::shared_ptr<MinecraftVersion> version;
 		version.reset(new MinecraftVersion);
-		version->type = MinecraftVersion::OneSix;
 		version->m_name = "1.6.4";
 		InstanceFactory::get().createInstance(
 			instance, version, QDir::current().absoluteFilePath("instances/TestInstance"));
@@ -166,7 +165,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], instance), true);
-			QCOMPARE(list->installedModFiles(mods[i], instance)[versions[i]->name()], filenames[i]);
+			QCOMPARE(list->installedModFiles(mods[i], instance.get())[versions[i]->name()], filenames[i]);
 		}
 
 		// reload
@@ -179,7 +178,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), true);
-			QCOMPARE(list->installedModFiles(mods[i], newInstance)[versions[i]->name()], filenames[i]);
+			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], filenames[i]);
 		}
 
 		// "uninstall" all of them
@@ -190,7 +189,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), false);
-			QCOMPARE(list->installedModFiles(mods[i], newInstance)[versions[i]->name()], QString());
+			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], QString());
 		}
 
 		// reload again
@@ -203,7 +202,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), false);
-			QCOMPARE(list->installedModFiles(mods[i], newInstance)[versions[i]->name()], QString());
+			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], QString());
 		}
 
 		delete list;

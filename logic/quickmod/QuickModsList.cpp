@@ -31,12 +31,12 @@
 #include "logic/Mod.h"
 #include "logic/BaseInstance.h"
 #include "logic/OneSixInstance.h"
-#include "depends/settings/setting.h"
+#include "logic/settings/Setting.h"
 #include "MultiMC.h"
-#include "logic/lists/InstanceList.h"
+#include "logic/InstanceList.h"
 #include "modutils.h"
 
-#include "depends/settings/inisettingsobject.h"
+#include "logic/settings/INISettingsObject.h"
 
 // TODO updating of mods
 
@@ -333,7 +333,7 @@ bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const QString &version)
 		   mods.value(mod->internalUid()).toMap().contains(version);
 }
 QMap<QString, QString> QuickModsList::installedModFiles(QuickModPtr mod,
-														InstancePtr instance) const
+														BaseInstance *instance) const
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
 	auto tmp = mods[mod->uid().toString()].toMap();

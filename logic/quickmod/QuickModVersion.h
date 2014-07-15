@@ -21,7 +21,7 @@
 #include <QUrl>
 #include <QStringList>
 
-#include "logic/lists/BaseVersionList.h"
+#include "logic/BaseVersionList.h"
 #include "logic/BaseVersion.h"
 #include "logic/net/NetJob.h"
 #include "logic/net/CacheDownload.h"

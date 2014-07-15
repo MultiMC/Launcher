@@ -39,7 +39,7 @@
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
 #include "MultiMC.h"
-#include "depends/settings/settingsobject.h"
+#include "logic/settings/SettingsObject.h"
 #include "depends/quazip/JlCompress.h"
 #include "logic/quickmod/QuickModInstaller.h"
 

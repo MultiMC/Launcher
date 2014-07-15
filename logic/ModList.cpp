@@ -27,9 +27,10 @@
 #include "quickmod/QuickMod.h"
 #include "MultiMC.h"
 
-ModList::ModList(BaseInstance *instance, const QString &dir, const QString &list_file)
-	: QAbstractListModel(), m_instance(instance), m_dir(dir), m_list_file(list_file)
+ModList::ModList(const QString &dir, const QString &list_file)
+	: QAbstractListModel(), m_dir(dir), m_list_file(list_file)
 {
+	ensureFolderPathExists(m_dir.absolutePath());
 	m_dir.setFilter(QDir::Readable | QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs |
 					QDir::NoSymLinks);
 	m_dir.setSorting(QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
@@ -72,9 +73,9 @@ void ModList::internalSort(QList<Mod> &what)
 	{
 		if (left.name() == right.name())
 		{
-			return left.mmc_id().localeAwareCompare(right.mmc_id()) <= 0;
+			return left.mmc_id().localeAwareCompare(right.mmc_id()) < 0;
 		}
-		return left.name().localeAwareCompare(right.name()) <= 0;
+		return left.name().localeAwareCompare(right.name()) < 0;
 	};
 	std::sort(what.begin(), what.end(), predicate);
 }
@@ -438,7 +439,7 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 	switch (role)
 	{
 	case Qt::DisplayRole:
-		switch (index.column())
+		switch (column)
 		{
 		case NameColumn:
 			return mods[row].name();
@@ -451,7 +452,7 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 	case Qt::ToolTipRole:
 		return mods[row].mmc_id();
 	case Qt::CheckStateRole:
-		switch (index.column())
+		switch (column)
 		{
 		case ActiveColumn:
 			return mods[row].enabled() ? Qt::Checked : Qt::Unchecked;

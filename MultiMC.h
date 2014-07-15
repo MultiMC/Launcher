@@ -25,20 +25,12 @@ class NewsChecker;
 class StatusChecker;
 class BaseProfilerFactory;
 class BaseDetachedToolFactory;
+class URNResolver;
 
 #if defined(MMC)
 #undef MMC
 #endif
 #define MMC (static_cast<MultiMC *>(QCoreApplication::instance()))
-
-// FIXME: possibly move elsewhere
-enum InstSortMode
-{
-	// Sort alphabetically by name.
-	Sort_Name,
-	// Sort by which instance was launched most recently.
-	Sort_LastLaunch
-};
 
 enum UpdateFlag
 {
@@ -129,6 +121,8 @@ public:
 	std::shared_ptr<MinecraftVersionList> minecraftlist();
 
 	std::shared_ptr<JavaVersionList> javalist();
+
+	std::shared_ptr<URNResolver> resolver();
 
 	QMap<QString, std::shared_ptr<BaseProfilerFactory>> profilers()
 	{
@@ -223,10 +217,13 @@ private:
 	std::shared_ptr<LiteLoaderVersionList> m_liteloaderlist;
 	std::shared_ptr<MinecraftVersionList> m_minecraftlist;
 	std::shared_ptr<JavaVersionList> m_javalist;
-	QMap<QString, std::shared_ptr<BaseProfilerFactory>> m_profilers;
-	QMap<QString, std::shared_ptr<BaseDetachedToolFactory>> m_tools;
+	std::shared_ptr<URNResolver> m_resolver;
 	std::shared_ptr<QuickModsList> m_quickmodslist;
 	std::shared_ptr<QuickModUpdateMonitor> m_quickmodUpdateMonitor;
+
+	QMap<QString, std::shared_ptr<BaseProfilerFactory>> m_profilers;
+	QMap<QString, std::shared_ptr<BaseDetachedToolFactory>> m_tools;
+
 	QsLogging::DestinationPtr m_fileDestination;
 	QsLogging::DestinationPtr m_debugDestination;
 

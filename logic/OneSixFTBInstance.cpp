@@ -1,12 +1,12 @@
 #include "OneSixFTBInstance.h"
 
-#include "VersionFinal.h"
-#include "OneSixLibrary.h"
+#include "logic/minecraft/InstanceVersion.h"
+#include "logic/minecraft/OneSixLibrary.h"
+#include "logic/minecraft/VersionBuilder.h"
 #include "tasks/SequentialTask.h"
-#include "ForgeInstaller.h"
-#include "lists/ForgeVersionList.h"
+#include "forge/ForgeInstaller.h"
+#include "forge/ForgeVersionList.h"
 #include "OneSixInstance_p.h"
-#include "OneSixVersionBuilder.h"
 #include "MultiMC.h"
 #include "pathutils.h"
 
@@ -88,6 +88,7 @@ QDir OneSixFTBInstance::librariesPath() const
 {
 	return QDir(MMC->settings()->get("FTBRoot").toString() + "/libraries");
 }
+
 QDir OneSixFTBInstance::versionsPath() const
 {
 	return QDir(MMC->settings()->get("FTBRoot").toString() + "/versions");
@@ -95,7 +96,6 @@ QDir OneSixFTBInstance::versionsPath() const
 
 QStringList OneSixFTBInstance::externalPatches() const
 {
-	I_D(OneSixInstance);
 	return QStringList() << versionsPath().absoluteFilePath(intendedVersionId() + "/" + intendedVersionId() + ".json")
 						 << minecraftRoot() + "/pack.json";
 }
@@ -113,14 +113,10 @@ QString OneSixFTBInstance::getStatusbarDescription()
 	}
 	return "OneSix FTB: " + intendedVersionId();
 }
-bool OneSixFTBInstance::menuActionEnabled(QString action_name) const
-{
-	return false;
-}
 
-std::shared_ptr<Task> OneSixFTBInstance::doUpdate(InstancePtr ptr)
+std::shared_ptr<Task> OneSixFTBInstance::doUpdate()
 {
-	return OneSixInstance::doUpdate(ptr);
+	return OneSixInstance::doUpdate();
 }
 
 #include "OneSixFTBInstance.moc"

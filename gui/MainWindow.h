@@ -19,11 +19,10 @@
 #include <QProcess>
 #include <QTimer>
 
-#include "logic/lists/InstanceList.h"
+#include "logic/InstanceList.h"
 #include "logic/BaseInstance.h"
-
 #include "logic/auth/MojangAccount.h"
-#include <logic/net/NetJob.h>
+#include "logic/net/NetJob.h"
 
 class QToolButton;
 class LabeledToolButton;
@@ -81,6 +80,8 @@ slots:
 
 	void on_actionSettings_triggered();
 
+	void on_actionInstanceSettings_triggered();
+
 	void on_actionManageAccounts_triggered();
 
 	void on_actionReportBug_triggered();
@@ -103,11 +104,7 @@ slots:
 
 	void on_actionRenameInstance_triggered();
 
-	void on_actionMakeDesktopShortcut_triggered();
-
-	void on_actionChangeInstMCVersion_triggered();
-
-	void on_actionEditInstMods_triggered();
+	void on_actionEditInstance_triggered();
 
 	void on_actionEditInstNotes_triggered();
 
@@ -138,11 +135,7 @@ slots:
 	void taskStart();
 	void taskEnd();
 
-	void on_actionChangeInstLWJGLVersion_triggered();
-
 	void instanceEnded();
-
-	void on_actionInstanceSettings_triggered();
 
 	// called when an icon is changed in the icon model.
 	void iconUpdated(QString);
@@ -163,6 +156,8 @@ slots:
 	void startTask(Task *task);
 
 	void updateAvailable(QString repo, QString versionName, int versionId);
+
+	void updateNotAvailable();
 
 	void notificationsChanged();
 

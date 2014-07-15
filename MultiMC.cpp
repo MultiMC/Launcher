@@ -12,15 +12,19 @@
 #include <QDesktopServices>
 
 #include "gui/dialogs/VersionSelectDialog.h"
-#include "logic/lists/InstanceList.h"
+#include "logic/InstanceList.h"
 #include "logic/auth/MojangAccountList.h"
 #include "logic/icons/IconList.h"
-#include "logic/lists/LwjglVersionList.h"
-#include "logic/lists/MinecraftVersionList.h"
-#include "logic/lists/ForgeVersionList.h"
+#include "logic/minecraft/MinecraftVersionList.h"
+#include "logic/forge/ForgeVersionList.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickModUpdateMonitor.h"
-#include "logic/lists/LiteLoaderVersionList.h"
+#include "logic/liteloader/LiteLoaderVersionList.h"
+#include "logic/LwjglVersionList.h"
+#include "logic/minecraft/MinecraftVersionList.h"
+#include "logic/liteloader/LiteLoaderVersionList.h"
+
+#include "logic/forge/ForgeVersionList.h"
 
 #include "logic/news/NewsChecker.h"
 
@@ -30,7 +34,7 @@
 #include "logic/net/HttpMetaCache.h"
 #include "logic/net/URLConstants.h"
 
-#include "logic/JavaUtils.h"
+#include "logic/java/JavaUtils.h"
 
 #include "logic/updater/UpdateChecker.h"
 #include "logic/updater/NotificationChecker.h"
@@ -39,12 +43,14 @@
 #include "logic/tools/JVisualVM.h"
 #include "logic/tools/MCEditTool.h"
 
+#include "logic/URNResolver.h"
+
 #include "pathutils.h"
 #include "cmdutils.h"
-#include <inisettingsobject.h>
-#include <setting.h>
+#include "logic/settings/INISettingsObject.h"
+#include "logic/settings/Setting.h"
 #include "logger/QsLog.h"
-#include <logger/QsLogDest.h>
+#include "logger/QsLogDest.h"
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
@@ -226,7 +232,7 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override)
 	m_instances.reset(new InstanceList(InstDirSetting->get().toString(), this));
 	QLOG_INFO() << "Loading Instances...";
 	m_instances->loadList();
-	connect(InstDirSetting.get(), SIGNAL(settingChanged(const Setting &, QVariant)),
+	connect(InstDirSetting.get(), SIGNAL(SettingChanged(const Setting &, QVariant)),
 			m_instances.get(), SLOT(on_InstFolderChanged(const Setting &, QVariant)));
 
 	// and accounts
@@ -372,7 +378,7 @@ void MultiMC::initLogger()
 	QsLogging::Logger &logger = QsLogging::Logger::instance();
 	logger.setLoggingLevel(QsLogging::TraceLevel);
 	m_fileDestination = QsLogging::DestinationFactory::MakeFileDestination(logBase.arg(0));
-	m_debugDestination = QsLogging::DestinationFactory::MakeQDebugDestination();
+	m_debugDestination = QsLogging::DestinationFactory::MakeDebugOutputDestination();
 	logger.addDestination(m_fileDestination.get());
 	logger.addDestination(m_debugDestination.get());
 	// log all the things
@@ -388,6 +394,7 @@ void MultiMC::initGlobalSettings()
 	// Updates
 	m_settings->registerSetting("UpdateChannel", BuildConfig.VERSION_CHANNEL);
 	m_settings->registerSetting("AutoUpdate", true);
+	m_settings->registerSetting("IconTheme", QString("multimc"));
 
 	// Notifications
 	m_settings->registerSetting("ShownNotifications", QString());
@@ -520,6 +527,7 @@ void MultiMC::initGlobalSettings()
 	// Java Settings
 	m_settings->registerSetting("JavaPath", "");
 	m_settings->registerSetting("LastHostname", "");
+	m_settings->registerSetting("JavaDetectionHack", "");
 	m_settings->registerSetting("JvmArgs", "");
 
 	// Custom Commands
@@ -543,6 +551,8 @@ void MultiMC::initGlobalSettings()
 
 	// QuickMods
 	m_settings->registerSetting("QuickModAlwaysLatestVersion", true);
+
+	m_settings->registerSetting("PagedGeometry", "");
 }
 
 void MultiMC::initHttpMetaCache()
@@ -692,6 +702,15 @@ std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
 		m_quickmodslist.reset(new QuickModsList());
 	}
 	return m_quickmodslist;
+}
+
+std::shared_ptr<URNResolver> MultiMC::resolver()
+{
+	if (!m_resolver)
+	{
+		m_resolver.reset(new URNResolver());
+	}
+	return m_resolver;
 }
 
 void MultiMC::installUpdates(const QString updateFilesDir, UpdateFlags flags)

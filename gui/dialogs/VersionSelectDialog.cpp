@@ -18,15 +18,14 @@
 
 #include <QHeaderView>
 
-#include <QDebug>
-
 #include <gui/dialogs/ProgressDialog.h>
 #include "gui/Platform.h"
 
 #include <logic/BaseVersion.h>
-#include <logic/lists/BaseVersionList.h>
+#include <logic/BaseVersionList.h>
 #include <logic/tasks/Task.h>
 #include <depends/util/include/modutils.h>
+#include "logger/QsLog.h"
 
 VersionSelectProxyModel::VersionSelectProxyModel(QObject *parent)
 	: QSortFilterProxyModel(parent)
@@ -130,7 +129,7 @@ int VersionSelectDialog::exec()
 	m_proxyModel->invalidate();
 	if (m_proxyModel->rowCount() == 0)
 	{
-		qDebug() << "No rows in version list";
+		QLOG_DEBUG() << "No rows in version list";
 		return QDialog::Rejected;
 	}
 	if (m_proxyModel->rowCount() == 1 || m_useLatest)

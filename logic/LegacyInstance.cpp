@@ -16,7 +16,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QImage>
-#include <setting.h>
+#include <logic/settings/Setting.h>
 #include <pathutils.h>
 #include <cmdutils.h>
 
@@ -28,8 +28,13 @@
 #include "logic/MinecraftProcess.h"
 #include "logic/LegacyUpdate.h"
 #include "logic/icons/IconList.h"
-
-#include "gui/dialogs/LegacyModEditDialog.h"
+#include "gui/pages/LegacyUpgradePage.h"
+#include "gui/pages/ModFolderPage.h"
+#include "gui/pages/LegacyJarModPage.h"
+#include <gui/pages/TexturePackPage.h>
+#include <gui/pages/InstanceSettingsPage.h>
+#include <gui/pages/NotesPage.h>
+#include <gui/pages/ScreenshotsPage.h>
 
 LegacyInstance::LegacyInstance(const QString &rootDir, SettingsObject *settings,
 							   QObject *parent)
@@ -42,7 +47,29 @@ LegacyInstance::LegacyInstance(const QString &rootDir, SettingsObject *settings,
 	settings->registerSetting("IntendedJarVersion", "");
 }
 
-std::shared_ptr<Task> LegacyInstance::doUpdate(InstancePtr ptr)
+QList<BasePage *> LegacyInstance::getPages()
+{
+	QList<BasePage *> values;
+	// FIXME: actually implement the legacy instance upgrade, then enable this.
+	//values.append(new LegacyUpgradePage(this));
+	values.append(new LegacyJarModPage(this));
+	values.append(new ModFolderPage(this, loaderModList(), "mods", "plugin-blue", tr("Loader mods"),
+									"Loader-mods"));
+	values.append(new ModFolderPage(this, coreModList(), "coremods", "plugin-green", tr("Core mods"),
+									"Core-mods"));
+	values.append(new TexturePackPage(this));
+	values.append(new NotesPage(this));
+	values.append(new ScreenshotsPage(this));
+	values.append(new InstanceSettingsPage(this));
+	return values;
+}
+
+QString LegacyInstance::dialogTitle()
+{
+	return tr("Edit Instance (%1)").arg(name());
+}
+
+std::shared_ptr<Task> LegacyInstance::doUpdate()
 {
 	// make sure the jar mods list is initialized by asking for it.
 	auto list = jarModList();
@@ -50,7 +77,7 @@ std::shared_ptr<Task> LegacyInstance::doUpdate(InstancePtr ptr)
 	return std::shared_ptr<Task>(new LegacyUpdate(this, this));
 }
 
-bool LegacyInstance::prepareForLaunch(AuthSessionPtr account, QString & launchScript)
+bool LegacyInstance::prepareForLaunch(AuthSessionPtr account, QString &launchScript)
 {
 	QIcon icon = MMC->icons()->getIcon(iconKey());
 	auto pixmap = icon.pixmap(128, 128);
@@ -89,7 +116,7 @@ std::shared_ptr<ModList> LegacyInstance::coreModList()
 	I_D(LegacyInstance);
 	if (!d->core_mod_list)
 	{
-		d->core_mod_list.reset(new ModList(this, coreModsDir()));
+		d->core_mod_list.reset(new ModList(coreModsDir()));
 	}
 	d->core_mod_list->update();
 	return d->core_mod_list;
@@ -100,7 +127,7 @@ std::shared_ptr<ModList> LegacyInstance::jarModList()
 	I_D(LegacyInstance);
 	if (!d->jar_mod_list)
 	{
-		auto list = new ModList(this, jarModsDir(), modListFile());
+		auto list = new ModList(jarModsDir(), modListFile());
 		connect(list, SIGNAL(changed()), SLOT(jarModsChanged()));
 		d->jar_mod_list.reset(list);
 	}
@@ -119,7 +146,7 @@ std::shared_ptr<ModList> LegacyInstance::loaderModList()
 	I_D(LegacyInstance);
 	if (!d->loader_mod_list)
 	{
-		d->loader_mod_list.reset(new ModList(this, loaderModsDir()));
+		d->loader_mod_list.reset(new ModList(loaderModsDir()));
 	}
 	d->loader_mod_list->update();
 	return d->loader_mod_list;
@@ -130,15 +157,10 @@ std::shared_ptr<ModList> LegacyInstance::texturePackList()
 	I_D(LegacyInstance);
 	if (!d->texture_pack_list)
 	{
-		d->texture_pack_list.reset(new ModList(this, texturePacksDir()));
+		d->texture_pack_list.reset(new ModList(texturePacksDir()));
 	}
 	d->texture_pack_list->update();
 	return d->texture_pack_list;
-}
-
-QDialog *LegacyInstance::createModEditDialog(InstancePtr ptr, QWidget *parent)
-{
-	return new LegacyModEditDialog(this, parent);
 }
 
 QString LegacyInstance::jarModsDir() const
@@ -263,27 +285,11 @@ QString LegacyInstance::defaultCustomBaseJar() const
 	return PathCombine(binDir(), "mcbackup.jar");
 }
 
-bool LegacyInstance::menuActionEnabled(QString action_name) const
-{
-	if (flags() & VersionBrokenFlag)
-	{
-		return false;
-	}
-	if (action_name == "actionChangeInstMCVersion")
-	{
-		return false;
-	}
-	return true;
-}
-
 QString LegacyInstance::getStatusbarDescription()
 {
 	if (flags() & VersionBrokenFlag)
 	{
-		return "Legacy : " + intendedVersionId() + " (broken)";
+		return tr("Legacy : %1 (broken)").arg(intendedVersionId());
 	}
-	if (shouldUpdate())
-		return "Legacy : " + currentVersionId() + " -> " + intendedVersionId();
-	else
-		return "Legacy : " + currentVersionId();
+	return tr("Legacy : %1").arg(intendedVersionId());
 }
