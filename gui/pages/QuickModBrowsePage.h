@@ -19,12 +19,13 @@
 
 #include "logic/BaseInstance.h"
 #include "logic/quickmod/QuickMod.h"
+#include "BasePage.h"
 
 class OneSixInstance;
 
 namespace Ui
 {
-class QuickModBrowseDialog;
+class QuickModBrowsePage;
 }
 
 class QItemSelection;
@@ -32,13 +33,20 @@ class QListView;
 class ModFilterProxyModel;
 class CheckboxProxyModel;
 
-class QuickModBrowseDialog : public QDialog
+class QuickModBrowsePage : public QWidget, public BasePage
 {
 	Q_OBJECT
 
 public:
-	explicit QuickModBrowseDialog(InstancePtr instance, QWidget *parent = 0);
-	~QuickModBrowseDialog();
+	explicit QuickModBrowsePage(BaseInstance *instance, QWidget *parent = 0);
+	~QuickModBrowsePage();
+
+	QString id() const override { return "quickmod-browse"; }
+	QString displayName() const override { return tr("QuickMods"); }
+	QIcon icon() const override { return QIcon::fromTheme("plugin-red"); }
+	bool apply() override;
+	bool shouldDisplay() const override;
+	void opened() override;
 
 private
 slots:
@@ -59,11 +67,11 @@ slots:
 	void setupComboBoxes();
 
 private:
-	Ui::QuickModBrowseDialog *ui;
+	Ui::QuickModBrowsePage *ui;
 
 	QuickModPtr m_currentMod;
 
-	InstancePtr m_instance;
+	BaseInstance *m_instance;
 
 	QListView *m_view;
 	ModFilterProxyModel *m_filterModel;

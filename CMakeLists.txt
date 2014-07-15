@@ -313,12 +313,12 @@ set(MULTIMC_SOURCES
 	gui/pages/ScreenshotsPage.h
 	gui/pages/OtherLogsPage.cpp
 	gui/pages/OtherLogsPage.h
+	gui/pages/QuickModBrowsePage.h
+	gui/pages/QuickModBrowsePage.cpp
 
 	# GUI - dialogs
 	gui/dialogs/quickmod/QuickModAddFileDialog.h
 	gui/dialogs/quickmod/QuickModAddFileDialog.cpp
-	gui/dialogs/quickmod/QuickModBrowseDialog.h
-	gui/dialogs/quickmod/QuickModBrowseDialog.cpp
 	gui/dialogs/quickmod/QuickModInstallDialog.h
 	gui/dialogs/quickmod/QuickModInstallDialog.cpp
 	gui/dialogs/quickmod/QuickModRepoDialog.h
@@ -682,6 +682,7 @@ set(MULTIMC_UIS
 	gui/pages/NotesPage.ui
 	gui/pages/ScreenshotsPage.ui
 	gui/pages/OtherLogsPage.ui
+	gui/pages/QuickModBrowsePage.ui
 
 	# Dialogs
 	gui/dialogs/SettingsDialog.ui
@@ -699,7 +700,6 @@ set(MULTIMC_UIS
 	gui/dialogs/UpdateDialog.ui
 	gui/dialogs/NotificationDialog.ui
 	gui/dialogs/quickmod/QuickModAddFileDialog.ui
-	gui/dialogs/quickmod/QuickModBrowseDialog.ui
 	gui/dialogs/quickmod/QuickModInstallDialog.ui
 	gui/dialogs/quickmod/QuickModRepoDialog.ui
 	gui/dialogs/quickmod/QuickModVerifyModsDialog.ui

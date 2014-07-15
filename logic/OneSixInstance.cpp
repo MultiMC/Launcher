@@ -43,6 +43,7 @@
 #include "gui/pages/NotesPage.h"
 #include "gui/pages/ScreenshotsPage.h"
 #include "gui/pages/OtherLogsPage.h"
+#include "gui/pages/QuickModBrowsePage.h"
 
 #include "logger/QsLog.h"
 #include "MultiMC.h"
@@ -73,10 +74,11 @@ QList<BasePage *> OneSixInstance::getPages()
 {
 	QList<BasePage *> values;
 	values.append(new VersionPage(this));
-	values.append(new ModFolderPage(this, loaderModList(), "mods", "plugin-blue",
+	values.append(new LoaderModFolderPage(this, loaderModList(), "mods", "plugin-blue",
 									tr("Loader mods"), "Loader-mods"));
 	values.append(new CoreModFolderPage(this, coreModList(), "coremods", "plugin-green",
 										tr("Core mods"), "Core-mods"));
+	values.append(new QuickModBrowsePage(this));
 	values.append(new ResourcePackPage(this));
 	values.append(new TexturePackPage(this));
 	values.append(new NotesPage(this));

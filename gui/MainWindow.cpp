@@ -58,7 +58,6 @@
 #include "gui/dialogs/LwjglSelectDialog.h"
 #include "gui/dialogs/IconPickerDialog.h"
 #include "gui/dialogs/CopyInstanceDialog.h"
-#include "gui/dialogs/quickmod/QuickModBrowseDialog.h"
 #include "gui/dialogs/AccountListDialog.h"
 #include "gui/dialogs/AccountSelectDialog.h"
 #include "gui/dialogs/UpdateDialog.h"
@@ -1480,8 +1479,7 @@ void MainWindow::selectionBad()
 
 void MainWindow::on_actionBrowseQuickMods_triggered()
 {
-	QuickModBrowseDialog dialog(InstancePtr(), this);
-	dialog.exec();
+	// TODO use ShowPageDialog to show the global settings dialog with a quickmods page
 }
 
 void MainWindow::instanceEnded()

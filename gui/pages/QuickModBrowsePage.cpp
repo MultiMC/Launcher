@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "QuickModBrowseDialog.h"
-#include "ui_QuickModBrowseDialog.h"
+#include "QuickModBrowsePage.h"
+#include "ui_QuickModBrowsePage.h"
 
 #include <QSortFilterProxyModel>
 #include <QIdentityProxyModel>
@@ -23,7 +23,7 @@
 
 #include "logic/quickmod/QuickModsList.h"
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
-#include "QuickModAddFileDialog.h"
+#include "gui/dialogs/quickmod/QuickModAddFileDialog.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/OneSixInstance.h"
 
@@ -245,8 +245,8 @@ private:
 
 // {{{ Constructor/destructor
 
-QuickModBrowseDialog::QuickModBrowseDialog(InstancePtr instance, QWidget *parent)
-	: QDialog(parent), ui(new Ui::QuickModBrowseDialog), m_currentMod(0), m_instance(instance),
+QuickModBrowsePage::QuickModBrowsePage(BaseInstance *instance, QWidget *parent)
+	: QWidget(parent), ui(new Ui::QuickModBrowsePage), m_currentMod(0), m_instance(instance),
 	  m_view(new QListView(this)), m_filterModel(new ModFilterProxyModel(this)),
 	  m_checkModel(new CheckboxProxyModel(this))
 {
@@ -262,7 +262,7 @@ QuickModBrowseDialog::QuickModBrowseDialog(InstancePtr instance, QWidget *parent
 	m_filterModel->setSourceModel(MMC->quickmodslist().get());
 	m_checkModel->setSourceModel(m_filterModel);
 
-	if (m_instance.get() != nullptr)
+	if (m_instance != nullptr)
 	{
 		m_view->setModel(m_checkModel);
 	}
@@ -270,14 +270,12 @@ QuickModBrowseDialog::QuickModBrowseDialog(InstancePtr instance, QWidget *parent
 	{
 		m_view->setModel(m_filterModel);
 		ui->installButton->hide();
-		ui->closeButton->setText(tr("&Close"));
 	}
 
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
-			&QuickModBrowseDialog::modSelectionChanged);
+			&QuickModBrowsePage::modSelectionChanged);
 	connect(MMC->quickmodslist().get(), &QuickModsList::modsListChanged, this,
-			&QuickModBrowseDialog::setupComboBoxes);
-	connect(ui->closeButton, &QPushButton::clicked, this, &QuickModBrowseDialog::reject);
+			&QuickModBrowsePage::setupComboBoxes);
 
 	setupComboBoxes();
 
@@ -286,7 +284,7 @@ QuickModBrowseDialog::QuickModBrowseDialog(InstancePtr instance, QWidget *parent
 #endif
 }
 
-QuickModBrowseDialog::~QuickModBrowseDialog()
+QuickModBrowsePage::~QuickModBrowsePage()
 {
 	delete ui;
 }
@@ -295,19 +293,19 @@ QuickModBrowseDialog::~QuickModBrowseDialog()
 
 // {{{ GUI updates
 
-void QuickModBrowseDialog::modLogoUpdated()
+void QuickModBrowsePage::modLogoUpdated()
 {
 	ui->logoLabel->setPixmap(m_currentMod->logo());
 }
 
-void QuickModBrowseDialog::setupComboBoxes()
+void QuickModBrowsePage::setupComboBoxes()
 {
 	QStringList categories;
 	categories.append("");
 	int initialVsn = 0;
 	QStringList versions;
 	versions.append("");
-	if (m_instance.get() != nullptr)
+	if (m_instance != nullptr)
 	{
 		initialVsn = 1;
 		versions.append(m_instance->intendedVersionId());
@@ -333,15 +331,33 @@ void QuickModBrowseDialog::setupComboBoxes()
 
 // }}}
 
+bool QuickModBrowsePage::apply()
+{
+	return true;
+}
+
+bool QuickModBrowsePage::shouldDisplay() const
+{
+	if (m_instance && m_instance->isRunning())
+	{
+		return false;
+	}
+	return true;
+}
+
+void QuickModBrowsePage::opened()
+{
+}
+
 // {{{ Event handling
 
 // {{{ Buttons
 
-void QuickModBrowseDialog::on_installButton_clicked()
+void QuickModBrowsePage::on_installButton_clicked()
 {
 	auto items = m_checkModel->getCheckedItems();
 	auto alreadySelected =
-		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+		dynamic_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods;
 	for (auto mod : alreadySelected.keys())
 	{
 		items.removeAll(mod);
@@ -359,22 +375,19 @@ void QuickModBrowseDialog::on_installButton_clicked()
 
 	try
 	{
-		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->setQuickModVersions(mods);
+		dynamic_cast<OneSixInstance *>(m_instance)->setQuickModVersions(mods);
 	}
 	catch (MMCError &e)
 	{
 		QMessageBox::critical(this, tr("Error"), e.cause());
-		reject();
-		return;
 	}
-	accept();
 }
 
-void QuickModBrowseDialog::on_addButton_clicked()
+void QuickModBrowsePage::on_addButton_clicked()
 {
 	QuickModAddFileDialog::run(this);
 }
-void QuickModBrowseDialog::on_updateButton_clicked()
+void QuickModBrowsePage::on_updateButton_clicked()
 {
 	MMC->quickmodslist()->updateFiles();
 }
@@ -383,20 +396,20 @@ void QuickModBrowseDialog::on_updateButton_clicked()
 
 // {{{ Link clicking
 
-void QuickModBrowseDialog::on_categoriesLabel_linkActivated(const QString &link)
+void QuickModBrowsePage::on_categoriesLabel_linkActivated(const QString &link)
 {
 	ui->categoryBox->setCurrentText(link);
 	ui->tagsEdit->setText(QString());
 }
 
-void QuickModBrowseDialog::on_tagsLabel_linkActivated(const QString &link)
+void QuickModBrowsePage::on_tagsLabel_linkActivated(const QString &link)
 {
 	ui->tagsEdit->setText(ui->tagsEdit->text() + ", " + link);
 	ui->categoryBox->setCurrentText(QString());
 	on_tagsEdit_textChanged();
 }
 
-void QuickModBrowseDialog::on_mcVersionsLabel_linkActivated(const QString &link)
+void QuickModBrowsePage::on_mcVersionsLabel_linkActivated(const QString &link)
 {
 	ui->mcVersionBox->setCurrentText(link);
 }
@@ -405,23 +418,23 @@ void QuickModBrowseDialog::on_mcVersionsLabel_linkActivated(const QString &link)
 
 // {{{ Filtering
 
-void QuickModBrowseDialog::on_fulltextEdit_textChanged()
+void QuickModBrowsePage::on_fulltextEdit_textChanged()
 {
 	m_filterModel->setFulltext(ui->fulltextEdit->text());
 }
 
-void QuickModBrowseDialog::on_tagsEdit_textChanged()
+void QuickModBrowsePage::on_tagsEdit_textChanged()
 {
 	m_filterModel->setTags(
 		ui->tagsEdit->text().split(QRegularExpression(", {0,1}"), QString::SkipEmptyParts));
 }
 
-void QuickModBrowseDialog::on_categoryBox_currentTextChanged()
+void QuickModBrowsePage::on_categoryBox_currentTextChanged()
 {
 	m_filterModel->setCategory(ui->categoryBox->currentText());
 }
 
-void QuickModBrowseDialog::on_mcVersionBox_currentTextChanged()
+void QuickModBrowsePage::on_mcVersionBox_currentTextChanged()
 {
 	m_filterModel->setMCVersion(ui->mcVersionBox->currentText());
 }
@@ -430,13 +443,13 @@ void QuickModBrowseDialog::on_mcVersionBox_currentTextChanged()
 
 // {{{ List selection
 
-void QuickModBrowseDialog::modSelectionChanged(const QItemSelection &selected,
+void QuickModBrowsePage::modSelectionChanged(const QItemSelection &selected,
 											   const QItemSelection &deselected)
 {
 	if (m_currentMod)
 	{
 		disconnect(m_currentMod.get(), &QuickMod::logoUpdated, this,
-				   &QuickModBrowseDialog::modLogoUpdated);
+				   &QuickModBrowsePage::modLogoUpdated);
 	}
 
 	if (selected.isEmpty())
@@ -481,7 +494,7 @@ void QuickModBrowseDialog::modSelectionChanged(const QItemSelection &selected,
 		ui->logoLabel->setPixmap(m_currentMod->logo());
 
 		connect(m_currentMod.get(), &QuickMod::logoUpdated, this,
-				&QuickModBrowseDialog::modLogoUpdated);
+				&QuickModBrowsePage::modLogoUpdated);
 	}
 }
 
@@ -489,4 +502,4 @@ void QuickModBrowseDialog::modSelectionChanged(const QItemSelection &selected,
 
 // }}}
 
-#include "QuickModBrowseDialog.moc"
+#include "QuickModBrowsePage.moc"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QuickModBrowseDialog</class>
- <widget class="QDialog" name="QuickModBrowseDialog">
+ <class>QuickModBrowsePage</class>
+ <widget class="QWidget" name="QuickModBrowsePage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -362,13 +362,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="closeButton">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>
@@ -378,7 +371,6 @@
   <tabstop>categoryBox</tabstop>
   <tabstop>tagsEdit</tabstop>
   <tabstop>installButton</tabstop>
-  <tabstop>closeButton</tabstop>
   <tabstop>addButton</tabstop>
   <tabstop>updateButton</tabstop>
   <tabstop>modInfoArea</tabstop>
