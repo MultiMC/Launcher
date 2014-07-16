@@ -50,6 +50,10 @@ void QuickModUpdateMonitor::instanceListRowsInserted(const QModelIndex &parent, 
 	for (int i = start; i < (end + 1); ++i)
 	{
 		auto instance = std::dynamic_pointer_cast<OneSixInstance>(m_instanceList->at(i));
+		if (!instance)
+		{
+			continue;
+		}
 		m_instances.insert(instance.get(), instance);
 		connect(instance.get(), &OneSixInstance::versionReloaded, this,
 				&QuickModUpdateMonitor::instanceReloaded);
