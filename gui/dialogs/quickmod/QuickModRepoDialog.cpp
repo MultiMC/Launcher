@@ -8,6 +8,7 @@ QuickModRepoDialog::QuickModRepoDialog(QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModRepoDialog)
 {
 	ui->setupUi(this);
+	ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
 	populate();
 }
