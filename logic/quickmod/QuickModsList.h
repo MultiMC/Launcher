@@ -104,6 +104,11 @@ public:
 	QString existingModFile(QuickModPtr mod, const BaseVersionPtr version) const;
 	QString existingModFile(QuickModPtr mod, const QString &version) const;
 
+	void setRepositoryIndexUrl(const QString &repository, const QUrl &url);
+	QUrl repositoryIndexUrl(const QString &repository) const;
+	bool haveRepositoryIndexUrl(const QString &repository) const;
+	QList<QUrl> indices() const;
+
 	bool haveUid(const QuickModUid &uid) const;
 
 	QList<QuickModUid> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;

@@ -31,6 +31,10 @@ void QuickModRepoDialog::populate()
 		{
 			QTreeWidgetItem *repo =
 				new QTreeWidgetItem(ui->treeWidget, QStringList() << mod->repo());
+			if (list->haveRepositoryIndexUrl(mod->repo()))
+			{
+				repo->setData(1, Qt::DisplayRole, list->repositoryIndexUrl(mod->repo()));
+			}
 			repos[mod->repo()] = repo;
 		}
 		QTreeWidgetItem *repo = repos[mod->repo()];

@@ -47,6 +47,7 @@ QuickModsList::QuickModsList(const Flags flags, QObject *parent)
 	m_settings->registerSetting("AvailableMods",
 								QVariant::fromValue(QMap<QString, QMap<QString, QString>>()));
 	m_settings->registerSetting("TrustedWebsites", QVariantList());
+	m_settings->registerSetting("Indices", QVariantMap());
 
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
 	connect(m_updater, &QuickModFilesUpdater::addedSandboxedMod, this, &QuickModsList::sandboxModAdded);
@@ -356,6 +357,31 @@ QString QuickModsList::existingModFile(QuickModPtr mod, const QString &version) 
 	}
 	auto mods = m_settings->get("AvailableMods").toMap();
 	return mods[mod->internalUid()].toMap()[version].toString();
+}
+
+void QuickModsList::setRepositoryIndexUrl(const QString &repository, const QUrl &url)
+{
+	QMap<QString, QVariant> map = m_settings->get("Indices").toMap();
+	map[repository] = url.toString(QUrl::FullyEncoded);
+	m_settings->set("Indices", map);
+}
+QUrl QuickModsList::repositoryIndexUrl(const QString &repository) const
+{
+	return QUrl(m_settings->get("Indices").toMap()[repository].toString(), QUrl::StrictMode);
+}
+bool QuickModsList::haveRepositoryIndexUrl(const QString &repository) const
+{
+	return m_settings->get("Indices").toMap().contains(repository);
+}
+QList<QUrl> QuickModsList::indices() const
+{
+	QList<QUrl> out;
+	const auto map = m_settings->get("Indices").toMap();
+	for (const auto value : map.values())
+	{
+		out.append(QUrl(value.toString(), QUrl::StrictMode));
+	}
+	return out;
 }
 
 bool QuickModsList::haveUid(const QuickModUid &uid) const

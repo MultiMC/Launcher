@@ -89,10 +89,18 @@ void QuickModFilesUpdater::update()
 			auto download =
 					ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
 			download->m_followRedirects = true;
-			connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
-			connect(download.get(), SIGNAL(failed(int)), this, SLOT(failedMod(int)));
+			connect(download.get(), &ByteArrayDownload::succeeded, this, &QuickModFilesUpdater::receivedMod);
+			connect(download.get(), &ByteArrayDownload::failed, this, &QuickModFilesUpdater::failedMod);
 			job->addNetAction(download);
 		}
+	}
+	for (const auto indexUrl : m_list->indices())
+	{
+		auto download = ByteArrayDownload::make(Util::expandQMURL(indexUrl.toString(QUrl::FullyEncoded)));
+		download->m_followRedirects = true;
+		connect(download.get(), &ByteArrayDownload::succeeded, this, &QuickModFilesUpdater::receivedMod);
+		connect(download.get(), &ByteArrayDownload::failed, this, &QuickModFilesUpdater::failedMod);
+		job->addNetAction(download);
 	}
 	job->start();
 }
@@ -111,6 +119,10 @@ void QuickModFilesUpdater::receivedMod(int notused)
 			if (doc.isObject() && doc.object().contains("index"))
 			{
 				const QJsonObject obj = doc.object();
+				if (obj.contains("repo"))
+				{
+					m_list->setRepositoryIndexUrl(MMCJson::ensureString(obj.value("repo")), download->m_url);
+				}
 				const QJsonArray array = MMCJson::ensureArray(obj.value("index"));
 				for (auto it = array.begin(); it != array.end(); ++it)
 				{
