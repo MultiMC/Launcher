@@ -150,12 +150,5 @@ void openFileInDefaultProgram(QString filename)
 bool checkProblemticPathJava(QDir folder)
 {
     QString pathfoldername = folder.absolutePath();
-    for(int i = 0; i < pathfoldername.length(); i++)
-    {
-        if(pathfoldername[i] == '!')
-        {
-            return true;
-        }
-    }
-    return false;
+    return pathfoldername.contains("!", Qt::CaseInsensitive);
 }

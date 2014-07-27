@@ -1537,14 +1537,16 @@ void MainWindow::checkSetDefaultJava()
 void MainWindow::checkInstancePathForProblems()
 {
     QString instanceFolder = MMC->settings()->get("InstanceDir").toString();
-    if(checkProblemticPathJava(QDir(instanceFolder)))
+    if (checkProblemticPathJava(QDir(instanceFolder)))
     {
         QMessageBox warning;
-        warning.setText(tr("Your instance Folder contains \'!\' and this is known to cause Java Problems!"));
-        warning.setInformativeText(tr("You have now three options: <br/>"
-                                      " - ignore this warining <br/>"
-                                      " - change the instance dir in the settings <br/>"
-                                      " - move this installation of MultiMC5 to a diffrent folder"));
+        warning.setText(tr(
+            "Your instance folder contains \'!\' and this is known to cause Java problems!"));
+        warning.setInformativeText(
+            tr("You have now three options: <br/>"
+               " - ignore this warning <br/>"
+               " - change the instance dir in the settings <br/>"
+               " - move this installation of MultiMC5 to a different folder"));
         warning.setDefaultButton(QMessageBox::Ok);
         warning.exec();
     }

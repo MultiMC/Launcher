@@ -54,226 +54,225 @@ static const int APPDATA_BUFFER_SIZE = 1024;
 
 using namespace Util::Commandline;
 
-MultiMC::MultiMC(int &argc, char **argv, bool root_override)
-	: QApplication(argc, argv)
+MultiMC::MultiMC(int &argc, char **argv, bool root_override) : QApplication(argc, argv)
 {
-	setOrganizationName("MultiMC");
-	setApplicationName("MultiMC5");
+    setOrganizationName("MultiMC");
+    setApplicationName("MultiMC5");
 
-	setAttribute(Qt::AA_UseHighDpiPixmaps);
-	// Don't quit on hiding the last window
-	this->setQuitOnLastWindowClosed(false);
+    setAttribute(Qt::AA_UseHighDpiPixmaps);
+    // Don't quit on hiding the last window
+    this->setQuitOnLastWindowClosed(false);
 
-	// Commandline parsing
-	QHash<QString, QVariant> args;
-	{
-		Parser parser(FlagStyle::GNU, ArgumentStyle::SpaceAndEquals);
+    // Commandline parsing
+    QHash<QString, QVariant> args;
+    {
+        Parser parser(FlagStyle::GNU, ArgumentStyle::SpaceAndEquals);
 
-		// --help
-		parser.addSwitch("help");
-		parser.addShortOpt("help", 'h');
-		parser.addDocumentation("help", "display this help and exit.");
-		// --version
-		parser.addSwitch("version");
-		parser.addShortOpt("version", 'V');
-		parser.addDocumentation("version", "display program version and exit.");
-		// --dir
-		parser.addOption("dir", applicationDirPath());
-		parser.addShortOpt("dir", 'd');
-		parser.addDocumentation("dir", "use the supplied directory as MultiMC root instead of "
-									   "the binary location (use '.' for current)");
-		// WARNING: disabled until further notice
-		/*
-		// --launch
-		parser.addOption("launch");
-		parser.addShortOpt("launch", 'l');
-		parser.addDocumentation("launch", "tries to launch the given instance", "<inst>");
+        // --help
+        parser.addSwitch("help");
+        parser.addShortOpt("help", 'h');
+        parser.addDocumentation("help", "display this help and exit.");
+        // --version
+        parser.addSwitch("version");
+        parser.addShortOpt("version", 'V');
+        parser.addDocumentation("version", "display program version and exit.");
+        // --dir
+        parser.addOption("dir", applicationDirPath());
+        parser.addShortOpt("dir", 'd');
+        parser.addDocumentation("dir", "use the supplied directory as MultiMC root instead of "
+                                       "the binary location (use '.' for current)");
+        // WARNING: disabled until further notice
+        /*
+        // --launch
+        parser.addOption("launch");
+        parser.addShortOpt("launch", 'l');
+        parser.addDocumentation("launch", "tries to launch the given instance", "<inst>");
 */
 
-		// parse the arguments
-		try
-		{
-			args = parser.parse(arguments());
-		}
-		catch (ParsingError e)
-		{
-			std::cerr << "CommandLineError: " << e.what() << std::endl;
-			std::cerr << "Try '%1 -h' to get help on MultiMC's command line parameters."
-					  << std::endl;
-			m_status = MultiMC::Failed;
-			return;
-		}
+        // parse the arguments
+        try
+        {
+            args = parser.parse(arguments());
+        }
+        catch (ParsingError e)
+        {
+            std::cerr << "CommandLineError: " << e.what() << std::endl;
+            std::cerr << "Try '%1 -h' to get help on MultiMC's command line parameters."
+                      << std::endl;
+            m_status = MultiMC::Failed;
+            return;
+        }
 
-		// display help and exit
-		if (args["help"].toBool())
-		{
-			std::cout << qPrintable(parser.compileHelp(arguments()[0]));
-			m_status = MultiMC::Succeeded;
-			return;
-		}
+        // display help and exit
+        if (args["help"].toBool())
+        {
+            std::cout << qPrintable(parser.compileHelp(arguments()[0]));
+            m_status = MultiMC::Succeeded;
+            return;
+        }
 
-		// display version and exit
-		if (args["version"].toBool())
-		{
-			std::cout << "Version " << BuildConfig.VERSION_STR.toStdString() << std::endl;
-			std::cout << "Git " << BuildConfig.GIT_COMMIT.toStdString() << std::endl;
-			m_status = MultiMC::Succeeded;
-			return;
-		}
-	}
-	origcwdPath = QDir::currentPath();
-	binPath = applicationDirPath();
-	QString adjustedBy;
-	// change directory
-	QString dirParam = args["dir"].toString();
-	if (!dirParam.isEmpty())
-	{
-		// the dir param. it makes multimc data path point to whatever the user specified
-		// on command line
-		adjustedBy += "Command line " + dirParam;
-		dataPath = dirParam;
-	}
-	else
-	{
-		dataPath = applicationDirPath();
-		adjustedBy += "Fallback to binary path " + dataPath;
-	}
+        // display version and exit
+        if (args["version"].toBool())
+        {
+            std::cout << "Version " << BuildConfig.VERSION_STR.toStdString() << std::endl;
+            std::cout << "Git " << BuildConfig.GIT_COMMIT.toStdString() << std::endl;
+            m_status = MultiMC::Succeeded;
+            return;
+        }
+    }
+    origcwdPath = QDir::currentPath();
+    binPath = applicationDirPath();
+    QString adjustedBy;
+    // change directory
+    QString dirParam = args["dir"].toString();
+    if (!dirParam.isEmpty())
+    {
+        // the dir param. it makes multimc data path point to whatever the user specified
+        // on command line
+        adjustedBy += "Command line " + dirParam;
+        dataPath = dirParam;
+    }
+    else
+    {
+        dataPath = applicationDirPath();
+        adjustedBy += "Fallback to binary path " + dataPath;
+    }
 
-	if(!ensureFolderPathExists(dataPath) || !QDir::setCurrent(dataPath))
-	{
-		// BAD STUFF. WHAT DO?
-		initLogger();
-		QLOG_ERROR() << "Failed to set work path. Will exit. NOW.";
-		m_status = MultiMC::Failed;
-		return;
-	}
+    if (!ensureFolderPathExists(dataPath) || !QDir::setCurrent(dataPath))
+    {
+        // BAD STUFF. WHAT DO?
+        initLogger();
+        QLOG_ERROR() << "Failed to set work path. Will exit. NOW.";
+        m_status = MultiMC::Failed;
+        return;
+    }
 
-	if (root_override)
-	{
-		rootPath = binPath;
-	}
-	else
-	{
-	#ifdef Q_OS_LINUX
-		QDir foo(PathCombine(binPath, ".."));
-		rootPath = foo.absolutePath();
-	#elif defined(Q_OS_WIN32)
-		rootPath = binPath;
-	#elif defined(Q_OS_MAC)
-		QDir foo(PathCombine(binPath, "../.."));
-		rootPath = foo.absolutePath();
-	#endif
-	}
+    if (root_override)
+    {
+        rootPath = binPath;
+    }
+    else
+    {
+#ifdef Q_OS_LINUX
+        QDir foo(PathCombine(binPath, ".."));
+        rootPath = foo.absolutePath();
+#elif defined(Q_OS_WIN32)
+        rootPath = binPath;
+#elif defined(Q_OS_MAC)
+        QDir foo(PathCombine(binPath, "../.."));
+        rootPath = foo.absolutePath();
+#endif
+    }
 
-	// static data paths... mostly just for translations
-	#ifdef Q_OS_LINUX
-		QDir foo(PathCombine(binPath, ".."));
-		staticDataPath = foo.absolutePath();
-	#elif defined(Q_OS_WIN32)
-		staticDataPath = binPath;
-	#elif defined(Q_OS_MAC)
-		QDir foo(PathCombine(rootPath, "Contents/Resources"));
-		staticDataPath = foo.absolutePath();
-	#endif
+// static data paths... mostly just for translations
+#ifdef Q_OS_LINUX
+    QDir foo(PathCombine(binPath, ".."));
+    staticDataPath = foo.absolutePath();
+#elif defined(Q_OS_WIN32)
+    staticDataPath = binPath;
+#elif defined(Q_OS_MAC)
+    QDir foo(PathCombine(rootPath, "Contents/Resources"));
+    staticDataPath = foo.absolutePath();
+#endif
 
-	// init the logger
-	initLogger();
+    // init the logger
+    initLogger();
 
-	QLOG_INFO() << "MultiMC 5, (c) 2013 MultiMC Contributors";
-	QLOG_INFO() << "Version                    : " << BuildConfig.VERSION_STR;
-	QLOG_INFO() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
-	if (adjustedBy.size())
-	{
-		QLOG_INFO() << "Work dir before adjustment : " << origcwdPath;
-		QLOG_INFO() << "Work dir after adjustment  : " << QDir::currentPath();
-		QLOG_INFO() << "Adjusted by                : " << adjustedBy;
-	}
-	else
-	{
-		QLOG_INFO() << "Work dir                   : " << QDir::currentPath();
-	}
-	QLOG_INFO() << "Binary path                : " << binPath;
-	QLOG_INFO() << "Application root path      : " << rootPath;
-	QLOG_INFO() << "Static data path           : " << staticDataPath;
+    QLOG_INFO() << "MultiMC 5, (c) 2013 MultiMC Contributors";
+    QLOG_INFO() << "Version                    : " << BuildConfig.VERSION_STR;
+    QLOG_INFO() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
+    if (adjustedBy.size())
+    {
+        QLOG_INFO() << "Work dir before adjustment : " << origcwdPath;
+        QLOG_INFO() << "Work dir after adjustment  : " << QDir::currentPath();
+        QLOG_INFO() << "Adjusted by                : " << adjustedBy;
+    }
+    else
+    {
+        QLOG_INFO() << "Work dir                   : " << QDir::currentPath();
+    }
+    QLOG_INFO() << "Binary path                : " << binPath;
+    QLOG_INFO() << "Application root path      : " << rootPath;
+    QLOG_INFO() << "Static data path           : " << staticDataPath;
 
-	// load settings
-	initGlobalSettings();
+    // load settings
+    initGlobalSettings();
 
-	// load translations
-	initTranslations();
+    // load translations
+    initTranslations();
 
-	// initialize the updater
-	m_updateChecker.reset(new UpdateChecker());
+    // initialize the updater
+    m_updateChecker.reset(new UpdateChecker());
 
-	// initialize the notification checker
-	m_notificationChecker.reset(new NotificationChecker());
+    // initialize the notification checker
+    m_notificationChecker.reset(new NotificationChecker());
 
-	// initialize the news checker
-	m_newsChecker.reset(new NewsChecker(BuildConfig.NEWS_RSS_URL));
+    // initialize the news checker
+    m_newsChecker.reset(new NewsChecker(BuildConfig.NEWS_RSS_URL));
 
-	// initialize the status checker
-	m_statusChecker.reset(new StatusChecker());
+    // initialize the status checker
+    m_statusChecker.reset(new StatusChecker());
 
-	// and instances
-	auto InstDirSetting = m_settings->getSetting("InstanceDir");
+    // and instances
+    auto InstDirSetting = m_settings->getSetting("InstanceDir");
     // instance path: check for problems with '!' in instance path and warn the user in the log
     // and rememer that we have to show him a dialog when the gui starts (if it does so)
-    QString InstDir = MMC->settings()->get("InstanceDir").toString();
-    QLOG_INFO() << "Instance path              : " << InstDir;
-    if(checkProblemticPathJava(QDir(InstDir)))
+    QString instDir = MMC->settings()->get("InstanceDir").toString();
+    QLOG_INFO() << "Instance path              : " << instDir;
+    if (checkProblemticPathJava(QDir(instDir)))
     {
-        QLOG_WARN() << "Your instance path contains \'!\' and this is known to cause java problems";
+        QLOG_WARN()
+            << "Your instance path contains \'!\' and this is known to cause java problems";
     }
-	m_instances.reset(new InstanceList(InstDirSetting->get().toString(), this));
-	QLOG_INFO() << "Loading Instances...";
-	m_instances->loadList();
-	connect(InstDirSetting.get(), SIGNAL(SettingChanged(const Setting &, QVariant)),
-			m_instances.get(), SLOT(on_InstFolderChanged(const Setting &, QVariant)));
+    m_instances.reset(new InstanceList(InstDirSetting->get().toString(), this));
+    QLOG_INFO() << "Loading Instances...";
+    m_instances->loadList();
+    connect(InstDirSetting.get(), SIGNAL(SettingChanged(const Setting &, QVariant)),
+            m_instances.get(), SLOT(on_InstFolderChanged(const Setting &, QVariant)));
 
-	// and accounts
-	m_accounts.reset(new MojangAccountList(this));
-	QLOG_INFO() << "Loading accounts...";
-	m_accounts->setListFilePath("accounts.json", true);
-	m_accounts->loadList();
+    // and accounts
+    m_accounts.reset(new MojangAccountList(this));
+    QLOG_INFO() << "Loading accounts...";
+    m_accounts->setListFilePath("accounts.json", true);
+    m_accounts->loadList();
 
-	// init the http meta cache
-	initHttpMetaCache();
+    // init the http meta cache
+    initHttpMetaCache();
 
-	// create the global network manager
-	m_qnam.reset(new QNetworkAccessManager(this));
+    // create the global network manager
+    m_qnam.reset(new QNetworkAccessManager(this));
 
-	// init proxy settings
-	updateProxySettings();
+    // init proxy settings
+    updateProxySettings();
 
-	m_profilers.insert("jprofiler",
-					   std::shared_ptr<BaseProfilerFactory>(new JProfilerFactory()));
-	m_profilers.insert("jvisualvm",
-					   std::shared_ptr<BaseProfilerFactory>(new JVisualVMFactory()));
-	for (auto profiler : m_profilers.values())
-	{
-		profiler->registerSettings(m_settings.get());
-	}
-	m_tools.insert("mcedit",
-				   std::shared_ptr<BaseDetachedToolFactory>(new MCEditFactory()));
-	for (auto tool : m_tools.values())
-	{
-		tool->registerSettings(m_settings.get());
-	}
+    m_profilers.insert("jprofiler",
+                       std::shared_ptr<BaseProfilerFactory>(new JProfilerFactory()));
+    m_profilers.insert("jvisualvm",
+                       std::shared_ptr<BaseProfilerFactory>(new JVisualVMFactory()));
+    for (auto profiler : m_profilers.values())
+    {
+        profiler->registerSettings(m_settings.get());
+    }
+    m_tools.insert("mcedit", std::shared_ptr<BaseDetachedToolFactory>(new MCEditFactory()));
+    for (auto tool : m_tools.values())
+    {
+        tool->registerSettings(m_settings.get());
+    }
 
-	// launch instance, if that's what should be done
-	// WARNING: disabled until further notice
-	/*
-	if (!args["launch"].isNull())
-	{
-		if (InstanceLauncher(args["launch"].toString()).launch())
-			m_status = MultiMC::Succeeded;
-		else
-			m_status = MultiMC::Failed;
-		return;
-	}
+    // launch instance, if that's what should be done
+    // WARNING: disabled until further notice
+    /*
+    if (!args["launch"].isNull())
+    {
+        if (InstanceLauncher(args["launch"].toString()).launch())
+            m_status = MultiMC::Succeeded;
+        else
+            m_status = MultiMC::Failed;
+        return;
+    }
 */
-	connect(this, SIGNAL(aboutToQuit()), SLOT(onExit()));
-	m_status = MultiMC::Initialized;
+    connect(this, SIGNAL(aboutToQuit()), SLOT(onExit()));
+    m_status = MultiMC::Initialized;
 }
 
 MultiMC::~MultiMC()
