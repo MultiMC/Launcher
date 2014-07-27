@@ -1309,12 +1309,17 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 	if (!mods.isEmpty())
 	{
 		QStringList names;
-		QMap<QuickModUid, QString> modsToUpdate;
+		QMap<QuickModUid, QPair<QString, bool>> modsToUpdate;
 		for (auto mod : mods)
 		{
 			auto ptr = MMC->quickmodslist()->mods(mod).first();
 			names.append(ptr->name());
-			modsToUpdate.insert(ptr->uid(), QString());
+			modsToUpdate.insert(
+				ptr->uid(),
+				qMakePair(QString(), std::dynamic_pointer_cast<OneSixInstance>(instance)
+										 ->getFullVersion()
+										 ->quickmods[ptr->uid()]
+										 .second));
 		}
 		int res = QMessageBox::question(
 			this, tr("Update"),

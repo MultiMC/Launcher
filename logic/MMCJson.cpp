@@ -20,7 +20,7 @@ bool MMCJson::ensureBoolean(const QJsonValue val, const QString what)
 {
 	if (!val.isBool())
 		throw JSONValidationError(what + " is not boolean");
-	return val.isBool();
+	return val.toBool();
 }
 
 QJsonValue MMCJson::ensureExists(QJsonValue val, const QString what)

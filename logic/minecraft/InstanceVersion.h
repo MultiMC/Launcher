@@ -143,7 +143,7 @@ public:
 	
 
 	QStringList modFiles;
-	QMap<QuickModUid, QString> quickmods;
+	QMap<QuickModUid, QPair<QString, bool>> quickmods;
 
 	/// the list of libs - both active and inactive, native and java
 	QList<OneSixLibraryPtr> libraries;

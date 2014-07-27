@@ -95,10 +95,18 @@ public: /* data */
 	QList<RawLibraryPtr> addLibs;
 	QList<QString> removeLibs;
 
+	struct QuickMod
+	{
+		QString uid;
+		QString version;
+		bool isManualInstall;
+		static QuickMod parse(const QString &id, const QJsonValue &value);
+	};
+
 	bool shouldOverwriteMods = false;
-	QPair<QStringList, QMap<QString, QString>> overwriteMods;
-	QPair<QStringList, QMap<QString, QString>> addMods;
-	QPair<QStringList, QMap<QString, QString>> removeMods;
+	QPair<QStringList, QList<QuickMod>> overwriteMods;
+	QPair<QStringList, QList<QuickMod>> addMods;
+	QPair<QStringList, QStringList> removeMods;
 
 	QSet<QString> traits;
 

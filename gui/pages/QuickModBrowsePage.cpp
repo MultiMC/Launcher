@@ -360,17 +360,20 @@ void QuickModBrowsePage::on_installButton_clicked()
 		dynamic_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods;
 	for (auto mod : alreadySelected.keys())
 	{
-		items.removeAll(mod);
+		if (alreadySelected[mod].second)
+		{
+			items.removeAll(mod);
+		}
 	}
 	if (items.isEmpty())
 	{
 		return;
 	}
 
-	QMap<QuickModUid, QString> mods;
+	QMap<QuickModUid, QPair<QString, bool>> mods;
 	for (auto item : items)
 	{
-		mods[QuickModUid(item)] = QString();
+		mods[QuickModUid(item)] = qMakePair(alreadySelected[item].first, true);
 	}
 
 	try

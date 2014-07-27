@@ -405,7 +405,7 @@ QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) co
 	for (auto it = onesix->getFullVersion()->quickmods.begin();
 		 it != onesix->getFullVersion()->quickmods.end(); ++it)
 	{
-		if (it.value().isEmpty())
+		if (it.value().first.isEmpty())
 		{
 			continue;
 		}
@@ -414,7 +414,7 @@ QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) co
 		{
 			continue;
 		}
-		if (Util::Version(it.value()) < Util::Version(latest->name()))
+		if (Util::Version(it.value().first) < Util::Version(latest->name()))
 		{
 			mods.append(QuickModUid(it.key()));
 		}

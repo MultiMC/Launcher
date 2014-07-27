@@ -296,7 +296,7 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr session, QString &launchScr
 		auto list = MMC->quickmodslist().get();
 		for (auto it = version->quickmods.begin(); it != version->quickmods.end(); ++it)
 		{
-			const auto modVersion = list->modVersion(it.key(), it.value());
+			const auto modVersion = list->modVersion(it.key(), it.value().first);
 			if (modVersion->installType == QuickModVersion::ForgeMod)
 			{
 				mods.prepend("mods " + list->existingModFile(modVersion->mod, modVersion));
@@ -561,11 +561,11 @@ bool OneSixInstance::reload()
 	return false;
 }
 
-void OneSixInstance::setQuickModVersion(const QuickModUid &uid, const QString &version)
+void OneSixInstance::setQuickModVersion(const QuickModUid &uid, const QString &version, const bool manualInstall)
 {
-	setQuickModVersions(QMap<QuickModUid, QString>({{uid, version}}));
+	setQuickModVersions(QMap<QuickModUid, QPair<QString, bool>>({{uid, qMakePair(version, manualInstall)}}));
 }
-void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QString> &mods)
+void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QPair<QString, bool>> &mods)
 {
 	QFile userFile(instanceRoot() + "/user.json");
 	if (!userFile.open(QFile::ReadWrite))
@@ -579,9 +579,14 @@ void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QString> &mods)
 	for (auto it = mods.begin(); it != mods.end(); ++it)
 	{
 		minusmods.remove(it.key().toString());
-		plusmods.insert(it.key().toString(), it.value());
+
+		QJsonObject qmObj;
+		qmObj.insert("version", it.value().first);
+		qmObj.insert("isManualInstall", it.value().second);
+		plusmods.insert(it.key().toString(), qmObj);
 	}
 	obj.insert("+mods", plusmods);
+	obj.insert("-mods", minusmods);
 	userFile.seek(0);
 	userFile.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
 	userFile.resize(userFile.pos());

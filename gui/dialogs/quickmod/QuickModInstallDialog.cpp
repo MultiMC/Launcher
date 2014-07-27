@@ -314,7 +314,7 @@ bool QuickModInstallDialog::resolveDeps()
 QuickModVersionPtr QuickModInstallDialog::getVersion(const QuickModUid &modUid,
 													 const QString &filter, bool *ok)
 {
-	const QString predefinedVersion = m_instance->getFullVersion()->quickmods[modUid];
+	const QString predefinedVersion = m_instance->getFullVersion()->quickmods[modUid].first;
 	VersionSelectDialog dialog(new QuickModVersionList(modUid, m_instance, this),
 							   tr("Choose QuickMod version for %1").arg(modUid.mod()->name()),
 							   this);

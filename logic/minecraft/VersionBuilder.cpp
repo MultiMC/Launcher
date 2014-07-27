@@ -167,6 +167,10 @@ void VersionBuilder::readUserPatch()
 	}
 
 	const QFileInfo fileName(PathCombine(m_instance->instanceRoot(), "user.json"));
+	if (!fileName.exists())
+	{
+		return;
+	}
 	auto file = parseJsonFile(fileName, false);
 	file->name = fileName.fileName();
 	file->fileId = "org.multimc.user.json";

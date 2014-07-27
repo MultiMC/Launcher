@@ -32,16 +32,15 @@ QuickModDownloadTask::QuickModDownloadTask(std::shared_ptr<OneSixInstance> insta
 
 void QuickModDownloadTask::executeTask()
 {
-	const QMap<QuickModUid, QString> quickmods =
+	const QMap<QuickModUid, QPair<QString, bool>> quickmods =
 		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
 	QList<QuickModUid> mods;
-	qDebug() << quickmods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
-		qDebug() << it.value() << it.key();
-		QuickModPtr mod = it.value().isEmpty() ? list->mods(it.key()).first()
-											   : list->modVersion(it.key(), it.value())->mod;
+		const QString version = it.value().first;
+		QuickModPtr mod = version.isEmpty() ? list->mods(it.key()).first()
+											: list->modVersion(it.key(), version)->mod;
 		if (mod == 0)
 		{
 			// TODO fetch info from somewhere?
@@ -57,14 +56,13 @@ void QuickModDownloadTask::executeTask()
 		}
 		else
 		{
-			if (it.value().isEmpty() || !list->isModMarkedAsExists(mod, it.value()))
+			if (version.isEmpty() || !list->isModMarkedAsExists(mod, version))
 			{
 				mods.append(mod->uid());
 			}
 		}
 	}
 
-	qDebug() << mods;
 	if (mods.isEmpty())
 	{
 		emitSucceeded();
@@ -76,25 +74,22 @@ void QuickModDownloadTask::executeTask()
 		wait<QList<QuickModVersionPtr>>("QuickMods.InstallMods", m_instance, mods, &ok);
 	if (ok)
 	{
-		QFile f(m_instance->instanceRoot() + "/user.json");
-		if (f.open(QFile::ReadWrite))
+		const auto quickmods = m_instance->getFullVersion()->quickmods;
+		QMap<QuickModUid, QPair<QString, bool>> mods;
+		for (const auto version : installedVersions)
 		{
-			QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
-			QJsonObject mods = obj.value("+mods").toObject();
-			for (auto version : installedVersions)
-			{
-				mods.insert(version->mod->uid().toString(), version->name());
-			}
-			obj.insert("+mods", mods);
-			f.seek(0);
-			f.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
-			f.close();
+			const auto uid = version->mod->uid();
+			bool isManualInstall = quickmods.contains(uid) &&
+					quickmods[uid].second;
+			mods.insert(version->mod->uid(), qMakePair(version->name(), isManualInstall));
 		}
-		else
+		try
 		{
-			QLOG_ERROR()
-				<< "Couldn't open" << f.fileName()
-				<< ". This means that stuff will be downloaded on every instance launch";
+			m_instance->setQuickModVersions(mods);
+		}
+		catch (...)
+		{
+			QLOG_ERROR() << "This means that stuff will be downloaded on every instance launch";
 		}
 
 		emitSucceeded();

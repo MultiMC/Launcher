@@ -222,7 +222,7 @@ QMap<QuickModUid, QString> QuickModInstanceModList::quickmods() const
 		temp_instance->getFullVersion()->quickmods;
 	for (auto it = mods.begin(); it != mods.end(); ++it)
 	{
-		out.insert(QuickModUid(it.key()), it.value());
+		out.insert(QuickModUid(it.key()), it.value().first);
 	}
 	return out;
 }

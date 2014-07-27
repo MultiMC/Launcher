@@ -206,18 +206,18 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 			QLOG_ERROR() << filename << "contains a 'mods' field, but it's not an object";
 			return out;
 		}
-		QJsonObject modsObj = modsVal.toObject();
+		QJsonObject modsObj = ensureObject(modsVal);
 		QStringList fileMods;
-		QMap<QString, QString> quickmods;
+		QList<QuickMod> quickmods;
 		for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
 		{
-			if (it.value().toString() == "file")
+			if (it.value().isString() && it.value().toString() == "file")
 			{
 				fileMods += it.key();
 			}
 			else
 			{
-				quickmods.insert(it.key(), it.value().toString());
+				quickmods.append(QuickMod::parse(it.key(), it.value()));
 			}
 		}
 		out->overwriteMods = qMakePair(fileMods, quickmods);
@@ -230,18 +230,18 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 			QLOG_ERROR() << filename << "contains a '+mods' field, but it's not an object";
 			return out;
 		}
-		QJsonObject modsObj = modsVal.toObject();
+		QJsonObject modsObj = ensureObject(modsVal);
 		QStringList fileMods;
-		QMap<QString, QString> quickmods;
+		QList<QuickMod> quickmods;
 		for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
 		{
-			if (it.value().toString() == "file")
+			if (it.value().isString() && it.value().toString() == "file")
 			{
 				fileMods += it.key();
 			}
 			else
 			{
-				quickmods.insert(it.key(), it.value().toString());
+				quickmods.append(QuickMod::parse(it.key(), it.value()));
 			}
 		}
 		out->addMods = qMakePair(fileMods, quickmods);
@@ -255,18 +255,18 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 			QLOG_ERROR() << filename << "contains a '-mods' field, but it's not an object";
 			return out;
 		}
-		QJsonObject modsObj = modsVal.toObject();
+		QJsonObject modsObj = ensureObject(modsVal);
 		QStringList fileMods;
-		QMap<QString, QString> quickmods;
+		QStringList quickmods;
 		for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
 		{
-			if (it.value().toString() == "file")
+			if (it.value().isString() && it.value().toString() == "file")
 			{
 				fileMods += it.key();
 			}
 			else
 			{
-				quickmods.insert(it.key(), it.value().toString());
+				quickmods.append(it.key());
 			}
 		}
 		out->removeMods = qMakePair(fileMods, quickmods);
@@ -601,25 +601,31 @@ void VersionFile::applyTo(InstanceVersion *version)
 	{
 		version->modFiles = overwriteMods.first;
 		version->quickmods.clear();
-		for (auto it = overwriteMods.second.begin(); it != overwriteMods.second.end(); ++it)
+		for (const auto qm : overwriteMods.second)
 		{
-			version->quickmods.insert(QuickModUid(it.key()), it.value());
+			version->quickmods.insert(QuickModUid(qm.uid), qMakePair(qm.version, qm.isManualInstall));
 		}
 	}
 	version->modFiles += addMods.first;
-	for (auto mod = addMods.second.cbegin(); mod != addMods.second.cend(); ++mod)
+	for (const auto qm : addMods.second)
 	{
-		version->quickmods.insert(QuickModUid(mod.key()), mod.value());
+		version->quickmods.insert(QuickModUid(qm.uid), qMakePair(qm.version, qm.isManualInstall));
 	}
 	for (auto mod : removeMods.first)
 	{
 		version->modFiles.removeAll(mod);
 	}
-	for (auto mod = removeMods.second.cbegin(); mod != removeMods.second.cend(); ++mod)
+	for (const auto qm : removeMods.second)
 	{
-		if (version->quickmods.contains(QuickModUid(mod.key())) && version->quickmods.value(QuickModUid(mod.key())) == mod.value())
-		{
-			version->quickmods.remove(QuickModUid(mod.key()));
-		}
+		version->quickmods.remove(QuickModUid(qm));
 	}
+}
+
+VersionFile::QuickMod VersionFile::QuickMod::parse(const QString &id, const QJsonValue &value)
+{
+	VersionFile::QuickMod mod;
+	mod.uid = id;
+	mod.version = ensureString(ensureObject(value).value("version"));
+	mod.isManualInstall = ensureBoolean(ensureObject(value).value("isManualInstall"));
+	return mod;
 }
