@@ -40,6 +40,7 @@ ModFolderPage::ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *i
 	: QWidget(parent), ui(new Ui::ModFolderPage)
 {
 	ui->setupUi(this);
+	ui->tabWidget->tabBar()->hide();
 	m_inst = inst;
 	m_mods = mods;
 	m_id = id;

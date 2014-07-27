@@ -50,7 +50,6 @@
 #include "gui/widgets/LabeledToolButton.h"
 #include "widgets/ServerStatus.h"
 
-#include "gui/dialogs/SettingsDialog.h"
 #include "gui/dialogs/NewInstanceDialog.h"
 #include "gui/dialogs/ProgressDialog.h"
 #include "gui/dialogs/AboutDialog.h"
@@ -59,11 +58,17 @@
 #include "gui/dialogs/LwjglSelectDialog.h"
 #include "gui/dialogs/IconPickerDialog.h"
 #include "gui/dialogs/CopyInstanceDialog.h"
-#include "gui/dialogs/AccountListDialog.h"
 #include "gui/dialogs/AccountSelectDialog.h"
 #include "gui/dialogs/UpdateDialog.h"
 #include "gui/dialogs/EditAccountDialog.h"
 #include "gui/dialogs/NotificationDialog.h"
+
+#include "gui/pages/global/MultiMCPage.h"
+#include "gui/pages/global/ExternalToolsPage.h"
+#include "gui/pages/global/AccountListPage.h"
+#include "pages/global/ProxyPage.h"
+#include "pages/global/JavaPage.h"
+#include "pages/global/MinecraftPage.h"
 
 #include "gui/ConsoleWindow.h"
 #include "pagedialog/PageDialog.h"
@@ -250,6 +255,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	accountMenuButtonAction->setDefaultWidget(accountMenuButton);
 
 	ui->mainToolBar->addAction(accountMenuButtonAction);
+
+	// set up global pages dialog
+	{
+		m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
+		m_globalSettingsProvider->addPage<MultiMCPage>();
+		m_globalSettingsProvider->addPage<MinecraftPage>();
+		m_globalSettingsProvider->addPage<JavaPage>();
+		m_globalSettingsProvider->addPage<ProxyPage>();
+		m_globalSettingsProvider->addPage<ExternalToolsPage>();
+		m_globalSettingsProvider->addPage<AccountListPage>();
+	}
 
 	// Update the menu when the active account changes.
 	// Shouldn't have to use lambdas here like this, but if I don't, the compiler throws a fit.
@@ -976,16 +992,6 @@ void MainWindow::on_actionCheckUpdate_triggered()
 	updater->checkForUpdate(true);
 }
 
-void MainWindow::on_actionSettings_triggered()
-{
-	SettingsDialog dialog(this);
-	dialog.exec();
-	// FIXME: quick HACK to make this work. improve, optimize.
-	proxymodel->invalidate();
-	proxymodel->sort(0);
-	updateToolsMenu();
-}
-
 template <typename T>
 void ShowPageDialog(T raw_provider, QWidget * parent, QString open_page = QString())
 {
@@ -994,6 +1000,15 @@ void ShowPageDialog(T raw_provider, QWidget * parent, QString open_page = QStrin
 		return;
 	PageDialog dlg(provider, open_page, parent);
 	dlg.exec();
+}
+
+void MainWindow::on_actionSettings_triggered()
+{
+	ShowPageDialog(m_globalSettingsProvider, this, "global-settings");
+	// FIXME: quick HACK to make this work. improve, optimize.
+	proxymodel->invalidate();
+	proxymodel->sort(0);
+	updateToolsMenu();
 }
 
 void MainWindow::on_actionInstanceSettings_triggered()
@@ -1019,8 +1034,7 @@ void MainWindow::on_actionScreenshots_triggered()
 
 void MainWindow::on_actionManageAccounts_triggered()
 {
-	AccountListDialog dialog(this);
-	dialog.exec();
+	ShowPageDialog(m_globalSettingsProvider, this, "accounts");
 }
 
 void MainWindow::on_actionReportBug_triggered()

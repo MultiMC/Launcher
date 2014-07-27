@@ -85,7 +85,6 @@ void ForgeInstaller::prepare(const QString &filename, const QString &universalUr
 
 	// where do we put the library? decode the mojang path
 	OneSixLibrary lib(libraryName);
-	lib.finalize();
 
 	auto cacheentry = MMC->metacache()->resolveEntry("libraries", lib.storagePath());
 	finalPath = "libraries/" + lib.storagePath();
@@ -133,25 +132,46 @@ bool ForgeInstaller::add(OneSixInstance *to)
 	int sliding_insert_window = 0;
 	{
 		QJsonArray librariesPlus;
-		// A blacklist - we ignore these entirely
-		QSet<QString> blacklist{"lwjgl", "lwjgl_util", "lwjgl-platform"};
+		// A blacklist
+		QSet<QString> blacklist{"authlib", "realms"};
 		// 
 		QList<QString> xzlist{"org.scala-lang", "com.typesafe"};
 		// for each library in the version we are adding (except for the blacklisted)
 		for (auto lib : m_forge_json->libraries)
 		{
-			QString libName = lib->name();
+			QString libName = lib->artifactId();
 			QString rawName = lib->rawName();
 
-			// ignore blacklisted stuff
+			// ignore lwjgl libraries.
+			if (g_VersionFilterData.lwjglWhitelist.contains(lib->artifactPrefix()))
+				continue;
+			// ignore other blacklisted (realms, authlib)
 			if (blacklist.contains(libName))
 				continue;
 
 			// WARNING: This could actually break.
 			// if this is the actual forge lib, set an absolute url for the download
-			if (libName.contains("minecraftforge"))
+			if(m_forge_version->type == ForgeVersion::Gradle)
 			{
-				lib->setAbsoluteUrl(m_universal_url);
+				if (libName == "forge")
+				{
+					lib->setClassifier("universal");
+				}
+				else if (libName == "minecraftforge")
+				{
+					QString forgeCoord ("net.minecraftforge:forge:%1:universal");
+					// using insane form of the MC version...
+					QString longVersion = m_forge_version->mcver + "-" + m_forge_version->jobbuildver;
+					GradleSpecifier spec(forgeCoord.arg(longVersion));
+					lib->setRawName(spec);
+				}
+			}
+			else
+			{
+				if (libName.contains("minecraftforge"))
+				{
+					lib->setAbsoluteUrl(m_universal_url);
+				}
 			}
 
 			// WARNING: This could actually break.
@@ -173,7 +193,7 @@ bool ForgeInstaller::add(OneSixInstance *to)
 			// find an entry that matches this one
 			for (auto tolib : to->getFullVersion()->vanillaLibraries)
 			{
-				if (tolib->name() != libName)
+				if (tolib->artifactId() != libName)
 					continue;
 				found = true;
 				if (tolib->toJson() == libObj)
@@ -192,7 +212,7 @@ bool ForgeInstaller::add(OneSixInstance *to)
 			{
 				// add lib
 				libObj.insert("insert", QString("prepend"));
-				if (lib->name() == "minecraftforge")
+				if (lib->artifactId() == "minecraftforge" || lib->artifactId() == "forge")
 				{
 					libObj.insert("MMC-depend", QString("hard"));
 				}

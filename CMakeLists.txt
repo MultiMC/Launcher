@@ -290,6 +290,8 @@ set(MULTIMC_SOURCES
 	gui/GuiUtil.cpp
 	gui/QuickModGuiUtil.h
 	gui/QuickModGuiUtil.cpp
+	gui/ColumnResizer.h
+	gui/ColumnResizer.cpp
 
 	# GUI - windows
 	gui/MainWindow.h
@@ -322,6 +324,20 @@ set(MULTIMC_SOURCES
 	gui/pages/QuickModBrowsePage.h
 	gui/pages/QuickModBrowsePage.cpp
 
+	# GUI - global settings pages
+	gui/pages/global/AccountListPage.cpp
+	gui/pages/global/AccountListPage.h
+	gui/pages/global/ExternalToolsPage.cpp
+	gui/pages/global/ExternalToolsPage.h
+	gui/pages/global/JavaPage.cpp
+	gui/pages/global/JavaPage.h
+	gui/pages/global/MinecraftPage.cpp
+	gui/pages/global/MinecraftPage.h
+	gui/pages/global/MultiMCPage.cpp
+	gui/pages/global/MultiMCPage.h
+	gui/pages/global/ProxyPage.cpp
+	gui/pages/global/ProxyPage.h
+
 	# GUI - dialogs
 	gui/dialogs/quickmod/QuickModAddFileDialog.h
 	gui/dialogs/quickmod/QuickModAddFileDialog.cpp
@@ -333,8 +349,6 @@ set(MULTIMC_SOURCES
 	gui/dialogs/quickmod/QuickModVerifyModsDialog.cpp
 	gui/dialogs/AboutDialog.cpp
 	gui/dialogs/AboutDialog.h
-	gui/dialogs/AccountListDialog.cpp
-	gui/dialogs/AccountListDialog.h
 	gui/dialogs/AccountSelectDialog.cpp
 	gui/dialogs/AccountSelectDialog.h
 	gui/dialogs/CopyInstanceDialog.cpp
@@ -359,8 +373,6 @@ set(MULTIMC_SOURCES
 	gui/pagedialog/PageDialog.h
 	gui/dialogs/ProgressDialog.cpp
 	gui/dialogs/ProgressDialog.h
-	gui/dialogs/SettingsDialog.cpp
-	gui/dialogs/SettingsDialog.h
 	gui/dialogs/UpdateDialog.cpp
 	gui/dialogs/UpdateDialog.h
 	gui/dialogs/VersionSelectDialog.cpp
@@ -445,6 +457,9 @@ set(MULTIMC_SOURCES
 	# RW lock protected map
 	logic/RWStorage.h
 
+	# A variable that has an implicit default value and keeps track of changes
+	logic/DefaultVariable.h
+
 	# network stuffs
 	logic/net/NetAction.h
 	logic/net/MD5EtagDownload.h
@@ -513,6 +528,7 @@ set(MULTIMC_SOURCES
 	logic/OneSixInstance_p.h
 
 	# OneSix version json infrastructure
+	logic/minecraft/GradleSpecifier.h
 	logic/minecraft/InstanceVersion.cpp
 	logic/minecraft/InstanceVersion.h
 	logic/minecraft/JarMod.cpp
@@ -690,8 +706,15 @@ set(MULTIMC_UIS
 	gui/pages/OtherLogsPage.ui
 	gui/pages/QuickModBrowsePage.ui
 
+	# Global settings pages
+	gui/pages/global/AccountListPage.ui
+	gui/pages/global/ExternalToolsPage.ui
+	gui/pages/global/JavaPage.ui
+	gui/pages/global/MinecraftPage.ui
+	gui/pages/global/MultiMCPage.ui
+	gui/pages/global/ProxyPage.ui
+
 	# Dialogs
-	gui/dialogs/SettingsDialog.ui
 	gui/dialogs/CopyInstanceDialog.ui
 	gui/dialogs/NewInstanceDialog.ui
 	gui/dialogs/AboutDialog.ui
@@ -699,7 +722,6 @@ set(MULTIMC_UIS
 	gui/dialogs/LwjglSelectDialog.ui
 	gui/dialogs/ProgressDialog.ui
 	gui/dialogs/IconPickerDialog.ui
-	gui/dialogs/AccountListDialog.ui
 	gui/dialogs/AccountSelectDialog.ui
 	gui/dialogs/EditAccountDialog.ui
 	gui/dialogs/LoginDialog.ui
@@ -813,7 +835,13 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInf
 		COMPONENT Runtime
 		REGEX "tga|tiff|mng" EXCLUDE
 	)
-
+	# Icon engines
+	install(
+		DIRECTORY "${QT_PLUGINS_DIR}/iconengines"
+		DESTINATION ${PLUGIN_DEST_DIR}
+		COMPONENT Runtime
+		REGEX "fontawesome" EXCLUDE
+	)
 	# Platform plugins
 	install(
 		DIRECTORY "${QT_PLUGINS_DIR}/platforms"
@@ -831,7 +859,15 @@ else()
 		REGEX "d\\." EXCLUDE
 		REGEX "_debug\\." EXCLUDE
 	)
-
+	# Icon engines
+	install(
+		DIRECTORY "${QT_PLUGINS_DIR}/iconengines"
+		DESTINATION ${PLUGIN_DEST_DIR}
+		COMPONENT Runtime
+		REGEX "fontawesome" EXCLUDE
+		REGEX "d\\." EXCLUDE
+		REGEX "_debug\\." EXCLUDE
+	)
 	# Platform plugins
 	install(
 		DIRECTORY "${QT_PLUGINS_DIR}/platforms"

@@ -103,7 +103,8 @@ void MavenResolver::executeTask()
 	{
 		if (lib->hint() == "recurse")
 		{
-			requestDependenciesOf(LibraryIdentifier(lib->group(), lib->name(), lib->version()), lib->getBaseUrl());
+			const auto gradleSpec = lib->rawName();
+			requestDependenciesOf(LibraryIdentifier(gradleSpec.groupId(), gradleSpec.artifactId(), gradleSpec.version()), lib->m_base_url);
 		}
 	}
 	if (m_downloads.isEmpty())

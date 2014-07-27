@@ -19,68 +19,54 @@
 #include <QDialog>
 
 #include "logic/java/JavaChecker.h"
+#include "gui/pages/BasePage.h"
 
 class SettingsObject;
 
 namespace Ui
 {
-class SettingsDialog;
+class MultiMCPage;
 }
 
-class SettingsDialog : public QDialog
+class MultiMCPage : public QWidget, public BasePage
 {
 	Q_OBJECT
 
 public:
-	explicit SettingsDialog(QWidget *parent = 0);
-	~SettingsDialog();
+	explicit MultiMCPage(QWidget *parent = 0);
+	~MultiMCPage();
 
-	void updateCheckboxStuff();
+	QString displayName() const override
+	{
+		return tr("MultiMC");
+	}
+	QIcon icon() const override
+	{
+		return QIcon::fromTheme("multimc");
+	}
+	QString id() const override
+	{
+		return "multimc-settings";
+	}
+	QString helpPage() const override
+	{
+		return "MultiMC-settings";
+	}
+	bool apply() override;
 
-	void applySettings(SettingsObject *s);
-	void loadSettings(SettingsObject *s);
-
-protected:
-	virtual void showEvent(QShowEvent *ev);
-	virtual void closeEvent(QCloseEvent *ev);
+private:
+	void applySettings();
+	void loadSettings();
 
 private
 slots:
 	void on_ftbLauncherBrowseBtn_clicked();
-
 	void on_ftbBrowseBtn_clicked();
 
 	void on_instDirBrowseBtn_clicked();
-
 	void on_modsDirBrowseBtn_clicked();
-
 	void on_lwjglDirBrowseBtn_clicked();
-
-
-	void on_jsonEditorBrowseBtn_clicked();
-
 	void on_iconsDirBrowseBtn_clicked();
-
-	void on_maximizedCheckBox_clicked(bool checked);
-
-	void on_buttonBox_accepted();
-
-	void on_buttonBox_rejected();
-
-	void on_javaDetectBtn_clicked();
-
-	void on_javaTestBtn_clicked();
-
-	void on_javaBrowseBtn_clicked();
-
-	void checkFinished(JavaCheckResult result);
-
-	void on_jprofilerPathBtn_clicked();
-	void on_jprofilerCheckBtn_clicked();
-	void on_jvisualvmPathBtn_clicked();
-	void on_jvisualvmCheckBtn_clicked();
-	void on_mceditPathBtn_clicked();
-	void on_mceditCheckBtn_clicked();
 
 	void on_quickmodRepoBtn_clicked();
 
@@ -95,11 +81,9 @@ slots:
 	void refreshUpdateChannelDesc();
 
     void updateChannelSelectionChanged(int index);
-	void proxyChanged(int);
 
 private:
-	Ui::SettingsDialog *ui;
-	std::shared_ptr<JavaChecker> checker;
+	Ui::MultiMCPage *ui;
 
 	/*!
 	 * Stores the currently selected update channel.
