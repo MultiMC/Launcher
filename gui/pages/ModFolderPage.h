@@ -17,14 +17,13 @@
 
 #include <QWidget>
 
+#include "logic/quickmod/QuickModInstanceModList.h"
 #include "logic/OneSixInstance.h"
 #include "logic/net/NetJob.h"
 #include "BasePage.h"
 
 class EnabledItemFilter;
 class ModList;
-class QuickModInstanceModList;
-class QuickModInstanceModListProxy;
 
 namespace Ui
 {
@@ -36,7 +35,7 @@ class ModFolderPage : public QWidget, public BasePage
 	Q_OBJECT
 
 public:
-	explicit ModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
+	explicit ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
 						   QString iconName, QString displayName, QString helpPage = "",
 						   QWidget *parent = 0);
 	virtual ~ModFolderPage();
@@ -81,6 +80,14 @@ slots:
 	virtual void on_addModBtn_clicked();
 	virtual void on_rmModBtn_clicked();
 	virtual void on_viewModBtn_clicked();
+	virtual void on_updateModBtn_clicked();
+
+private:
+	QuickModInstanceModList *m_modsModel;
+	QuickModInstanceModListProxy *m_proxy;
+
+	QModelIndex mapToModsList(const QModelIndex &view) const;
+	void sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods);
 };
 
 class CoreModFolderPage : public ModFolderPage
@@ -94,32 +101,4 @@ public:
 	{
 	}
 	virtual bool shouldDisplay() const;
-};
-
-class LoaderModFolderPage : public ModFolderPage
-{
-	Q_OBJECT
-public:
-	explicit LoaderModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
-								 QString iconName, QString displayName, QString helpPage = QString(),
-								 QWidget *parent = 0);
-	virtual ~LoaderModFolderPage()
-	{
-	}
-
-private:
-	QuickModInstanceModList *m_modsModel;
-	QuickModInstanceModListProxy *m_proxy;
-
-	QModelIndex mapToModsList(const QModelIndex &view) const;
-	void sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods);
-
-public
-slots:
-	void modCurrent(const QModelIndex &current, const QModelIndex &previous) override;
-
-private
-slots:
-	void on_rmModBtn_clicked() override;
-	void on_updateModBtn_clicked();
 };

@@ -34,7 +34,7 @@
 #include "logic/quickmod/QuickModInstanceModList.h"
 #include "logic/tasks/SequentialTask.h"
 
-ModFolderPage::ModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
+ModFolderPage::ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
 							 QString iconName, QString displayName, QString helpPage,
 							 QWidget *parent)
 	: QWidget(parent), ui(new Ui::ModFolderPage)
@@ -46,9 +46,12 @@ ModFolderPage::ModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, 
 	m_displayName = displayName;
 	m_iconName = iconName;
 	m_helpName = helpPage;
-	ui->modTreeView->setModel(m_mods.get());
 	ui->modTreeView->installEventFilter(this);
 	m_mods->startWatching();
+
+	m_modsModel = new QuickModInstanceModList(type, m_inst, m_mods, this);
+	ui->modTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
+
 	auto smodel = ui->modTreeView->selectionModel();
 	connect(smodel, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
 			SLOT(modCurrent(QModelIndex, QModelIndex)));
@@ -109,95 +112,6 @@ void ModFolderPage::on_addModBtn_clicked()
 void ModFolderPage::on_rmModBtn_clicked()
 {
 	int first, last;
-	auto list = ui->modTreeView->selectionModel()->selectedRows();
-
-	if (!lastfirst(list, first, last))
-		return;
-	m_mods->stopWatching();
-	m_mods->deleteMods(first, last);
-	m_mods->startWatching();
-}
-
-void ModFolderPage::on_viewModBtn_clicked()
-{
-	openDirInDefaultProgram(m_mods->dir().absolutePath(), true);
-}
-
-void ModFolderPage::modCurrent(const QModelIndex &current, const QModelIndex &previous)
-{
-	if (!current.isValid())
-	{
-		ui->frame->clear();
-		return;
-	}
-	int row = current.row();
-	Mod &m = m_mods->operator[](row);
-	ui->frame->updateWithMod(m);
-}
-
-CoreModFolderPage::CoreModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods,
-									 QString id, QString iconName, QString displayName,
-									 QString helpPage, QWidget *parent)
-	: ModFolderPage(inst, mods, id, iconName, displayName, helpPage, parent)
-{
-}
-bool CoreModFolderPage::shouldDisplay() const
-{
-	if (ModFolderPage::shouldDisplay())
-	{
-		auto inst = dynamic_cast<OneSixInstance *>(m_inst);
-		if (!inst)
-			return true;
-		auto version = inst->getFullVersion();
-		if (!version)
-			return true;
-		if (version->m_releaseTime < g_VersionFilterData.legacyCutoffDate)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-LoaderModFolderPage::LoaderModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, QString id, QString iconName, QString displayName, QString helpPage, QWidget *parent)
-	: ModFolderPage(inst, mods, id, iconName, displayName, helpPage, parent)
-{
-	m_modsModel = new QuickModInstanceModList(m_inst, m_mods, this);
-	ui->modTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
-}
-
-QModelIndex LoaderModFolderPage::mapToModsList(const QModelIndex &view) const
-{
-	return m_modsModel->mapToModList(m_proxy->mapToSource(view));
-}
-void LoaderModFolderPage::sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods)
-{
-	for (auto index : view)
-	{
-		if (!index.isValid())
-		{
-			continue;
-		}
-		const QModelIndex mappedOne = m_proxy->mapToSource(index);
-		if (m_modsModel->isModListArea(mappedOne))
-		{
-			mods->append(m_modsModel->mapToModList(mappedOne));
-		}
-		else
-		{
-			quickmods->append(mappedOne);
-		}
-	}
-}
-
-void LoaderModFolderPage::modCurrent(const QModelIndex &current, const QModelIndex &previous)
-{
-	ModFolderPage::modCurrent(mapToModsList(current), mapToModsList(previous));
-}
-
-void LoaderModFolderPage::on_rmModBtn_clicked()
- {
-	int first, last;
 	auto tmp = ui->modTreeView->selectionModel()->selectedRows();
 	QModelIndexList quickmods, mods;
 	sortMods(tmp, &quickmods, &mods);
@@ -226,7 +140,12 @@ void LoaderModFolderPage::on_rmModBtn_clicked()
 		}
 	}
 }
-void LoaderModFolderPage::on_updateModBtn_clicked()
+
+void ModFolderPage::on_viewModBtn_clicked()
+{
+	openDirInDefaultProgram(m_mods->dir().absolutePath(), true);
+}
+void ModFolderPage::on_updateModBtn_clicked()
 {
 	auto tmp = ui->modTreeView->selectionModel()->selectedRows();
 	QModelIndexList quickmods, mods;
@@ -242,4 +161,67 @@ void LoaderModFolderPage::on_updateModBtn_clicked()
 	{
 		QMessageBox::critical(this, tr("Error"), tr("Unable to update mod:\n%1").arg(error.cause()));
 	}
+}
+
+void ModFolderPage::modCurrent(const QModelIndex &current, const QModelIndex &previous)
+{
+	ui->updateModBtn->setEnabled(!m_modsModel->isModListArea(m_proxy->mapToSource(current)));
+
+	const QModelIndex index = mapToModsList(current);
+	if (!index.isValid())
+	{
+		ui->frame->clear();
+		return;
+	}
+	int row = index.row();
+	Mod &m = m_mods->operator[](row);
+	ui->frame->updateWithMod(m);
+}
+
+QModelIndex ModFolderPage::mapToModsList(const QModelIndex &view) const
+{
+	return m_modsModel->mapToModList(m_proxy->mapToSource(view));
+}
+void ModFolderPage::sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods)
+{
+	for (auto index : view)
+	{
+		if (!index.isValid())
+		{
+			continue;
+		}
+		const QModelIndex mappedOne = m_proxy->mapToSource(index);
+		if (m_modsModel->isModListArea(mappedOne))
+		{
+			mods->append(m_modsModel->mapToModList(mappedOne));
+		}
+		else
+		{
+			quickmods->append(mappedOne);
+		}
+	}
+}
+
+CoreModFolderPage::CoreModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods,
+									 QString id, QString iconName, QString displayName,
+									 QString helpPage, QWidget *parent)
+	: ModFolderPage(QuickModInstanceModList::CoreMods, inst, mods, id, iconName, displayName, helpPage, parent)
+{
+}
+bool CoreModFolderPage::shouldDisplay() const
+{
+	if (ModFolderPage::shouldDisplay())
+	{
+		auto inst = dynamic_cast<OneSixInstance *>(m_inst);
+		if (!inst)
+			return true;
+		auto version = inst->getFullVersion();
+		if (!version)
+			return true;
+		if (version->m_releaseTime < g_VersionFilterData.legacyCutoffDate)
+		{
+			return true;
+		}
+	}
+	return false;
 }

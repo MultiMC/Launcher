@@ -20,10 +20,10 @@
 #include "QuickModLibraryInstaller.h"
 #include "modutils.h"
 
-QuickModInstanceModList::QuickModInstanceModList(BaseInstance *instance,
+QuickModInstanceModList::QuickModInstanceModList(const Type type, BaseInstance *instance,
 												 std::shared_ptr<ModList> modList,
 												 QObject *parent)
-	: QAbstractListModel(parent), m_instance(instance), m_modList(modList)
+	: QAbstractListModel(parent), m_instance(instance), m_modList(modList), m_type(type)
 {
 	Q_ASSERT(dynamic_cast<OneSixInstance *>(instance));
 	connect(m_modList.get(), &ModList::modelAboutToBeReset, this,
@@ -212,6 +212,10 @@ void QuickModInstanceModList::quickmodIconUpdated()
 
 QMap<QuickModUid, QString> QuickModInstanceModList::quickmods() const
 {
+	if (m_type == ResourcePacks || m_type == CoreMods || m_type == TexturePacks)
+	{
+		return QMap<QuickModUid, QString>();
+	}
 	QMap<QuickModUid, QString> out;
 	auto temp_instance = dynamic_cast<OneSixInstance *>(m_instance);
 	auto mods =

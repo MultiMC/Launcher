@@ -5,7 +5,7 @@ class TexturePackPage : public ModFolderPage
 {
 public:
 	explicit TexturePackPage(BaseInstance *instance, QWidget *parent = 0)
-		: ModFolderPage(instance, instance->texturePackList(), "texturepacks", "resourcepacks",
+		: ModFolderPage(QuickModInstanceModList::TexturePacks, instance, instance->texturePackList(), "texturepacks", "resourcepacks",
 						tr("Texture packs"), "Texture-packs", parent)
 	{
 	}

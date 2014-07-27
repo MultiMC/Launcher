@@ -33,7 +33,15 @@ public:
 		VersionColumn
 	};
 
-	QuickModInstanceModList(BaseInstance *instance, std::shared_ptr<ModList> modList,
+	enum Type
+	{
+		Mods,
+		CoreMods,
+		ResourcePacks,
+		TexturePacks
+	};
+
+	QuickModInstanceModList(const Type type, BaseInstance *instance, std::shared_ptr<ModList> modList,
 							QObject *parent = 0);
 	~QuickModInstanceModList();
 
@@ -74,6 +82,7 @@ private:
 	friend class QuickModInstanceModListProxy;
 	BaseInstance *m_instance;
 	std::shared_ptr<ModList> m_modList;
+	Type m_type;
 
 	QMap<QuickModUid, QString> quickmods() const;
 	QuickModPtr modAt(const int row) const;

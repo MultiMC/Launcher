@@ -74,7 +74,7 @@ QList<BasePage *> OneSixInstance::getPages()
 {
 	QList<BasePage *> values;
 	values.append(new VersionPage(this));
-	values.append(new LoaderModFolderPage(this, loaderModList(), "mods", "plugin-blue",
+	values.append(new ModFolderPage(QuickModInstanceModList::Mods, this, loaderModList(), "mods", "plugin-blue",
 									tr("Loader mods"), "Loader-mods"));
 	values.append(new CoreModFolderPage(this, coreModList(), "coremods", "plugin-green",
 										tr("Core mods"), "Core-mods"));
