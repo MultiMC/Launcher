@@ -45,6 +45,7 @@
 #include "gui/groupview/InstanceDelegate.h"
 
 #include "gui/Platform.h"
+#include "gui/QuickModGuiUtil.h"
 
 #include "gui/widgets/LabeledToolButton.h"
 #include "widgets/ServerStatus.h"
@@ -813,14 +814,15 @@ void MainWindow::on_actionAddInstance_triggered()
 
 	if (MMC->accounts()->anyAccountIsValid())
 	{
-		ProgressDialog loadDialog(this);
 		auto update = newInstance->doUpdate();
+		QuickModGuiUtil::setup(update, this);
 		connect(update.get(), &Task::failed, [this](QString reason)
 		{
 			QString error = QString("Instance load failed: %1").arg(reason);
 			CustomMessageBox::selectable(this, tr("Error"), error, QMessageBox::Warning)
 				->show();
 		});
+		ProgressDialog loadDialog(this);
 		loadDialog.exec(update.get());
 	}
 	else
@@ -1316,10 +1318,11 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 		launchInstance(instance, session, profiler);
 		return;
 	}
-	ProgressDialog tDialog(this);
+	QuickModGuiUtil::setup(updateTask, this);
 	connect(updateTask.get(), &Task::succeeded, [this, instance, session, profiler]
 	{ launchInstance(instance, session, profiler); });
 	connect(updateTask.get(), SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
+	ProgressDialog tDialog(this);
 	tDialog.exec(updateTask.get());
 }
 

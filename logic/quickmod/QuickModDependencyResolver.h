@@ -19,22 +19,22 @@
 #include <QHash>
 #include <memory>
 
-#include <logic/quickmod/QuickMod.h>
+#include "logic/quickmod/QuickMod.h"
+
+#include "LogicalGui.h"
 
 class QWidget;
 
-class BaseInstance;
-typedef std::shared_ptr<BaseInstance> InstancePtr;
+class OneSixInstance;
 class QuickModVersion;
 class QuickMod;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 
-class QuickModDependencyResolver : public QObject
+class QuickModDependencyResolver : public Bindable
 {
 	Q_OBJECT
 public:
-	explicit QuickModDependencyResolver(InstancePtr instance, QWidget *parent = 0);
-	explicit QuickModDependencyResolver(InstancePtr instance, QWidget *widgetParent,
+	explicit QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance,
 										QObject *parent);
 
 	QList<QuickModVersionPtr> resolve(const QList<QuickModUid> &mods);
@@ -45,13 +45,11 @@ signals:
 	void success(const QString &message);
 
 private:
-	QWidget *m_widgetParent;
-	InstancePtr m_instance;
+	std::shared_ptr<OneSixInstance> m_instance;
 
 	QHash<QuickMod *, QuickModVersionPtr> m_mods;
 
 	QuickModVersionPtr getVersion(const QuickModUid &modUid, const QString &filter, bool *ok);
-	/// \param exclude Used for telling which versions are already included, so they won't have
-	/// to be added or checked now
+
 	void resolve(const QuickModVersionPtr version);
 };

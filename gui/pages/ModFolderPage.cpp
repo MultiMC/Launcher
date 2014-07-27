@@ -33,8 +33,6 @@
 #include "logic/VersionFilterData.h"
 #include "logic/quickmod/QuickModInstanceModList.h"
 #include "logic/tasks/SequentialTask.h"
-#include "logic/quickmod/tasks/QuickModDownloadTask.h"
-#include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"
 
 ModFolderPage::ModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
 							 QString iconName, QString displayName, QString helpPage,
@@ -245,17 +243,3 @@ void LoaderModFolderPage::on_updateModBtn_clicked()
 		QMessageBox::critical(this, tr("Error"), tr("Unable to update mod:\n%1").arg(error.cause()));
 	}
 }
-
-// FIXME own page
-//void LoaderModFolderPage::runQuickModInstall()
-//{
-//	QLOG_DEBUG() << "Running QuickMod download tasks.";
-//	auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
-//	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(m_inst, this)));
-//	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(m_inst, this)));
-//	ProgressDialog tDialog(this);
-//	tDialog.exec(task.get());
-
-//	// Reload the instance.
-//	m_inst->reload();
-//}

@@ -22,8 +22,6 @@
 #include "logic/BaseInstance.h"
 #include "TestUtil.h"
 
-Q_DECLARE_METATYPE(InstancePtr)
-
 class QuickModsListTest : public QObject
 {
 	Q_OBJECT

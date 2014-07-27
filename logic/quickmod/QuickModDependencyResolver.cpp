@@ -15,9 +15,6 @@
 
 #include "QuickModDependencyResolver.h"
 
-#include <QWidget>
-
-#include "gui/dialogs/VersionSelectDialog.h"
 #include "QuickModVersion.h"
 #include "QuickMod.h"
 #include "QuickModsList.h"
@@ -25,14 +22,8 @@
 #include "MultiMC.h"
 #include "modutils.h"
 
-QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance, QWidget *parent)
-	: QuickModDependencyResolver(instance, parent, parent)
-{
-}
-
-QuickModDependencyResolver::QuickModDependencyResolver(InstancePtr instance,
-													   QWidget *widgetParent, QObject *parent)
-	: QObject(parent), m_widgetParent(widgetParent), m_instance(instance)
+QuickModDependencyResolver::QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance, QObject *parent)
+	: Bindable(parent), m_instance(instance)
 {
 }
 
@@ -54,28 +45,7 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickM
 QuickModVersionPtr QuickModDependencyResolver::getVersion(const QuickModUid &modUid,
 														  const QString &filter, bool *ok)
 {
-	// FIXME: This only works with 1.6
-	const QString predefinedVersion =
-		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods
-			[modUid];
-	VersionSelectDialog dialog(new QuickModVersionList(modUid, m_instance, this),
-							   tr("Choose QuickMod version for %1").arg(modUid.mod()->name()),
-							   m_widgetParent);
-	dialog.setFuzzyFilter(BaseVersionList::NameColumn, filter);
-	dialog.setUseLatest(MMC->settings()->get("QuickModAlwaysLatestVersion").toBool());
-	// TODO currently, if the version isn't existing anymore it will be updated
-	if (!predefinedVersion.isEmpty() &&
-		MMC->quickmodslist()->modVersion(modUid, predefinedVersion))
-	{
-		dialog.setExactFilter(BaseVersionList::NameColumn, predefinedVersion);
-	}
-	if (dialog.exec() == QDialog::Rejected)
-	{
-		*ok = false;
-		return QuickModVersionPtr();
-	}
-	*ok = true;
-	return std::dynamic_pointer_cast<QuickModVersion>(dialog.selectedVersion());
+	return wait<QuickModVersionPtr>("QuickMods.GetVersion", modUid, filter, ok);
 }
 
 void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)

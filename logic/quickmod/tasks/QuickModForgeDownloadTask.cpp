@@ -22,8 +22,6 @@
 #include "logic/quickmod/QuickMod.h"
 #include "MultiMC.h"
 
-#include "gui/dialogs/VersionSelectDialog.h"
-
 QuickModForgeDownloadTask::QuickModForgeDownloadTask(InstancePtr instance, QObject *parent)
 	: Task(parent), m_instance(instance)
 {
@@ -60,33 +58,27 @@ void QuickModForgeDownloadTask::executeTask()
 		}
 	}
 
-	VersionSelectDialog vselect(MMC->forgelist().get(), tr("Select Forge version"));
-	if (versionFilters.isEmpty())
-	{
-		vselect.setExactFilter(1, m_instance->currentVersionId());
-	}
-	else
-	{
-		vselect.setExactFilter(0, versionFilters.join(','));
-	}
-	vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft ") +
-						   m_instance->currentVersionId());
-	if (vselect.exec() && vselect.selectedVersion())
+	ForgeVersionPtr forgeVersion =
+		wait<ForgeVersionPtr>("QuickMods.GetForgeVersion", m_instance, versionFilters);
+	if (forgeVersion)
 	{
 		auto task = installer->createInstallTask(
-			std::dynamic_pointer_cast<OneSixInstance>(m_instance).get(),
-			vselect.selectedVersion(), this);
+			std::dynamic_pointer_cast<OneSixInstance>(m_instance).get(), forgeVersion, this);
 		connect(task, &Task::progress, [this](qint64 current, qint64 total)
-		{ setProgress(100 * current / qMax((qint64)1, total)); });
+				{
+			setProgress(100 * current / qMax((qint64)1, total));
+		});
 		connect(task, &Task::status, [this](const QString &msg)
-		{ setStatus(msg); });
+				{
+			setStatus(msg);
+		});
 		connect(task, &Task::failed, [this, installer](const QString &reason)
-		{
+				{
 			delete installer;
 			emitFailed(reason);
 		});
 		connect(task, &Task::succeeded, [this, installer]()
-		{
+				{
 			delete installer;
 			emitSucceeded();
 		});

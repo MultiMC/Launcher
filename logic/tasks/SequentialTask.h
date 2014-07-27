@@ -16,6 +16,8 @@ public:
 
 	void addTask(std::shared_ptr<ProgressProvider> task);
 
+	void bindToAll(const QString &id, QObject *receiver, const char *method);
+
 protected:
 	void executeTask();
 

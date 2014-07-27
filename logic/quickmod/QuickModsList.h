@@ -16,14 +16,12 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <QUrl>
-#include <QStringList>
-#include <QIcon>
-#include <QPixmap>
-#include <QCryptographicHash>
-#include <logic/quickmod/QuickModVersion.h>
-#include <logic/BaseInstance.h>
-#include <logic/quickmod/QuickMod.h>
+
+#include "logic/quickmod/QuickModVersion.h"
+#include "logic/BaseInstance.h"
+#include "logic/quickmod/QuickMod.h"
+
+class QUrl;
 
 class QuickModFilesUpdater;
 class Mod;

@@ -25,6 +25,7 @@
 #include "ui_VersionPage.h"
 
 #include "gui/Platform.h"
+#include "gui/QuickModGuiUtil.h"
 #include "gui/dialogs/CustomMessageBox.h"
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "gui/dialogs/ModEditDialogCommon.h"
@@ -48,7 +49,6 @@
 #include "logic/auth/MojangAccountList.h"
 #include "logic/Mod.h"
 #include "logic/icons/IconList.h"
-
 
 QIcon VersionPage::icon() const
 {
@@ -265,6 +265,7 @@ void VersionPage::on_changeMCVersionBtn_clicked()
 	{
 		return;
 	}
+	QuickModGuiUtil::setup(updateTask, this);
 	ProgressDialog tDialog(this);
 	connect(updateTask.get(), SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
 	tDialog.exec(updateTask.get());

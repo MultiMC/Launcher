@@ -31,3 +31,5 @@ struct ForgeVersion : public BaseVersion
 	QString installer_filename;
 	bool is_recommended = false;
 };
+
+Q_DECLARE_METATYPE(ForgeVersionPtr)

@@ -106,7 +106,8 @@ QSet<QString> OneSixInstance::traits()
 
 std::shared_ptr<Task> OneSixInstance::doUpdate()
 {
-	auto sharedptr = instList()->getInstanceById(id());
+	auto sharedptr =
+		std::dynamic_pointer_cast<OneSixInstance>(instList()->getInstanceById(id()));
 	auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
 	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(sharedptr, this)));
 	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(sharedptr, this)));

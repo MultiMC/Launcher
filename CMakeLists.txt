@@ -256,6 +256,10 @@ include_directories(${LIBUTIL_INCLUDE_DIR})
 # Add the updater
 add_subdirectory(mmc_updater)
 
+# Add the GUI -> Logic connection header
+add_subdirectory(depends/LogicalGui)
+include_directories(${LOGICALGUI_INCLUDE_DIR})
+
 ################################ FILES ################################
 
 ######## Sources and headers ########
@@ -284,6 +288,8 @@ set(MULTIMC_SOURCES
 	# GUI - general utilities
 	gui/GuiUtil.h
 	gui/GuiUtil.cpp
+	gui/QuickModGuiUtil.h
+	gui/QuickModGuiUtil.cpp
 
 	# GUI - windows
 	gui/MainWindow.h
@@ -767,7 +773,7 @@ add_executable(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_RCS})
 
 # Link
 target_link_libraries(MultiMC MultiMC_common)
-target_link_libraries(MultiMC_common xz-embedded unpack200 quazip libUtil ${MultiMC_LINK_ADDITIONAL_LIBS})
+target_link_libraries(MultiMC_common xz-embedded unpack200 quazip libUtil LogicalGui ${MultiMC_LINK_ADDITIONAL_LIBS})
 qt5_use_modules(MultiMC Core Widgets Network Xml Concurrent WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
 qt5_use_modules(MultiMC_common Core Widgets Network Xml Concurrent WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
 

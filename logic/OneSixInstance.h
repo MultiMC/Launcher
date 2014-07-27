@@ -113,3 +113,5 @@ private:
 	QStringList processMinecraftArgs(AuthSessionPtr account);
 	QDir reconstructAssets(std::shared_ptr<InstanceVersion> version);
 };
+
+Q_DECLARE_METATYPE(std::shared_ptr<OneSixInstance>)

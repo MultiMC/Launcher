@@ -29,13 +29,14 @@
 #include "gui/widgets/WebDownloadNavigator.h"
 #include "gui/dialogs/ProgressDialog.h"
 #include "gui/dialogs/VersionSelectDialog.h"
+#include "gui/dialogs/quickmod/QuickModVerifyModsDialog.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/tasks/QuickModDependencyDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModMavenFindTask.h"
 #include "logic/quickmod/QuickModDependencyResolver.h"
-#include "logic/BaseInstance.h"
+#include "logic/OneSixInstance.h"
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
 #include "MultiMC.h"
@@ -96,7 +97,8 @@ public:
 
 // {{{ Initialization and updating
 
-QuickModInstallDialog::QuickModInstallDialog(InstancePtr instance, QWidget *parent)
+QuickModInstallDialog::QuickModInstallDialog(std::shared_ptr<OneSixInstance> instance,
+											 QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModInstallDialog),
 	  m_installer(new QuickModInstaller(this, this)), m_instance(instance)
 {
@@ -170,12 +172,14 @@ QTreeWidgetItem *QuickModInstallDialog::itemForVersion(QuickModVersionPtr versio
 {
 	return m_progressEntries.value(version.get());
 }
+
 // }}}
 
 // {{{ Other
 bool QuickModInstallDialog::checkIsDone()
 {
-	if (m_downloadingUrls.isEmpty() && m_mavenFindTasks.isEmpty() && ui->webTabView->count() == 0 && m_modVersions.isEmpty())
+	if (m_downloadingUrls.isEmpty() && m_mavenFindTasks.isEmpty() &&
+		ui->webTabView->count() == 0 && m_modVersions.isEmpty())
 	{
 		ui->finishButton->setEnabled(true);
 		return true;
@@ -262,8 +266,13 @@ bool QuickModInstallDialog::downloadDeps()
 	// download all dependency files so they are ready for the dependency resolution
 	ProgressDialog dialog(this);
 	auto task = new QuickModDependencyDownloadTask(m_initialMods, this);
+	task->bind("QuickMods.VerifyMods", this, SLOT(verifyMods(QList<QuickModPtr>)));
 	return dialog.exec(task) !=
 		   QDialog::Rejected; // Is this really the best way to check for failure?
+}
+bool QuickModInstallDialog::verifyMods(const QList<QuickModPtr> &mods)
+{
+	return QuickModVerifyModsDialog(mods, this).exec() == QDialog::Accepted;
 }
 
 bool QuickModInstallDialog::resolveDeps()
@@ -272,9 +281,11 @@ bool QuickModInstallDialog::resolveDeps()
 	bool error = false;
 	QuickModDependencyResolver resolver(m_instance, this);
 
+	resolver.bind("QuickMods.GetVersion", this, SLOT(getVersion(QuickModUid, QString, bool *)));
+
 	// Error handler.
 	connect(&resolver, &QuickModDependencyResolver::error, [this, &error](const QString &msg)
-	{
+			{
 		error = true;
 		QListWidgetItem *item = new QListWidgetItem(msg);
 		item->setTextColor(Qt::red);
@@ -283,7 +294,7 @@ bool QuickModInstallDialog::resolveDeps()
 
 	// Warning handler.
 	connect(&resolver, &QuickModDependencyResolver::warning, [this](const QString &msg)
-	{
+			{
 		QListWidgetItem *item = new QListWidgetItem(msg);
 		item->setTextColor(Qt::darkYellow);
 		ui->dependencyListWidget->addItem(item);
@@ -291,7 +302,7 @@ bool QuickModInstallDialog::resolveDeps()
 
 	// Success handler.
 	connect(&resolver, &QuickModDependencyResolver::success, [this](const QString &msg)
-	{
+			{
 		QListWidgetItem *item = new QListWidgetItem(msg);
 		item->setTextColor(Qt::darkGreen);
 		ui->dependencyListWidget->addItem(item);
@@ -299,6 +310,29 @@ bool QuickModInstallDialog::resolveDeps()
 
 	m_modVersions = m_resolvedVersions = resolver.resolve(m_initialMods);
 	return !error;
+}
+QuickModVersionPtr QuickModInstallDialog::getVersion(const QuickModUid &modUid,
+													 const QString &filter, bool *ok)
+{
+	const QString predefinedVersion = m_instance->getFullVersion()->quickmods[modUid];
+	VersionSelectDialog dialog(new QuickModVersionList(modUid, m_instance, this),
+							   tr("Choose QuickMod version for %1").arg(modUid.mod()->name()),
+							   this);
+	dialog.setFuzzyFilter(BaseVersionList::NameColumn, filter);
+	dialog.setUseLatest(MMC->settings()->get("QuickModAlwaysLatestVersion").toBool());
+	// TODO currently, if the version isn't existing anymore it will be updated
+	if (!predefinedVersion.isEmpty() &&
+		MMC->quickmodslist()->modVersion(modUid, predefinedVersion))
+	{
+		dialog.setExactFilter(BaseVersionList::NameColumn, predefinedVersion);
+	}
+	if (dialog.exec() == QDialog::Rejected)
+	{
+		*ok = false;
+		return QuickModVersionPtr();
+	}
+	*ok = true;
+	return std::dynamic_pointer_cast<QuickModVersion>(dialog.selectedVersion());
 }
 // }}}
 
@@ -388,15 +422,17 @@ void QuickModInstallDialog::runMavenDownloads()
 		{
 			QLOG_DEBUG() << "Checking Maven repositories for " << download.url;
 			setProgressListMsg(version, tr("Checking Maven repositories"));
-			QuickModMavenFindTask *task = new QuickModMavenFindTask(version->mod->mavenRepos(), download.url);
+			QuickModMavenFindTask *task =
+				new QuickModMavenFindTask(version->mod->mavenRepos(), download.url);
 			connect(task, &QuickModMavenFindTask::failed, [this, version, download]()
-			{
+					{
 				QLOG_ERROR() << "Couldn't find a maven download for" << download.url;
 				setProgressListMsg(version, tr("Couldn't find a Maven repository"), Qt::red);
 			});
 			connect(task, &QuickModMavenFindTask::succeeded, [this, version, download, task]()
-			{
-				QLOG_DEBUG() << "Found Maven download for" << download.url << "at" << task->url().toString();
+					{
+				QLOG_DEBUG() << "Found Maven download for" << download.url << "at"
+							 << task->url().toString();
 				processReply(MMC->qnam()->get(QNetworkRequest(task->url())), version);
 			});
 			m_mavenFindTasks.append(task);
@@ -433,7 +469,7 @@ void QuickModInstallDialog::runWebDownload(QuickModVersionPtr version)
 
 	navigator->setProperty("version", QVariant::fromValue(version));
 	connect(navigator, &WebDownloadNavigator::caughtUrl, [this, navigator](QNetworkReply *reply)
-	{
+			{
 		ui->webModsProgressBar->setValue(ui->webModsProgressBar->value() + 1);
 		urlCaught(reply, navigator);
 	});

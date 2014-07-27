@@ -44,11 +44,11 @@ class QuickModInstallDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuickModInstallDialog(InstancePtr instance, QWidget *parent = 0);
+	explicit QuickModInstallDialog(std::shared_ptr<OneSixInstance> instance,
+								   QWidget *parent = 0);
 	~QuickModInstallDialog();
 
-public
-slots:
+public slots:
 	virtual int exec();
 
 	void setInitialMods(const QList<QuickModUid> mods);
@@ -57,8 +57,7 @@ slots:
 		return m_resolvedVersions;
 	}
 
-private
-slots:
+private slots:
 	void downloadNextMod();
 
 	void urlCaught(QNetworkReply *reply, WebDownloadNavigator *navigator);
@@ -120,11 +119,16 @@ slots:
 	/// Gets the tree widget item for the given version.
 	QTreeWidgetItem *itemForVersion(QuickModVersionPtr version) const;
 
+	// For binding to QuickModDependencyResolver
+	QuickModVersionPtr getVersion(const QuickModUid &modUid, const QString &filter, bool *ok);
+	// For binding to QuickModDependencyDownloadTask
+	bool verifyMods(const QList<QuickModPtr> &mods);
+
 private:
 	Ui::QuickModInstallDialog *ui;
 	QuickModInstaller *m_installer;
 
-	InstancePtr m_instance;
+	std::shared_ptr<OneSixInstance> m_instance;
 
 	bool install(QuickModVersionPtr version);
 

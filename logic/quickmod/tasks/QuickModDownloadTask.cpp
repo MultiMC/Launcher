@@ -15,11 +15,6 @@
 
 #include "QuickModDownloadTask.h"
 
-#include <QMessageBox>
-#include <QPushButton>
-
-#include "gui/dialogs/quickmod/QuickModInstallDialog.h"
-
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
@@ -29,7 +24,8 @@
 
 // FIXME this entire thing needs work. possible remove it?
 
-QuickModDownloadTask::QuickModDownloadTask(InstancePtr instance, QObject *parent)
+QuickModDownloadTask::QuickModDownloadTask(std::shared_ptr<OneSixInstance> instance,
+										   QObject *parent)
 	: Task(parent), m_instance(instance)
 {
 }
@@ -40,19 +36,16 @@ void QuickModDownloadTask::executeTask()
 		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
 	QList<QuickModUid> mods;
+	qDebug() << quickmods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
+		qDebug() << it.value() << it.key();
 		QuickModPtr mod = it.value().isEmpty() ? list->mods(it.key()).first()
 											   : list->modVersion(it.key(), it.value())->mod;
 		if (mod == 0)
 		{
 			// TODO fetch info from somewhere?
-			int answer = QMessageBox::warning(
-				0, tr("Mod not available"),
-				tr("You seem to be missing the QuickMod file for %1. Skip it?")
-					.arg(it.key().toString()),
-				QMessageBox::No, QMessageBox::Yes);
-			if (answer == QMessageBox::No)
+			if (wait<bool>("QuickMods.ModMissing", it.key().toString()))
 			{
 				emitFailed(tr("Missing %1").arg(it.key().toString()));
 				return;
@@ -71,22 +64,24 @@ void QuickModDownloadTask::executeTask()
 		}
 	}
 
+	qDebug() << mods;
 	if (mods.isEmpty())
 	{
 		emitSucceeded();
 		return;
 	}
 
-	QuickModInstallDialog dialog(m_instance, 0);
-	dialog.setInitialMods(mods);
-	if (dialog.exec() == QuickModInstallDialog::Accepted)
+	bool ok = false;
+	QList<QuickModVersionPtr> installedVersions =
+		wait<QList<QuickModVersionPtr>>("QuickMods.InstallMods", m_instance, mods, &ok);
+	if (ok)
 	{
 		QFile f(m_instance->instanceRoot() + "/user.json");
 		if (f.open(QFile::ReadWrite))
 		{
 			QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
 			QJsonObject mods = obj.value("+mods").toObject();
-			for (auto version : dialog.modVersions())
+			for (auto version : installedVersions)
 			{
 				mods.insert(version->mod->uid().toString(), version->name());
 			}

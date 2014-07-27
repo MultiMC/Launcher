@@ -236,5 +236,6 @@ protected:
 	std::shared_ptr<BaseInstancePrivate> inst_d;
 };
 
+Q_DECLARE_METATYPE(std::shared_ptr<BaseInstance>)
 Q_DECLARE_METATYPE(BaseInstance::InstanceFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(BaseInstance::InstanceFlags)

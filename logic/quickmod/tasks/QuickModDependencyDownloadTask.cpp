@@ -17,7 +17,6 @@
 
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModsList.h"
-#include "gui/dialogs/quickmod/QuickModVerifyModsDialog.h"
 #include "MultiMC.h"
 
 QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickModUid> mods,
@@ -85,8 +84,7 @@ void QuickModDependencyDownloadTask::finish()
 		emitSucceeded();
 		return;
 	}
-	QuickModVerifyModsDialog dlg(m_sandboxedMods);
-	if (dlg.exec() == QDialog::Accepted)
+	if (wait<bool>("QuickMods.VerifyMods", m_sandboxedMods))
 	{
 		for (auto mod : m_sandboxedMods)
 		{

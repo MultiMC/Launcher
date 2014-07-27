@@ -24,6 +24,7 @@
 #include <QDir>
 #include <qresource.h>
 #include <modutils.h>
+#include <pathutils.h>
 
 #include "MultiMC.h"
 #include "logic/minecraft/VersionBuilder.h"
@@ -90,6 +91,7 @@ void VersionBuilder::buildFromVersionJson()
 
 	// load all patches, put into map for ordering, apply in the right order
 	readInstancePatches();
+	readUserPatch();
 
 	// some final touches
 	m_version->finalize();
@@ -156,6 +158,23 @@ void VersionBuilder::readInstancePatches()
 		m_version->VersionPatches.append(filePair.second);
 	}
 }
+void VersionBuilder::readUserPatch()
+{
+	int highestOrder = -1;
+	for (const auto version : m_version->VersionPatches)
+	{
+		highestOrder = qMax(highestOrder, version->getOrder());
+	}
+
+	const QFileInfo fileName(PathCombine(m_instance->instanceRoot(), "user.json"));
+	auto file = parseJsonFile(fileName, false);
+	file->name = fileName.fileName();
+	file->fileId = "org.multimc.user.json";
+	file->order = highestOrder + 1;
+	file->version = QString();
+	file->mcVersion = QString();
+	m_version->VersionPatches.append(file);
+}
 
 void VersionBuilder::buildFromExternalPatches()
 {
@@ -203,6 +222,7 @@ void VersionBuilder::buildFromMultilayer()
 
 	// load all patches, put into map for ordering, apply in the right order
 	readInstancePatches();
+	readUserPatch();
 
 	m_version->finalize();
 }

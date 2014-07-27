@@ -166,6 +166,8 @@ bool InstanceVersion::isVanilla()
 		return false;
 	if(QFile::exists(PathCombine(m_instance->instanceRoot(), "version.json")))
 		return false;
+	if(QFile::exists(PathCombine(m_instance->instanceRoot(), "user.json")))
+		return false;
 	return true;
 }
 

@@ -17,11 +17,13 @@
 
 #include <QObject>
 
-class ProgressProvider : public QObject
+#include "LogicalGui.h"
+
+class ProgressProvider : public Bindable
 {
 	Q_OBJECT
 protected:
-	explicit ProgressProvider(QObject *parent = 0) : QObject(parent)
+	explicit ProgressProvider(QObject *parent = 0) : Bindable(parent)
 	{
 	}
 signals:
