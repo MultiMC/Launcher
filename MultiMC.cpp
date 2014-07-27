@@ -216,6 +216,14 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override)
 
 	// and instances
 	auto InstDirSetting = m_settings->getSetting("InstanceDir");
+    // instance path: check for problems with '!' in instance path and warn the user in the log
+    // and rememer that we have to show him a dialog when the gui starts (if it does so)
+    QString InstDir = MMC->settings()->get("InstanceDir").toString();
+    QLOG_INFO() << "Instance path              : " << InstDir;
+    if(checkProblemticPathJava(QDir(InstDir)))
+    {
+        QLOG_WARN() << "Your instance path contains \'!\' and this is known to cause java problems";
+    }
 	m_instances.reset(new InstanceList(InstDirSetting->get().toString(), this));
 	QLOG_INFO() << "Loading Instances...";
 	m_instances->loadList();

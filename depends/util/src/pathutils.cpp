@@ -144,3 +144,18 @@ void openFileInDefaultProgram(QString filename)
 {
 	QDesktopServices::openUrl(QUrl::fromLocalFile(filename));
 }
+
+// Does the directory path contain any '!'? If yes, return true, otherwise false.
+// (This is a problem for Java)
+bool checkProblemticPathJava(QDir folder)
+{
+    QString pathfoldername = folder.absolutePath();
+    for(int i = 0; i < pathfoldername.length(); i++)
+    {
+        if(pathfoldername[i] == '!')
+        {
+            return true;
+        }
+    }
+    return false;
+}
