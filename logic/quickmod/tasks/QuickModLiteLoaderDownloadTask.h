@@ -1,4 +1,4 @@
-/* Copyright 2013 MultiMC Contributors
+/* Copyright 2014 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,22 @@
 
 #pragma once
 
-#include <QString>
-#include <QMap>
+#include "logic/tasks/Task.h"
 
-#include "logic/BaseInstaller.h"
-#include "logic/liteloader/LiteLoaderVersionList.h"
+#include <memory>
 
-class LiteLoaderInstaller : public BaseInstaller
+class OneSixInstance;
+
+class QuickModLiteLoaderDownloadTask : public Task
 {
+	Q_OBJECT
 public:
-	LiteLoaderInstaller();
+	QuickModLiteLoaderDownloadTask(std::shared_ptr<OneSixInstance> instance,
+								   QObject *parent = 0);
 
-	void prepare(LiteLoaderVersionPtr version);
-	bool add(OneSixInstance *to) override;
-	virtual QString id() const override { return "com.mumfrey.liteloader"; }
-
-	ProgressProvider *createInstallTask(OneSixInstance *instance, BaseVersionPtr version, QObject *parent) override;
+protected:
+	void executeTask();
 
 private:
-	LiteLoaderVersionPtr m_version;
+	std::shared_ptr<OneSixInstance> m_instance;
 };

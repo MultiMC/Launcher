@@ -23,6 +23,7 @@ class QuickModUid;
 class OneSixInstance;
 typedef std::shared_ptr<class QuickModVersion> QuickModVersionPtr;
 typedef std::shared_ptr<struct ForgeVersion> ForgeVersionPtr;
+typedef std::shared_ptr<struct LiteLoaderVersion> LiteLoaderVersionPtr;
 
 class QuickModGuiUtil : public QWidget
 {
@@ -37,4 +38,5 @@ slots:
 	bool modMissing(const QString &id);
 	QList<QuickModVersionPtr> installMods(std::shared_ptr<OneSixInstance> instance, const QList<QuickModUid> &mods, bool *ok);
 	ForgeVersionPtr getForgeVersion(std::shared_ptr<OneSixInstance> instance, const QStringList &versionFilters);
+	LiteLoaderVersionPtr getLiteLoaderVersion(std::shared_ptr<OneSixInstance> instance, const QStringList &versionFilters);
 };

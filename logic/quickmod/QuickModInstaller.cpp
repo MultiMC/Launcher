@@ -63,6 +63,10 @@ static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 	{
 		ending = ".jar";
 	}
+	if (version->installType == QuickModVersion::LiteLoaderMod)
+	{
+		ending = ".litemod";
+	}
 	return version->mod->internalUid() + "-" + version->name() + ending;
 }
 
@@ -103,6 +107,8 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 			finalDir = dirEnsureExists(instance->minecraftRoot(), "coremods");
 		}
 		break;
+	case QuickModVersion::LiteLoaderMod:
+		return; // we give it to LiteLoader using the CLI
 	case QuickModVersion::Extract:
 		finalDir = dirEnsureExists(instance->minecraftRoot(), ".");
 		break;
@@ -169,6 +175,7 @@ void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteAr
 	{
 	case QuickModVersion::ForgeMod:
 	case QuickModVersion::ForgeCoreMod:
+	case QuickModVersion::LiteLoaderMod:
 		dir = dirEnsureExists(MMC->settings()->get("CentralModsDir").toString(), "mods");
 		break;
 	case QuickModVersion::Extract:

@@ -1,4 +1,4 @@
-/* Copyright 2013 MultiMC Contributors
+/* Copyright 2014 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,31 @@
  * limitations under the License.
  */
 
-#include "QuickModForgeDownloadTask.h"
+#include "QuickModLiteLoaderDownloadTask.h"
 
-#include "logic/forge/ForgeInstaller.h"
-#include "logic/forge/ForgeVersionList.h"
-#include "logic/OneSixInstance.h"
+#include "logic/liteloader/LiteLoaderInstaller.h"
+#include "logic/liteloader/LiteLoaderVersionList.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
+#include "logic/OneSixInstance.h"
 #include "MultiMC.h"
 
-QuickModForgeDownloadTask::QuickModForgeDownloadTask(InstancePtr instance, QObject *parent)
+QuickModLiteLoaderDownloadTask::QuickModLiteLoaderDownloadTask(
+	std::shared_ptr<OneSixInstance> instance, QObject *parent)
 	: Task(parent), m_instance(instance)
 {
 }
 
-void QuickModForgeDownloadTask::executeTask()
+void QuickModLiteLoaderDownloadTask::executeTask()
 {
-	auto mods =
-		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+	auto mods = m_instance->getFullVersion()->quickmods;
 	if (mods.isEmpty())
 	{
 		emitSucceeded();
 		return;
 	}
 
-	ForgeInstaller *installer = new ForgeInstaller;
+	LiteLoaderInstaller *installer = new LiteLoaderInstaller;
 	if (QDir(m_instance->instanceRoot()).exists("patches/" + installer->id() + ".json"))
 	{
 		emitSucceeded();
@@ -47,14 +47,15 @@ void QuickModForgeDownloadTask::executeTask()
 	QStringList versionFilters;
 	for (auto it = mods.cbegin(); it != mods.cend(); ++it)
 	{
-		QuickModVersionPtr version = MMC->quickmodslist()->modVersion(it.key(), it.value().first);
+		QuickModVersionPtr version =
+			MMC->quickmodslist()->modVersion(it.key(), it.value().first);
 		if (!version)
 		{
 			continue;
 		}
-		if (!version->forgeVersionFilter.isEmpty())
+		if (!version->liteloaderVersionFilter.isEmpty())
 		{
-			versionFilters.append(version->forgeVersionFilter);
+			versionFilters.append(version->liteloaderVersionFilter);
 		}
 	}
 	if (versionFilters.isEmpty())
@@ -63,12 +64,11 @@ void QuickModForgeDownloadTask::executeTask()
 		return;
 	}
 
-	ForgeVersionPtr forgeVersion =
-		wait<ForgeVersionPtr>("QuickMods.GetForgeVersion", m_instance, versionFilters);
-	if (forgeVersion)
+	LiteLoaderVersionPtr liteloaderVersion = wait<LiteLoaderVersionPtr>(
+		"QuickMods.GetLiteLoaderVersion", m_instance, versionFilters);
+	if (liteloaderVersion)
 	{
-		auto task = installer->createInstallTask(
-			std::dynamic_pointer_cast<OneSixInstance>(m_instance).get(), forgeVersion, this);
+		auto task = installer->createInstallTask(m_instance.get(), liteloaderVersion, this);
 		connect(task, &Task::progress, [this](qint64 current, qint64 total)
 				{
 			setProgress(100 * current / qMax((qint64)1, total));
@@ -91,6 +91,6 @@ void QuickModForgeDownloadTask::executeTask()
 	}
 	else
 	{
-		emitFailed(tr("No forge version selected"));
+		emitFailed(tr("No LiteLoader version selected"));
 	}
 }

@@ -105,6 +105,7 @@ public class OneSixLauncher implements Launcher
 	private List<String> extlibs;
 	private List<String> mcparams;
 	private List<String> mods;
+	private List<String> litemods;
 	private List<String> traits;
 	private String appletClass;
 	private String mainClass;
@@ -129,6 +130,7 @@ public class OneSixLauncher implements Launcher
 		mainClass = params.firstSafe("mainClass", "net.minecraft.client.Minecraft");
 		appletClass = params.firstSafe("appletClass", "net.minecraft.client.MinecraftApplet");
 		mods = params.allSafe("mods", new ArrayList<String>());
+		litemods = params.allSafe("litemods", new ArrayList<String>());
 		traits = params.allSafe("traits", new ArrayList<String>());
 		natives = params.first("natives");
 
@@ -216,10 +218,20 @@ public class OneSixLauncher implements Launcher
 		}
 		Utils.log();
 
-		if(mods.size() > 0)
+		if (this.mods.size() > 0)
 		{
 			Utils.log("Class Path Mods:");
-			for (String s : mods)
+			for (String s : this.mods)
+			{
+				Utils.log("  " + s);
+			}
+			Utils.log();
+		}
+
+		if (this.litemods.size() > 0)
+		{
+			Utils.log("LiteLoader Mods:");
+			for (String s : this.litemods)
 			{
 				Utils.log("  " + s);
 			}
@@ -430,6 +442,7 @@ public class OneSixLauncher implements Launcher
 			List<String> allJars = new ArrayList<String>();
 			allJars.addAll(mods);
 			allJars.addAll(libraries);
+			allJars.addAll(litemods);
 
 			if(!Utils.addToClassPath(allJars))
 			{

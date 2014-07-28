@@ -63,6 +63,7 @@ public:
 	{
 		ForgeMod,
 		ForgeCoreMod,
+		LiteLoaderMod,
 		Extract,
 		ConfigPack,
 		Group
@@ -103,6 +104,7 @@ public:
 	QString type;
 	QStringList compatibleVersions;
 	QString forgeVersionFilter;
+	QString liteloaderVersionFilter;
 	QMap<QuickModUid, QString> dependencies;
 	QMap<QuickModUid, QString> recommendations;
 	QMap<QuickModUid, QString> suggestions;

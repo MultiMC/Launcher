@@ -6,6 +6,7 @@
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
 #include "logic/tasks/SequentialTask.h"
 #include "logic/forge/ForgeVersionList.h"
+#include "logic/liteloader/LiteLoaderVersionList.h"
 #include "logic/OneSixInstance.h"
 #include "LogicalGui.h"
 #include "MultiMC.h"
@@ -26,6 +27,9 @@ void QuickModGuiUtil::setup(std::shared_ptr<Task> task, QWidget *widgetParent)
 		sequentialTask->bindToAll(
 			"QuickMods.GetForgeVersion", util,
 			SLOT(getForgeVersion(std::shared_ptr<OneSixInstance>, QStringList)));
+		sequentialTask->bindToAll(
+			"QuickMods.GetLiteLoaderVersion", util,
+			SLOT(getLiteLoaderVersion(std::shared_ptr<OneSixInstance>, QStringList)));
 	}
 }
 
@@ -63,4 +67,23 @@ ForgeVersionPtr QuickModGuiUtil::getForgeVersion(std::shared_ptr<OneSixInstance>
 	return vselect.exec() == QDialog::Accepted
 			   ? std::dynamic_pointer_cast<ForgeVersion>(vselect.selectedVersion())
 			   : ForgeVersionPtr();
+}
+LiteLoaderVersionPtr
+QuickModGuiUtil::getLiteLoaderVersion(std::shared_ptr<OneSixInstance> instance,
+									  const QStringList &versionFilters)
+{
+	VersionSelectDialog vselect(MMC->liteloaderlist().get(), tr("Select LiteLoader version"));
+	if (versionFilters.isEmpty())
+	{
+		vselect.setExactFilter(1, instance->currentVersionId());
+	}
+	else
+	{
+		vselect.setExactFilter(0, versionFilters.join(','));
+	}
+	vselect.setEmptyString(tr("No LiteLoader versions are currently available for Minecraft ") +
+						   instance->currentVersionId());
+	return vselect.exec() == QDialog::Accepted
+			   ? std::dynamic_pointer_cast<LiteLoaderVersion>(vselect.selectedVersion())
+			   : LiteLoaderVersionPtr();
 }

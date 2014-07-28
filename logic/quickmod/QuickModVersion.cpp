@@ -43,6 +43,7 @@ void QuickModVersion::parse(const QJsonObject &object)
 								   : "Release";
 	sha1 = object.value("sha1").toString();
 	forgeVersionFilter = object.value("forgeCompat").toString();
+	liteloaderVersionFilter = object.value("liteloaderCompat").toString();
 	compatibleVersions.clear();
 	for (auto val : MMCJson::ensureArray(object.value("mcCompat"), "'mcCompat'"))
 	{
@@ -163,6 +164,10 @@ void QuickModVersion::parse(const QJsonObject &object)
 		{
 			installType = ForgeCoreMod;
 		}
+		else if (typeString == "liteloaderMod")
+		{
+			installType = LiteLoaderMod;
+		}
 		else if (typeString == "extract")
 		{
 			installType = Extract;
@@ -202,6 +207,7 @@ QJsonObject QuickModVersion::toJson() const
 	MMCJson::writeString(obj, "type", type);
 	MMCJson::writeString(obj, "sha1", sha1);
 	MMCJson::writeString(obj, "forgeCompat", forgeVersionFilter);
+	MMCJson::writeString(obj, "liteloaderCompat", liteloaderVersionFilter);
 	MMCJson::writeObjectList(obj, "libraries", libraries);
 	refToJson("depends", dependencies);
 	refToJson("recommends", recommendations);
@@ -213,6 +219,7 @@ QJsonObject QuickModVersion::toJson() const
 	{
 	case ForgeMod: obj.insert("installType", QStringLiteral("forgeMod"));
 	case ForgeCoreMod: obj.insert("installType", QStringLiteral("forgeCoreMod"));
+	case LiteLoaderMod: obj.insert("installType", QStringLiteral("liteloaderMod"));
 	case Extract: obj.insert("installType", QStringLiteral("extract"));
 	case ConfigPack: obj.insert("installType", QStringLiteral("configPack"));
 	case Group: obj.insert("installType", QStringLiteral("group"));

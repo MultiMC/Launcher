@@ -23,6 +23,7 @@
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/tasks/QuickModDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"
+#include "logic/quickmod/tasks/QuickModLiteLoaderDownloadTask.h"
 #include "logic/tasks/SequentialTask.h"
 #include "logic/net/MavenResolver.h"
 #include "logic/minecraft/InstanceVersion.h"
@@ -116,11 +117,12 @@ std::shared_ptr<Task> OneSixInstance::doUpdate()
 {
 	auto sharedptr =
 		std::dynamic_pointer_cast<OneSixInstance>(instList()->getInstanceById(id()));
-	auto task = std::shared_ptr<SequentialTask>(new SequentialTask(this));
-	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(sharedptr, this)));
-	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(sharedptr, this)));
-	task->addTask(std::shared_ptr<Task>(new MavenResolver(sharedptr, this)));
-	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this, this)));
+	auto task = std::shared_ptr<SequentialTask>(new SequentialTask);
+	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(sharedptr)));
+	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(sharedptr)));
+	task->addTask(std::shared_ptr<Task>(new QuickModLiteLoaderDownloadTask(sharedptr)));
+	task->addTask(std::shared_ptr<Task>(new MavenResolver(sharedptr)));
+	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this)));
 	return task;
 }
 
@@ -308,6 +310,10 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr session, QString &launchScr
 			if (modVersion->installType == QuickModVersion::ForgeMod)
 			{
 				mods.prepend("mods " + list->existingModFile(modVersion->mod, modVersion));
+			}
+			else if (modVersion->installType == QuickModVersion::LiteLoaderMod)
+			{
+				mods.prepend("litemods " + list->existingModFile(modVersion->mod, modVersion));
 			}
 		}
 		launchScript += mods.join('\n') + '\n';
