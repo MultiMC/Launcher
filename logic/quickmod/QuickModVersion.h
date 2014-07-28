@@ -52,6 +52,8 @@ public:
 	int priority;
 	QString hint;
 	QString group;
+
+	QJsonObject toJson() const;
 };
 
 class QuickModVersion : public BaseVersion
@@ -67,6 +69,10 @@ public:
 	};
 	struct Library
 	{
+		Library() {}
+		Library(const QString &name, const QUrl &url)
+			: name(name), url(url) {}
+		QJsonObject toJson() const;
 		QString name;
 		QUrl url;
 	};
@@ -76,6 +82,7 @@ public:
 	}
 
 	void parse(const QJsonObject &object);
+	QJsonObject toJson() const;
 
 	QString descriptor()
 	{
@@ -99,7 +106,6 @@ public:
 	QMap<QuickModUid, QString> dependencies;
 	QMap<QuickModUid, QString> recommendations;
 	QMap<QuickModUid, QString> suggestions;
-	QMap<QuickModUid, QString> breaks;
 	QMap<QuickModUid, QString> conflicts;
 	QMap<QuickModUid, QString> provides;
 	QString sha1;

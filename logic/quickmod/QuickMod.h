@@ -26,6 +26,7 @@
 
 class QuickMod;
 class QuickModVersion;
+class OneSixInstance;
 
 typedef std::shared_ptr<QuickMod> QuickModPtr;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
@@ -95,7 +96,8 @@ public:
 		Issues,
 		Source,
 		Icon,
-		Logo
+		Logo,
+		Invalid
 	};
 
 	QuickModUid uid() const
@@ -118,7 +120,18 @@ public:
 	{
 		return m_description;
 	}
-	QList<QUrl> url(const UrlType type) const;
+	QStringList authorTypes() const
+	{
+		return m_authors.keys();
+	}
+	QStringList authors(const QString &type) const
+	{
+		return m_authors.value(type);
+	}
+	QList<QUrl> url(const UrlType type) const
+	{
+		return m_urls[urlId(type)];
+	}
 	QUrl websiteUrl() const
 	{
 		auto websites = url(Website);
@@ -179,8 +192,14 @@ public:
 	void sortVersions();
 
 	void parse(QuickModPtr _this, const QByteArray &data);
+	QByteArray toJson() const;
 
 	bool compare(const QuickModPtr other) const;
+
+	static UrlType urlType(const QString &id);
+	static QString urlId(const UrlType type);
+	static QString humanUrlId(const UrlType type);
+	static QList<UrlType> urlTypes();
 
 signals:
 	void iconUpdated();
@@ -195,12 +214,14 @@ private:
 	friend class QuickModFilesUpdater;
 	friend class QuickModTest;
 	friend class QuickModsListTest;
+	friend class QuickModBuilder;
 	friend class TestsInternal;
 	QuickModUid m_uid;
 	QString m_repo;
 	QString m_name;
 	QString m_description;
 	QMap<QString, QList<QUrl>> m_urls;
+	QMap<QString, QStringList> m_authors;
 	QIcon m_icon;
 	QPixmap m_logo;
 	QUrl m_updateUrl;

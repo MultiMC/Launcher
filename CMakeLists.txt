@@ -347,6 +347,8 @@ set(MULTIMC_SOURCES
 	gui/dialogs/quickmod/QuickModRepoDialog.cpp
 	gui/dialogs/quickmod/QuickModVerifyModsDialog.h
 	gui/dialogs/quickmod/QuickModVerifyModsDialog.cpp
+	gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.h
+	gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp
 	gui/dialogs/AboutDialog.cpp
 	gui/dialogs/AboutDialog.h
 	gui/dialogs/AccountSelectDialog.cpp
@@ -474,6 +476,8 @@ set(MULTIMC_SOURCES
 	logic/net/HttpMetaCache.cpp
 	logic/net/PasteUpload.h
 	logic/net/PasteUpload.cpp
+	logic/net/ByteArrayUpload.h
+	logic/net/ByteArrayUpload.cpp
 	logic/net/URLConstants.h
 	logic/net/URLConstants.cpp
 	logic/net/MavenResolver.h
@@ -665,6 +669,8 @@ set(MULTIMC_SOURCES
 	logic/quickmod/QuickModUpdateMonitor.cpp
 	logic/quickmod/QuickModLibraryInstaller.h
 	logic/quickmod/QuickModLibraryInstaller.cpp
+	logic/quickmod/QuickModBuilder.h
+	logic/quickmod/QuickModBuilder.cpp
 	
 	# Forge and all things forge related
 	logic/forge/ForgeVersion.h
@@ -731,6 +737,7 @@ set(MULTIMC_UIS
 	gui/dialogs/quickmod/QuickModInstallDialog.ui
 	gui/dialogs/quickmod/QuickModRepoDialog.ui
 	gui/dialogs/quickmod/QuickModVerifyModsDialog.ui
+	gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.ui
 
 	# Widgets/other
 	gui/widgets/MCModInfoFrame.ui

@@ -24,6 +24,7 @@
 #include "logic/quickmod/QuickModsList.h"
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
 #include "gui/dialogs/quickmod/QuickModAddFileDialog.h"
+#include "gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/OneSixInstance.h"
 
@@ -245,7 +246,7 @@ private:
 
 // {{{ Constructor/destructor
 
-QuickModBrowsePage::QuickModBrowsePage(BaseInstance *instance, QWidget *parent)
+QuickModBrowsePage::QuickModBrowsePage(std::shared_ptr<OneSixInstance> instance, QWidget *parent)
 	: QWidget(parent), ui(new Ui::QuickModBrowsePage), m_currentMod(0), m_instance(instance),
 	  m_view(new QListView(this)), m_filterModel(new ModFilterProxyModel(this)),
 	  m_checkModel(new CheckboxProxyModel(this))
@@ -270,6 +271,7 @@ QuickModBrowsePage::QuickModBrowsePage(BaseInstance *instance, QWidget *parent)
 	{
 		m_view->setModel(m_filterModel);
 		ui->installButton->hide();
+		ui->createFromInstanceBtn->hide();
 	}
 
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
@@ -356,8 +358,7 @@ void QuickModBrowsePage::opened()
 void QuickModBrowsePage::on_installButton_clicked()
 {
 	auto items = m_checkModel->getCheckedItems();
-	auto alreadySelected =
-		dynamic_cast<OneSixInstance *>(m_instance)->getFullVersion()->quickmods;
+	auto alreadySelected = m_instance->getFullVersion()->quickmods;
 	for (auto mod : alreadySelected.keys())
 	{
 		if (alreadySelected[mod].second)
@@ -378,7 +379,7 @@ void QuickModBrowsePage::on_installButton_clicked()
 
 	try
 	{
-		dynamic_cast<OneSixInstance *>(m_instance)->setQuickModVersions(mods);
+		m_instance->setQuickModVersions(mods);
 	}
 	catch (MMCError &e)
 	{
@@ -393,6 +394,11 @@ void QuickModBrowsePage::on_addButton_clicked()
 void QuickModBrowsePage::on_updateButton_clicked()
 {
 	MMC->quickmodslist()->updateFiles();
+}
+
+void QuickModBrowsePage::on_createFromInstanceBtn_clicked()
+{
+	QuickModCreateFromInstanceDialog(m_instance, this).exec();
 }
 
 // }}}

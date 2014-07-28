@@ -54,7 +54,15 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings,
 	: BaseInstance(new OneSixInstancePrivate(), rootDir, settings, parent)
 {
 	I_D(OneSixInstance);
+
 	d->m_settings->registerSetting("IntendedVersion", "");
+
+	// QuickMods
+	d->m_settings->registerSetting("LastQuickModUrl", QUrl::fromLocalFile(QDir::currentPath()));
+	d->m_settings->registerSetting("LastQuickModFile", QDir::currentPath());
+	d->m_settings->registerSetting("UploadUsername", "");
+	d->m_settings->registerSetting("UploadPassword", "");
+
 	d->version.reset(new InstanceVersion(this, this));
 }
 
@@ -78,7 +86,7 @@ QList<BasePage *> OneSixInstance::getPages()
 									tr("Loader mods"), "Loader-mods"));
 	values.append(new CoreModFolderPage(this, coreModList(), "coremods", "plugin-green",
 										tr("Core mods"), "Core-mods"));
-	values.append(new QuickModBrowsePage(this));
+	values.append(new QuickModBrowsePage(std::dynamic_pointer_cast<OneSixInstance>(instList()->getInstanceById(id()))));
 	values.append(new ResourcePackPage(this));
 	values.append(new TexturePackPage(this));
 	values.append(new NotesPage(this));

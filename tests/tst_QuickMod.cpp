@@ -145,7 +145,6 @@ private slots:
 		QCOMPARE(parsedVersion->dependencies, version->dependencies);
 		QCOMPARE(parsedVersion->recommendations, version->recommendations);
 		QCOMPARE(parsedVersion->suggestions, version->suggestions);
-		QCOMPARE(parsedVersion->breaks, version->breaks);
 		QCOMPARE(parsedVersion->conflicts, version->conflicts);
 		QCOMPARE(parsedVersion->provides, version->provides);
 		QCOMPARE(parsedVersion->sha1, version->sha1);

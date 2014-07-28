@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFile>
+#include <memory>
 #include "MMCError.h"
 
 class JSONValidationError : public MMCError
@@ -64,19 +65,34 @@ int ensureInteger(const QJsonValue val, QString what, const int def);
 /// make sure the value is converted into a double precision floating number. throw otherwise.
 double ensureDouble(const QJsonValue val, QString what = "value");
 
+QStringList ensureStringList(const QJsonValue val, QString what);
+
 void writeString(QJsonObject & to, QString key, QString value);
 
-void writeStringList (QJsonObject & to, QString key, QStringList values);
+void writeStringList(QJsonObject & to, QString key, QStringList values);
 
 template <typename T>
-void writeObjectList (QJsonObject & to, QString key, QList<T> values)
+void writeObjectList(QJsonObject & to, QString key, QList<std::shared_ptr<T>> values)
 {
-	if(values.size())
+	if (!values.isEmpty())
 	{
 		QJsonArray array;
-		for(auto value: values)
+		for (auto value: values)
 		{
 			array.append(value->toJson());
+		}
+		to.insert(key, array);
+	}
+}
+template <typename T>
+void writeObjectList(QJsonObject & to, QString key, QList<T> values)
+{
+	if (!values.isEmpty())
+	{
+		QJsonArray array;
+		for (auto value: values)
+		{
+			array.append(value.toJson());
 		}
 		to.insert(key, array);
 	}

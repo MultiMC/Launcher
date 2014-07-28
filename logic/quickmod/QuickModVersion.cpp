@@ -51,7 +51,6 @@ void QuickModVersion::parse(const QJsonObject &object)
 	dependencies.clear();
 	recommendations.clear();
 	suggestions.clear();
-	breaks.clear();
 	conflicts.clear();
 	provides.clear();
 	if (object.contains("references"))
@@ -73,10 +72,6 @@ void QuickModVersion::parse(const QJsonObject &object)
 			else if (type == "suggests")
 			{
 				suggestions.insert(QuickModUid(uid), version);
-			}
-			else if (type == "breaks")
-			{
-				breaks.insert(QuickModUid(uid), version);
 			}
 			else if (type == "conflicts")
 			{
@@ -186,6 +181,45 @@ void QuickModVersion::parse(const QJsonObject &object)
 		}
 	}
 }
+QJsonObject QuickModVersion::toJson() const
+{
+	QJsonArray refs;
+	auto refToJson = [&refs](const QString &type, const QMap<QuickModUid, QString> &references)
+	{
+		for (auto it = references.constBegin(); it != references.constEnd(); ++it)
+		{
+			QJsonObject obj;
+			obj.insert("type", type);
+			obj.insert("uid", it.key().toString());
+			obj.insert("version", it.value());
+			refs.append(obj);
+		}
+	};
+
+	QJsonObject obj;
+	obj.insert("name", name_);
+	obj.insert("mcCompat", QJsonArray::fromStringList(compatibleVersions));
+	MMCJson::writeString(obj, "type", type);
+	MMCJson::writeString(obj, "sha1", sha1);
+	MMCJson::writeString(obj, "forgeCompat", forgeVersionFilter);
+	MMCJson::writeObjectList(obj, "libraries", libraries);
+	refToJson("depends", dependencies);
+	refToJson("recommends", recommendations);
+	refToJson("suggests", suggestions);
+	refToJson("conflicts", conflicts);
+	refToJson("provides", provides);
+	obj.insert("references", refs);
+	switch (installType)
+	{
+	case ForgeMod: obj.insert("installType", QStringLiteral("forgeMod"));
+	case ForgeCoreMod: obj.insert("installType", QStringLiteral("forgeCoreMod"));
+	case Extract: obj.insert("installType", QStringLiteral("extract"));
+	case ConfigPack: obj.insert("installType", QStringLiteral("configPack"));
+	case Group: obj.insert("installType", QStringLiteral("group"));
+	}
+	MMCJson::writeObjectList(obj, "urls", downloads);
+	return obj;
+}
 
 QuickModVersionPtr QuickModVersion::invalid(QuickModPtr mod)
 {
@@ -230,4 +264,32 @@ QList<QuickModVersionPtr> QuickModVersionList::versions() const
 		}
 	}
 	return out;
+}
+
+QJsonObject QuickModVersion::Library::toJson() const
+{
+	QJsonObject obj;
+	obj.insert("name", name);
+	if (!url.isEmpty())
+	{
+		obj.insert("url", url.toString(QUrl::FullyEncoded));
+	}
+	return obj;
+}
+QJsonObject QuickModDownload::toJson() const
+{
+	QJsonObject obj;
+	obj.insert("url", url);
+	obj.insert("priority", priority);
+	MMCJson::writeString(obj, "hint", hint);
+	MMCJson::writeString(obj, "group", group);
+	switch (type)
+	{
+	case Direct: obj.insert("downloadType", QStringLiteral("direct"));
+	case Parallel: obj.insert("downloadType", QStringLiteral("parallel"));
+	case Sequential: obj.insert("downloadType", QStringLiteral("sequential"));
+	case Encoded: obj.insert("downloadType", QStringLiteral("encoded"));
+	case Maven: obj.insert("downloadType", QStringLiteral("maven"));
+	}
+	return obj;
 }

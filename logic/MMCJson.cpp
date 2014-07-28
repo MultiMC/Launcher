@@ -111,7 +111,7 @@ int MMCJson::ensureInteger(const QJsonValue val, QString what, const int def)
 
 void MMCJson::writeString(QJsonObject &to, QString key, QString value)
 {
-	if(value.size())
+	if (!value.isEmpty())
 	{
 		to.insert(key, value);
 	}
@@ -119,7 +119,7 @@ void MMCJson::writeString(QJsonObject &to, QString key, QString value)
 
 void MMCJson::writeStringList(QJsonObject &to, QString key, QStringList values)
 {
-	if(values.size())
+	if (!values.isEmpty())
 	{
 		QJsonArray array;
 		for(auto value: values)
@@ -128,4 +128,15 @@ void MMCJson::writeStringList(QJsonObject &to, QString key, QStringList values)
 		}
 		to.insert(key, array);
 	}
+}
+
+QStringList MMCJson::ensureStringList(const QJsonValue val, QString what)
+{
+	const QJsonArray array = ensureArray(val, what);
+	QStringList out;
+	for (const auto value : array)
+	{
+		out.append(ensureString(value));
+	}
+	return out;
 }

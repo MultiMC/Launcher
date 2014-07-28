@@ -38,7 +38,7 @@ class QuickModBrowsePage : public QWidget, public BasePage
 	Q_OBJECT
 
 public:
-	explicit QuickModBrowsePage(BaseInstance *instance, QWidget *parent = 0);
+	explicit QuickModBrowsePage(std::shared_ptr<OneSixInstance> instance, QWidget *parent = 0);
 	~QuickModBrowsePage();
 
 	QString id() const override { return "quickmod-browse"; }
@@ -60,6 +60,7 @@ slots:
 	void on_mcVersionBox_currentTextChanged();
 	void on_addButton_clicked();
 	void on_updateButton_clicked();
+	void on_createFromInstanceBtn_clicked();
 	void modSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 	void modLogoUpdated();
@@ -71,7 +72,7 @@ private:
 
 	QuickModPtr m_currentMod;
 
-	BaseInstance *m_instance;
+	std::shared_ptr<OneSixInstance> m_instance;
 
 	QListView *m_view;
 	ModFilterProxyModel *m_filterModel;
