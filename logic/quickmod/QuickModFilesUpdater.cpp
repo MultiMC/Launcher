@@ -119,9 +119,11 @@ void QuickModFilesUpdater::receivedMod(int notused)
 			if (doc.isObject() && doc.object().contains("index"))
 			{
 				const QJsonObject obj = doc.object();
+				QString repo;
 				if (obj.contains("repo"))
 				{
-					m_list->setRepositoryIndexUrl(MMCJson::ensureString(obj.value("repo")), download->m_url);
+					repo = MMCJson::ensureString(obj.value("repo"));
+					m_list->setRepositoryIndexUrl(repo, download->m_url);
 				}
 				const QJsonArray array = MMCJson::ensureArray(obj.value("index"));
 				for (auto it = array.begin(); it != array.end(); ++it)
@@ -129,8 +131,8 @@ void QuickModFilesUpdater::receivedMod(int notused)
 					const QJsonObject itemObj = (*it).toObject();
 					const QString baseUrlString =
 							MMCJson::ensureString(obj.value("baseUrl"));
-					// FIXME should check if the have uid + repo, not only uid
-					if (!m_list->haveUid(QuickModUid(MMCJson::ensureString(itemObj.value("uid")))))
+					const QString uid = MMCJson::ensureString(itemObj.value("uid"));
+					if (!m_list->haveUid(QuickModUid(uid), repo))
 					{
 						const QString urlString =
 								MMCJson::ensureString(itemObj.value("url"));

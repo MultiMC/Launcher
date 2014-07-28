@@ -90,8 +90,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 	switch (version->installType)
 	{
 	case QuickModVersion::ForgeMod:
-		// FIXME: This will break if the type name changes.
-		if (instance->instanceType() == "OneSix")
+		if (std::dynamic_pointer_cast<OneSixInstance>(instance))
 		{
 			return;
 		}
@@ -132,7 +131,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		}
 		else
 		{
-			throw new MMCError(tr("Error: Trying to extract an unknown file type %1")
+			throw MMCError(tr("Error: Trying to extract an unknown file type %1")
 								   .arg(finfo.completeSuffix()));
 		}
 	}
@@ -143,12 +142,12 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		{
 			if (!QFile::remove(dest))
 			{
-				throw new MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
+				throw MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
 			}
 		}
 		if (!QFile::copy(file, dest))
 		{
-			throw new MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
+			throw MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
 		}
 		MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, instance);
 	}
@@ -158,7 +157,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 	{
 		if (!installer.add(std::dynamic_pointer_cast<OneSixInstance>(instance).get()))
 		{
-			throw new MMCError(tr("Error installing JSON patch"));
+			throw MMCError(tr("Error installing JSON patch"));
 		}
 	}
 	else
@@ -191,14 +190,13 @@ void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteAr
 	{
 		QLOG_INFO() << "Checksum missmatch for " << version->mod->uid()
 					<< ". Actual: " << actual << " Expected: " << version->sha1;
-		// FIXME using exceptions generates crashes?
-		throw new MMCError(tr("Error: Checksum mismatch"));
+		throw MMCError(tr("Error: Checksum mismatch"));
 	}
 
 	QFile file(dir.absoluteFilePath(fileName(version, url)));
 	if (!file.open(QFile::WriteOnly | QFile::Truncate))
 	{
-		throw new MMCError(
+		throw MMCError(
 			tr("Error: Trying to save %1: %2").arg(file.fileName(), file.errorString()));
 		return;
 	}

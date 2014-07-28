@@ -141,7 +141,7 @@ void QuickModVersion::parse(const QJsonObject &object)
 			}
 			else
 			{
-				throw new MMCError(QObject::tr("Unknown value for \"downloadType\" field"));
+				throw MMCError(QObject::tr("Unknown value for \"downloadType\" field"));
 			}
 		}
 		download.hint = dlObject.value("hint").toString();
@@ -182,7 +182,7 @@ void QuickModVersion::parse(const QJsonObject &object)
 		}
 		else
 		{
-			throw new MMCError(QObject::tr("Unknown value for \"installType\" field"));
+			throw MMCError(QObject::tr("Unknown value for \"installType\" field"));
 		}
 	}
 }

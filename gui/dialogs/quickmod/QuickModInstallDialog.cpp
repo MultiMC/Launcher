@@ -344,11 +344,10 @@ void QuickModInstallDialog::processVersionList()
 	{
 		QuickModVersionPtr version = it.next();
 
-		// TODO: Any installed version should prevent another version from being installed
-		// TODO: Notify the user when this happens.
-		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, version, m_instance))
+		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, nullptr, m_instance))
 		{
 			QLOG_INFO() << version->mod->uid() << " is already installed";
+			setProgressListMsg(version, tr("Success: Already installed"), Qt::darkGreen);
 			it.remove();
 			continue;
 		}
@@ -358,17 +357,17 @@ void QuickModInstallDialog::processVersionList()
 
 		if (MMC->quickmodslist()->isModMarkedAsExists(version->mod, version))
 		{
-			QLOG_INFO() << version->mod->uid() << " exists already. Only installing.";
+			QLOG_INFO() << version->mod->uid() << "exists already. Only installing.";
 			install(version);
-			setProgressListMsg(version, tr("Success: Installed from cache."),
-							   QColor(Qt::darkGreen));
+			setProgressListMsg(version, tr("Success: Installed from cache"),
+							   Qt::darkGreen);
 			it.remove();
 		}
 
 		if (version->downloads.isEmpty())
 		{
 			it.remove();
-			setProgressListMsg(version, tr("Error: No download URLs"), QColor(Qt::red));
+			setProgressListMsg(version, tr("Error: No download URLs"), Qt::red);
 		}
 	}
 }
@@ -488,9 +487,9 @@ bool QuickModInstallDialog::install(QuickModVersionPtr version)
 	{
 		m_installer->install(version, m_instance);
 	}
-	catch (MMCError *e)
+	catch (MMCError &e)
 	{
-		setProgressListMsg(version, e->cause(), QColor(Qt::red));
+		setProgressListMsg(version, e.cause(), QColor(Qt::red));
 		return false;
 	}
 	return true;
@@ -573,9 +572,9 @@ void QuickModInstallDialog::downloadCompleted()
 	{
 		m_installer->handleDownload(version, reply->readAll(), reply->url());
 	}
-	catch (MMCError *e)
+	catch (MMCError &e)
 	{
-		setProgressListMsg(version, e->cause(), QColor(Qt::red));
+		setProgressListMsg(version, e.cause(), QColor(Qt::red));
 		fail = true;
 	}
 	reply->close();

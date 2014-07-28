@@ -38,8 +38,6 @@
 
 #include "logic/settings/INISettingsObject.h"
 
-// TODO updating of mods
-
 QuickModsList::QuickModsList(const Flags flags, QObject *parent)
 	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)),
 	  m_settings(new INISettingsObject(QDir::current().absoluteFilePath("quickmod.cfg"), this))
@@ -320,11 +318,19 @@ bool QuickModsList::isModMarkedAsInstalled(QuickModPtr mod, const BaseVersionPtr
 		return false;
 	}
 	auto mods = instance->settings().get("InstalledMods").toMap();
+	if (!version)
+	{
+		return mods.contains(mod->uid().toString());
+	}
 	return mods.contains(mod->uid().toString()) &&
 		   mods.value(mod->uid().toString()).toMap().contains(version->name());
 }
 bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const
 {
+	if (!version)
+	{
+		return m_settings->get("AvailableMods").toMap().contains(mod->internalUid());
+	}
 	return isModMarkedAsExists(mod, version->name());
 }
 bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const QString &version) const
@@ -384,11 +390,11 @@ QList<QUrl> QuickModsList::indices() const
 	return out;
 }
 
-bool QuickModsList::haveUid(const QuickModUid &uid) const
+bool QuickModsList::haveUid(const QuickModUid &uid, const QString &repo) const
 {
 	for (auto mod : m_mods)
 	{
-		if (mod->uid() == uid)
+		if (mod->uid() == uid && mod->repo() == repo)
 		{
 			return true;
 		}

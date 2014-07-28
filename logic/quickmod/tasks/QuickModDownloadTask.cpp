@@ -22,8 +22,6 @@
 #include "logic/OneSixInstance.h"
 #include "MultiMC.h"
 
-// FIXME this entire thing needs work. possible remove it?
-
 QuickModDownloadTask::QuickModDownloadTask(std::shared_ptr<OneSixInstance> instance,
 										   QObject *parent)
 	: Task(parent), m_instance(instance)

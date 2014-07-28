@@ -107,7 +107,7 @@ public:
 	bool haveRepositoryIndexUrl(const QString &repository) const;
 	QList<QUrl> indices() const;
 
-	bool haveUid(const QuickModUid &uid) const;
+	bool haveUid(const QuickModUid &uid, const QString &repo) const;
 
 	QList<QuickModUid> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;
 
