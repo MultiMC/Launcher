@@ -25,11 +25,15 @@
 #include <QMessageBox>
 #include <QtMath>
 #include <QCryptographicHash>
+#include <QDesktopServices>
+#include <QMenu>
+#include <QAction>
 
 #include "gui/widgets/WebDownloadNavigator.h"
 #include "gui/dialogs/ProgressDialog.h"
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "gui/dialogs/quickmod/QuickModVerifyModsDialog.h"
+#include "gui/GuiUtil.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
@@ -107,13 +111,16 @@ QuickModInstallDialog::QuickModInstallDialog(std::shared_ptr<OneSixInstance> ins
 
 	setWebViewShown(false);
 
-	ui->progressList->setItemDelegateForColumn(3, new ProgressItemDelegate(this));
+	ui->progressList->setItemDelegateForColumn(4, new ProgressItemDelegate(this));
 
 	ui->webModsProgressBar->setMaximum(0);
 	ui->webModsProgressBar->setValue(0);
 
 	// Set the URL column's width.
 	ui->progressList->setColumnWidth(2, 420);
+
+	connect(ui->progressList, &QWidget::customContextMenuRequested, this, &QuickModInstallDialog::contextMenuRequested);
+	ui->progressList->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 QuickModInstallDialog::~QuickModInstallDialog()
@@ -129,13 +136,13 @@ QuickModInstallDialog::~QuickModInstallDialog()
 void QuickModInstallDialog::addProgressListEntry(QuickModVersionPtr version, const QString &url)
 {
 	auto item = new QTreeWidgetItem(ui->progressList);
-	m_progressEntries.insert(version.get(), item);
+	m_progressEntries.insert(version, item);
 	item->setText(0, version->mod->name());
 	item->setIcon(0, version->mod->icon());
 	item->setText(1, version->name());
 	item->setText(2, url);
-	item->setData(3, ExtraRoles::IgnoreRole, true);
-	item->setText(3, tr("Download waiting."));
+	item->setData(4, ExtraRoles::IgnoreRole, true);
+	item->setText(4, tr("Download waiting"));
 }
 
 void QuickModInstallDialog::setProgressListUrl(QuickModVersionPtr version, const QString &url)
@@ -148,29 +155,62 @@ void QuickModInstallDialog::setProgressListMsg(QuickModVersionPtr version, const
 											   const QColor &color)
 {
 	auto item = itemForVersion(version);
-	item->setData(3, ExtraRoles::IgnoreRole, true);
-	item->setText(3, msg);
-	item->setData(3, Qt::ForegroundRole, color);
+	item->setData(4, ExtraRoles::IgnoreRole, true);
+	item->setText(4, msg);
+	item->setData(4, Qt::ForegroundRole, color);
 }
 
 void QuickModInstallDialog::setVersionProgress(QuickModVersionPtr version, qint64 current,
 											   qint64 max)
 {
 	auto item = itemForVersion(version);
-	item->setData(3, ExtraRoles::IgnoreRole, false);
-	item->setData(3, ExtraRoles::ProgressRole, current);
-	item->setData(3, ExtraRoles::TotalRole, max);
+	item->setData(4, ExtraRoles::IgnoreRole, false);
+	item->setData(4, ExtraRoles::ProgressRole, current);
+	item->setData(4, ExtraRoles::TotalRole, max);
 }
 
 void QuickModInstallDialog::setShowProgressBar(QuickModVersionPtr version, bool show)
 {
 	auto item = itemForVersion(version);
-	item->setData(3, ExtraRoles::IgnoreRole, !show);
+	item->setData(4, ExtraRoles::IgnoreRole, !show);
 }
 
 QTreeWidgetItem *QuickModInstallDialog::itemForVersion(QuickModVersionPtr version) const
 {
-	return m_progressEntries.value(version.get());
+	return m_progressEntries.value(version);
+}
+
+void QuickModInstallDialog::openDonationLink(const int row) const
+{
+	const QTreeWidgetItem *item = ui->progressList->topLevelItem(row);
+	QDesktopServices::openUrl(QUrl(item->text(3)));
+}
+
+void QuickModInstallDialog::contextMenuRequested(const QPoint &pos)
+{
+	QTreeWidgetItem *item = ui->progressList->itemAt(pos);
+	if (!item)
+	{
+		return;
+	}
+	const QuickModVersionPtr version = m_progressEntries.key(item);
+	QMenu menu;
+	QAction *openWebsite = menu.addAction(version->mod->icon(), tr("Open website"));
+	QAction *copyDownload = menu.addAction(tr("Copy download link"));
+	QAction *copyDonation = menu.addAction(tr("Copy donation link"));
+
+	connect(version->mod.get(), &QuickMod::iconUpdated, [openWebsite, version]() {openWebsite->setIcon(version->mod->icon());});
+	connect(openWebsite, &QAction::triggered, [version]()
+	{ QDesktopServices::openUrl(version->mod->websiteUrl()); });
+	connect(copyDownload, &QAction::triggered, [item]()
+	{ GuiUtil::setClipboardText(item->text(2)); });
+	connect(copyDonation, &QAction::triggered, [item]()
+	{ GuiUtil::setClipboardText(item->text(3)); });
+
+	copyDownload->setVisible(!item->text(2).isEmpty());
+	copyDonation->setVisible(!item->text(3).isEmpty());
+
+	menu.exec(QCursor::pos());
 }
 
 // }}}
@@ -203,6 +243,16 @@ void QuickModInstallDialog::setInitialMods(const QList<QuickModUid> mods)
 {
 	m_initialMods = mods;
 }
+
+void QuickModInstallDialog::on_donateFinishButton_clicked()
+{
+	for (int i = 0; i < ui->progressList->topLevelItemCount(); ++i)
+	{
+		openDonationLink(i);
+	}
+	accept();
+}
+
 // }}}
 
 // }}}
@@ -384,7 +434,15 @@ void QuickModInstallDialog::selectDownloadUrls()
 
 		// TODO ask the user + settings
 
-		m_selectedDownloadUrls.insert(version, version->downloads.first());
+		const auto download = version->downloads.first();
+		m_selectedDownloadUrls.insert(version, download);
+
+		const auto url = version->mod->safeUrl(QuickMod::Donation);
+		if (download.type == QuickModDownload::Direct && !url.isEmpty())
+		{
+			auto item = itemForVersion(version);
+			item->setText(3, url.toString(QUrl::PrettyDecoded));
+		}
 
 		clearProgressListMsg(version);
 	}
@@ -546,7 +604,7 @@ void QuickModInstallDialog::downloadProgress(const qint64 current, const qint64 
 	auto version = reply->property("version").value<QuickModVersionPtr>();
 	setVersionProgress(version, current, max);
 	// ui->progressList->update(ui->progressList->model()->index(ui->progressList->indexOfTopLevelItem(item),
-	// 3));
+	// 4));
 }
 
 void QuickModInstallDialog::downloadCompleted()

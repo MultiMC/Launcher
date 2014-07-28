@@ -128,25 +128,27 @@ public:
 	{
 		return m_authors.value(type);
 	}
+	QUrl safeUrl(const UrlType type) const
+	{
+		const auto urls = url(type);
+		return urls.isEmpty() ? QUrl() : urls.first();
+	}
 	QList<QUrl> url(const UrlType type) const
 	{
 		return m_urls[urlId(type)];
 	}
 	QUrl websiteUrl() const
 	{
-		auto websites = url(Website);
-		return websites.isEmpty() ? QUrl() : websites.first();
+		return safeUrl(Website);
 	}
 	QUrl iconUrl() const
 	{
-		auto websites = url(Icon);
-		return websites.isEmpty() ? QUrl() : websites.first();
+		return safeUrl(Icon);
 	}
 	QIcon icon();
 	QUrl logoUrl() const
 	{
-		auto websites = url(Logo);
-		return websites.isEmpty() ? QUrl() : websites.first();
+		return safeUrl(Logo);
 	}
 	QPixmap logo();
 	QUrl updateUrl() const

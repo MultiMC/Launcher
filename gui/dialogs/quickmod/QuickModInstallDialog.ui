@@ -82,10 +82,16 @@
              <property name="rootIsDecorated">
               <bool>false</bool>
              </property>
+             <property name="columnCount">
+              <number>5</number>
+             </property>
              <attribute name="headerDefaultSectionSize">
               <number>100</number>
              </attribute>
              <attribute name="headerShowSortIndicator" stdset="0">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="headerStretchLastSection">
               <bool>true</bool>
              </attribute>
              <column>
@@ -101,6 +107,11 @@
              <column>
               <property name="text">
                <string>URL</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Donations</string>
               </property>
              </column>
              <column>
@@ -164,6 +175,13 @@
        </property>
        <property name="text">
         <string>Finish</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="donateFinishButton">
+       <property name="text">
+        <string>Donate &amp;&amp; Finish</string>
        </property>
       </widget>
      </item>

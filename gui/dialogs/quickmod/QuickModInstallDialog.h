@@ -58,6 +58,8 @@ public slots:
 	}
 
 private slots:
+	void on_donateFinishButton_clicked();
+
 	void downloadNextMod();
 
 	void urlCaught(QNetworkReply *reply, WebDownloadNavigator *navigator);
@@ -119,6 +121,9 @@ private slots:
 	/// Gets the tree widget item for the given version.
 	QTreeWidgetItem *itemForVersion(QuickModVersionPtr version) const;
 
+	void openDonationLink(const int row) const;
+	void contextMenuRequested(const QPoint &pos);
+
 	// For binding to QuickModDependencyResolver
 	QuickModVersionPtr getVersion(const QuickModUid &modUid, const QString &filter, bool *ok);
 	// For binding to QuickModDependencyDownloadTask
@@ -143,5 +148,5 @@ private:
 	/// A list of progress entries.
 	/// The indices of the items in this list should correspond with the indices of each mod
 	/// that's being installed.
-	QMap<QuickModVersion *, QTreeWidgetItem *> m_progressEntries;
+	QMap<QuickModVersionPtr, QTreeWidgetItem *> m_progressEntries;
 };
