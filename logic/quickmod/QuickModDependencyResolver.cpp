@@ -69,7 +69,7 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 			continue;
 		}
 		bool ok;
-		QuickModVersionPtr dep = getVersion(it.key(), it.value(), &ok);
+		QuickModVersionPtr dep = getVersion(it.key(), it.value().first, &ok);
 		if (!ok)
 		{
 			emit warning(tr("Didn't select a version while resolving from %1 (%2) to %3")
@@ -92,7 +92,7 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 		else
 		{
 			emit warning(tr("The dependency from %1 (%2) to %3 (%4) cannot be resolved").arg(
-				version->mod->name(), version->name(), it.key().toString(), it.value()));
+				version->mod->name(), version->name(), it.key().toString(), it.value().first));
 		}
 	}
 }

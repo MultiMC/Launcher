@@ -148,9 +148,9 @@ public:
 		return *this;
 	}
 
-	QuickModVersionBuilder addDependency(const QuickModUid &uid, const QString &version)
+	QuickModVersionBuilder addDependency(const QuickModUid &uid, const QString &version, const bool isSoft = false)
 	{
-		m_version->dependencies.insert(uid, version);
+		m_version->dependencies.insert(uid, qMakePair(version, isSoft));
 		return *this;
 	}
 	QuickModVersionBuilder addRecommendation(const QuickModUid &uid, const QString &version)

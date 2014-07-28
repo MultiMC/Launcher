@@ -105,7 +105,7 @@ public:
 	QStringList compatibleVersions;
 	QString forgeVersionFilter;
 	QString liteloaderVersionFilter;
-	QMap<QuickModUid, QString> dependencies;
+	QMap<QuickModUid, QPair<QString, bool>> dependencies;
 	QMap<QuickModUid, QString> recommendations;
 	QMap<QuickModUid, QString> suggestions;
 	QMap<QuickModUid, QString> conflicts;

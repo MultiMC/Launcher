@@ -61,7 +61,7 @@ private slots:
 		version->downloads.append(download);
 		version->forgeVersionFilter = "(9.8.42,)";
 		version->compatibleVersions << "1.6.2" << "1.6.4";
-		version->dependencies = {{QuickModUid("stuff"), "1.0.0.0.0"}};
+		version->dependencies = {{QuickModUid("stuff"), qMakePair(QStringLiteral("1.0.0.0.0"), false)}};
 		version->recommendations = {{QuickModUid("OtherName"), "1.2.3"}};
 		version->sha1 = "a68b86df2f3fff44";
 		return version;

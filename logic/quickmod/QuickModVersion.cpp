@@ -64,7 +64,7 @@ void QuickModVersion::parse(const QJsonObject &object)
 			const QString type = MMCJson::ensureString(obj.value("type"), "'type'");
 			if (type == "depends")
 			{
-				dependencies.insert(QuickModUid(uid), version);
+				dependencies.insert(QuickModUid(uid), qMakePair(version, obj.value("isSoft").toBool(false)));
 			}
 			else if (type == "recommends")
 			{
@@ -209,7 +209,15 @@ QJsonObject QuickModVersion::toJson() const
 	MMCJson::writeString(obj, "forgeCompat", forgeVersionFilter);
 	MMCJson::writeString(obj, "liteloaderCompat", liteloaderVersionFilter);
 	MMCJson::writeObjectList(obj, "libraries", libraries);
-	refToJson("depends", dependencies);
+	for (auto it = dependencies.constBegin(); it != dependencies.constEnd(); ++it)
+	{
+		QJsonObject obj;
+		obj.insert("type", type);
+		obj.insert("uid", it.key().toString());
+		obj.insert("version", it.value().first);
+		obj.insert("isSoft", it.value().second);
+		refs.append(obj);
+	}
 	refToJson("recommends", recommendations);
 	refToJson("suggests", suggestions);
 	refToJson("conflicts", conflicts);
