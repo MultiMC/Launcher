@@ -93,15 +93,18 @@ InstancePtr InstanceFactory::addInstance(const QString &name, const QString &ico
 	case InstanceFactory::NoCreateError:
 		newInstance->setName(name);
 		newInstance->setIconKey(iconKey);
-		newInstance->setNotes(quickmod.mod()->description());
-		if (quickmod.mod()->categories().size() > 1)
+		if (quickmod.isValid())
 		{
-			newInstance->setGroupInitial(quickmod.mod()->categories().at(1));
-		}
-		newInstance->settings().set("LastQuickModUrl", quickmod.mod()->updateUrl());
-		if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(newInstance))
-		{
-			onesix->setQuickModVersion(quickmod, QString(), true);
+			newInstance->setNotes(quickmod.mod()->description());
+			if (quickmod.mod()->categories().size() > 1)
+			{
+				newInstance->setGroupInitial(quickmod.mod()->categories().at(1));
+			}
+			newInstance->settings().set("LastQuickModUrl", quickmod.mod()->updateUrl());
+			if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(newInstance))
+			{
+				onesix->setQuickModVersion(quickmod, QString(), true);
+			}
 		}
 		MMC->instances()->add(newInstance);
 		break;

@@ -29,6 +29,7 @@
 #include <cmdutils.h>
 #include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/icons/IconList.h"
+#include "logic/InstanceList.h"
 
 BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 						   SettingsObject *settings_obj, QObject *parent)
@@ -152,10 +153,12 @@ QString BaseInstance::minecraftRoot() const
 
 InstanceList *BaseInstance::instList() const
 {
-	if (parent()->inherits("InstanceList"))
-		return (InstanceList *)parent();
-	else
-		return NULL;
+	return qobject_cast<InstanceList *>(parent());
+}
+
+InstancePtr BaseInstance::getSharedPtr()
+{
+	return instList()->getInstanceById(id());
 }
 
 std::shared_ptr<BaseVersionList> BaseInstance::versionList() const

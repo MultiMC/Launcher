@@ -20,12 +20,11 @@
 #include "QuickModLibraryInstaller.h"
 #include "modutils.h"
 
-QuickModInstanceModList::QuickModInstanceModList(const Type type, BaseInstance *instance,
+QuickModInstanceModList::QuickModInstanceModList(const Type type, std::shared_ptr<OneSixInstance> instance,
 												 std::shared_ptr<ModList> modList,
 												 QObject *parent)
 	: QAbstractListModel(parent), m_instance(instance), m_modList(modList), m_type(type)
 {
-	Q_ASSERT(dynamic_cast<OneSixInstance *>(instance));
 	connect(m_modList.get(), &ModList::modelAboutToBeReset, this,
 			&QuickModInstanceModList::beginResetModel);
 	connect(m_modList.get(), &ModList::modelReset, this,
@@ -38,8 +37,7 @@ QuickModInstanceModList::QuickModInstanceModList(const Type type, BaseInstance *
 	connect(m_modList.get(), &ModList::dataChanged,
 			[this](const QModelIndex &tl, const QModelIndex &br, const QVector<int> &roles)
 	{ emit dataChanged(mapFromModList(tl), mapFromModList(br), roles); });
-	connect(dynamic_cast<OneSixInstance *>(m_instance),
-			&OneSixInstance::versionReloaded, this, &QuickModInstanceModList::resetModel);
+	connect(m_instance.get(), &OneSixInstance::versionReloaded, this, &QuickModInstanceModList::resetModel);
 
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsInserted,
 			[this](const QModelIndex &parent, const int first, const int last)
@@ -217,9 +215,8 @@ QMap<QuickModUid, QString> QuickModInstanceModList::quickmods() const
 		return QMap<QuickModUid, QString>();
 	}
 	QMap<QuickModUid, QString> out;
-	auto temp_instance = dynamic_cast<OneSixInstance *>(m_instance);
 	auto mods =
-		temp_instance->getFullVersion()->quickmods;
+		m_instance->getFullVersion()->quickmods;
 	for (auto it = mods.begin(); it != mods.end(); ++it)
 	{
 		out.insert(QuickModUid(it.key()), it.value().first);
@@ -254,30 +251,43 @@ bool QuickModInstanceModList::isModListArea(const QModelIndex &index) const
 	return index.row() >= quickmods().size();
 }
 
-void QuickModInstanceModList::updateMod(const QModelIndex &index)
+void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 {
-	if (isModListArea(index))
+	QMap<QuickModUid, QPair<QString, bool>> mods;
+	for (const auto index : list)
 	{
-		return;
+		if (isModListArea(index))
+		{
+			continue;
+		}
+		const auto uid = modAt(index.row())->uid();
+		mods.insert(uid, qMakePair(QString(), m_instance->getFullVersion()->quickmods[uid].second));
 	}
-	// TODO allow updating in bulk
-	dynamic_cast<OneSixInstance *>(m_instance)
-		->setQuickModVersion(modAt(index.row())->uid(), QString());
+	if (!mods.isEmpty())
+	{
+		m_instance->setQuickModVersions(mods);
+	}
 }
-
-void QuickModInstanceModList::removeMod(const QModelIndex &index)
+void QuickModInstanceModList::removeMods(const QModelIndexList &list)
 {
-	if (isModListArea(index))
+	QList<QuickModUid> mods;
+	for (const auto index : list)
 	{
-		return;
+		if (isModListArea(index))
+		{
+			continue;
+		}
+		const auto mod = modAt(index.row());
+		if (auto version = mod->version(quickmods()[mod->uid()]))
+		{
+			QuickModLibraryInstaller(version).remove(m_instance.get());
+		}
+		mods.append(mod->uid());
 	}
-	auto mod = modAt(index.row());
-	auto instance = dynamic_cast<OneSixInstance *>(m_instance);
-	if (auto version = mod->version(quickmods()[mod->uid()]))
+	if (!mods.isEmpty())
 	{
-		QuickModLibraryInstaller(version).remove(instance);
+		m_instance->removeQuickMods(mods);
 	}
-	instance->removeQuickMod(mod->uid());
 }
 
 QuickModInstanceModListProxy::QuickModInstanceModListProxy(QuickModInstanceModList *list,
@@ -309,7 +319,7 @@ bool QuickModInstanceModListProxy::filterAcceptsRow(int source_row,
 				continue;
 			}
 			const QString existingFile =
-				MMC->quickmodslist()->installedModFiles(mod, m_list->m_instance)[it.value()];
+				MMC->quickmodslist()->installedModFiles(mod, m_list->m_instance.get())[it.value()];
 			if (file == existingFile)
 			{
 				return false;

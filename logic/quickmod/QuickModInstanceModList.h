@@ -41,7 +41,7 @@ public:
 		TexturePacks
 	};
 
-	QuickModInstanceModList(const Type type, BaseInstance *instance, std::shared_ptr<ModList> modList,
+	QuickModInstanceModList(const Type type, std::shared_ptr<OneSixInstance> instance, std::shared_ptr<ModList> modList,
 							QObject *parent = 0);
 	~QuickModInstanceModList();
 
@@ -65,8 +65,8 @@ public:
 
 public
 slots:
-	void updateMod(const QModelIndex &index);
-	void removeMod(const QModelIndex &index);
+	void updateMods(const QModelIndexList &list);
+	void removeMods(const QModelIndexList &list);
 
 	void resetModel()
 	{
@@ -80,7 +80,7 @@ slots:
 
 private:
 	friend class QuickModInstanceModListProxy;
-	BaseInstance *m_instance;
+	std::shared_ptr<OneSixInstance> m_instance;
 	std::shared_ptr<ModList> m_modList;
 	Type m_type;
 

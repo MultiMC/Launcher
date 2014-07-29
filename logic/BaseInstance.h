@@ -170,6 +170,8 @@ public:
 	 */
 	InstanceList *instList() const;
 
+	InstancePtr getSharedPtr();
+
 	/*!
 	 * \brief Gets a pointer to this instance's version list.
 	 * \return A pointer to the available version list for this instance.

@@ -50,7 +50,7 @@ ModFolderPage::ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *i
 	ui->modTreeView->installEventFilter(this);
 	m_mods->startWatching();
 
-	m_modsModel = new QuickModInstanceModList(type, m_inst, m_mods, this);
+	m_modsModel = new QuickModInstanceModList(type, std::dynamic_pointer_cast<OneSixInstance>(m_inst->getSharedPtr()), m_mods, this);
 	ui->modTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
 
 	auto smodel = ui->modTreeView->selectionModel();
@@ -130,10 +130,7 @@ void ModFolderPage::on_rmModBtn_clicked()
 	{
 		try
 		{
-			for (auto quickmod : quickmods)
-			{
-				m_modsModel->removeMod(quickmod);
-			}
+			m_modsModel->removeMods(quickmods);
 		}
 		catch (MMCError &error)
 		{
@@ -153,10 +150,7 @@ void ModFolderPage::on_updateModBtn_clicked()
 	sortMods(tmp, &quickmods, &mods);
 	try
 	{
-		for (auto quickmod : quickmods)
-		{
-			m_modsModel->updateMod(quickmod);
-		}
+		m_modsModel->updateMods(quickmods);
 	}
 	catch (MMCError &error)
 	{
