@@ -56,6 +56,8 @@ ModFolderPage::ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *i
 	auto smodel = ui->modTreeView->selectionModel();
 	connect(smodel, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
 			SLOT(modCurrent(QModelIndex, QModelIndex)));
+
+	updateOrphans();
 }
 
 ModFolderPage::~ModFolderPage()
@@ -127,6 +129,7 @@ void ModFolderPage::on_rmModBtn_clicked()
 		}
 	}
 	// quickmods
+	if (!quickmods.isEmpty())
 	{
 		try
 		{
@@ -136,6 +139,7 @@ void ModFolderPage::on_rmModBtn_clicked()
 		{
 			QMessageBox::critical(this, tr("Error"), tr("Unable to remove mod:\n%1").arg(error.cause()));
 		}
+		updateOrphans();
 	}
 }
 
@@ -150,12 +154,44 @@ void ModFolderPage::on_updateModBtn_clicked()
 	sortMods(tmp, &quickmods, &mods);
 	try
 	{
-		m_modsModel->updateMods(quickmods);
+		if (!quickmods.isEmpty())
+		{
+			m_modsModel->updateMods(quickmods);
+		}
 	}
 	catch (MMCError &error)
 	{
 		QMessageBox::critical(this, tr("Error"), tr("Unable to update mod:\n%1").arg(error.cause()));
 	}
+	updateOrphans();
+}
+
+void ModFolderPage::on_orphansRemoveBtn_clicked()
+{
+	if (!ui->orphansBox->isVisible())
+	{
+		return;
+	}
+	OneSixInstance *onesix = dynamic_cast<OneSixInstance *>(m_inst);
+	if (!onesix)
+	{
+		return;
+	}
+	onesix->removeQuickMods(m_orphans);
+	updateOrphans();
+}
+
+void ModFolderPage::updateOrphans()
+{
+	m_orphans = m_modsModel->findOrphans();
+	QStringList names;
+	for (const auto orphan : m_orphans)
+	{
+		names.append(orphan.mod()->name());
+	}
+	ui->orphansLabel->setText(names.join(", "));
+
+	ui->orphansBox->setVisible(!m_orphans.isEmpty() && m_modsModel->type() == QuickModInstanceModList::Mods);
 }
 
 void ModFolderPage::modCurrent(const QModelIndex &current, const QModelIndex &previous)

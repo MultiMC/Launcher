@@ -103,7 +103,6 @@ public:
 
 	void setQuickModVersion(const QuickModUid &uid, const QString &version, const bool manualInstall = false);
 	void setQuickModVersions(const QMap<QuickModUid, QPair<QString, bool>> &mods);
-	void removeQuickMod(const QuickModUid &uid);
 	void removeQuickMods(const QList<QuickModUid> &uids);
 
 signals:

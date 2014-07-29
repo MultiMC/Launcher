@@ -19,6 +19,7 @@
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModDependencyResolver.h"
 #include "logic/OneSixInstance.h"
 #include "MultiMC.h"
 
@@ -30,8 +31,10 @@ QuickModDownloadTask::QuickModDownloadTask(std::shared_ptr<OneSixInstance> insta
 
 void QuickModDownloadTask::executeTask()
 {
+	const bool hasResolveError = QuickModDependencyResolver(m_instance).hasResolveError();
+
 	const QMap<QuickModUid, QPair<QString, bool>> quickmods =
-		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+		m_instance->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
 	QList<QuickModUid> mods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
@@ -54,7 +57,9 @@ void QuickModDownloadTask::executeTask()
 		}
 		else
 		{
-			if (version.isEmpty() || !list->isModMarkedAsExists(mod, version))
+			QuickModVersionPtr ptr = MMC->quickmodslist()->modVersion(mod->uid(), version);
+			if (!ptr || !list->isModMarkedAsExists(mod, ptr) || hasResolveError ||
+				(ptr->needsDeploy() && !list->isModMarkedAsInstalled(mod->uid(), ptr, m_instance)))
 			{
 				mods.append(mod->uid());
 			}
@@ -77,8 +82,7 @@ void QuickModDownloadTask::executeTask()
 		for (const auto version : installedVersions)
 		{
 			const auto uid = version->mod->uid();
-			bool isManualInstall = quickmods.contains(uid) &&
-					quickmods[uid].second;
+			bool isManualInstall = quickmods.contains(uid) && quickmods[uid].second;
 			mods.insert(version->mod->uid(), qMakePair(version->name(), isManualInstall));
 		}
 		try

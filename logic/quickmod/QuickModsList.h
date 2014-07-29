@@ -90,15 +90,15 @@ public:
 
 	void markModAsExists(QuickModPtr mod, const BaseVersionPtr version,
 						 const QString &fileName);
-	void markModAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
+	void markModAsInstalled(const QuickModUid uid, const BaseVersionPtr version,
 							const QString &fileName, InstancePtr instance);
-	void markModAsUninstalled(QuickModPtr mod, const BaseVersionPtr version,
+	void markModAsUninstalled(const QuickModUid uid, const BaseVersionPtr version,
 							  InstancePtr instance);
-	bool isModMarkedAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
+	bool isModMarkedAsInstalled(const QuickModUid uid, const BaseVersionPtr version,
 								InstancePtr instance) const;
 	bool isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const;
 	bool isModMarkedAsExists(QuickModPtr mod, const QString &version) const;
-	QMap<QString, QString> installedModFiles(QuickModPtr mod, BaseInstance *instance) const;
+	QMap<QString, QString> installedModFiles(const QuickModUid uid, BaseInstance *instance) const;
 	QString existingModFile(QuickModPtr mod, const BaseVersionPtr version) const;
 	QString existingModFile(QuickModPtr mod, const QString &version) const;
 

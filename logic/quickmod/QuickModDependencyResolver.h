@@ -35,9 +35,12 @@ class QuickModDependencyResolver : public Bindable
 	Q_OBJECT
 public:
 	explicit QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance,
-										QObject *parent);
+										QObject *parent = 0);
 
 	QList<QuickModVersionPtr> resolve(const QList<QuickModUid> &mods);
+
+	QList<QuickModUid> resolveOrphans() const;
+	bool hasResolveError() const;
 
 signals:
 	void error(const QString &message);

@@ -81,10 +81,14 @@ slots:
 	virtual void on_rmModBtn_clicked();
 	virtual void on_viewModBtn_clicked();
 	virtual void on_updateModBtn_clicked();
+	void on_orphansRemoveBtn_clicked();
 
 private:
 	QuickModInstanceModList *m_modsModel;
 	QuickModInstanceModListProxy *m_proxy;
+	QList<QuickModUid> m_orphans;
+
+	void updateOrphans();
 
 	QModelIndex mapToModsList(const QModelIndex &view) const;
 	void sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods);

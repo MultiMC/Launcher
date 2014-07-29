@@ -98,6 +98,8 @@ public:
 		return type;
 	}
 
+	bool needsDeploy() const;
+
 	QuickModPtr mod;
 	bool valid;
 	QString name_;

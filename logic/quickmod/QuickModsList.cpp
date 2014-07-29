@@ -285,45 +285,48 @@ void QuickModsList::markModAsExists(QuickModPtr mod, const BaseVersionPtr versio
 	m_settings->getSetting("AvailableMods")->set(QVariant(mods));
 }
 
-void QuickModsList::markModAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
+void QuickModsList::markModAsInstalled(const QuickModUid uid, const BaseVersionPtr version,
 									   const QString &fileName, InstancePtr instance)
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
-	auto map = mods[mod->uid().toString()].toMap();
+	auto map = mods[uid.toString()].toMap();
 	map[version->name()] = fileName;
-	mods[mod->uid().toString()] = map;
+	mods[uid.toString()] = map;
 	instance->settings().getSetting("InstalledMods")->set(QVariant(mods));
 }
-void QuickModsList::markModAsUninstalled(QuickModPtr mod, const BaseVersionPtr version,
+void QuickModsList::markModAsUninstalled(const QuickModUid uid, const BaseVersionPtr version,
 										 InstancePtr instance)
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
-	auto map = mods[mod->uid().toString()].toMap();
-	map.remove(version->name());
-	if (map.isEmpty())
+	if (version)
 	{
-		mods.remove(mod->uid().toString());
+		auto map = mods[uid.toString()].toMap();
+		map.remove(version->name());
+		if (map.isEmpty())
+		{
+			mods.remove(uid.toString());
+		}
+		else
+		{
+			mods[uid.toString()] = map;
+		}
 	}
 	else
 	{
-		mods[mod->uid().toString()] = map;
+		mods.remove(uid.toString());
 	}
 	instance->settings().set("InstalledMods", QVariant(mods));
 }
-bool QuickModsList::isModMarkedAsInstalled(QuickModPtr mod, const BaseVersionPtr version,
+bool QuickModsList::isModMarkedAsInstalled(const QuickModUid uid, const BaseVersionPtr version,
 										   InstancePtr instance) const
 {
-	if (!isModMarkedAsExists(mod, version))
-	{
-		return false;
-	}
 	auto mods = instance->settings().get("InstalledMods").toMap();
 	if (!version)
 	{
-		return mods.contains(mod->uid().toString());
+		return mods.contains(uid.toString());
 	}
-	return mods.contains(mod->uid().toString()) &&
-		   mods.value(mod->uid().toString()).toMap().contains(version->name());
+	return mods.contains(uid.toString()) &&
+		   mods.value(uid.toString()).toMap().contains(version->name());
 }
 bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const
 {
@@ -339,11 +342,11 @@ bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const QString &version)
 	return mods.contains(mod->internalUid()) &&
 		   mods.value(mod->internalUid()).toMap().contains(version);
 }
-QMap<QString, QString> QuickModsList::installedModFiles(QuickModPtr mod,
+QMap<QString, QString> QuickModsList::installedModFiles(const QuickModUid uid,
 														BaseInstance *instance) const
 {
 	auto mods = instance->settings().get("InstalledMods").toMap();
-	auto tmp = mods[mod->uid().toString()].toMap();
+	auto tmp = mods[uid.toString()].toMap();
 	QMap<QString, QString> out;
 	for (auto it = tmp.begin(); it != tmp.end(); ++it)
 	{

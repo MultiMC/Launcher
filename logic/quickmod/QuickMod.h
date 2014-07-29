@@ -72,7 +72,7 @@ public:
 private:
 	QString m_uid;
 };
-QDebug operator<<(QDebug &dbg, const QuickModUid &uid);
+QDebug operator<<(QDebug dbg, const QuickModUid &uid);
 uint qHash(const QuickModUid &uid);
 
 class QuickMod : public QObject

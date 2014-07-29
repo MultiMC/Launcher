@@ -16,8 +16,9 @@
 #include "QuickModInstanceModList.h"
 
 #include "MultiMC.h"
-#include "QuickModsList.h"
-#include "QuickModLibraryInstaller.h"
+#include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModLibraryInstaller.h"
+#include "logic/quickmod/QuickModDependencyResolver.h"
 #include "modutils.h"
 
 QuickModInstanceModList::QuickModInstanceModList(const Type type, std::shared_ptr<OneSixInstance> instance,
@@ -251,6 +252,11 @@ bool QuickModInstanceModList::isModListArea(const QModelIndex &index) const
 	return index.row() >= quickmods().size();
 }
 
+QList<QuickModUid> QuickModInstanceModList::findOrphans() const
+{
+	return QuickModDependencyResolver(m_instance).resolveOrphans();
+}
+
 void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 {
 	QMap<QuickModUid, QPair<QString, bool>> mods;
@@ -319,7 +325,7 @@ bool QuickModInstanceModListProxy::filterAcceptsRow(int source_row,
 				continue;
 			}
 			const QString existingFile =
-				MMC->quickmodslist()->installedModFiles(mod, m_list->m_instance.get())[it.value()];
+				MMC->quickmodslist()->installedModFiles(mod->uid(), m_list->m_instance.get())[it.value()];
 			if (file == existingFile)
 			{
 				return false;

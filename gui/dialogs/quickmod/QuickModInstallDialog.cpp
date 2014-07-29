@@ -265,6 +265,7 @@ void QuickModInstallDialog::on_donateFinishButton_clicked()
 int QuickModInstallDialog::exec()
 {
 	showMaximized();
+	ui->donateFinishButton->setVisible(false);
 
 	if (!downloadDeps())
 	{
@@ -395,7 +396,10 @@ void QuickModInstallDialog::processVersionList()
 	{
 		QuickModVersionPtr version = it.next();
 
-		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod, nullptr, m_instance))
+		// Add a progress list entry for each download
+		addProgressListEntry(version);
+
+		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod->uid(), nullptr, m_instance))
 		{
 			QLOG_INFO() << version->mod->uid() << " is already installed";
 			setProgressListMsg(version, tr("Success: Already installed"), Qt::darkGreen);
@@ -403,8 +407,6 @@ void QuickModInstallDialog::processVersionList()
 			continue;
 		}
 
-		// Add a progress list entry for each download
-		addProgressListEntry(version);
 
 		if (MMC->quickmodslist()->isModMarkedAsExists(version->mod, version))
 		{
@@ -427,6 +429,8 @@ void QuickModInstallDialog::processVersionList()
 // {{{ Select download urls
 void QuickModInstallDialog::selectDownloadUrls()
 {
+	bool haveDonation = false;
+
 	QMutableListIterator<QuickModVersionPtr> it(m_modVersions);
 	while (it.hasNext())
 	{
@@ -441,10 +445,13 @@ void QuickModInstallDialog::selectDownloadUrls()
 		{
 			auto item = itemForVersion(version);
 			item->setText(3, url.toString(QUrl::PrettyDecoded));
+			haveDonation = true;
 		}
 
 		clearProgressListMsg(version);
 	}
+
+	ui->donateFinishButton->setVisible(haveDonation);
 }
 // }}}
 

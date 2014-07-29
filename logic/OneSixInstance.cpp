@@ -601,10 +601,6 @@ void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QPair<QString, 
 	userFile.close();
 	reloadVersion();
 }
-void OneSixInstance::removeQuickMod(const QuickModUid &uid)
-{
-	removeQuickMods(QList<QuickModUid>() << uid);
-}
 void OneSixInstance::removeQuickMods(const QList<QuickModUid> &uids)
 {
 	QFile userFile(instanceRoot() + "/user.json");
@@ -616,7 +612,7 @@ void OneSixInstance::removeQuickMods(const QList<QuickModUid> &uids)
 	QJsonObject obj = QJsonDocument::fromJson(userFile.readAll()).object();
 	QJsonObject plusmods = obj.value("+mods").toObject();
 	QJsonObject minusmods = obj.value("-mods").toObject();
-	for (auto uid : uids)
+	for (const auto uid : uids)
 	{
 		if (plusmods.contains(uid.toString()))
 		{
@@ -634,6 +630,30 @@ void OneSixInstance::removeQuickMods(const QList<QuickModUid> &uids)
 	userFile.resize(userFile.pos());
 	userFile.close();
 	reloadVersion();
+
+	QStringList failedFiles;
+
+	// remove deployed files
+	for (const auto uid : uids)
+	{
+		const QStringList filenames = MMC->quickmodslist()->installedModFiles(uid, this).values();
+		for (const auto filename : filenames)
+		{
+			if (QFile::remove(filename))
+			{
+				MMC->quickmodslist()->markModAsUninstalled(uid, nullptr, getSharedPtr());
+			}
+			else
+			{
+				failedFiles.append(filename);
+			}
+		}
+	}
+
+	if (!failedFiles.isEmpty())
+	{
+		throw MMCError(tr("Error while removing the following files: %1").arg(failedFiles.join(", ")));
+	}
 }
 
 QString OneSixInstance::loaderModsDir() const

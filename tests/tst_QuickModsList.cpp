@@ -158,12 +158,12 @@ slots:
 		// mark all as installed and check if it worked
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			list->markModAsInstalled(mods[i], versions[i], filenames[i], instance);
+			list->markModAsInstalled(mods[i]->uid(), versions[i], filenames[i], instance);
 		}
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], instance), true);
-			QCOMPARE(list->installedModFiles(mods[i], instance.get())[versions[i]->name()], filenames[i]);
+			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], instance), true);
+			QCOMPARE(list->installedModFiles(mods[i]->uid(), instance.get())[versions[i]->name()], filenames[i]);
 		}
 
 		// reload
@@ -175,19 +175,19 @@ slots:
 		// re-check after reloading
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), true);
-			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], filenames[i]);
+			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), true);
+			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->name()], filenames[i]);
 		}
 
 		// "uninstall" all of them
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			list->markModAsUninstalled(mods[i], versions[i], newInstance);
+			list->markModAsUninstalled(mods[i]->uid(), versions[i], newInstance);
 		}
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), false);
-			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], QString());
+			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), false);
+			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->name()], QString());
 		}
 
 		// reload again
@@ -199,8 +199,8 @@ slots:
 		// re-check after reloading
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i], versions[i], newInstance), false);
-			QCOMPARE(list->installedModFiles(mods[i], newInstance.get())[versions[i]->name()], QString());
+			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), false);
+			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->name()], QString());
 		}
 
 		delete list;

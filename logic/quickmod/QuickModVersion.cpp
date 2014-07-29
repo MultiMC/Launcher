@@ -236,6 +236,11 @@ QJsonObject QuickModVersion::toJson() const
 	return obj;
 }
 
+bool QuickModVersion::needsDeploy() const
+{
+	return installType == ForgeCoreMod;
+}
+
 QuickModVersionPtr QuickModVersion::invalid(QuickModPtr mod)
 {
 	return QuickModVersionPtr(new QuickModVersion(mod, false));

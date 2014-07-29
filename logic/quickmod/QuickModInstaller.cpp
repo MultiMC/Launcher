@@ -73,7 +73,7 @@ static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance)
 {
 	QMap<QString, QString> otherVersions =
-		MMC->quickmodslist()->installedModFiles(version->mod, instance.get());
+		MMC->quickmodslist()->installedModFiles(version->mod->uid(), instance.get());
 	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)
 	{
 		if (!QFile::remove(it.value()))
@@ -81,7 +81,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 			QLOG_ERROR() << "Unable to remove previous version file" << it.value()
 						 << ", this may cause problems";
 		}
-		MMC->quickmodslist()->markModAsUninstalled(version->mod,
+		MMC->quickmodslist()->markModAsUninstalled(version->mod->uid(),
 												   version->mod->version(it.key()), instance);
 	}
 
@@ -149,7 +149,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		{
 			throw MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
 		}
-		MMC->quickmodslist()->markModAsInstalled(version->mod, version, dest, instance);
+		MMC->quickmodslist()->markModAsInstalled(version->mod->uid(), version, dest, instance);
 	}
 
 	QuickModLibraryInstaller installer(version);

@@ -63,6 +63,10 @@ public:
 	QModelIndex mapFromModList(const QModelIndex &index) const;
 	bool isModListArea(const QModelIndex &index) const;
 
+	QList<QuickModUid> findOrphans() const;
+
+	Type type() const { return m_type; }
+
 public
 slots:
 	void updateMods(const QModelIndexList &list);

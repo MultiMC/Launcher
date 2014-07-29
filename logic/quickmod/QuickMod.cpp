@@ -48,7 +48,7 @@ QList<QuickModPtr> QuickModUid::mods() const
 {
 	return MMC->quickmodslist()->mods(*this);
 }
-QDebug operator<<(QDebug &dbg, const QuickModUid &uid)
+QDebug operator<<(QDebug dbg, const QuickModUid &uid)
 {
 	dbg.nospace() << uid.toString();
 	return dbg.maybeSpace();
