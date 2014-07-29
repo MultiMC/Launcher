@@ -281,6 +281,22 @@ void MultiMCPage::applySettings()
 
 	// QuickMods
 	s->set("QuickModAlwaysLatestVersion", ui->quickmodAlwaysLatestBtn->isChecked());
+	if (ui->qmPriorityBtn->isChecked())
+	{
+		s->set("QuickModDownloadSelection", "priority");
+	}
+	else if (ui->qmAlwaysAskBtn->isChecked())
+	{
+		s->set("QuickModDownloadSelection", "ask");
+	}
+	else if (ui->qmDirectBtn->isChecked())
+	{
+		s->set("QuickModDownloadSelection", "direct");
+	}
+	else if (ui->qmSequentialBtn->isChecked())
+	{
+		s->set("QuickModDownloadSelection", "sequential");
+	}
 
 	auto sortMode = (InstSortMode)ui->sortingModeGroup->checkedId();
 	switch (sortMode)
@@ -339,6 +355,28 @@ void MultiMCPage::loadSettings()
 
 	// QuickMods
 	ui->quickmodAlwaysLatestBtn->setChecked(s->get("QuickModAlwaysLatestVersion").toBool());
+	const QString downloadSelect = s->get("QuickModDownloadSelection").toString();
+	if (downloadSelect == "priority")
+	{
+		ui->qmPriorityBtn->setChecked(true);
+	}
+	else if (downloadSelect == "ask")
+	{
+		ui->qmAlwaysAskBtn->setChecked(true);
+	}
+	else if (downloadSelect == "direct")
+	{
+		ui->qmDirectBtn->setChecked(true);
+	}
+	else if (downloadSelect == "sequential")
+	{
+		ui->qmSequentialBtn->setChecked(true);
+	}
+	else
+	{
+		// default
+		ui->qmPriorityBtn->setChecked(true);
+	}
 
 	QString sortMode = s->get("InstSortMode").toString();
 

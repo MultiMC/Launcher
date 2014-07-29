@@ -33,6 +33,7 @@
 #include "gui/dialogs/ProgressDialog.h"
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "gui/dialogs/quickmod/QuickModVerifyModsDialog.h"
+#include "gui/dialogs/quickmod/QuickModDownloadSelectionDialog.h"
 #include "gui/GuiUtil.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
@@ -432,9 +433,7 @@ void QuickModInstallDialog::selectDownloadUrls()
 		QuickModVersionPtr version = it.next();
 		setProgressListMsg(version, tr("Selecting URL..."));
 
-		// TODO ask the user + settings
-
-		const auto download = version->downloads.first();
+		const auto download = QuickModDownloadSelectionDialog::select(version, this);
 		m_selectedDownloadUrls.insert(version, download);
 
 		const auto url = version->mod->safeUrl(QuickMod::Donation);
