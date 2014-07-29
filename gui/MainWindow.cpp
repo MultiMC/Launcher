@@ -46,6 +46,7 @@
 
 #include "gui/Platform.h"
 #include "gui/QuickModGuiUtil.h"
+#include "gui/GuiUtil.h"
 
 #include "gui/widgets/LabeledToolButton.h"
 #include "widgets/ServerStatus.h"
@@ -125,6 +126,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	setWindowTitle(winTitle);
 
 	setAcceptDrops(true);
+
+	GuiUtil::setup(&InstanceFactory::get(), this);
+	QuickModGuiUtil::setup(&InstanceFactory::get(), this);
 
 	// OSX magic.
 	// setUnifiedTitleAndToolBarOnMac(true);
@@ -791,65 +795,13 @@ void MainWindow::on_actionAddInstance_triggered()
 		return;
 
 	InstancePtr newInstance;
-
-	QString instancesDir = MMC->settings()->get("InstanceDir").toString();
-	QString instDirName = DirNameFromString(newInstDlg.instName(), instancesDir);
-	QString instDir = PathCombine(instancesDir, instDirName);
-
-	auto &loader = InstanceFactory::get();
-
-	auto error = loader.createInstance(newInstance, newInstDlg.selectedVersion(), instDir);
-	QString errorMsg = tr("Failed to create instance %1: ").arg(instDirName);
-	switch (error)
+	try
 	{
-	case InstanceFactory::NoCreateError:
-		newInstance->setName(newInstDlg.instName());
-		newInstance->setIconKey(newInstDlg.iconKey());
-		MMC->instances()->add(InstancePtr(newInstance));
-		break;
-
-	case InstanceFactory::InstExists:
-	{
-		errorMsg += tr("An instance with the given directory name already exists.");
-		CustomMessageBox::selectable(this, tr("Error"), errorMsg, QMessageBox::Warning)->show();
-		return;
+		newInstance = InstanceFactory::get().addInstance(newInstDlg.instName(), newInstDlg.iconKey(), newInstDlg.selectedVersion(), newInstDlg.fromQuickMod());
 	}
-
-	case InstanceFactory::CantCreateDir:
+	catch (MMCError &error)
 	{
-		errorMsg += tr("Failed to create the instance directory.");
-		CustomMessageBox::selectable(this, tr("Error"), errorMsg, QMessageBox::Warning)->show();
-		return;
-	}
-
-	default:
-	{
-		errorMsg += tr("Unknown instance loader error %1").arg(error);
-		CustomMessageBox::selectable(this, tr("Error"), errorMsg, QMessageBox::Warning)->show();
-		return;
-	}
-	}
-
-	if (MMC->accounts()->anyAccountIsValid())
-	{
-		auto update = newInstance->doUpdate();
-		QuickModGuiUtil::setup(update, this);
-		connect(update.get(), &Task::failed, [this](QString reason)
-		{
-			QString error = QString("Instance load failed: %1").arg(reason);
-			CustomMessageBox::selectable(this, tr("Error"), error, QMessageBox::Warning)
-				->show();
-		});
-		ProgressDialog loadDialog(this);
-		loadDialog.exec(update.get());
-	}
-	else
-	{
-		CustomMessageBox::selectable(
-			this, tr("Error"),
-			tr("MultiMC cannot download Minecraft or update instances unless you have at least "
-			   "one account added.\nPlease add your Mojang or Minecraft account."),
-			QMessageBox::Warning)->show();
+		CustomMessageBox::selectable(this, tr("Error"), error.cause(), QMessageBox::Warning)->show();
 	}
 }
 

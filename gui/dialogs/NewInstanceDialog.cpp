@@ -22,6 +22,8 @@
 #include "logic/icons/IconList.h"
 #include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/tasks/Task.h"
+#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModVersion.h"
 
 #include "gui/Platform.h"
 #include "VersionSelectDialog.h"
@@ -38,23 +40,36 @@ NewInstanceDialog::NewInstanceDialog(QWidget *parent)
 	ui->setupUi(this);
 	resize(minimumSizeHint());
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
-	/*
-	if (!MinecraftVersionList::getMainList().isLoaded())
-	{
-		TaskDialog *taskDlg = new TaskDialog(this);
-		Task *loadTask = MinecraftVersionList::getMainList().getLoadTask();
-		loadTask->setParent(taskDlg);
-		taskDlg->exec(loadTask);
-	}
-	*/
 	setSelectedVersion(MMC->minecraftlist()->getLatestStable(), true);
 	InstIconKey = "infinity";
 	ui->iconButton->setIcon(MMC->icons()->getIcon(InstIconKey));
+	ui->fromWidget->setVisible(false);
 }
 
 NewInstanceDialog::~NewInstanceDialog()
 {
 	delete ui;
+}
+
+void NewInstanceDialog::setFromQuickMod(QuickModUid quickmod)
+{
+	ui->instNameTextBox->setText(quickmod.mod()->name());
+	ui->fromLabel->setText(quickmod.mod()->name());
+	ui->fromWidget->setVisible(true);
+	if (!quickmod.mod()->icon().isNull())
+	{
+		if (MMC->icons()->addIcon(quickmod.toString(), quickmod.mod()->name(), quickmod.mod()->icon(), MMCIcon::FileBased))
+		{
+			InstIconKey = quickmod.toString();
+			ui->iconButton->setIcon(MMC->icons()->getIcon(InstIconKey));
+		}
+	}
+	const auto versions = quickmod.mod()->versions();
+	if (!versions.isEmpty())
+	{
+		setSelectedVersion(MMC->minecraftlist()->findVersion(versions.first()->compatibleVersions.first()));
+	}
+	m_fromQuickMod = quickmod;
 }
 
 void NewInstanceDialog::updateDialogState()
@@ -87,15 +102,17 @@ QString NewInstanceDialog::instName() const
 {
 	return ui->instNameTextBox->text();
 }
-
 QString NewInstanceDialog::iconKey() const
 {
 	return InstIconKey;
 }
-
 BaseVersionPtr NewInstanceDialog::selectedVersion() const
 {
 	return m_selectedVersion;
+}
+QuickModUid NewInstanceDialog::fromQuickMod() const
+{
+	return m_fromQuickMod;
 }
 
 void NewInstanceDialog::on_btnChangeVersion_clicked()
@@ -110,7 +127,6 @@ void NewInstanceDialog::on_btnChangeVersion_clicked()
 			setSelectedVersion(version);
 	}
 }
-
 void NewInstanceDialog::on_iconButton_clicked()
 {
 	IconPickerDialog dlg(this);
@@ -122,7 +138,6 @@ void NewInstanceDialog::on_iconButton_clicked()
 		ui->iconButton->setIcon(MMC->icons()->getIcon(InstIconKey));
 	}
 }
-
 void NewInstanceDialog::on_instNameTextBox_textChanged(const QString &arg1)
 {
 	updateDialogState();

@@ -58,12 +58,6 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings,
 
 	d->m_settings->registerSetting("IntendedVersion", "");
 
-	// QuickMods
-	d->m_settings->registerSetting("LastQuickModUrl", QUrl::fromLocalFile(QDir::currentPath()));
-	d->m_settings->registerSetting("LastQuickModFile", QDir::currentPath());
-	d->m_settings->registerSetting("UploadUsername", "");
-	d->m_settings->registerSetting("UploadPassword", "");
-
 	d->version.reset(new InstanceVersion(this, this));
 }
 
@@ -118,11 +112,11 @@ std::shared_ptr<Task> OneSixInstance::doUpdate()
 	auto sharedptr =
 		std::dynamic_pointer_cast<OneSixInstance>(instList()->getInstanceById(id()));
 	auto task = std::shared_ptr<SequentialTask>(new SequentialTask);
-	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(sharedptr)));
-	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(sharedptr)));
-	task->addTask(std::shared_ptr<Task>(new QuickModLiteLoaderDownloadTask(sharedptr)));
-	task->addTask(std::shared_ptr<Task>(new MavenResolver(sharedptr)));
-	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this)));
+	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(sharedptr, task.get())));
+	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(sharedptr, task.get())));
+	task->addTask(std::shared_ptr<Task>(new QuickModLiteLoaderDownloadTask(sharedptr, task.get())));
+	task->addTask(std::shared_ptr<Task>(new MavenResolver(sharedptr, task.get())));
+	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this, task.get())));
 	return task;
 }
 

@@ -23,7 +23,7 @@
 #include "MultiMC.h"
 
 QuickModDownloadTask::QuickModDownloadTask(std::shared_ptr<OneSixInstance> instance,
-										   QObject *parent)
+										   Bindable *parent)
 	: Task(parent), m_instance(instance)
 {
 }

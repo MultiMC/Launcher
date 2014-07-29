@@ -26,7 +26,7 @@ class QuickModDownloadTask : public Task
 	Q_OBJECT
 public:
 	explicit QuickModDownloadTask(std::shared_ptr<OneSixInstance> instance,
-								  QObject *parent = 0);
+								  Bindable *parent = nullptr);
 
 protected:
 	void executeTask();

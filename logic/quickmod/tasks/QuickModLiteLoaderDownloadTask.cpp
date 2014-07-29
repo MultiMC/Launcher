@@ -22,8 +22,7 @@
 #include "logic/OneSixInstance.h"
 #include "MultiMC.h"
 
-QuickModLiteLoaderDownloadTask::QuickModLiteLoaderDownloadTask(
-	std::shared_ptr<OneSixInstance> instance, QObject *parent)
+QuickModLiteLoaderDownloadTask::QuickModLiteLoaderDownloadTask(std::shared_ptr<OneSixInstance> instance, Bindable *parent)
 	: Task(parent), m_instance(instance)
 {
 }

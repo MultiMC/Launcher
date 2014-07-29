@@ -8,7 +8,7 @@ class MavenResolver : public Task
 {
 	Q_OBJECT
 public:
-	MavenResolver(InstancePtr instance, QObject *parent = 0);
+	MavenResolver(InstancePtr instance, Bindable *parent = nullptr);
 
 	struct LibraryIdentifier
 	{

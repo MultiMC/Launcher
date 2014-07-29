@@ -5,7 +5,7 @@
 #include "MultiMC.h"
 
 QuickModMavenFindTask::QuickModMavenFindTask(const QList<QUrl> &repos, const QString &identifier)
-	: Task(0), m_repos(repos), m_identifier(identifier)
+	: Task((Bindable *)nullptr), m_repos(repos), m_identifier(identifier)
 {
 }
 

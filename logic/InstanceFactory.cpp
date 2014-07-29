@@ -33,10 +33,14 @@
 #include "logic/OneSixInstance.h"
 #include "logic/BaseVersion.h"
 #include "logic/minecraft/MinecraftVersion.h"
+#include "logic/InstanceList.h"
+#include "logic/auth/MojangAccountList.h"
+#include "logic/tasks/Task.h"
+#include "MultiMC.h"
 
 InstanceFactory InstanceFactory::loader;
 
-InstanceFactory::InstanceFactory() : QObject(NULL)
+InstanceFactory::InstanceFactory() : Bindable()
 {
 }
 
@@ -72,6 +76,58 @@ InstanceFactory::InstLoadError InstanceFactory::loadInstance(InstancePtr &inst,
 	}
 	inst->init();
 	return NoLoadError;
+}
+
+InstancePtr InstanceFactory::addInstance(const QString &name, const QString &iconKey, BaseVersionPtr version, const QuickModUid quickmod)
+{
+	InstancePtr newInstance;
+
+	const QString instancesDir = MMC->settings()->get("InstanceDir").toString();
+	const QString instDirName = DirNameFromString(name, instancesDir);
+	const QString instDir = PathCombine(instancesDir, instDirName);
+
+	const auto error = createInstance(newInstance, version, instDir);
+	const QString errorMsg = tr("Failed to create instance %1: ").arg(instDirName);
+	switch (error)
+	{
+	case InstanceFactory::NoCreateError:
+		newInstance->setName(name);
+		newInstance->setIconKey(iconKey);
+		newInstance->setNotes(quickmod.mod()->description());
+		if (quickmod.mod()->categories().size() > 1)
+		{
+			newInstance->setGroupInitial(quickmod.mod()->categories().at(1));
+		}
+		newInstance->settings().set("LastQuickModUrl", quickmod.mod()->updateUrl());
+		if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(newInstance))
+		{
+			onesix->setQuickModVersion(quickmod, QString(), true);
+		}
+		MMC->instances()->add(newInstance);
+		break;
+	case InstanceFactory::InstExists:
+		throw MMCError(errorMsg + tr("An instance with the given directory name already exists."));
+	case InstanceFactory::CantCreateDir:
+		throw MMCError(errorMsg + tr("Failed to create the instance directory."));
+	default:
+		throw MMCError(errorMsg + tr("Unknown instance loader error %1").arg(error));
+	}
+
+	if (!MMC->accounts()->anyAccountIsValid())
+	{
+		throw MMCError(tr("MultiMC cannot download Minecraft or update instances unless you have at least "
+						  "one account added.\nPlease add your Mojang or Minecraft account."));
+	}
+
+	auto update = newInstance->doUpdate();
+	update->setBindableParent(this);
+	wait<int>("Gui.ProgressDialog", update.get());
+	if (!update->successful())
+	{
+		throw MMCError(tr("Instance load failed: %1").arg(update->failReason()));
+	}
+
+	return newInstance;
 }
 
 InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &inst, BaseVersionPtr version,

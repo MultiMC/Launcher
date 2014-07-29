@@ -22,7 +22,7 @@
 #include "logic/quickmod/QuickMod.h"
 #include "MultiMC.h"
 
-QuickModForgeDownloadTask::QuickModForgeDownloadTask(InstancePtr instance, QObject *parent)
+QuickModForgeDownloadTask::QuickModForgeDownloadTask(InstancePtr instance, Bindable *parent)
 	: Task(parent), m_instance(instance)
 {
 }

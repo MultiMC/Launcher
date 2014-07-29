@@ -23,6 +23,7 @@ class ProgressProvider : public Bindable
 {
 	Q_OBJECT
 protected:
+	explicit ProgressProvider(Bindable *parent) : Bindable(parent) {}
 	explicit ProgressProvider(QObject *parent = 0) : Bindable(parent)
 	{
 	}

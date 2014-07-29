@@ -51,6 +51,7 @@ public:
 private
 slots:
 	void on_installButton_clicked();
+	void on_createInstanceButton_clicked();
 	void on_categoriesLabel_linkActivated(const QString &link);
 	void on_tagsLabel_linkActivated(const QString &link);
 	void on_mcVersionsLabel_linkActivated(const QString &link);
@@ -77,4 +78,6 @@ private:
 	QListView *m_view;
 	ModFilterProxyModel *m_filterModel;
 	CheckboxProxyModel *m_checkModel;
+
+	bool m_isSingleSelect = false;
 };

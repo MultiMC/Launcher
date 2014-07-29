@@ -16,7 +16,9 @@
 #pragma once
 
 #include <QDialog>
+
 #include "logic/BaseVersion.h"
+#include "logic/quickmod/QuickMod.h"
 
 namespace Ui
 {
@@ -31,6 +33,8 @@ public:
 	explicit NewInstanceDialog(QWidget *parent = 0);
 	~NewInstanceDialog();
 
+	void setFromQuickMod(QuickModUid quickmod);
+
 	void updateDialogState();
 
 	void setSelectedVersion(BaseVersionPtr version, bool initial = false);
@@ -40,6 +44,7 @@ public:
 	QString instName() const;
 	QString iconKey() const;
 	BaseVersionPtr selectedVersion() const;
+	QuickModUid fromQuickMod() const;
 
 private
 slots:
@@ -52,4 +57,5 @@ private:
 
 	BaseVersionPtr m_selectedVersion;
 	QString InstIconKey;
+	QuickModUid m_fromQuickMod;
 };

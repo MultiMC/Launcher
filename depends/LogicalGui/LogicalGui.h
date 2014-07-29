@@ -26,10 +26,9 @@ class Bindable : public QObject
 {
 	Q_OBJECT
 public:
-	Bindable(Bindable *parent = 0) : QObject(parent)
+	Bindable(Bindable *parent)
+		: m_parent(parent)
 	{
-		// inherit the bindings from parent
-		bind(parent);
 	}
 	Bindable(QObject *parent = 0) : QObject(parent)
 	{
@@ -38,32 +37,15 @@ public:
 	{
 	}
 
-	void bind(Bindable *task)
+	void setBindableParent(Bindable *parent)
 	{
-		for (auto it = task->m_bindings.constBegin(); it != task->m_bindings.constEnd(); ++it)
-		{
-			if (m_bindings.contains(it.key()))
-			{
-				continue;
-			}
-			m_bindings.insert(it.key(), Binding(it.value().receiver, it.value().method, task));
-		}
-	}
-	void unbind(Bindable *task)
-	{
-		for (const auto key : task->m_bindings.keys())
-		{
-			if (m_bindings.contains(key) && m_bindings[key].source == task)
-			{
-				m_bindings.remove(key);
-			}
-		}
+		m_parent = parent;
 	}
 
 	void bind(const QString &id, QObject *receiver, const char *methodSignature)
 	{
-
 		auto mo = receiver->metaObject();
+		Q_ASSERT_X(mo, "Bindable::bind", "Invalid metaobject. Did you forget the QObject macro?");
 		const QMetaMethod method = mo->method(mo->indexOfMethod(
 			QMetaObject::normalizedSignature(methodSignature + 1).constData()));
 		Q_ASSERT_X(method.isValid(), "Bindable::bind", "Invalid method signature");
@@ -90,9 +72,15 @@ private:
 	};
 	QMap<QString, Binding> m_bindings;
 
+	Bindable *m_parent;
+
 protected:
 	template <typename Ret, typename... Params> Ret wait(const QString &id, Params... params)
 	{
+		if (!m_bindings.contains(id) && m_parent)
+		{
+			return m_parent->wait<Ret, Params...>(id, params...);
+		}
 		Q_ASSERT(m_bindings.contains(id));
 		QVariantList({qMetaTypeId<Params>()...});
 		const auto binding = m_bindings[id];

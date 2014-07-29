@@ -21,6 +21,7 @@
 class Task;
 class QuickModUid;
 class OneSixInstance;
+class Bindable;
 typedef std::shared_ptr<class QuickModVersion> QuickModVersionPtr;
 typedef std::shared_ptr<struct ForgeVersion> ForgeVersionPtr;
 typedef std::shared_ptr<struct LiteLoaderVersion> LiteLoaderVersionPtr;
@@ -32,6 +33,7 @@ class QuickModGuiUtil : public QWidget
 
 public:
 	static void setup(std::shared_ptr<Task> task, QWidget *widgetParent);
+	static void setup(Bindable *task, QWidget *widgetParent);
 
 public
 slots:

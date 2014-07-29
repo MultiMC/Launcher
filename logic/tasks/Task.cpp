@@ -16,6 +16,10 @@
 #include "Task.h"
 #include "logger/QsLog.h"
 
+Task::Task(Bindable *parent) : ProgressProvider(parent)
+{
+}
+
 Task::Task(QObject *parent) : ProgressProvider(parent)
 {
 }

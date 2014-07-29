@@ -25,6 +25,9 @@
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
 #include "gui/dialogs/quickmod/QuickModAddFileDialog.h"
 #include "gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.h"
+#include "gui/dialogs/NewInstanceDialog.h"
+#include "gui/dialogs/CustomMessageBox.h"
+#include "logic/InstanceFactory.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/OneSixInstance.h"
 
@@ -48,12 +51,24 @@ bool listContainsSubstring(const QStringList &list, const QString &str)
 {
 	for (const QString &item : list)
 	{
-		if (item.contains(str))
+		if (item.contains(str, Qt::CaseInsensitive))
 		{
 			return true;
 		}
 	}
 	return false;
+}
+template<typename T> T *findParent(const QObject *me)
+{
+	if (me == 0)
+	{
+		return 0;
+	}
+	if (qobject_cast<T *>(me->parent()))
+	{
+		return qobject_cast<T *>(me->parent());
+	}
+	return findParent<T>(me->parent());
 }
 
 // }}}
@@ -261,17 +276,20 @@ QuickModBrowsePage::QuickModBrowsePage(std::shared_ptr<OneSixInstance> instance,
 	m_view->setSelectionMode(QListView::SingleSelection);
 
 	m_filterModel->setSourceModel(MMC->quickmodslist().get());
-	m_checkModel->setSourceModel(m_filterModel);
 
 	if (m_instance != nullptr)
 	{
 		m_view->setModel(m_checkModel);
+		ui->createInstanceButton->hide();
+		m_checkModel->setSourceModel(m_filterModel);
 	}
 	else
 	{
 		m_view->setModel(m_filterModel);
 		ui->installButton->hide();
 		ui->createFromInstanceBtn->hide();
+		ui->categoryBox->setEditable(false);
+		m_isSingleSelect = true;
 	}
 
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
@@ -323,7 +341,14 @@ void QuickModBrowsePage::setupComboBoxes()
 	versions.removeDuplicates();
 
 	ui->categoryBox->clear();
-	ui->categoryBox->addItems(categories);
+	if (!m_isSingleSelect)
+	{
+		ui->categoryBox->addItems(categories);
+	}
+	else
+	{
+		ui->categoryBox->addItem("Modpack");
+	}
 	ui->mcVersionBox->clear();
 	ui->mcVersionBox->addItems(versions);
 	ui->mcVersionBox->setCurrentIndex(initialVsn);
@@ -384,6 +409,33 @@ void QuickModBrowsePage::on_installButton_clicked()
 	catch (MMCError &e)
 	{
 		QMessageBox::critical(this, tr("Error"), e.cause());
+	}
+}
+
+void QuickModBrowsePage::on_createInstanceButton_clicked()
+{
+	const QModelIndex index = m_view->currentIndex();
+	if (!index.isValid())
+	{
+		return;
+	}
+
+	NewInstanceDialog dialog(this);
+	dialog.setFromQuickMod(index.data(QuickModsList::UidRole).value<QuickModUid>());
+	if (dialog.exec() == QDialog::Accepted)
+	{
+
+		InstancePtr newInstance;
+		try
+		{
+			newInstance = InstanceFactory::get().addInstance(dialog.instName(), dialog.iconKey(), dialog.selectedVersion(), dialog.fromQuickMod());
+		}
+		catch (MMCError &error)
+		{
+			CustomMessageBox::selectable(this, tr("Error"), error.cause(), QMessageBox::Warning)->show();
+			return;
+		}
+		findParent<QDialog>(this)->accept();
 	}
 }
 

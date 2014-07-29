@@ -86,7 +86,7 @@ struct POM : MavenResolver::LibraryIdentifier
 	QList<Dependency> dependencies;
 };
 
-MavenResolver::MavenResolver(InstancePtr instance, QObject *parent)
+MavenResolver::MavenResolver(InstancePtr instance, Bindable *parent)
 	: Task(parent), m_instance(instance)
 {
 }

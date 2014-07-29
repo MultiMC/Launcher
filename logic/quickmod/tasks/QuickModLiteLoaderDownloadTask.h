@@ -26,7 +26,7 @@ class QuickModLiteLoaderDownloadTask : public Task
 	Q_OBJECT
 public:
 	QuickModLiteLoaderDownloadTask(std::shared_ptr<OneSixInstance> instance,
-								   QObject *parent = 0);
+								   Bindable *parent = nullptr);
 
 protected:
 	void executeTask();

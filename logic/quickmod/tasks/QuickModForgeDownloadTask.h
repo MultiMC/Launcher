@@ -26,7 +26,7 @@ class QuickModForgeDownloadTask : public Task
 {
 	Q_OBJECT
 public:
-	QuickModForgeDownloadTask(InstancePtr instance, QObject *parent = 0);
+	QuickModForgeDownloadTask(InstancePtr instance, Bindable *parent = nullptr);
 
 protected:
 	void executeTask();

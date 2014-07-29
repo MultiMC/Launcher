@@ -86,6 +86,12 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 	settings().registerOverride(globalSettings->getSetting("AutoCloseConsole"));
 	settings().registerOverride(globalSettings->getSetting("LogPrePostOutput"));
 
+	// QuickMods
+	settings().registerSetting("LastQuickModUrl", QUrl::fromLocalFile(QDir::currentPath()));
+	settings().registerSetting("LastQuickModFile", QDir::currentPath());
+	settings().registerSetting("UploadUsername", "");
+	settings().registerSetting("UploadPassword", "");
+
 	// Mods
 	settings().registerSetting("InstalledMods", QVariant::fromValue(QMap<QString, QMap<QString, QString> >()));
 }

@@ -128,6 +128,26 @@
     </widget>
    </item>
    <item>
+    <widget class="QWidget" name="fromWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>From:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="fromLabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
