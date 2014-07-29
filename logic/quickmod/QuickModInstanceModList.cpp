@@ -20,7 +20,8 @@
 #include "QuickModLibraryInstaller.h"
 #include "modutils.h"
 
-QuickModInstanceModList::QuickModInstanceModList(const Type type, std::shared_ptr<OneSixInstance> instance,
+QuickModInstanceModList::QuickModInstanceModList(const Type type,
+												 std::shared_ptr<OneSixInstance> instance,
 												 std::shared_ptr<ModList> modList,
 												 QObject *parent)
 	: QAbstractListModel(parent), m_instance(instance), m_modList(modList), m_type(type)
@@ -29,19 +30,21 @@ QuickModInstanceModList::QuickModInstanceModList(const Type type, std::shared_pt
 			&QuickModInstanceModList::beginResetModel);
 	connect(m_modList.get(), &ModList::modelReset, this,
 			&QuickModInstanceModList::endResetModel);
-	connect(m_modList.get(), &ModList::rowsAboutToBeInserted,
-			[this](const QModelIndex &parent, const int first, const int last)
-	{ beginInsertRows(parent, first + quickmods().size(), last + quickmods().size()); });
+	connect(
+		m_modList.get(), &ModList::rowsAboutToBeInserted,
+		[this](const QModelIndex &parent, const int first, const int last)
+		{ beginInsertRows(parent, first + quickmods().size(), last + quickmods().size()); });
 	connect(m_modList.get(), &ModList::rowsInserted, this,
 			&QuickModInstanceModList::endInsertRows);
 	connect(m_modList.get(), &ModList::dataChanged,
 			[this](const QModelIndex &tl, const QModelIndex &br, const QVector<int> &roles)
-	{ emit dataChanged(mapFromModList(tl), mapFromModList(br), roles); });
-	connect(m_instance.get(), &OneSixInstance::versionReloaded, this, &QuickModInstanceModList::resetModel);
+			{ emit dataChanged(mapFromModList(tl), mapFromModList(br), roles); });
+	connect(m_instance.get(), &OneSixInstance::versionReloaded, this,
+			&QuickModInstanceModList::resetModel);
 
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsInserted,
 			[this](const QModelIndex &parent, const int first, const int last)
-	{
+			{
 		for (int i = first; i < (last + 1); ++i)
 		{
 			auto mod = MMC->quickmodslist()->modAt(i);
@@ -51,7 +54,7 @@ QuickModInstanceModList::QuickModInstanceModList(const Type type, std::shared_pt
 	});
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsAboutToBeRemoved,
 			[this](const QModelIndex &parent, const int first, const int last)
-	{
+			{
 		for (int i = first; i < (last + 1); ++i)
 		{
 			disconnect(MMC->quickmodslist()->modAt(i).get(), 0, this, 0);
@@ -146,8 +149,8 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 }
-QVariant QuickModInstanceModList::headerData(int section, Qt::Orientation orientation,
-											 int role) const
+QVariant QuickModInstanceModList::headerData(int section, Qt::Orientation orientation, int role)
+	const
 {
 	return m_modList->headerData(section, orientation, role);
 }
@@ -215,8 +218,7 @@ QMap<QuickModUid, QString> QuickModInstanceModList::quickmods() const
 		return QMap<QuickModUid, QString>();
 	}
 	QMap<QuickModUid, QString> out;
-	auto mods =
-		m_instance->getFullVersion()->quickmods;
+	auto mods = m_instance->getFullVersion()->quickmods;
 	for (auto it = mods.begin(); it != mods.end(); ++it)
 	{
 		out.insert(QuickModUid(it.key()), it.value().first);
@@ -261,7 +263,8 @@ void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 			continue;
 		}
 		const auto uid = modAt(index.row())->uid();
-		mods.insert(uid, qMakePair(QString(), m_instance->getFullVersion()->quickmods[uid].second));
+		mods.insert(uid,
+					qMakePair(QString(), m_instance->getFullVersion()->quickmods[uid].second));
 	}
 	if (!mods.isEmpty())
 	{
@@ -303,13 +306,12 @@ bool QuickModInstanceModListProxy::filterAcceptsRow(int source_row,
 	const QModelIndex index = m_list->index(source_row, 0, source_parent);
 	if (m_list->isModListArea(index))
 	{
-		return true;
-		// FIXME: broken code ahead!
 		const QString file = index.data(ModList::ModFileRole).toString();
-		for (auto it = m_list->quickmods().begin(); it != m_list->quickmods().end(); ++it)
+		auto quickmods = m_list->quickmods();
+		for (auto it = quickmods.begin(); it != quickmods.end(); ++it)
 		{
 			const QuickModUid uid = it.key();
-			if (!uid.isValid() || !MMC->quickmodslist()->mods(uid).isEmpty())
+			if (!uid.isValid() || MMC->quickmodslist()->mods(uid).isEmpty())
 			{
 				continue;
 			}
@@ -318,8 +320,8 @@ bool QuickModInstanceModListProxy::filterAcceptsRow(int source_row,
 			{
 				continue;
 			}
-			const QString existingFile =
-				MMC->quickmodslist()->installedModFiles(mod, m_list->m_instance.get())[it.value()];
+			const QString existingFile = MMC->quickmodslist()->installedModFiles(
+				mod, m_list->m_instance.get())[it.value()];
 			if (file == existingFile)
 			{
 				return false;
