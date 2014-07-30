@@ -112,9 +112,9 @@ void MultiMCPage::on_ftbBrowseBtn_clicked()
 
 void MultiMCPage::on_instDirBrowseBtn_clicked()
 {
-	QString raw_dir = QFileDialog::getExistingDirectory(this, tr("Instance Directory"),
-														ui->instDirTextBox->text());
-	QString cooked_dir = NormalizePath(raw_dir);
+    QString raw_dir = QFileDialog::getExistingDirectory(this, tr("Instance Directory"),
+                                                        ui->instDirTextBox->text());
+    QString cooked_dir = NormalizePath(raw_dir);
 
 	// do not allow current dir - it's dirty. Do not allow dirs that don't exist
 	if (!cooked_dir.isEmpty() && QDir(cooked_dir).exists())
