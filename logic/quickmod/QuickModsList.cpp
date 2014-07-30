@@ -48,7 +48,8 @@ QuickModsList::QuickModsList(const Flags flags, QObject *parent)
 	m_settings->registerSetting("Indices", QVariantMap());
 
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
-	connect(m_updater, &QuickModFilesUpdater::addedSandboxedMod, this, &QuickModsList::sandboxModAdded);
+	connect(m_updater, &QuickModFilesUpdater::addedSandboxedMod, this,
+			&QuickModsList::sandboxModAdded);
 
 	if (!flags.testFlag(DontCleanup))
 	{
@@ -243,6 +244,26 @@ QList<QuickModPtr> QuickModsList::mods(const QuickModUid &uid) const
 	}
 	return out;
 }
+
+QList<QuickModVersionPtr> QuickModsList::modsProvidingModVersion(const QuickModUid &uid,
+																 const QString &version) const
+{
+	QList<QuickModVersionPtr> out;
+	for (auto mod : m_mods)
+	{
+		for (QuickModVersionPtr versionObj : mod->versions())
+		{
+			if (versionObj->provides.contains(uid) &&
+				Util::versionIsInInterval(versionObj->provides.value(uid), version))
+			{
+				// this mod provides exactly the needed version :)
+				out.append(versionObj);
+			}
+		}
+	}
+	return out;
+}
+
 QuickModVersionPtr QuickModsList::modVersion(const QuickModUid &modUid,
 											 const QString &versionName) const
 {
@@ -405,8 +426,8 @@ bool QuickModsList::haveUid(const QuickModUid &uid, const QString &repo) const
 	return false;
 }
 
-QList<QuickModUid>
-QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const
+QList<QuickModUid> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance)
+	const
 {
 	QList<QuickModUid> mods;
 	std::shared_ptr<OneSixInstance> onesix =

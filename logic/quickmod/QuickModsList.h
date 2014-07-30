@@ -85,6 +85,8 @@ public:
 
 	QuickModPtr modForModId(const QString &modId) const;
 	QList<QuickModPtr> mods(const QuickModUid &uid) const;
+	QList<QuickModVersionPtr> modsProvidingModVersion(const QuickModUid &uid,
+													  const QString &version) const;
 	QuickModVersionPtr modVersion(const QuickModUid &modUid, const QString &versionName) const;
 	QuickModVersionPtr latestVersion(const QuickModUid &modUid, const QString &mcVersion) const;
 
@@ -98,7 +100,8 @@ public:
 								InstancePtr instance) const;
 	bool isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const;
 	bool isModMarkedAsExists(QuickModPtr mod, const QString &version) const;
-	QMap<QString, QString> installedModFiles(const QuickModUid uid, BaseInstance *instance) const;
+	QMap<QString, QString> installedModFiles(const QuickModUid uid,
+											 BaseInstance *instance) const;
 	QString existingModFile(QuickModPtr mod, const BaseVersionPtr version) const;
 	QString existingModFile(QuickModPtr mod, const QString &version) const;
 
@@ -113,16 +116,14 @@ public:
 
 	void releaseFromSandbox(QuickModPtr mod);
 
-public
-slots:
+public slots:
 	void registerMod(const QString &fileName);
 	void registerMod(const QUrl &url, bool sandbox);
 	void unregisterMod(QuickModPtr mod);
 
 	void updateFiles();
 
-private
-slots:
+private slots:
 	void touchMod(QuickModPtr mod);
 	void addMod(QuickModPtr mod);
 	void clearMods();
