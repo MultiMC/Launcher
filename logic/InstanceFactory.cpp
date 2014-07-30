@@ -56,19 +56,19 @@ InstanceFactory::InstLoadError InstanceFactory::loadInstance(InstancePtr &inst,
 	// FIXME: replace with a map lookup, where instance classes register their types
 	if (inst_type == "OneSix" || inst_type == "Nostalgia")
 	{
-		inst.reset(new OneSixInstance(instDir, m_settings, this));
+		inst.reset(new OneSixInstance(instDir, m_settings));
 	}
 	else if (inst_type == "Legacy")
 	{
-		inst.reset(new LegacyInstance(instDir, m_settings, this));
+		inst.reset(new LegacyInstance(instDir, m_settings));
 	}
 	else if (inst_type == "LegacyFTB")
 	{
-		inst.reset(new LegacyFTBInstance(instDir, m_settings, this));
+		inst.reset(new LegacyFTBInstance(instDir, m_settings));
 	}
 	else if (inst_type == "OneSixFTB")
 	{
-		inst.reset(new OneSixFTBInstance(instDir, m_settings, this));
+		inst.reset(new OneSixFTBInstance(instDir, m_settings));
 	}
 	else
 	{
@@ -87,7 +87,7 @@ InstancePtr InstanceFactory::addInstance(const QString &name, const QString &ico
 	const QString instDir = PathCombine(instancesDir, instDirName);
 
 	const auto error = createInstance(newInstance, version, instDir);
-	const QString errorMsg = tr("Failed to create instance %1: ").arg(instDirName);
+	const QString errorMsg = QObject::tr("Failed to create instance %1: ").arg(instDirName);
 	switch (error)
 	{
 	case InstanceFactory::NoCreateError:
@@ -109,16 +109,16 @@ InstancePtr InstanceFactory::addInstance(const QString &name, const QString &ico
 		MMC->instances()->add(newInstance);
 		break;
 	case InstanceFactory::InstExists:
-		throw MMCError(errorMsg + tr("An instance with the given directory name already exists."));
+		throw MMCError(errorMsg + QObject::tr("An instance with the given directory name already exists."));
 	case InstanceFactory::CantCreateDir:
-		throw MMCError(errorMsg + tr("Failed to create the instance directory."));
+		throw MMCError(errorMsg + QObject::tr("Failed to create the instance directory."));
 	default:
-		throw MMCError(errorMsg + tr("Unknown instance loader error %1").arg(error));
+		throw MMCError(errorMsg + QObject::tr("Unknown instance loader error %1").arg(error));
 	}
 
 	if (!MMC->accounts()->anyAccountIsValid())
 	{
-		throw MMCError(tr("MultiMC cannot download Minecraft or update instances unless you have at least "
+		throw MMCError(QObject::tr("MultiMC cannot download Minecraft or update instances unless you have at least "
 						  "one account added.\nPlease add your Mojang or Minecraft account."));
 	}
 
@@ -127,7 +127,7 @@ InstancePtr InstanceFactory::addInstance(const QString &name, const QString &ico
 	wait<int>("Gui.ProgressDialog", update.get());
 	if (!update->successful())
 	{
-		throw MMCError(tr("Instance load failed: %1").arg(update->failReason()));
+		throw MMCError(QObject::tr("Instance load failed: %1").arg(update->failReason()));
 	}
 
 	return newInstance;
@@ -153,7 +153,7 @@ InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &in
 	if (type == NormalInst)
 	{
 		m_settings->set("InstanceType", "OneSix");
-		inst.reset(new OneSixInstance(instDir, m_settings, this));
+		inst.reset(new OneSixInstance(instDir, m_settings));
 		inst->setIntendedVersionId(version->descriptor());
 		inst->setShouldUseCustomBaseJar(false);
 	}
@@ -162,14 +162,14 @@ InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &in
 		if(mcVer->usesLegacyLauncher())
 		{
 			m_settings->set("InstanceType", "LegacyFTB");
-			inst.reset(new LegacyFTBInstance(instDir, m_settings, this));
+			inst.reset(new LegacyFTBInstance(instDir, m_settings));
 			inst->setIntendedVersionId(version->descriptor());
 			inst->setShouldUseCustomBaseJar(false);
 		}
 		else
 		{
 			m_settings->set("InstanceType", "OneSixFTB");
-			inst.reset(new OneSixFTBInstance(instDir, m_settings, this));
+			inst.reset(new OneSixFTBInstance(instDir, m_settings));
 			inst->setIntendedVersionId(version->descriptor());
 			inst->setShouldUseCustomBaseJar(false);
 		}

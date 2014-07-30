@@ -32,7 +32,6 @@ class QuickModUid;
  */
 class InstanceFactory : public Bindable
 {
-	Q_OBJECT
 public:
 	/*!
 	 * \brief Gets a reference to the instance loader.

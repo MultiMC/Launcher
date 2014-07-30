@@ -293,6 +293,15 @@ void QuickModInstanceModList::removeMods(const QModelIndexList &list)
 		}
 		mods.append(mod->uid());
 	}
+	const auto resolved = QuickModDependencyResolver(m_instance).resolveChildren(mods);
+	if (mods != resolved)
+	{
+		if (!wait<bool>("QuickMods.ConfirmRemoval", resolved))
+		{
+			return;
+		}
+		mods = resolved;
+	}
 	if (!mods.isEmpty())
 	{
 		m_instance->removeQuickMods(mods);

@@ -331,7 +331,7 @@ bool QuickModInstallDialog::resolveDeps()
 {
 	// Resolve dependencies
 	bool error = false;
-	QuickModDependencyResolver resolver(m_instance, this);
+	QuickModDependencyResolver resolver(m_instance);
 
 	resolver.bind("QuickMods.GetVersion", this, SLOT(getVersion(QuickModUid, QString, bool *)));
 

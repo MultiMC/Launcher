@@ -22,15 +22,11 @@
 #include <QDebug>
 #include <memory>
 
-class Bindable : public QObject
+class Bindable
 {
-	Q_OBJECT
 public:
-	Bindable(Bindable *parent)
+	Bindable(Bindable *parent = 0)
 		: m_parent(parent)
-	{
-	}
-	Bindable(QObject *parent = 0) : QObject(parent)
 	{
 	}
 	virtual ~Bindable()

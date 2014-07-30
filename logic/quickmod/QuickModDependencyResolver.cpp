@@ -28,17 +28,26 @@ struct DepNode
 {
 	QuickModVersionPtr version;
 	QuickModUid uid;
-	QList<const DepNode *> dependencies;
-	QList<const DepNode *> reverseDependencies;
+	QList<const DepNode *> children;
+	QList<const DepNode *> parents;
 	bool isHard;
 
+	QList<const DepNode *> getParents() const
+	{
+		QList<const DepNode *> out = parents;
+		for (const auto child : parents)
+		{
+			out.append(child->getParents());
+		}
+		return out;
+	}
 	bool hasHardParent() const
 	{
 		if (isHard)
 		{
 			return true;
 		}
-		for (const auto parent : reverseDependencies)
+		for (const auto parent : parents)
 		{
 			if (parent->hasHardParent())
 			{
@@ -81,7 +90,7 @@ struct DepNode
 			}
 		}
 
-		// stage two: forward dependencies
+		// stage two: forward dependencies (children)
 		{
 			for (auto it = nodes.constBegin(); it != nodes.constEnd(); ++it)
 			{
@@ -98,7 +107,7 @@ struct DepNode
 				{
 					if (!versionIt.value().second && nodes.contains(versionIt.key()))
 					{
-						const_cast<DepNode *>(node)->dependencies.append(nodes.value(versionIt.key()));
+						const_cast<DepNode *>(node)->children.append(nodes.value(versionIt.key()));
 					}
 					else
 					{
@@ -111,13 +120,13 @@ struct DepNode
 			}
 		}
 
-		// stage three: backward dependencies
+		// stage three: backward dependencies (parents)
 		{
 			for (const auto node : nodes)
 			{
-				for (const auto dep : node->dependencies)
+				for (const auto dep : node->children)
 				{
-					const_cast<DepNode *>(dep)->reverseDependencies.append(node);
+					const_cast<DepNode *>(dep)->parents.append(node);
 				}
 			}
 		}
@@ -138,8 +147,8 @@ struct DepNode
 	}
 };
 
-QuickModDependencyResolver::QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance, QObject *parent)
-	: Bindable(parent), m_instance(instance)
+QuickModDependencyResolver::QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance, Bindable *parent)
+	: QObject(0), Bindable(parent), m_instance(instance)
 {
 }
 
@@ -156,6 +165,32 @@ QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickM
 		}
 	}
 	return m_mods.values();
+}
+
+QList<QuickModUid> QuickModDependencyResolver::resolveChildren(const QList<QuickModUid> &uids)
+{
+	qDebug() << "in" << uids;
+	QList<const DepNode *> nodes = DepNode::build(m_instance);
+	QList<const DepNode *> parents;
+	for (const auto uid : uids)
+	{
+		const DepNode *node = DepNode::findNode(nodes, uid);
+		qDebug() << node->uid << node->getParents().size();
+		parents.append(node);
+		parents.append(node->getParents());
+	}
+	QList<QuickModUid> out;
+	for (const auto node : parents)
+	{
+		qDebug() << node->uid;
+		if (!out.contains(node->uid))
+		{
+			qDebug() << node->uid;
+			out.append(node->uid);
+		}
+	}
+	qDebug() << "out" << out;
+	return out;
 }
 
 QList<QuickModUid> QuickModDependencyResolver::resolveOrphans() const

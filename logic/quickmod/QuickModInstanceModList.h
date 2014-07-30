@@ -18,11 +18,13 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
+#include <LogicalGui.h>
+
 #include "logic/OneSixInstance.h"
 #include "QuickModVersion.h"
 #include "QuickMod.h"
 
-class QuickModInstanceModList : public QAbstractListModel
+class QuickModInstanceModList : public QAbstractListModel, public Bindable
 {
 	Q_OBJECT
 public:

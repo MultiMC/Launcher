@@ -30,15 +30,16 @@ class QuickModVersion;
 class QuickMod;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 
-class QuickModDependencyResolver : public Bindable
+class QuickModDependencyResolver : public QObject, public Bindable
 {
 	Q_OBJECT
 public:
 	explicit QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance,
-										QObject *parent = 0);
+										Bindable *parent = 0);
 
 	QList<QuickModVersionPtr> resolve(const QList<QuickModUid> &mods);
 
+	QList<QuickModUid> resolveChildren(const QList<QuickModUid> &uids);
 	QList<QuickModUid> resolveOrphans() const;
 	bool hasResolveError() const;
 

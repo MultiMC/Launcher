@@ -51,6 +51,7 @@ ModFolderPage::ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *i
 	m_mods->startWatching();
 
 	m_modsModel = new QuickModInstanceModList(type, std::dynamic_pointer_cast<OneSixInstance>(m_inst->getSharedPtr()), m_mods, this);
+	m_modsModel->bind("QuickMods.ConfirmRemoval", this, SLOT(quickmodsConfirmRemoval(QList<QuickModUid>)));
 	ui->modTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
 
 	auto smodel = ui->modTreeView->selectionModel();
@@ -179,6 +180,27 @@ void ModFolderPage::on_orphansRemoveBtn_clicked()
 	}
 	onesix->removeQuickMods(m_orphans);
 	updateOrphans();
+}
+
+bool ModFolderPage::quickmodsConfirmRemoval(const QList<QuickModUid> &uids)
+{
+	QStringList names;
+	for (const auto uid : uids)
+	{
+		names.append(uid.mod()->name());
+	}
+
+	QMessageBox box;
+	box.setParent(this, Qt::Dialog);
+	box.setWindowTitle(tr("Continue?"));
+	box.setIcon(QMessageBox::Warning);
+	box.setText(tr("Remove these QuickMods?"));
+	box.setInformativeText(tr("The QuickMods you selected for removal are depended on by some other mods, and therefore those mods will also be removed. Continue?"));
+	box.setDetailedText(names.join(", "));
+	box.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+	box.setDefaultButton(QMessageBox::Yes);
+	box.setEscapeButton(QMessageBox::No);
+	return box.exec() == QMessageBox::Yes;
 }
 
 void ModFolderPage::updateOrphans()
