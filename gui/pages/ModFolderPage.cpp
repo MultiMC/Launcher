@@ -50,9 +50,17 @@ ModFolderPage::ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *i
 	ui->modTreeView->installEventFilter(this);
 	m_mods->startWatching();
 
-	m_modsModel = new QuickModInstanceModList(type, std::dynamic_pointer_cast<OneSixInstance>(m_inst->getSharedPtr()), m_mods, this);
-	m_modsModel->bind("QuickMods.ConfirmRemoval", this, SLOT(quickmodsConfirmRemoval(QList<QuickModUid>)));
-	ui->modTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
+	if (auto onesix = std::dynamic_pointer_cast<OneSixInstance>(inst->getSharedPtr()))
+	{
+		m_modsModel = new QuickModInstanceModList(type, onesix, m_mods, this);
+		m_modsModel->bind("QuickMods.ConfirmRemoval", this, SLOT(quickmodsConfirmRemoval(QList<QuickModUid>)));
+		ui->modTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
+	}
+	else
+	{
+		ui->updateModBtn->setVisible(false);
+		ui->modTreeView->setModel(m_mods.get());
+	}
 
 	auto smodel = ui->modTreeView->selectionModel();
 	connect(smodel, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
@@ -205,6 +213,11 @@ bool ModFolderPage::quickmodsConfirmRemoval(const QList<QuickModUid> &uids)
 
 void ModFolderPage::updateOrphans()
 {
+	if (!m_modsModel)
+	{
+		return;
+	}
+
 	m_orphans = m_modsModel->findOrphans();
 	QStringList names;
 	for (const auto orphan : m_orphans)
@@ -218,7 +231,10 @@ void ModFolderPage::updateOrphans()
 
 void ModFolderPage::modCurrent(const QModelIndex &current, const QModelIndex &previous)
 {
-	ui->updateModBtn->setEnabled(!m_modsModel->isModListArea(m_proxy->mapToSource(current)));
+	if (m_modsModel)
+	{
+		ui->updateModBtn->setEnabled(!m_modsModel->isModListArea(m_proxy->mapToSource(current)));
+	}
 
 	const QModelIndex index = mapToModsList(current);
 	if (!index.isValid())
@@ -233,24 +249,31 @@ void ModFolderPage::modCurrent(const QModelIndex &current, const QModelIndex &pr
 
 QModelIndex ModFolderPage::mapToModsList(const QModelIndex &view) const
 {
-	return m_modsModel->mapToModList(m_proxy->mapToSource(view));
+	return m_modsModel ? m_modsModel->mapToModList(m_proxy->mapToSource(view)) : view;
 }
 void ModFolderPage::sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods)
 {
-	for (auto index : view)
+	if (!m_modsModel)
 	{
-		if (!index.isValid())
+		*mods = view;
+	}
+	else
+	{
+		for (auto index : view)
 		{
-			continue;
-		}
-		const QModelIndex mappedOne = m_proxy->mapToSource(index);
-		if (m_modsModel->isModListArea(mappedOne))
-		{
-			mods->append(m_modsModel->mapToModList(mappedOne));
-		}
-		else
-		{
-			quickmods->append(mappedOne);
+			if (!index.isValid())
+			{
+				continue;
+			}
+			const QModelIndex mappedOne = m_proxy->mapToSource(index);
+			if (m_modsModel->isModListArea(mappedOne))
+			{
+				mods->append(m_modsModel->mapToModList(mappedOne));
+			}
+			else
+			{
+				quickmods->append(mappedOne);
+			}
 		}
 	}
 }

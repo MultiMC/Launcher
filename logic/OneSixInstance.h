@@ -101,6 +101,8 @@ public:
 
 	virtual QStringList extraArguments() const override;
 
+	std::shared_ptr<OneSixInstance> getSharedPtr();
+
 	void setQuickModVersion(const QuickModUid &uid, const QString &version, const bool manualInstall = false);
 	void setQuickModVersions(const QMap<QuickModUid, QPair<QString, bool>> &mods);
 	void removeQuickMods(const QList<QuickModUid> &uids);

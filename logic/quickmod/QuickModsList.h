@@ -112,7 +112,7 @@ public:
 
 	bool haveUid(const QuickModUid &uid, const QString &repo) const;
 
-	QList<QuickModUid> updatedModsForInstance(std::shared_ptr<BaseInstance> instance) const;
+	QList<QuickModUid> updatedModsForInstance(std::shared_ptr<OneSixInstance> instance) const;
 
 	void releaseFromSandbox(QuickModPtr mod);
 

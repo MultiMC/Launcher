@@ -22,15 +22,14 @@
 #include "logic/quickmod/QuickMod.h"
 #include "MultiMC.h"
 
-QuickModForgeDownloadTask::QuickModForgeDownloadTask(InstancePtr instance, Bindable *parent)
+QuickModForgeDownloadTask::QuickModForgeDownloadTask(std::shared_ptr<OneSixInstance> instance, Bindable *parent)
 	: Task(parent), m_instance(instance)
 {
 }
 
 void QuickModForgeDownloadTask::executeTask()
 {
-	auto mods =
-		std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->quickmods;
+	auto mods = m_instance->getFullVersion()->quickmods;
 	if (mods.isEmpty())
 	{
 		emitSucceeded();
@@ -67,8 +66,7 @@ void QuickModForgeDownloadTask::executeTask()
 		wait<ForgeVersionPtr>("QuickMods.GetForgeVersion", m_instance, versionFilters);
 	if (forgeVersion)
 	{
-		auto task = installer->createInstallTask(
-			std::dynamic_pointer_cast<OneSixInstance>(m_instance).get(), forgeVersion, this);
+		auto task = installer->createInstallTask(m_instance.get(), forgeVersion, this);
 		connect(task, &Task::progress, [this](qint64 current, qint64 total)
 				{
 			setProgress(100 * current / qMax((qint64)1, total));

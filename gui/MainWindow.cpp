@@ -1257,34 +1257,34 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 								BaseProfilerFactory *profiler)
 {
-	QList<QuickModUid> mods = MMC->quickmodslist()->updatedModsForInstance(instance);
-	if (!mods.isEmpty())
+	if (auto onesix = std::dynamic_pointer_cast<OneSixInstance>(instance))
 	{
-		QStringList names;
-		QMap<QuickModUid, QPair<QString, bool>> modsToUpdate;
-		for (auto mod : mods)
+		QList<QuickModUid> mods = MMC->quickmodslist()->updatedModsForInstance(onesix);
+		if (!mods.isEmpty())
 		{
-			auto ptr = MMC->quickmodslist()->mods(mod).first();
-			names.append(ptr->name());
-			modsToUpdate.insert(
-				ptr->uid(),
-				qMakePair(QString(), std::dynamic_pointer_cast<OneSixInstance>(instance)
-										 ->getFullVersion()
-										 ->quickmods[ptr->uid()]
-										 .second));
-		}
-		int res = QMessageBox::question(
-			this, tr("Update"),
-			tr("The following mods have new updates:\n\n%1\n\n Update now?").arg(names.join(", ")),
-			QMessageBox::Yes, QMessageBox::No);
-		if (res == QMessageBox::Yes)
-		{
-			if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(instance))
+			QStringList names;
+			QMap<QuickModUid, QPair<QString, bool>> modsToUpdate;
+			for (auto mod : mods)
+			{
+				auto ptr = MMC->quickmodslist()->mods(mod).first();
+				names.append(ptr->name());
+				modsToUpdate.insert(
+					ptr->uid(),
+					qMakePair(QString(),
+							  onesix->getFullVersion()->quickmods[ptr->uid()].second));
+			}
+			int res = QMessageBox::question(
+				this, tr("Update"),
+				tr("The following mods have new updates:\n\n%1\n\n Update now?")
+					.arg(names.join(", ")),
+				QMessageBox::Yes, QMessageBox::No);
+			if (res == QMessageBox::Yes)
 			{
 				onesix->setQuickModVersions(modsToUpdate);
 			}
 		}
 	}
+
 	auto updateTask = instance->doUpdate();
 	if (!updateTask)
 	{

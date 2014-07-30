@@ -86,8 +86,8 @@ slots:
 	bool quickmodsConfirmRemoval(const QList<QuickModUid> &uids);
 
 private:
-	QuickModInstanceModList *m_modsModel;
-	QuickModInstanceModListProxy *m_proxy;
+	QuickModInstanceModList *m_modsModel = nullptr;
+	QuickModInstanceModListProxy *m_proxy = nullptr;
 	QList<QuickModUid> m_orphans;
 
 	void updateOrphans();

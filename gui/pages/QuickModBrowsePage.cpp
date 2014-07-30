@@ -369,7 +369,7 @@ bool QuickModBrowsePage::shouldDisplay() const
 	{
 		return false;
 	}
-	return true;
+	return static_cast<OneSixInstance *>(m_instance.get());
 }
 
 void QuickModBrowsePage::opened()

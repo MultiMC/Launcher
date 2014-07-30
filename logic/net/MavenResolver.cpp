@@ -71,7 +71,7 @@ struct POM : MavenResolver::LibraryIdentifier
 						scope = reader.readElementText();
 					}
 				}
-					break;
+				break;
 				case QXmlStreamReader::EndElement:
 					if (reader.name() == "dependency")
 					{
@@ -86,7 +86,7 @@ struct POM : MavenResolver::LibraryIdentifier
 	QList<Dependency> dependencies;
 };
 
-MavenResolver::MavenResolver(InstancePtr instance, Bindable *parent)
+MavenResolver::MavenResolver(std::shared_ptr<OneSixInstance> instance, Bindable *parent)
 	: Task(parent), m_instance(instance)
 {
 }
@@ -98,13 +98,16 @@ void MavenResolver::executeTask()
 
 	setStatus(tr("Fetching Maven POM files..."));
 
-	auto libs = std::dynamic_pointer_cast<OneSixInstance>(m_instance)->getFullVersion()->libraries;
+	auto libs = m_instance->getFullVersion()->libraries;
 	for (auto lib : libs)
 	{
 		if (lib->hint() == "recurse")
 		{
 			const auto gradleSpec = lib->rawName();
-			requestDependenciesOf(LibraryIdentifier(gradleSpec.groupId(), gradleSpec.artifactId(), gradleSpec.version()), lib->m_base_url);
+			requestDependenciesOf(LibraryIdentifier(gradleSpec.groupId(),
+													gradleSpec.artifactId(),
+													gradleSpec.version()),
+								  lib->m_base_url);
 		}
 	}
 	if (m_downloads.isEmpty())
@@ -156,12 +159,14 @@ void MavenResolver::updateProgress()
 
 void MavenResolver::requestDependenciesOf(const LibraryIdentifier lib, const QUrl &url)
 {
-	QString pom = QString("%1/%2/%3/%2-%3.pom").arg(QString(lib.group).replace('.', '/'), lib.artifact, lib.version);
+	QString pom = QString("%1/%2/%3/%2-%3.pom")
+					  .arg(QString(lib.group).replace('.', '/'), lib.artifact, lib.version);
 	auto entry = MMC->metacache()->resolveEntry("maven/pom", pom);
 	CacheDownloadPtr download = CacheDownload::make(url.resolved(QUrl(pom)), entry);
 	m_downloads[getNextDownloadIndex()] = qMakePair(download, url);
 	connect(download.get(), &CacheDownload::succeeded, this, &MavenResolver::downloadSucceeded);
 	connect(download.get(), &CacheDownload::failed, this, &MavenResolver::downloadFailed);
 	download->start();
-	QLOG_INFO() << "Fetching dependencies of" << QString("%1:%2:%3").arg(lib.group, lib.artifact, lib.version);
+	QLOG_INFO() << "Fetching dependencies of"
+				<< QString("%1:%2:%3").arg(lib.group, lib.artifact, lib.version);
 }

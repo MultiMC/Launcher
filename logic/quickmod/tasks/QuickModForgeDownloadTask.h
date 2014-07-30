@@ -19,18 +19,17 @@
 
 #include <memory>
 
-class BaseInstance;
-typedef std::shared_ptr<BaseInstance> InstancePtr;
+class OneSixInstance;
 
 class QuickModForgeDownloadTask : public Task
 {
 	Q_OBJECT
 public:
-	QuickModForgeDownloadTask(InstancePtr instance, Bindable *parent = nullptr);
+	QuickModForgeDownloadTask(std::shared_ptr<OneSixInstance> instance, Bindable *parent = nullptr);
 
 protected:
 	void executeTask();
 
 private:
-	InstancePtr m_instance;
+	std::shared_ptr<OneSixInstance> m_instance;
 };

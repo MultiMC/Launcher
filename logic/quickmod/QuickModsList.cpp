@@ -426,14 +426,12 @@ bool QuickModsList::haveUid(const QuickModUid &uid, const QString &repo) const
 	return false;
 }
 
-QList<QuickModUid> QuickModsList::updatedModsForInstance(std::shared_ptr<BaseInstance> instance)
+QList<QuickModUid> QuickModsList::updatedModsForInstance(std::shared_ptr<OneSixInstance> instance)
 	const
 {
 	QList<QuickModUid> mods;
-	std::shared_ptr<OneSixInstance> onesix =
-		std::dynamic_pointer_cast<OneSixInstance>(instance);
-	for (auto it = onesix->getFullVersion()->quickmods.begin();
-		 it != onesix->getFullVersion()->quickmods.end(); ++it)
+	for (auto it = instance->getFullVersion()->quickmods.begin();
+		 it != instance->getFullVersion()->quickmods.end(); ++it)
 	{
 		if (it.value().first.isEmpty())
 		{

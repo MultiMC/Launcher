@@ -34,9 +34,6 @@ class QuickModFilesUpdater : public QObject
 public:
 	QuickModFilesUpdater(QuickModsList *list);
 
-	// TODO use some sort of lookup
-	QuickModPtr ensureExists(const Mod &mod);
-
 	void registerFile(const QUrl &url, bool sandbox);
 	void unregisterMod(const QuickModPtr mod);
 

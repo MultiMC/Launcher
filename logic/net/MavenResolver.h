@@ -1,14 +1,15 @@
 #pragma once
 
 #include "logic/tasks/Task.h"
-#include "logic/BaseInstance.h"
 #include "logic/net/CacheDownload.h"
+
+class OneSixInstance;
 
 class MavenResolver : public Task
 {
 	Q_OBJECT
 public:
-	MavenResolver(InstancePtr instance, Bindable *parent = nullptr);
+	MavenResolver(std::shared_ptr<OneSixInstance> instance, Bindable *parent = nullptr);
 
 	struct LibraryIdentifier
 	{
@@ -34,7 +35,7 @@ slots:
 	void downloadFailed(int index);
 
 private:
-	InstancePtr m_instance;
+	std::shared_ptr<OneSixInstance> m_instance;
 
 	QMap<int, QPair<CacheDownloadPtr, QUrl>> m_downloads;
 	int getNextDownloadIndex() const;

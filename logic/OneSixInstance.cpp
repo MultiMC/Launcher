@@ -81,7 +81,7 @@ QList<BasePage *> OneSixInstance::getPages()
 									tr("Loader mods"), "Loader-mods"));
 	values.append(new CoreModFolderPage(this, coreModList(), "coremods", "plugin-green",
 										tr("Core mods"), "Core-mods"));
-	values.append(new QuickModBrowsePage(std::dynamic_pointer_cast<OneSixInstance>(instList()->getInstanceById(id()))));
+	values.append(new QuickModBrowsePage(getSharedPtr()));
 	values.append(new ResourcePackPage(this));
 	values.append(new TexturePackPage(this));
 	values.append(new NotesPage(this));
@@ -109,13 +109,11 @@ QSet<QString> OneSixInstance::traits()
 
 std::shared_ptr<Task> OneSixInstance::doUpdate()
 {
-	auto sharedptr =
-		std::dynamic_pointer_cast<OneSixInstance>(instList()->getInstanceById(id()));
 	auto task = std::shared_ptr<SequentialTask>(new SequentialTask);
-	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(sharedptr, task.get())));
-	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(sharedptr, task.get())));
-	task->addTask(std::shared_ptr<Task>(new QuickModLiteLoaderDownloadTask(sharedptr, task.get())));
-	task->addTask(std::shared_ptr<Task>(new MavenResolver(sharedptr, task.get())));
+	task->addTask(std::shared_ptr<Task>(new QuickModDownloadTask(getSharedPtr(), task.get())));
+	task->addTask(std::shared_ptr<Task>(new QuickModForgeDownloadTask(getSharedPtr(), task.get())));
+	task->addTask(std::shared_ptr<Task>(new QuickModLiteLoaderDownloadTask(getSharedPtr(), task.get())));
+	task->addTask(std::shared_ptr<Task>(new MavenResolver(getSharedPtr(), task.get())));
 	task->addTask(std::shared_ptr<Task>(new OneSixUpdate(this, task.get())));
 	return task;
 }
@@ -703,4 +701,9 @@ QStringList OneSixInstance::extraArguments() const
 					 "-Dfml.ignorePatchDiscrepancies=true"});
 	}
 	return list;
+}
+
+std::shared_ptr<OneSixInstance> OneSixInstance::getSharedPtr()
+{
+	return std::dynamic_pointer_cast<OneSixInstance>(BaseInstance::getSharedPtr());
 }
