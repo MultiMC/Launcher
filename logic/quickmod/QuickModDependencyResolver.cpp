@@ -77,7 +77,8 @@ struct DepNode
 				node->isHard = it.value().second;
 				if (!it.value().first.isEmpty())
 				{
-					node->version = MMC->quickmodslist()->modVersion(it.key(), it.value().first);
+					node->version =
+						MMC->quickmodslist()->modVersion(it.key(), it.value().first);
 				}
 				else
 				{
@@ -103,11 +104,13 @@ struct DepNode
 					}
 					continue;
 				}
-				for (auto versionIt = node->version->dependencies.constBegin(); versionIt != node->version->dependencies.constEnd(); ++versionIt)
+				for (auto versionIt = node->version->dependencies.constBegin();
+					 versionIt != node->version->dependencies.constEnd(); ++versionIt)
 				{
 					if (!versionIt.value().second && nodes.contains(versionIt.key()))
 					{
-						const_cast<DepNode *>(node)->children.append(nodes.value(versionIt.key()));
+						const_cast<DepNode *>(node)
+							->children.append(nodes.value(versionIt.key()));
 					}
 					else
 					{
@@ -147,7 +150,8 @@ struct DepNode
 	}
 };
 
-QuickModDependencyResolver::QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance, Bindable *parent)
+QuickModDependencyResolver::QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance,
+													   Bindable *parent)
 	: QObject(0), Bindable(parent), m_instance(instance)
 {
 }
@@ -221,6 +225,7 @@ QuickModVersionPtr QuickModDependencyResolver::getVersion(const QuickModUid &mod
 {
 	return wait<QuickModVersionPtr>("QuickMods.GetVersion", modUid, filter, ok);
 }
+
 void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 {
 	if (!version)
@@ -235,19 +240,49 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 	m_mods.insert(version->mod.get(), version);
 	for (auto it = version->dependencies.begin(); it != version->dependencies.end(); ++it)
 	{
-		if (MMC->quickmodslist()->mods(it.key()).isEmpty())
+		QuickModVersionPtr dep;
+
+		if (!MMC->quickmodslist()->mods(it.key()).isEmpty())
+		{
+			bool ok;
+			dep = getVersion(it.key(), it.value().first, &ok);
+			if (!ok)
+			{
+				emit error(tr("Didn't select a version while resolving from %1 (%2) to %3").arg(
+					version->mod->name(), version->name(), it.key().toString()));
+			}
+		}
+		else
+		{
+			QList<QuickModVersionPtr> versions =
+				MMC->quickmodslist()->modsProvidingModVersion(it.key(), it.value().first);
+			if (!versions.isEmpty())
+			{
+				for (QuickModVersionPtr providingVersion : versions)
+				{
+					if (m_mods.values().contains(providingVersion))
+					{
+						// found already added mod
+						dep = providingVersion;
+						break;
+					}
+				}
+				if (!dep)
+				{
+					// no dependency added...
+					// TODO show a dialog to select mod and version
+					dep = versions.first();
+				}
+			}
+		}
+
+		if (!dep)
 		{
 			emit warning(tr("The dependency from %1 (%2) to %3 cannot be resolved")
 							 .arg(version->mod->name(), version->name(), it.key().toString()));
 			continue;
 		}
-		bool ok;
-		QuickModVersionPtr dep = getVersion(it.key(), it.value().first, &ok);
-		if (!ok)
-		{
-			emit error(tr("Didn't select a version while resolving from %1 (%2) to %3")
-					   .arg(version->mod->name(), version->name(), it.key().toString()));
-		}
+
 		if (dep)
 		{
 			emit success(tr("Successfully resolved dependency from %1 (%2) to %3 (%4)").arg(

@@ -52,6 +52,8 @@ private:
 	std::shared_ptr<OneSixInstance> m_instance;
 
 	QHash<QuickMod *, QuickModVersionPtr> m_mods;
+	// Value is conflicting with Key
+	QHash<QuickModVersionPtr, QuickModVersionPtr> m_blockedVersions;
 
 	QuickModVersionPtr getVersion(const QuickModUid &modUid, const QString &filter, bool *ok);
 
