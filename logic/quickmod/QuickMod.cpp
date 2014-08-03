@@ -78,17 +78,6 @@ QPixmap QuickMod::logo()
 	return m_logo;
 }
 
-QuickModVersionPtr QuickMod::version(const QString &name) const
-{
-	for (QuickModVersionPtr ptr : m_versions)
-	{
-		if (ptr->name() == name)
-		{
-			return ptr;
-		}
-	}
-	return QuickModVersionPtr();
-}
 QuickModVersionPtr QuickMod::latestVersion(const QString &mcVersion) const
 {
 	for (auto version : m_versions)

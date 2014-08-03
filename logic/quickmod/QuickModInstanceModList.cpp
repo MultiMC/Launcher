@@ -93,8 +93,8 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 
-	const QString versionName = quickmods()[mod->uid()];
-	QuickModVersionPtr version = mod->version(versionName);
+	const QuickModVersionID versionName = quickmods()[mod->uid()];
+	QuickModVersionPtr version = versionName.findVersion();
 
 	switch (role)
 	{
@@ -104,11 +104,11 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 		case NameColumn:
 			return mod->icon();
 		case VersionColumn:
-			if (mod->latestVersion(m_instance->intendedVersionId()) && !versionName.isEmpty())
+			if (mod->latestVersion(m_instance->intendedVersionId()) && versionName.isValid())
 			{
-				const QString latest =
-					mod->latestVersion(m_instance->intendedVersionId())->name();
-				if (Util::Version(latest) > Util::Version(versionName)) // there's a new version
+				const QuickModVersionID latest =
+					mod->latestVersion(m_instance->intendedVersionId())->version();
+				if (latest > versionName) // there's a new version
 				{
 					return QPixmap(":/icons/badges/updateavailable.png");
 				}
@@ -139,7 +139,7 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 	case Qt::FontRole:
 		if (col == VersionColumn)
 		{
-			if (versionName.isEmpty())
+			if (!versionName.isValid())
 			{
 				QFont font = qApp->font();
 				font.setItalic(true);
@@ -212,13 +212,13 @@ void QuickModInstanceModList::quickmodIconUpdated()
 					 QVector<int>() << Qt::DecorationRole);
 }
 
-QMap<QuickModUid, QString> QuickModInstanceModList::quickmods() const
+QMap<QuickModUid, QuickModVersionID> QuickModInstanceModList::quickmods() const
 {
 	if (m_type == ResourcePacks || m_type == CoreMods || m_type == TexturePacks)
 	{
-		return QMap<QuickModUid, QString>();
+		return QMap<QuickModUid, QuickModVersionID>();
 	}
-	QMap<QuickModUid, QString> out;
+	QMap<QuickModUid, QuickModVersionID> out;
 	auto mods = m_instance->getFullVersion()->quickmods;
 	for (auto it = mods.begin(); it != mods.end(); ++it)
 	{
@@ -234,11 +234,11 @@ QuickModPtr QuickModInstanceModList::modAt(const int row) const
 	{
 		return 0;
 	}
-	if (quickmods()[uid].isEmpty())
+	if (!quickmods()[uid].isValid())
 	{
 		return MMC->quickmodslist()->mods(uid).first();
 	}
-	return MMC->quickmodslist()->modVersion(uid, quickmods()[uid])->mod;
+	return quickmods()[uid].findMod();
 }
 
 QModelIndex QuickModInstanceModList::mapToModList(const QModelIndex &index) const
@@ -261,7 +261,7 @@ QList<QuickModUid> QuickModInstanceModList::findOrphans() const
 
 void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 {
-	QMap<QuickModUid, QPair<QString, bool>> mods;
+	QMap<QuickModUid, QPair<QuickModVersionID, bool>> mods;
 	for (const auto index : list)
 	{
 		if (isModListArea(index))
@@ -270,7 +270,7 @@ void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 		}
 		const auto uid = modAt(index.row())->uid();
 		mods.insert(uid,
-					qMakePair(QString(), m_instance->getFullVersion()->quickmods[uid].second));
+					qMakePair(QuickModVersionID(), m_instance->getFullVersion()->quickmods[uid].second));
 	}
 	if (!mods.isEmpty())
 	{
@@ -287,7 +287,7 @@ void QuickModInstanceModList::removeMods(const QModelIndexList &list)
 			continue;
 		}
 		const auto mod = modAt(index.row());
-		if (auto version = mod->version(quickmods()[mod->uid()]))
+		if (auto version = quickmods()[mod->uid()].findVersion())
 		{
 			QuickModLibraryInstaller(version).remove(m_instance.get());
 		}

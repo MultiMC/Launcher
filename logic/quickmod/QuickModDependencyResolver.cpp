@@ -26,7 +26,7 @@
 
 struct DepNode
 {
-	QuickModVersionPtr version;
+	QuickModVersionID version;
 	QuickModUid uid;
 	QList<const DepNode *> children;
 	QList<const DepNode *> parents;
@@ -75,10 +75,9 @@ struct DepNode
 				DepNode *node = new DepNode;
 				node->uid = it.key();
 				node->isHard = it.value().second;
-				if (!it.value().first.isEmpty())
+				if (it.value().first.isValid())
 				{
-					node->version =
-						MMC->quickmodslist()->modVersion(it.key(), it.value().first);
+					node->version = QuickModVersionID(it.key(), it.value().first);
 				}
 				else
 				{
@@ -96,7 +95,7 @@ struct DepNode
 			for (auto it = nodes.constBegin(); it != nodes.constEnd(); ++it)
 			{
 				const DepNode *node = it.value();
-				if (!node->version)
+				if (!node->version.findVersion())
 				{
 					if (ok)
 					{
@@ -104,8 +103,9 @@ struct DepNode
 					}
 					continue;
 				}
-				for (auto versionIt = node->version->dependencies.constBegin();
-					 versionIt != node->version->dependencies.constEnd(); ++versionIt)
+				const auto ptr = node->version.findVersion();
+				for (auto versionIt = ptr->dependencies.constBegin();
+					 versionIt != ptr->dependencies.constEnd(); ++versionIt)
 				{
 					if (!versionIt.value().second && nodes.contains(versionIt.key()))
 					{

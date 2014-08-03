@@ -33,15 +33,15 @@ void QuickModDownloadTask::executeTask()
 {
 	const bool hasResolveError = QuickModDependencyResolver(m_instance).hasResolveError();
 
-	const QMap<QuickModUid, QPair<QString, bool>> quickmods =
+	const QMap<QuickModUid, QPair<QuickModVersionID, bool>> quickmods =
 		m_instance->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
 	QList<QuickModUid> mods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
-		const QString version = it.value().first;
-		QuickModPtr mod = version.isEmpty() ? list->mods(it.key()).first()
-											: list->modVersion(it.key(), version)->mod;
+		const QuickModVersionID version = it.value().first;
+		QuickModPtr mod = version.isValid() ? version.findMod()
+											: list->mods(it.key()).first();
 		if (mod == 0)
 		{
 			// TODO fetch info from somewhere?
@@ -57,9 +57,9 @@ void QuickModDownloadTask::executeTask()
 		}
 		else
 		{
-			QuickModVersionPtr ptr = MMC->quickmodslist()->modVersion(mod->uid(), version);
-			if (!ptr || !list->isModMarkedAsExists(mod, ptr) || hasResolveError ||
-				(ptr->needsDeploy() && !list->isModMarkedAsInstalled(mod->uid(), ptr, m_instance)))
+			QuickModVersionPtr ptr = version.findVersion();
+			if (!ptr || !list->isModMarkedAsExists(mod, version) || hasResolveError ||
+				(ptr->needsDeploy() && !list->isModMarkedAsInstalled(mod->uid(), version, m_instance)))
 			{
 				mods.append(mod->uid());
 			}
@@ -78,12 +78,12 @@ void QuickModDownloadTask::executeTask()
 	if (ok)
 	{
 		const auto quickmods = m_instance->getFullVersion()->quickmods;
-		QMap<QuickModUid, QPair<QString, bool>> mods;
+		QMap<QuickModUid, QPair<QuickModVersionID, bool>> mods;
 		for (const auto version : installedVersions)
 		{
 			const auto uid = version->mod->uid();
 			bool isManualInstall = quickmods.contains(uid) && quickmods[uid].second;
-			mods.insert(version->mod->uid(), qMakePair(version->name(), isManualInstall));
+			mods.insert(version->mod->uid(), qMakePair(version->version(), isManualInstall));
 		}
 		try
 		{

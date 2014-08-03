@@ -87,23 +87,20 @@ public:
 	QList<QuickModPtr> mods(const QuickModUid &uid) const;
 	QList<QuickModVersionPtr> modsProvidingModVersion(const QuickModUid &uid,
 													  const QString &version) const;
-	QuickModVersionPtr modVersion(const QuickModUid &modUid, const QString &versionName) const;
 	QuickModVersionPtr latestVersion(const QuickModUid &modUid, const QString &mcVersion) const;
 
-	void markModAsExists(QuickModPtr mod, const BaseVersionPtr version,
+	void markModAsExists(QuickModPtr mod, const QuickModVersionID &version,
 						 const QString &fileName);
-	void markModAsInstalled(const QuickModUid uid, const BaseVersionPtr version,
+	void markModAsInstalled(const QuickModUid uid, const QuickModVersionID &version,
 							const QString &fileName, InstancePtr instance);
-	void markModAsUninstalled(const QuickModUid uid, const BaseVersionPtr version,
+	void markModAsUninstalled(const QuickModUid uid, const QuickModVersionID &version,
 							  InstancePtr instance);
-	bool isModMarkedAsInstalled(const QuickModUid uid, const BaseVersionPtr version,
+	bool isModMarkedAsInstalled(const QuickModUid uid, const QuickModVersionID &version,
 								InstancePtr instance) const;
-	bool isModMarkedAsExists(QuickModPtr mod, const BaseVersionPtr version) const;
-	bool isModMarkedAsExists(QuickModPtr mod, const QString &version) const;
+	bool isModMarkedAsExists(QuickModPtr mod, const QuickModVersionID &version) const;
 	QMap<QString, QString> installedModFiles(const QuickModUid uid,
 											 BaseInstance *instance) const;
-	QString existingModFile(QuickModPtr mod, const BaseVersionPtr version) const;
-	QString existingModFile(QuickModPtr mod, const QString &version) const;
+	QString existingModFile(QuickModPtr mod, const QuickModVersionID &version) const;
 
 	void setRepositoryIndexUrl(const QString &repository, const QUrl &url);
 	QUrl repositoryIndexUrl(const QString &repository) const;

@@ -22,6 +22,7 @@
 #include <memory>
 
 #include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModVersion.h"
 #include "OneSixLibrary.h"
 #include "VersionFile.h"
 #include "JarMod.h"
@@ -143,7 +144,7 @@ public:
 	
 
 	QStringList modFiles;
-	QMap<QuickModUid, QPair<QString, bool>> quickmods;
+	QMap<QuickModUid, QPair<QuickModVersionID, bool>> quickmods;
 
 	/// the list of libs - both active and inactive, native and java
 	QList<OneSixLibraryPtr> libraries;

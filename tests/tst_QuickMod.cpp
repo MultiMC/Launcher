@@ -140,6 +140,7 @@ private slots:
 		QCOMPARE((int)parsedDownload.type, (int)download.type);
 		QVERIFY(parsedVersion->valid);
 		QCOMPARE(parsedVersion->name(), version->name());
+		QCOMPARE(parsedVersion->version(), version->version());
 		QCOMPARE(parsedVersion->compatibleVersions, version->compatibleVersions);
 		QCOMPARE(parsedVersion->forgeVersionFilter, version->forgeVersionFilter);
 		QCOMPARE(parsedVersion->dependencies, version->dependencies);

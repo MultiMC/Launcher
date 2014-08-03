@@ -90,7 +90,7 @@ private:
 	std::shared_ptr<ModList> m_modList;
 	Type m_type;
 
-	QMap<QuickModUid, QString> quickmods() const;
+	QMap<QuickModUid, QuickModVersionID> quickmods() const;
 	QuickModPtr modAt(const int row) const;
 };
 

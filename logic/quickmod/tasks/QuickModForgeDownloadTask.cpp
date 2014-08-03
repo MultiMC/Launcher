@@ -46,7 +46,7 @@ void QuickModForgeDownloadTask::executeTask()
 	QStringList versionFilters;
 	for (auto it = mods.cbegin(); it != mods.cend(); ++it)
 	{
-		QuickModVersionPtr version = MMC->quickmodslist()->modVersion(it.key(), it.value().first);
+		QuickModVersionPtr version = QuickModVersionID(it.key(), it.value().first).findVersion();
 		if (!version)
 		{
 			continue;

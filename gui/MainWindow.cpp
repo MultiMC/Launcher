@@ -1263,14 +1263,14 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 		if (!mods.isEmpty())
 		{
 			QStringList names;
-			QMap<QuickModUid, QPair<QString, bool>> modsToUpdate;
+			QMap<QuickModUid, QPair<QuickModVersionID, bool>> modsToUpdate;
 			for (auto mod : mods)
 			{
 				auto ptr = MMC->quickmodslist()->mods(mod).first();
 				names.append(ptr->name());
 				modsToUpdate.insert(
 					ptr->uid(),
-					qMakePair(QString(),
+					qMakePair(QuickModVersionID(),
 							  onesix->getFullVersion()->quickmods[ptr->uid()].second));
 			}
 			int res = QMessageBox::question(

@@ -122,6 +122,11 @@ public:
 		m_version->name_ = name;
 		return *this;
 	}
+	QuickModVersionBuilder setVersion(const QString &version)
+	{
+		m_version->version_ = version;
+		return *this;
+	}
 	QuickModVersionBuilder setType(const QString &type)
 	{
 		m_version->type = type;

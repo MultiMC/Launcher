@@ -298,7 +298,11 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr session, QString &launchScr
 		auto list = MMC->quickmodslist().get();
 		for (auto it = version->quickmods.begin(); it != version->quickmods.end(); ++it)
 		{
-			const auto modVersion = list->modVersion(it.key(), it.value().first);
+			const auto modVersion = QuickModVersionID(it.key(), it.value().first).findVersion();
+			if (!modVersion)
+			{
+				continue;
+			}
 			if (modVersion->installType == QuickModVersion::ForgeMod)
 			{
 				mods.prepend("mods " + list->existingModFile(modVersion->mod, modVersion));
@@ -567,11 +571,11 @@ bool OneSixInstance::reload()
 	return false;
 }
 
-void OneSixInstance::setQuickModVersion(const QuickModUid &uid, const QString &version, const bool manualInstall)
+void OneSixInstance::setQuickModVersion(const QuickModUid &uid, const QuickModVersionID &version, const bool manualInstall)
 {
-	setQuickModVersions(QMap<QuickModUid, QPair<QString, bool>>({{uid, qMakePair(version, manualInstall)}}));
+	setQuickModVersions(QMap<QuickModUid, QPair<QuickModVersionID, bool>>({{uid, qMakePair(version, manualInstall)}}));
 }
-void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QPair<QString, bool>> &mods)
+void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QPair<QuickModVersionID, bool>> &mods)
 {
 	QFile userFile(instanceRoot() + "/user.json");
 	if (!userFile.open(QFile::ReadWrite))
@@ -587,7 +591,7 @@ void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QPair<QString, 
 		minusmods.remove(it.key().toString());
 
 		QJsonObject qmObj;
-		qmObj.insert("version", it.value().first);
+		qmObj.insert("version", QString(it.value().first));
 		qmObj.insert("isManualInstall", it.value().second);
 		plusmods.insert(it.key().toString(), qmObj);
 	}
@@ -639,7 +643,7 @@ void OneSixInstance::removeQuickMods(const QList<QuickModUid> &uids)
 		{
 			if (QFile::remove(filename))
 			{
-				MMC->quickmodslist()->markModAsUninstalled(uid, nullptr, getSharedPtr());
+				MMC->quickmodslist()->markModAsUninstalled(uid, QuickModVersionID(), getSharedPtr());
 			}
 			else
 			{

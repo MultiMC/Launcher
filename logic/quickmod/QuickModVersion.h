@@ -56,6 +56,38 @@ public:
 	QJsonObject toJson() const;
 };
 
+class QuickModVersionID
+{
+public:
+	explicit QuickModVersionID(const QuickModUid &mod, const QString &id);
+	QuickModVersionID()
+	{
+	}
+	QuickModVersionID(const QuickModVersionPtr &ptr);
+
+	QuickModUid mod;
+	QString id;
+
+	bool isValid() const
+	{
+		return mod.isValid() && !id.isEmpty();
+	}
+	QString userFacing() const;
+	QuickModPtr findMod() const;
+	QuickModVersionPtr findVersion() const;
+
+	bool operator<(const QuickModVersionID &other) const;
+	bool operator<=(const QuickModVersionID &other) const;
+	bool operator>(const QuickModVersionID &other) const;
+	bool operator>=(const QuickModVersionID &other) const;
+	bool operator==(const QuickModVersionID &other) const;
+
+	operator QString() const
+	{
+		return id;
+	}
+};
+
 class QuickModVersion : public BaseVersion
 {
 public:
@@ -70,9 +102,12 @@ public:
 	};
 	struct Library
 	{
-		Library() {}
-		Library(const QString &name, const QUrl &url)
-			: name(name), url(url) {}
+		Library()
+		{
+		}
+		Library(const QString &name, const QUrl &url) : name(name), url(url)
+		{
+		}
 		QJsonObject toJson() const;
 		QString name;
 		QUrl url;
@@ -97,12 +132,17 @@ public:
 	{
 		return type;
 	}
+	QuickModVersionID version() const
+	{
+		return QuickModVersionID(mod->uid(), version_.isNull() ? name_ : version_);
+	}
 
 	bool needsDeploy() const;
 
 	QuickModPtr mod;
 	bool valid;
 	QString name_;
+	QString version_;
 	QString type;
 	QStringList compatibleVersions;
 	QString forgeVersionFilter;
@@ -120,7 +160,7 @@ public:
 	bool operator==(const QuickModVersion &other) const
 	{
 		return mod == other.mod && valid == other.valid && name_ == other.name_ &&
-			   compatibleVersions == other.compatibleVersions &&
+			   version_ == other.version_ && compatibleVersions == other.compatibleVersions &&
 			   forgeVersionFilter == other.forgeVersionFilter &&
 			   dependencies == other.dependencies && recommendations == other.recommendations &&
 			   sha1 == other.sha1;
@@ -143,8 +183,7 @@ public:
 	{
 	}
 
-protected
-slots:
+protected slots:
 	void updateListData(QList<BaseVersionPtr> versions)
 	{
 	}

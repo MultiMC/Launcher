@@ -82,7 +82,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 						 << ", this may cause problems";
 		}
 		MMC->quickmodslist()->markModAsUninstalled(version->mod->uid(),
-												   version->mod->version(it.key()), instance);
+												   version, instance);
 	}
 
 	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);

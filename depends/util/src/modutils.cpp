@@ -91,6 +91,10 @@ bool Util::Version::operator>(const Version &other) const
 
 	return false;
 }
+bool Util::Version::operator >=(const Version &other) const
+{
+	return *this > other || *this == other;
+}
 bool Util::Version::operator==(const Version &other) const
 {
 	QStringList parts1 = m_string.split('.');

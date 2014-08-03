@@ -120,7 +120,8 @@ QuickModInstallDialog::QuickModInstallDialog(std::shared_ptr<OneSixInstance> ins
 	// Set the URL column's width.
 	ui->progressList->setColumnWidth(2, 420);
 
-	connect(ui->progressList, &QWidget::customContextMenuRequested, this, &QuickModInstallDialog::contextMenuRequested);
+	connect(ui->progressList, &QWidget::customContextMenuRequested, this,
+			&QuickModInstallDialog::contextMenuRequested);
 	ui->progressList->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
@@ -200,13 +201,22 @@ void QuickModInstallDialog::contextMenuRequested(const QPoint &pos)
 	QAction *copyDownload = menu.addAction(tr("Copy download link"));
 	QAction *copyDonation = menu.addAction(tr("Copy donation link"));
 
-	connect(version->mod.get(), &QuickMod::iconUpdated, [openWebsite, version]() {openWebsite->setIcon(version->mod->icon());});
+	connect(version->mod.get(), &QuickMod::iconUpdated, [openWebsite, version]()
+			{
+		openWebsite->setIcon(version->mod->icon());
+	});
 	connect(openWebsite, &QAction::triggered, [version]()
-	{ QDesktopServices::openUrl(version->mod->websiteUrl()); });
+			{
+		QDesktopServices::openUrl(version->mod->websiteUrl());
+	});
 	connect(copyDownload, &QAction::triggered, [item]()
-	{ GuiUtil::setClipboardText(item->text(2)); });
+			{
+		GuiUtil::setClipboardText(item->text(2));
+	});
 	connect(copyDonation, &QAction::triggered, [item]()
-	{ GuiUtil::setClipboardText(item->text(3)); });
+			{
+		GuiUtil::setClipboardText(item->text(3));
+	});
 
 	copyDownload->setVisible(!item->text(2).isEmpty());
 	copyDonation->setVisible(!item->text(3).isEmpty());
@@ -366,15 +376,15 @@ bool QuickModInstallDialog::resolveDeps()
 QuickModVersionPtr QuickModInstallDialog::getVersion(const QuickModUid &modUid,
 													 const QString &filter, bool *ok)
 {
-	const QString predefinedVersion = m_instance->getFullVersion()->quickmods[modUid].first;
+	const QuickModVersionID predefinedVersion =
+		QuickModVersionID(modUid, m_instance->getFullVersion()->quickmods[modUid].first);
 	VersionSelectDialog dialog(new QuickModVersionList(modUid, m_instance, this),
 							   tr("Choose QuickMod version for %1").arg(modUid.mod()->name()),
 							   this);
 	dialog.setFuzzyFilter(BaseVersionList::NameColumn, filter);
 	dialog.setUseLatest(MMC->settings()->get("QuickModAlwaysLatestVersion").toBool());
 	// TODO currently, if the version isn't existing anymore it will be updated
-	if (!predefinedVersion.isEmpty() &&
-		MMC->quickmodslist()->modVersion(modUid, predefinedVersion))
+	if (predefinedVersion.isValid() && predefinedVersion.findVersion())
 	{
 		dialog.setExactFilter(BaseVersionList::NameColumn, predefinedVersion);
 	}
@@ -399,7 +409,8 @@ void QuickModInstallDialog::processVersionList()
 		// Add a progress list entry for each download
 		addProgressListEntry(version);
 
-		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod->uid(), nullptr, m_instance))
+		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod->uid(),
+														 QuickModVersionID(), m_instance))
 		{
 			QLOG_INFO() << version->mod->uid() << " is already installed";
 			setProgressListMsg(version, tr("Success: Already installed"), Qt::darkGreen);
@@ -407,13 +418,11 @@ void QuickModInstallDialog::processVersionList()
 			continue;
 		}
 
-
 		if (MMC->quickmodslist()->isModMarkedAsExists(version->mod, version))
 		{
 			QLOG_INFO() << version->mod->uid() << "exists already. Only installing.";
 			install(version);
-			setProgressListMsg(version, tr("Success: Installed from cache"),
-							   Qt::darkGreen);
+			setProgressListMsg(version, tr("Success: Installed from cache"), Qt::darkGreen);
 			it.remove();
 		}
 

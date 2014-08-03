@@ -189,7 +189,6 @@ public:
 	}
 	/// List of Minecraft versions this QuickMod is compatible with.
 	QStringList mcVersions();
-	QuickModVersionPtr version(const QString &name) const;
 	QuickModVersionPtr latestVersion(const QString &mcVersion) const;
 	void sortVersions();
 

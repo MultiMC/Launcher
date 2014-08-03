@@ -103,7 +103,7 @@ InstancePtr InstanceFactory::addInstance(const QString &name, const QString &ico
 			newInstance->settings().set("LastQuickModUrl", quickmod.mod()->updateUrl());
 			if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(newInstance))
 			{
-				onesix->setQuickModVersion(quickmod, QString(), true);
+				onesix->setQuickModVersion(quickmod, QuickModVersionID(), true);
 			}
 		}
 		MMC->instances()->add(newInstance);

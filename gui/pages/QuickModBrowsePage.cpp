@@ -396,7 +396,7 @@ void QuickModBrowsePage::on_installButton_clicked()
 		return;
 	}
 
-	QMap<QuickModUid, QPair<QString, bool>> mods;
+	QMap<QuickModUid, QPair<QuickModVersionID, bool>> mods;
 	for (auto item : items)
 	{
 		mods[QuickModUid(item)] = qMakePair(alreadySelected[item].first, true);
