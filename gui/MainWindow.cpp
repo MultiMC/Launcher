@@ -1146,16 +1146,20 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 
 	// Find an account to use.
 	std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
-	MojangAccountPtr account = accounts->activeAccount();
+	MojangAccountPtr account =
+		m_selectedInstance->defaultAccount().isEmpty()
+			? accounts->activeAccount()
+			: accounts->findAccount(m_selectedInstance->defaultAccount());
 	if (accounts->count() <= 0)
 	{
 		// Tell the user they need to log in at least one account in order to play.
-		auto reply = CustomMessageBox::selectable(
-			this, tr("No Accounts"),
-			tr("In order to play Minecraft, you must have at least one Mojang or Minecraft "
-			   "account logged in to MultiMC."
-			   "Would you like to open the account manager to add an account now?"),
-			QMessageBox::Information, QMessageBox::Yes | QMessageBox::No)->exec();
+		auto reply =
+			CustomMessageBox::selectable(
+				this, tr("No Accounts"),
+				tr("In order to play Minecraft, you must have at least one Mojang or Minecraft "
+				   "account logged in to MultiMC."
+				   "Would you like to open the account manager to add an account now?"),
+				QMessageBox::Information, QMessageBox::Yes | QMessageBox::No)->exec();
 
 		if (reply == QMessageBox::Yes)
 		{
@@ -1167,7 +1171,9 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 	{
 		// If no default account is set, ask the user which one to use.
 		AccountSelectDialog selectDialog(tr("Which account would you like to use?"),
-										 AccountSelectDialog::GlobalDefaultCheckbox, this);
+										 AccountSelectDialog::GlobalDefaultCheckbox |
+											 AccountSelectDialog::InstanceDefaultCheckbox,
+										 this);
 
 		selectDialog.exec();
 
@@ -1176,7 +1182,13 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 
 		// If the user said to use the account as default, do that.
 		if (selectDialog.useAsGlobalDefault() && account.get() != nullptr)
+		{
 			accounts->setActiveAccount(account->username());
+		}
+		if (selectDialog.useAsInstDefaullt() && account.get() != nullptr)
+		{
+			m_selectedInstance->setDefaultAccount(account->username());
+		}
 	}
 
 	// if no account is selected, we bail

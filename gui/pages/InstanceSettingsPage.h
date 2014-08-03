@@ -53,11 +53,12 @@ public:
 		return "Instance-settings";
 	}
 	virtual bool shouldDisplay() const;
+
 private slots:
+	void on_changeAccountBtn_clicked();
+
 	void on_javaDetectBtn_clicked();
-
 	void on_javaTestBtn_clicked();
-
 	void on_javaBrowseBtn_clicked();
 
 	void checkFinished(JavaCheckResult result);

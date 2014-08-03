@@ -45,6 +45,8 @@ BaseInstance::BaseInstance(const QString &rootDir, SettingsObject *settings, QOb
 
 	auto globalSettings = MMC->settings();
 
+	settings().registerSetting("OverrideAccount", "");
+
 	// Java Settings
 	m_settings->registerSetting("OverrideJava", false);
 	m_settings->registerSetting("OverrideJavaLocation", false);
@@ -144,6 +146,15 @@ std::shared_ptr<BaseVersionList> BaseInstance::versionList() const
 SettingsObject &BaseInstance::settings() const
 {
 	return *m_settings;
+}
+
+void BaseInstance::setDefaultAccount(const QString &username)
+{
+	settings().set("OverrideAccount", username);
+}
+QString BaseInstance::defaultAccount() const
+{
+	return settings().get("OverrideAccount").toString();
 }
 
 BaseInstance::InstanceFlags BaseInstance::flags() const
