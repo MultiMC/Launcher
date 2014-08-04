@@ -222,7 +222,15 @@ void ModFolderPage::updateOrphans()
 	QStringList names;
 	for (const auto orphan : m_orphans)
 	{
-		names.append(orphan.mod()->name());
+		const auto mod = orphan.mod();
+		if (mod)
+		{
+			names.append(mod->name());
+		}
+		else
+		{
+			names.append(orphan.toString());
+		}
 	}
 	ui->orphansLabel->setText(names.join(", "));
 

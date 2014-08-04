@@ -90,6 +90,20 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 	QuickModPtr mod = modAt(row);
 	if (!mod)
 	{
+		if (role == Qt::DisplayRole && col == NameColumn)
+		{
+			return uidAt(row).toString();
+		}
+		else if (role == Qt::DecorationRole && col == VersionColumn)
+		{
+			return QPixmap(":/icons/badges/broken.png");
+		}
+		else if (role == Qt::FontRole)
+		{
+			QFont font = qApp->font();
+			font.setItalic(true);
+			return font;
+		}
 		return QVariant();
 	}
 
@@ -239,6 +253,10 @@ QuickModPtr QuickModInstanceModList::modAt(const int row) const
 		return MMC->quickmodslist()->mods(uid).first();
 	}
 	return quickmods()[uid].findMod();
+}
+QuickModUid QuickModInstanceModList::uidAt(const int row) const
+{
+	return quickmods().keys()[row];
 }
 
 QModelIndex QuickModInstanceModList::mapToModList(const QModelIndex &index) const

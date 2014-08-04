@@ -42,7 +42,12 @@ QString QuickModUid::toString() const
 }
 QuickModPtr QuickModUid::mod() const
 {
-	return mods().first();
+	const auto mds = mods();
+	if (mds.isEmpty())
+	{
+		return QuickModPtr();
+	}
+	return mds.first();
 }
 QList<QuickModPtr> QuickModUid::mods() const
 {

@@ -45,7 +45,7 @@ void QuickModDownloadTask::executeTask()
 		if (mod == 0)
 		{
 			// TODO fetch info from somewhere?
-			if (wait<bool>("QuickMods.ModMissing", it.key().toString()))
+			if (!wait<bool>("QuickMods.ModMissing", it.key().toString()))
 			{
 				emitFailed(tr("Missing %1").arg(it.key().toString()));
 				return;

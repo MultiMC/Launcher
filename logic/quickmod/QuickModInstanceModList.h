@@ -92,6 +92,7 @@ private:
 
 	QMap<QuickModUid, QuickModVersionID> quickmods() const;
 	QuickModPtr modAt(const int row) const;
+	QuickModUid uidAt(const int row) const;
 };
 
 class QuickModInstanceModListProxy : public QSortFilterProxyModel

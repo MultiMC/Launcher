@@ -312,7 +312,10 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr session, QString &launchScr
 				mods.prepend("litemods " + list->existingModFile(modVersion->mod, modVersion));
 			}
 		}
-		launchScript += mods.join('\n') + '\n';
+		if (!mods.isEmpty())
+		{
+			launchScript += mods.join('\n') + '\n';
+		}
 	}
 	if (!version->modFiles.isEmpty())
 	{
