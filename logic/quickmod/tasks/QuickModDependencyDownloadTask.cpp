@@ -40,9 +40,33 @@ void QuickModDependencyDownloadTask::executeTask()
 
 	for (const QuickModRef mod : m_mods)
 	{
-		for (auto variant : mod.findMods())
+		if (mod.findMods().isEmpty())
 		{
-			requestDependenciesOf(variant);
+			if (mod.updateUrl().isValid())
+			{
+				if (!m_requestedMods.contains(mod))
+				{
+					MMC->quickmodslist()->registerMod(mod.updateUrl(), true);
+					m_pendingMods.append(mod);
+					m_requestedMods.append(mod);
+				}
+			}
+			else
+			{
+				// TODO fetch info from somewhere?
+				if (!wait<bool>("QuickMods.ModMissing", mod.toString()))
+				{
+					emitFailed(tr("Missing %1").arg(mod.userFacing()));
+					return;
+				}
+			}
+		}
+		else
+		{
+			for (const auto m : mod.findMods())
+			{
+				requestDependenciesOf(m);
+			}
 		}
 	}
 	if (m_pendingMods.isEmpty())

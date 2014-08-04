@@ -42,27 +42,11 @@ void QuickModDownloadTask::executeTask()
 		const QuickModVersionRef version = it.value().first;
 		QuickModPtr mod = version.isValid() ? version.findMod()
 											: list->mods(it.key()).first();
-		if (mod == 0)
-		{
-			// TODO fetch info from somewhere?
-			if (!wait<bool>("QuickMods.ModMissing", it.key().toString()))
-			{
-				emitFailed(tr("Missing %1").arg(it.key().toString()));
-				return;
-			}
-			else
-			{
-				continue;
-			}
-		}
-		else
-		{
-			QuickModVersionPtr ptr = version.findVersion();
-			if (!ptr || !list->isModMarkedAsExists(mod, version) || hasResolveError ||
+		QuickModVersionPtr ptr = version.findVersion();
+		if (!ptr || !list->isModMarkedAsExists(mod, version) || hasResolveError ||
 				(ptr->needsDeploy() && !list->isModMarkedAsInstalled(mod->uid(), version, m_instance)))
-			{
-				mods.append(mod->uid());
-			}
+		{
+			mods.append(mod->uid());
 		}
 	}
 

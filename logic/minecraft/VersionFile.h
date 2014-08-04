@@ -98,6 +98,7 @@ public: /* data */
 	struct QuickMod
 	{
 		QString uid;
+		QString updateUrl;
 		QString version;
 		bool isManualInstall;
 		static QuickMod parse(const QString &id, const QJsonValue &value);

@@ -35,6 +35,10 @@ QuickModRef::QuickModRef() : m_uid(QString())
 }
 QuickModRef::QuickModRef(const QString &uid) : m_uid(uid)
 {
+
+}
+QuickModRef::QuickModRef(const QString &uid, const QUrl &updateUrl) : m_uid(uid), m_updateUrl(updateUrl)
+{
 }
 QString QuickModRef::userFacing() const
 {

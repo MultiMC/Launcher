@@ -48,7 +48,9 @@ class QuickModRef
 public:
 	QuickModRef();
 	explicit QuickModRef(const QString &uid);
+	explicit QuickModRef(const QString &uid, const QUrl &updateUrl);
 
+	QUrl updateUrl() const { return m_updateUrl; }
 	QString userFacing() const;
 	QString toString() const;
 	QuickModPtr findMod() const;
@@ -74,6 +76,7 @@ public:
 
 private:
 	QString m_uid;
+	QUrl m_updateUrl;
 };
 QDebug operator<<(QDebug dbg, const QuickModRef &uid);
 uint qHash(const QuickModRef &uid);

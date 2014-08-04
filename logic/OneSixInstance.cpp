@@ -595,6 +595,7 @@ void OneSixInstance::setQuickModVersions(const QMap<QuickModRef, QPair<QuickModV
 
 		QJsonObject qmObj;
 		qmObj.insert("version", it.value().first.toString());
+		qmObj.insert("updateUrl", it.key().findMod()->updateUrl().toString());
 		qmObj.insert("isManualInstall", it.value().second);
 		plusmods.insert(it.key().toString(), qmObj);
 	}

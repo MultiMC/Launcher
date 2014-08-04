@@ -33,7 +33,6 @@ void QuickModGuiUtil::setup(std::shared_ptr<Task> task, QWidget *widgetParent)
 			SLOT(getLiteLoaderVersion(std::shared_ptr<OneSixInstance>, QStringList)));
 	}
 }
-
 void QuickModGuiUtil::setup(Bindable *task, QWidget *widgetParent)
 {
 	QuickModGuiUtil *util = new QuickModGuiUtil(widgetParent);
