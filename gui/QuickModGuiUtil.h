@@ -18,7 +18,6 @@
 #include <QWidget>
 #include <memory>
 
-class Task;
 class QuickModRef;
 class OneSixInstance;
 class Bindable;
@@ -32,7 +31,6 @@ class QuickModGuiUtil : public QWidget
 	explicit QuickModGuiUtil(QWidget *parent = 0);
 
 public:
-	static void setup(std::shared_ptr<Task> task, QWidget *widgetParent);
 	static void setup(Bindable *task, QWidget *widgetParent);
 
 public

@@ -80,11 +80,3 @@ void SequentialTask::subTaskProgress()
 		setProgress(100 * current / total);
 	}
 }
-
-void SequentialTask::bindToAll(const QString &id, QObject *receiver, const char *method)
-{
-	for (auto task : m_queue)
-	{
-		task->bind(id, receiver, method);
-	}
-}

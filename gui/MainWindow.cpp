@@ -1291,7 +1291,7 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 		launchInstance(instance, session, profiler);
 		return;
 	}
-	QuickModGuiUtil::setup(updateTask, this);
+	QuickModGuiUtil::setup(updateTask.get(), this);
 	connect(updateTask.get(), &Task::succeeded, [this, instance, session, profiler]
 	{ launchInstance(instance, session, profiler); });
 	connect(updateTask.get(), SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
