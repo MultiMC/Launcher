@@ -19,7 +19,7 @@
 #include <memory>
 
 class Task;
-class QuickModUid;
+class QuickModRef;
 class OneSixInstance;
 class Bindable;
 typedef std::shared_ptr<class QuickModVersion> QuickModVersionPtr;
@@ -38,7 +38,7 @@ public:
 public
 slots:
 	bool modMissing(const QString &id);
-	QList<QuickModVersionPtr> installMods(std::shared_ptr<OneSixInstance> instance, const QList<QuickModUid> &mods, bool *ok);
+	QList<QuickModVersionPtr> installMods(std::shared_ptr<OneSixInstance> instance, const QList<QuickModRef> &mods, bool *ok);
 	ForgeVersionPtr getForgeVersion(std::shared_ptr<OneSixInstance> instance, const QStringList &versionFilters);
 	LiteLoaderVersionPtr getLiteLoaderVersion(std::shared_ptr<OneSixInstance> instance, const QStringList &versionFilters);
 };

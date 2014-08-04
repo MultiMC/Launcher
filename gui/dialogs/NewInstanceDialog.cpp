@@ -51,23 +51,23 @@ NewInstanceDialog::~NewInstanceDialog()
 	delete ui;
 }
 
-void NewInstanceDialog::setFromQuickMod(QuickModUid quickmod)
+void NewInstanceDialog::setFromQuickMod(QuickModRef quickmod)
 {
-	ui->instNameTextBox->setText(quickmod.mod()->name());
-	ui->fromLabel->setText(quickmod.mod()->name());
+	ui->instNameTextBox->setText(quickmod.userFacing());
+	ui->fromLabel->setText(quickmod.userFacing());
 	ui->fromWidget->setVisible(true);
-	if (!quickmod.mod()->icon().isNull())
+	if (!quickmod.findMod()->icon().isNull())
 	{
-		if (MMC->icons()->addIcon(quickmod.toString(), quickmod.mod()->name(), quickmod.mod()->icon(), MMCIcon::FileBased))
+		if (MMC->icons()->addIcon(quickmod.toString(), quickmod.userFacing(), quickmod.findMod()->icon(), MMCIcon::FileBased))
 		{
 			InstIconKey = quickmod.toString();
 			ui->iconButton->setIcon(MMC->icons()->getIcon(InstIconKey));
 		}
 	}
-	const auto versions = quickmod.mod()->versions();
+	const auto versions = quickmod.findVersions();
 	if (!versions.isEmpty())
 	{
-		setSelectedVersion(MMC->minecraftlist()->findVersion(versions.first()->compatibleVersions.first()));
+		setSelectedVersion(MMC->minecraftlist()->findVersion(versions.first().findVersion()->compatibleVersions.first()));
 	}
 	m_fromQuickMod = quickmod;
 }
@@ -110,7 +110,7 @@ BaseVersionPtr NewInstanceDialog::selectedVersion() const
 {
 	return m_selectedVersion;
 }
-QuickModUid NewInstanceDialog::fromQuickMod() const
+QuickModRef NewInstanceDialog::fromQuickMod() const
 {
 	return m_fromQuickMod;
 }

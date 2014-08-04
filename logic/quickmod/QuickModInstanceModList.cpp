@@ -107,8 +107,7 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 
-	const QuickModVersionID versionName = quickmods()[mod->uid()];
-	QuickModVersionPtr version = versionName.findVersion();
+	const QuickModVersionRef versionName = quickmods()[mod->uid()];
 
 	switch (role)
 	{
@@ -118,15 +117,15 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 		case NameColumn:
 			return mod->icon();
 		case VersionColumn:
-			if (mod->latestVersion(m_instance->intendedVersionId()) && versionName.isValid())
+			if (mod->latestVersion(m_instance->intendedVersionId()).isValid() && versionName.isValid())
 			{
-				const QuickModVersionID latest =
-					mod->latestVersion(m_instance->intendedVersionId())->version();
+				const QuickModVersionRef latest =
+					mod->latestVersion(m_instance->intendedVersionId());
 				if (latest > versionName) // there's a new version
 				{
 					return QPixmap(":/icons/badges/updateavailable.png");
 				}
-				else if (!version) // current version is not available anymore
+				else if (!versionName.findVersion()) // current version is not available anymore
 				{
 					return QPixmap(":/icons/badges/updateavailable.png");
 				}
@@ -140,9 +139,9 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 		case NameColumn:
 			return mod->name();
 		case VersionColumn:
-			if (version)
+			if (versionName.isValid())
 			{
-				return version->name();
+				return versionName.userFacing();
 			}
 			return tr("TBD");
 		default:
@@ -226,17 +225,17 @@ void QuickModInstanceModList::quickmodIconUpdated()
 					 QVector<int>() << Qt::DecorationRole);
 }
 
-QMap<QuickModUid, QuickModVersionID> QuickModInstanceModList::quickmods() const
+QMap<QuickModRef, QuickModVersionRef> QuickModInstanceModList::quickmods() const
 {
 	if (m_type == ResourcePacks || m_type == CoreMods || m_type == TexturePacks)
 	{
-		return QMap<QuickModUid, QuickModVersionID>();
+		return QMap<QuickModRef, QuickModVersionRef>();
 	}
-	QMap<QuickModUid, QuickModVersionID> out;
+	QMap<QuickModRef, QuickModVersionRef> out;
 	auto mods = m_instance->getFullVersion()->quickmods;
 	for (auto it = mods.begin(); it != mods.end(); ++it)
 	{
-		out.insert(QuickModUid(it.key()), it.value().first);
+		out.insert(QuickModRef(it.key()), it.value().first);
 	}
 	return out;
 }
@@ -254,7 +253,7 @@ QuickModPtr QuickModInstanceModList::modAt(const int row) const
 	}
 	return quickmods()[uid].findMod();
 }
-QuickModUid QuickModInstanceModList::uidAt(const int row) const
+QuickModRef QuickModInstanceModList::uidAt(const int row) const
 {
 	return quickmods().keys()[row];
 }
@@ -272,14 +271,14 @@ bool QuickModInstanceModList::isModListArea(const QModelIndex &index) const
 	return index.row() >= quickmods().size();
 }
 
-QList<QuickModUid> QuickModInstanceModList::findOrphans() const
+QList<QuickModRef> QuickModInstanceModList::findOrphans() const
 {
 	return QuickModDependencyResolver(m_instance).resolveOrphans();
 }
 
 void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 {
-	QMap<QuickModUid, QPair<QuickModVersionID, bool>> mods;
+	QMap<QuickModRef, QPair<QuickModVersionRef, bool>> mods;
 	for (const auto index : list)
 	{
 		if (isModListArea(index))
@@ -288,7 +287,7 @@ void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 		}
 		const auto uid = modAt(index.row())->uid();
 		mods.insert(uid,
-					qMakePair(QuickModVersionID(), m_instance->getFullVersion()->quickmods[uid].second));
+					qMakePair(QuickModVersionRef(), m_instance->getFullVersion()->quickmods[uid].second));
 	}
 	if (!mods.isEmpty())
 	{
@@ -297,7 +296,7 @@ void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 }
 void QuickModInstanceModList::removeMods(const QModelIndexList &list)
 {
-	QList<QuickModUid> mods;
+	QList<QuickModRef> mods;
 	for (const auto index : list)
 	{
 		if (isModListArea(index))
@@ -343,7 +342,7 @@ bool QuickModInstanceModListProxy::filterAcceptsRow(int source_row,
 		auto quickmods = m_list->quickmods();
 		for (auto it = quickmods.begin(); it != quickmods.end(); ++it)
 		{
-			const QuickModUid uid = it.key();
+			const QuickModRef uid = it.key();
 			if (!uid.isValid() || MMC->quickmodslist()->mods(uid).isEmpty())
 			{
 				continue;

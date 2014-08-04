@@ -27,7 +27,7 @@ public:
 
 	QuickModBuilder setUid(const QString &uid)
 	{
-		m_mod->m_uid = QuickModUid(uid);
+		m_mod->m_uid = QuickModRef(uid);
 		return *this;
 	}
 	QuickModBuilder setName(const QString &name)
@@ -153,27 +153,27 @@ public:
 		return *this;
 	}
 
-	QuickModVersionBuilder addDependency(const QuickModUid &uid, const QString &version, const bool isSoft = false)
+	QuickModVersionBuilder addDependency(const QuickModRef &uid, const QuickModVersionRef &version, const bool isSoft = false)
 	{
 		m_version->dependencies.insert(uid, qMakePair(version, isSoft));
 		return *this;
 	}
-	QuickModVersionBuilder addRecommendation(const QuickModUid &uid, const QString &version)
+	QuickModVersionBuilder addRecommendation(const QuickModRef &uid, const QuickModVersionRef &version)
 	{
 		m_version->recommendations.insert(uid, version);
 		return *this;
 	}
-	QuickModVersionBuilder addSuggestion(const QuickModUid &uid, const QString &version)
+	QuickModVersionBuilder addSuggestion(const QuickModRef &uid, const QuickModVersionRef &version)
 	{
 		m_version->suggestions.insert(uid, version);
 		return *this;
 	}
-	QuickModVersionBuilder addConflicts(const QuickModUid &uid, const QString &version)
+	QuickModVersionBuilder addConflicts(const QuickModRef &uid, const QuickModVersionRef &version)
 	{
 		m_version->conflicts.insert(uid, version);
 		return *this;
 	}
-	QuickModVersionBuilder addProvides(const QuickModUid &uid, const QString &version)
+	QuickModVersionBuilder addProvides(const QuickModRef &uid, const QuickModVersionRef &version)
 	{
 		m_version->provides.insert(uid, version);
 		return *this;

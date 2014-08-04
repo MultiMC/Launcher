@@ -26,8 +26,8 @@
 
 struct DepNode
 {
-	QuickModVersionID version;
-	QuickModUid uid;
+	QuickModVersionRef version;
+	QuickModRef uid;
 	QList<const DepNode *> children;
 	QList<const DepNode *> parents;
 	bool isHard;
@@ -64,7 +64,7 @@ struct DepNode
 			*ok = true;
 		}
 
-		QMap<QuickModUid, const DepNode *> nodes;
+		QMap<QuickModRef, const DepNode *> nodes;
 
 		// stage one: create nodes
 		{
@@ -77,7 +77,7 @@ struct DepNode
 				node->isHard = it.value().second;
 				if (it.value().first.isValid())
 				{
-					node->version = QuickModVersionID(it.key(), it.value().first);
+					node->version = it.value().first;
 				}
 				else
 				{
@@ -137,7 +137,7 @@ struct DepNode
 		return nodes.values();
 	}
 
-	static const DepNode *findNode(const QList<const DepNode *> &nodes, const QuickModUid &uid)
+	static const DepNode *findNode(const QList<const DepNode *> &nodes, const QuickModRef &uid)
 	{
 		for (const auto node : nodes)
 		{
@@ -156,50 +156,45 @@ QuickModDependencyResolver::QuickModDependencyResolver(std::shared_ptr<OneSixIns
 {
 }
 
-QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickModUid> &mods)
+QList<QuickModVersionPtr> QuickModDependencyResolver::resolve(const QList<QuickModRef> &mods)
 {
-	for (QuickModUid mod : mods)
+	for (QuickModRef mod : mods)
 	{
 		bool ok;
-		resolve(getVersion(mod, QString(), &ok));
+		resolve(getVersion(mod, QuickModVersionRef(), &ok));
 		if (!ok)
 		{
-			emit error(tr("Didn't select a version for %1").arg(mod.mod()->name()));
+			emit error(tr("Didn't select a version for %1").arg(mod.userFacing()));
 			return QList<QuickModVersionPtr>();
 		}
 	}
 	return m_mods.values();
 }
 
-QList<QuickModUid> QuickModDependencyResolver::resolveChildren(const QList<QuickModUid> &uids)
+QList<QuickModRef> QuickModDependencyResolver::resolveChildren(const QList<QuickModRef> &uids)
 {
-	qDebug() << "in" << uids;
 	QList<const DepNode *> nodes = DepNode::build(m_instance);
 	QList<const DepNode *> parents;
 	for (const auto uid : uids)
 	{
 		const DepNode *node = DepNode::findNode(nodes, uid);
-		qDebug() << node->uid << node->getParents().size();
 		parents.append(node);
 		parents.append(node->getParents());
 	}
-	QList<QuickModUid> out;
+	QList<QuickModRef> out;
 	for (const auto node : parents)
 	{
-		qDebug() << node->uid;
 		if (!out.contains(node->uid))
 		{
-			qDebug() << node->uid;
 			out.append(node->uid);
 		}
 	}
-	qDebug() << "out" << out;
 	return out;
 }
 
-QList<QuickModUid> QuickModDependencyResolver::resolveOrphans() const
+QList<QuickModRef> QuickModDependencyResolver::resolveOrphans() const
 {
-	QList<QuickModUid> orphans;
+	QList<QuickModRef> orphans;
 	QList<const DepNode *> nodes = DepNode::build(m_instance);
 	for (const auto uid : m_instance->getFullVersion()->quickmods.keys())
 	{
@@ -220,8 +215,8 @@ bool QuickModDependencyResolver::hasResolveError() const
 	return !ok;
 }
 
-QuickModVersionPtr QuickModDependencyResolver::getVersion(const QuickModUid &modUid,
-														  const QString &filter, bool *ok)
+QuickModVersionPtr QuickModDependencyResolver::getVersion(const QuickModRef &modUid,
+														  const QuickModVersionRef &filter, bool *ok)
 {
 	return wait<QuickModVersionPtr>("QuickMods.GetVersion", modUid, filter, ok);
 }
@@ -254,16 +249,16 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 		}
 		else
 		{
-			QList<QuickModVersionPtr> versions =
+			QList<QuickModVersionRef> versions =
 				MMC->quickmodslist()->modsProvidingModVersion(it.key(), it.value().first);
 			if (!versions.isEmpty())
 			{
-				for (QuickModVersionPtr providingVersion : versions)
+				for (QuickModVersionRef providingVersion : versions)
 				{
-					if (m_mods.values().contains(providingVersion))
+					if (m_mods.values().contains(providingVersion.findVersion()))
 					{
 						// found already added mod
-						dep = providingVersion;
+						dep = providingVersion.findVersion();
 						break;
 					}
 				}
@@ -271,7 +266,7 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 				{
 					// no dependency added...
 					// TODO show a dialog to select mod and version
-					dep = versions.first();
+					dep = versions.first().findVersion();
 				}
 			}
 		}
@@ -300,7 +295,7 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 		else
 		{
 			emit error(tr("The dependency from %1 (%2) to %3 (%4) cannot be resolved").arg(
-				version->mod->name(), version->name(), it.key().toString(), it.value().first));
+				version->mod->name(), version->name(), it.key().toString(), it.value().first.toString()));
 		}
 	}
 }

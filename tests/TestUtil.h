@@ -26,7 +26,7 @@ struct TestsInternal
 		static QuickModPtr createMod(QString name)
 		{
 			auto mod = QuickModPtr(new QuickMod);
-			mod->m_uid = QuickModUid(name);
+			mod->m_uid = QuickModRef(name);
 			mod->m_repo = "test_repo";
 			mod->m_name = name;
 			mod->m_nemName = name;

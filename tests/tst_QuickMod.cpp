@@ -35,15 +35,15 @@ private slots:
 	{
 		auto mod = QuickModPtr(new QuickMod);
 		mod->m_name = "testmodname";
-		mod->m_uid = QuickModUid("this.should.be.unique");
+		mod->m_uid = QuickModRef("this.should.be.unique");
 		mod->m_repo = "some.testing.repo";
 		mod->m_description = "test mod description\nsome more";
 		mod->m_urls["website"] = QList<QUrl>() << QUrl("http://test.com/");
 		mod->m_urls["icon"] = QList<QUrl>() << QUrl("http://test.com/icon.png");
 		mod->m_urls["logo"] = QList<QUrl>() << QUrl("http://test.com/logo.png");
 		mod->m_updateUrl = QUrl("http://test.com/testmodname.json");
-		mod->m_references = {{QuickModUid("OtherName"),QUrl("http://other.com/othername.json")}, {QuickModUid("Other2Name"),QUrl("https://other2.com/other2name.json")},
-							 {QuickModUid("stuff"),QUrl("https://stuff.org/stuff.json")}, {QuickModUid("TheWikipediaMod"),QUrl("ftp://wikipedia.org/thewikipediamod.quickmod")}};
+		mod->m_references = {{QuickModRef("OtherName"),QUrl("http://other.com/othername.json")}, {QuickModRef("Other2Name"),QUrl("https://other2.com/other2name.json")},
+							 {QuickModRef("stuff"),QUrl("https://stuff.org/stuff.json")}, {QuickModRef("TheWikipediaMod"),QUrl("ftp://wikipedia.org/thewikipediamod.quickmod")}};
 		mod->m_nemName = "nemname";
 		mod->m_modId = "modid";
 		mod->m_categories << "cat" << "grep" << "ls" << "cp";
@@ -61,8 +61,8 @@ private slots:
 		version->downloads.append(download);
 		version->forgeVersionFilter = "(9.8.42,)";
 		version->compatibleVersions << "1.6.2" << "1.6.4";
-		version->dependencies = {{QuickModUid("stuff"), qMakePair(QStringLiteral("1.0.0.0.0"), false)}};
-		version->recommendations = {{QuickModUid("OtherName"), "1.2.3"}};
+		version->dependencies = {{QuickModRef("stuff"), qMakePair(QuickModVersionRef(QuickModRef("stuff"), "1.0.0.0.0"), false)}};
+		version->recommendations = {{QuickModRef("OtherName"), QuickModVersionRef(QuickModRef("OtherName"), "1.2.3")}};
 		version->sha1 = "a68b86df2f3fff44";
 		return version;
 	}
@@ -98,7 +98,7 @@ private slots:
 			<< TestsInternal::readFile(QFINDTESTDATA(
 				   "data/tst_QuickMod_basic test, config pack, sequential")) << mod;
 	}
-	void testParsing()
+	void testParsing() noexcept
 	{
 		QFETCH(QByteArray, input);
 		QFETCH(QuickModPtr, mod);
@@ -132,8 +132,8 @@ private slots:
 		QCOMPARE(parsed->m_tags, mod->m_tags);
 		QCOMPARE(parsed->m_license, mod->m_license);
 
-		QuickModVersionPtr parsedVersion = parsed->versions().first();
-		QuickModVersionPtr version = mod->versions().first();
+		QuickModVersionPtr parsedVersion = parsed->versionsInternal().first();
+		QuickModVersionPtr version = mod->versionsInternal().first();
 		QuickModDownload parsedDownload = parsedVersion->downloads.first();
 		QuickModDownload download = version->downloads.first();
 		QCOMPARE(parsedDownload.url, download.url);

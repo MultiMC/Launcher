@@ -19,7 +19,7 @@
 #include "logic/quickmod/QuickModsList.h"
 #include "MultiMC.h"
 
-QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickModUid> mods,
+QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickModRef> mods,
 															   QObject *parent)
 	: Task(parent), m_mods(mods)
 {
@@ -38,9 +38,9 @@ void QuickModDependencyDownloadTask::executeTask()
 	connect(MMC->quickmodslist().get(), &QuickModsList::error, this,
 			&QuickModDependencyDownloadTask::emitFailed);
 
-	for (const QuickModUid mod : m_mods)
+	for (const QuickModRef mod : m_mods)
 	{
-		for (auto variant : mod.mods())
+		for (auto variant : mod.findMods())
 		{
 			requestDependenciesOf(variant);
 		}
@@ -103,7 +103,7 @@ void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModPtr mod
 	auto references = mod->references();
 	for (auto it = references.begin(); it != references.end(); ++it)
 	{
-		const QuickModUid modUid = it.key();
+		const QuickModRef modUid = it.key();
 		if (!MMC->quickmodslist()->mods(modUid).isEmpty())
 		{
 			return;

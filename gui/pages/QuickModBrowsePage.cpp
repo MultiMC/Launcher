@@ -206,9 +206,9 @@ public:
 		{ m_items.clear(); });
 	}
 
-	QList<QuickModUid> getCheckedItems() const
+	QList<QuickModRef> getCheckedItems() const
 	{
-		QList<QuickModUid> items;
+		QList<QuickModRef> items;
 		for (auto item : m_items)
 		{
 			items.append(item);
@@ -226,13 +226,13 @@ public:
 		{
 			if (value == Qt::Checked)
 			{
-				m_items.insert(index.data(QuickModsList::UidRole).value<QuickModUid>());
+				m_items.insert(index.data(QuickModsList::UidRole).value<QuickModRef>());
 				emit dataChanged(index, index, QVector<int>() << Qt::CheckStateRole);
 				return true;
 			}
 			else if (value == Qt::Unchecked)
 			{
-				m_items.remove(index.data(QuickModsList::UidRole).value<QuickModUid>());
+				m_items.remove(index.data(QuickModsList::UidRole).value<QuickModRef>());
 				emit dataChanged(index, index, QVector<int>() << Qt::CheckStateRole);
 				return true;
 			}
@@ -244,7 +244,7 @@ public:
 		if (proxyIndex.isValid() && role == Qt::CheckStateRole)
 		{
 			return m_items.contains(
-					   proxyIndex.data(QuickModsList::UidRole).value<QuickModUid>())
+					   proxyIndex.data(QuickModsList::UidRole).value<QuickModRef>())
 					   ? Qt::Checked
 					   : Qt::Unchecked;
 		}
@@ -252,7 +252,7 @@ public:
 	}
 
 private:
-	QSet<QuickModUid> m_items;
+	QSet<QuickModRef> m_items;
 };
 
 // }}}
@@ -396,10 +396,10 @@ void QuickModBrowsePage::on_installButton_clicked()
 		return;
 	}
 
-	QMap<QuickModUid, QPair<QuickModVersionID, bool>> mods;
+	QMap<QuickModRef, QPair<QuickModVersionRef, bool>> mods;
 	for (auto item : items)
 	{
-		mods[QuickModUid(item)] = qMakePair(alreadySelected[item].first, true);
+		mods[QuickModRef(item)] = qMakePair(alreadySelected[item].first, true);
 	}
 
 	try
@@ -421,7 +421,7 @@ void QuickModBrowsePage::on_createInstanceButton_clicked()
 	}
 
 	NewInstanceDialog dialog(this);
-	dialog.setFromQuickMod(index.data(QuickModsList::UidRole).value<QuickModUid>());
+	dialog.setFromQuickMod(index.data(QuickModsList::UidRole).value<QuickModRef>());
 	if (dialog.exec() == QDialog::Accepted)
 	{
 

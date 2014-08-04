@@ -132,7 +132,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 					const QString baseUrlString =
 							MMCJson::ensureString(obj.value("baseUrl"));
 					const QString uid = MMCJson::ensureString(itemObj.value("uid"));
-					if (!m_list->haveUid(QuickModUid(uid), repo))
+					if (!m_list->haveUid(QuickModRef(uid), repo))
 					{
 						const QString urlString =
 								MMCJson::ensureString(itemObj.value("url"));

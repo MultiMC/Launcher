@@ -33,7 +33,7 @@ public:
 	explicit NewInstanceDialog(QWidget *parent = 0);
 	~NewInstanceDialog();
 
-	void setFromQuickMod(QuickModUid quickmod);
+	void setFromQuickMod(QuickModRef quickmod);
 
 	void updateDialogState();
 
@@ -44,7 +44,7 @@ public:
 	QString instName() const;
 	QString iconKey() const;
 	BaseVersionPtr selectedVersion() const;
-	QuickModUid fromQuickMod() const;
+	QuickModRef fromQuickMod() const;
 
 private
 slots:
@@ -57,5 +57,5 @@ private:
 
 	BaseVersionPtr m_selectedVersion;
 	QString InstIconKey;
-	QuickModUid m_fromQuickMod;
+	QuickModRef m_fromQuickMod;
 };

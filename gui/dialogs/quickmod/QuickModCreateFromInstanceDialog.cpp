@@ -263,7 +263,7 @@ bool QuickModCreateFromInstanceDialog::hasVersion(const QString &name) const
 {
 	for (const auto version : m_otherVersions)
 	{
-		if (version->name() == name)
+		if (version->version().toString() == name)
 		{
 			return true;
 		}
@@ -614,7 +614,7 @@ QByteArray QuickModCreateFromInstanceDialog::toJson() const
 	createVersion(builder.addVersion());
 	for (const auto version : m_otherVersions)
 	{
-		if (version->name() == ui->nameEdit->text())
+		if (version->version().toString() == ui->nameEdit->text())
 		{
 			continue;
 		}
@@ -628,7 +628,7 @@ void QuickModCreateFromInstanceDialog::fromJson(const QByteArray &json)
 	resetTables();
 	QuickModPtr mod = std::make_shared<QuickMod>();
 	mod->parse(mod, json);
-	m_otherVersions = mod->versions();
+	m_otherVersions = mod->versionsInternal();
 	ui->uidEdit->setText(mod->uid().toString());
 	ui->repoEdit->setText(mod->repo());
 	ui->nameEdit->setText(mod->name());

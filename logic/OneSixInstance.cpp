@@ -298,7 +298,7 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr session, QString &launchScr
 		auto list = MMC->quickmodslist().get();
 		for (auto it = version->quickmods.begin(); it != version->quickmods.end(); ++it)
 		{
-			const auto modVersion = QuickModVersionID(it.key(), it.value().first).findVersion();
+			const auto modVersion = it.value().first.findVersion();
 			if (!modVersion)
 			{
 				continue;
@@ -574,11 +574,11 @@ bool OneSixInstance::reload()
 	return false;
 }
 
-void OneSixInstance::setQuickModVersion(const QuickModUid &uid, const QuickModVersionID &version, const bool manualInstall)
+void OneSixInstance::setQuickModVersion(const QuickModRef &uid, const QuickModVersionRef &version, const bool manualInstall)
 {
-	setQuickModVersions(QMap<QuickModUid, QPair<QuickModVersionID, bool>>({{uid, qMakePair(version, manualInstall)}}));
+	setQuickModVersions(QMap<QuickModRef, QPair<QuickModVersionRef, bool>>({{uid, qMakePair(version, manualInstall)}}));
 }
-void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QPair<QuickModVersionID, bool>> &mods)
+void OneSixInstance::setQuickModVersions(const QMap<QuickModRef, QPair<QuickModVersionRef, bool>> &mods)
 {
 	QFile userFile(instanceRoot() + "/user.json");
 	if (!userFile.open(QFile::ReadWrite))
@@ -594,7 +594,7 @@ void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QPair<QuickModV
 		minusmods.remove(it.key().toString());
 
 		QJsonObject qmObj;
-		qmObj.insert("version", QString(it.value().first));
+		qmObj.insert("version", it.value().first.toString());
 		qmObj.insert("isManualInstall", it.value().second);
 		plusmods.insert(it.key().toString(), qmObj);
 	}
@@ -606,7 +606,7 @@ void OneSixInstance::setQuickModVersions(const QMap<QuickModUid, QPair<QuickModV
 	userFile.close();
 	reloadVersion();
 }
-void OneSixInstance::removeQuickMods(const QList<QuickModUid> &uids)
+void OneSixInstance::removeQuickMods(const QList<QuickModRef> &uids)
 {
 	QFile userFile(instanceRoot() + "/user.json");
 	if (!userFile.open(QFile::ReadWrite))
@@ -646,7 +646,7 @@ void OneSixInstance::removeQuickMods(const QList<QuickModUid> &uids)
 		{
 			if (QFile::remove(filename))
 			{
-				MMC->quickmodslist()->markModAsUninstalled(uid, QuickModVersionID(), getSharedPtr());
+				MMC->quickmodslist()->markModAsUninstalled(uid, QuickModVersionRef(), getSharedPtr());
 			}
 			else
 			{

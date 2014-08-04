@@ -78,7 +78,7 @@ InstanceFactory::InstLoadError InstanceFactory::loadInstance(InstancePtr &inst,
 	return NoLoadError;
 }
 
-InstancePtr InstanceFactory::addInstance(const QString &name, const QString &iconKey, BaseVersionPtr version, const QuickModUid quickmod)
+InstancePtr InstanceFactory::addInstance(const QString &name, const QString &iconKey, BaseVersionPtr version, const QuickModRef quickmod)
 {
 	InstancePtr newInstance;
 
@@ -95,15 +95,15 @@ InstancePtr InstanceFactory::addInstance(const QString &name, const QString &ico
 		newInstance->setIconKey(iconKey);
 		if (quickmod.isValid())
 		{
-			newInstance->setNotes(quickmod.mod()->description());
-			if (quickmod.mod()->categories().size() > 1)
+			newInstance->setNotes(quickmod.findMod()->description());
+			if (quickmod.findMod()->categories().size() > 1)
 			{
-				newInstance->setGroupInitial(quickmod.mod()->categories().at(1));
+				newInstance->setGroupInitial(quickmod.findMod()->categories().at(1));
 			}
-			newInstance->settings().set("LastQuickModUrl", quickmod.mod()->updateUrl());
+			newInstance->settings().set("LastQuickModUrl", quickmod.findMod()->updateUrl());
 			if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(newInstance))
 			{
-				onesix->setQuickModVersion(quickmod, QuickModVersionID(), true);
+				onesix->setQuickModVersion(quickmod, QuickModVersionRef(), true);
 			}
 		}
 		MMC->instances()->add(newInstance);

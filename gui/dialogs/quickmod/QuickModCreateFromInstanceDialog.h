@@ -26,6 +26,7 @@ class QuickModCreateFromInstanceDialog;
 class OneSixInstance;
 class ProgressProvider;
 class QuickModVersionBuilder;
+class QuickModVersionRef;
 typedef std::shared_ptr<class QuickModVersion> QuickModVersionPtr;
 
 class QStringListModel;

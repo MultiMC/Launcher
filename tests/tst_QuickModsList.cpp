@@ -59,8 +59,8 @@ slots:
 		version->forgeVersionFilter = "(9.8.42,)";
 		version->compatibleVersions << "1.6.2"
 									<< "1.6.4";
-		version->dependencies = {{QuickModUid("stuff"), qMakePair(QStringLiteral("1.0.0.0.0"), false)}};
-		version->recommendations = {{QuickModUid("OtherName"), "1.2.3"}};
+		version->dependencies = {{QuickModRef("stuff"), qMakePair(QuickModVersionRef(QuickModRef("stuff"), "1.0.0.0.0"), false)}};
+		version->recommendations = {{QuickModRef("OtherName"), QuickModVersionRef(QuickModRef("OtherName"), "1.2.3")}};
 		version->sha1 = "a68b86df2f3fff44";
 		return QuickModVersionPtr(version);
 	}
@@ -163,7 +163,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], instance), true);
-			QCOMPARE(list->installedModFiles(mods[i]->uid(), instance.get())[versions[i]->name()], filenames[i]);
+			QCOMPARE(list->installedModFiles(mods[i]->uid(), instance.get())[versions[i]->version()], filenames[i]);
 		}
 
 		// reload
@@ -176,7 +176,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), true);
-			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->name()], filenames[i]);
+			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], filenames[i]);
 		}
 
 		// "uninstall" all of them
@@ -187,7 +187,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), false);
-			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->name()], QString());
+			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], QString());
 		}
 
 		// reload again
@@ -200,7 +200,7 @@ slots:
 		for (int i = 0; i < mods.size(); ++i)
 		{
 			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), false);
-			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->name()], QString());
+			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], QString());
 		}
 
 		delete list;

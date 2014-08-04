@@ -25,7 +25,7 @@
 
 struct BaseVersion;
 class BaseInstance;
-class QuickModUid;
+class QuickModRef;
 
 /*!
  * The \b InstanceFactory\b is a singleton that manages loading and creating instances.
@@ -63,7 +63,7 @@ public:
 		FTBInstance
 	};
 
-	InstancePtr addInstance(const QString &name, const QString &iconKey, BaseVersionPtr version, const QuickModUid quickmod);
+	InstancePtr addInstance(const QString &name, const QString &iconKey, BaseVersionPtr version, const QuickModRef quickmod);
 
 	/*!
 	 * \brief Creates a stub instance

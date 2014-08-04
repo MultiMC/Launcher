@@ -30,35 +30,55 @@
 
 #define CURRENT_QUICKMOD_VERSION 1
 
-QuickModUid::QuickModUid() : m_uid(QString())
+QuickModRef::QuickModRef() : m_uid(QString())
 {
 }
-QuickModUid::QuickModUid(const QString &uid) : m_uid(uid)
+QuickModRef::QuickModRef(const QString &uid) : m_uid(uid)
 {
 }
-QString QuickModUid::toString() const
+QString QuickModRef::userFacing() const
+{
+	const auto mod = findMod();
+	return mod ? mod->name() : m_uid;
+}
+QString QuickModRef::toString() const
 {
 	return m_uid;
 }
-QuickModPtr QuickModUid::mod() const
+QuickModPtr QuickModRef::findMod() const
 {
-	const auto mds = mods();
-	if (mds.isEmpty())
+	const auto mods = findMods();
+	if (mods.isEmpty())
 	{
 		return QuickModPtr();
 	}
-	return mds.first();
+	return mods.first();
 }
-QList<QuickModPtr> QuickModUid::mods() const
+QList<QuickModPtr> QuickModRef::findMods() const
 {
 	return MMC->quickmodslist()->mods(*this);
 }
-QDebug operator<<(QDebug dbg, const QuickModUid &uid)
+QList<QuickModVersionRef> QuickModRef::findVersions() const
+{
+	QList<QuickModVersionRef> versions;
+	for (const auto mod : findMods())
+	{
+		for (const auto version : mod->versions())
+		{
+			if (!versions.contains(version))
+			{
+				versions.append(version);
+			}
+		}
+	}
+	return versions;
+}
+QDebug operator<<(QDebug dbg, const QuickModRef &uid)
 {
 	dbg.nospace() << uid.toString();
 	return dbg.maybeSpace();
 }
-uint qHash(const QuickModUid &uid)
+uint qHash(const QuickModRef &uid)
 {
 	return qHash(uid.toString());
 }
@@ -66,7 +86,6 @@ uint qHash(const QuickModUid &uid)
 QuickMod::QuickMod(QObject *parent) : QObject(parent), m_imagesLoaded(false)
 {
 }
-
 QuickMod::~QuickMod()
 {
 	m_versions.clear(); // as they are shared pointers this will also delete them
@@ -83,7 +102,17 @@ QPixmap QuickMod::logo()
 	return m_logo;
 }
 
-QuickModVersionPtr QuickMod::latestVersion(const QString &mcVersion) const
+QList<QuickModVersionRef> QuickMod::versions() const
+{
+	QList<QuickModVersionRef> refs;
+	for (const auto version : m_versions)
+	{
+		refs.append(version);
+	}
+	return refs;
+}
+
+QuickModVersionRef QuickMod::latestVersion(const QString &mcVersion) const
 {
 	for (auto version : m_versions)
 	{
@@ -92,7 +121,7 @@ QuickModVersionPtr QuickMod::latestVersion(const QString &mcVersion) const
 			return version;
 		}
 	}
-	return QuickModVersionPtr();
+	return QuickModVersionRef();
 }
 
 void QuickMod::sortVersions()
@@ -112,7 +141,7 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	{
 		throw MMCError(tr("QuickMod format to new"));
 	}
-	m_uid = QuickModUid(MMCJson::ensureString(mod.value("uid"), "'uid'"));
+	m_uid = QuickModRef(MMCJson::ensureString(mod.value("uid"), "'uid'"));
 	m_repo = MMCJson::ensureString(mod.value("repo"), "'repo'");
 	m_name = MMCJson::ensureString(mod.value("name"), "'name'");
 	m_description = mod.value("description").toString();
@@ -145,7 +174,7 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	const QJsonObject references = mod.value("references").toObject();
 	for (auto key : references.keys())
 	{
-		m_references.insert(QuickModUid(key), Util::expandQMURL(MMCJson::ensureString(
+		m_references.insert(QuickModRef(key), Util::expandQMURL(MMCJson::ensureString(
 												  references[key], "'reference'")));
 	}
 	m_categories.clear();
@@ -396,9 +425,9 @@ QStringList QuickMod::mcVersions()
 {
 	if (m_mcVersionListCache.isEmpty())
 	{
-		for (auto quickModV : versions())
+		for (auto quickModV : versionsInternal())
 		{
-			for (QString mcv : quickModV->compatibleVersions)
+			for (const QString mcv : quickModV->compatibleVersions)
 			{
 				if (!m_mcVersionListCache.contains(mcv))
 				{

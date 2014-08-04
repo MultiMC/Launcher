@@ -37,10 +37,10 @@ public:
 	explicit QuickModDependencyResolver(std::shared_ptr<OneSixInstance> instance,
 										Bindable *parent = 0);
 
-	QList<QuickModVersionPtr> resolve(const QList<QuickModUid> &mods);
+	QList<QuickModVersionPtr> resolve(const QList<QuickModRef> &mods);
 
-	QList<QuickModUid> resolveChildren(const QList<QuickModUid> &uids);
-	QList<QuickModUid> resolveOrphans() const;
+	QList<QuickModRef> resolveChildren(const QList<QuickModRef> &uids);
+	QList<QuickModRef> resolveOrphans() const;
 	bool hasResolveError() const;
 
 signals:
@@ -55,7 +55,7 @@ private:
 	// Value is conflicting with Key
 	QHash<QuickModVersionPtr, QuickModVersionPtr> m_blockedVersions;
 
-	QuickModVersionPtr getVersion(const QuickModUid &modUid, const QString &filter, bool *ok);
+	QuickModVersionPtr getVersion(const QuickModRef &modUid, const QuickModVersionRef &filter, bool *ok);
 
 	void resolve(const QuickModVersionPtr version);
 };

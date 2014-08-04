@@ -51,7 +51,7 @@ public:
 public slots:
 	virtual int exec();
 
-	void setInitialMods(const QList<QuickModUid> mods);
+	void setInitialMods(const QList<QuickModRef> mods);
 	QList<QuickModVersionPtr> modVersions() const
 	{
 		return m_resolvedVersions;
@@ -125,7 +125,7 @@ private slots:
 	void contextMenuRequested(const QPoint &pos);
 
 	// For binding to QuickModDependencyResolver
-	QuickModVersionPtr getVersion(const QuickModUid &modUid, const QString &filter, bool *ok);
+	QuickModVersionPtr getVersion(const QuickModRef &modUid, const QuickModVersionRef &filter, bool *ok);
 	// For binding to QuickModDependencyDownloadTask
 	bool verifyMods(const QList<QuickModPtr> &mods);
 
@@ -137,7 +137,7 @@ private:
 
 	bool install(QuickModVersionPtr version);
 
-	QList<QuickModUid> m_initialMods;
+	QList<QuickModRef> m_initialMods;
 	QList<QuickModVersionPtr> m_modVersions;
 	QList<QuickModVersionPtr> m_resolvedVersions;
 	QList<QUrl> m_downloadingUrls;

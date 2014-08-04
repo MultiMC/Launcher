@@ -24,7 +24,7 @@ void QuickModGuiUtil::setup(std::shared_ptr<Task> task, QWidget *widgetParent)
 		sequentialTask->bindToAll("QuickMods.ModMissing", util, SLOT(modMissing(QString)));
 		sequentialTask->bindToAll(
 			"QuickMods.InstallMods", util,
-			SLOT(installMods(std::shared_ptr<OneSixInstance>, QList<QuickModUid>, bool *)));
+			SLOT(installMods(std::shared_ptr<OneSixInstance>, QList<QuickModRef>, bool *)));
 		sequentialTask->bindToAll(
 			"QuickMods.GetForgeVersion", util,
 			SLOT(getForgeVersion(std::shared_ptr<OneSixInstance>, QStringList)));
@@ -39,7 +39,7 @@ void QuickModGuiUtil::setup(Bindable *task, QWidget *widgetParent)
 	QuickModGuiUtil *util = new QuickModGuiUtil(widgetParent);
 	task->bind("QuickMods.ModMissing", util, SLOT(modMissing(QString)));
 	task->bind("QuickMods.InstallMods", util,
-			   SLOT(installMods(std::shared_ptr<OneSixInstance>, QList<QuickModUid>, bool *)));
+			   SLOT(installMods(std::shared_ptr<OneSixInstance>, QList<QuickModRef>, bool *)));
 	task->bind("QuickMods.GetForgeVersion", util,
 			   SLOT(getForgeVersion(std::shared_ptr<OneSixInstance>, QStringList)));
 	task->bind("QuickMods.GetLiteLoaderVersion", util,
@@ -55,7 +55,7 @@ bool QuickModGuiUtil::modMissing(const QString &id)
 }
 
 QList<QuickModVersionPtr> QuickModGuiUtil::installMods(std::shared_ptr<OneSixInstance> instance,
-													   const QList<QuickModUid> &mods, bool *ok)
+													   const QList<QuickModRef> &mods, bool *ok)
 {
 	QuickModInstallDialog dialog(instance, this);
 	dialog.setInitialMods(mods);

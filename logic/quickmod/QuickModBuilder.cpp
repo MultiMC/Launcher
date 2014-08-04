@@ -55,7 +55,7 @@ void QuickModBuilder::finishVersion(QuickModVersionPtr version)
 {
 	Q_ASSERT(version->mod == m_mod);
 	m_mod->m_versions.append(version);
-	const auto deps = QList<QuickModUid>()
+	const auto deps = QList<QuickModRef>()
 					  << version->dependencies.keys() << version->recommendations.keys()
 					  << version->suggestions.keys() << version->conflicts.keys()
 					  << version->provides.keys();

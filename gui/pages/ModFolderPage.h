@@ -83,12 +83,12 @@ slots:
 	virtual void on_updateModBtn_clicked();
 	void on_orphansRemoveBtn_clicked();
 
-	bool quickmodsConfirmRemoval(const QList<QuickModUid> &uids);
+	bool quickmodsConfirmRemoval(const QList<QuickModRef> &uids);
 
 private:
 	QuickModInstanceModList *m_modsModel = nullptr;
 	QuickModInstanceModListProxy *m_proxy = nullptr;
-	QList<QuickModUid> m_orphans;
+	QList<QuickModRef> m_orphans;
 
 	void updateOrphans();
 

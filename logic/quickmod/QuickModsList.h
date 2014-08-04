@@ -84,32 +84,32 @@ public:
 	}
 
 	QuickModPtr modForModId(const QString &modId) const;
-	QList<QuickModPtr> mods(const QuickModUid &uid) const;
-	QList<QuickModVersionPtr> modsProvidingModVersion(const QuickModUid &uid,
-													  const QString &version) const;
-	QuickModVersionPtr latestVersion(const QuickModUid &modUid, const QString &mcVersion) const;
+	QList<QuickModPtr> mods(const QuickModRef &uid) const;
+	QList<QuickModVersionRef> modsProvidingModVersion(const QuickModRef &uid,
+													  const QuickModVersionRef &version) const;
+	QuickModVersionRef latestVersion(const QuickModRef &modUid, const QString &mcVersion) const;
 
-	void markModAsExists(QuickModPtr mod, const QuickModVersionID &version,
+	void markModAsExists(QuickModPtr mod, const QuickModVersionRef &version,
 						 const QString &fileName);
-	void markModAsInstalled(const QuickModUid uid, const QuickModVersionID &version,
+	void markModAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
 							const QString &fileName, InstancePtr instance);
-	void markModAsUninstalled(const QuickModUid uid, const QuickModVersionID &version,
+	void markModAsUninstalled(const QuickModRef uid, const QuickModVersionRef &version,
 							  InstancePtr instance);
-	bool isModMarkedAsInstalled(const QuickModUid uid, const QuickModVersionID &version,
+	bool isModMarkedAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
 								InstancePtr instance) const;
-	bool isModMarkedAsExists(QuickModPtr mod, const QuickModVersionID &version) const;
-	QMap<QString, QString> installedModFiles(const QuickModUid uid,
-											 BaseInstance *instance) const;
-	QString existingModFile(QuickModPtr mod, const QuickModVersionID &version) const;
+	bool isModMarkedAsExists(QuickModPtr mod, const QuickModVersionRef &version) const;
+	QMap<QuickModVersionRef, QString> installedModFiles(const QuickModRef uid,
+														BaseInstance *instance) const;
+	QString existingModFile(QuickModPtr mod, const QuickModVersionRef &version) const;
 
 	void setRepositoryIndexUrl(const QString &repository, const QUrl &url);
 	QUrl repositoryIndexUrl(const QString &repository) const;
 	bool haveRepositoryIndexUrl(const QString &repository) const;
 	QList<QUrl> indices() const;
 
-	bool haveUid(const QuickModUid &uid, const QString &repo) const;
+	bool haveUid(const QuickModRef &uid, const QString &repo) const;
 
-	QList<QuickModUid> updatedModsForInstance(std::shared_ptr<OneSixInstance> instance) const;
+	QList<QuickModRef> updatedModsForInstance(std::shared_ptr<OneSixInstance> instance) const;
 
 	void releaseFromSandbox(QuickModPtr mod);
 

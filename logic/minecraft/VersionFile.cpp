@@ -603,13 +603,13 @@ void VersionFile::applyTo(InstanceVersion *version)
 		version->quickmods.clear();
 		for (const auto qm : overwriteMods.second)
 		{
-			version->quickmods.insert(QuickModUid(qm.uid), qMakePair(QuickModVersionID(QuickModUid(qm.uid), qm.version), qm.isManualInstall));
+			version->quickmods.insert(QuickModRef(qm.uid), qMakePair(QuickModVersionRef(QuickModRef(qm.uid), qm.version), qm.isManualInstall));
 		}
 	}
 	version->modFiles += addMods.first;
 	for (const auto qm : addMods.second)
 	{
-		version->quickmods.insert(QuickModUid(qm.uid), qMakePair(QuickModVersionID(QuickModUid(qm.uid), qm.version), qm.isManualInstall));
+		version->quickmods.insert(QuickModRef(qm.uid), qMakePair(QuickModVersionRef(QuickModRef(qm.uid), qm.version), qm.isManualInstall));
 	}
 	for (auto mod : removeMods.first)
 	{
@@ -617,7 +617,7 @@ void VersionFile::applyTo(InstanceVersion *version)
 	}
 	for (const auto qm : removeMods.second)
 	{
-		version->quickmods.remove(QuickModUid(qm));
+		version->quickmods.remove(QuickModRef(qm));
 	}
 }
 

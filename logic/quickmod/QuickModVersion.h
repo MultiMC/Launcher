@@ -56,37 +56,38 @@ public:
 	QJsonObject toJson() const;
 };
 
-class QuickModVersionID
+class QuickModVersionRef
 {
+	QuickModRef m_mod;
+	QString m_id;
+
 public:
-	explicit QuickModVersionID(const QuickModUid &mod, const QString &id);
-	QuickModVersionID()
+	explicit QuickModVersionRef(const QuickModRef &m_mod, const QString &m_id);
+	QuickModVersionRef()
 	{
 	}
-	QuickModVersionID(const QuickModVersionPtr &ptr);
-
-	QuickModUid mod;
-	QString id;
+	QuickModVersionRef(const QuickModVersionPtr &ptr);
 
 	bool isValid() const
 	{
-		return mod.isValid() && !id.isEmpty();
+		return m_mod.isValid() && !m_id.isEmpty();
 	}
 	QString userFacing() const;
 	QuickModPtr findMod() const;
 	QuickModVersionPtr findVersion() const;
 
-	bool operator<(const QuickModVersionID &other) const;
-	bool operator<=(const QuickModVersionID &other) const;
-	bool operator>(const QuickModVersionID &other) const;
-	bool operator>=(const QuickModVersionID &other) const;
-	bool operator==(const QuickModVersionID &other) const;
+	bool operator<(const QuickModVersionRef &other) const;
+	bool operator<=(const QuickModVersionRef &other) const;
+	bool operator>(const QuickModVersionRef &other) const;
+	bool operator>=(const QuickModVersionRef &other) const;
+	bool operator==(const QuickModVersionRef &other) const;
 
-	operator QString() const
+	QString toString() const
 	{
-		return id;
+		return m_id;
 	}
 };
+Q_DECLARE_METATYPE(QuickModVersionRef)
 
 class QuickModVersion : public BaseVersion
 {
@@ -132,9 +133,9 @@ public:
 	{
 		return type;
 	}
-	QuickModVersionID version() const
+	QuickModVersionRef version() const
 	{
-		return QuickModVersionID(mod->uid(), version_.isNull() ? name_ : version_);
+		return QuickModVersionRef(mod->uid(), version_.isNull() ? name_ : version_);
 	}
 
 	bool needsDeploy() const;
@@ -147,11 +148,11 @@ public:
 	QStringList compatibleVersions;
 	QString forgeVersionFilter;
 	QString liteloaderVersionFilter;
-	QMap<QuickModUid, QPair<QString, bool>> dependencies;
-	QMap<QuickModUid, QString> recommendations;
-	QMap<QuickModUid, QString> suggestions;
-	QMap<QuickModUid, QString> conflicts;
-	QMap<QuickModUid, QString> provides;
+	QMap<QuickModRef, QPair<QuickModVersionRef, bool>> dependencies;
+	QMap<QuickModRef, QuickModVersionRef> recommendations;
+	QMap<QuickModRef, QuickModVersionRef> suggestions;
+	QMap<QuickModRef, QuickModVersionRef> conflicts;
+	QMap<QuickModRef, QuickModVersionRef> provides;
 	QString sha1;
 	InstallType installType;
 	QList<Library> libraries;
@@ -165,15 +166,13 @@ public:
 			   dependencies == other.dependencies && recommendations == other.recommendations &&
 			   sha1 == other.sha1;
 	}
-
-	static QuickModVersionPtr invalid(QuickModPtr mod);
 };
 
 class QuickModVersionList : public BaseVersionList
 {
 	Q_OBJECT
 public:
-	explicit QuickModVersionList(QuickModUid mod, InstancePtr instance, QObject *parent = 0);
+	explicit QuickModVersionList(QuickModRef mod, InstancePtr instance, QObject *parent = 0);
 
 	Task *getLoadTask();
 	bool isLoaded();
@@ -189,8 +188,8 @@ protected slots:
 	}
 
 private:
-	QuickModUid m_mod;
+	QuickModRef m_mod;
 	InstancePtr m_instance;
 
-	QList<QuickModVersionPtr> versions() const;
+	QList<QuickModVersionRef> versions() const;
 };

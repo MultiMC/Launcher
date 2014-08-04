@@ -250,7 +250,7 @@ void QuickModInstallDialog::setWebViewShown(bool shown)
 		ui->downloadSplitter->setSizes(QList<int>({100, 0}));
 }
 
-void QuickModInstallDialog::setInitialMods(const QList<QuickModUid> mods)
+void QuickModInstallDialog::setInitialMods(const QList<QuickModRef> mods)
 {
 	m_initialMods = mods;
 }
@@ -343,7 +343,7 @@ bool QuickModInstallDialog::resolveDeps()
 	bool error = false;
 	QuickModDependencyResolver resolver(m_instance);
 
-	resolver.bind("QuickMods.GetVersion", this, SLOT(getVersion(QuickModUid, QString, bool *)));
+	resolver.bind("QuickMods.GetVersion", this, SLOT(getVersion(QuickModRef, QuickModVersionRef, bool *)));
 
 	// Error handler.
 	connect(&resolver, &QuickModDependencyResolver::error, [this, &error](const QString &msg)
@@ -373,20 +373,19 @@ bool QuickModInstallDialog::resolveDeps()
 	m_modVersions = m_resolvedVersions = resolver.resolve(m_initialMods);
 	return !error;
 }
-QuickModVersionPtr QuickModInstallDialog::getVersion(const QuickModUid &modUid,
-													 const QString &filter, bool *ok)
+QuickModVersionPtr QuickModInstallDialog::getVersion(const QuickModRef &modUid,
+													 const QuickModVersionRef &filter, bool *ok)
 {
-	const QuickModVersionID predefinedVersion =
-		QuickModVersionID(modUid, m_instance->getFullVersion()->quickmods[modUid].first);
+	const QuickModVersionRef predefinedVersion = m_instance->getFullVersion()->quickmods[modUid].first;
 	VersionSelectDialog dialog(new QuickModVersionList(modUid, m_instance, this),
-							   tr("Choose QuickMod version for %1").arg(modUid.mod()->name()),
+							   tr("Choose QuickMod version for %1").arg(modUid.userFacing()),
 							   this);
-	dialog.setFuzzyFilter(BaseVersionList::NameColumn, filter);
+	dialog.setFuzzyFilter(BaseVersionList::NameColumn, filter.toString());
 	dialog.setUseLatest(MMC->settings()->get("QuickModAlwaysLatestVersion").toBool());
 	// TODO currently, if the version isn't existing anymore it will be updated
 	if (predefinedVersion.isValid() && predefinedVersion.findVersion())
 	{
-		dialog.setExactFilter(BaseVersionList::NameColumn, predefinedVersion);
+		dialog.setExactFilter(BaseVersionList::NameColumn, predefinedVersion.toString());
 	}
 	if (dialog.exec() == QDialog::Rejected)
 	{
@@ -410,7 +409,7 @@ void QuickModInstallDialog::processVersionList()
 		addProgressListEntry(version);
 
 		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod->uid(),
-														 QuickModVersionID(), m_instance))
+														 QuickModVersionRef(), m_instance))
 		{
 			QLOG_INFO() << version->mod->uid() << " is already installed";
 			setProgressListMsg(version, tr("Success: Already installed"), Qt::darkGreen);

@@ -1259,18 +1259,18 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 {
 	if (auto onesix = std::dynamic_pointer_cast<OneSixInstance>(instance))
 	{
-		QList<QuickModUid> mods = MMC->quickmodslist()->updatedModsForInstance(onesix);
+		QList<QuickModRef> mods = MMC->quickmodslist()->updatedModsForInstance(onesix);
 		if (!mods.isEmpty())
 		{
 			QStringList names;
-			QMap<QuickModUid, QPair<QuickModVersionID, bool>> modsToUpdate;
+			QMap<QuickModRef, QPair<QuickModVersionRef, bool>> modsToUpdate;
 			for (auto mod : mods)
 			{
 				auto ptr = MMC->quickmodslist()->mods(mod).first();
 				names.append(ptr->name());
 				modsToUpdate.insert(
 					ptr->uid(),
-					qMakePair(QuickModVersionID(),
+					qMakePair(QuickModVersionRef(),
 							  onesix->getFullVersion()->quickmods[ptr->uid()].second));
 			}
 			int res = QMessageBox::question(

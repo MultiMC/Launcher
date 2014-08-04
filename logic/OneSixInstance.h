@@ -21,7 +21,7 @@
 #include "logic/ModList.h"
 #include "gui/pages/BasePageProvider.h"
 
-class QuickModUid;
+class QuickModRef;
 
 class OneSixInstance : public BaseInstance, public BasePageProvider
 {
@@ -103,9 +103,9 @@ public:
 
 	std::shared_ptr<OneSixInstance> getSharedPtr();
 
-	void setQuickModVersion(const QuickModUid &uid, const QuickModVersionID &version, const bool manualInstall = false);
-	void setQuickModVersions(const QMap<QuickModUid, QPair<QuickModVersionID, bool> > &mods);
-	void removeQuickMods(const QList<QuickModUid> &uids);
+	void setQuickModVersion(const QuickModRef &uid, const QuickModVersionRef &version, const bool manualInstall = false);
+	void setQuickModVersions(const QMap<QuickModRef, QPair<QuickModVersionRef, bool> > &mods);
+	void removeQuickMods(const QList<QuickModRef> &uids);
 
 signals:
 	void versionReloaded();

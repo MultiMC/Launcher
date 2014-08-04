@@ -62,28 +62,28 @@ void QuickModVersion::parse(const QJsonObject &object)
 		{
 			const QJsonObject obj = MMCJson::ensureObject(val, "'reference'");
 			const QString uid = MMCJson::ensureString(obj.value("uid"), "'uid'");
-			const QString version = MMCJson::ensureString(obj.value("version"), "'version'");
+			const QuickModVersionRef version = QuickModVersionRef(mod->uid(), MMCJson::ensureString(obj.value("version"), "'version'"));
 			const QString type = MMCJson::ensureString(obj.value("type"), "'type'");
 			if (type == "depends")
 			{
-				dependencies.insert(QuickModUid(uid),
+				dependencies.insert(QuickModRef(uid),
 									qMakePair(version, obj.value("isSoft").toBool(false)));
 			}
 			else if (type == "recommends")
 			{
-				recommendations.insert(QuickModUid(uid), version);
+				recommendations.insert(QuickModRef(uid), version);
 			}
 			else if (type == "suggests")
 			{
-				suggestions.insert(QuickModUid(uid), version);
+				suggestions.insert(QuickModRef(uid), version);
 			}
 			else if (type == "conflicts")
 			{
-				conflicts.insert(QuickModUid(uid), version);
+				conflicts.insert(QuickModRef(uid), version);
 			}
 			else if (type == "provides")
 			{
-				provides.insert(QuickModUid(uid), version);
+				provides.insert(QuickModRef(uid), version);
 			}
 			else
 			{
@@ -193,14 +193,14 @@ void QuickModVersion::parse(const QJsonObject &object)
 QJsonObject QuickModVersion::toJson() const
 {
 	QJsonArray refs;
-	auto refToJson = [&refs](const QString &type, const QMap<QuickModUid, QString> &references)
+	auto refToJson = [&refs](const QString &type, const QMap<QuickModRef, QuickModVersionRef> &references)
 	{
 		for (auto it = references.constBegin(); it != references.constEnd(); ++it)
 		{
 			QJsonObject obj;
 			obj.insert("type", type);
 			obj.insert("uid", it.key().toString());
-			obj.insert("version", it.value());
+			obj.insert("version", it.value().toString());
 			refs.append(obj);
 		}
 	};
@@ -219,7 +219,7 @@ QJsonObject QuickModVersion::toJson() const
 		QJsonObject obj;
 		obj.insert("type", type);
 		obj.insert("uid", it.key().toString());
-		obj.insert("version", it.value().first);
+		obj.insert("version", it.value().first.toString());
 		obj.insert("isSoft", it.value().second);
 		refs.append(obj);
 	}
@@ -252,12 +252,7 @@ bool QuickModVersion::needsDeploy() const
 	return installType == ForgeCoreMod;
 }
 
-QuickModVersionPtr QuickModVersion::invalid(QuickModPtr mod)
-{
-	return QuickModVersionPtr(new QuickModVersion(mod, false));
-}
-
-QuickModVersionList::QuickModVersionList(QuickModUid mod, InstancePtr instance, QObject *parent)
+QuickModVersionList::QuickModVersionList(QuickModRef mod, InstancePtr instance, QObject *parent)
 	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
 {
 }
@@ -273,25 +268,22 @@ bool QuickModVersionList::isLoaded()
 
 const BaseVersionPtr QuickModVersionList::at(int i) const
 {
-	return versions().at(i);
+	return versions().at(i).findVersion();
 }
 int QuickModVersionList::count() const
 {
 	return versions().count();
 }
 
-QList<QuickModVersionPtr> QuickModVersionList::versions() const
+QList<QuickModVersionRef> QuickModVersionList::versions() const
 {
 	// TODO repository priority
-	QList<QuickModVersionPtr> out;
-	for (auto mod : m_mod.mods())
+	QList<QuickModVersionRef> out;
+	for (auto version : m_mod.findVersions())
 	{
-		for (auto version : mod->versions())
+		if (version.findVersion()->compatibleVersions.contains(m_instance->intendedVersionId()))
 		{
-			if (version->compatibleVersions.contains(m_instance->intendedVersionId()))
-			{
-				out.append(version);
-			}
+			out.append(version);
 		}
 	}
 	return out;
@@ -330,35 +322,35 @@ QJsonObject QuickModDownload::toJson() const
 	return obj;
 }
 
-QuickModVersionID::QuickModVersionID(const QuickModUid &mod, const QString &id)
-	: mod(mod), id(id)
+QuickModVersionRef::QuickModVersionRef(const QuickModRef &mod, const QString &id)
+	: m_mod(mod), m_id(id)
 {
 }
-QuickModVersionID::QuickModVersionID(const QuickModVersionPtr &ptr)
-	: mod(ptr->mod->uid()), id(ptr->version())
+QuickModVersionRef::QuickModVersionRef(const QuickModVersionPtr &ptr)
+	: QuickModVersionRef(ptr->version())
 {
 }
 
-QString QuickModVersionID::userFacing() const
+QString QuickModVersionRef::userFacing() const
 {
 	const QuickModVersionPtr ptr = findVersion();
 	return ptr ? ptr->name() : QString();
 }
-QuickModPtr QuickModVersionID::findMod() const
+QuickModPtr QuickModVersionRef::findMod() const
 {
 	const QuickModVersionPtr ptr = findVersion();
 	return ptr ? ptr->mod : QuickModPtr();
 }
-QuickModVersionPtr QuickModVersionID::findVersion() const
+QuickModVersionPtr QuickModVersionRef::findVersion() const
 {
 	if (!isValid())
 	{
 		return QuickModVersionPtr();
 	}
-	QList<QuickModPtr> mods = mod.mods();
+	QList<QuickModPtr> mods = m_mod.findMods();
 	for (const auto mod : mods)
 	{
-		for (const auto version : mod->versions())
+		for (const auto version : mod->versionsInternal())
 		{
 			if (version->version() == *this)
 			{
@@ -369,9 +361,9 @@ QuickModVersionPtr QuickModVersionID::findVersion() const
 
 	for (const auto mod : mods)
 	{
-		for (const auto version : mod->versions())
+		for (const auto version : mod->versionsInternal())
 		{
-			if (QuickModVersionID(mod->uid(), version->name()) == *this)
+			if (version->version() == *this)
 			{
 				return version;
 			}
@@ -381,23 +373,23 @@ QuickModVersionPtr QuickModVersionID::findVersion() const
 	return QuickModVersionPtr();
 }
 
-bool QuickModVersionID::operator<(const QuickModVersionID &other) const
+bool QuickModVersionRef::operator<(const QuickModVersionRef &other) const
 {
-	return Util::Version(id) < Util::Version(other.id);
+	return Util::Version(m_id) < Util::Version(other.m_id);
 }
-bool QuickModVersionID::operator<=(const QuickModVersionID &other) const
+bool QuickModVersionRef::operator<=(const QuickModVersionRef &other) const
 {
-	return Util::Version(id) <= Util::Version(other.id);
+	return Util::Version(m_id) <= Util::Version(other.m_id);
 }
-bool QuickModVersionID::operator>(const QuickModVersionID &other) const
+bool QuickModVersionRef::operator>(const QuickModVersionRef &other) const
 {
-	return Util::Version(id) > Util::Version(other.id);
+	return Util::Version(m_id) > Util::Version(other.m_id);
 }
-bool QuickModVersionID::operator>=(const QuickModVersionID &other) const
+bool QuickModVersionRef::operator>=(const QuickModVersionRef &other) const
 {
-	return Util::Version(id) >= Util::Version(other.id);
+	return Util::Version(m_id) >= Util::Version(other.m_id);
 }
-bool QuickModVersionID::operator==(const QuickModVersionID &other) const
+bool QuickModVersionRef::operator==(const QuickModVersionRef &other) const
 {
-	return Util::Version(id) == Util::Version(other.id);
+	return Util::Version(m_id) == Util::Version(other.m_id);
 }

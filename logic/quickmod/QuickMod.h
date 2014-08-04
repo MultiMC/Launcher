@@ -26,6 +26,7 @@
 
 class QuickMod;
 class QuickModVersion;
+class QuickModVersionRef;
 class OneSixInstance;
 
 typedef std::shared_ptr<QuickMod> QuickModPtr;
@@ -42,21 +43,23 @@ public:
 	}
 };
 
-class QuickModUid
+class QuickModRef
 {
 public:
-	QuickModUid();
-	explicit QuickModUid(const QString &uid);
+	QuickModRef();
+	explicit QuickModRef(const QString &uid);
 
+	QString userFacing() const;
 	QString toString() const;
-	QuickModPtr mod() const;
-	QList<QuickModPtr> mods() const;
+	QuickModPtr findMod() const;
+	QList<QuickModPtr> findMods() const;
+	QList<QuickModVersionRef> findVersions() const;
 
 	bool isValid() const
 	{
 		return !m_uid.isEmpty();
 	}
-	bool operator==(const QuickModUid &other) const
+	bool operator==(const QuickModRef &other) const
 	{
 		return m_uid == other.m_uid;
 	}
@@ -64,7 +67,7 @@ public:
 	{
 		return m_uid == other;
 	}
-	bool operator<(const QuickModUid &other) const
+	bool operator<(const QuickModRef &other) const
 	{
 		return m_uid < other.m_uid;
 	}
@@ -72,8 +75,8 @@ public:
 private:
 	QString m_uid;
 };
-QDebug operator<<(QDebug dbg, const QuickModUid &uid);
-uint qHash(const QuickModUid &uid);
+QDebug operator<<(QDebug dbg, const QuickModRef &uid);
+uint qHash(const QuickModRef &uid);
 
 class QuickMod : public QObject
 {
@@ -100,7 +103,7 @@ public:
 		Invalid
 	};
 
-	QuickModUid uid() const
+	QuickModRef uid() const
 	{
 		return m_uid;
 	}
@@ -155,7 +158,7 @@ public:
 	{
 		return m_updateUrl;
 	}
-	QMap<QuickModUid, QUrl> references() const
+	QMap<QuickModRef, QUrl> references() const
 	{
 		return m_references;
 	}
@@ -183,13 +186,14 @@ public:
 	{
 		return m_mavenRepos;
 	}
-	QList<QuickModVersionPtr> versions() const
+	QList<QuickModVersionPtr> versionsInternal() const
 	{
 		return m_versions;
 	}
+	QList<QuickModVersionRef> versions() const;
 	/// List of Minecraft versions this QuickMod is compatible with.
 	QStringList mcVersions();
-	QuickModVersionPtr latestVersion(const QString &mcVersion) const;
+	QuickModVersionRef latestVersion(const QString &mcVersion) const;
 	void sortVersions();
 
 	void parse(QuickModPtr _this, const QByteArray &data);
@@ -217,7 +221,7 @@ private:
 	friend class QuickModsListTest;
 	friend class QuickModBuilder;
 	friend class TestsInternal;
-	QuickModUid m_uid;
+	QuickModRef m_uid;
 	QString m_repo;
 	QString m_name;
 	QString m_description;
@@ -226,7 +230,7 @@ private:
 	QIcon m_icon;
 	QPixmap m_logo;
 	QUrl m_updateUrl;
-	QMap<QuickModUid, QUrl> m_references;
+	QMap<QuickModRef, QUrl> m_references;
 	QStringList m_mcVersionListCache;
 	QString m_nemName;
 	QString m_modId;
@@ -244,4 +248,4 @@ private:
 };
 
 Q_DECLARE_METATYPE(QuickModPtr)
-Q_DECLARE_METATYPE(QuickModUid)
+Q_DECLARE_METATYPE(QuickModRef)

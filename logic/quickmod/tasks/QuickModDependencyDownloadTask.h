@@ -22,7 +22,7 @@ class QuickModDependencyDownloadTask : public Task
 {
 	Q_OBJECT
 public:
-	explicit QuickModDependencyDownloadTask(QList<QuickModUid> mods, QObject *parent = 0);
+	explicit QuickModDependencyDownloadTask(QList<QuickModRef> mods, QObject *parent = 0);
 
 protected:
 	void executeTask();
@@ -32,11 +32,11 @@ slots:
 	void modAdded(QuickModPtr mod);
 
 private:
-	QList<QuickModUid> m_mods;
+	QList<QuickModRef> m_mods;
 	// list of mods we are still waiting for
-	QList<QuickModUid> m_pendingMods;
+	QList<QuickModRef> m_pendingMods;
 	// list of mods we have requested
-	QList<QuickModUid> m_requestedMods;
+	QList<QuickModRef> m_requestedMods;
 
 	// list of mods we have received that are in the sandbox
 	QList<QuickModPtr> m_sandboxedMods;

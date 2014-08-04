@@ -65,7 +65,7 @@ public:
 	QModelIndex mapFromModList(const QModelIndex &index) const;
 	bool isModListArea(const QModelIndex &index) const;
 
-	QList<QuickModUid> findOrphans() const;
+	QList<QuickModRef> findOrphans() const;
 
 	Type type() const { return m_type; }
 
@@ -90,9 +90,9 @@ private:
 	std::shared_ptr<ModList> m_modList;
 	Type m_type;
 
-	QMap<QuickModUid, QuickModVersionID> quickmods() const;
+	QMap<QuickModRef, QuickModVersionRef> quickmods() const;
 	QuickModPtr modAt(const int row) const;
-	QuickModUid uidAt(const int row) const;
+	QuickModRef uidAt(const int row) const;
 };
 
 class QuickModInstanceModListProxy : public QSortFilterProxyModel

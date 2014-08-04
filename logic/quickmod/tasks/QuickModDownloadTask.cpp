@@ -33,13 +33,13 @@ void QuickModDownloadTask::executeTask()
 {
 	const bool hasResolveError = QuickModDependencyResolver(m_instance).hasResolveError();
 
-	const QMap<QuickModUid, QPair<QuickModVersionID, bool>> quickmods =
+	const QMap<QuickModRef, QPair<QuickModVersionRef, bool>> quickmods =
 		m_instance->getFullVersion()->quickmods;
 	auto list = MMC->quickmodslist();
-	QList<QuickModUid> mods;
+	QList<QuickModRef> mods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
-		const QuickModVersionID version = it.value().first;
+		const QuickModVersionRef version = it.value().first;
 		QuickModPtr mod = version.isValid() ? version.findMod()
 											: list->mods(it.key()).first();
 		if (mod == 0)
@@ -78,7 +78,7 @@ void QuickModDownloadTask::executeTask()
 	if (ok)
 	{
 		const auto quickmods = m_instance->getFullVersion()->quickmods;
-		QMap<QuickModUid, QPair<QuickModVersionID, bool>> mods;
+		QMap<QuickModRef, QPair<QuickModVersionRef, bool>> mods;
 		for (const auto version : installedVersions)
 		{
 			const auto uid = version->mod->uid();

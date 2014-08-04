@@ -53,7 +53,7 @@ ModFolderPage::ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *i
 	if (auto onesix = std::dynamic_pointer_cast<OneSixInstance>(inst->getSharedPtr()))
 	{
 		m_modsModel = new QuickModInstanceModList(type, onesix, m_mods, this);
-		m_modsModel->bind("QuickMods.ConfirmRemoval", this, SLOT(quickmodsConfirmRemoval(QList<QuickModUid>)));
+		m_modsModel->bind("QuickMods.ConfirmRemoval", this, SLOT(quickmodsConfirmRemoval(QList<QuickModRef>)));
 		ui->modTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
 	}
 	else
@@ -190,12 +190,12 @@ void ModFolderPage::on_orphansRemoveBtn_clicked()
 	updateOrphans();
 }
 
-bool ModFolderPage::quickmodsConfirmRemoval(const QList<QuickModUid> &uids)
+bool ModFolderPage::quickmodsConfirmRemoval(const QList<QuickModRef> &uids)
 {
 	QStringList names;
 	for (const auto uid : uids)
 	{
-		names.append(uid.mod()->name());
+		names.append(uid.userFacing());
 	}
 
 	QMessageBox box;
@@ -222,15 +222,7 @@ void ModFolderPage::updateOrphans()
 	QStringList names;
 	for (const auto orphan : m_orphans)
 	{
-		const auto mod = orphan.mod();
-		if (mod)
-		{
-			names.append(mod->name());
-		}
-		else
-		{
-			names.append(orphan.toString());
-		}
+		names.append(orphan.userFacing());
 	}
 	ui->orphansLabel->setText(names.join(", "));
 
