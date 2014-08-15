@@ -20,11 +20,26 @@
 #include <QThread>
 #include <QCoreApplication>
 #include <QSemaphore>
-#include <5.2.0/QtCore/private/qobject_p.h>
 #include <memory>
+
+#if QT_VERSION == QT_VERSION_CHECK(5, 1, 1)
+#include <5.1.1/QtCore/private/qobject_p.h>
+#elif QT_VERSION == QT_VERSION_CHECK(5, 2, 0)
+#include <5.2.0/QtCore/private/qobject_p.h>
+#elif QT_VERSION == QT_VERSION_CHECK(5, 2, 1)
+#include <5.2.1/QtCore/private/qobject_p.h>
+#elif QT_VERSION == QT_VERSION_CHECK(5, 3, 0)
+#include <5.3.0/QtCore/private/qobject_p.h>
+#elif QT_VERSION == QT_VERSION_CHECK(5, 3, 1)
+#include <5.3.1/QtCore/private/qobject_p.h>
+#else
+#error Please add support for this version of Qt
+#endif
 
 class Bindable
 {
+	friend class tst_LogicalGui;
+
 public:
 	Bindable(Bindable *parent = 0) : m_parent(parent)
 	{
@@ -54,22 +69,17 @@ public:
 	{
 		typedef QtPrivate::FunctionPointer<Func> SlotType;
 		m_bindings.insert(
-			id, Binding(receiver,
-						new QtPrivate::QSlotObject<
-							Func, typename QtPrivate::List_Left<typename SlotType::Arguments,
-																SlotType::ArgumentCount>::Value,
-							typename SlotType::ReturnType>(slot)));
+			id,
+			Binding(receiver, new QtPrivate::QSlotObject<Func, typename SlotType::Arguments,
+														 typename SlotType::ReturnType>(slot)));
 	}
 	template <typename Func> void bind(const QString &id, Func slot)
 	{
 		typedef QtPrivate::FunctionPointer<Func> SlotType;
 		m_bindings.insert(
 			id,
-			Binding(nullptr, new QtPrivate::QFunctorSlotObject<
-								  Func, SlotType::ArgumentCount,
-								  typename QtPrivate::List_Left<typename SlotType::Arguments,
-																SlotType::ArgumentCount>::Value,
-								  typename SlotType::ReturnType>(slot)));
+			Binding(nullptr, new QtPrivate::QSlotObject<Func, typename SlotType::Arguments,
+														typename SlotType::ReturnType>(slot)));
 	}
 	void unbind(const QString &id)
 	{
@@ -98,28 +108,37 @@ private:
 
 	Bindable *m_parent;
 
+private:
+	inline Qt::ConnectionType connectionType(const QObject *receiver)
+	{
+		return receiver == nullptr ? Qt::DirectConnection
+								   : (QThread::currentThread() == receiver->thread()
+										  ? Qt::DirectConnection
+										  : Qt::BlockingQueuedConnection);
+	}
+
 protected:
 	template <typename Ret, typename... Params> Ret wait(const QString &id, Params... params)
 	{
+		static_assert(!std::is_same<Ret, void>::value, "You need to use Bindable::waitVoid");
+
 		if (!m_bindings.contains(id) && m_parent)
 		{
 			return m_parent->wait<Ret, Params...>(id, params...);
 		}
 		Q_ASSERT(m_bindings.contains(id));
-		QVariantList({qMetaTypeId<Params>()...});
-		const Qt::ConnectionType type = QThread::currentThread() == qApp->thread()
-				? Qt::DirectConnection
-				: Qt::BlockingQueuedConnection;
 		const auto binding = m_bindings[id];
+		const Qt::ConnectionType type = connectionType(binding.receiver);
+		Ret ret;
 		if (binding.object)
 		{
-			Ret ret;
-			void *args[] = { &ret, const_cast<void *>(reinterpret_cast<const void *>(&params))... };
-			int types[] = { qMetaTypeId<Params>()... };
+			void *args[] = {&ret,
+							const_cast<void *>(reinterpret_cast<const void *>(&params))...};
 			if (type == Qt::BlockingQueuedConnection)
 			{
 				QSemaphore semaphore;
-				QMetaCallEvent *ev = new QMetaCallEvent(binding.object, nullptr, -1, sizeof...(Params), types, args, &semaphore);
+				QMetaCallEvent *ev =
+					new QMetaCallEvent(binding.object, nullptr, -1, 0, 0, args, &semaphore);
 				QCoreApplication::postEvent(const_cast<QObject *>(binding.receiver), ev);
 				semaphore.acquire();
 			}
@@ -127,27 +146,106 @@ protected:
 			{
 				binding.object->call(const_cast<QObject *>(binding.receiver), args);
 			}
-			return ret;
 		}
 		else
 		{
 			const QMetaMethod method = binding.method;
 			Q_ASSERT_X(method.parameterCount() == sizeof...(params), "Bindable::wait",
 					   qPrintable(QString("Incompatible argument count (expected %1, got %2)")
-								  .arg(method.parameterCount(), sizeof...(params))));
-			Q_ASSERT_X(qMetaTypeId<Ret>() != QMetaType::UnknownType, "Bindable::wait",
-					   "Requested return type is not registered, please use the Q_DECLARE_METATYPE "
-					   "macro to make it known to Qt's meta-object system");
-			Q_ASSERT_X(method.returnType() == qMetaTypeId<Ret>() || QMetaType::hasRegisteredConverterFunction(method.returnType(), qMetaTypeId<Ret>()), "Bindable::wait",
-					   qPrintable(QString("Requested return type (%1) is incompatible method return type (%2)")
-								  .arg(QMetaType::typeName(qMetaTypeId<Ret>()),
-									   QMetaType::typeName(method.returnType()))));
-			Ret ret;
-			const auto retArg =
-					QReturnArgument<Ret>(QMetaType::typeName(qMetaTypeId<Ret>()),
-										 ret); // because Q_RETURN_ARG doesn't work with templates...
-			method.invoke(const_cast<QObject *>(binding.receiver), type, retArg, Q_ARG(Params, params)...);
-			return ret;
+									  .arg(method.parameterCount(), sizeof...(params))));
+			Q_ASSERT_X(
+				qMetaTypeId<Ret>() != QMetaType::UnknownType, "Bindable::wait",
+				"Requested return type is not registered, please use the Q_DECLARE_METATYPE "
+				"macro to make it known to Qt's meta-object system");
+			Q_ASSERT_X(
+				method.returnType() == qMetaTypeId<Ret>() ||
+					QMetaType::hasRegisteredConverterFunction(method.returnType(),
+															  qMetaTypeId<Ret>()),
+				"Bindable::wait",
+				qPrintable(
+					QString(
+						"Requested return type (%1) is incompatible method return type (%2)")
+						.arg(QMetaType::typeName(qMetaTypeId<Ret>()),
+							 QMetaType::typeName(method.returnType()))));
+			const auto retArg = QReturnArgument<Ret>(
+				QMetaType::typeName(qMetaTypeId<Ret>()),
+				ret); // because Q_RETURN_ARG doesn't work with templates...
+			method.invoke(const_cast<QObject *>(binding.receiver), type, retArg,
+						  Q_ARG(Params, params)...);
+		}
+		return ret;
+	}
+	template <typename... Params>
+	typename std::enable_if<sizeof...(Params) != 0, void>::type waitVoid(const QString &id,
+																		 Params... params)
+	{
+		if (!m_bindings.contains(id) && m_parent)
+		{
+			m_parent->waitVoid<Params...>(id, params...);
+			return;
+		}
+		Q_ASSERT(m_bindings.contains(id));
+		const auto binding = m_bindings[id];
+		const Qt::ConnectionType type = connectionType(binding.receiver);
+		if (binding.object)
+		{
+			void *args[] = {0, const_cast<void *>(reinterpret_cast<const void *>(&params))...};
+			if (type == Qt::BlockingQueuedConnection)
+			{
+				QSemaphore semaphore;
+				QMetaCallEvent *ev =
+					new QMetaCallEvent(binding.object, nullptr, -1, 0, 0, args, &semaphore);
+				QCoreApplication::postEvent(const_cast<QObject *>(binding.receiver), ev);
+				semaphore.acquire();
+			}
+			else
+			{
+				binding.object->call(const_cast<QObject *>(binding.receiver), args);
+			}
+		}
+		else
+		{
+			const QMetaMethod method = binding.method;
+			Q_ASSERT_X(method.parameterCount() == sizeof...(params), "Bindable::wait",
+					   qPrintable(QString("Incompatible argument count (expected %1, got %2)")
+									  .arg(method.parameterCount(), sizeof...(params))));
+			method.invoke(const_cast<QObject *>(binding.receiver), type,
+						  Q_ARG(Params, params)...);
+		}
+	}
+	void waitVoid(const QString &id)
+	{
+		if (!m_bindings.contains(id) && m_parent)
+		{
+			m_parent->waitVoid(id);
+			return;
+		}
+		Q_ASSERT(m_bindings.contains(id));
+		const auto binding = m_bindings[id];
+		const Qt::ConnectionType type = connectionType(binding.receiver);
+		if (binding.object)
+		{
+			void *args[] = {0};
+			if (type == Qt::BlockingQueuedConnection)
+			{
+				QSemaphore semaphore;
+				QMetaCallEvent *ev =
+					new QMetaCallEvent(binding.object, nullptr, -1, 0, 0, args, &semaphore);
+				QCoreApplication::postEvent(const_cast<QObject *>(binding.receiver), ev);
+				semaphore.acquire();
+			}
+			else
+			{
+				binding.object->call(const_cast<QObject *>(binding.receiver), args);
+			}
+		}
+		else
+		{
+			const QMetaMethod method = binding.method;
+			Q_ASSERT_X(method.parameterCount() == 0, "Bindable::wait",
+					   qPrintable(QString("Incompatible argument count (expected %1, got %2)")
+									  .arg(method.parameterCount(), 0)));
+			method.invoke(const_cast<QObject *>(binding.receiver), type);
 		}
 	}
 };

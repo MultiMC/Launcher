@@ -19,12 +19,10 @@ QuickModGuiUtil::QuickModGuiUtil(QWidget *parent) : QWidget(parent)
 void QuickModGuiUtil::setup(Bindable *task, QWidget *widgetParent)
 {
 	QuickModGuiUtil *util = new QuickModGuiUtil(widgetParent);
-	task->bind("QuickMods.ModMissing", util, SLOT(modMissing(QString)));
+	task->bind("QuickMods.ModMissing", util, &QuickModGuiUtil::modMissing);
 	task->bind("QuickMods.InstallMods", util, &QuickModGuiUtil::installMods);
-	task->bind("QuickMods.GetForgeVersion", util,
-			   SLOT(getForgeVersion(std::shared_ptr<OneSixInstance>, QStringList)));
-	task->bind("QuickMods.GetLiteLoaderVersion", util,
-			   SLOT(getLiteLoaderVersion(std::shared_ptr<OneSixInstance>, QStringList)));
+	task->bind("QuickMods.GetForgeVersion", util, &QuickModGuiUtil::getForgeVersion);
+	task->bind("QuickMods.GetLiteLoaderVersion", util, &QuickModGuiUtil::getLiteLoaderVersion);
 }
 
 bool QuickModGuiUtil::modMissing(const QString &id)

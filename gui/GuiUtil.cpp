@@ -41,7 +41,7 @@ void GuiUtil::setup(Bindable *bindable, QWidget *widgetParent)
 {
 	GuiUtil *util = new GuiUtil;
 	util->m_widgetParent = widgetParent;
-	bindable->bind("Gui.ProgressDialog", util, SLOT(progressDialog(ProgressProvider*)));
+	bindable->bind("Gui.ProgressDialog", util, &GuiUtil::progressDialog);
 }
 
 int GuiUtil::progressDialog(ProgressProvider *provider)

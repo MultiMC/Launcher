@@ -328,7 +328,7 @@ bool QuickModInstallDialog::downloadDeps()
 	// download all dependency files so they are ready for the dependency resolution
 	ProgressDialog dialog(this);
 	auto task = new QuickModDependencyDownloadTask(m_initialMods, this);
-	task->bind("QuickMods.VerifyMods", this, SLOT(verifyMods(QList<QuickModPtr>)));
+	task->bind("QuickMods.VerifyMods", this, &QuickModInstallDialog::verifyMods);
 	return dialog.exec(task) !=
 		   QDialog::Rejected; // Is this really the best way to check for failure?
 }
@@ -343,7 +343,7 @@ bool QuickModInstallDialog::resolveDeps()
 	bool error = false;
 	QuickModDependencyResolver resolver(m_instance);
 
-	resolver.bind("QuickMods.GetVersion", this, SLOT(getVersion(QuickModRef, QuickModVersionRef, bool *)));
+	resolver.bind("QuickMods.GetVersion", this, &QuickModInstallDialog::getVersion);
 
 	// Error handler.
 	connect(&resolver, &QuickModDependencyResolver::error, [this, &error](const QString &msg)

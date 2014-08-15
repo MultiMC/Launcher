@@ -53,7 +53,7 @@ ModFolderPage::ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *i
 	if (auto onesix = std::dynamic_pointer_cast<OneSixInstance>(inst->getSharedPtr()))
 	{
 		m_modsModel = new QuickModInstanceModList(type, onesix, m_mods, this);
-		m_modsModel->bind("QuickMods.ConfirmRemoval", this, SLOT(quickmodsConfirmRemoval(QList<QuickModRef>)));
+		m_modsModel->bind("QuickMods.ConfirmRemoval", this, &ModFolderPage::quickmodsConfirmRemoval);
 		ui->modTreeView->setModel(m_proxy = new QuickModInstanceModListProxy(m_modsModel, this));
 	}
 	else
