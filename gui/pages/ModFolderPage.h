@@ -17,12 +17,14 @@
 
 #include <QWidget>
 
+#include "logic/quickmod/QuickModInstanceModList.h"
 #include "logic/OneSixInstance.h"
 #include "logic/net/NetJob.h"
 #include "BasePage.h"
 
 class EnabledItemFilter;
 class ModList;
+
 namespace Ui
 {
 class ModFolderPage;
@@ -33,7 +35,7 @@ class ModFolderPage : public QWidget, public BasePage
 	Q_OBJECT
 
 public:
-	explicit ModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
+	explicit ModFolderPage(QuickModInstanceModList::Type type, BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
 						   QString iconName, QString displayName, QString helpPage = "",
 						   QWidget *parent = 0);
 	virtual ~ModFolderPage();
@@ -62,7 +64,6 @@ protected:
 protected:
 	BaseInstance *m_inst;
 
-private:
 	Ui::ModFolderPage *ui;
 	std::shared_ptr<ModList> m_mods;
 	QString m_iconName;
@@ -72,17 +73,32 @@ private:
 
 public
 slots:
-	void modCurrent(const QModelIndex &current, const QModelIndex &previous);
+	virtual void modCurrent(const QModelIndex &current, const QModelIndex &previous);
 
 private
 slots:
-	void on_addModBtn_clicked();
-	void on_rmModBtn_clicked();
-	void on_viewModBtn_clicked();
+	virtual void on_addModBtn_clicked();
+	virtual void on_rmModBtn_clicked();
+	virtual void on_viewModBtn_clicked();
+	virtual void on_updateModBtn_clicked();
+	void on_orphansRemoveBtn_clicked();
+
+	bool quickmodsConfirmRemoval(const QList<QuickModRef> &uids);
+
+private:
+	QuickModInstanceModList *m_modsModel = nullptr;
+	QuickModInstanceModListProxy *m_proxy = nullptr;
+	QList<QuickModRef> m_orphans;
+
+	void updateOrphans();
+
+	QModelIndex mapToModsList(const QModelIndex &view) const;
+	void sortMods(const QModelIndexList &view, QModelIndexList *quickmods, QModelIndexList *mods);
 };
 
 class CoreModFolderPage : public ModFolderPage
 {
+	Q_OBJECT
 public:
 	explicit CoreModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, QString id,
 							   QString iconName, QString displayName, QString helpPage = "",

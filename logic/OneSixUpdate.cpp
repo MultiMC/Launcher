@@ -22,6 +22,11 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QDataStream>
+#include <QMessageBox>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+
 #include <pathutils.h>
 #include <JlCompress.h>
 
@@ -34,7 +39,7 @@
 #include "logic/net/URLConstants.h"
 #include "logic/assets/AssetsUtils.h"
 
-OneSixUpdate::OneSixUpdate(OneSixInstance *inst, QObject *parent) : Task(parent), m_inst(inst)
+OneSixUpdate::OneSixUpdate(OneSixInstance *inst, Bindable *parent) : Task(parent), m_inst(inst)
 {
 }
 

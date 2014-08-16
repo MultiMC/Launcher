@@ -15,18 +15,6 @@ OneSixFTBInstance::OneSixFTBInstance(const QString &rootDir, SettingsObject *set
 {
 }
 
-void OneSixFTBInstance::init()
-{
-	try
-	{
-		reloadVersion();
-	}
-	catch(MMCError & e)
-	{
-		// QLOG_ERROR() << "Caught exception on instance init: " << e.cause();
-	}
-}
-
 void OneSixFTBInstance::copy(const QDir &newDir)
 {
 	QStringList libraryNames;
@@ -118,7 +106,7 @@ bool OneSixFTBInstance::providesVersionFile() const
 
 QString OneSixFTBInstance::getStatusbarDescription()
 {
-	if (flags().contains(VersionBrokenFlag))
+	if (flags() & VersionBrokenFlag)
 	{
 		return "OneSix FTB: " + intendedVersionId() + " (broken)";
 	}

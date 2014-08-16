@@ -27,6 +27,28 @@ namespace Ui
 class VersionSelectDialog;
 }
 
+class VersionSelectProxyModel : public QSortFilterProxyModel
+{
+	Q_OBJECT
+public:
+	VersionSelectProxyModel(QObject *parent = 0);
+
+	struct Filter
+	{
+		QString string;
+		bool exact = false;
+	};
+
+	QHash<int, Filter> filters() const;
+	void setFilter(const int column, const QString &filter, const bool exact);
+	void clearFilters();
+
+protected:
+	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+
+	QHash<int, Filter> m_filters;
+};
+
 class VersionSelectDialog : public QDialog
 {
 	Q_OBJECT
@@ -47,6 +69,7 @@ public:
 	void setExactFilter(int column, QString filter);
 	void setEmptyString(QString emptyString);
 	void setResizeOn(int column);
+	void setUseLatest(const bool useLatest);
 
 private
 slots:
@@ -57,7 +80,8 @@ private:
 
 	BaseVersionList *m_vlist;
 
-	QSortFilterProxyModel *m_proxyModel;
+	VersionSelectProxyModel *m_proxyModel;
 
 	int resizeOnColumn = 0;
+	bool m_useLatest;
 };

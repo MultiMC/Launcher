@@ -14,6 +14,7 @@ struct Version
 	bool operator<(const Version &other) const;
 	bool operator<=(const Version &other) const;
 	bool operator>(const Version &other) const;
+	bool operator>=(const Version &other) const;
 	bool operator==(const Version &other) const;
 	bool operator!=(const Version &other) const;
 
@@ -29,4 +30,3 @@ private:
 LIBUTIL_EXPORT QUrl expandQMURL(const QString &in);
 LIBUTIL_EXPORT bool versionIsInInterval(const QString &version, const QString &interval);
 }
-

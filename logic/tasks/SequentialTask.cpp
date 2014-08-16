@@ -1,9 +1,7 @@
 #include "SequentialTask.h"
 
-SequentialTask::SequentialTask(QObject *parent) :
-	Task(parent), m_currentIndex(-1)
+SequentialTask::SequentialTask(QObject *parent) : Task(parent), m_currentIndex(-1)
 {
-
 }
 
 QString SequentialTask::getStatus() const
@@ -55,7 +53,7 @@ void SequentialTask::startNext()
 	std::shared_ptr<ProgressProvider> next = m_queue[m_currentIndex];
 	connect(next.get(), SIGNAL(failed(QString)), this, SLOT(subTaskFailed(QString)));
 	connect(next.get(), SIGNAL(status(QString)), this, SLOT(subTaskStatus(QString)));
-	connect(next.get(), SIGNAL(progress(qint64,qint64)), this, SLOT(subTaskProgress()));
+	connect(next.get(), SIGNAL(progress(qint64, qint64)), this, SLOT(subTaskProgress()));
 	connect(next.get(), SIGNAL(succeeded()), this, SLOT(startNext()));
 	next->start();
 	emit status(getStatus());

@@ -17,6 +17,8 @@ class QNetworkAccessManager;
 class ForgeVersionList;
 class LiteLoaderVersionList;
 class JavaVersionList;
+class QuickModsList;
+class QuickModUpdateMonitor;
 class UpdateChecker;
 class NotificationChecker;
 class NewsChecker;
@@ -131,6 +133,12 @@ public:
 		return m_tools;
 	}
 
+	std::shared_ptr<QuickModsList> quickmodslist();
+	std::shared_ptr<QuickModUpdateMonitor> quickmodUpdateMonitor()
+	{
+		return m_quickmodUpdateMonitor;
+	}
+
 	void installUpdates(const QString updateFilesDir, UpdateFlags flags = None);
 
 	/*!
@@ -172,7 +180,8 @@ public:
 		return origcwdPath;
 	}
 
-private slots:
+private
+slots:
 	/**
 	 * Do all the things that should be done before we exit
 	 */
@@ -209,6 +218,8 @@ private:
 	std::shared_ptr<MinecraftVersionList> m_minecraftlist;
 	std::shared_ptr<JavaVersionList> m_javalist;
 	std::shared_ptr<URNResolver> m_resolver;
+	std::shared_ptr<QuickModsList> m_quickmodslist;
+	std::shared_ptr<QuickModUpdateMonitor> m_quickmodUpdateMonitor;
 
 	QMap<QString, std::shared_ptr<BaseProfilerFactory>> m_profilers;
 	QMap<QString, std::shared_ptr<BaseDetachedToolFactory>> m_tools;

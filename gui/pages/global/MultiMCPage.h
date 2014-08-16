@@ -68,6 +68,8 @@ slots:
 	void on_lwjglDirBrowseBtn_clicked();
 	void on_iconsDirBrowseBtn_clicked();
 
+	void on_quickmodRepoBtn_clicked();
+
 	/*!
 	 * Updates the list of update channels in the combo box.
 	 */

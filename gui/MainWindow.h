@@ -110,7 +110,10 @@ slots:
 
 	void on_actionEditInstNotes_triggered();
 
+	void on_actionBrowseQuickMods_triggered();
+
 	void on_actionScreenshots_triggered();
+
 
 	/*!
 	 * Launches the currently selected instance with the default account.
@@ -177,6 +180,9 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
 	void setCatBackground(bool enabled);
 	void updateInstanceToolIcon(QString new_icon);
+
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 
 	void setSelectedInstanceById(const QString &id);
 

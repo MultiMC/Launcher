@@ -91,6 +91,10 @@ bool Util::Version::operator>(const Version &other) const
 
 	return false;
 }
+bool Util::Version::operator >=(const Version &other) const
+{
+	return *this > other || *this == other;
+}
 bool Util::Version::operator==(const Version &other) const
 {
 	QStringList parts1 = m_string.split('.');
@@ -158,6 +162,14 @@ QUrl Util::expandQMURL(const QString &in)
 		out.setPath(QString("/topic/%1-").arg(inUrl.path()));
 		return out;
 	}
+	else if (inUrl.scheme() == "curse")
+	{
+		QUrl out;
+		out.setScheme("http");
+		out.setHost("www.curse.com");
+		out.setPath(QString("/mc-mods/minecraft/%1").arg(inUrl.path()));
+		return out;
+	}
 	else
 	{
 		return in;
@@ -173,7 +185,7 @@ bool Util::versionIsInInterval(const QString &version, const QString &interval)
 
 	// Interval notation is used
 	QRegularExpression exp(
-		"(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)])");
+		"(?<start>[\\[\\]\\(\\)])(?<bottom>.*?)(,(?<top>.*?))?(?<end>[\\[\\]\\(\\)]),?");
 	QRegularExpressionMatch match = exp.match(interval);
 	if (match.hasMatch())
 	{
@@ -213,4 +225,3 @@ bool Util::versionIsInInterval(const QString &version, const QString &interval)
 
 	return false;
 }
-

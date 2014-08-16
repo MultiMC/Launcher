@@ -23,6 +23,7 @@ class Task : public ProgressProvider
 {
 	Q_OBJECT
 public:
+	explicit Task(Bindable *parent);
 	explicit Task(QObject *parent = 0);
 	virtual ~Task() {};
 
@@ -50,6 +51,8 @@ slots:
 protected:
 	virtual void executeTask() = 0;
 
+protected
+slots:
 	virtual void emitSucceeded();
 	virtual void emitFailed(QString reason);
 
@@ -65,3 +68,4 @@ protected:
 	bool m_succeeded = false;
 	QString m_failReason = "";
 };
+

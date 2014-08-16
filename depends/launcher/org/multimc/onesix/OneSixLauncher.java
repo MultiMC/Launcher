@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,14 +25,87 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 
 public class OneSixLauncher implements Launcher
 {
+	private class Pair<First, Second>
+	{
+		public final First first;
+		public final Second second;
+		public Pair(First first, Second second)
+		{
+			this.first = first;
+			this.second = second;
+		}
+	}
+
+	private List<String> tweakers;
+	private List<String> coremods;
+	// mostly borrowed from https://github.com/MinecraftForge/FML/blob/master/src/main/java/cpw/mods/fml/relauncher/CoreModManager.java
+	private void scanMetaInf(List<String> mods)
+	{
+		ArrayList<String> coremods = new ArrayList<String>();
+		ArrayList<String> tweakers = new ArrayList<String>();
+
+		for (String modfile : mods)
+		{
+			JarFile jar = null;
+			Attributes mfAttributes;
+			try
+			{
+				jar = new JarFile(new File(modfile));
+				if (jar.getManifest() == null)
+				{
+					continue;
+				}
+				mfAttributes = jar.getManifest().getMainAttributes();
+			}
+			catch (IOException ioe)
+			{
+				continue;
+			}
+			finally
+			{
+				if (jar != null)
+				{
+					try
+					{
+						jar.close();
+					}
+					catch (IOException e)
+					{
+						// Noise
+					}
+				}
+			}
+			String cascadedTweaker = mfAttributes.getValue("TweakClass");
+			if (cascadedTweaker != null)
+			{
+				// TODO sort order?
+				tweakers.add(cascadedTweaker);
+				continue;
+			}
+
+			String fmlCorePlugin = mfAttributes.getValue("FMLCorePlugin");
+			if (fmlCorePlugin == null)
+			{
+				continue;
+			}
+
+			coremods.add(fmlCorePlugin);
+		}
+		this.tweakers = tweakers;
+		this.coremods = coremods;
+	}
+
 	// parameters, separated from ParamBucket
 	private List<String> libraries;
 	private List<String> extlibs;
 	private List<String> mcparams;
 	private List<String> mods;
+	private List<String> litemods;
 	private List<String> traits;
 	private String appletClass;
 	private String mainClass;
@@ -57,6 +130,7 @@ public class OneSixLauncher implements Launcher
 		mainClass = params.firstSafe("mainClass", "net.minecraft.client.Minecraft");
 		appletClass = params.firstSafe("appletClass", "net.minecraft.client.MinecraftApplet");
 		mods = params.allSafe("mods", new ArrayList<String>());
+		litemods = params.allSafe("litemods", new ArrayList<String>());
 		traits = params.allSafe("traits", new ArrayList<String>());
 		natives = params.first("natives");
 
@@ -90,6 +164,37 @@ public class OneSixLauncher implements Launcher
 		Utils.log("  " + mainClass);
 		Utils.log();
 
+		List<String> allJars = new ArrayList<String>();
+		allJars.addAll(libraries);
+		allJars.addAll(mods);
+
+		scanMetaInf(mods);
+		for (String tweaker : this.tweakers)
+		{
+			mcparams.add("--tweakClass");
+			mcparams.add(tweaker);
+		}
+		// coremods
+		String coremodsString;
+		{
+			StringBuilder sb = new StringBuilder();
+			boolean first = true;
+			for (String coremod : this.coremods)
+			{
+				if (first)
+				{
+					first = false;
+				}
+				else
+				{
+					sb.append(",");
+				}
+				sb.append(coremod);
+			}
+			coremodsString = sb.toString();
+		}
+		System.setProperty("fml.coreMods.load", coremodsString);
+
 		Utils.log("Native path:");
 		Utils.log("  " + natives);
 		Utils.log();
@@ -113,12 +218,42 @@ public class OneSixLauncher implements Launcher
 		}
 		Utils.log();
 
-		if(mods.size() > 0)
+		if (this.mods.size() > 0)
 		{
 			Utils.log("Class Path Mods:");
-			for (String s : mods)
+			for (String s : this.mods)
 			{
 				Utils.log("  " + s);
+			}
+			Utils.log();
+		}
+
+		if (this.litemods.size() > 0)
+		{
+			Utils.log("LiteLoader Mods:");
+			for (String s : this.litemods)
+			{
+				Utils.log("  " + s);
+			}
+			Utils.log();
+		}
+
+		if (this.tweakers.size() > 0)
+		{
+			Utils.log("Scanned Tweakers:");
+			for (String tweaker : this.tweakers)
+			{
+				Utils.log("  " + tweaker);
+			}
+			Utils.log();
+		}
+
+		if (this.coremods.size() > 0)
+		{
+			Utils.log("Scanned CoreMods:");
+			for (String coremod : this.coremods)
+			{
+				Utils.log("  " + coremod);
 			}
 			Utils.log();
 		}
@@ -312,6 +447,7 @@ public class OneSixLauncher implements Launcher
 			List<String> allJars = new ArrayList<String>();
 			allJars.addAll(mods);
 			allJars.addAll(libraries);
+			allJars.addAll(litemods);
 
 			if(!Utils.addToClassPath(allJars))
 			{
