@@ -363,29 +363,9 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <widget class="QPushButton" name="createInstanceButton">
        <property name="text">
         <string>Create Instance</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="installButton">
-       <property name="text">
-        <string>Install</string>
        </property>
       </widget>
      </item>
@@ -397,7 +377,6 @@
   <tabstop>fulltextEdit</tabstop>
   <tabstop>categoryBox</tabstop>
   <tabstop>tagsEdit</tabstop>
-  <tabstop>installButton</tabstop>
   <tabstop>addButton</tabstop>
   <tabstop>updateButton</tabstop>
   <tabstop>modInfoArea</tabstop>

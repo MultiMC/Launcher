@@ -33,8 +33,6 @@
 
 #include "MultiMC.h"
 
-// {{{ Utility functions
-
 template <typename T> bool intersectLists(const QList<T> &l1, const QList<T> &l2)
 {
 	for (const T &item : l1)
@@ -70,12 +68,6 @@ template<typename T> T *findParent(const QObject *me)
 	}
 	return findParent<T>(me->parent());
 }
-
-// }}}
-
-// {{{ Model classes
-
-// {{{ Filter model
 
 class ModFilterProxyModel : public QSortFilterProxyModel
 {
@@ -173,8 +165,6 @@ private:
 	QString m_fulltext;
 };
 
-// }}}
-
 class TagsValidator : public QValidator
 {
 	Q_OBJECT
@@ -199,21 +189,12 @@ public:
 	{
 	}
 
-	void setSourceModel(QAbstractItemModel *model)
+	void setSourceModel(std::shared_ptr<OneSixInstance> instance, QAbstractItemModel *model)
 	{
 		QIdentityProxyModel::setSourceModel(model);
-		connect(model, &QAbstractItemModel::modelReset, [this]()
-		{ m_items.clear(); });
-	}
-
-	QList<QuickModRef> getCheckedItems() const
-	{
-		QList<QuickModRef> items;
-		for (auto item : m_items)
-		{
-			items.append(item);
-		}
-		return items;
+		m_instance = instance;
+		connect(instance.get(), &OneSixInstance::versionReloaded, this, &CheckboxProxyModel::update);
+		update();
 	}
 
 	Qt::ItemFlags flags(const QModelIndex &index) const
@@ -226,14 +207,14 @@ public:
 		{
 			if (value == Qt::Checked)
 			{
-				m_items.insert(index.data(QuickModsList::UidRole).value<QuickModRef>());
 				emit dataChanged(index, index, QVector<int>() << Qt::CheckStateRole);
+				emit checkChanged(mapToSource(index), true);
 				return true;
 			}
 			else if (value == Qt::Unchecked)
 			{
-				m_items.remove(index.data(QuickModsList::UidRole).value<QuickModRef>());
 				emit dataChanged(index, index, QVector<int>() << Qt::CheckStateRole);
+				emit checkChanged(mapToSource(index), false);
 				return true;
 			}
 		}
@@ -243,7 +224,7 @@ public:
 	{
 		if (proxyIndex.isValid() && role == Qt::CheckStateRole)
 		{
-			return m_items.contains(
+			return m_installed.contains(
 					   proxyIndex.data(QuickModsList::UidRole).value<QuickModRef>())
 					   ? Qt::Checked
 					   : Qt::Unchecked;
@@ -251,15 +232,22 @@ public:
 		return QIdentityProxyModel::data(proxyIndex, role);
 	}
 
+private slots:
+	void update()
+	{
+		m_installed = m_instance->getFullVersion()->quickmods.keys();
+		emit dataChanged(index(0, 0), index(rowCount(), columnCount()), QVector<int>() << Qt::CheckStateRole);
+	}
+
+signals:
+	void checkChanged(const QModelIndex &sourceIndex, const bool checked);
+
 private:
-	QSet<QuickModRef> m_items;
+	QList<QuickModRef> m_installed;
+	std::shared_ptr<OneSixInstance> m_instance;
+
+	using QIdentityProxyModel::setSourceModel; // hide
 };
-
-// }}}
-
-// {{{ Initialization and updating
-
-// {{{ Constructor/destructor
 
 QuickModBrowsePage::QuickModBrowsePage(std::shared_ptr<OneSixInstance> instance, QWidget *parent)
 	: QWidget(parent), ui(new Ui::QuickModBrowsePage), m_currentMod(0), m_instance(instance),
@@ -281,14 +269,13 @@ QuickModBrowsePage::QuickModBrowsePage(std::shared_ptr<OneSixInstance> instance,
 	{
 		m_view->setModel(m_checkModel);
 		ui->createInstanceButton->hide();
-		m_checkModel->setSourceModel(m_filterModel);
+		m_checkModel->setSourceModel(m_instance, m_filterModel);
+		connect(m_checkModel, &CheckboxProxyModel::checkChanged, this, &QuickModBrowsePage::checkStateChanged);
 	}
 	else
 	{
 		m_view->setModel(m_filterModel);
-		ui->installButton->hide();
 		ui->createFromInstanceBtn->hide();
-		ui->categoryBox->setEditable(false);
 		m_isSingleSelect = true;
 	}
 
@@ -308,10 +295,6 @@ QuickModBrowsePage::~QuickModBrowsePage()
 {
 	delete ui;
 }
-
-// }}}
-
-// {{{ GUI updates
 
 void QuickModBrowsePage::modLogoUpdated()
 {
@@ -367,9 +350,24 @@ void QuickModBrowsePage::setupComboBoxes()
 	}
 }
 
-// }}}
-
-// }}}
+void QuickModBrowsePage::checkStateChanged(const QModelIndex &index, const bool checked)
+{
+	try
+	{
+		if (checked)
+		{
+			m_instance->setQuickModVersion(index.data(QuickModsList::UidRole).value<QuickModRef>(), QuickModVersionRef(), true);
+		}
+		else
+		{
+			m_instance->removeQuickMod(index.data(QuickModsList::UidRole).value<QuickModRef>());
+		}
+	}
+	catch (MMCError &e)
+	{
+		QMessageBox::critical(this, tr("Error"), e.cause());
+	}
+}
 
 bool QuickModBrowsePage::apply()
 {
@@ -387,42 +385,6 @@ bool QuickModBrowsePage::shouldDisplay() const
 
 void QuickModBrowsePage::opened()
 {
-}
-
-// {{{ Event handling
-
-// {{{ Buttons
-
-void QuickModBrowsePage::on_installButton_clicked()
-{
-	auto items = m_checkModel->getCheckedItems();
-	auto alreadySelected = m_instance->getFullVersion()->quickmods;
-	for (auto mod : alreadySelected.keys())
-	{
-		if (alreadySelected[mod].second)
-		{
-			items.removeAll(mod);
-		}
-	}
-	if (items.isEmpty())
-	{
-		return;
-	}
-
-	QMap<QuickModRef, QPair<QuickModVersionRef, bool>> mods;
-	for (auto item : items)
-	{
-		mods[QuickModRef(item)] = qMakePair(alreadySelected[item].first, true);
-	}
-
-	try
-	{
-		m_instance->setQuickModVersions(mods);
-	}
-	catch (MMCError &e)
-	{
-		QMessageBox::critical(this, tr("Error"), e.cause());
-	}
 }
 
 void QuickModBrowsePage::on_createInstanceButton_clicked()
@@ -466,10 +428,6 @@ void QuickModBrowsePage::on_createFromInstanceBtn_clicked()
 	QuickModCreateFromInstanceDialog(m_instance, this).exec();
 }
 
-// }}}
-
-// {{{ Link clicking
-
 void QuickModBrowsePage::on_categoriesLabel_linkActivated(const QString &link)
 {
 	ui->categoryBox->setCurrentText(link);
@@ -487,10 +445,6 @@ void QuickModBrowsePage::on_mcVersionsLabel_linkActivated(const QString &link)
 {
 	ui->mcVersionBox->setCurrentText(link);
 }
-
-// }}}
-
-// {{{ Filtering
 
 void QuickModBrowsePage::on_fulltextEdit_textChanged()
 {
@@ -512,10 +466,6 @@ void QuickModBrowsePage::on_mcVersionBox_currentTextChanged()
 {
 	m_filterModel->setMCVersion(ui->mcVersionBox->currentText());
 }
-
-// }}}
-
-// {{{ List selection
 
 void QuickModBrowsePage::modSelectionChanged(const QItemSelection &selected,
 											   const QItemSelection &deselected)
@@ -571,9 +521,5 @@ void QuickModBrowsePage::modSelectionChanged(const QItemSelection &selected,
 				&QuickModBrowsePage::modLogoUpdated);
 	}
 }
-
-// }}}
-
-// }}}
 
 #include "QuickModBrowsePage.moc"

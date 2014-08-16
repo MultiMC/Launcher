@@ -50,7 +50,6 @@ public:
 
 private
 slots:
-	void on_installButton_clicked();
 	void on_createInstanceButton_clicked();
 	void on_categoriesLabel_linkActivated(const QString &link);
 	void on_tagsLabel_linkActivated(const QString &link);
@@ -67,6 +66,8 @@ slots:
 	void modLogoUpdated();
 
 	void setupComboBoxes();
+
+	void checkStateChanged(const QModelIndex &index, const bool checked);
 
 private:
 	Ui::QuickModBrowsePage *ui;

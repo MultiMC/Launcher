@@ -607,6 +607,11 @@ void OneSixInstance::setQuickModVersions(const QMap<QuickModRef, QPair<QuickModV
 	userFile.close();
 	reloadVersion();
 }
+
+void OneSixInstance::removeQuickMod(const QuickModRef &uid)
+{
+	removeQuickMods(QList<QuickModRef>() << uid);
+}
 void OneSixInstance::removeQuickMods(const QList<QuickModRef> &uids)
 {
 	QFile userFile(instanceRoot() + "/user.json");
