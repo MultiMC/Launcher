@@ -322,24 +322,11 @@ void QuickModBrowsePage::setupComboBoxes()
 {
 	QStringList categories;
 	categories.append("");
-	int initialVsn = 0;
-	QStringList versions;
-	versions.append("");
-	if (m_instance != nullptr)
-	{
-		initialVsn = 1;
-		versions.append(m_instance->intendedVersionId());
-	}
-
 	for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
 	{
 		categories.append(MMC->quickmodslist()->modAt(i)->categories());
-		versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
 	}
-
 	categories.removeDuplicates();
-	versions.removeDuplicates();
-
 	ui->categoryBox->clear();
 	if (!m_isSingleSelect)
 	{
@@ -349,9 +336,35 @@ void QuickModBrowsePage::setupComboBoxes()
 	{
 		ui->categoryBox->addItem("Modpack");
 	}
-	ui->mcVersionBox->clear();
-	ui->mcVersionBox->addItems(versions);
-	ui->mcVersionBox->setCurrentIndex(initialVsn);
+
+	if (m_instance == nullptr)
+	{
+		QStringList versions;
+		versions.append("");
+		for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
+		{
+			versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
+		}
+		versions.removeDuplicates();
+
+		ui->mcVersionBox->clear();
+		ui->mcVersionBox->addItems(versions);
+		ui->mcVersionBox->setCurrentIndex(0);
+
+		if (ui->searchLayout->indexOf(ui->mcVersionBox) == -1)
+		{
+			ui->searchLayout->addRow(ui->mcVersionBox, ui->mcVersionLabel);
+		}
+		ui->mcVersionBox->setVisible(true);
+		ui->mcVersionLabel->setVisible(true);
+	}
+	else
+	{
+		ui->searchLayout->removeWidget(ui->mcVersionBox);
+		ui->searchLayout->removeWidget(ui->mcVersionLabel);
+		ui->mcVersionBox->setVisible(false);
+		ui->mcVersionLabel->setVisible(false);
+	}
 }
 
 // }}}
@@ -369,7 +382,7 @@ bool QuickModBrowsePage::shouldDisplay() const
 	{
 		return false;
 	}
-	return static_cast<OneSixInstance *>(m_instance.get());
+	return true;
 }
 
 void QuickModBrowsePage::opened()
