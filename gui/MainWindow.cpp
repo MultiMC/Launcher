@@ -1455,7 +1455,7 @@ void MainWindow::selectionBad()
 
 void MainWindow::on_actionBrowseQuickMods_triggered()
 {
-	// TODO use ShowPageDialog to show the global settings dialog with a quickmods page
+	ShowPageDialog(m_globalSettingsProvider, this, "quickmod-browse");
 }
 
 void MainWindow::instanceEnded()
