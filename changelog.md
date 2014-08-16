@@ -1,7 +1,7 @@
 #MultiMC Changelog
 
--##0.5.0
--- In development...
+##0.5.0
+- In development...
 
 ##0.4.2
 - Show a warning in the log if a library is missing
