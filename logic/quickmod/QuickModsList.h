@@ -115,7 +115,7 @@ public:
 	void releaseFromSandbox(QuickModPtr mod);
 
 public slots:
-	void registerMod(const QString &fileName);
+	void registerMod(const QString &fileName, bool sandbox);
 	void registerMod(const QUrl &url, bool sandbox);
 	void unregisterMod(QuickModPtr mod);
 

@@ -447,9 +447,9 @@ void QuickModsList::releaseFromSandbox(QuickModPtr mod)
 	m_updater->releaseFromSandbox(mod);
 }
 
-void QuickModsList::registerMod(const QString &fileName)
+void QuickModsList::registerMod(const QString &fileName, bool sandbox)
 {
-	registerMod(QUrl::fromLocalFile(fileName), false);
+	registerMod(QUrl::fromLocalFile(fileName), sandbox);
 }
 void QuickModsList::registerMod(const QUrl &url, bool sandbox)
 {
