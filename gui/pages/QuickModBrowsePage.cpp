@@ -343,6 +343,10 @@ void QuickModBrowsePage::setupComboBoxes()
 	}
 	else
 	{
+		ui->mcVersionBox->clear();
+		ui->mcVersionBox->addItem(m_instance->intendedVersionId());
+		ui->mcVersionBox->setCurrentIndex(0);
+
 		ui->searchLayout->removeWidget(ui->mcVersionBox);
 		ui->searchLayout->removeWidget(ui->mcVersionLabel);
 		ui->mcVersionBox->setVisible(false);
