@@ -5,6 +5,10 @@
 #include <QProgressBar>
 #include <QNetworkReply>
 
+#ifdef WEBKIT_INSPECTOR
+#include <QWebInspector>
+#endif
+
 #include "MultiMC.h"
 
 WebDownloadNavigator::WebDownloadNavigator(QWidget *parent)
@@ -19,6 +23,12 @@ WebDownloadNavigator::WebDownloadNavigator(QWidget *parent)
 	m_view->page()->setForwardUnsupportedContent(true);
 	m_view->page()->setNetworkAccessManager(MMC->qnam().get());
 	m_view->settings()->setAttribute(QWebSettings::PluginsEnabled, true);
+#ifdef WEBKIT_INSPECTOR
+	m_view->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+	QWebInspector *inspector = new QWebInspector;
+	inspector->setPage(m_view->page());
+	connect(this, &WebDownloadNavigator::destroyed, [inspector](QObject*){inspector->deleteLater();});
+#endif
 
 	m_layout->addWidget(m_view, 1);
 	m_layout->addWidget(m_bar);

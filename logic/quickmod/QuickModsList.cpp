@@ -245,6 +245,18 @@ QList<QuickModPtr> QuickModsList::mods(const QuickModRef &uid) const
 	return out;
 }
 
+QuickModPtr QuickModsList::mod(const QString &internalUid) const
+{
+	for (QuickModPtr mod : m_mods)
+	{
+		if (mod->internalUid() == internalUid)
+		{
+			return mod;
+		}
+	}
+	return nullptr;
+}
+
 QList<QuickModVersionRef> QuickModsList::modsProvidingModVersion(const QuickModRef &uid,
 																 const QuickModVersionRef &version) const
 {
@@ -491,22 +503,6 @@ void QuickModsList::clearMods()
 
 	emit modsListChanged();
 }
-void QuickModsList::removeMod(QuickModPtr mod)
-{
-	if (!m_mods.contains(mod))
-	{
-		return;
-	}
-
-	disconnect(mod.get(), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
-	disconnect(mod.get(), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
-
-	beginRemoveRows(QModelIndex(), m_mods.indexOf(mod), m_mods.indexOf(mod));
-	m_mods.takeAt(m_mods.indexOf(mod));
-	endRemoveRows();
-
-	emit modsListChanged();
-}
 
 void QuickModsList::modIconUpdated()
 {
@@ -549,13 +545,17 @@ void QuickModsList::cleanup()
 
 void QuickModsList::unregisterMod(QuickModPtr mod)
 {
-	int row = m_mods.indexOf(mod);
-	if (row == -1)
+	if (!m_mods.contains(mod))
 	{
 		return;
 	}
-	beginRemoveRows(QModelIndex(), row, row);
-	m_mods.removeAt(row);
+	disconnect(mod.get(), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
+	disconnect(mod.get(), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
+
+	beginRemoveRows(QModelIndex(), m_mods.indexOf(mod), m_mods.indexOf(mod));
+	m_mods.removeAll(mod);
 	endRemoveRows();
 	m_updater->unregisterMod(mod);
+
+	emit modsListChanged();
 }

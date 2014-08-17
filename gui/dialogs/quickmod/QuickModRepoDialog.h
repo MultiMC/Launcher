@@ -15,6 +15,9 @@ public:
 	explicit QuickModRepoDialog(QWidget *parent = 0);
 	~QuickModRepoDialog();
 
+private slots:
+	void on_removeBtn_clicked();
+
 private:
 	Ui::QuickModRepoDialog *ui;
 

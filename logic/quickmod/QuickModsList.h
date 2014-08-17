@@ -85,6 +85,7 @@ public:
 
 	QuickModPtr modForModId(const QString &modId) const;
 	QList<QuickModPtr> mods(const QuickModRef &uid) const;
+	QuickModPtr mod(const QString &internalUid) const;
 	QList<QuickModVersionRef> modsProvidingModVersion(const QuickModRef &uid,
 													  const QuickModVersionRef &version) const;
 	QuickModVersionRef latestVersion(const QuickModRef &modUid, const QString &mcVersion) const;
@@ -124,7 +125,6 @@ private slots:
 	void touchMod(QuickModPtr mod);
 	void addMod(QuickModPtr mod);
 	void clearMods();
-	void removeMod(QuickModPtr mod);
 
 	void modIconUpdated();
 	void modLogoUpdated();

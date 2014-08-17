@@ -187,6 +187,12 @@ else()
 	set(MultiMC_UPDATER_FORCE_LOCAL_value "false")
 endif()
 
+#### For QuickMods
+option(MultiMC_WEBKIT_INSPECTOR "Enable the QWebInspector for debugging" OFF)
+if(MultiMC_WEBKIT_INSPECTOR)
+    add_definitions(-DWEBKIT_INSPECTOR)
+endif()
+
 #### Custom target to just print the version.
 add_custom_target(version echo "Version: ${MultiMC_VERSION_STRING}")
 
