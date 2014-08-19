@@ -31,21 +31,23 @@ QuickModInstanceModList::QuickModInstanceModList(const Type type,
 			&QuickModInstanceModList::beginResetModel);
 	connect(m_modList.get(), &ModList::modelReset, this,
 			&QuickModInstanceModList::endResetModel);
-	connect(
-		m_modList.get(), &ModList::rowsAboutToBeInserted,
-		[this](const QModelIndex &parent, const int first, const int last)
-		{ beginInsertRows(parent, first + quickmods().size(), last + quickmods().size()); });
+	connect(m_modList.get(), &ModList::rowsAboutToBeInserted,
+			[this](const QModelIndex &parent, const int first, const int last)
+	{ beginInsertRows(QModelIndex(), first + quickmods().size(), last + quickmods().size()); });
 	connect(m_modList.get(), &ModList::rowsInserted, this,
 			&QuickModInstanceModList::endInsertRows);
+	connect(m_modList.get(), &ModList::rowsRemoved,
+			[this](const QModelIndex &parent, const int first, const int last)
+	{ beginRemoveRows(QModelIndex(), first + quickmods().size(), last + quickmods().size()); });
 	connect(m_modList.get(), &ModList::dataChanged,
 			[this](const QModelIndex &tl, const QModelIndex &br, const QVector<int> &roles)
-			{ emit dataChanged(mapFromModList(tl), mapFromModList(br), roles); });
+	{ emit dataChanged(mapFromModList(tl), mapFromModList(br), roles); });
 	connect(m_instance.get(), &OneSixInstance::versionReloaded, this,
 			&QuickModInstanceModList::resetModel);
 
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsInserted,
 			[this](const QModelIndex &parent, const int first, const int last)
-			{
+	{
 		for (int i = first; i < (last + 1); ++i)
 		{
 			auto mod = MMC->quickmodslist()->modAt(i);
@@ -55,7 +57,7 @@ QuickModInstanceModList::QuickModInstanceModList(const Type type,
 	});
 	connect(MMC->quickmodslist().get(), &QuickModsList::rowsAboutToBeRemoved,
 			[this](const QModelIndex &parent, const int first, const int last)
-			{
+	{
 		for (int i = first; i < (last + 1); ++i)
 		{
 			disconnect(MMC->quickmodslist()->modAt(i).get(), 0, this, 0);
@@ -117,7 +119,8 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 		case NameColumn:
 			return mod->icon();
 		case VersionColumn:
-			if (mod->latestVersion(m_instance->intendedVersionId()).isValid() && versionName.isValid())
+			if (mod->latestVersion(m_instance->intendedVersionId()).isValid() &&
+				versionName.isValid())
 			{
 				const QuickModVersionRef latest =
 					mod->latestVersion(m_instance->intendedVersionId());
@@ -163,8 +166,8 @@ QVariant QuickModInstanceModList::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 }
-QVariant QuickModInstanceModList::headerData(int section, Qt::Orientation orientation, int role)
-	const
+QVariant QuickModInstanceModList::headerData(int section, Qt::Orientation orientation,
+											 int role) const
 {
 	return m_modList->headerData(section, orientation, role);
 }
@@ -174,7 +177,7 @@ Qt::ItemFlags QuickModInstanceModList::flags(const QModelIndex &index) const
 	{
 		return m_modList->flags(mapToModList(index));
 	}
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled;
 }
 
 bool QuickModInstanceModList::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -204,11 +207,7 @@ QStringList QuickModInstanceModList::mimeTypes() const
 bool QuickModInstanceModList::dropMimeData(const QMimeData *data, Qt::DropAction action,
 										   int row, int column, const QModelIndex &parent)
 {
-	if (isModListArea(index(row, column, parent)))
-	{
-		return m_modList->dropMimeData(data, action, row - quickmods().size(), column, parent);
-	}
-	return QAbstractListModel::dropMimeData(data, action, row, column, parent);
+	return m_modList->dropMimeData(data, action, 0, column, parent);
 }
 Qt::DropActions QuickModInstanceModList::supportedDragActions() const
 {
@@ -286,8 +285,8 @@ void QuickModInstanceModList::updateMods(const QModelIndexList &list)
 			continue;
 		}
 		const auto uid = modAt(index.row())->uid();
-		mods.insert(uid,
-					qMakePair(QuickModVersionRef(), m_instance->getFullVersion()->quickmods[uid].second));
+		mods.insert(uid, qMakePair(QuickModVersionRef(),
+								   m_instance->getFullVersion()->quickmods[uid].second));
 	}
 	if (!mods.isEmpty())
 	{
