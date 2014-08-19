@@ -27,6 +27,7 @@
 #include "logic/net/CacheDownload.h"
 #include "logic/tasks/Task.h"
 #include "logic/quickmod/QuickMod.h"
+#include "modutils.h"
 
 class BaseInstance;
 typedef std::shared_ptr<BaseInstance> InstancePtr;
@@ -60,9 +61,11 @@ class QuickModVersionRef
 {
 	QuickModRef m_mod;
 	QString m_id;
+	Util::Version m_version;
 
 public:
-	explicit QuickModVersionRef(const QuickModRef &m_mod, const QString &m_id);
+	explicit QuickModVersionRef(const QuickModRef &mod, const QString &id, const Util::Version &version);
+	explicit QuickModVersionRef(const QuickModRef &mod, const QString &id);
 	QuickModVersionRef()
 	{
 	}
@@ -85,6 +88,10 @@ public:
 	QString toString() const
 	{
 		return m_id;
+	}
+	QuickModRef mod() const
+	{
+		return m_mod;
 	}
 };
 Q_DECLARE_METATYPE(QuickModVersionRef)
@@ -135,7 +142,7 @@ public:
 	}
 	QuickModVersionRef version() const
 	{
-		return QuickModVersionRef(mod->uid(), version_.isNull() ? name_ : version_);
+		return QuickModVersionRef(mod->uid(), version_.isNull() ? name_ : version_, m_version);
 	}
 
 	bool needsDeploy() const;
@@ -157,6 +164,7 @@ public:
 	InstallType installType;
 	QList<Library> libraries;
 	QList<QuickModDownload> downloads;
+	Util::Version m_version;
 
 	bool operator==(const QuickModVersion &other) const
 	{

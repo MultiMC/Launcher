@@ -125,6 +125,7 @@ public:
 	QuickModVersionBuilder setVersion(const QString &version)
 	{
 		m_version->version_ = version;
+		m_version->m_version = Util::Version(version);
 		return *this;
 	}
 	QuickModVersionBuilder setType(const QString &type)

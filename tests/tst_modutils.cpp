@@ -21,6 +21,35 @@
 class ModUtilsTest : public QObject
 {
 	Q_OBJECT
+	void setupVersions()
+	{
+		QTest::addColumn<QString>("first");
+		QTest::addColumn<QString>("second");
+		QTest::addColumn<bool>("lessThan");
+		QTest::addColumn<bool>("equal");
+
+		QTest::newRow("equal, explicit") << "1.2.0" << "1.2.0" << false << true;
+		QTest::newRow("equal, implicit 1") << "1.2" << "1.2.0" << false << true;
+		QTest::newRow("equal, implicit 2") << "1.2.0" << "1.2" << false << true;
+		QTest::newRow("equal, two-digit") << "1.42" << "1.42" << false << true;
+
+		QTest::newRow("lessThan, explicit 1") << "1.2.0" << "1.2.1" << true << false;
+		QTest::newRow("lessThan, explicit 2") << "1.2.0" << "1.3.0" << true << false;
+		QTest::newRow("lessThan, explicit 3") << "1.2.0" << "2.2.0" << true << false;
+		QTest::newRow("lessThan, implicit 1") << "1.2" << "1.2.1" << true << false;
+		QTest::newRow("lessThan, implicit 2") << "1.2" << "1.3.0" << true << false;
+		QTest::newRow("lessThan, implicit 3") << "1.2" << "2.2.0" << true << false;
+		QTest::newRow("lessThan, two-digit") << "1.41" << "1.42" << true << false;
+
+		QTest::newRow("greaterThan, explicit 1") << "1.2.1" << "1.2.0" << false << false;
+		QTest::newRow("greaterThan, explicit 2") << "1.3.0" << "1.2.0" << false << false;
+		QTest::newRow("greaterThan, explicit 3") << "2.2.0" << "1.2.0" << false << false;
+		QTest::newRow("greaterThan, implicit 1") << "1.2.1" << "1.2" << false << false;
+		QTest::newRow("greaterThan, implicit 2") << "1.3.0" << "1.2" << false << false;
+		QTest::newRow("greaterThan, implicit 3") << "2.2.0" << "1.2" << false << false;
+		QTest::newRow("greaterThan, two-digit") << "1.42" << "1.41" << false << false;
+	}
+
 private slots:
 	void initTestCase()
 	{
@@ -69,6 +98,55 @@ private slots:
 		QCOMPARE(Util::versionIsInInterval(version, interval), result);
 	}
 
+	void test_versionCompareLessThan_data()
+	{
+		setupVersions();
+	}
+	void test_versionCompareLessThan()
+	{
+		QFETCH(QString, first);
+		QFETCH(QString, second);
+		QFETCH(bool, lessThan);
+		QFETCH(bool, equal);
+
+		const auto v1 = Util::Version(first);
+		const auto v2 = Util::Version(second);
+
+		QCOMPARE(v1 < v2, lessThan);
+	}
+	void test_versionCompareGreaterThan_data()
+	{
+		setupVersions();
+	}
+	void test_versionCompareGreaterThan()
+	{
+		QFETCH(QString, first);
+		QFETCH(QString, second);
+		QFETCH(bool, lessThan);
+		QFETCH(bool, equal);
+
+		const auto v1 = Util::Version(first);
+		const auto v2 = Util::Version(second);
+
+		QCOMPARE(v1 > v2, !lessThan && !equal);
+	}
+	void test_versionCompareEqual_data()
+	{
+		setupVersions();
+	}
+	void test_versionCompareEqual()
+	{
+		QFETCH(QString, first);
+		QFETCH(QString, second);
+		QFETCH(bool, lessThan);
+		QFETCH(bool, equal);
+
+		const auto v1 = Util::Version(first);
+		const auto v2 = Util::Version(second);
+
+		QCOMPARE(v1 == v2, equal);
+	}
+
 	void test_expandQMURL_data()
 	{
 		QTest::addColumn<QString>("in");
@@ -105,6 +183,6 @@ private slots:
 	}
 };
 
-QTEST_GUILESS_MAIN_MULTIMC(ModUtilsTest)
+QTEST_GUILESS_MAIN(ModUtilsTest)
 
 #include "tst_modutils.moc"

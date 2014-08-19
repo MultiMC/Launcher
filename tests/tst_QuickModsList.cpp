@@ -18,9 +18,14 @@
 
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/InstanceFactory.h"
-#include "logic/minecraft/MinecraftVersion.h"
+#include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/BaseInstance.h"
 #include "TestUtil.h"
+
+QDebug operator<<(QDebug dbg, const QuickModVersionRef &version)
+{
+	return dbg << QString("QuickModVersionRef(%1)").arg(version.toString()).toUtf8().constData();
+}
 
 class QuickModsListTest : public QObject
 {
@@ -29,6 +34,11 @@ private
 slots:
 	void initTestCase()
 	{
+		Q_INIT_RESOURCE(instances);
+		Q_INIT_RESOURCE(multimc);
+		Q_INIT_RESOURCE(backgrounds);
+		Q_INIT_RESOURCE(versions);
+
 		QDir current = QDir::current();
 		current.remove("quickmod.cfg");
 		QDir(current.absoluteFilePath("instances")).removeRecursively();
@@ -53,6 +63,8 @@ slots:
 	{
 		auto version = new QuickModVersion(mod);
 		version->name_ = "1.42";
+		version->version_ = "1.42";
+		version->m_version = Util::Version("1.42");
 		QuickModDownload download;
 		download.url = "http://downloads.com/deadbeaf";
 		version->downloads.append(download);
@@ -125,11 +137,8 @@ slots:
 		QTest::addColumn<QVector<QString>>("filenames");
 
 		InstancePtr instance;
-		std::shared_ptr<MinecraftVersion> version;
-		version.reset(new MinecraftVersion);
-		version->m_name = "1.6.4";
 		InstanceFactory::get().createInstance(
-			instance, version, QDir::current().absoluteFilePath("instances/TestInstance"));
+			instance, MMC->minecraftlist()->findVersion("1.6.4"), QDir::current().absoluteFilePath("instances/TestInstance"));
 		QuickModPtr testMod = TestsInternal::createMod("TestMod");
 		QuickModPtr testMod2 = TestsInternal::createMod("TestMod2");
 		QuickModPtr testMod3 = TestsInternal::createMod("TestMod3");

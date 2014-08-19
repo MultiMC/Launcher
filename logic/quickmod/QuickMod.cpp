@@ -35,9 +35,9 @@ QuickModRef::QuickModRef() : m_uid(QString())
 }
 QuickModRef::QuickModRef(const QString &uid) : m_uid(uid)
 {
-
 }
-QuickModRef::QuickModRef(const QString &uid, const QUrl &updateUrl) : m_uid(uid), m_updateUrl(updateUrl)
+QuickModRef::QuickModRef(const QString &uid, const QUrl &updateUrl)
+	: m_uid(uid), m_updateUrl(updateUrl)
 {
 }
 QString QuickModRef::userFacing() const
@@ -79,8 +79,7 @@ QList<QuickModVersionRef> QuickModRef::findVersions() const
 }
 QDebug operator<<(QDebug dbg, const QuickModRef &uid)
 {
-	dbg.nospace() << uid.toString();
-	return dbg.maybeSpace();
+	return dbg << QString("QuickModRef(%1)").arg(uid.toString()).toLatin1().constData();
 }
 uint qHash(const QuickModRef &uid)
 {
@@ -132,91 +131,97 @@ void QuickMod::sortVersions()
 {
 	std::sort(m_versions.begin(), m_versions.end(),
 			  [](const QuickModVersionPtr v1, const QuickModVersionPtr v2)
-			  {
-		return Util::Version(v1->name()) > Util::Version(v2->name());
-	});
+	{ return v1->m_version > v2->m_version; });
 }
 
 void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 {
-	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
-	const QJsonObject mod = MMCJson::ensureObject(doc, "root");
-	if (MMCJson::ensureInteger(mod.value("formatVersion"), "'formatVersion'") > CURRENT_QUICKMOD_VERSION)
+	const QJsonDocument doc = MMCJson::parseDocument(data, QStringLiteral("QuickMod file"));
+	const QJsonObject mod = MMCJson::ensureObject(doc, QStringLiteral("root"));
+	if (MMCJson::ensureInteger(mod.value(QStringLiteral("formatVersion")),
+							   QStringLiteral("'formatVersion'")) > CURRENT_QUICKMOD_VERSION)
 	{
 		throw MMCError(tr("QuickMod format to new"));
 	}
-	m_uid = QuickModRef(MMCJson::ensureString(mod.value("uid"), "'uid'"));
-	m_repo = MMCJson::ensureString(mod.value("repo"), "'repo'");
-	m_name = MMCJson::ensureString(mod.value("name"), "'name'");
-	m_description = mod.value("description").toString();
-	m_nemName = mod.value("nemName").toString();
-	m_modId = mod.value("modId").toString();
-	m_license = mod.value("license").toString();
-	if (mod.contains("authors"))
+	m_uid = QuickModRef(
+		MMCJson::ensureString(mod.value(QStringLiteral("uid")), QStringLiteral("'uid'")));
+	m_repo = MMCJson::ensureString(mod.value(QStringLiteral("repo")), QStringLiteral("'repo'"));
+	m_name = MMCJson::ensureString(mod.value(QStringLiteral("name")), QStringLiteral("'name'"));
+	m_description = mod.value(QStringLiteral("description")).toString();
+	m_nemName = mod.value(QStringLiteral("nemName")).toString();
+	m_modId = mod.value(QStringLiteral("modId")).toString();
+	m_license = mod.value(QStringLiteral("license")).toString();
+	if (mod.contains(QStringLiteral("authors")))
 	{
-		auto authors = MMCJson::ensureObject(mod.value("authors"), "'authors'");
+		auto authors = MMCJson::ensureObject(mod.value(QStringLiteral("authors")),
+											 QStringLiteral("'authors'"));
 		for (auto it = authors.begin(); it != authors.end(); ++it)
 		{
-			m_authors[it.key()] = MMCJson::ensureStringList(it.value(), "authors array");
+			m_authors[it.key()] =
+				MMCJson::ensureStringList(it.value(), QStringLiteral("authors array"));
 		}
 	}
-	if (mod.contains("urls"))
+	if (mod.contains(QStringLiteral("urls")))
 	{
-		auto urls = MMCJson::ensureObject(mod.value("urls"), "'urls'");
+		auto urls =
+			MMCJson::ensureObject(mod.value(QStringLiteral("urls")), QStringLiteral("'urls'"));
 		for (auto it = urls.begin(); it != urls.end(); ++it)
 		{
 			const QJsonArray list = MMCJson::ensureArray(it.value());
 			QList<QUrl> urlList;
 			for (auto listItem : list)
 			{
-				urlList.append(Util::expandQMURL(MMCJson::ensureString(listItem, "url item")));
+				urlList.append(Util::expandQMURL(
+					MMCJson::ensureString(listItem, QStringLiteral("url item"))));
 			}
 			m_urls[it.key()] = urlList;
 		}
 	}
 	m_references.clear();
-	const QJsonObject references = mod.value("references").toObject();
+	const QJsonObject references = mod.value(QStringLiteral("references")).toObject();
 	for (auto key : references.keys())
 	{
-		m_references.insert(QuickModRef(key), Util::expandQMURL(MMCJson::ensureString(
-												  references[key], "'reference'")));
+		m_references.insert(QuickModRef(key),
+							Util::expandQMURL(MMCJson::ensureString(
+								references[key], QStringLiteral("'reference'"))));
 	}
 	m_categories.clear();
-	for (auto val : mod.value("categories").toArray())
+	for (auto val : mod.value(QStringLiteral("categories")).toArray())
 	{
-		m_categories.append(MMCJson::ensureString(val, "'category'"));
+		m_categories.append(MMCJson::ensureString(val, QStringLiteral("'category'")));
 	}
 	m_tags.clear();
-	for (auto val : mod.value("tags").toArray())
+	for (auto val : mod.value(QStringLiteral("tags")).toArray())
 	{
-		m_tags.append(MMCJson::ensureString(val, "'tag'"));
+		m_tags.append(MMCJson::ensureString(val, QStringLiteral("'tag'")));
 	}
 	m_mavenRepos.clear();
-	for (auto val : mod.value("mavenRepos").toArray())
+	for (auto val : mod.value(QStringLiteral("mavenRepos")).toArray())
 	{
-		m_mavenRepos.append(MMCJson::ensureUrl(val, "maven repository"));
+		m_mavenRepos.append(MMCJson::ensureUrl(val, QStringLiteral("maven repository")));
 	}
-	m_updateUrl =
-		Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
+	m_updateUrl = Util::expandQMURL(MMCJson::ensureString(
+		mod.value(QStringLiteral("updateUrl")), QStringLiteral("'updateUrl'")));
 
 	m_versions.clear();
-	for (auto val : MMCJson::ensureArray(mod.value("versions"), "'versions'"))
+	for (auto val : MMCJson::ensureArray(mod.value(QStringLiteral("versions")),
+										 QStringLiteral("'versions'")))
 	{
 		QuickModVersionPtr ptr(new QuickModVersion(_this));
-		ptr->parse(MMCJson::ensureObject(val, "version"));
+		ptr->parse(MMCJson::ensureObject(val, QStringLiteral("version")));
 		m_versions.append(ptr);
 	}
 	sortVersions();
 
 	if (!m_uid.isValid())
 	{
-		throw QuickModParseError("The 'uid' field in the QuickMod file for " + m_name +
-								 " is empty");
+		throw QuickModParseError(QStringLiteral("The 'uid' field in the QuickMod file for ") +
+								 m_name + QStringLiteral(" is empty"));
 	}
 	if (m_repo.isEmpty())
 	{
-		throw QuickModParseError("The 'repo' field in the QuickMod file for " + m_name +
-								 " is empty");
+		throw QuickModParseError(QStringLiteral("The 'repo' field in the QuickMod file for ") +
+								 m_name + QStringLiteral(" is empty"));
 	}
 }
 
@@ -278,35 +283,35 @@ bool QuickMod::compare(const QuickModPtr other) const
 
 QuickMod::UrlType QuickMod::urlType(const QString &id)
 {
-	if (id == "website")
+	if (id == QLatin1String("website"))
 	{
 		return Website;
 	}
-	else if (id == "wiki")
+	else if (id == QLatin1String("wiki"))
 	{
 		return Wiki;
 	}
-	else if (id == "forum")
+	else if (id == QLatin1String("forum"))
 	{
 		return Forum;
 	}
-	else if (id == "donation")
+	else if (id == QLatin1String("donation"))
 	{
 		return Donation;
 	}
-	else if (id == "issues")
+	else if (id == QLatin1String("issues"))
 	{
 		return Issues;
 	}
-	else if (id == "source")
+	else if (id == QLatin1String("source"))
 	{
 		return Source;
 	}
-	else if (id == "icon")
+	else if (id == QLatin1String("icon"))
 	{
 		return Icon;
 	}
-	else if (id == "logo")
+	else if (id == QLatin1String("logo"))
 	{
 		return Logo;
 	}
@@ -362,7 +367,8 @@ QString QuickMod::humanUrlId(const QuickMod::UrlType type)
 }
 QList<QuickMod::UrlType> QuickMod::urlTypes()
 {
-	return QList<UrlType>() << Website << Wiki << Forum << Donation << Issues << Source << Icon << Logo;
+	return QList<UrlType>() << Website << Wiki << Forum << Donation << Issues << Source << Icon
+							<< Logo;
 }
 
 void QuickMod::iconDownloadFinished(int index)
