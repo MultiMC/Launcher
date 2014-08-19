@@ -141,11 +141,15 @@ InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &in
 	QLOG_DEBUG() << instDir.toUtf8();
 	if (!rootDir.exists() && !rootDir.mkpath("."))
 	{
+		QLOG_ERROR() << "Can't create instance folder" << instDir;
 		return InstanceFactory::CantCreateDir;
 	}
 	auto mcVer = std::dynamic_pointer_cast<MinecraftVersion>(version);
 	if (!mcVer)
+	{
+		QLOG_ERROR() << "Can't create instance for non-existing MC version";
 		return InstanceFactory::NoSuchVersion;
+	}
 
 	auto m_settings = new INISettingsObject(PathCombine(instDir, "instance.cfg"));
 	m_settings->registerSetting("InstanceType", "Legacy");
@@ -181,7 +185,6 @@ InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &in
 	}
 
 	inst->init();
-
 	// FIXME: really, how do you even know?
 	return InstanceFactory::NoCreateError;
 }

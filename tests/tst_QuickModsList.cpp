@@ -138,7 +138,7 @@ slots:
 
 		InstancePtr instance;
 		InstanceFactory::get().createInstance(
-			instance, MMC->minecraftlist()->findVersion("1.6.4"), QDir::current().absoluteFilePath("instances/TestInstance"));
+			instance, MMC->minecraftlist()->findVersion("1.5.2"), QDir::current().absoluteFilePath("instances/TestInstance"));
 		QuickModPtr testMod = TestsInternal::createMod("TestMod");
 		QuickModPtr testMod2 = TestsInternal::createMod("TestMod2");
 		QuickModPtr testMod3 = TestsInternal::createMod("TestMod3");
