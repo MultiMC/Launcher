@@ -3,6 +3,11 @@
 ##0.5.0
 - In development...
 
+##0.4.3
+- Fix for issues with Minecraft version file updates
+- Fix for console window related memory leak
+- Fix for travis.ci build
+
 ##0.4.2
 - Show a warning in the log if a library is missing
 - Fixes for relocating instances to other MultiMC installs:
