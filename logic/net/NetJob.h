@@ -76,15 +76,6 @@ public:
 	{
 		return downloads.size();
 	}
-	virtual void getProgress(qint64 &current, qint64 &total)
-	{
-		current = current_progress;
-		total = total_progress;
-	}
-	virtual QString getStatus() const
-	{
-		return m_job_name;
-	}
 	virtual bool isRunning() const
 	{
 		return m_running;

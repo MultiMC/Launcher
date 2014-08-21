@@ -24,27 +24,14 @@ Task::Task(QObject *parent) : ProgressProvider(parent)
 {
 }
 
-QString Task::getStatus() const
-{
-	return m_statusString;
-}
-
 void Task::setStatus(const QString &new_status)
 {
-	m_statusString = new_status;
 	emit status(new_status);
 }
 
 void Task::setProgress(int new_progress)
 {
-	m_progress = new_progress;
 	emit progress(new_progress, 100);
-}
-
-void Task::getProgress(qint64 &current, qint64 &total)
-{
-	current = m_progress;
-	total = 100;
 }
 
 void Task::start()
