@@ -26,6 +26,5 @@ protected slots:
 private:
 	QuickModRef m_mod;
 	InstancePtr m_instance;
-
-	QList<QuickModVersionRef> versions() const;
+	QList<QuickModVersionRef> m_versions;
 };
