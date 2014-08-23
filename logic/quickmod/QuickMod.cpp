@@ -423,6 +423,7 @@ void QuickMod::fetchImages()
 		auto icon = CacheDownload::make(
 			iconUrl(), MMC->metacache()->resolveEntry("quickmod/icons", fileName(iconUrl())));
 		connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
+		icon->m_followRedirects = true;
 		job->addNetAction(icon);
 		download = true;
 	}
@@ -431,6 +432,7 @@ void QuickMod::fetchImages()
 		auto logo = CacheDownload::make(
 			logoUrl(), MMC->metacache()->resolveEntry("quickmod/logos", fileName(logoUrl())));
 		connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
+		logo->m_followRedirects = true;
 		job->addNetAction(logo);
 		download = true;
 	}
