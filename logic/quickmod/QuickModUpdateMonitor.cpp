@@ -60,6 +60,7 @@ void QuickModUpdateMonitor::instanceListRowsInserted(const QModelIndex &parent, 
 		checkForInstance(instance);
 	}
 }
+
 void QuickModUpdateMonitor::instanceListRowsRemoved(const QModelIndex &parent, const int start,
 													const int end)
 {
@@ -70,6 +71,7 @@ void QuickModUpdateMonitor::instanceListRowsRemoved(const QModelIndex &parent, c
 		disconnect(instance.get(), 0, this, 0);
 	}
 }
+
 void QuickModUpdateMonitor::instanceListAboutToBeReset()
 {
 	for (int i = 0; i < m_instanceList->count(); ++i)
@@ -77,6 +79,7 @@ void QuickModUpdateMonitor::instanceListAboutToBeReset()
 		disconnect(m_instanceList->at(i).get(), 0, this, 0);
 	}
 }
+
 void QuickModUpdateMonitor::instanceListReset()
 {
 	instanceListRowsInserted(QModelIndex(), 0, m_instanceList->rowCount(QModelIndex()) - 1);
@@ -91,6 +94,7 @@ void QuickModUpdateMonitor::quickmodsListRowsInserted(const QModelIndex &parent,
 		// connect to signals here
 	}
 }
+
 void QuickModUpdateMonitor::quickmodsListRowsRemoved(const QModelIndex &parent, const int start,
 													 const int end)
 {
@@ -100,6 +104,7 @@ void QuickModUpdateMonitor::quickmodsListRowsRemoved(const QModelIndex &parent, 
 		disconnect(mod.get(), 0, this, 0);
 	}
 }
+
 void QuickModUpdateMonitor::quickmodsListAboutToBeReset()
 {
 	for (int i = 0; i < m_quickmodsList->numMods(); ++i)
@@ -107,10 +112,12 @@ void QuickModUpdateMonitor::quickmodsListAboutToBeReset()
 		disconnect(m_quickmodsList->modAt(i).get(), 0, this, 0);
 	}
 }
+
 void QuickModUpdateMonitor::quickmodsListReset()
 {
 	quickmodsListRowsInserted(QModelIndex(), 0, m_quickmodsList->rowCount(QModelIndex()) - 1);
 }
+
 void QuickModUpdateMonitor::quickmodUpdated()
 {
 	for (int i = 0; i < m_instanceList->count(); ++i)

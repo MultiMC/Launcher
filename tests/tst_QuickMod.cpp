@@ -59,7 +59,7 @@ private slots:
 	QuickModVersionPtr createTestingVersion(QuickModPtr mod, const QuickModDownload::DownloadType type)
 	{
 		auto version = QuickModVersionPtr(new QuickModVersion(mod));
-		version->name_ = version->version_ = "1.42";
+		version->name_ = version->version_string = "1.42";
 		version->m_version = Util::Version(version->name_);
 		QuickModDownload download;
 		download.url = "http://downloads.com/deadbeaf";

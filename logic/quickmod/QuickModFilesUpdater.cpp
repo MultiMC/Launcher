@@ -250,6 +250,7 @@ QString QuickModFilesUpdater::fileName(const QuickModPtr mod)
 {
 	return fileName(mod->internalUid());
 }
+
 QString QuickModFilesUpdater::fileName(const QString &uid)
 {
 	return uid + ".json";

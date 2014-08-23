@@ -41,6 +41,7 @@ struct DepNode
 		}
 		return out;
 	}
+
 	bool hasHardParent() const
 	{
 		if (isHard)
@@ -57,68 +58,49 @@ struct DepNode
 		return false;
 	}
 
-	static QList<const DepNode *> build(std::shared_ptr<OneSixInstance> instance, bool *ok = 0)
+	static QList<const DepNode *> build(std::shared_ptr<OneSixInstance> instance, bool *ok = nullptr)
 	{
-		if (ok)
-		{
-			*ok = true;
-		}
+		bool ok_internal = true;
 
 		QMap<QuickModRef, const DepNode *> nodes;
 
 		// stage one: create nodes
+		const auto mods = instance->getFullVersion()->quickmods;
+		for (auto it = mods.constBegin(); it != mods.constEnd(); ++it)
 		{
-			const auto mods = instance->getFullVersion()->quickmods;
-			for (auto it = mods.constBegin(); it != mods.constEnd(); ++it)
+			Q_ASSERT(!nodes.contains(it.key()));
+			DepNode *node = new DepNode;
+			node->uid = it.key();
+			node->isHard = it.value().second;
+			if (it.value().first.isValid())
 			{
-				Q_ASSERT(!nodes.contains(it.key()));
-				DepNode *node = new DepNode;
-				node->uid = it.key();
-				node->isHard = it.value().second;
-				if (it.value().first.isValid())
-				{
-					node->version = it.value().first;
-				}
-				else
-				{
-					if (ok)
-					{
-						*ok = false;
-					}
-				}
-				nodes.insert(it.key(), node);
+				node->version = it.value().first;
 			}
+			ok_internal = false;
+			nodes.insert(it.key(), node);
 		}
 
 		// stage two: forward dependencies (children)
+		for (auto it = nodes.constBegin(); it != nodes.constEnd(); ++it)
 		{
-			for (auto it = nodes.constBegin(); it != nodes.constEnd(); ++it)
+			const DepNode *node = it.value();
+			if (!node->version.findVersion())
 			{
-				const DepNode *node = it.value();
-				if (!node->version.findVersion())
+				ok_internal = false;
+				continue;
+			}
+			const auto ptr = node->version.findVersion();
+			for (auto versionIt = ptr->dependencies.constBegin();
+					versionIt != ptr->dependencies.constEnd(); ++versionIt)
+			{
+				if (!versionIt.value().second && nodes.contains(versionIt.key()))
 				{
-					if (ok)
-					{
-						*ok = false;
-					}
-					continue;
+					const_cast<DepNode *>(node)
+						->children.append(nodes.value(versionIt.key()));
 				}
-				const auto ptr = node->version.findVersion();
-				for (auto versionIt = ptr->dependencies.constBegin();
-					 versionIt != ptr->dependencies.constEnd(); ++versionIt)
+				else
 				{
-					if (!versionIt.value().second && nodes.contains(versionIt.key()))
-					{
-						const_cast<DepNode *>(node)
-							->children.append(nodes.value(versionIt.key()));
-					}
-					else
-					{
-						if (ok)
-						{
-							*ok = false;
-						}
-					}
+					ok_internal = false;
 				}
 			}
 		}
@@ -134,6 +116,10 @@ struct DepNode
 			}
 		}
 
+		if (ok)
+		{
+			*ok = ok_internal;
+		}
 		return nodes.values();
 	}
 

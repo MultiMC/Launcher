@@ -61,14 +61,17 @@ public:
 	{
 		return !m_uid.isEmpty();
 	}
+
 	bool operator==(const QuickModRef &other) const
 	{
 		return m_uid == other.m_uid;
 	}
+
 	bool operator==(const QString &other) const
 	{
 		return m_uid == other;
 	}
+
 	bool operator<(const QuickModRef &other) const
 	{
 		return m_uid < other.m_uid;
@@ -78,6 +81,7 @@ private:
 	QString m_uid;
 	QUrl m_updateUrl;
 };
+
 QDebug operator<<(QDebug dbg, const QuickModRef &uid);
 uint qHash(const QuickModRef &uid);
 
@@ -110,89 +114,110 @@ public:
 	{
 		return m_uid;
 	}
+
 	QString internalUid() const
 	{
 		return m_repo + '.' + m_uid.toString();
 	}
+
 	QString repo() const
 	{
 		return m_repo;
 	}
+
 	QString name() const
 	{
 		return m_name;
 	}
+
 	QString description() const
 	{
 		return m_description;
 	}
+
 	QStringList authorTypes() const
 	{
 		return m_authors.keys();
 	}
+
 	QStringList authors(const QString &type) const
 	{
 		return m_authors.value(type);
 	}
+
 	QUrl safeUrl(const UrlType type) const
 	{
 		const auto urls = url(type);
 		return urls.isEmpty() ? QUrl() : urls.first();
 	}
+
 	QList<QUrl> url(const UrlType type) const
 	{
 		return m_urls[urlId(type)];
 	}
+
 	QUrl websiteUrl() const
 	{
 		return safeUrl(Website);
 	}
+
 	QUrl iconUrl() const
 	{
 		return safeUrl(Icon);
 	}
+
 	QIcon icon();
 	QUrl logoUrl() const
 	{
 		return safeUrl(Logo);
 	}
+
 	QPixmap logo();
 	QUrl updateUrl() const
 	{
 		return m_updateUrl;
 	}
+
 	QMap<QuickModRef, QUrl> references() const
 	{
 		return m_references;
 	}
+
 	QString nemName() const
 	{
 		return m_nemName;
 	}
+
 	QString modId() const
 	{
 		return m_modId;
 	}
+
 	QStringList categories() const
 	{
 		return m_categories;
 	}
+
 	QStringList tags() const
 	{
 		return m_tags;
 	}
+
 	QString license() const
 	{
 		return m_license;
 	}
+
 	QList<QUrl> mavenRepos() const
 	{
 		return m_mavenRepos;
 	}
+
 	QList<QuickModVersionPtr> versionsInternal() const
 	{
 		return m_versions;
 	}
+
 	QList<QuickModVersionRef> versions() const;
 	/// List of Minecraft versions this QuickMod is compatible with.
 	QStringList mcVersions();

@@ -31,10 +31,12 @@ QuickModBuilder QuickModVersionBuilder::build()
 QuickModBuilder::QuickModBuilder() : m_mod(std::make_shared<QuickMod>())
 {
 }
+
 QuickModVersionBuilder QuickModBuilder::addVersion()
 {
 	return QuickModVersionBuilder(*this);
 }
+
 QuickModBuilder QuickModBuilder::addVersion(const QuickModVersionPtr ptr)
 {
 	auto builder = addVersion()
@@ -51,14 +53,15 @@ QuickModBuilder QuickModBuilder::addVersion(const QuickModVersionPtr ptr)
 	builder.m_version->provides = ptr->provides;
 	return builder.build();
 }
+
 void QuickModBuilder::finishVersion(QuickModVersionPtr version)
 {
 	Q_ASSERT(version->mod == m_mod);
 	m_mod->m_versions.append(version);
-	const auto deps = QList<QuickModRef>()
-					  << version->dependencies.keys() << version->recommendations.keys()
-					  << version->suggestions.keys() << version->conflicts.keys()
-					  << version->provides.keys();
+	const auto deps =
+		QList<QuickModRef>() << version->dependencies.keys() << version->recommendations.keys()
+							 << version->suggestions.keys() << version->conflicts.keys()
+							 << version->provides.keys();
 	for (const auto dep : deps)
 	{
 		if (m_mod->m_references.contains(dep))

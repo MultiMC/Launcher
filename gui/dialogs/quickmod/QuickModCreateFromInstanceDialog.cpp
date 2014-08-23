@@ -166,49 +166,18 @@ QuickModCreateFromInstanceDialog::QuickModCreateFromInstanceDialog(
 	ui->usernameEdit->setText(m_instance->settings().get("UploadUsername").toString());
 	ui->passwordEdit->setText(m_instance->settings().get("UploadPassword").toString());
 
-	ui->licenseEdit->setCompleter(new QCompleter(QStringList() << "Apache 1.0"
-															   << "Apache 1.1"
-															   << "Apache 2.0"
-															   << "Artistic 1.0"
-															   << "Artistic 2.0"
-															   << "BSD 2 Clause"
-															   << "BSD 3 Clause"
-															   << "BSD 4 Clause"
-															   << "CC BY 1.0"
-															   << "CC BY 2.0"
-															   << "CC BY 2.5"
-															   << "CC BY 3.0"
-															   << "CC BY-ND 1.0"
-															   << "CC BY ND 2.0"
-															   << "CC BY ND 2.5"
-															   << "CC BY ND 3.0"
-															   << "CC BY NC 1.0"
-															   << "CC BY NC 2.0"
-															   << "CC BY NC 2.5"
-															   << "CC BY NC 3.0"
-															   << "CC BY NC ND 1.0"
-															   << "CC BY NC ND 2.0"
-															   << "CC BY NC ND 2.5"
-															   << "CC BY NC ND 3.0"
-															   << "CC BY NC SA 1.0"
-															   << "CC BY NC SA 2.0"
-															   << "CC BY NC SA 2.5"
-															   << "CC BY NC SA 3.0"
-															   << "CC BY SA 1.0"
-															   << "CC BY SA 2.0"
-															   << "CC BY SA 2.5"
-															   << "CC BY SA 3.0"
-															   << "CC0 1.0"
-															   << "AGPL 1.0"
-															   << "AGPL 3.0"
-															   << "GPL 1.0"
-															   << "GPL 2.0"
-															   << "GPL 3.0"
-															   << "LGPL 2.1"
-															   << "LGPL 3.0"
-															   << "LGPL 2.0"
-															   << "MMPL-1.0",
-												 ui->licenseEdit));
+	ui->licenseEdit->setCompleter(new QCompleter(
+	{
+		"Apache 1.0", "Apache 1.1", "Apache 2.0", "Artistic 1.0", "Artistic 2.0",
+			"BSD 2 Clause", "BSD 3 Clause", "BSD 4 Clause", "CC BY 1.0", "CC BY 2.0",
+			"CC BY 2.5", "CC BY 3.0", "CC BY-ND 1.0", "CC BY ND 2.0", "CC BY ND 2.5",
+			"CC BY ND 3.0", "CC BY NC 1.0", "CC BY NC 2.0", "CC BY NC 2.5", "CC BY NC 3.0",
+			"CC BY NC ND 1.0", "CC BY NC ND 2.0", "CC BY NC ND 2.5", "CC BY NC ND 3.0",
+			"CC BY NC SA 1.0", "CC BY NC SA 2.0", "CC BY NC SA 2.5", "CC BY NC SA 3.0",
+			"CC BY SA 1.0", "CC BY SA 2.0", "CC BY SA 2.5", "CC BY SA 3.0", "CC0 1.0",
+			"AGPL 1.0", "AGPL 3.0", "GPL 1.0", "GPL 2.0", "GPL 3.0", "LGPL 2.1", "LGPL 3.0",
+			"LGPL 2.0", "MMPL-1.0"
+	}, ui->licenseEdit));
 
 	connect(ui->buttonBox->button(QDialogButtonBox::RestoreDefaults), &QPushButton::clicked,
 			this, &QuickModCreateFromInstanceDialog::resetValues);
@@ -270,6 +239,7 @@ bool QuickModCreateFromInstanceDialog::hasVersion(const QString &name) const
 	}
 	return false;
 }
+
 void QuickModCreateFromInstanceDialog::createVersion(QuickModVersionBuilder builder) const
 {
 	builder.setCompatibleMCVersions(QStringList() << m_instance->currentVersionId());
@@ -312,7 +282,7 @@ void QuickModCreateFromInstanceDialog::start(ProgressProvider *provider)
 	};
 
 	connect(provider, &ProgressProvider::started, [this]()
-			{
+	{
 		ui->metadataBox->setEnabled(false);
 		ui->buttonBox->setEnabled(false);
 		ui->settingsWidget->setEnabled(false);
@@ -320,17 +290,15 @@ void QuickModCreateFromInstanceDialog::start(ProgressProvider *provider)
 		ui->progressBar->show();
 	});
 	connect(provider, &ProgressProvider::progress, [this](qint64 current, qint64 total)
-			{
+	{
 		ui->progressBar->setMaximum(total);
 		ui->progressBar->setValue(current);
 	});
 	connect(provider, &ProgressProvider::status, ui->progressLabel, &QLabel::setText);
 	connect(provider, &ProgressProvider::succeeded, [this, finish]()
-			{
-		finish();
-	});
-	connect(provider, &ProgressProvider::failed, [this, finish](const QString &reason)
-			{
+	{ finish(); });
+	connect(provider, &ProgressProvider::failed, [this, finish](const QString & reason)
+	{
 		QMessageBox::critical(this, tr("Error"), reason);
 		finish();
 	});
@@ -349,7 +317,8 @@ void QuickModCreateFromInstanceDialog::on_browseBtn_clicked()
 			this, title, m_instance->settings().get("LastQuickModUrl").toUrl(), filters);
 #else
 		const QUrl url = QUrl(QFileDialog::getOpenFileName(
-			this, title, m_instance->settings().get("LastQuickModUrl").toUrl().toLocalFile(), filters));
+			this, title, m_instance->settings().get("LastQuickModUrl").toUrl().toLocalFile(),
+			filters));
 #endif
 		if (url.isValid())
 		{
@@ -377,6 +346,7 @@ void QuickModCreateFromInstanceDialog::on_remoteBtn_clicked()
 
 	ui->endpointEdit->setText(m_instance->settings().get("LastQuickModUrl").toUrl().toString());
 }
+
 void QuickModCreateFromInstanceDialog::on_localBtn_clicked()
 {
 	ui->loginBox->setEnabled(false);
@@ -443,8 +413,8 @@ void QuickModCreateFromInstanceDialog::on_exportBtn_clicked()
 			NetJob *job = new NetJob(tr("Upload QuickMod"));
 			auto download = ByteArrayUpload::make(url, toJson());
 			connect(MMC->qnam().get(), &QNetworkAccessManager::authenticationRequired,
-					[this, download](QNetworkReply *reply, QAuthenticator *authenticator)
-					{
+					[this, download](QNetworkReply * reply, QAuthenticator * authenticator)
+			{
 				if (download->m_reply.get() == reply)
 				{
 					authenticator->setUser(ui->usernameEdit->text());
@@ -460,6 +430,7 @@ void QuickModCreateFromInstanceDialog::on_exportBtn_clicked()
 		QMessageBox::critical(this, tr("Error"), error.cause());
 	}
 }
+
 void QuickModCreateFromInstanceDialog::on_importBtn_clicked()
 {
 	try
@@ -486,8 +457,8 @@ void QuickModCreateFromInstanceDialog::on_importBtn_clicked()
 			auto download = ByteArrayDownload::make(url);
 			download->m_followRedirects = true;
 			connect(MMC->qnam().get(), &QNetworkAccessManager::authenticationRequired,
-					[this, download](QNetworkReply *reply, QAuthenticator *authenticator)
-					{
+					[this, download](QNetworkReply * reply, QAuthenticator * authenticator)
+			{
 				if (download->m_reply.get() == reply)
 				{
 					authenticator->setUser(ui->usernameEdit->text());
@@ -495,9 +466,7 @@ void QuickModCreateFromInstanceDialog::on_importBtn_clicked()
 				}
 			});
 			connect(download.get(), &ByteArrayDownload::succeeded, [this, download](int)
-					{
-				fromJson(download->m_data);
-			});
+			{ fromJson(download->m_data); });
 			job->addNetAction(download);
 			start(job);
 		}
@@ -512,6 +481,7 @@ void QuickModCreateFromInstanceDialog::on_authorsAddBtn_clicked()
 {
 	addRowToTableWidget(ui->authorsTable);
 }
+
 void QuickModCreateFromInstanceDialog::on_authorsRemoveBtn_clicked()
 {
 	auto table = ui->authorsTable;
@@ -520,6 +490,7 @@ void QuickModCreateFromInstanceDialog::on_authorsRemoveBtn_clicked()
 		table->removeRow(table->currentRow());
 	}
 }
+
 void QuickModCreateFromInstanceDialog::on_tagsAddBtn_clicked()
 {
 	const int row = m_tagsModel->rowCount();
@@ -527,6 +498,7 @@ void QuickModCreateFromInstanceDialog::on_tagsAddBtn_clicked()
 	ui->tagsList->setCurrentIndex(m_tagsModel->index(row));
 	ui->tagsList->edit(ui->tagsList->currentIndex());
 }
+
 void QuickModCreateFromInstanceDialog::on_tagsRemoveBtn_clicked()
 {
 	const QModelIndex index = ui->tagsList->selectionModel()->currentIndex();
@@ -536,6 +508,7 @@ void QuickModCreateFromInstanceDialog::on_tagsRemoveBtn_clicked()
 	}
 	m_tagsModel->removeRow(index.row(), index.parent());
 }
+
 void QuickModCreateFromInstanceDialog::on_categoriesAddBtn_clicked()
 {
 	const int row = m_categoriesModel->rowCount();
@@ -543,6 +516,7 @@ void QuickModCreateFromInstanceDialog::on_categoriesAddBtn_clicked()
 	ui->categoriesList->setCurrentIndex(m_categoriesModel->index(row));
 	ui->categoriesList->edit(ui->categoriesList->currentIndex());
 }
+
 void QuickModCreateFromInstanceDialog::on_categoriesRemoveBtn_clicked()
 {
 	const QModelIndex index = ui->categoriesList->selectionModel()->currentIndex();
@@ -552,6 +526,7 @@ void QuickModCreateFromInstanceDialog::on_categoriesRemoveBtn_clicked()
 	}
 	m_categoriesModel->removeRow(index.row(), index.parent());
 }
+
 void QuickModCreateFromInstanceDialog::on_urlsAddBtn_clicked()
 {
 	auto table = ui->urlsTable;
@@ -559,6 +534,7 @@ void QuickModCreateFromInstanceDialog::on_urlsAddBtn_clicked()
 	table->item(row, 0)->setData(Qt::UserRole, QuickMod::urlId(QuickMod::Website));
 	table->item(row, 0)->setData(Qt::DisplayRole, QuickMod::humanUrlId(QuickMod::Website));
 }
+
 void QuickModCreateFromInstanceDialog::on_urlsRemoveBtn_clicked()
 {
 	auto table = ui->urlsTable;
@@ -593,25 +569,29 @@ QString QuickModCreateFromInstanceDialog::filename() const
 QByteArray QuickModCreateFromInstanceDialog::toJson() const
 {
 	QuickModBuilder builder = QuickModBuilder();
-	builder.setUid(ui->uidEdit->text())
-		.setRepo(ui->repoEdit->text())
-		.setName(ui->nameEdit->text())
-		.setUpdateUrl(QUrl::fromUserInput(ui->updateUrlEdit->text()))
-		.setDescription(ui->descriptionEdit->toPlainText())
-		.setLicense(ui->licenseEdit->text())
-		.setTags(m_tagsModel->stringList())
-		.setCategories(m_categoriesModel->stringList());
+	builder.setUid(ui->uidEdit->text());
+	builder.setRepo(ui->repoEdit->text());
+	builder.setName(ui->nameEdit->text());
+	builder.setUpdateUrl(QUrl::fromUserInput(ui->updateUrlEdit->text()));
+	builder.setDescription(ui->descriptionEdit->toPlainText());
+	builder.setLicense(ui->licenseEdit->text());
+	builder.setTags(m_tagsModel->stringList());
+	builder.setCategories(m_categoriesModel->stringList());
+
 	for (int i = 0; i < ui->authorsTable->rowCount(); ++i)
 	{
 		builder.addAuthor(ui->authorsTable->item(i, 0)->text(),
 						  ui->authorsTable->item(i, 1)->text());
 	}
+
 	for (int i = 0; i < ui->urlsTable->rowCount(); ++i)
 	{
 		builder.addUrl(ui->urlsTable->item(i, 0)->data(Qt::UserRole).toString(),
 					   ui->urlsTable->item(i, 1)->text());
 	}
+
 	createVersion(builder.addVersion());
+
 	for (const auto version : m_otherVersions)
 	{
 		if (version->version().toString() == ui->nameEdit->text())
@@ -620,8 +600,10 @@ QByteArray QuickModCreateFromInstanceDialog::toJson() const
 		}
 		builder.addVersion(version);
 	}
+
 	return builder.build()->toJson();
 }
+
 void QuickModCreateFromInstanceDialog::fromJson(const QByteArray &json)
 {
 	resetValues();
@@ -664,6 +646,7 @@ QStringList QuickModCreateFromInstanceDialog::reverseStringList(const QStringLis
 	std::reverse(out.begin(), out.end());
 	return out;
 }
+
 QStringList QuickModCreateFromInstanceDialog::variantListToStringList(const QVariantList &list)
 {
 	QStringList out;

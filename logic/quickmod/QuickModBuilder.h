@@ -30,51 +30,61 @@ public:
 		m_mod->m_uid = QuickModRef(uid);
 		return *this;
 	}
+
 	QuickModBuilder setName(const QString &name)
 	{
 		m_mod->m_name = name;
 		return *this;
 	}
+
 	QuickModBuilder setRepo(const QString &repo)
 	{
 		m_mod->m_repo = repo;
 		return *this;
 	}
+
 	QuickModBuilder setDescription(const QString &description)
 	{
 		m_mod->m_description = description;
 		return *this;
 	}
+
 	QuickModBuilder setUpdateUrl(const QUrl &url)
 	{
 		m_mod->m_updateUrl = url;
 		return *this;
 	}
+
 	QuickModBuilder setNemName(const QString &nemName)
 	{
 		m_mod->m_nemName = nemName;
 		return *this;
 	}
+
 	QuickModBuilder setModId(const QString &modid)
 	{
 		m_mod->m_modId = modid;
 		return *this;
 	}
+
 	QuickModBuilder setLicense(const QString &license)
 	{
 		m_mod->m_license = license;
 		return *this;
 	}
+
 	QuickModBuilder setTags(const QStringList &tags)
 	{
 		m_mod->m_tags = tags;
 		return *this;
 	}
+
 	QuickModBuilder setCategories(const QStringList &categories)
 	{
 		m_mod->m_categories = categories;
 		return *this;
 	}
+
 	QuickModBuilder setMavenUrls(const QList<QUrl> &urls)
 	{
 		m_mod->m_mavenRepos = urls;
@@ -86,6 +96,7 @@ public:
 		m_mod->m_urls[type].append(url);
 		return *this;
 	}
+
 	QuickModBuilder addUrl(const QuickMod::UrlType type, const QUrl &url)
 	{
 		m_mod->m_urls[QuickMod::urlId(type)].append(url);
@@ -124,7 +135,7 @@ public:
 	}
 	QuickModVersionBuilder setVersion(const QString &version)
 	{
-		m_version->version_ = version;
+		m_version->version_string = version;
 		m_version->m_version = Util::Version(version);
 		return *this;
 	}
@@ -208,3 +219,4 @@ private:
 	QuickModVersionPtr m_version;
 	QuickModBuilder m_builder;
 };
+

@@ -38,22 +38,23 @@ static QMap<QString, QString> jsonObjectToStringStringMap(const QJsonObject &obj
 
 void QuickModVersion::parse(const QJsonObject &object)
 {
-	name_ =
-		MMCJson::ensureString(object.value(QStringLiteral("name")), QStringLiteral("'name'"));
-	type = object.contains(QStringLiteral("type"))
-			   ? MMCJson::ensureString(object.value(QStringLiteral("type")),
-									   QStringLiteral("'type'"))
-			   : QStringLiteral("Release");
-	version_ = object.contains(QStringLiteral("version"))
-				   ? MMCJson::ensureString(object.value(QStringLiteral("version")))
-				   : name_;
-	m_version = Util::Version(version_);
+	name_ = MMCJson::ensureString(object.value("name"), "name");
+	if (object.contains("type"))
+	{
+		type = MMCJson::ensureString(object.value("type"), "type");
+	}
+	else
+	{
+		type = "Release";
+	}
+	version_string =
+		object.contains("version") ? MMCJson::ensureString(object.value("version")) : name_;
+	m_version = Util::Version(version_string);
 	sha1 = object.value(QStringLiteral("sha1")).toString();
-	forgeVersionFilter = object.value(QStringLiteral("forgeCompat")).toString();
-	liteloaderVersionFilter = object.value(QStringLiteral("liteloaderCompat")).toString();
+	forgeVersionFilter = object.value("forgeCompat").toString();
+	liteloaderVersionFilter = object.value("liteloaderCompat").toString();
 	compatibleVersions.clear();
-	for (auto val : MMCJson::ensureArray(object.value(QStringLiteral("mcCompat")),
-										 QStringLiteral("'mcCompat'")))
+	for (auto val : MMCJson::ensureArray(object.value("mcCompat"), "mcCompat"))
 	{
 		compatibleVersions.append(MMCJson::ensureString(val));
 	}
@@ -62,38 +63,33 @@ void QuickModVersion::parse(const QJsonObject &object)
 	suggestions.clear();
 	conflicts.clear();
 	provides.clear();
-	if (object.contains(QStringLiteral("references")))
+	if (object.contains("references"))
 	{
-		for (auto val : MMCJson::ensureArray(object.value(QStringLiteral("references")),
-											 QStringLiteral("'references'")))
+		for (auto val : MMCJson::ensureArray(object.value("references"), "references"))
 		{
-			const QJsonObject obj = MMCJson::ensureObject(val, QStringLiteral("'reference'"));
-			const QString uid = MMCJson::ensureString(obj.value(QStringLiteral("uid")),
-													  QStringLiteral("'uid'"));
+			const QJsonObject obj = MMCJson::ensureObject(val, "reference");
+			const QString uid = MMCJson::ensureString(obj.value("uid"), "uid");
 			const QuickModVersionRef version = QuickModVersionRef(
-				QuickModRef(uid), MMCJson::ensureString(obj.value(QStringLiteral("version")),
-														QStringLiteral("'version'")));
-			const QString type = MMCJson::ensureString(obj.value(QStringLiteral("type")),
-													   QStringLiteral("'type'"));
-			if (type == QLatin1String("depends"))
+				QuickModRef(uid), MMCJson::ensureString(obj.value("version"), "version"));
+			const QString type = MMCJson::ensureString(obj.value("type"), "type");
+			if (type == "depends")
 			{
-				dependencies.insert(
-					QuickModRef(uid),
-					qMakePair(version, obj.value(QStringLiteral("isSoft")).toBool(false)));
+				dependencies.insert(QuickModRef(uid),
+									qMakePair(version, obj.value("isSoft").toBool(false)));
 			}
-			else if (type == QLatin1String("recommends"))
+			else if (type == "recommends")
 			{
 				recommendations.insert(QuickModRef(uid), version);
 			}
-			else if (type == QLatin1String("suggests"))
+			else if (type == "suggests")
 			{
 				suggestions.insert(QuickModRef(uid), version);
 			}
-			else if (type == QLatin1String("conflicts"))
+			else if (type == "conflicts")
 			{
 				conflicts.insert(QuickModRef(uid), version);
 			}
-			else if (type == QLatin1String("provides"))
+			else if (type == "provides")
 			{
 				provides.insert(QuickModRef(uid), version);
 			}
@@ -105,59 +101,52 @@ void QuickModVersion::parse(const QJsonObject &object)
 	}
 
 	libraries.clear();
-	if (object.contains(QStringLiteral("libraries")))
+	if (object.contains("libraries"))
 	{
-		for (auto lib : MMCJson::ensureArray(object.value(QStringLiteral("libraries")),
-											 QStringLiteral("'libraries'")))
+		for (auto lib : MMCJson::ensureArray(object.value("libraries"), "libraries"))
 		{
-			const QJsonObject libObj = MMCJson::ensureObject(lib, QStringLiteral("library"));
+			const QJsonObject libObj = MMCJson::ensureObject(lib, "library");
 			Library library;
-			library.name = MMCJson::ensureString(libObj.value(QStringLiteral("name")),
-												 QStringLiteral("library 'name'"));
+			library.name = MMCJson::ensureString(libObj.value("name"), "library 'name'");
 			if (libObj.contains("url"))
 			{
-				library.url = MMCJson::ensureUrl(libObj.value(QStringLiteral("url")),
-												 QStringLiteral("library url"));
+				library.url = MMCJson::ensureUrl(libObj.value("url"), "library url");
 			}
 			else
 			{
-				library.url = QUrl(QStringLiteral("http://repo1.maven.org/maven2/"));
+				library.url = QUrl("http://repo1.maven.org/maven2/");
 			}
 			libraries.append(library);
 		}
 	}
 
 	downloads.clear();
-	for (auto dlValue :
-		 MMCJson::ensureArray(object.value(QStringLiteral("urls")), QStringLiteral("'urls'")))
+	for (auto dlValue : MMCJson::ensureArray(object.value("urls"), "urls"))
 	{
 		const QJsonObject dlObject = dlValue.toObject();
 		QuickModDownload download;
-		download.url = MMCJson::ensureString(dlObject.value(QStringLiteral("url")),
-											 QStringLiteral("'url'"));
-		download.priority = MMCJson::ensureInteger(dlObject.value(QStringLiteral("priority")),
-												   QStringLiteral("'priority'"), 0);
+		download.url = MMCJson::ensureString(dlObject.value("url"), "url");
+		download.priority = MMCJson::ensureInteger(dlObject.value("priority"), "priority", 0);
 		// download type
 		{
-			const QString typeString = dlObject.value(QStringLiteral("downloadType"))
-										   .toString(QStringLiteral("parallel"));
-			if (typeString == QLatin1String("direct"))
+			const QString typeString = dlObject.value("downloadType").toString("parallel");
+			if (typeString == "direct")
 			{
 				download.type = QuickModDownload::Direct;
 			}
-			else if (typeString == QLatin1String("parallel"))
+			else if (typeString == "parallel")
 			{
 				download.type = QuickModDownload::Parallel;
 			}
-			else if (typeString == QLatin1String("sequential"))
+			else if (typeString == "sequential")
 			{
 				download.type = QuickModDownload::Sequential;
 			}
-			else if (typeString == QLatin1String("encoded"))
+			else if (typeString == "encoded")
 			{
 				download.type = QuickModDownload::Encoded;
 			}
-			else if (typeString == QLatin1String("maven"))
+			else if (typeString == "maven")
 			{
 				download.type = QuickModDownload::Maven;
 			}
@@ -166,8 +155,8 @@ void QuickModVersion::parse(const QJsonObject &object)
 				throw MMCError(QObject::tr("Unknown value for \"downloadType\" field"));
 			}
 		}
-		download.hint = dlObject.value(QStringLiteral("hint")).toString();
-		download.group = dlObject.value(QStringLiteral("group")).toString();
+		download.hint = dlObject.value("hint").toString();
+		download.group = dlObject.value("group").toString();
 		downloads.append(download);
 	}
 	std::sort(downloads.begin(), downloads.end(),
@@ -176,29 +165,28 @@ void QuickModVersion::parse(const QJsonObject &object)
 
 	// install type
 	{
-		const QString typeString =
-			object.value(QStringLiteral("installType")).toString(QStringLiteral("forgeMod"));
-		if (typeString == QLatin1String("forgeMod"))
+		const QString typeString = object.value("installType").toString("forgeMod");
+		if (typeString == "forgeMod")
 		{
 			installType = ForgeMod;
 		}
-		else if (typeString == QLatin1String("forgeCoreMod"))
+		else if (typeString == "forgeCoreMod")
 		{
 			installType = ForgeCoreMod;
 		}
-		else if (typeString == QLatin1String("liteloaderMod"))
+		else if (typeString == "liteloaderMod")
 		{
 			installType = LiteLoaderMod;
 		}
-		else if (typeString == QLatin1String("extract"))
+		else if (typeString == "extract")
 		{
 			installType = Extract;
 		}
-		else if (typeString == QLatin1String("configPack"))
+		else if (typeString == "configPack")
 		{
 			installType = ConfigPack;
 		}
-		else if (typeString == QLatin1String("group"))
+		else if (typeString == "group")
 		{
 			installType = Group;
 		}
@@ -208,11 +196,12 @@ void QuickModVersion::parse(const QJsonObject &object)
 		}
 	}
 }
+
 QJsonObject QuickModVersion::toJson() const
 {
 	QJsonArray refs;
-	auto refToJson = [&refs](const QString &type,
-							 const QMap<QuickModRef, QuickModVersionRef> &references)
+	auto refToJson = [&refs](const QString & type,
+							 const QMap<QuickModRef, QuickModVersionRef> & references)
 	{
 		for (auto it = references.constBegin(); it != references.constEnd(); ++it)
 		{
@@ -227,7 +216,7 @@ QJsonObject QuickModVersion::toJson() const
 	QJsonObject obj;
 	obj.insert("name", name_);
 	obj.insert("mcCompat", QJsonArray::fromStringList(compatibleVersions));
-	MMCJson::writeString(obj, "version", version_);
+	MMCJson::writeString(obj, "version", version_string);
 	MMCJson::writeString(obj, "type", type);
 	MMCJson::writeString(obj, "sha1", sha1);
 	MMCJson::writeString(obj, "forgeCompat", forgeVersionFilter);
@@ -250,17 +239,17 @@ QJsonObject QuickModVersion::toJson() const
 	switch (installType)
 	{
 	case ForgeMod:
-		obj.insert("installType", QStringLiteral("forgeMod"));
+		obj.insert("installType", "forgeMod");
 	case ForgeCoreMod:
-		obj.insert("installType", QStringLiteral("forgeCoreMod"));
+		obj.insert("installType", "forgeCoreMod");
 	case LiteLoaderMod:
-		obj.insert("installType", QStringLiteral("liteloaderMod"));
+		obj.insert("installType", "liteloaderMod");
 	case Extract:
-		obj.insert("installType", QStringLiteral("extract"));
+		obj.insert("installType", "extract");
 	case ConfigPack:
-		obj.insert("installType", QStringLiteral("configPack"));
+		obj.insert("installType", "configPack");
 	case Group:
-		obj.insert("installType", QStringLiteral("group"));
+		obj.insert("installType", "group");
 	}
 	MMCJson::writeObjectList(obj, "urls", downloads);
 	return obj;
@@ -269,43 +258,6 @@ QJsonObject QuickModVersion::toJson() const
 bool QuickModVersion::needsDeploy() const
 {
 	return installType == ForgeCoreMod;
-}
-
-QuickModVersionList::QuickModVersionList(QuickModRef mod, InstancePtr instance, QObject *parent)
-	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
-{
-}
-
-Task *QuickModVersionList::getLoadTask()
-{
-	return 0;
-}
-bool QuickModVersionList::isLoaded()
-{
-	return true;
-}
-
-const BaseVersionPtr QuickModVersionList::at(int i) const
-{
-	return versions().at(i).findVersion();
-}
-int QuickModVersionList::count() const
-{
-	return versions().count();
-}
-
-QList<QuickModVersionRef> QuickModVersionList::versions() const
-{
-	// TODO repository priority
-	QList<QuickModVersionRef> out;
-	for (auto version : m_mod.findVersions())
-	{
-		if (version.findVersion()->compatibleVersions.contains(m_instance->intendedVersionId()))
-		{
-			out.append(version);
-		}
-	}
-	return out;
 }
 
 QJsonObject QuickModVersion::Library::toJson() const
@@ -317,107 +269,4 @@ QJsonObject QuickModVersion::Library::toJson() const
 		obj.insert("url", url.toString(QUrl::FullyEncoded));
 	}
 	return obj;
-}
-QJsonObject QuickModDownload::toJson() const
-{
-	QJsonObject obj;
-	obj.insert("url", url);
-	obj.insert("priority", priority);
-	MMCJson::writeString(obj, "hint", hint);
-	MMCJson::writeString(obj, "group", group);
-	switch (type)
-	{
-	case Direct:
-		obj.insert("downloadType", QStringLiteral("direct"));
-	case Parallel:
-		obj.insert("downloadType", QStringLiteral("parallel"));
-	case Sequential:
-		obj.insert("downloadType", QStringLiteral("sequential"));
-	case Encoded:
-		obj.insert("downloadType", QStringLiteral("encoded"));
-	case Maven:
-		obj.insert("downloadType", QStringLiteral("maven"));
-	}
-	return obj;
-}
-
-QuickModVersionRef::QuickModVersionRef(const QuickModRef &mod, const QString &id,
-									   const Util::Version &version)
-	: m_mod(mod), m_id(id), m_version(version)
-{
-}
-QuickModVersionRef::QuickModVersionRef(const QuickModRef &mod, const QString &id)
-	: m_mod(mod), m_id(id), m_version(id)
-{
-}
-QuickModVersionRef::QuickModVersionRef(const QuickModVersionPtr &ptr)
-	: QuickModVersionRef(ptr->version())
-{
-}
-
-QString QuickModVersionRef::userFacing() const
-{
-	const QuickModVersionPtr ptr = findVersion();
-	return ptr ? ptr->name() : QString();
-}
-QuickModPtr QuickModVersionRef::findMod() const
-{
-	const QuickModVersionPtr ptr = findVersion();
-	return ptr ? ptr->mod : QuickModPtr();
-}
-QuickModVersionPtr QuickModVersionRef::findVersion() const
-{
-	if (!isValid())
-	{
-		return QuickModVersionPtr();
-	}
-	QList<QuickModPtr> mods = m_mod.findMods();
-	for (const auto mod : mods)
-	{
-		for (const auto version : mod->versionsInternal())
-		{
-			if (version->version() == *this)
-			{
-				return version;
-			}
-		}
-	}
-
-	for (const auto mod : mods)
-	{
-		for (const auto version : mod->versionsInternal())
-		{
-			if (version->version() == *this)
-			{
-				return version;
-			}
-		}
-	}
-
-	return QuickModVersionPtr();
-}
-
-bool QuickModVersionRef::operator<(const QuickModVersionRef &other) const
-{
-	Q_ASSERT(m_mod == other.m_mod);
-	return m_version < other.m_version;
-}
-bool QuickModVersionRef::operator<=(const QuickModVersionRef &other) const
-{
-	Q_ASSERT(m_mod == other.m_mod);
-	return m_version <= other.m_version;
-}
-bool QuickModVersionRef::operator>(const QuickModVersionRef &other) const
-{
-	Q_ASSERT(m_mod == other.m_mod);
-	return m_version > other.m_version;
-}
-bool QuickModVersionRef::operator>=(const QuickModVersionRef &other) const
-{
-	Q_ASSERT(m_mod == other.m_mod);
-	return m_version >= other.m_version;
-}
-bool QuickModVersionRef::operator==(const QuickModVersionRef &other) const
-{
-	return m_mod == other.m_mod && m_version == other.m_version;
 }
