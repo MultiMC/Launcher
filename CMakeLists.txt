@@ -262,7 +262,9 @@ add_subdirectory(depends/util)
 include_directories(${LIBUTIL_INCLUDE_DIR})
 
 # Add the updater
-add_subdirectory(mmc_updater)
+if(MultiMC_UPDATER)
+	add_subdirectory(mmc_updater)
+endif()
 
 # Add the GUI -> Logic connection header
 add_subdirectory(depends/LogicalGui)
@@ -652,9 +654,11 @@ set(MULTIMC_SOURCES
 	logic/tools/JVisualVM.h
 	logic/tools/JVisualVM.cpp
 
-	# Quickmod
+	# QuickMods
 	logic/quickmod/QuickMod.cpp
 	logic/quickmod/QuickMod.h
+	logic/quickmod/QuickModRef.cpp
+	logic/quickmod/QuickModRef.h
 	logic/quickmod/QuickModBuilder.cpp
 	logic/quickmod/QuickModBuilder.h
 	logic/quickmod/QuickModDependencyResolver.cpp
@@ -679,6 +683,10 @@ set(MULTIMC_SOURCES
 	logic/quickmod/QuickModVersionRef.h
 	logic/quickmod/QuickModsList.cpp
 	logic/quickmod/QuickModsList.h
+	logic/quickmod/QuickModIndexList.cpp
+	logic/quickmod/QuickModIndexList.h
+	logic/quickmod/QuickModSettings.cpp
+	logic/quickmod/QuickModSettings.h
 	logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp
 	logic/quickmod/tasks/QuickModDependencyDownloadTask.h
 	logic/quickmod/tasks/QuickModDownloadTask.cpp

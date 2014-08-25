@@ -22,7 +22,9 @@
 #include <QStringList>
 #include <QIcon>
 #include <memory>
-#include <MMCError.h>
+
+#include "MMCError.h"
+#include "QuickModRef.h"
 
 class QuickMod;
 class QuickModVersion;
@@ -42,48 +44,6 @@ public:
 	{
 	}
 };
-
-class QuickModRef
-{
-public:
-	QuickModRef();
-	explicit QuickModRef(const QString &uid);
-	explicit QuickModRef(const QString &uid, const QUrl &updateUrl);
-
-	QUrl updateUrl() const { return m_updateUrl; }
-	QString userFacing() const;
-	QString toString() const;
-	QuickModPtr findMod() const;
-	QList<QuickModPtr> findMods() const;
-	QList<QuickModVersionRef> findVersions() const;
-
-	bool isValid() const
-	{
-		return !m_uid.isEmpty();
-	}
-
-	bool operator==(const QuickModRef &other) const
-	{
-		return m_uid == other.m_uid;
-	}
-
-	bool operator==(const QString &other) const
-	{
-		return m_uid == other;
-	}
-
-	bool operator<(const QuickModRef &other) const
-	{
-		return m_uid < other.m_uid;
-	}
-
-private:
-	QString m_uid;
-	QUrl m_updateUrl;
-};
-
-QDebug operator<<(QDebug dbg, const QuickModRef &uid);
-uint qHash(const QuickModRef &uid);
 
 class QuickMod : public QObject
 {

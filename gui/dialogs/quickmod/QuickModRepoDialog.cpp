@@ -44,6 +44,7 @@ void QuickModRepoDialog::populate()
 
 	auto list = MMC->quickmodslist();
 
+	// TODO make QuickModIndexList a real model and use it
 	for (int i = 0; i < list->numMods(); ++i)
 	{
 		QuickModPtr mod = list->modAt(i);

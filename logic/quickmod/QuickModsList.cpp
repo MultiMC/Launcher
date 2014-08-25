@@ -39,7 +39,8 @@
 #include "logic/settings/INISettingsObject.h"
 
 QuickModsList::QuickModsList(const Flags flags, QObject *parent)
-	: QAbstractListModel(parent), m_updater(new QuickModFilesUpdater(this)),
+	: QAbstractListModel(parent), QuickModIndexList(), QuickModSettings(),
+	  m_updater(new QuickModFilesUpdater(this)),
 	  m_settings(new INISettingsObject(QDir::current().absoluteFilePath("quickmod.cfg"), this))
 {
 	m_settings->registerSetting("AvailableMods",
@@ -294,128 +295,6 @@ QuickModVersionRef QuickModsList::latestVersion(const QuickModRef &modUid,
 		}
 	}
 	return latest;
-}
-
-void QuickModsList::markModAsExists(QuickModPtr mod, const QuickModVersionRef &version,
-									const QString &fileName)
-{
-	auto mods = m_settings->get("AvailableMods").toMap();
-	auto map = mods[mod->internalUid()].toMap();
-	map[version.toString()] = fileName;
-	mods[mod->internalUid()] = map;
-	m_settings->getSetting("AvailableMods")->set(QVariant(mods));
-}
-
-void QuickModsList::markModAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
-									   const QString &fileName, InstancePtr instance)
-{
-	auto mods = instance->settings().get("InstalledMods").toMap();
-	auto map = mods[uid.toString()].toMap();
-	map[version.toString()] = fileName;
-	mods[uid.toString()] = map;
-	instance->settings().getSetting("InstalledMods")->set(QVariant(mods));
-}
-void QuickModsList::markModAsUninstalled(const QuickModRef uid, const QuickModVersionRef &version,
-										 InstancePtr instance)
-{
-	auto mods = instance->settings().get("InstalledMods").toMap();
-	if (version.findVersion())
-	{
-		auto map = mods[uid.toString()].toMap();
-		map.remove(version.toString());
-		if (map.isEmpty())
-		{
-			mods.remove(uid.toString());
-		}
-		else
-		{
-			mods[uid.toString()] = map;
-		}
-	}
-	else
-	{
-		mods.remove(uid.toString());
-	}
-	instance->settings().set("InstalledMods", QVariant(mods));
-}
-bool QuickModsList::isModMarkedAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
-										   InstancePtr instance) const
-{
-	auto mods = instance->settings().get("InstalledMods").toMap();
-	if (!version.findVersion())
-	{
-		return mods.contains(uid.toString());
-	}
-	return mods.contains(uid.toString()) &&
-		   mods.value(uid.toString()).toMap().contains(version.toString());
-}
-bool QuickModsList::isModMarkedAsExists(QuickModPtr mod, const QuickModVersionRef &version) const
-{
-	if (!version.findVersion())
-	{
-		return m_settings->get("AvailableMods").toMap().contains(mod->internalUid());
-	}
-	auto mods = m_settings->get("AvailableMods").toMap();
-	return mods.contains(mod->internalUid()) &&
-		   mods.value(mod->internalUid()).toMap().contains(version.toString());
-}
-QMap<QuickModVersionRef, QString> QuickModsList::installedModFiles(const QuickModRef uid,
-																   BaseInstance *instance) const
-{
-	auto mods = instance->settings().get("InstalledMods").toMap();
-	auto tmp = mods[uid.toString()].toMap();
-	QMap<QuickModVersionRef, QString> out;
-	for (auto it = tmp.begin(); it != tmp.end(); ++it)
-	{
-		out.insert(QuickModVersionRef(uid, it.key()), it.value().toString());
-	}
-	return out;
-}
-QString QuickModsList::existingModFile(QuickModPtr mod, const QuickModVersionRef &version) const
-{
-	if (!isModMarkedAsExists(mod, version))
-	{
-		return QString();
-	}
-	auto mods = m_settings->get("AvailableMods").toMap();
-	return mods[mod->internalUid()].toMap()[version.toString()].toString();
-}
-
-void QuickModsList::setRepositoryIndexUrl(const QString &repository, const QUrl &url)
-{
-	QMap<QString, QVariant> map = m_settings->get("Indices").toMap();
-	map[repository] = url.toString(QUrl::FullyEncoded);
-	m_settings->set("Indices", map);
-}
-QUrl QuickModsList::repositoryIndexUrl(const QString &repository) const
-{
-	return QUrl(m_settings->get("Indices").toMap()[repository].toString(), QUrl::StrictMode);
-}
-bool QuickModsList::haveRepositoryIndexUrl(const QString &repository) const
-{
-	return m_settings->get("Indices").toMap().contains(repository);
-}
-QList<QUrl> QuickModsList::indices() const
-{
-	QList<QUrl> out;
-	const auto map = m_settings->get("Indices").toMap();
-	for (const auto value : map.values())
-	{
-		out.append(QUrl(value.toString(), QUrl::StrictMode));
-	}
-	return out;
-}
-
-bool QuickModsList::haveUid(const QuickModRef &uid, const QString &repo) const
-{
-	for (auto mod : m_mods)
-	{
-		if (mod->uid() == uid && mod->repo() == repo)
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 QList<QuickModRef> QuickModsList::updatedModsForInstance(std::shared_ptr<OneSixInstance> instance)

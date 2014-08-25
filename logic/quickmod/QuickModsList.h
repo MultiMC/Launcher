@@ -18,8 +18,10 @@
 #include <QAbstractListModel>
 
 #include "logic/quickmod/QuickModVersion.h"
-#include "logic/BaseInstance.h"
 #include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModIndexList.h"
+#include "logic/quickmod/QuickModSettings.h"
+#include "logic/BaseInstance.h"
 
 class QUrl;
 
@@ -27,7 +29,7 @@ class QuickModFilesUpdater;
 class Mod;
 class SettingsObject;
 
-class QuickModsList : public QAbstractListModel
+class QuickModsList : public QAbstractListModel, public QuickModIndexList, public QuickModSettings
 {
 	Q_OBJECT
 public:
@@ -90,26 +92,6 @@ public:
 													  const QuickModVersionRef &version) const;
 	QuickModVersionRef latestVersion(const QuickModRef &modUid, const QString &mcVersion) const;
 
-	void markModAsExists(QuickModPtr mod, const QuickModVersionRef &version,
-						 const QString &fileName);
-	void markModAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
-							const QString &fileName, InstancePtr instance);
-	void markModAsUninstalled(const QuickModRef uid, const QuickModVersionRef &version,
-							  InstancePtr instance);
-	bool isModMarkedAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
-								InstancePtr instance) const;
-	bool isModMarkedAsExists(QuickModPtr mod, const QuickModVersionRef &version) const;
-	QMap<QuickModVersionRef, QString> installedModFiles(const QuickModRef uid,
-														BaseInstance *instance) const;
-	QString existingModFile(QuickModPtr mod, const QuickModVersionRef &version) const;
-
-	void setRepositoryIndexUrl(const QString &repository, const QUrl &url);
-	QUrl repositoryIndexUrl(const QString &repository) const;
-	bool haveRepositoryIndexUrl(const QString &repository) const;
-	QList<QUrl> indices() const;
-
-	bool haveUid(const QuickModRef &uid, const QString &repo) const;
-
 	QList<QuickModRef> updatedModsForInstance(std::shared_ptr<OneSixInstance> instance) const;
 
 	void releaseFromSandbox(QuickModPtr mod);
@@ -145,9 +127,18 @@ private:
 	friend class QuickModFilesUpdater;
 	QuickModFilesUpdater *m_updater;
 
+	SettingsObject *m_settings;
+
 	QList<QuickModPtr> m_mods;
 
-	SettingsObject *m_settings;
+	QList<QuickModPtr> quickmods() const override
+	{
+		return m_mods;
+	}
+	SettingsObject *settings() const override
+	{
+		return m_settings;
+	}
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QuickModsList::Flags)
