@@ -76,7 +76,10 @@ struct DepNode
 			{
 				node->version = it.value().first;
 			}
-			ok_internal = false;
+			else
+			{
+				ok_internal = false;
+			}
 			nodes.insert(it.key(), node);
 		}
 
