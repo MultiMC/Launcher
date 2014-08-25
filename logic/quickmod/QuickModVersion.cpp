@@ -47,9 +47,9 @@ void QuickModVersion::parse(const QJsonObject &object)
 	{
 		type = "Release";
 	}
-	version_string =
+	versionString =
 		object.contains("version") ? MMCJson::ensureString(object.value("version")) : name_;
-	m_version = Util::Version(version_string);
+	m_version = Util::Version(versionString);
 	sha1 = object.value(QStringLiteral("sha1")).toString();
 	forgeVersionFilter = object.value("forgeCompat").toString();
 	liteloaderVersionFilter = object.value("liteloaderCompat").toString();
@@ -216,7 +216,7 @@ QJsonObject QuickModVersion::toJson() const
 	QJsonObject obj;
 	obj.insert("name", name_);
 	obj.insert("mcCompat", QJsonArray::fromStringList(compatibleVersions));
-	MMCJson::writeString(obj, "version", version_string);
+	MMCJson::writeString(obj, "version", versionString);
 	MMCJson::writeString(obj, "type", type);
 	MMCJson::writeString(obj, "sha1", sha1);
 	MMCJson::writeString(obj, "forgeCompat", forgeVersionFilter);

@@ -87,7 +87,7 @@ public:
 
 	QuickModVersionRef version() const
 	{
-		return QuickModVersionRef(mod->uid(), version_string.isNull() ? name_ : version_string, m_version);
+		return QuickModVersionRef(mod->uid(), versionString.isNull() ? name_ : versionString, m_version);
 	}
 
 	bool needsDeploy() const;
@@ -95,7 +95,7 @@ public:
 	QuickModPtr mod;
 	bool valid;
 	QString name_;
-	QString version_string;
+	QString versionString;
 	QString type;
 	QStringList compatibleVersions;
 	QString forgeVersionFilter;
@@ -114,7 +114,7 @@ public:
 	bool operator==(const QuickModVersion &other) const
 	{
 		return mod == other.mod && valid == other.valid && name_ == other.name_ &&
-			   version_string == other.version_string && compatibleVersions == other.compatibleVersions &&
+			   versionString == other.versionString && compatibleVersions == other.compatibleVersions &&
 			   forgeVersionFilter == other.forgeVersionFilter &&
 			   dependencies == other.dependencies && recommendations == other.recommendations &&
 			   sha1 == other.sha1;

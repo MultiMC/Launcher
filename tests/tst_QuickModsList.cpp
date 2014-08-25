@@ -63,7 +63,7 @@ slots:
 	{
 		auto version = new QuickModVersion(mod);
 		version->name_ = "1.42";
-		version->version_string = "1.42";
+		version->versionString = "1.42";
 		version->m_version = Util::Version("1.42");
 		QuickModDownload download;
 		download.url = "http://downloads.com/deadbeaf";
