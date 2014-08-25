@@ -11,15 +11,15 @@ QJsonObject QuickModDownload::toJson() const
 	switch (type)
 	{
 	case Direct:
-		obj.insert("downloadType", "direct");
+		obj.insert("downloadType", QStringLiteral("direct"));
 	case Parallel:
-		obj.insert("downloadType", "parallel");
+		obj.insert("downloadType", QStringLiteral("parallel"));
 	case Sequential:
-		obj.insert("downloadType", "sequential");
+		obj.insert("downloadType", QStringLiteral("sequential"));
 	case Encoded:
-		obj.insert("downloadType", "encoded");
+		obj.insert("downloadType", QStringLiteral("encoded"));
 	case Maven:
-		obj.insert("downloadType", "maven");
+		obj.insert("downloadType", QStringLiteral("maven"));
 	}
 	return obj;
 }

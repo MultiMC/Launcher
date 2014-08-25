@@ -239,17 +239,17 @@ QJsonObject QuickModVersion::toJson() const
 	switch (installType)
 	{
 	case ForgeMod:
-		obj.insert("installType", "forgeMod");
+		obj.insert("installType", QStringLiteral("forgeMod"));
 	case ForgeCoreMod:
-		obj.insert("installType", "forgeCoreMod");
+		obj.insert("installType", QStringLiteral("forgeCoreMod"));
 	case LiteLoaderMod:
-		obj.insert("installType", "liteloaderMod");
+		obj.insert("installType", QStringLiteral("liteloaderMod"));
 	case Extract:
-		obj.insert("installType", "extract");
+		obj.insert("installType", QStringLiteral("extract"));
 	case ConfigPack:
-		obj.insert("installType", "configPack");
+		obj.insert("installType", QStringLiteral("configPack"));
 	case Group:
-		obj.insert("installType", "group");
+		obj.insert("installType", QStringLiteral("group"));
 	}
 	MMCJson::writeObjectList(obj, "urls", downloads);
 	return obj;
