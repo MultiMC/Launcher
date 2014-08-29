@@ -5,10 +5,10 @@ set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM 1)
 file(GLOB PO_TRANSLATION_FILES ${CMAKE_CURRENT_LIST_DIR}/*.po)
 
 foreach(POFILE ${PO_TRANSLATION_FILES})
-	string(REGEX REPLACE "\\.po\$" ".ts" TSFILE "${POFILE}")
+	string(REGEX REPLACE "\\.po\$" "" TSFILE "${POFILE}")
 	add_custom_command(
 		OUTPUT ${TSFILE}.ts
-		COMMAND lconvert -locations relative ${POFILE}.po -o ${TSFILE}.ts
+		COMMAND lconvert -locations relative ${POFILE} -o ${TSFILE}.ts
 	)
 	list(APPEND QT_TRANSLATION_FILES "${TSFILE}.ts")
 endforeach(POFILE)
