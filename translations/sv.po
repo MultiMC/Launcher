@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-29 19:31-0400\n"
-"PO-Revision-Date: 2014-08-30 11:32-0400\n"
+"PO-Revision-Date: 2014-08-30 11:37-0400\n"
 "Last-Translator: Jan Dalheimer <jan@dalheimer.de>\n"
 "Language-Team: Swedish "
 "<http://weblate.robotbrain.info/projects/multimc/multimc/sv/>\n"
@@ -425,91 +425,101 @@ msgid ""
 "This action will remove deprecated version files (custom.json and version."
 "json). Continue?"
 msgstr ""
+"Du håller på att ta bort föråldrade versions-filer (custom.json och "
+"version.json). Fortsätt?"
 
 #: gui/pages/VersionPage.h:39 gui/dialogs/AboutDialog.cpp:87
 #: logic/minecraft/InstanceVersion.cpp:347
 msgid "Version"
-msgstr ""
+msgstr "Version"
 
 #: gui/pages/TexturePackPage.h:9
 msgid "Texture packs"
-msgstr ""
+msgstr "Texturpacket"
 
 #: gui/pages/ResourcePackPage.h:9
 msgid "Resource packs"
-msgstr ""
+msgstr "Resurspacket"
 
 #: gui/pages/ModFolderPage.cpp:149
 msgid ""
 "Unable to remove mod:\n"
 "%1"
 msgstr ""
+"Kunde inte ta bort modden:\n"
+"%1"
 
 #: gui/pages/ModFolderPage.cpp:173
 msgid ""
 "Unable to update mod:\n"
 "%1"
 msgstr ""
+"Kunde inte uppdatera modden:\n"
+"%1"
 
 #: gui/pages/ModFolderPage.cpp:203
 msgid "Continue?"
-msgstr ""
+msgstr "Fortsätt?"
 
 #: gui/pages/ModFolderPage.cpp:205
 msgid "Remove these QuickMods?"
-msgstr ""
+msgstr "Ta bort dessa QuickMods?"
 
 #: gui/pages/ModFolderPage.cpp:206
 msgid ""
 "The QuickMods you selected for removal are depended on by some other mods, "
 "and therefore those mods will also be removed. Continue?"
 msgstr ""
+"QuickModsen du valde ut för att ta bort är beroende av några andra mods, och "
+"därför kommer även dessa att tas bort. Fortsätt?"
 
 #: gui/pages/NotesPage.h:39
 msgid "Notes"
-msgstr ""
+msgstr "Noteringar"
 
 #: gui/pages/LegacyUpgradePage.h:39
 msgid "Upgrade"
-msgstr ""
+msgstr "Uppgradera"
 
 #: gui/pages/LegacyJarModPage.cpp:141
 msgid "Select Jar Mods"
-msgstr ""
+msgstr "Välj Jarmoddar"
 
 #: gui/pages/LegacyJarModPage.h:40
 msgid "Jar Mods"
-msgstr ""
+msgstr "Jarmoddar"
 
 #: gui/pages/LogPage.h:41
 msgid "Minecraft Log"
-msgstr ""
+msgstr "Minecraft Loggen"
 
 #: gui/pages/InstanceSettingsPage.cpp:181 gui/pages/global/JavaPage.cpp:111
 msgid "Find Java executable"
-msgstr ""
+msgstr "Hitta Java"
 
 #: gui/pages/InstanceSettingsPage.cpp:207 gui/pages/global/JavaPage.cpp:137
 msgid "Java test success"
-msgstr ""
+msgstr "Java testet lyckades"
 
 #: gui/pages/InstanceSettingsPage.cpp:212 gui/pages/global/JavaPage.cpp:142
 msgid "Java test failure"
-msgstr ""
+msgstr "Java tested misslyckades"
 
 #: gui/pages/InstanceSettingsPage.cpp:213 gui/pages/global/JavaPage.cpp:143
 msgid ""
 "The specified java binary didn't work. You should use the auto-detect "
 "feature, or set the path to the java executable."
 msgstr ""
+"Det utvalda Java programmet fungerade inte. Du borde använda den automatiska "
+"detektionen, eller välja korrekt fil-adress till Java programmet."
 
 #: gui/pages/ScreenshotsPage.cpp:306
 msgid "Failed to upload screenshots!"
-msgstr ""
+msgstr "Misslyckades med uppladdningen av skärmdumpar!"
 
 #: gui/pages/ScreenshotsPage.cpp:307
 msgid "Unknown error"
-msgstr ""
+msgstr "Okänt fel"
 
 #: gui/pages/ScreenshotsPage.cpp:317
 msgid ""
