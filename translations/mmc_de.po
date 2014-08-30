@@ -1,9 +1,15 @@
 msgid ""
 msgstr ""
+"PO-Revision-Date: 2014-08-30 10:06-0400\n"
+"Last-Translator: Elros Sieberer <robotbrainify@gmail.com>\n"
+"Language-Team: mmc_DE (generated) "
+"<http://weblate.robotbrain.info/projects/multimc/multimc/mmc_DE/>\n"
+"Language: mmc_de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 1.9\n"
 "X-Language: de\n"
 "X-Qt-Contexts: true\n"
 
@@ -49,7 +55,7 @@ msgstr "Version:"
 #: ../gui/dialogs/AboutDialog.ui:127
 msgctxt "AboutDialog|"
 msgid "Version Type:"
-msgstr ""
+msgstr "Version Art:"
 
 #: ../gui/dialogs/AboutDialog.ui:137
 msgctxt "AboutDialog|"
@@ -59,7 +65,7 @@ msgstr ""
 #: ../gui/dialogs/AboutDialog.ui:147
 msgctxt "AboutDialog|"
 msgid "Build Number:"
-msgstr ""
+msgstr "Build-Nummer:"
 
 #: ../gui/dialogs/AboutDialog.ui:157
 msgctxt "AboutDialog|"
@@ -89,6 +95,9 @@ msgid ""
 "style=\" text-decoration: underline; "
 "color:#0000ff;\">http://github.com/MultiMC/MultiMC5</span></a></p></body></html>"
 msgstr ""
+"<html><head/><body><p><a href=\"http://github.com/MultiMC/MultiMC5\"><span "
+"style=\" text-decoration: underline; color:#0000ff;\">http://github.com/MultiM"
+"C/MultiMC5</span></a></p></body></html>"
 
 #: ../gui/dialogs/AboutDialog.ui:245
 msgctxt "AboutDialog|"
@@ -935,7 +944,7 @@ msgctxt "AboutDialog|"
 msgid "No Language file loaded."
 msgstr ""
 "Deutsche Sprachdatei von Kilobyte (siehe oben). Aktualisiert von xnrand "
-"(nsfw auf IRC), Jan und ACGaming."
+"(nsfw auf IRC), Jan, Robotbrain, und ACGaming."
 
 #~ msgctxt "AboutDialog|"
 #~ msgid ""
@@ -2292,7 +2301,7 @@ msgstr "Version"
 #: ../gui/dialogs/AboutDialog.cpp:34
 msgctxt "AboutDialog|"
 msgid "Version Type"
-msgstr ""
+msgstr "Version Art"
 
 #: ../gui/dialogs/AboutDialog.cpp:35
 msgctxt "AboutDialog|"
@@ -2302,7 +2311,7 @@ msgstr ""
 #: ../gui/dialogs/AboutDialog.cpp:38
 msgctxt "AboutDialog|"
 msgid "Build Number"
-msgstr ""
+msgstr "Build-Nummer"
 
 #: ../gui/dialogs/AboutDialog.cpp:43
 msgctxt "AboutDialog|"
@@ -2449,9 +2458,10 @@ msgid "Authenticating: Processing response..."
 msgstr "Authentifizierung: Bearbeite Antwort..."
 
 #: ../logic/tools/BaseExternalTool.cpp:48
+#, fuzzy
 msgctxt "BaseExternalTool|"
 msgid "MCEdit"
-msgstr ""
+msgstr "MCEdit"
 
 #: ../logic/tools/BaseExternalTool.cpp:48
 msgctxt "BaseExternalTool|"
@@ -2476,7 +2486,7 @@ msgstr "Log hochladen"
 #: ../gui/ConsoleWindow.ui:55
 msgctxt "ConsoleWindow|"
 msgid "Manage Screenshots"
-msgstr ""
+msgstr "Screenshots Verwalten"
 
 #: ../gui/ConsoleWindow.ui:75
 msgctxt "ConsoleWindow|"
@@ -2505,7 +2515,7 @@ msgstr "Schließen"
 #: ../gui/ConsoleWindow.cpp:180
 msgctxt "ConsoleWindow|"
 msgid "Hide"
-msgstr ""
+msgstr "Verstecken"
 
 #: ../gui/ConsoleWindow.cpp:235
 msgctxt "ConsoleWindow|"
@@ -2677,9 +2687,10 @@ msgid "Instance Settings"
 msgstr "Instanzeinstellungen"
 
 #: ../gui/dialogs/InstanceSettings.ui:27
+#, fuzzy
 msgctxt "InstanceSettings|"
 msgid "Minecraft"
-msgstr ""
+msgstr "Minecraft"
 
 #: ../gui/dialogs/InstanceSettings.ui:36
 msgctxt "InstanceSettings|"
@@ -2723,9 +2734,10 @@ msgstr ""
 
 #: ../gui/dialogs/InstanceSettings.ui:175
 #: ../gui/dialogs/InstanceSettings.ui:211 ../gui/dialogs/InstanceSettings.ui:233
+#, fuzzy
 msgctxt "InstanceSettings|"
 msgid " MB"
-msgstr ""
+msgstr " MB"
 
 #: ../gui/dialogs/InstanceSettings.ui:208
 msgctxt "InstanceSettings|"
@@ -2865,7 +2877,7 @@ msgstr ""
 #, qt-format
 msgctxt "JProfiler|"
 msgid "Listening on port: %1"
-msgstr ""
+msgstr "Lauscht auf Port: %1"
 
 #: ../logic/tools/JProfiler.cpp:31
 msgctxt "JProfiler|"
@@ -2905,7 +2917,7 @@ msgstr "LWJGL-Versionsverwaltung"
 #: ../gui/dialogs/LwjglSelectDialog.ui:20
 msgctxt "LWJGLSelectDialog|"
 msgid "Status label..."
-msgstr ""
+msgstr "Status-Label..."
 
 #: ../gui/dialogs/LwjglSelectDialog.ui:32
 msgctxt "LWJGLSelectDialog|"
@@ -2944,9 +2956,10 @@ msgid "&Remove"
 msgstr "&Entfernen"
 
 #: ../gui/dialogs/LegacyModEditDialog.ui:58
+#, fuzzy
 msgctxt "LegacyModEditDialog|"
 msgid "MCForge"
-msgstr ""
+msgstr "MCForge"
 
 #: ../gui/dialogs/LegacyModEditDialog.ui:78
 msgctxt "LegacyModEditDialog|"
@@ -3148,12 +3161,10 @@ msgstr "Passwort"
 #~ msgid "R&emember Password?"
 #~ msgstr "&Passwort speichern?"
 
-#. Use offline mode one time
 #~ msgctxt "LoginDialog|"
 #~ msgid "Offline Once"
 #~ msgstr "Einmal Offline-Modus verwenden"
 
-#. The username during login (placeholder)
 #~ msgctxt "LoginDialog|"
 #~ msgid "Name"
 #~ msgstr "Name"
