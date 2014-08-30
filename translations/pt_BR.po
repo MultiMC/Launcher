@@ -14,7 +14,7 @@ msgstr ""
 "Language-Team: none\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ASCII\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
@@ -39,87 +39,91 @@ msgstr ""
 #: gui/QuickModGuiUtil.cpp:48 gui/pages/VersionPage.cpp:301
 #: gui/pages/LegacyJarModPage.cpp:104
 msgid "Select Forge version"
-msgstr ""
+msgstr "Selecionar versão do Forge"
 
 #: gui/QuickModGuiUtil.cpp:57 gui/pages/VersionPage.cpp:303
 msgid "No Forge versions are currently available for Minecraft "
-msgstr ""
+msgstr "Nenhuma versão do Forge está disponível para o Minecraft "
 
 #: gui/QuickModGuiUtil.cpp:67 gui/pages/VersionPage.cpp:339
 msgid "Select LiteLoader version"
-msgstr ""
+msgstr "Selecione uma versão do LiteLoader"
 
 #: gui/QuickModGuiUtil.cpp:76 gui/pages/VersionPage.cpp:342
 msgid "No LiteLoader versions are currently available for Minecraft "
-msgstr ""
+msgstr "Nenhuuma versão do LiteLoader está disponível para o Minecraft "
 
 #: gui/MainWindow.cpp:234
 msgid "No instance selected"
-msgstr ""
+msgstr "Nenhuma instância selecionada"
 
 #: gui/MainWindow.cpp:245
 msgid "Manage Accounts"
-msgstr ""
+msgstr "Gerenciar Contas"
 
 #: gui/MainWindow.cpp:253 gui/pages/global/AccountListPage.h:41
 msgid "Accounts"
-msgstr ""
+msgstr "Contas"
 
 #: gui/MainWindow.cpp:266 gui/pages/InstanceSettingsPage.h:40
 msgid "Settings"
-msgstr ""
+msgstr "Configurações"
 
 #: gui/MainWindow.cpp:385
 msgid "Rename"
-msgstr ""
+msgstr "Renomear"
 
 #: gui/MainWindow.cpp:388
 msgid "Copy instance"
-msgstr ""
+msgstr "Copiar instância"
 
 #: gui/MainWindow.cpp:403 gui/pages/global/MultiMCPage.h:41
 msgid "MultiMC"
-msgstr ""
+msgstr "MultiMC"
 
 #: gui/MainWindow.cpp:406
 msgid "Create instance"
-msgstr ""
+msgstr "Criar instância"
 
 #: gui/MainWindow.cpp:430 gui/MainWindow.cpp:1354
 msgid "Launch"
-msgstr ""
+msgstr "Iniciar"
 
 #: gui/MainWindow.cpp:433
 msgid "Profilers"
-msgstr ""
+msgstr "Perfis"
 
 #: gui/MainWindow.cpp:442
 msgid "Profiler not setup correctly. Go into settings, \"External Tools\"."
 msgstr ""
+"Profiler não foi instalado corretamente. Vá para as configurações, "
+"\"Ferramentas Externas\"."
 
 #: gui/MainWindow.cpp:450
 msgid "Tools"
-msgstr ""
+msgstr "Ferramentas"
 
 #: gui/MainWindow.cpp:459
 msgid "Tool not setup correctly. Go into settings, \"External Tools\"."
 msgstr ""
+"Ferramenta instalada incorretamente. Vá para as configurações, \"Ferramentas "
+"Externas\"."
 
 #: gui/MainWindow.cpp:485
 msgid "No accounts added!"
-msgstr ""
+msgstr "Nenhuma conta adicionada!"
 
 #: gui/MainWindow.cpp:522
 msgid "No Default Account"
-msgstr ""
+msgstr "Nenhuma Conta Padrão"
 
 #: gui/MainWindow.cpp:616
 msgid "Loading news..."
-msgstr ""
+msgstr "Carregando notícias..."
 
 #: gui/MainWindow.cpp:629
 msgid "No news available."
-msgstr ""
+msgstr "Novas notícias disponíveis."
 
 #: gui/MainWindow.cpp:804 gui/MainWindow.cpp:838 gui/MainWindow.cpp:845
 #: gui/MainWindow.cpp:852 gui/MainWindow.cpp:1330 gui/MainWindow.cpp:1364
@@ -141,53 +145,55 @@ msgstr ""
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:430
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:476
 msgid "Error"
-msgstr ""
+msgstr "Erro"
 
 #: gui/MainWindow.cpp:826 logic/InstanceFactory.cpp:90
 msgid "Failed to create instance %1: "
-msgstr ""
+msgstr "Falha ao criar a instância %1:"
 
 #: gui/MainWindow.cpp:837 logic/InstanceFactory.cpp:112
 msgid "An instance with the given directory name already exists."
-msgstr ""
+msgstr "Uma instância contém um diretório já existente."
 
 #: gui/MainWindow.cpp:844 logic/InstanceFactory.cpp:114
 msgid "Failed to create the instance directory."
-msgstr ""
+msgstr "Falha ao criar o diretório da instância."
 
 #: gui/MainWindow.cpp:851 logic/InstanceFactory.cpp:116
 msgid "Unknown instance loader error %1"
-msgstr ""
+msgstr "Erro desconhecido ao carregar instância %1"
 
 #: gui/MainWindow.cpp:911
 msgid "Group name"
-msgstr ""
+msgstr "Nome do grupo"
 
 #: gui/MainWindow.cpp:911
 msgid "Enter a new group name."
-msgstr ""
+msgstr "Digite um nome para o novo grupo."
 
 #: gui/MainWindow.cpp:1036
 msgid "CAREFUL"
-msgstr ""
+msgstr "CUIDADO"
 
 #: gui/MainWindow.cpp:1036
 msgid ""
 "This is permanent! Are you sure?\n"
 "About to delete: "
 msgstr ""
+"Isso é permanente! Você tem certeza?\n"
+"Exclua a seguinte instância:"
 
 #: gui/MainWindow.cpp:1053
 msgid "Instance name"
-msgstr ""
+msgstr "Nome da instância"
 
 #: gui/MainWindow.cpp:1053
 msgid "Enter a new instance name."
-msgstr ""
+msgstr "Digite um nome para a nova instância."
 
 #: gui/MainWindow.cpp:1141
 msgid "No Accounts"
-msgstr ""
+msgstr "Nenhuma Conta"
 
 #: gui/MainWindow.cpp:1142
 msgid ""
@@ -195,28 +201,33 @@ msgid ""
 "account logged in to MultiMC.Would you like to open the account manager to "
 "add an account now?"
 msgstr ""
+"Para jogar Minecraft, você deve ter pelo menos uma conta Mojang ou uma conta "
+"Minecraft conectada no MultiMC. Gostaria de abrir o gestor de conta para "
+"adicionar uma conta agora?"
 
 #: gui/MainWindow.cpp:1156
 msgid "Which account would you like to use?"
-msgstr ""
+msgstr "Que conta você gostaria de usar?"
 
 #: gui/MainWindow.cpp:1178
 msgid ""
 "Your account is currently not logged in. Please enter your password to log "
 "in again."
 msgstr ""
+"Sua conta atual não está logada. Por favor digite sua senha para logar "
+"novamente."
 
 #: gui/MainWindow.cpp:1192
 msgid "Play Offline"
-msgstr ""
+msgstr "Jogar Offline"
 
 #: gui/MainWindow.cpp:1225
 msgid "Player name"
-msgstr ""
+msgstr "Nome do jogador"
 
 #: gui/MainWindow.cpp:1226
 msgid "Choose your offline mode player name."
-msgstr ""
+msgstr "Escolha seu nome para o modo offline."
 
 #: gui/MainWindow.cpp:1277
 msgid "Update"
@@ -233,11 +244,11 @@ msgstr ""
 
 #: gui/MainWindow.cpp:1331
 msgid "Couldn't start profiler: %1"
-msgstr ""
+msgstr "Não foi possível iniciar o perfil: %1"
 
 #: gui/MainWindow.cpp:1340
 msgid "Waiting for profiler..."
-msgstr ""
+msgstr "Aguardando o perfil..."
 
 #: gui/MainWindow.cpp:1349
 msgid ""
@@ -247,22 +258,27 @@ msgid ""
 "\n"
 "%1"
 msgstr ""
+"O lançamento do próprio Minecraft é adiada até que você pressione o botão. "
+"Este é o momento certo para configurar o profiler, como o servidor de perfil "
+"está sendo executado agora.\n"
+"\n"
+"%1"
 
 #: gui/MainWindow.cpp:1352
 msgid "Waiting"
-msgstr ""
+msgstr "Esperando"
 
 #: gui/MainWindow.cpp:1363
 msgid "Couldn't start the profiler: %1"
-msgstr ""
+msgstr "Não foi possível iniciar o perfil: %1"
 
 #: gui/MainWindow.cpp:1381
 msgid "Error updating instance"
-msgstr ""
+msgstr "Erro ao atualizar instância"
 
 #: gui/MainWindow.cpp:1449
 msgid "Rename Instance"
-msgstr ""
+msgstr "Renomear Instância"
 
 #: gui/MainWindow.cpp:1517
 msgid "Java detection forced"
@@ -279,17 +295,19 @@ msgstr ""
 #: gui/MainWindow.cpp:1535 gui/pages/InstanceSettingsPage.cpp:168
 #: gui/pages/global/JavaPage.cpp:99
 msgid "Select a Java version"
-msgstr ""
+msgstr "Selecionar uma versão do Java"
 
 #: gui/MainWindow.cpp:1545
 msgid "Invalid version selected"
-msgstr ""
+msgstr "Versão inválida selecionada"
 
 #: gui/MainWindow.cpp:1546
 msgid ""
 "You didn't select a valid Java version, so MultiMC will select the default. "
 "You can change this in the settings dialog."
 msgstr ""
+"Você não selecionou uma versão Java válido, portanto MultiMC irá selecionar "
+"o padrão. Você pode mudar isso na janela de configuração."
 
 #: gui/MainWindow.cpp:1571
 msgid ""
@@ -305,7 +323,7 @@ msgstr ""
 
 #: gui/ConsoleWindow.cpp:62
 msgid "Console window for "
-msgstr ""
+msgstr "Janela de console para"
 
 #: gui/ConsoleWindow.cpp:90
 msgid "Help"
@@ -313,36 +331,39 @@ msgstr ""
 
 #: gui/ConsoleWindow.cpp:98
 msgid "Kill Minecraft"
-msgstr ""
+msgstr "Finalizar Minecraft"
 
 #: gui/ConsoleWindow.cpp:103 gui/ConsoleWindow.cpp:165
 #: gui/dialogs/NotificationDialog.cpp:29
 msgid "Close"
-msgstr ""
+msgstr "Fechar"
 
 #: gui/ConsoleWindow.cpp:167
 msgid "Hide"
-msgstr ""
+msgstr "Esconder"
 
 #: gui/ConsoleWindow.cpp:225
 msgid "Kill Minecraft?"
-msgstr ""
+msgstr "Finalizar Minecraft?"
 
 #: gui/ConsoleWindow.cpp:226
 msgid ""
 "This can cause the instance to get corrupted and should only be used if "
 "Minecraft is frozen for some reason"
 msgstr ""
+"Isso pode fazer se a instância estiver corrompida e só deve ser usado se o "
+"Minecraft estiver congelado por algum motivo"
 
 #: gui/pages/VersionPage.cpp:128 logic/OneSixUpdate.cpp:190
 #: logic/forge/ForgeInstaller.cpp:403
 #: logic/liteloader/LiteLoaderInstaller.cpp:129
 msgid "Failed to load the version description file for reasons unknown."
 msgstr ""
+"Falha ao carregar o arquivo de descrição da versão por razões desconhecidas."
 
 #: gui/pages/VersionPage.cpp:145
 msgid "Couldn't remove file"
-msgstr ""
+msgstr "Não foi possível remover o arquivo"
 
 #: gui/pages/VersionPage.cpp:176
 msgid "Minecraft jar mods (*.zip *.jar)"
@@ -350,7 +371,7 @@ msgstr ""
 
 #: gui/pages/VersionPage.cpp:232 gui/dialogs/NewInstanceDialog.cpp:120
 msgid "Change Minecraft version"
-msgstr ""
+msgstr "Mudar versão do Minecraft"
 
 #: gui/pages/VersionPage.cpp:241 logic/InstanceFactory.cpp:121
 msgid ""
@@ -358,25 +379,30 @@ msgid ""
 "least one account added.\n"
 "Please add your Mojang or Minecraft account."
 msgstr ""
+"MuiltiMC não pode realizar o download ou atualizar o Minecraft sem você ter "
+"ao menos uma conta adicionada.\n"
+"Por favor adicione sua conta Mojang ou Minecraft."
 
 #: gui/pages/VersionPage.cpp:250 gui/pages/ScreenshotsPage.cpp:328
 msgid "Are you sure?"
-msgstr ""
+msgstr "Você tem certeza?"
 
 #: gui/pages/VersionPage.cpp:251
 msgid ""
 "This will remove any library/version customization you did previously. This "
 "includes things like Forge install and similar."
 msgstr ""
+"Isto irá remover qualquer biblioteca / versão personalizada que você fez "
+"anteriormente. Isso inclui coisas como instalar o Forge e similar."
 
 #: gui/pages/VersionPage.cpp:280 gui/pages/VersionPage.cpp:291
 #: gui/pages/VersionPage.cpp:318 gui/pages/VersionPage.cpp:329
 msgid "Revert?"
-msgstr ""
+msgstr "Reverter?"
 
 #: gui/pages/VersionPage.cpp:281 gui/pages/VersionPage.cpp:319
 msgid "This action will remove the FTB pack version patch. Continue?"
-msgstr ""
+msgstr "Esta ação irá remover o caminho da versão do FTB. Deseja continuar?"
 
 #: gui/pages/VersionPage.cpp:292 gui/pages/VersionPage.cpp:330
 msgid ""
@@ -387,7 +413,7 @@ msgstr ""
 #: gui/pages/VersionPage.h:39 gui/dialogs/AboutDialog.cpp:87
 #: logic/minecraft/InstanceVersion.cpp:347
 msgid "Version"
-msgstr ""
+msgstr "Versão"
 
 #: gui/pages/TexturePackPage.h:9
 msgid "Texture packs"
@@ -433,11 +459,11 @@ msgstr ""
 
 #: gui/pages/LegacyJarModPage.cpp:141
 msgid "Select Jar Mods"
-msgstr ""
+msgstr "Selecionar Jar dos Mods"
 
 #: gui/pages/LegacyJarModPage.h:40
 msgid "Jar Mods"
-msgstr ""
+msgstr "Jar Mods"
 
 #: gui/pages/LogPage.h:41
 msgid "Minecraft Log"
@@ -445,29 +471,31 @@ msgstr ""
 
 #: gui/pages/InstanceSettingsPage.cpp:181 gui/pages/global/JavaPage.cpp:111
 msgid "Find Java executable"
-msgstr ""
+msgstr "Encontrar o executável do Java"
 
 #: gui/pages/InstanceSettingsPage.cpp:207 gui/pages/global/JavaPage.cpp:137
 msgid "Java test success"
-msgstr ""
+msgstr "Sucesso no teste do Java"
 
 #: gui/pages/InstanceSettingsPage.cpp:212 gui/pages/global/JavaPage.cpp:142
 msgid "Java test failure"
-msgstr ""
+msgstr "Teste do Java falhou"
 
 #: gui/pages/InstanceSettingsPage.cpp:213 gui/pages/global/JavaPage.cpp:143
 msgid ""
 "The specified java binary didn't work. You should use the auto-detect "
 "feature, or set the path to the java executable."
 msgstr ""
+"O Java especificado não funciona. Utilize a ferramente de detecção "
+"automática, ou seleciona o caminho do executável java."
 
 #: gui/pages/ScreenshotsPage.cpp:306
 msgid "Failed to upload screenshots!"
-msgstr ""
+msgstr "Falha ao fazer upload das capturas de tela!"
 
 #: gui/pages/ScreenshotsPage.cpp:307
 msgid "Unknown error"
-msgstr ""
+msgstr "Erro desconhecido"
 
 #: gui/pages/ScreenshotsPage.cpp:317
 msgid ""
@@ -491,7 +519,7 @@ msgstr ""
 
 #: gui/pages/OtherLogsPage.cpp:120
 msgid "Delete"
-msgstr ""
+msgstr "Deletar"
 
 #: gui/pages/OtherLogsPage.cpp:121
 msgid "Do you really want to delete %1?"
@@ -514,97 +542,98 @@ msgid ""
 "Please enter your Mojang or Minecraft account username and password to add "
 "your account."
 msgstr ""
+"Por favor, entre com sua conta Mojang ou Minecraft para adicionar sua conta."
 
 #: gui/pages/global/ExternalToolsPage.cpp:88
 msgid "JProfiler Directory"
-msgstr ""
+msgstr "Diretório do JProfiler"
 
 #: gui/pages/global/ExternalToolsPage.cpp:97
 #: gui/pages/global/ExternalToolsPage.cpp:113
 msgid ""
 "Error while checking JProfiler install:\n"
 "%1"
-msgstr ""
+msgstr "Erro duranto a verificação da instalação do JProfiler:"
 
 #: gui/pages/global/ExternalToolsPage.cpp:117
 #: gui/pages/global/ExternalToolsPage.cpp:156
 #: gui/pages/global/ExternalToolsPage.cpp:200
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: gui/pages/global/ExternalToolsPage.cpp:117
 msgid "JProfiler setup seems to be OK"
-msgstr ""
+msgstr "A intalação do JProfiler parece estar OK"
 
 #: gui/pages/global/ExternalToolsPage.cpp:127
 msgid "JVisualVM Executable"
-msgstr ""
+msgstr "Executável JVisualVM"
 
 #: gui/pages/global/ExternalToolsPage.cpp:136
 #: gui/pages/global/ExternalToolsPage.cpp:152
 msgid ""
 "Error while checking JVisualVM install:\n"
 "%1"
-msgstr ""
+msgstr "Erro durante a verificação da instalação do JVisualVM:"
 
 #: gui/pages/global/ExternalToolsPage.cpp:156
 msgid "JVisualVM setup seems to be OK"
-msgstr ""
+msgstr "A instalação do JVisualVM parece estar OK"
 
 #: gui/pages/global/ExternalToolsPage.cpp:168
 msgid "MCEdit Application"
-msgstr ""
+msgstr "Aplicação do MCEdit"
 
 #: gui/pages/global/ExternalToolsPage.cpp:170
 msgid "MCEdit Directory"
-msgstr ""
+msgstr "Diretório do MCEdit"
 
 #: gui/pages/global/ExternalToolsPage.cpp:180
 #: gui/pages/global/ExternalToolsPage.cpp:196
 msgid ""
 "Error while checking MCEdit install:\n"
 "%1"
-msgstr ""
+msgstr "Um erro ocorreu enquanto a instalação do MCEdit erá verificada:"
 
 #: gui/pages/global/ExternalToolsPage.cpp:200
 msgid "MCEdit setup seems to be OK"
-msgstr ""
+msgstr "A instalação do MCEdit parece estar OK"
 
 #: gui/pages/global/ExternalToolsPage.cpp:207
 msgid "JSON Editor"
-msgstr ""
+msgstr "Editor JSON"
 
 #: gui/pages/global/ExternalToolsPage.cpp:229
 msgid "Invalid"
-msgstr ""
+msgstr "Inválido"
 
 #: gui/pages/global/ExternalToolsPage.cpp:230
 msgid "The file chosen does not seem to be an executable"
-msgstr ""
+msgstr "O arquivo escolhido não parece ser um executável"
 
 #: gui/pages/global/ExternalToolsPage.h:36
 msgid "External Tools"
-msgstr ""
+msgstr "Ferramentas Externar"
 
 #: gui/pages/global/JavaPage.h:41
 msgid "Java"
-msgstr ""
+msgstr "Java"
 
 #: gui/pages/global/MinecraftPage.h:41
 msgid "Minecraft"
-msgstr ""
+msgstr "Minecraft"
 
 #: gui/pages/global/MultiMCPage.cpp:91
 msgid "FTB Launcher Directory"
-msgstr ""
+msgstr "Diretório do Inicializador FTB"
 
 #: gui/pages/global/MultiMCPage.cpp:104
 msgid "FTB Directory"
-msgstr ""
+msgstr "Diretório do FTB"
 
 #: gui/pages/global/MultiMCPage.cpp:116
 msgid "Instance Directory"
-msgstr ""
+msgstr "Diretório das Instâncias"
 
 #: gui/pages/global/MultiMCPage.cpp:126
 msgid ""
@@ -621,23 +650,23 @@ msgstr ""
 
 #: gui/pages/global/MultiMCPage.cpp:149
 msgid "Icons Directory"
-msgstr ""
+msgstr "Diretório dos ícones"
 
 #: gui/pages/global/MultiMCPage.cpp:167
 msgid "Mods Directory"
-msgstr ""
+msgstr "Diretório dos Mods"
 
 #: gui/pages/global/MultiMCPage.cpp:179
 msgid "LWJGL Directory"
-msgstr ""
+msgstr "Diretório do LWJGL"
 
 #: gui/pages/global/MultiMCPage.cpp:339
 msgid "English"
-msgstr ""
+msgstr "Inglês"
 
 #: gui/pages/global/ProxyPage.h:39
 msgid "Proxy"
-msgstr ""
+msgstr "Proxy"
 
 #: gui/dialogs/quickmod/QuickModAddFileDialog.cpp:146
 msgid "Add QuickMod File"
@@ -718,12 +747,12 @@ msgstr ""
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:227
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:228
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:227
 #: logic/minecraft/InstanceVersion.cpp:345
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:228
 msgid "URL"
@@ -744,7 +773,7 @@ msgstr ""
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:345
 msgid "Upload"
-msgstr ""
+msgstr "Upload"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:353
 msgid "Open"
@@ -800,51 +829,51 @@ msgstr ""
 
 #: gui/dialogs/AboutDialog.cpp:88
 msgid "Version Type"
-msgstr ""
+msgstr "Tipo da Versão"
 
 #: gui/dialogs/AboutDialog.cpp:89
 msgid "Platform"
-msgstr ""
+msgstr "Plataforma"
 
 #: gui/dialogs/AboutDialog.cpp:92
 msgid "Build Number"
-msgstr ""
+msgstr "Número da Build"
 
 #: gui/dialogs/AboutDialog.cpp:97
 msgid "Channel"
-msgstr ""
+msgstr "Canal"
 
 #: gui/dialogs/IconPickerDialog.cpp:64
 msgid "Add Icon"
-msgstr ""
+msgstr "Adicionar ícone"
 
 #: gui/dialogs/IconPickerDialog.cpp:66
 msgid "Remove Icon"
-msgstr ""
+msgstr "Remover ícone"
 
 #: gui/dialogs/IconPickerDialog.cpp:103
 msgid "Select Icons"
-msgstr ""
+msgstr "Selecionar ícones"
 
 #: gui/dialogs/IconPickerDialog.cpp:106
 msgid "Icons"
-msgstr ""
+msgstr "ícones"
 
 #: gui/dialogs/LwjglSelectDialog.cpp:61
 msgid "Loading LWJGL version list..."
-msgstr ""
+msgstr "Carregando a lista de versões do LWJGL..."
 
 #: gui/dialogs/ModEditDialogCommon.cpp:36
 msgid "How sad!"
-msgstr ""
+msgstr "Que triste!"
 
 #: gui/dialogs/ModEditDialogCommon.cpp:37
 msgid "The mod author didn't provide a website link for this mod."
-msgstr ""
+msgstr "O autor do mod não forneceu um link do site para este mod."
 
 #: gui/dialogs/NotificationDialog.cpp:28
 msgid "Don't show again"
-msgstr ""
+msgstr "Não mostrar novamente"
 
 #: gui/dialogs/UpdateDialog.cpp:15
 msgid "A new %1 update is available!"
@@ -862,15 +891,15 @@ msgstr ""
 
 #: gui/widgets/MCModInfoFrame.cpp:44
 msgid "No description provided in mcmod.info"
-msgstr ""
+msgstr "Nenhuma descrição encontrada no mcmod.info"
 
 #: gui/widgets/MCModInfoFrame.cpp:54
 msgid "Select a mod to view title and authors..."
-msgstr ""
+msgstr "Selecina um mod para ver seu título e autores..."
 
 #: gui/widgets/MCModInfoFrame.cpp:55
 msgid "Select a mod to view description..."
-msgstr ""
+msgstr "Selecione um mod para ver sua descrição..."
 
 #: gui/widgets/WebDownloadNavigator.cpp:18
 msgid "<h1>Loading...</h1>"
@@ -898,7 +927,7 @@ msgstr ""
 
 #: gui/widgets/VersionListView.cpp:27
 msgid "No versions are currently available."
-msgstr ""
+msgstr "Nenhuma versão disponível atualmente."
 
 #: logic/InstanceFactory.cpp:130
 msgid "Instance load failed: %1"
@@ -906,51 +935,51 @@ msgstr ""
 
 #: logic/MinecraftProcess.cpp:242
 msgid "Minecraft exited with exitcode %1."
-msgstr ""
+msgstr "Minecraft fechado com o código de saída %1."
 
 #: logic/MinecraftProcess.cpp:247
 msgid "Minecraft crashed with exitcode %1."
-msgstr ""
+msgstr "Minecraft travou com o código de saída %1."
 
 #: logic/MinecraftProcess.cpp:253
 msgid "Minecraft was killed by user."
-msgstr ""
+msgstr "Minecraft foi fechado pelo usuário."
 
 #: logic/MinecraftProcess.cpp:286
 msgid "Running Pre-Launch command: %1"
-msgstr ""
+msgstr "Rodando comando de pré inicialização: %1"
 
 #: logic/MinecraftProcess.cpp:290
 msgid "The command failed to start"
-msgstr ""
+msgstr "O comando falhou ao iniciar"
 
 #: logic/MinecraftProcess.cpp:307
 msgid ""
 "Pre-Launch command failed with code %1.\n"
 "\n"
-msgstr ""
+msgstr "Comando de pré inicialização falhou com o código %1."
 
 #: logic/MinecraftProcess.cpp:318
 msgid ""
 "Pre-Launch command ran successfully.\n"
 "\n"
-msgstr ""
+msgstr "Comando de pré inicialização foi executado com êxito."
 
 #: logic/MinecraftProcess.cpp:330
 msgid "Running Post-Launch command: %1"
-msgstr ""
+msgstr "Rodando o comando pós inicialização: %1"
 
 #: logic/MinecraftProcess.cpp:349
 msgid ""
 "Post-Launch command failed with code %1.\n"
 "\n"
-msgstr ""
+msgstr "Comando pós inicialização falhou com o código %1."
 
 #: logic/MinecraftProcess.cpp:358
 msgid ""
 "Post-Launch command ran successfully.\n"
 "\n"
-msgstr ""
+msgstr "Comando pós inicialização foi executado com êxito."
 
 #: logic/MinecraftProcess.cpp:467
 msgid ""
@@ -960,11 +989,11 @@ msgstr ""
 
 #: logic/MinecraftProcess.cpp:477
 msgid "Could not launch minecraft!"
-msgstr ""
+msgstr "Não foi possível iniciar o Minecraft!"
 
 #: logic/NagUtils.cpp:26
 msgid "JVM arguments warning"
-msgstr ""
+msgstr "Aviso nos argumentos JVM"
 
 #: logic/NagUtils.cpp:27
 msgid ""
@@ -974,6 +1003,12 @@ msgid ""
 "Your manual settings will be overridden by the dedicated options.\n"
 "This message will be displayed until you remove them from the JVM arguments."
 msgstr ""
+"Você tentou ajustar manualmente a opção da memória JVM (usando "
+"\"-XX:PermSize\", \"-Xmx\" or \"-Xms\") - existem lugares corretos para estas "
+"configurações (Aba Java, no grupo do topo chamdo Memória).\n"
+"        Suas configurações manuais serão substituídas pelas opções por "
+"padrão.\n"
+"        Esta mensagem será exibida até que você remova dos argumentos JVM."
 
 #: logic/MMCJson.h:24
 msgid "Error opening %1: %2"
@@ -983,6 +1018,8 @@ msgstr ""
 msgid ""
 "paste.ee returned an error. Please consult the logs for more information"
 msgstr ""
+"paste.ee retornou um erro. Por favor, consulte os logs para obter mais "
+"informações"
 
 #: logic/net/MavenResolver.cpp:99
 msgid "Fetching Maven POM files..."
@@ -998,11 +1035,11 @@ msgstr ""
 
 #: logic/auth/YggdrasilTask.cpp:111
 msgid "Authentication operation timed out."
-msgstr ""
+msgstr "Operação de autenticação expirou."
 
 #: logic/auth/YggdrasilTask.cpp:114
 msgid "Authentication operation cancelled."
-msgstr ""
+msgstr "Operação de autenticação cancelada."
 
 #: logic/auth/YggdrasilTask.cpp:119
 msgid ""
@@ -1013,55 +1050,67 @@ msgid ""
 "case, you have bigger worries than Minecraft not starting.</li><li>Possibly "
 "something else. Check the MultiMC log file for details</li></ul>"
 msgstr ""
+"<b>Falha no SSL Handshake.</b><br/>Pode haver algumas causas para "
+"isso:<br/><ul><li>Você usa o Windows XP e precisa <a "
+"href=\"http://www.microsoft.com/en-"
+"us/download/details.aspx?id=38918\">atualizar seus certificados de "
+"raizn</a></li><li>Alguns dispositivos em sua rede estão interferindo no "
+"tráfego SSL. Nesse caso, você tem preocupações maiores que além de não "
+"iniciar o Minecraft.</li><li>Possivelmente algo mais. Verifique o arquivo de "
+"log do MultiMC para obter mais detalhes</li></ul>"
 
 #: logic/auth/YggdrasilTask.cpp:134
 msgid "Authentication operation failed due to a network error: %1 (%2)"
-msgstr ""
+msgstr "Falha na operação de autenticação devido a um erro de rede: %1 (%2)"
 
 #: logic/auth/YggdrasilTask.cpp:160
 msgid ""
 "Failed to parse authentication server response JSON response: %1 at offset "
 "%2."
 msgstr ""
+"Falha ao analisar a resposta do servidor de autenticação de resposta JSON:%1 "
+"compensar %2."
 
 #: logic/auth/YggdrasilTask.cpp:189
 msgid ""
 "An unknown error occurred when trying to communicate with the authentication "
 "server: %1"
 msgstr ""
+"Ocorreu um erro desconhecido ao tentar se comunicar com o servidor de "
+"autenticação: %1"
 
 #: logic/auth/YggdrasilTask.cpp:209
 msgid "An unknown Yggdrasil error occurred."
-msgstr ""
+msgstr "Ocorreu um erro desconhecido Yggdrasil."
 
 #: logic/auth/YggdrasilTask.cpp:220
 msgid "Sending request to auth servers..."
-msgstr ""
+msgstr "Enviando pepido para os servers de autenticação..."
 
 #: logic/auth/YggdrasilTask.cpp:222
 msgid "Processing response from servers..."
-msgstr ""
+msgstr "Resposta de processamento dos servidores ..."
 
 #: logic/auth/YggdrasilTask.cpp:224
 msgid "Authentication task succeeded."
-msgstr ""
+msgstr "Tarefa de autenticação bem sucedida."
 
 #: logic/auth/YggdrasilTask.cpp:226
 msgid "Failed to contact the authentication server."
-msgstr ""
+msgstr "Falha ao contatar o servidor de autenticação."
 
 #: logic/auth/YggdrasilTask.cpp:228
 msgid "Failed to authenticate."
-msgstr ""
+msgstr "Falha ao autenticar."
 
 #: logic/auth/YggdrasilTask.cpp:230
 msgid "..."
-msgstr ""
+msgstr "..."
 
 #: logic/auth/flows/AuthenticateTask.cpp:86
 #: logic/auth/flows/RefreshTask.cpp:75
 msgid "Authentication server didn't send a client token."
-msgstr ""
+msgstr "O server de autenticação não enviou um token do cliente."
 
 #: logic/auth/flows/AuthenticateTask.cpp:91
 #: logic/auth/flows/RefreshTask.cpp:80
@@ -1069,103 +1118,112 @@ msgid ""
 "Authentication server attempted to change the client token. This isn't "
 "supported."
 msgstr ""
+"Servidor de autenticação tentou mudar o token do cliente. Isto não é "
+"suportado."
 
 #: logic/auth/flows/AuthenticateTask.cpp:103
 #: logic/auth/flows/RefreshTask.cpp:90
 msgid "Authentication server didn't send an access token."
-msgstr ""
+msgstr "O server de autenticação não enviou um token de acesso."
 
 #: logic/auth/flows/AuthenticateTask.cpp:148
 msgid ""
 "Authentication server didn't specify a currently selected profile. The "
 "account exists, but likely isn't premium."
 msgstr ""
+"O server de autenticação não especificou o perfil selecionado. A conta "
+"existe, mas provavelmente não é premium."
 
 #: logic/auth/flows/AuthenticateTask.cpp:153
 msgid ""
 "Authentication server specified a selected profile that wasn't in the "
 "available profiles list."
 msgstr ""
+"O server de autenticação especificou um perfil selecionado que não estava na "
+"lista de perfis disponíveis."
 
 #: logic/auth/flows/AuthenticateTask.cpp:190
 msgid "Authenticating: Sending request..."
-msgstr ""
+msgstr "Autenticando: Enviando pedido..."
 
 #: logic/auth/flows/AuthenticateTask.cpp:192
 msgid "Authenticating: Processing response..."
-msgstr ""
+msgstr "Autenticando: Processando resposta..."
 
 #: logic/auth/flows/RefreshTask.cpp:100
 msgid "Authentication server didn't specify the same prefile as expected."
 msgstr ""
+"Servidor de autenticação não conseguiu especificar o mesmo perfil que o "
+"esperado."
 
 #: logic/auth/flows/RefreshTask.cpp:139
 msgid "Refreshing login token..."
-msgstr ""
+msgstr "Atualizando token de login..."
 
 #: logic/auth/flows/RefreshTask.cpp:141
 msgid "Refreshing login token: Processing response..."
-msgstr ""
+msgstr "Atualizando token do login: Processando resposta..."
 
 #: logic/auth/flows/ValidateTask.cpp:56
 msgid "Validating access token: Sending request..."
-msgstr ""
+msgstr "Validando token de acesso: Enviando pedido..."
 
 #: logic/auth/flows/ValidateTask.cpp:58
 msgid "Validating access token: Processing response..."
-msgstr ""
+msgstr "Validando token de acesso: Processando resposta..."
 
 #: logic/updater/DownloadUpdateTask.cpp:83
 msgid "Finding information about the current version..."
-msgstr ""
+msgstr "Procurando informações sobre a versão atual..."
 
 #: logic/updater/DownloadUpdateTask.cpp:104
 msgid "Loading version information..."
-msgstr ""
+msgstr "Carregando informações da versão..."
 
 #: logic/updater/DownloadUpdateTask.cpp:154
 msgid "Failed to download version info files."
-msgstr ""
+msgstr "Falha ao fazer o download dos arquivos de informação de versão."
 
 #: logic/updater/DownloadUpdateTask.cpp:159
 msgid "Reading file list for new version..."
-msgstr ""
+msgstr "Lendo o arquivo de novas versões..."
 
 #: logic/updater/DownloadUpdateTask.cpp:174
 msgid "Reading file list for current version..."
-msgstr ""
+msgstr "Lendo arquivo com listas da versão atual..."
 
 #: logic/updater/DownloadUpdateTask.cpp:264
 msgid "Failed to process update lists..."
-msgstr ""
+msgstr "Falha ao processar as listas de atualizações..."
 
 #: logic/updater/DownloadUpdateTask.cpp:276
 msgid "Downloading %1 update files."
-msgstr ""
+msgstr "Baixando %1 arquivo de atualização."
 
 #: logic/updater/DownloadUpdateTask.cpp:290
 msgid "Processing file lists - figuring out how to install the update..."
 msgstr ""
+"Processando arquivo de listas - Descobrindo como instalar a atualização..."
 
 #: logic/updater/DownloadUpdateTask.cpp:506
 msgid "Failed to write update script file."
-msgstr ""
+msgstr "Falha ao escrever a atualização do arquivo de script."
 
 #: logic/updater/DownloadUpdateTask.cpp:537
 msgid "Failed to download update files."
-msgstr ""
+msgstr "Falha ao baixar os arquivos de atualização."
 
 #: logic/news/NewsEntry.cpp:24 logic/news/NewsEntry.cpp:60
 msgid "Untitled"
-msgstr ""
+msgstr "Sem nome"
 
 #: logic/news/NewsEntry.cpp:25 logic/news/NewsEntry.cpp:61
 msgid "No content."
-msgstr ""
+msgstr "Nenhum conteúdo."
 
 #: logic/news/NewsEntry.cpp:27 logic/news/NewsEntry.cpp:63
 msgid "Unknown Author"
-msgstr ""
+msgstr "Autor Desconhecido"
 
 #: logic/LegacyInstance.cpp:56 logic/OneSixInstance.cpp:81
 msgid "Loader mods"
@@ -1189,107 +1247,107 @@ msgstr ""
 
 #: logic/LegacyUpdate.cpp:81 logic/OneSixUpdate.cpp:431
 msgid "Checking for FML libraries..."
-msgstr ""
+msgstr "Verificando por bibliotecas do FML..."
 
 #: logic/LegacyUpdate.cpp:128 logic/OneSixUpdate.cpp:457
 msgid "Dowloading FML libraries..."
-msgstr ""
+msgstr "Baixando bibliotecas do FML..."
 
 #: logic/LegacyUpdate.cpp:151 logic/OneSixUpdate.cpp:480
 msgid "Copying FML libraries into the instance..."
-msgstr ""
+msgstr "Copiando bibliotecas do FML para dentro da instância..."
 
 #: logic/LegacyUpdate.cpp:162 logic/OneSixUpdate.cpp:491
 msgid "Failed creating FML library folder inside the instance."
-msgstr ""
+msgstr "Falha na criação da pasta da biblioteca FML dentro da instância."
 
 #: logic/LegacyUpdate.cpp:167 logic/OneSixUpdate.cpp:496
 msgid "Failed copying Forge/FML library: %1."
-msgstr ""
+msgstr "Falha na copia da biblioteca do Forge/FML: %1."
 
 #: logic/LegacyUpdate.cpp:206
 msgid "Downloading new LWJGL..."
-msgstr ""
+msgstr "Baixando novo LWJGL..."
 
 #: logic/LegacyUpdate.cpp:272
 msgid "Installing new LWJGL..."
-msgstr ""
+msgstr "Instalando novo LWJGL..."
 
 #: logic/LegacyUpdate.cpp:348
 msgid "Installing new LWJGL - extracting "
-msgstr ""
+msgstr "Instalando um novo LWJGL - extraindo"
 
 #: logic/LegacyUpdate.cpp:378
 msgid "Checking for jar updates..."
-msgstr ""
+msgstr "Verificar por atualizações do jar..."
 
 #: logic/LegacyUpdate.cpp:388
 msgid "Downloading new minecraft.jar ..."
-msgstr ""
+msgstr "Baixando um novo minecraft.jar..."
 
 #: logic/LegacyUpdate.cpp:421 logic/OneSixUpdate.cpp:364
 msgid "Installing mods: Adding "
-msgstr ""
+msgstr "Instalando mods: Adicionando "
 
 #: logic/LegacyUpdate.cpp:507
 msgid "Installing mods: Backing up minecraft.jar ..."
-msgstr ""
+msgstr "Instalando mods: Criando backup do minecraft.jar..."
 
 #: logic/LegacyUpdate.cpp:532
 msgid "Installing mods: Opening minecraft.jar ..."
-msgstr ""
+msgstr "Instalando mods: Abrindo o minecraft.jar..."
 
 #: logic/LegacyUpdate.cpp:546
 msgid "Installing mods: Adding mod files..."
-msgstr ""
+msgstr "Instalando mods: Adicionando os arquivos do mod..."
 
 #: logic/OneSixUpdate.cpp:52
 msgid "Failed to create folder for minecraft binaries."
-msgstr ""
+msgstr "Falha ao criar a pasta binaries para o Minecraft."
 
 #: logic/OneSixUpdate.cpp:62
 msgid "The specified Minecraft version is invalid. Choose a different one."
-msgstr ""
+msgstr "A versão do Minecraft especificada é inválida. Escolha uma diferente."
 
 #: logic/OneSixUpdate.cpp:82
 msgid "Getting the version files from Mojang..."
-msgstr ""
+msgstr "Obtendo os arquivos de versão da Mojang..."
 
 #: logic/OneSixUpdate.cpp:93
 msgid "Updating assets index..."
-msgstr ""
+msgstr "Atualizando o índice de recursos..."
 
 #: logic/OneSixUpdate.cpp:99
 msgid "Asset index for %1"
-msgstr ""
+msgstr "índice do recurso para %1"
 
 #: logic/OneSixUpdate.cpp:125
 msgid "Failed to read the assets index!"
-msgstr ""
+msgstr "Falha ao ler o índice de recursos!"
 
 #: logic/OneSixUpdate.cpp:144
 msgid "Getting the assets files from Mojang..."
-msgstr ""
+msgstr "Baixando os arquivos de recursos da Mojang..."
 
 #: logic/OneSixUpdate.cpp:145
 msgid "Assets for %1"
-msgstr ""
+msgstr "Recursos para %1"
 
 #: logic/OneSixUpdate.cpp:161
 msgid "Failed to download the assets index!"
-msgstr ""
+msgstr "Falha ao baixar o índice de recursos!"
 
 #: logic/OneSixUpdate.cpp:171
 msgid "Failed to download assets!"
-msgstr ""
+msgstr "Falha ao baixar os recursos!"
 
 #: logic/OneSixUpdate.cpp:176
 msgid "Getting the library files from Mojang..."
-msgstr ""
+msgstr "Baixando as bibliotecas da Mojang..."
 
 #: logic/OneSixUpdate.cpp:202
 msgid "Libraries for instance %1"
-msgstr ""
+msgstr "Bibliotecas para a intância %1"
 
 #: logic/OneSixUpdate.cpp:268
 msgid ""
@@ -1299,6 +1357,12 @@ msgid ""
 "You'll have to correct this problem manually. If this is an externally "
 "tracked instance, make sure to run it at least once outside of MultiMC."
 msgstr ""
+"Algumas bibliotecas marcados como 'local' estão perdendo seus arquivos jar:\n"
+"%1\n"
+"\n"
+"Você vai ter que corrigir este problema manualmente. Se esta é uma instância "
+"monitorada externamente, certifique-se de executá-lo pelo menos uma vez "
+"fora do MultiMC."
 
 #: logic/OneSixUpdate.cpp:329
 msgid ""
@@ -1307,6 +1371,10 @@ msgid ""
 "\n"
 "Please try again."
 msgstr ""
+"Falha no download dos seguintes arquivos:\n"
+"%1\n"
+"\n"
+"Por favor tente novamente."
 
 #: logic/OneSixUpdate.cpp:342
 msgid "Creating stripped jar: Opening minecraft.jar ..."
@@ -1380,7 +1448,7 @@ msgstr ""
 
 #: logic/minecraft/MinecraftVersionList.cpp:360
 msgid "Loading instance version list..."
-msgstr ""
+msgstr "Carregando lista de versões da instância..."
 
 #: logic/minecraft/MinecraftVersionList.cpp:385
 msgid "Error parsing version list JSON: %1"
@@ -1396,15 +1464,15 @@ msgstr ""
 
 #: logic/minecraft/MinecraftVersionList.cpp:474
 msgid "Can't open %1 for writing."
-msgstr ""
+msgstr "Não foi possível abrir %1 para escrita."
 
 #: logic/minecraft/MinecraftVersionList.cpp:480
 msgid "Failed to write into %1. Written %2 out of %3."
-msgstr ""
+msgstr "Falha ao escrever dentro do %1. Escrevendo %2 fora do %3."
 
 #: logic/minecraft/MinecraftVersionList.cpp:488
 msgid "Can't commit changes to %1"
-msgstr ""
+msgstr "Não foi possível confirmar as alterações do %1"
 
 #: logic/minecraft/VersionBuilder.cpp:128
 msgid "load id %1 does not match internal id %2"
@@ -1412,16 +1480,16 @@ msgstr ""
 
 #: logic/minecraft/VersionBuilder.cpp:150
 msgid "%1 has the same order as %2"
-msgstr ""
+msgstr "%1 tem a mesma ordem de %2"
 
 #: logic/minecraft/VersionBuilder.cpp:276
 #: logic/minecraft/VersionBuilder.cpp:296
 msgid "Unable to open the version file %1: %2."
-msgstr ""
+msgstr "Não é possivel abrir o arquivo de versão %1: %2."
 
 #: logic/minecraft/VersionBuilder.cpp:284
 msgid "Unable to process the version file %1: %2 at %3."
-msgstr ""
+msgstr "Não é possível processar o arquivo de versão %1: %2 a %3."
 
 #: logic/minecraft/VersionBuilder.cpp:305
 msgid "Unable to process the version file %1."
@@ -1436,12 +1504,16 @@ msgid ""
 "The base version file of this instance was meant for a newer (%1) version of "
 "the vanilla launcher than this version of MultiMC supports (%2)."
 msgstr ""
+"O arquivo de versão base desta instância foi feito para a nova (%1) versão "
+"do inicializador vanilla que esta versão do MultiMC suporta (%2)."
 
 #: logic/minecraft/VersionBuildError.h:36
 msgid ""
 "The patch %1 is for a different version of Minecraft (%2) than that of the "
 "instance (%3)."
 msgstr ""
+"O diretório %1 é uma versão diferente do Minecraft (%2) do que a da "
+"instância (%3)."
 
 #: logic/minecraft/VersionBuildError.h:53
 msgid "Version is incomplete: missing %1."
@@ -1449,60 +1521,60 @@ msgstr ""
 
 #: logic/minecraft/VersionFile.cpp:530 logic/minecraft/VersionFile.cpp:555
 msgid "Error resolving library dependencies between %1 and %2 in %3."
-msgstr ""
+msgstr "Erro na resolução da biblioteca de dependências entre %1 e %2 em %3."
 
 #: logic/java/JavaVersionList.cpp:175
 msgid "Detecting Java installations..."
-msgstr ""
+msgstr "Detectar instalações do Java..."
 
 #: logic/assets/AssetsMigrateTask.cpp:19
 msgid "Migrating legacy assets..."
-msgstr ""
+msgstr "Migrando arquivos..."
 
 #: logic/tools/BaseExternalTool.cpp:48
 msgid "MCEdit"
-msgstr ""
+msgstr "MCEdit"
 
 #: logic/tools/BaseExternalTool.cpp:48
 msgid "Choose which world to open:"
-msgstr ""
+msgstr "Escolha um mundo para abrir:"
 
 #: logic/tools/MCEditTool.cpp:62
 msgid "Path is empty"
-msgstr ""
+msgstr "Caminho está vazio"
 
 #: logic/tools/MCEditTool.cpp:68 logic/tools/JProfiler.cpp:69
 msgid "Path does not exist"
-msgstr ""
+msgstr "O caminho não existe"
 
 #: logic/tools/MCEditTool.cpp:73
 msgid "Path does not seem to be a MCEdit path"
-msgstr ""
+msgstr "O caminho não parece ser o caminho do MCEdit"
 
 #: logic/tools/BaseProfiler.cpp:29 logic/tools/JProfiler.cpp:31
 #: logic/tools/JVisualVM.cpp:28
 msgid "Profiler aborted"
-msgstr ""
+msgstr "Profiler abortado"
 
 #: logic/tools/JProfiler.cpp:24
 msgid "Listening on port: %1"
-msgstr ""
+msgstr "Ouvindo na porta: %1"
 
 #: logic/tools/JProfiler.cpp:63 logic/tools/JVisualVM.cpp:64
 msgid "Empty path"
-msgstr ""
+msgstr "Caminho vazio"
 
 #: logic/tools/JProfiler.cpp:74
 msgid "Invalid JProfiler install"
-msgstr ""
+msgstr "Instalador do JProfiler inválido"
 
 #: logic/tools/JVisualVM.cpp:21
 msgid "JVisualVM started"
-msgstr ""
+msgstr "JVisualVM iniciado"
 
 #: logic/tools/JVisualVM.cpp:70
 msgid "Invalid path to JVisualVM"
-msgstr ""
+msgstr "O caminho do JVisualVM é inválido"
 
 #: logic/quickmod/QuickMod.cpp:156
 msgid "QuickMod format to new"
@@ -1652,38 +1724,42 @@ msgstr ""
 
 #: logic/forge/ForgeVersionList.cpp:162
 msgid "Fetching Forge version lists..."
-msgstr ""
+msgstr "Buscando versões do Forge..."
 
 #: logic/forge/ForgeInstaller.cpp:336
 msgid "Installing forge..."
-msgstr ""
+msgstr "Instalando forge..."
 
 #: logic/forge/ForgeInstaller.cpp:340
 msgid "Unknown error occured"
-msgstr ""
+msgstr "Erro desconhecido ocorreu"
 
 #: logic/forge/ForgeInstaller.cpp:353
 msgid "Failure to install forge"
-msgstr ""
+msgstr "Falha ao instalar o forge"
 
 #: logic/forge/ForgeInstaller.cpp:370
 msgid "Failure to download forge"
-msgstr ""
+msgstr "Falha ao baixar o forge"
 
 #: logic/liteloader/LiteLoaderInstaller.cpp:112
 msgid ""
 "For reasons unknown, the LiteLoader installation failed. Check your MultiMC "
 "log files for details."
 msgstr ""
+"Por razões desconhecidas, a instalação do LiteLoader falhou. Verifique o "
+"arquivo de log do MultiMC para mais detalhes."
 
 #: logic/liteloader/LiteLoaderVersionList.h:38
 msgid "Latest"
-msgstr ""
+msgstr "última"
 
 #: logic/liteloader/LiteLoaderVersionList.cpp:104
 msgid "Loading LiteLoader version list..."
-msgstr ""
+msgstr "Carregar a lista de versões do LiteLoader"
 
 #: logic/liteloader/LiteLoaderVersionList.cpp:171
 msgid "This is a lightweight loader for mods that don't change game mechanics."
 msgstr ""
+"Esse é um leve inicializador para mods mas ele não irá mudar as mecânicas do "
+"jogo."
