@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-08-30 10:06-0400\n"
+"PO-Revision-Date: 2014-08-30 14:30-0400\n"
 "Last-Translator: Elros Sieberer <robotbrainify@gmail.com>\n"
-"Language-Team: de"
+"Language-Team: German "
 "<http://weblate.robotbrain.info/projects/multimc/multimc/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -89,6 +89,7 @@ msgid "© 2013 MultiMC Contributors"
 msgstr "© 2013 MultiMC-Mitwirkende"
 
 #: ../gui/dialogs/AboutDialog.ui:204
+#, fuzzy
 msgctxt "AboutDialog|"
 msgid ""
 "<html><head/><body><p><a href=\"http://github.com/MultiMC/MultiMC5\"><span "
@@ -2601,7 +2602,7 @@ msgstr "Bearbeite Konto"
 #: ../gui/dialogs/EditAccountDialog.ui:20
 msgctxt "EditAccountDialog|"
 msgid "Message label placeholder."
-msgstr "Message label placeholder."
+msgstr "Nachricht Etikett Platzhalter."
 
 #: ../gui/dialogs/EditAccountDialog.ui:33
 msgctxt "EditAccountDialog|"
@@ -2789,6 +2790,7 @@ msgid "Maximum memory allocation:"
 msgstr "Max. Arbeitsspeicher:"
 
 #: ../gui/dialogs/InstanceSettings.ui:252
+#, fuzzy
 msgctxt "InstanceSettings|"
 msgid "PermGen:"
 msgstr "PermGen:"
@@ -3067,7 +3069,7 @@ msgstr "Neues LWJGL wird installiert..."
 #: ../logic/LegacyUpdate.cpp:391
 msgctxt "LegacyUpdate|"
 msgid "Installing new LWJGL - extracting "
-msgstr "Das neue LWJGL wird installiert - entpacken"
+msgstr "Das neue LWJGL wird installiert - entpacken "
 
 #: ../logic/LegacyUpdate.cpp:421
 msgctxt "LegacyUpdate|"
@@ -3211,7 +3213,7 @@ msgstr "Passwort"
 #: ../gui/widgets/MCModInfoFrame.ui:26
 msgctxt "MCModInfoFrame|"
 msgid "Frame"
-msgstr "Frame"
+msgstr "Rahmen"
 
 #: ../gui/widgets/MCModInfoFrame.ui:32 ../gui/widgets/MCModInfoFrame.cpp:54
 msgctxt "MCModInfoFrame|"
@@ -3234,6 +3236,7 @@ msgid "Loading instance version list..."
 msgstr "Lade Liste von Minecraft-Versionen..."
 
 #: ../gui/MainWindow.ui:14
+#, fuzzy
 msgctxt "MainWindow|"
 msgid "MultiMC 5"
 msgstr "MultiMC 5"
@@ -3740,7 +3743,7 @@ msgid ""
 "About to delete: "
 msgstr ""
 "Die Änderung ist dauerhaft! Bist du dir sicher?\n"
-"Die folgende Instanz löschen:"
+"Die folgende Instanz löschen: "
 
 #: ../gui/MainWindow.cpp:1118
 msgctxt "MainWindow|"
@@ -3943,7 +3946,7 @@ msgstr "Minecraft wurde mit Status %1 beendet."
 #, qt-format
 msgctxt "MinecraftProcess|"
 msgid "Minecraft crashed with exitcode %1."
-msgstr "Minecraft ist mit dem Status %1 abgestürzt"
+msgstr "Minecraft ist mit dem Status %1 abgestürzt."
 
 #. Message displayed after the instance exits due to kill request
 #: ../logic/MinecraftProcess.cpp:249
@@ -4093,7 +4096,7 @@ msgstr "..."
 #: ../gui/dialogs/NewInstanceDialog.cpp:99
 msgctxt "NewInstanceDialog|"
 msgid "Change Minecraft version"
-msgstr "Ändere die Minecraft-Version..."
+msgstr "Ändere die Minecraft-Version"
 
 #: ../logic/news/NewsEntry.cpp:24 ../logic/news/NewsEntry.cpp:60
 msgctxt "NewsEntry|"
@@ -5289,6 +5292,7 @@ msgid "FTB"
 msgstr "FTB"
 
 #: ../gui/dialogs/SettingsDialog.ui:117
+#, fuzzy
 msgctxt "SettingsDialog|"
 msgid "Launcher:"
 msgstr "Launcher:"
@@ -5304,6 +5308,7 @@ msgid "Files:"
 msgstr "Dateien:"
 
 #: ../gui/dialogs/SettingsDialog.ui:196
+#, fuzzy
 msgctxt "SettingsDialog|"
 msgid "Mods:"
 msgstr "Mods:"
@@ -5346,6 +5351,7 @@ msgid "JSON Editor:"
 msgstr "JSON-Editor:"
 
 #: ../gui/dialogs/SettingsDialog.ui:372
+#, fuzzy
 msgctxt "SettingsDialog|"
 msgid "Minecraft"
 msgstr "Minecraft"
@@ -5567,6 +5573,7 @@ msgid "The amount of memory Minecraft is started with."
 msgstr ""
 
 #: ../gui/dialogs/SettingsDialog.ui:548
+#, fuzzy
 msgctxt "SettingsDialog|"
 msgid "PermGen:"
 msgstr "PermGen:"
@@ -5589,7 +5596,7 @@ msgstr "Java-Pfad:"
 #: ../gui/dialogs/SettingsDialog.ui:605
 msgctxt "SettingsDialog|"
 msgid "Auto-detect..."
-msgstr "Auto-Erkennung:"
+msgstr "Auto-Erkennung..."
 
 #: ../gui/dialogs/SettingsDialog.ui:618
 msgctxt "SettingsDialog|"
