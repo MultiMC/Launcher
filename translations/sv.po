@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-29 19:31-0400\n"
-"PO-Revision-Date: 2014-08-30 05:25-0400\n"
+"PO-Revision-Date: 2014-08-30 11:30-0400\n"
 "Last-Translator: Jan Dalheimer <jan@dalheimer.de>\n"
 "Language-Team: Swedish "
 "<http://weblate.robotbrain.info/projects/multimc/multimc/sv/>\n"
@@ -312,18 +312,21 @@ msgstr "Välj en Java-version"
 
 #: gui/MainWindow.cpp:1545
 msgid "Invalid version selected"
-msgstr ""
+msgstr "Ogiltig version vald"
 
 #: gui/MainWindow.cpp:1546
 msgid ""
 "You didn't select a valid Java version, so MultiMC will select the default. "
 "You can change this in the settings dialog."
 msgstr ""
+"Eftersom du har inte valt en giltig Java version kommer MultiMC att välja "
+"en. Du kan ändra den i inställningarna."
 
 #: gui/MainWindow.cpp:1571
 msgid ""
 "Your instance folder contains '!' and this is known to cause Java problems!"
 msgstr ""
+"Namnet på din instansmapp innehåller '!', och det är ger problem med Java!"
 
 #: gui/MainWindow.cpp:1573
 msgid ""
@@ -331,55 +334,60 @@ msgid ""
 "instance dir in the settings <br/> - move this installation of MultiMC5 to a "
 "different folder"
 msgstr ""
+"Du har tre optioner:<br/> - ignorera denna warning <br/> - ändra "
+"instansmappen i inställningarna <br/> - flytta denna installation av MultiMC "
+"till en annan map"
 
 #: gui/ConsoleWindow.cpp:62
 msgid "Console window for "
-msgstr ""
+msgstr "Konsolfönster för "
 
 #: gui/ConsoleWindow.cpp:90
 msgid "Help"
-msgstr ""
+msgstr "Hjälp"
 
 #: gui/ConsoleWindow.cpp:98
 msgid "Kill Minecraft"
-msgstr ""
+msgstr "Döda Minecraft"
 
 #: gui/ConsoleWindow.cpp:103 gui/ConsoleWindow.cpp:165
 #: gui/dialogs/NotificationDialog.cpp:29
 msgid "Close"
-msgstr ""
+msgstr "Stäng"
 
 #: gui/ConsoleWindow.cpp:167
 msgid "Hide"
-msgstr ""
+msgstr "Göm"
 
 #: gui/ConsoleWindow.cpp:225
 msgid "Kill Minecraft?"
-msgstr ""
+msgstr "Döda Minecraft?"
 
 #: gui/ConsoleWindow.cpp:226
 msgid ""
 "This can cause the instance to get corrupted and should only be used if "
 "Minecraft is frozen for some reason"
 msgstr ""
+"Detta kan göra så att instanser blir korrupterade och bör endast användas "
+"ifall Minecraft inte svarar"
 
 #: gui/pages/VersionPage.cpp:128 logic/OneSixUpdate.cpp:190
 #: logic/forge/ForgeInstaller.cpp:403
 #: logic/liteloader/LiteLoaderInstaller.cpp:129
 msgid "Failed to load the version description file for reasons unknown."
-msgstr ""
+msgstr "Misslyckades att ladda versions-filen p.g.a. en okänd anledning."
 
 #: gui/pages/VersionPage.cpp:145
 msgid "Couldn't remove file"
-msgstr ""
+msgstr "Kunde inte ta bort filen"
 
 #: gui/pages/VersionPage.cpp:176
 msgid "Minecraft jar mods (*.zip *.jar)"
-msgstr ""
+msgstr "Minecraft jar moddar (*.zip *.jar)"
 
 #: gui/pages/VersionPage.cpp:232 gui/dialogs/NewInstanceDialog.cpp:120
 msgid "Change Minecraft version"
-msgstr ""
+msgstr "Ändra versionen av Minecraft"
 
 #: gui/pages/VersionPage.cpp:241 logic/InstanceFactory.cpp:121
 msgid ""
@@ -387,10 +395,13 @@ msgid ""
 "least one account added.\n"
 "Please add your Mojang or Minecraft account."
 msgstr ""
+"MultiMC kan inte ladda ned Minecraft eller updatera instanser ifall du inte "
+"har minst ett konto tilllagt.\n"
+"Var god och lägg till ditt Mojang eller Minecraft konto."
 
 #: gui/pages/VersionPage.cpp:250 gui/pages/ScreenshotsPage.cpp:328
 msgid "Are you sure?"
-msgstr ""
+msgstr "Är du säker?"
 
 #: gui/pages/VersionPage.cpp:251
 msgid ""
