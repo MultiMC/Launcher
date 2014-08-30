@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-29 19:31-0400\n"
-"PO-Revision-Date: 2014-08-30 12:13-0400\n"
+"PO-Revision-Date: 2014-08-30 14:10-0400\n"
 "Last-Translator: Jan Dalheimer <jan@dalheimer.de>\n"
 "Language-Team: Swedish "
 "<http://weblate.robotbrain.info/projects/multimc/multimc/sv/>\n"
@@ -533,46 +533,48 @@ msgstr ""
 
 #: gui/pages/ScreenshotsPage.cpp:328
 msgid "This will delete all selected screenshots."
-msgstr ""
+msgstr "Detta kommer att ta bort alla utvalda skärmdumpar."
 
 #: gui/pages/ScreenshotsPage.h:52
 msgid "Screenshots"
-msgstr ""
+msgstr "Skärmdumpar"
 
 #: gui/pages/OtherLogsPage.cpp:101
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:444
 msgid "Unable to open %1 for reading: %2"
-msgstr ""
+msgstr "Kunde inte öppna %1 för läsning: %2"
 
 #: gui/pages/OtherLogsPage.cpp:120
 msgid "Delete"
-msgstr ""
+msgstr "Ta bort"
 
 #: gui/pages/OtherLogsPage.cpp:121
 msgid "Do you really want to delete %1?"
-msgstr ""
+msgstr "Vill du verkligen ta bort %1?"
 
 #: gui/pages/OtherLogsPage.cpp:129
 msgid "Unable to delete %1: %2"
-msgstr ""
+msgstr "Kunde inte ta bort %1: %2"
 
 #: gui/pages/OtherLogsPage.h:45
 msgid "Other logs"
-msgstr ""
+msgstr "Andra loggar"
 
 #: gui/pages/QuickModBrowsePage.h:45
 msgid "QuickMods"
-msgstr ""
+msgstr "QuickModdar"
 
 #: gui/pages/global/AccountListPage.cpp:74
 msgid ""
 "Please enter your Mojang or Minecraft account username and password to add "
 "your account."
 msgstr ""
+"Var god och ange användernamn och lösenord till dit Mojang eller Minecraft "
+"konto för att lägga till det."
 
 #: gui/pages/global/ExternalToolsPage.cpp:88
 msgid "JProfiler Directory"
-msgstr ""
+msgstr "JProfiler Mapp"
 
 #: gui/pages/global/ExternalToolsPage.cpp:97
 #: gui/pages/global/ExternalToolsPage.cpp:113
@@ -580,12 +582,14 @@ msgid ""
 "Error while checking JProfiler install:\n"
 "%1"
 msgstr ""
+"Ett fel uppträde vid kontroll av JProfiler:\n"
+"%1"
 
 #: gui/pages/global/ExternalToolsPage.cpp:117
 #: gui/pages/global/ExternalToolsPage.cpp:156
 #: gui/pages/global/ExternalToolsPage.cpp:200
 msgid "OK"
-msgstr ""
+msgstr "Okej"
 
 #: gui/pages/global/ExternalToolsPage.cpp:117
 msgid "JProfiler setup seems to be OK"
