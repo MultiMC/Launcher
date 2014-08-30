@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-29 19:31-0400\n"
-"PO-Revision-Date: 2014-08-30 14:23-0400\n"
+"PO-Revision-Date: 2014-08-30 15:35-0400\n"
 "Last-Translator: Jan Dalheimer <jan@dalheimer.de>\n"
 "Language-Team: Swedish "
 "<http://weblate.robotbrain.info/projects/multimc/multimc/sv/>\n"
@@ -822,107 +822,107 @@ msgstr "Öppna"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:354
 msgid "Save"
-msgstr ""
+msgstr "Spara"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:386
 msgid "Overwrite?"
-msgstr ""
+msgstr "Skriva över?"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:387
 msgid "There already exist a version with the name %1 in %2, overwrite?"
-msgstr ""
+msgstr "Det existerar redan en version med namnet %1 i %1. Skriv över?"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:401
 msgid "Unable to open %1 for writing: %2"
-msgstr ""
+msgstr "Kunde inte öppna %1 för skrivning: %2"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:413
 msgid "Upload QuickMod"
-msgstr ""
+msgstr "Ladda upp QuickMod"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:456
 msgid "Download QuickMod"
-msgstr ""
+msgstr "Ladda ned QuickMod"
 
 #: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:37
 msgid "Direct"
-msgstr ""
+msgstr "Direkt"
 
 #: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:39
 msgid "Direct (Maven)"
-msgstr ""
+msgstr "Direkt (Maven)"
 
 #: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:41
 msgid "Sequential"
-msgstr ""
+msgstr "Sequentiel"
 
 #: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:43
 msgid "Parallel"
-msgstr ""
+msgstr "Parallell"
 
 #: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:45
 msgid "Encoded"
-msgstr ""
+msgstr "Koderad"
 
 #: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:117
 msgid "No downloads available"
-msgstr ""
+msgstr "Inga nedladdningar är tillgängliga"
 
 #: gui/dialogs/AboutDialog.cpp:88
 msgid "Version Type"
-msgstr ""
+msgstr "Versions Typ"
 
 #: gui/dialogs/AboutDialog.cpp:89
 msgid "Platform"
-msgstr ""
+msgstr "Plattform"
 
 #: gui/dialogs/AboutDialog.cpp:92
 msgid "Build Number"
-msgstr ""
+msgstr "Utgåve-number"
 
 #: gui/dialogs/AboutDialog.cpp:97
 msgid "Channel"
-msgstr ""
+msgstr "Kanal"
 
 #: gui/dialogs/IconPickerDialog.cpp:64
 msgid "Add Icon"
-msgstr ""
+msgstr "Lägg till Ikon"
 
 #: gui/dialogs/IconPickerDialog.cpp:66
 msgid "Remove Icon"
-msgstr ""
+msgstr "Ta bort Ikon"
 
 #: gui/dialogs/IconPickerDialog.cpp:103
 msgid "Select Icons"
-msgstr ""
+msgstr "Välj Ikoner"
 
 #: gui/dialogs/IconPickerDialog.cpp:106
 msgid "Icons"
-msgstr ""
+msgstr "Ikoner"
 
 #: gui/dialogs/LwjglSelectDialog.cpp:61
 msgid "Loading LWJGL version list..."
-msgstr ""
+msgstr "Laddar LWJGL-versioner..."
 
 #: gui/dialogs/ModEditDialogCommon.cpp:36
 msgid "How sad!"
-msgstr ""
+msgstr "Vad synd!"
 
 #: gui/dialogs/ModEditDialogCommon.cpp:37
 msgid "The mod author didn't provide a website link for this mod."
-msgstr ""
+msgstr "Mod-utvecklaren har inte utgett en webside-länk för denna mod."
 
 #: gui/dialogs/NotificationDialog.cpp:28
 msgid "Don't show again"
-msgstr ""
+msgstr "Visa inte igen"
 
 #: gui/dialogs/UpdateDialog.cpp:15
 msgid "A new %1 update is available!"
-msgstr ""
+msgstr "En ny %1 uppdatering är tillgänglig!"
 
 #: gui/dialogs/UpdateDialog.cpp:19
 msgid "No %1 updates found. You are running the latest version."
-msgstr ""
+msgstr "Inga %1 uppdateringar hittade. Du använder den senaste versionen."
 
 #: gui/dialogs/UpdateDialog.cpp:170
 msgid ""
