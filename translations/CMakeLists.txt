@@ -35,10 +35,10 @@ foreach(POFILE ${PO_TRANSLATION_FILES})
 
 	# Qt transformer
 	add_custom_command(
-		OUTPUT ${LANG}.ts
+		OUTPUT "mmc_${LANG}.ts"
 		COMMAND lconvert -locations relative ${POFILE} -o ${LANG}.ts
 	)
-	list(APPEND QT_TRANSLATION_FILES "${LANG}.ts")
+	list(APPEND QT_TRANSLATION_FILES "mmc_${LANG}.ts")
 endforeach(POFILE)
 
 qt5_add_translation(TRANSLATION_QM ${QT_TRANSLATION_FILES})
