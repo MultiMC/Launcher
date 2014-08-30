@@ -9,117 +9,125 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-29 19:31-0400\n"
-"PO-Revision-Date: 2014-08-29 19:31-0400\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2014-08-30 05:25-0400\n"
+"Last-Translator: Jan Dalheimer <jan@dalheimer.de>\n"
+"Language-Team: Swedish "
+"<http://weblate.robotbrain.info/projects/multimc/multimc/sv/>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ASCII\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 1.9\n"
 
 #: gui/GuiUtil.cpp:27 gui/pages/ScreenshotsPage.cpp:316
 msgid "Upload finished"
-msgstr ""
+msgstr "Uppladdning avslutad"
 
 #: gui/GuiUtil.cpp:28
 msgid ""
 "The <a href=\"%1\">link to the uploaded log</a> has been opened in the "
 "default browser and placed in your clipboard."
 msgstr ""
+"<a href=\"%1\">Länken till den uppladdade logfileb</a> har öppnats i din "
+"standardwebläsare och har kopierats."
 
 #: gui/QuickModGuiUtil.cpp:31
 msgid "Mod not available"
-msgstr ""
+msgstr "Modden är inte tillgänglig"
 
 #: gui/QuickModGuiUtil.cpp:32
 msgid "You seem to be missing the QuickMod file for %1. Skip it?"
-msgstr ""
+msgstr "Du verkar inte ha QuickMod-filen för %1. Hoppa över den?"
 
 #: gui/QuickModGuiUtil.cpp:48 gui/pages/VersionPage.cpp:301
 #: gui/pages/LegacyJarModPage.cpp:104
 msgid "Select Forge version"
-msgstr ""
+msgstr "Välj Forge version"
 
 #: gui/QuickModGuiUtil.cpp:57 gui/pages/VersionPage.cpp:303
 msgid "No Forge versions are currently available for Minecraft "
-msgstr ""
+msgstr "Inga Forge versioner är för tillfället tillgängliga för Minecraft "
 
 #: gui/QuickModGuiUtil.cpp:67 gui/pages/VersionPage.cpp:339
 msgid "Select LiteLoader version"
-msgstr ""
+msgstr "Välj LiteLoader version"
 
 #: gui/QuickModGuiUtil.cpp:76 gui/pages/VersionPage.cpp:342
 msgid "No LiteLoader versions are currently available for Minecraft "
-msgstr ""
+msgstr "Inga LiteLoader versioner är för tillfället tillgängliga för Minecraft "
 
 #: gui/MainWindow.cpp:234
 msgid "No instance selected"
-msgstr ""
+msgstr "Ingen instans utvald"
 
 #: gui/MainWindow.cpp:245
 msgid "Manage Accounts"
-msgstr ""
+msgstr "Hantera Konton"
 
 #: gui/MainWindow.cpp:253 gui/pages/global/AccountListPage.h:41
 msgid "Accounts"
-msgstr ""
+msgstr "Konton"
 
 #: gui/MainWindow.cpp:266 gui/pages/InstanceSettingsPage.h:40
 msgid "Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #: gui/MainWindow.cpp:385
 msgid "Rename"
-msgstr ""
+msgstr "Byt Namn"
 
 #: gui/MainWindow.cpp:388
 msgid "Copy instance"
-msgstr ""
+msgstr "Kopiera Instans"
 
 #: gui/MainWindow.cpp:403 gui/pages/global/MultiMCPage.h:41
 msgid "MultiMC"
-msgstr ""
+msgstr "MultiMC"
 
 #: gui/MainWindow.cpp:406
 msgid "Create instance"
-msgstr ""
+msgstr "Skapa Instans"
 
 #: gui/MainWindow.cpp:430 gui/MainWindow.cpp:1354
 msgid "Launch"
-msgstr ""
+msgstr "Starta"
 
 #: gui/MainWindow.cpp:433
 msgid "Profilers"
-msgstr ""
+msgstr "Prestationsverktyg"
 
 #: gui/MainWindow.cpp:442
 msgid "Profiler not setup correctly. Go into settings, \"External Tools\"."
 msgstr ""
+"Prestationsverktyget är inte korrekt inställt. Gå till inställningar, "
+"\"Externa Verktyg\"."
 
 #: gui/MainWindow.cpp:450
 msgid "Tools"
-msgstr ""
+msgstr "Verktyg"
 
 #: gui/MainWindow.cpp:459
 msgid "Tool not setup correctly. Go into settings, \"External Tools\"."
 msgstr ""
+"Verktyget är inte korrekt inställt. Gå gärna inställningar, \"Externa "
+"Verktyg\"."
 
 #: gui/MainWindow.cpp:485
 msgid "No accounts added!"
-msgstr ""
+msgstr "Inga konton tillagda!"
 
 #: gui/MainWindow.cpp:522
 msgid "No Default Account"
-msgstr ""
+msgstr "Inget Konto valt som standard"
 
 #: gui/MainWindow.cpp:616
 msgid "Loading news..."
-msgstr ""
+msgstr "Laddar nyheter..."
 
 #: gui/MainWindow.cpp:629
 msgid "No news available."
-msgstr ""
+msgstr "Inga nyheter tillgängliga."
 
 #: gui/MainWindow.cpp:804 gui/MainWindow.cpp:838 gui/MainWindow.cpp:845
 #: gui/MainWindow.cpp:852 gui/MainWindow.cpp:1330 gui/MainWindow.cpp:1364
@@ -141,53 +149,55 @@ msgstr ""
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:430
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:476
 msgid "Error"
-msgstr ""
+msgstr "Fel"
 
 #: gui/MainWindow.cpp:826 logic/InstanceFactory.cpp:90
 msgid "Failed to create instance %1: "
-msgstr ""
+msgstr "Misslyckades as skapa instansen %1: "
 
 #: gui/MainWindow.cpp:837 logic/InstanceFactory.cpp:112
 msgid "An instance with the given directory name already exists."
-msgstr ""
+msgstr "En instans med det givna mappnamnet existerar redan."
 
 #: gui/MainWindow.cpp:844 logic/InstanceFactory.cpp:114
 msgid "Failed to create the instance directory."
-msgstr ""
+msgstr "Misslyckades att skapa instansmappen."
 
 #: gui/MainWindow.cpp:851 logic/InstanceFactory.cpp:116
 msgid "Unknown instance loader error %1"
-msgstr ""
+msgstr "Okänt fel vid läsning av %1"
 
 #: gui/MainWindow.cpp:911
 msgid "Group name"
-msgstr ""
+msgstr "Gruppnamn"
 
 #: gui/MainWindow.cpp:911
 msgid "Enter a new group name."
-msgstr ""
+msgstr "Ange ett nytt gruppnamn."
 
 #: gui/MainWindow.cpp:1036
 msgid "CAREFUL"
-msgstr ""
+msgstr "FÖRSIKTIGT"
 
 #: gui/MainWindow.cpp:1036
 msgid ""
 "This is permanent! Are you sure?\n"
 "About to delete: "
 msgstr ""
+"Detta är permanent! Är du säker? \n"
+"Du håller på att ta bort: "
 
 #: gui/MainWindow.cpp:1053
 msgid "Instance name"
-msgstr ""
+msgstr "Instansnamn"
 
 #: gui/MainWindow.cpp:1053
 msgid "Enter a new instance name."
-msgstr ""
+msgstr "Välj ett nytt namn för instansen."
 
 #: gui/MainWindow.cpp:1141
 msgid "No Accounts"
-msgstr ""
+msgstr "Inga Konton"
 
 #: gui/MainWindow.cpp:1142
 msgid ""
@@ -195,32 +205,37 @@ msgid ""
 "account logged in to MultiMC.Would you like to open the account manager to "
 "add an account now?"
 msgstr ""
+"För att kunna spela Minecraft måste du ha minst ett konto från Mojang eller "
+"Minecraft inställt i MultiMC. Vill du öppna kontohanteraren och lägga till "
+"ett konto nu?"
 
 #: gui/MainWindow.cpp:1156
 msgid "Which account would you like to use?"
-msgstr ""
+msgstr "Vilket konto skulle du vilja använda?"
 
 #: gui/MainWindow.cpp:1178
 msgid ""
 "Your account is currently not logged in. Please enter your password to log "
 "in again."
 msgstr ""
+"Ditt konto är förnärvarande inte inloggat. Ange ditt lösenord för att logga "
+"in igen."
 
 #: gui/MainWindow.cpp:1192
 msgid "Play Offline"
-msgstr ""
+msgstr "Spela Offline"
 
 #: gui/MainWindow.cpp:1225
 msgid "Player name"
-msgstr ""
+msgstr "Spelarens Namn"
 
 #: gui/MainWindow.cpp:1226
 msgid "Choose your offline mode player name."
-msgstr ""
+msgstr "Välj vilket spelarnamn du skulle vilja använda för att spela ofline."
 
 #: gui/MainWindow.cpp:1277
 msgid "Update"
-msgstr ""
+msgstr "Uppdatera"
 
 #: gui/MainWindow.cpp:1278
 msgid ""
@@ -230,14 +245,19 @@ msgid ""
 "\n"
 " Update now?"
 msgstr ""
+"De följande modden har nya uppdateringar:\n"
+"\n"
+"%1\n"
+"\n"
+"Uppdatera nu?"
 
 #: gui/MainWindow.cpp:1331
 msgid "Couldn't start profiler: %1"
-msgstr ""
+msgstr "Kunde inte starta prestationsverktyget: %1"
 
 #: gui/MainWindow.cpp:1340
 msgid "Waiting for profiler..."
-msgstr ""
+msgstr "Väntar på prestationsverktyg..."
 
 #: gui/MainWindow.cpp:1349
 msgid ""
@@ -247,26 +267,30 @@ msgid ""
 "\n"
 "%1"
 msgstr ""
+"Uppstarten av Minecraft väntar tills du trycker på knappen. Det är nu du bör "
+"ställa in prestationsverktyget, eftersom dess server köra nu.\n"
+"\n"
+"%1"
 
 #: gui/MainWindow.cpp:1352
 msgid "Waiting"
-msgstr ""
+msgstr "Väntar"
 
 #: gui/MainWindow.cpp:1363
 msgid "Couldn't start the profiler: %1"
-msgstr ""
+msgstr "Kunde inte starta prestationsverktyget: %1"
 
 #: gui/MainWindow.cpp:1381
 msgid "Error updating instance"
-msgstr ""
+msgstr "Ett fel inträffade vid uppdateringen av instansen"
 
 #: gui/MainWindow.cpp:1449
 msgid "Rename Instance"
-msgstr ""
+msgstr "Byt instansens namn"
 
 #: gui/MainWindow.cpp:1517
 msgid "Java detection forced"
-msgstr ""
+msgstr "Java-detektionen tvingades"
 
 #: gui/MainWindow.cpp:1518
 msgid ""
@@ -275,11 +299,16 @@ msgid ""
 "you have custom java versions set for your instances, make sure you use the "
 "'javaw.exe' executable."
 msgstr ""
+"På grund av grafikprestationsproblem skapat av Intel-drivrutiner på Windows "
+"har en detektion av Java tvingats.\n"
+"Var god och välj en Java-version.<br/><br/>Ifall du använder en "
+"specialversion av Java för denna instanser se till att du väljer "
+"'javaw.exe'."
 
 #: gui/MainWindow.cpp:1535 gui/pages/InstanceSettingsPage.cpp:168
 #: gui/pages/global/JavaPage.cpp:99
 msgid "Select a Java version"
-msgstr ""
+msgstr "Välj en Java-version"
 
 #: gui/MainWindow.cpp:1545
 msgid "Invalid version selected"
