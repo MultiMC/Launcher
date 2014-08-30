@@ -618,7 +618,7 @@ msgstr "MCEdit Applikationen"
 
 #: gui/pages/global/ExternalToolsPage.cpp:170
 msgid "MCEdit Directory"
-msgstr ""
+msgstr "MCEdit Mappen"
 
 #: gui/pages/global/ExternalToolsPage.cpp:180
 #: gui/pages/global/ExternalToolsPage.cpp:196
@@ -626,6 +626,8 @@ msgid ""
 "Error while checking MCEdit install:\n"
 "%1"
 msgstr ""
+"Ett fel uppträde vid kontroll av MCEdit:\n"
+"%1"
 
 #: gui/pages/global/ExternalToolsPage.cpp:200
 msgid "MCEdit setup seems to be OK"
