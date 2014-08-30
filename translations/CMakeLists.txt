@@ -3,13 +3,27 @@ set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM 1)
 ### translation stuff
 
 file(GLOB PO_TRANSLATION_FILES ${CMAKE_CURRENT_LIST_DIR}/*.po)
+add_custom_target(translations_update)
+
+foreach(FILE ${FILES_TO_TRANSLATE})
+	if(NOT "${FILE}" MATCHES "\\.ui\$")
+		list(APPEND CPP_FILES_TO_TRANSLATE "${FILE}")
+	endif(NOT "${FILE}" MATCHES "\\.ui\$")
+endforeach(FILE)
+
+add_custom_command(TARGET translations_update
+	COMMAND xgettext -k -ktr 
+	-o ${CMAKE_CURRENT_LIST_DIR}/messages.pot
+	${CPP_FILES_TO_TRANSLATE}
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
 
 ## Handle language
 foreach(POFILE ${PO_TRANSLATION_FILES})
 	string(REGEX REPLACE "\\.po\$" "" LANG "${POFILE}")
 
 	# Gettext lang updater
-	add_custom_command(OUTPUT ${POFILE}
+	add_custom_command(TARGET translations_update
 		COMMAND msgmerge --lang=${LANG}
 		${POFILE} ${CMAKE_CURRENT_LIST_DIR}/messages.pot
 		-o ${POFILE}.new
@@ -26,7 +40,6 @@ foreach(POFILE ${PO_TRANSLATION_FILES})
 endforeach(POFILE)
 
 qt5_add_translation(TRANSLATION_QM ${QT_TRANSLATION_FILES})
-add_custom_target(translations_update ${PO_TRANSLATION_FILES})
 add_custom_target(translations DEPENDS ${TRANSLATION_QM})
 
 if(APPLE AND UNIX) ## OSX
