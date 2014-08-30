@@ -7,13 +7,15 @@ add_custom_target(translations_update)
 
 foreach(FILE ${FILES_TO_TRANSLATE})
 	if(NOT "${FILE}" MATCHES "\\.ui\$")
-		list(APPEND CPP_FILES_TO_TRANSLATE "${FILE}")
+		file(RELATIVE_PATH RELFILE "${PROJECT_SOURCE_DIR}" "${FILE}")
+		list(APPEND CPP_FILES_TO_TRANSLATE "${RELFILE}")
 	endif(NOT "${FILE}" MATCHES "\\.ui\$")
 endforeach(FILE)
 
 add_custom_command(TARGET translations_update
 	COMMAND xgettext -k -ktr 
 	-o ${CMAKE_CURRENT_LIST_DIR}/messages.pot
+	-D .
 	${CPP_FILES_TO_TRANSLATE}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )

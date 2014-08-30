@@ -1,8 +1,8 @@
-#: /data/dev/MMC/src/gui/widgets/MCModInfoFrame.cpp:110
+#: gui/widgets/MCModInfoFrame.cpp:110
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-30 09:27-0400\n"
+"POT-Creation-Date: 2014-08-30 09:45-0400\n"
 "Language: /data/dev/MMC/src/translations/mmc_de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -11,205 +11,182 @@ msgstr ""
 "X-Language: de\n"
 "X-Qt-Contexts: true\n"
 
-#: /data/dev/MMC/src/gui/GuiUtil.cpp:27
-#: /data/dev/MMC/src/gui/pages/ScreenshotsPage.cpp:316
+#: gui/GuiUtil.cpp:27 gui/pages/ScreenshotsPage.cpp:316
 msgid "Upload finished"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/GuiUtil.cpp:28
+#: gui/GuiUtil.cpp:28
 msgid ""
 "The <a href=\"%1\">link to the uploaded log</a> has been opened in the "
 "default browser and placed in your clipboard."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/QuickModGuiUtil.cpp:31
+#: gui/QuickModGuiUtil.cpp:31
 #, fuzzy
 msgid "Mod not available"
 msgstr "Keine Nachrichten verfügbar."
 
-#: /data/dev/MMC/src/gui/QuickModGuiUtil.cpp:32
+#: gui/QuickModGuiUtil.cpp:32
 msgid "You seem to be missing the QuickMod file for %1. Skip it?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/QuickModGuiUtil.cpp:48
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:301
-#: /data/dev/MMC/src/gui/pages/LegacyJarModPage.cpp:104
+#: gui/QuickModGuiUtil.cpp:48 gui/pages/VersionPage.cpp:301
+#: gui/pages/LegacyJarModPage.cpp:104
 #, fuzzy
 msgid "Select Forge version"
 msgstr "Wähle Forge-Version"
 
-#: /data/dev/MMC/src/gui/QuickModGuiUtil.cpp:57
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:303
+#: gui/QuickModGuiUtil.cpp:57 gui/pages/VersionPage.cpp:303
 msgid "No Forge versions are currently available for Minecraft "
 msgstr ""
 
-#: /data/dev/MMC/src/gui/QuickModGuiUtil.cpp:67
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:339
+#: gui/QuickModGuiUtil.cpp:67 gui/pages/VersionPage.cpp:339
 #, fuzzy
 msgid "Select LiteLoader version"
 msgstr "Wähle Forge-Version"
 
-#: /data/dev/MMC/src/gui/QuickModGuiUtil.cpp:76
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:342
+#: gui/QuickModGuiUtil.cpp:76 gui/pages/VersionPage.cpp:342
 msgid "No LiteLoader versions are currently available for Minecraft "
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:234
+#: gui/MainWindow.cpp:234
 #, fuzzy
 msgid "No instance selected"
 msgstr "Keine Instanz ausgewählt"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:245
+#: gui/MainWindow.cpp:245
 #, fuzzy
 msgid "Manage Accounts"
 msgstr "Kontoverwaltung"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:253
-#: /data/dev/MMC/src/gui/pages/global/AccountListPage.h:41
+#: gui/MainWindow.cpp:253 gui/pages/global/AccountListPage.h:41
 #, fuzzy
 msgid "Accounts"
 msgstr "Konten"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:266
-#: /data/dev/MMC/src/gui/pages/InstanceSettingsPage.h:40
+#: gui/MainWindow.cpp:266 gui/pages/InstanceSettingsPage.h:40
 #, fuzzy
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:385
+#: gui/MainWindow.cpp:385
 #, fuzzy
 msgid "Rename"
 msgstr "Nutzername:"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:388
+#: gui/MainWindow.cpp:388
 #, fuzzy
 msgid "Copy instance"
 msgstr "Kopiere Instanz"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:403
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.h:41
+#: gui/MainWindow.cpp:403 gui/pages/global/MultiMCPage.h:41
 #, fuzzy
 msgid "MultiMC"
 msgstr "MultiMC"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:406
+#: gui/MainWindow.cpp:406
 #, fuzzy
 msgid "Create instance"
 msgstr "Instanz umbenennen"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:430
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1354
+#: gui/MainWindow.cpp:430 gui/MainWindow.cpp:1354
 #, fuzzy
 msgid "Launch"
 msgstr "Launcher:"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:433
+#: gui/MainWindow.cpp:433
 msgid "Profilers"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:442
+#: gui/MainWindow.cpp:442
 msgid "Profiler not setup correctly. Go into settings, \"External Tools\"."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:450
+#: gui/MainWindow.cpp:450
 msgid "Tools"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:459
+#: gui/MainWindow.cpp:459
 msgid "Tool not setup correctly. Go into settings, \"External Tools\"."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:485
+#: gui/MainWindow.cpp:485
 #, fuzzy
 msgid "No accounts added!"
 msgstr "Keine Konten angegeben!"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:522
+#: gui/MainWindow.cpp:522
 #, fuzzy
 msgid "No Default Account"
 msgstr "Kein voreingestelltes Konto"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:616
+#: gui/MainWindow.cpp:616
 #, fuzzy
 msgid "Loading news..."
 msgstr "Nachrichten werden geladen..."
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:629
+#: gui/MainWindow.cpp:629
 #, fuzzy
 msgid "No news available."
 msgstr "Keine Nachrichten verfügbar."
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:804
-#: /data/dev/MMC/src/gui/MainWindow.cpp:838
-#: /data/dev/MMC/src/gui/MainWindow.cpp:845
-#: /data/dev/MMC/src/gui/MainWindow.cpp:852
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1330
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1364
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:121
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:127
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:145
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:192
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:209
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:226
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:240
-#: /data/dev/MMC/src/gui/pages/ModFolderPage.cpp:149
-#: /data/dev/MMC/src/gui/pages/ModFolderPage.cpp:173
-#: /data/dev/MMC/src/gui/pages/OtherLogsPage.cpp:101
-#: /data/dev/MMC/src/gui/pages/OtherLogsPage.cpp:129
-#: /data/dev/MMC/src/gui/pages/QuickModBrowsePage.cpp:372
-#: /data/dev/MMC/src/gui/pages/QuickModBrowsePage.cpp:414
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:96
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:112
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:135
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:151
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:179
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:195
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:283
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:302
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:430
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:476
+#: gui/MainWindow.cpp:804 gui/MainWindow.cpp:838 gui/MainWindow.cpp:845
+#: gui/MainWindow.cpp:852 gui/MainWindow.cpp:1330 gui/MainWindow.cpp:1364
+#: gui/pages/VersionPage.cpp:121 gui/pages/VersionPage.cpp:127
+#: gui/pages/VersionPage.cpp:145 gui/pages/VersionPage.cpp:192
+#: gui/pages/VersionPage.cpp:209 gui/pages/VersionPage.cpp:226
+#: gui/pages/VersionPage.cpp:240 gui/pages/ModFolderPage.cpp:149
+#: gui/pages/ModFolderPage.cpp:173 gui/pages/OtherLogsPage.cpp:101
+#: gui/pages/OtherLogsPage.cpp:129 gui/pages/QuickModBrowsePage.cpp:372
+#: gui/pages/QuickModBrowsePage.cpp:414
+#: gui/pages/global/ExternalToolsPage.cpp:96
+#: gui/pages/global/ExternalToolsPage.cpp:112
+#: gui/pages/global/ExternalToolsPage.cpp:135
+#: gui/pages/global/ExternalToolsPage.cpp:151
+#: gui/pages/global/ExternalToolsPage.cpp:179
+#: gui/pages/global/ExternalToolsPage.cpp:195
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:283
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:302
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:430
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:476
 #, fuzzy
 msgid "Error"
 msgstr "Fehler"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:826
-#: /data/dev/MMC/src/logic/InstanceFactory.cpp:90
+#: gui/MainWindow.cpp:826 logic/InstanceFactory.cpp:90
 #, fuzzy
 msgid "Failed to create instance %1: "
 msgstr "Fehler beim Bearbeiten der Updateliste..."
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:837
-#: /data/dev/MMC/src/logic/InstanceFactory.cpp:112
+#: gui/MainWindow.cpp:837 logic/InstanceFactory.cpp:112
 msgid "An instance with the given directory name already exists."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:844
-#: /data/dev/MMC/src/logic/InstanceFactory.cpp:114
+#: gui/MainWindow.cpp:844 logic/InstanceFactory.cpp:114
 #, fuzzy
 msgid "Failed to create the instance directory."
 msgstr "Instanzliste neuladen."
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:851
-#: /data/dev/MMC/src/logic/InstanceFactory.cpp:116
+#: gui/MainWindow.cpp:851 logic/InstanceFactory.cpp:116
 msgid "Unknown instance loader error %1"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:911
+#: gui/MainWindow.cpp:911
 #, fuzzy
 msgid "Group name"
 msgstr "Gruppenname"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:911
+#: gui/MainWindow.cpp:911
 #, fuzzy
 msgid "Enter a new group name."
 msgstr "Neuen Gruppennamen eingeben."
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1036
+#: gui/MainWindow.cpp:1036
 #, fuzzy
 msgid "CAREFUL"
 msgstr "ACHTUNG"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1036
+#: gui/MainWindow.cpp:1036
 #, fuzzy
 msgid ""
 "This is permanent! Are you sure?\n"
@@ -218,22 +195,22 @@ msgstr ""
 "Die Änderung ist dauerhaft! Bist du dir sicher?\n"
 "Die folgende Instanz löschen:"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1053
+#: gui/MainWindow.cpp:1053
 #, fuzzy
 msgid "Instance name"
 msgstr "Instanzname"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1053
+#: gui/MainWindow.cpp:1053
 #, fuzzy
 msgid "Enter a new instance name."
 msgstr "Neuen Instanznamen eingeben."
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1141
+#: gui/MainWindow.cpp:1141
 #, fuzzy
 msgid "No Accounts"
 msgstr "Keine Konten"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1142
+#: gui/MainWindow.cpp:1142
 #, fuzzy
 msgid ""
 "In order to play Minecraft, you must have at least one Mojang or Minecraft "
@@ -244,12 +221,12 @@ msgstr ""
 "Minecraft-Konto in MultiMC hinterlegen. Möchtest du die Kontoverwaltung "
 "öffnen, um ein Konto hinzuzufügen?"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1156
+#: gui/MainWindow.cpp:1156
 #, fuzzy
 msgid "Which account would you like to use?"
 msgstr "Welches Konto möchtest du benutzen?"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1178
+#: gui/MainWindow.cpp:1178
 #, fuzzy
 msgid ""
 "Your account is currently not logged in. Please enter your password to log "
@@ -258,26 +235,26 @@ msgstr ""
 "Dein Konto ist momentan nicht angemeldet. Bitte gib dein Passwort an, um "
 "dich anzumelden."
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1192
+#: gui/MainWindow.cpp:1192
 #, fuzzy
 msgid "Play Offline"
 msgstr "Offline spielen"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1225
+#: gui/MainWindow.cpp:1225
 #, fuzzy
 msgid "Player name"
 msgstr "Nach Namen"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1226
+#: gui/MainWindow.cpp:1226
 msgid "Choose your offline mode player name."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1277
+#: gui/MainWindow.cpp:1277
 #, fuzzy
 msgid "Update"
 msgstr "Jetzt herunterladen"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1278
+#: gui/MainWindow.cpp:1278
 msgid ""
 "The following mods have new updates:\n"
 "\n"
@@ -286,16 +263,16 @@ msgid ""
 " Update now?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1331
+#: gui/MainWindow.cpp:1331
 #, fuzzy
 msgid "Couldn't start profiler: %1"
 msgstr "Fehler beim Installieren von Forge"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1340
+#: gui/MainWindow.cpp:1340
 msgid "Waiting for profiler..."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1349
+#: gui/MainWindow.cpp:1349
 msgid ""
 "The launch of Minecraft itself is delayed until you press the button. This "
 "is the right time to setup the profiler, as the profiler server is running "
@@ -304,31 +281,31 @@ msgid ""
 "%1"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1352
+#: gui/MainWindow.cpp:1352
 msgid "Waiting"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1363
+#: gui/MainWindow.cpp:1363
 #, fuzzy
 msgid "Couldn't start the profiler: %1"
 msgstr "Fehlschlag beim Laden der Versions-Konfiguration"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1381
+#: gui/MainWindow.cpp:1381
 #, fuzzy
 msgid "Error updating instance"
 msgstr "Fehler beim Aktualisieren der Instanz"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1449
+#: gui/MainWindow.cpp:1449
 #, fuzzy
 msgid "Rename Instance"
 msgstr "Instanz umbenennen"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1517
+#: gui/MainWindow.cpp:1517
 #, fuzzy
 msgid "Java detection forced"
 msgstr "Java-Test fehlgeschlagen"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1518
+#: gui/MainWindow.cpp:1518
 msgid ""
 "Because of graphics performance issues caused by Intel drivers on Windows, "
 "MultiMC java detection was forced. Please select a Java version.<br/><br/>If "
@@ -336,19 +313,18 @@ msgid ""
 "'javaw.exe' executable."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1535
-#: /data/dev/MMC/src/gui/pages/InstanceSettingsPage.cpp:168
-#: /data/dev/MMC/src/gui/pages/global/JavaPage.cpp:99
+#: gui/MainWindow.cpp:1535 gui/pages/InstanceSettingsPage.cpp:168
+#: gui/pages/global/JavaPage.cpp:99
 #, fuzzy
 msgid "Select a Java version"
 msgstr "Wähle eine Java-Version"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1545
+#: gui/MainWindow.cpp:1545
 #, fuzzy
 msgid "Invalid version selected"
 msgstr "Ungültige Version ausgewählt"
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1546
+#: gui/MainWindow.cpp:1546
 #, fuzzy
 msgid ""
 "You didn't select a valid Java version, so MultiMC will select the default. "
@@ -357,48 +333,47 @@ msgstr ""
 "Du hast keine gültige Java-Version ausgewählt, daher wird MultiMC die "
 "Voreinstellung benutzen. Du kannst dies in den Einstellungen ändern."
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1571
+#: gui/MainWindow.cpp:1571
 msgid ""
 "Your instance folder contains '!' and this is known to cause Java problems!"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/MainWindow.cpp:1573
+#: gui/MainWindow.cpp:1573
 msgid ""
 "You have now three options: <br/> - ignore this warning <br/> - change the "
 "instance dir in the settings <br/> - move this installation of MultiMC5 to a "
 "different folder"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/ConsoleWindow.cpp:62
+#: gui/ConsoleWindow.cpp:62
 msgid "Console window for "
 msgstr ""
 
-#: /data/dev/MMC/src/gui/ConsoleWindow.cpp:90
+#: gui/ConsoleWindow.cpp:90
 msgid "Help"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/ConsoleWindow.cpp:98
+#: gui/ConsoleWindow.cpp:98
 #, fuzzy
 msgid "Kill Minecraft"
 msgstr "Minecraft töten"
 
-#: /data/dev/MMC/src/gui/ConsoleWindow.cpp:103
-#: /data/dev/MMC/src/gui/ConsoleWindow.cpp:165
-#: /data/dev/MMC/src/gui/dialogs/NotificationDialog.cpp:29
+#: gui/ConsoleWindow.cpp:103 gui/ConsoleWindow.cpp:165
+#: gui/dialogs/NotificationDialog.cpp:29
 #, fuzzy
 msgid "Close"
 msgstr "Schließen"
 
-#: /data/dev/MMC/src/gui/ConsoleWindow.cpp:167
+#: gui/ConsoleWindow.cpp:167
 msgid "Hide"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/ConsoleWindow.cpp:225
+#: gui/ConsoleWindow.cpp:225
 #, fuzzy
 msgid "Kill Minecraft?"
 msgstr "Minecraft töten?"
 
-#: /data/dev/MMC/src/gui/ConsoleWindow.cpp:226
+#: gui/ConsoleWindow.cpp:226
 #, fuzzy
 msgid ""
 "This can cause the instance to get corrupted and should only be used if "
@@ -407,30 +382,27 @@ msgstr ""
 "Dies kann diese Instanz beschädigen und sollte daher nur genutzt werden, "
 "wenn Minecraft eingefroren ist"
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:128
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:190
-#: /data/dev/MMC/src/logic/forge/ForgeInstaller.cpp:403
-#: /data/dev/MMC/src/logic/liteloader/LiteLoaderInstaller.cpp:129
+#: gui/pages/VersionPage.cpp:128 logic/OneSixUpdate.cpp:190
+#: logic/forge/ForgeInstaller.cpp:403
+#: logic/liteloader/LiteLoaderInstaller.cpp:129
 #, fuzzy
 msgid "Failed to load the version description file for reasons unknown."
 msgstr "Laden der Versionsdateien ist fehlgeschlagen."
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:145
+#: gui/pages/VersionPage.cpp:145
 msgid "Couldn't remove file"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:176
+#: gui/pages/VersionPage.cpp:176
 msgid "Minecraft jar mods (*.zip *.jar)"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:232
-#: /data/dev/MMC/src/gui/dialogs/NewInstanceDialog.cpp:120
+#: gui/pages/VersionPage.cpp:232 gui/dialogs/NewInstanceDialog.cpp:120
 #, fuzzy
 msgid "Change Minecraft version"
 msgstr "Minecraft-Version ändern"
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:241
-#: /data/dev/MMC/src/logic/InstanceFactory.cpp:121
+#: gui/pages/VersionPage.cpp:241 logic/InstanceFactory.cpp:121
 #, fuzzy
 msgid ""
 "MultiMC cannot download Minecraft or update instances unless you have at "
@@ -441,13 +413,12 @@ msgstr ""
 "aktualisieren, solange du kein Konto erstellt hast.\n"
 "Bitte füge dein Mojang- oder Minecraft-Konto hinzu."
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:250
-#: /data/dev/MMC/src/gui/pages/ScreenshotsPage.cpp:328
+#: gui/pages/VersionPage.cpp:250 gui/pages/ScreenshotsPage.cpp:328
 #, fuzzy
 msgid "Are you sure?"
 msgstr "Bist du sicher?"
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:251
+#: gui/pages/VersionPage.cpp:251
 #, fuzzy
 msgid ""
 "This will remove any library/version customization you did previously. This "
@@ -456,113 +427,104 @@ msgstr ""
 "Dies wird sämtliche Bibliotheken-/Versions-Anpassungen, die du vorgenommen "
 "hast, entfernen. Dies schließt Dinge wie Forge mit ein."
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:280
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:291
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:318
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:329
+#: gui/pages/VersionPage.cpp:280 gui/pages/VersionPage.cpp:291
+#: gui/pages/VersionPage.cpp:318 gui/pages/VersionPage.cpp:329
 #, fuzzy
 msgid "Revert?"
 msgstr "Zurücksetzen?"
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:281
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:319
+#: gui/pages/VersionPage.cpp:281 gui/pages/VersionPage.cpp:319
 msgid "This action will remove the FTB pack version patch. Continue?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:292
-#: /data/dev/MMC/src/gui/pages/VersionPage.cpp:330
+#: gui/pages/VersionPage.cpp:292 gui/pages/VersionPage.cpp:330
 msgid ""
 "This action will remove deprecated version files (custom.json and version."
 "json). Continue?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/VersionPage.h:39
-#: /data/dev/MMC/src/gui/dialogs/AboutDialog.cpp:87
-#: /data/dev/MMC/src/logic/minecraft/InstanceVersion.cpp:347
+#: gui/pages/VersionPage.h:39 gui/dialogs/AboutDialog.cpp:87
+#: logic/minecraft/InstanceVersion.cpp:347
 #, fuzzy
 msgid "Version"
 msgstr "Version"
 
-#: /data/dev/MMC/src/gui/pages/TexturePackPage.h:9
+#: gui/pages/TexturePackPage.h:9
 #, fuzzy
 msgid "Texture packs"
 msgstr "Texturenpakete"
 
-#: /data/dev/MMC/src/gui/pages/ResourcePackPage.h:9
+#: gui/pages/ResourcePackPage.h:9
 #, fuzzy
 msgid "Resource packs"
 msgstr "Ressourcenpakete"
 
-#: /data/dev/MMC/src/gui/pages/ModFolderPage.cpp:149
+#: gui/pages/ModFolderPage.cpp:149
 msgid ""
 "Unable to remove mod:\n"
 "%1"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/ModFolderPage.cpp:173
+#: gui/pages/ModFolderPage.cpp:173
 msgid ""
 "Unable to update mod:\n"
 "%1"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/ModFolderPage.cpp:203
+#: gui/pages/ModFolderPage.cpp:203
 msgid "Continue?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/ModFolderPage.cpp:205
+#: gui/pages/ModFolderPage.cpp:205
 msgid "Remove these QuickMods?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/ModFolderPage.cpp:206
+#: gui/pages/ModFolderPage.cpp:206
 msgid ""
 "The QuickMods you selected for removal are depended on by some other mods, "
 "and therefore those mods will also be removed. Continue?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/NotesPage.h:39
+#: gui/pages/NotesPage.h:39
 #, fuzzy
 msgid "Notes"
 msgstr "Notizen bearbeiten"
 
-#: /data/dev/MMC/src/gui/pages/LegacyUpgradePage.h:39
+#: gui/pages/LegacyUpgradePage.h:39
 msgid "Upgrade"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/LegacyJarModPage.cpp:141
+#: gui/pages/LegacyJarModPage.cpp:141
 #, fuzzy
 msgid "Select Jar Mods"
 msgstr "Jarmods auswählen"
 
-#: /data/dev/MMC/src/gui/pages/LegacyJarModPage.h:40
+#: gui/pages/LegacyJarModPage.h:40
 #, fuzzy
 msgid "Jar Mods"
 msgstr "Jar-Mods"
 
-#: /data/dev/MMC/src/gui/pages/LogPage.h:41
+#: gui/pages/LogPage.h:41
 #, fuzzy
 msgid "Minecraft Log"
 msgstr "Minecraft"
 
-#: /data/dev/MMC/src/gui/pages/InstanceSettingsPage.cpp:181
-#: /data/dev/MMC/src/gui/pages/global/JavaPage.cpp:111
+#: gui/pages/InstanceSettingsPage.cpp:181 gui/pages/global/JavaPage.cpp:111
 #, fuzzy
 msgid "Find Java executable"
 msgstr "Java-Programm finden"
 
-#: /data/dev/MMC/src/gui/pages/InstanceSettingsPage.cpp:207
-#: /data/dev/MMC/src/gui/pages/global/JavaPage.cpp:137
+#: gui/pages/InstanceSettingsPage.cpp:207 gui/pages/global/JavaPage.cpp:137
 #, fuzzy
 msgid "Java test success"
 msgstr "Java-Test erfolgreich abgeschlossen"
 
-#: /data/dev/MMC/src/gui/pages/InstanceSettingsPage.cpp:212
-#: /data/dev/MMC/src/gui/pages/global/JavaPage.cpp:142
+#: gui/pages/InstanceSettingsPage.cpp:212 gui/pages/global/JavaPage.cpp:142
 #, fuzzy
 msgid "Java test failure"
 msgstr "Java-Test fehlgeschlagen"
 
-#: /data/dev/MMC/src/gui/pages/InstanceSettingsPage.cpp:213
-#: /data/dev/MMC/src/gui/pages/global/JavaPage.cpp:143
+#: gui/pages/InstanceSettingsPage.cpp:213 gui/pages/global/JavaPage.cpp:143
 #, fuzzy
 msgid ""
 "The specified java binary didn't work. You should use the auto-detect "
@@ -571,57 +533,57 @@ msgstr ""
 "Das ausgewählte Java-Programm hat nicht funktioniert. Du solltest die Auto-"
 "Erkennung benutzen, oder den Pfad zum Java-Programm angeben."
 
-#: /data/dev/MMC/src/gui/pages/ScreenshotsPage.cpp:306
+#: gui/pages/ScreenshotsPage.cpp:306
 msgid "Failed to upload screenshots!"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/ScreenshotsPage.cpp:307
+#: gui/pages/ScreenshotsPage.cpp:307
 #, fuzzy
 msgid "Unknown error"
 msgstr "Unbekannter Autor"
 
-#: /data/dev/MMC/src/gui/pages/ScreenshotsPage.cpp:317
+#: gui/pages/ScreenshotsPage.cpp:317
 msgid ""
 "The <a href=\"%1\">link  to the uploaded album</a> has been opened in the "
 "default browser and placed in your clipboard.<br/>Delete hash: %2 (save this "
 "if you want to be able to edit/delete the album)"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/ScreenshotsPage.cpp:328
+#: gui/pages/ScreenshotsPage.cpp:328
 msgid "This will delete all selected screenshots."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/ScreenshotsPage.h:52
+#: gui/pages/ScreenshotsPage.h:52
 msgid "Screenshots"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/OtherLogsPage.cpp:101
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:444
+#: gui/pages/OtherLogsPage.cpp:101
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:444
 msgid "Unable to open %1 for reading: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/OtherLogsPage.cpp:120
+#: gui/pages/OtherLogsPage.cpp:120
 #, fuzzy
 msgid "Delete"
 msgstr "Löschen"
 
-#: /data/dev/MMC/src/gui/pages/OtherLogsPage.cpp:121
+#: gui/pages/OtherLogsPage.cpp:121
 msgid "Do you really want to delete %1?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/OtherLogsPage.cpp:129
+#: gui/pages/OtherLogsPage.cpp:129
 msgid "Unable to delete %1: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/OtherLogsPage.h:45
+#: gui/pages/OtherLogsPage.h:45
 msgid "Other logs"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/QuickModBrowsePage.h:45
+#: gui/pages/QuickModBrowsePage.h:45
 msgid "QuickMods"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/AccountListPage.cpp:74
+#: gui/pages/global/AccountListPage.cpp:74
 #, fuzzy
 msgid ""
 "Please enter your Mojang or Minecraft account username and password to add "
@@ -630,504 +592,504 @@ msgstr ""
 "Bitte gib Benutzernamen und Passwort deines Mojang- oder Minecraft-Kontos "
 "an, um es hinzuzufügen."
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:88
+#: gui/pages/global/ExternalToolsPage.cpp:88
 #, fuzzy
 msgid "JProfiler Directory"
 msgstr "Modordner"
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:97
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:113
+#: gui/pages/global/ExternalToolsPage.cpp:97
+#: gui/pages/global/ExternalToolsPage.cpp:113
 msgid ""
 "Error while checking JProfiler install:\n"
 "%1"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:117
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:156
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:200
+#: gui/pages/global/ExternalToolsPage.cpp:117
+#: gui/pages/global/ExternalToolsPage.cpp:156
+#: gui/pages/global/ExternalToolsPage.cpp:200
 msgid "OK"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:117
+#: gui/pages/global/ExternalToolsPage.cpp:117
 msgid "JProfiler setup seems to be OK"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:127
+#: gui/pages/global/ExternalToolsPage.cpp:127
 msgid "JVisualVM Executable"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:136
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:152
+#: gui/pages/global/ExternalToolsPage.cpp:136
+#: gui/pages/global/ExternalToolsPage.cpp:152
 msgid ""
 "Error while checking JVisualVM install:\n"
 "%1"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:156
+#: gui/pages/global/ExternalToolsPage.cpp:156
 msgid "JVisualVM setup seems to be OK"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:168
+#: gui/pages/global/ExternalToolsPage.cpp:168
 msgid "MCEdit Application"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:170
+#: gui/pages/global/ExternalToolsPage.cpp:170
 #, fuzzy
 msgid "MCEdit Directory"
 msgstr "Modordner"
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:180
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:196
+#: gui/pages/global/ExternalToolsPage.cpp:180
+#: gui/pages/global/ExternalToolsPage.cpp:196
 msgid ""
 "Error while checking MCEdit install:\n"
 "%1"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:200
+#: gui/pages/global/ExternalToolsPage.cpp:200
 msgid "MCEdit setup seems to be OK"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:207
+#: gui/pages/global/ExternalToolsPage.cpp:207
 #, fuzzy
 msgid "JSON Editor"
 msgstr "JSON-Editor"
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:229
+#: gui/pages/global/ExternalToolsPage.cpp:229
 #, fuzzy
 msgid "Invalid"
 msgstr "Ungültig"
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.cpp:230
+#: gui/pages/global/ExternalToolsPage.cpp:230
 #, fuzzy
 msgid "The file chosen does not seem to be an executable"
 msgstr "Die ausgewählte Datei scheint keine Anwendung zu sein"
 
-#: /data/dev/MMC/src/gui/pages/global/ExternalToolsPage.h:36
+#: gui/pages/global/ExternalToolsPage.h:36
 msgid "External Tools"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/JavaPage.h:41
+#: gui/pages/global/JavaPage.h:41
 #, fuzzy
 msgid "Java"
 msgstr "Java"
 
-#: /data/dev/MMC/src/gui/pages/global/MinecraftPage.h:41
+#: gui/pages/global/MinecraftPage.h:41
 #, fuzzy
 msgid "Minecraft"
 msgstr "Minecraft"
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:91
+#: gui/pages/global/MultiMCPage.cpp:91
 #, fuzzy
 msgid "FTB Launcher Directory"
 msgstr "FTB-Launcher-Ordner"
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:104
+#: gui/pages/global/MultiMCPage.cpp:104
 #, fuzzy
 msgid "FTB Directory"
 msgstr "FTB-Ordner"
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:116
+#: gui/pages/global/MultiMCPage.cpp:116
 #, fuzzy
 msgid "Instance Directory"
 msgstr "Instanz-Ordner"
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:126
+#: gui/pages/global/MultiMCPage.cpp:126
 msgid ""
 "You're trying to specify an instance folder which's path contains at least "
 "one '!'. Java is known to cause problems if that is the case, your instances "
 "(probably) won't start!"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:131
+#: gui/pages/global/MultiMCPage.cpp:131
 msgid ""
 "Do you really want to use this path? Selecting \"No\" will close this and "
 "not alter your instance path."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:149
+#: gui/pages/global/MultiMCPage.cpp:149
 #, fuzzy
 msgid "Icons Directory"
 msgstr "Symbolordner"
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:167
+#: gui/pages/global/MultiMCPage.cpp:167
 #, fuzzy
 msgid "Mods Directory"
 msgstr "Modordner"
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:179
+#: gui/pages/global/MultiMCPage.cpp:179
 #, fuzzy
 msgid "LWJGL Directory"
 msgstr "LWJGL-Ordner"
 
-#: /data/dev/MMC/src/gui/pages/global/MultiMCPage.cpp:339
+#: gui/pages/global/MultiMCPage.cpp:339
 msgid "English"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/pages/global/ProxyPage.h:39
+#: gui/pages/global/ProxyPage.h:39
 msgid "Proxy"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModAddFileDialog.cpp:146
+#: gui/dialogs/quickmod/QuickModAddFileDialog.cpp:146
 msgid "Add QuickMod File"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModAddFileDialog.cpp:147
+#: gui/dialogs/quickmod/QuickModAddFileDialog.cpp:147
 msgid "QuickMod files (*.quickmod *.json)"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.h:100
+#: gui/dialogs/quickmod/QuickModInstallDialog.h:100
 msgid "N/A"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:148
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:148
 #, fuzzy
 msgid "Download waiting"
 msgstr "Forge wird heruntergeladen..."
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:201
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:201
 msgid "Open website"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:202
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:202
 msgid "Copy download link"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:203
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:203
 msgid "Copy donation link"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:284
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:284
 #, fuzzy
 msgid "Failed to download QuickMod dependencies."
 msgstr "Fehler beim Herunterladen der Updatedateien."
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:382
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:382
 msgid "Choose QuickMod version for %1"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:416
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:416
 msgid "Success: Already installed"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:425
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:425
 msgid "Success: Installed from cache"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:432
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:432
 msgid "Error: No download URLs"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:447
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:447
 msgid "Selecting URL..."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:496
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:496
 msgid "Checking Maven repositories"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:502
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:502
 msgid "Couldn't find a Maven repository"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:535
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:535
 msgid "Waiting on web page."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:641
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:641
 #, fuzzy
 msgid "Installing"
 msgstr "Forge installieren"
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModInstallDialog.cpp:658
+#: gui/dialogs/quickmod/QuickModInstallDialog.cpp:658
 msgid "Success: Downloaded and installed successfully."
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:217
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:217
 msgid "Author"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:227
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:228
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:227
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:228
 msgid "Type"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:227
-#: /data/dev/MMC/src/logic/minecraft/InstanceVersion.cpp:345
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:227
+#: logic/minecraft/InstanceVersion.cpp:345
 #, fuzzy
 msgid "Name"
 msgstr "Name"
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:228
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:228
 msgid "URL"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:310
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:310
 msgid "Select QuickMod File"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:312
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:312
 msgid ""
 "QuickMod files (*.quickmod *.qm);;JSON files (*.js *.json);;All Files (*)"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:344
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:344
 msgid "Download"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:345
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:345
 #, fuzzy
 msgid "Upload"
 msgstr "Log hochladen"
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:353
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:353
 msgid "Open"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:354
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:354
 msgid "Save"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:386
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:386
 msgid "Overwrite?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:387
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:387
 msgid "There already exist a version with the name %1 in %2, overwrite?"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:401
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:401
 msgid "Unable to open %1 for writing: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:413
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:413
 #, fuzzy
 msgid "Upload QuickMod"
 msgstr "Log hochladen"
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:456
+#: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:456
 msgid "Download QuickMod"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:37
+#: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:37
 #, fuzzy
 msgid "Direct"
 msgstr "FTB-Ordner"
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:39
+#: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:39
 msgid "Direct (Maven)"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:41
+#: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:41
 msgid "Sequential"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:43
+#: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:43
 msgid "Parallel"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:45
+#: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:45
 msgid "Encoded"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:117
+#: gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp:117
 #, fuzzy
 msgid "No downloads available"
 msgstr "Keine Nachrichten verfügbar."
 
-#: /data/dev/MMC/src/gui/dialogs/AboutDialog.cpp:88
+#: gui/dialogs/AboutDialog.cpp:88
 #, fuzzy
 msgid "Version Type"
 msgstr "Version"
 
-#: /data/dev/MMC/src/gui/dialogs/AboutDialog.cpp:89
+#: gui/dialogs/AboutDialog.cpp:89
 msgid "Platform"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/AboutDialog.cpp:92
+#: gui/dialogs/AboutDialog.cpp:92
 msgid "Build Number"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/AboutDialog.cpp:97
+#: gui/dialogs/AboutDialog.cpp:97
 msgid "Channel"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/IconPickerDialog.cpp:64
+#: gui/dialogs/IconPickerDialog.cpp:64
 #, fuzzy
 msgid "Add Icon"
 msgstr "Symbol hinzufügen"
 
-#: /data/dev/MMC/src/gui/dialogs/IconPickerDialog.cpp:66
+#: gui/dialogs/IconPickerDialog.cpp:66
 #, fuzzy
 msgid "Remove Icon"
 msgstr "Symbol entfernen"
 
-#: /data/dev/MMC/src/gui/dialogs/IconPickerDialog.cpp:103
+#: gui/dialogs/IconPickerDialog.cpp:103
 #, fuzzy
 msgid "Select Icons"
 msgstr "Symbol auswählen"
 
-#: /data/dev/MMC/src/gui/dialogs/IconPickerDialog.cpp:106
+#: gui/dialogs/IconPickerDialog.cpp:106
 #, fuzzy
 msgid "Icons"
 msgstr "Symbole"
 
-#: /data/dev/MMC/src/gui/dialogs/LwjglSelectDialog.cpp:61
+#: gui/dialogs/LwjglSelectDialog.cpp:61
 #, fuzzy
 msgid "Loading LWJGL version list..."
 msgstr "Lade LWJGL-Versionsliste..."
 
-#: /data/dev/MMC/src/gui/dialogs/ModEditDialogCommon.cpp:36
+#: gui/dialogs/ModEditDialogCommon.cpp:36
 #, fuzzy
 msgid "How sad!"
 msgstr "Wie schade!"
 
-#: /data/dev/MMC/src/gui/dialogs/ModEditDialogCommon.cpp:37
+#: gui/dialogs/ModEditDialogCommon.cpp:37
 #, fuzzy
 msgid "The mod author didn't provide a website link for this mod."
 msgstr "Der Autor der Modifikation hat keine URL hinterlegt."
 
-#: /data/dev/MMC/src/gui/dialogs/NotificationDialog.cpp:28
+#: gui/dialogs/NotificationDialog.cpp:28
 msgid "Don't show again"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/dialogs/UpdateDialog.cpp:15
+#: gui/dialogs/UpdateDialog.cpp:15
 #, fuzzy
 msgid "A new %1 update is available!"
 msgstr "Eine neue Version von MultiMC ist verfügbar!"
 
-#: /data/dev/MMC/src/gui/dialogs/UpdateDialog.cpp:19
+#: gui/dialogs/UpdateDialog.cpp:19
 #, fuzzy
 msgid "No %1 updates found. You are running the latest version."
 msgstr ""
 "Es wurde kein Update für MultiMC gefunden!\n"
 "Du verwendest bereits die neueste Version."
 
-#: /data/dev/MMC/src/gui/dialogs/UpdateDialog.cpp:170
+#: gui/dialogs/UpdateDialog.cpp:170
 msgid ""
 "<p align=\"center\" <span style=\"font-size:22pt;\">Failed to fetch "
 "changelog...</span></p>"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/widgets/MCModInfoFrame.cpp:44
+#: gui/widgets/MCModInfoFrame.cpp:44
 #, fuzzy
 msgid "No description provided in mcmod.info"
 msgstr "mcmod.info wurde mit keiner Beschreibung versehen"
 
-#: /data/dev/MMC/src/gui/widgets/MCModInfoFrame.cpp:54
+#: gui/widgets/MCModInfoFrame.cpp:54
 #, fuzzy
 msgid "Select a mod to view title and authors..."
 msgstr "Wähle eine Modifikation aus, um Titel und Autor(en) zu sehen..."
 
-#: /data/dev/MMC/src/gui/widgets/MCModInfoFrame.cpp:55
+#: gui/widgets/MCModInfoFrame.cpp:55
 #, fuzzy
 msgid "Select a mod to view description..."
 msgstr "Wähle eine Modifikation aus, um die Beschreibung zu sehen..."
 
-#: /data/dev/MMC/src/gui/widgets/WebDownloadNavigator.cpp:18
+#: gui/widgets/WebDownloadNavigator.cpp:18
 msgid "<h1>Loading...</h1>"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/widgets/ServerStatus.cpp:22
+#: gui/widgets/ServerStatus.cpp:22
 msgid "Web"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/widgets/ServerStatus.cpp:24
+#: gui/widgets/ServerStatus.cpp:24
 #, fuzzy
 msgid "Account"
 msgstr "Konten"
 
-#: /data/dev/MMC/src/gui/widgets/ServerStatus.cpp:26
+#: gui/widgets/ServerStatus.cpp:26
 msgid "Skins"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/widgets/ServerStatus.cpp:28
+#: gui/widgets/ServerStatus.cpp:28
 msgid "Auth"
 msgstr ""
 
-#: /data/dev/MMC/src/gui/widgets/ServerStatus.cpp:30
+#: gui/widgets/ServerStatus.cpp:30
 #, fuzzy
 msgid "Session"
 msgstr "Version"
 
-#: /data/dev/MMC/src/gui/widgets/VersionListView.cpp:27
+#: gui/widgets/VersionListView.cpp:27
 msgid "No versions are currently available."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/InstanceFactory.cpp:130
+#: logic/InstanceFactory.cpp:130
 #, fuzzy
 msgid "Instance load failed: %1"
 msgstr "Instanzordner"
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:242
+#: logic/MinecraftProcess.cpp:242
 #, fuzzy
 msgid "Minecraft exited with exitcode %1."
 msgstr "Minecraft wurde mit Status %1 beendet."
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:247
+#: logic/MinecraftProcess.cpp:247
 #, fuzzy
 msgid "Minecraft crashed with exitcode %1."
 msgstr "Minecraft ist mit dem Status %1 abgestürzt"
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:253
+#: logic/MinecraftProcess.cpp:253
 #, fuzzy
 msgid "Minecraft was killed by user."
 msgstr "Minecraft wurde durch den Nutzer getötet."
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:286
+#: logic/MinecraftProcess.cpp:286
 #, fuzzy
 msgid "Running Pre-Launch command: %1"
 msgstr "Vor-Start-Befehl:"
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:290
+#: logic/MinecraftProcess.cpp:290
 msgid "The command failed to start"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:307
+#: logic/MinecraftProcess.cpp:307
 msgid ""
 "Pre-Launch command failed with code %1.\n"
 "\n"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:318
+#: logic/MinecraftProcess.cpp:318
 msgid ""
 "Pre-Launch command ran successfully.\n"
 "\n"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:330
+#: logic/MinecraftProcess.cpp:330
 #, fuzzy
 msgid "Running Post-Launch command: %1"
 msgstr "Vor-Start-Befehl:"
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:349
+#: logic/MinecraftProcess.cpp:349
 msgid ""
 "Post-Launch command failed with code %1.\n"
 "\n"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:358
+#: logic/MinecraftProcess.cpp:358
 msgid ""
 "Post-Launch command ran successfully.\n"
 "\n"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:467
+#: logic/MinecraftProcess.cpp:467
 msgid ""
 "The java binary \"%1\" couldn't be found. You may have to set up java if "
 "Minecraft fails to launch."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/MinecraftProcess.cpp:477
+#: logic/MinecraftProcess.cpp:477
 #, fuzzy
 msgid "Could not launch minecraft!"
 msgstr "Konnte Minecraft nicht starten!"
 
-#: /data/dev/MMC/src/logic/NagUtils.cpp:26
+#: logic/NagUtils.cpp:26
 #, fuzzy
 msgid "JVM arguments warning"
 msgstr "JVM-Argument-Warnung"
 
-#: /data/dev/MMC/src/logic/NagUtils.cpp:27
+#: logic/NagUtils.cpp:27
 #, fuzzy
 msgid ""
 "You tried to manually set a JVM memory option (using  \"-XX:PermSize\", \"-"
@@ -1142,40 +1104,40 @@ msgstr ""
 "Deine manuellen Einstellungen werden von den vorgesehenen überschrieben.\n"
 "Diese Mitteilung wird so lange angezeigt, bis du die Option entfernt hast."
 
-#: /data/dev/MMC/src/logic/MMCJson.h:24
+#: logic/MMCJson.h:24
 msgid "Error opening %1: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/net/PasteUpload.cpp:57
+#: logic/net/PasteUpload.cpp:57
 msgid ""
 "paste.ee returned an error. Please consult the logs for more information"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/net/MavenResolver.cpp:99
+#: logic/net/MavenResolver.cpp:99
 #, fuzzy
 msgid "Fetching Maven POM files..."
 msgstr "Lade die Forge-Versionslisten..."
 
-#: /data/dev/MMC/src/logic/net/MavenResolver.cpp:126
+#: logic/net/MavenResolver.cpp:126
 #, fuzzy
 msgid "Couldn't open downloaded file"
 msgstr "Fehler beim Herunterladen der Updatedateien."
 
-#: /data/dev/MMC/src/logic/net/MavenResolver.cpp:139
+#: logic/net/MavenResolver.cpp:139
 msgid "Maven POM download failed"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:111
+#: logic/auth/YggdrasilTask.cpp:111
 #, fuzzy
 msgid "Authentication operation timed out."
 msgstr "Authentifizierung: Sende Anfrage..."
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:114
+#: logic/auth/YggdrasilTask.cpp:114
 #, fuzzy
 msgid "Authentication operation cancelled."
 msgstr "Authentifizierung: Sende Anfrage..."
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:119
+#: logic/auth/YggdrasilTask.cpp:119
 #, fuzzy
 msgid ""
 "<b>SSL Handshake failed.</b><br/>There might be a few causes for it:<br/"
@@ -1193,18 +1155,18 @@ msgstr ""
 "Minecraft nicht gestartet werden kann.</li><li>Möglicherweise etwas anderes. "
 "Prüfe die MultiMC-Logdatei für Details</li></ul>"
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:134
+#: logic/auth/YggdrasilTask.cpp:134
 msgid "Authentication operation failed due to a network error: %1 (%2)"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:160
+#: logic/auth/YggdrasilTask.cpp:160
 #, fuzzy
 msgid ""
 "Failed to parse authentication server response JSON response: %1 at offset "
 "%2."
 msgstr "Fehler beim Bearbeiten der Yggdrasil-JSON-Antwort: %1 bei %2."
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:189
+#: logic/auth/YggdrasilTask.cpp:189
 #, fuzzy
 msgid ""
 "An unknown error occurred when trying to communicate with the authentication "
@@ -1213,328 +1175,316 @@ msgstr ""
 "Ein unbekannter Fehler ist bei der Kommunikation mit den Authentifizierungs-"
 "Servern aufgetreten: %1"
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:209
+#: logic/auth/YggdrasilTask.cpp:209
 #, fuzzy
 msgid "An unknown Yggdrasil error occurred."
 msgstr "Ein unbekannter Yggdrasil-Fehler ist aufgetreten."
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:220
+#: logic/auth/YggdrasilTask.cpp:220
 #, fuzzy
 msgid "Sending request to auth servers..."
 msgstr "Sende Anfrage an die Authentifizierungs-Server..."
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:222
+#: logic/auth/YggdrasilTask.cpp:222
 #, fuzzy
 msgid "Processing response from servers..."
 msgstr "Bearbeite Antwort des Authentifizierungs-Servers..."
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:224
+#: logic/auth/YggdrasilTask.cpp:224
 msgid "Authentication task succeeded."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:226
+#: logic/auth/YggdrasilTask.cpp:226
 msgid "Failed to contact the authentication server."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:228
+#: logic/auth/YggdrasilTask.cpp:228
 #, fuzzy
 msgid "Failed to authenticate."
 msgstr "Fehler beim Herunterladen der Updatedateien."
 
-#: /data/dev/MMC/src/logic/auth/YggdrasilTask.cpp:230
+#: logic/auth/YggdrasilTask.cpp:230
 #, fuzzy
 msgid "..."
 msgstr "..."
 
-#: /data/dev/MMC/src/logic/auth/flows/AuthenticateTask.cpp:86
-#: /data/dev/MMC/src/logic/auth/flows/RefreshTask.cpp:75
+#: logic/auth/flows/AuthenticateTask.cpp:86
+#: logic/auth/flows/RefreshTask.cpp:75
 msgid "Authentication server didn't send a client token."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/flows/AuthenticateTask.cpp:91
-#: /data/dev/MMC/src/logic/auth/flows/RefreshTask.cpp:80
+#: logic/auth/flows/AuthenticateTask.cpp:91
+#: logic/auth/flows/RefreshTask.cpp:80
 msgid ""
 "Authentication server attempted to change the client token. This isn't "
 "supported."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/flows/AuthenticateTask.cpp:103
-#: /data/dev/MMC/src/logic/auth/flows/RefreshTask.cpp:90
+#: logic/auth/flows/AuthenticateTask.cpp:103
+#: logic/auth/flows/RefreshTask.cpp:90
 msgid "Authentication server didn't send an access token."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/flows/AuthenticateTask.cpp:148
+#: logic/auth/flows/AuthenticateTask.cpp:148
 msgid ""
 "Authentication server didn't specify a currently selected profile. The "
 "account exists, but likely isn't premium."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/flows/AuthenticateTask.cpp:153
+#: logic/auth/flows/AuthenticateTask.cpp:153
 msgid ""
 "Authentication server specified a selected profile that wasn't in the "
 "available profiles list."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/flows/AuthenticateTask.cpp:190
+#: logic/auth/flows/AuthenticateTask.cpp:190
 #, fuzzy
 msgid "Authenticating: Sending request..."
 msgstr "Authentifizierung: Sende Anfrage..."
 
-#: /data/dev/MMC/src/logic/auth/flows/AuthenticateTask.cpp:192
+#: logic/auth/flows/AuthenticateTask.cpp:192
 #, fuzzy
 msgid "Authenticating: Processing response..."
 msgstr "Authentifizierung: Bearbeite Antwort..."
 
-#: /data/dev/MMC/src/logic/auth/flows/RefreshTask.cpp:100
+#: logic/auth/flows/RefreshTask.cpp:100
 msgid "Authentication server didn't specify the same prefile as expected."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/auth/flows/RefreshTask.cpp:139
+#: logic/auth/flows/RefreshTask.cpp:139
 #, fuzzy
 msgid "Refreshing login token..."
 msgstr "Erneuerung des Login-Tokens..."
 
-#: /data/dev/MMC/src/logic/auth/flows/RefreshTask.cpp:141
+#: logic/auth/flows/RefreshTask.cpp:141
 #, fuzzy
 msgid "Refreshing login token: Processing response..."
 msgstr "Erneuerung des Login-Tokens: Verarbeite Antwort..."
 
-#: /data/dev/MMC/src/logic/auth/flows/ValidateTask.cpp:56
+#: logic/auth/flows/ValidateTask.cpp:56
 #, fuzzy
 msgid "Validating access token: Sending request..."
 msgstr "Validiere Zugriffstoken: Sende Anfrage..."
 
-#: /data/dev/MMC/src/logic/auth/flows/ValidateTask.cpp:58
+#: logic/auth/flows/ValidateTask.cpp:58
 #, fuzzy
 msgid "Validating access token: Processing response..."
 msgstr "Validiere Zugriffstoken: Bearbeite Antwort..."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:83
+#: logic/updater/DownloadUpdateTask.cpp:83
 #, fuzzy
 msgid "Finding information about the current version..."
 msgstr "Finde Informationen zur benutzten Version..."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:104
+#: logic/updater/DownloadUpdateTask.cpp:104
 #, fuzzy
 msgid "Loading version information..."
 msgstr "Lade Versionsinformationen..."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:154
+#: logic/updater/DownloadUpdateTask.cpp:154
 #, fuzzy
 msgid "Failed to download version info files."
 msgstr "Laden der Versionsdateien ist fehlgeschlagen."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:159
+#: logic/updater/DownloadUpdateTask.cpp:159
 #, fuzzy
 msgid "Reading file list for new version..."
 msgstr "Bearbeite die Dateiliste der neuen Version..."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:174
+#: logic/updater/DownloadUpdateTask.cpp:174
 #, fuzzy
 msgid "Reading file list for current version..."
 msgstr "Bearbeite die Dateiliste der benutzten Version..."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:264
+#: logic/updater/DownloadUpdateTask.cpp:264
 #, fuzzy
 msgid "Failed to process update lists..."
 msgstr "Fehler beim Bearbeiten der Updateliste..."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:276
+#: logic/updater/DownloadUpdateTask.cpp:276
 #, fuzzy
 msgid "Downloading %1 update files."
 msgstr "%1 Dateien werden heruntergeladen."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:290
+#: logic/updater/DownloadUpdateTask.cpp:290
 #, fuzzy
 msgid "Processing file lists - figuring out how to install the update..."
 msgstr ""
 "Bearbeite Dateilisten - Rechne aus, wie das Update installiert werden soll..."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:506
+#: logic/updater/DownloadUpdateTask.cpp:506
 #, fuzzy
 msgid "Failed to write update script file."
 msgstr "Fehler beim Schreiben des Updatescripts."
 
-#: /data/dev/MMC/src/logic/updater/DownloadUpdateTask.cpp:537
+#: logic/updater/DownloadUpdateTask.cpp:537
 #, fuzzy
 msgid "Failed to download update files."
 msgstr "Fehler beim Herunterladen der Updatedateien."
 
-#: /data/dev/MMC/src/logic/news/NewsEntry.cpp:24
-#: /data/dev/MMC/src/logic/news/NewsEntry.cpp:60
+#: logic/news/NewsEntry.cpp:24 logic/news/NewsEntry.cpp:60
 #, fuzzy
 msgid "Untitled"
 msgstr "Unbennant"
 
-#: /data/dev/MMC/src/logic/news/NewsEntry.cpp:25
-#: /data/dev/MMC/src/logic/news/NewsEntry.cpp:61
+#: logic/news/NewsEntry.cpp:25 logic/news/NewsEntry.cpp:61
 #, fuzzy
 msgid "No content."
 msgstr "Kein Eintrag."
 
-#: /data/dev/MMC/src/logic/news/NewsEntry.cpp:27
-#: /data/dev/MMC/src/logic/news/NewsEntry.cpp:63
+#: logic/news/NewsEntry.cpp:27 logic/news/NewsEntry.cpp:63
 #, fuzzy
 msgid "Unknown Author"
 msgstr "Unbekannter Autor"
 
-#: /data/dev/MMC/src/logic/LegacyInstance.cpp:56
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:81
+#: logic/LegacyInstance.cpp:56 logic/OneSixInstance.cpp:81
 #, fuzzy
 msgid "Loader mods"
 msgstr "Normale Mods"
 
-#: /data/dev/MMC/src/logic/LegacyInstance.cpp:58
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:83
+#: logic/LegacyInstance.cpp:58 logic/OneSixInstance.cpp:83
 #, fuzzy
 msgid "Core mods"
 msgstr "Coremods"
 
-#: /data/dev/MMC/src/logic/LegacyInstance.cpp:69
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:96
+#: logic/LegacyInstance.cpp:69 logic/OneSixInstance.cpp:96
 #, fuzzy
 msgid "Edit Instance (%1)"
 msgstr "Instanz hinzufügen"
 
-#: /data/dev/MMC/src/logic/LegacyInstance.cpp:292
+#: logic/LegacyInstance.cpp:292
 msgid "Legacy : %1 (broken)"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/LegacyInstance.cpp:294
+#: logic/LegacyInstance.cpp:294
 msgid "Legacy : %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:81
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:431
+#: logic/LegacyUpdate.cpp:81 logic/OneSixUpdate.cpp:431
 #, fuzzy
 msgid "Checking for FML libraries..."
 msgstr "Suche nach Jar-Änderungen..."
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:128
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:457
+#: logic/LegacyUpdate.cpp:128 logic/OneSixUpdate.cpp:457
 #, fuzzy
 msgid "Dowloading FML libraries..."
 msgstr "Forge wird heruntergeladen..."
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:151
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:480
+#: logic/LegacyUpdate.cpp:151 logic/OneSixUpdate.cpp:480
 msgid "Copying FML libraries into the instance..."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:162
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:491
+#: logic/LegacyUpdate.cpp:162 logic/OneSixUpdate.cpp:491
 msgid "Failed creating FML library folder inside the instance."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:167
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:496
+#: logic/LegacyUpdate.cpp:167 logic/OneSixUpdate.cpp:496
 msgid "Failed copying Forge/FML library: %1."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:206
+#: logic/LegacyUpdate.cpp:206
 #, fuzzy
 msgid "Downloading new LWJGL..."
 msgstr "LWJGL wird heruntergeladen..."
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:272
+#: logic/LegacyUpdate.cpp:272
 #, fuzzy
 msgid "Installing new LWJGL..."
 msgstr "Neues LWJGL wird installiert..."
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:348
+#: logic/LegacyUpdate.cpp:348
 #, fuzzy
 msgid "Installing new LWJGL - extracting "
 msgstr "Das neue LWJGL wird installiert - entpacken"
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:378
+#: logic/LegacyUpdate.cpp:378
 #, fuzzy
 msgid "Checking for jar updates..."
 msgstr "Suche nach Jar-Änderungen..."
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:388
+#: logic/LegacyUpdate.cpp:388
 #, fuzzy
 msgid "Downloading new minecraft.jar ..."
 msgstr "Neue minecraft.jar wird heruntergeladen..."
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:421
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:364
+#: logic/LegacyUpdate.cpp:421 logic/OneSixUpdate.cpp:364
 #, fuzzy
 msgid "Installing mods: Adding "
 msgstr "Mod-Installation: Hinzufügen "
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:507
+#: logic/LegacyUpdate.cpp:507
 #, fuzzy
 msgid "Installing mods: Backing up minecraft.jar ..."
 msgstr ""
 "Mod-Installation: Erstellen einer Sicherheitskopie von minecraft.jar..."
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:532
+#: logic/LegacyUpdate.cpp:532
 #, fuzzy
 msgid "Installing mods: Opening minecraft.jar ..."
 msgstr "Mod-Installation: minecraft.jar wird geöffnet..."
 
-#: /data/dev/MMC/src/logic/LegacyUpdate.cpp:546
+#: logic/LegacyUpdate.cpp:546
 #, fuzzy
 msgid "Installing mods: Adding mod files..."
 msgstr "Mod-Installation: Mod-Dateien werden hinzugefügt..."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:52
+#: logic/OneSixUpdate.cpp:52
 #, fuzzy
 msgid "Failed to create folder for minecraft binaries."
 msgstr "Konnte Minecraft-Versionsstring nicht parsen."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:62
+#: logic/OneSixUpdate.cpp:62
 msgid "The specified Minecraft version is invalid. Choose a different one."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:82
+#: logic/OneSixUpdate.cpp:82
 #, fuzzy
 msgid "Getting the version files from Mojang..."
 msgstr "Versionsdateien von Mojang werden heruntergeladen..."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:93
+#: logic/OneSixUpdate.cpp:93
 #, fuzzy
 msgid "Updating assets index..."
 msgstr "Datenindex wird aktualisiert..."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:99
+#: logic/OneSixUpdate.cpp:99
 msgid "Asset index for %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:125
+#: logic/OneSixUpdate.cpp:125
 #, fuzzy
 msgid "Failed to read the assets index!"
 msgstr "Fehler beim Schreiben des Updatescripts."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:144
+#: logic/OneSixUpdate.cpp:144
 #, fuzzy
 msgid "Getting the assets files from Mojang..."
 msgstr "Daten werden von Mojang geholt..."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:145
+#: logic/OneSixUpdate.cpp:145
 msgid "Assets for %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:161
+#: logic/OneSixUpdate.cpp:161
 #, fuzzy
 msgid "Failed to download the assets index!"
 msgstr "Fehler beim Herunterladen der Updatedateien."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:171
+#: logic/OneSixUpdate.cpp:171
 #, fuzzy
 msgid "Failed to download assets!"
 msgstr "Fehler beim Herunterladen der Updatedateien."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:176
+#: logic/OneSixUpdate.cpp:176
 #, fuzzy
 msgid "Getting the library files from Mojang..."
 msgstr "Bibliotheken werden von Mojang geholt..."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:202
+#: logic/OneSixUpdate.cpp:202
 msgid "Libraries for instance %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:268
+#: logic/OneSixUpdate.cpp:268
 msgid ""
 "Some libraries marked as 'local' are missing their jar files:\n"
 "%1\n"
@@ -1543,7 +1493,7 @@ msgid ""
 "tracked instance, make sure to run it at least once outside of MultiMC."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:329
+#: logic/OneSixUpdate.cpp:329
 #, fuzzy
 msgid ""
 "Failed to download the following files:\n"
@@ -1552,398 +1502,393 @@ msgid ""
 "Please try again."
 msgstr "Laden der Versionsdateien ist fehlgeschlagen."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:342
+#: logic/OneSixUpdate.cpp:342
 #, fuzzy
 msgid "Creating stripped jar: Opening minecraft.jar ..."
 msgstr "Mod-Installation: minecraft.jar wird geöffnet..."
 
-#: /data/dev/MMC/src/logic/OneSixUpdate.cpp:352
+#: logic/OneSixUpdate.cpp:352
 #, fuzzy
 msgid "Creating stripped jar: Adding files..."
 msgstr "Mod-Installation: Mod-Dateien werden hinzugefügt..."
 
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:518
+#: logic/OneSixInstance.cpp:518
 #, fuzzy
 msgid "custom"
 msgstr "Benutzerdefiniert"
 
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:522
+#: logic/OneSixInstance.cpp:522
 msgid "broken"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:527
+#: logic/OneSixInstance.cpp:527
 #, fuzzy
 msgid "Minecraft %1 (%2)"
 msgstr "Minecraft"
 
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:531
+#: logic/OneSixInstance.cpp:531
 #, fuzzy
 msgid "Minecraft %1"
 msgstr "Minecraft"
 
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:586
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:620
+#: logic/OneSixInstance.cpp:586 logic/OneSixInstance.cpp:620
 msgid "Couldn't open %1 for writing: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/OneSixInstance.cpp:666
+#: logic/OneSixInstance.cpp:666
 msgid "Error while removing the following files: %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersion.cpp:27
+#: logic/minecraft/MinecraftVersion.cpp:27
 #, fuzzy
 msgid "Snapshot"
 msgstr "'&Snapshots' anzeigen?"
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersion.cpp:31
+#: logic/minecraft/MinecraftVersion.cpp:31
 msgid "Regular release"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersion.cpp:35
+#: logic/minecraft/MinecraftVersion.cpp:35
 msgid "Alpha"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersion.cpp:39
+#: logic/minecraft/MinecraftVersion.cpp:39
 msgid "Beta"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersion.cpp:79
+#: logic/minecraft/MinecraftVersion.cpp:79
 msgid "Minecraft version %1 could not be applied: version files are missing."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:101
+#: logic/minecraft/MinecraftVersionList.cpp:101
 #, fuzzy
 msgid "Error reading the version list."
 msgstr "Instanzliste aktualisieren."
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:183
+#: logic/minecraft/MinecraftVersionList.cpp:183
 msgid "Error parsing version list JSON: jsonDoc is not an object"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:197
+#: logic/minecraft/MinecraftVersionList.cpp:197
 msgid "Error parsing version list JSON: couldn't determine latest versions"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:203
+#: logic/minecraft/MinecraftVersionList.cpp:203
 msgid ""
 "Error parsing version list JSON: version list object is missing 'versions' "
 "array"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:360
+#: logic/minecraft/MinecraftVersionList.cpp:360
 #, fuzzy
 msgid "Loading instance version list..."
 msgstr "Lade Liste von Minecraft-Versionen..."
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:385
+#: logic/minecraft/MinecraftVersionList.cpp:385
 msgid "Error parsing version list JSON: %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:432
+#: logic/minecraft/MinecraftVersionList.cpp:432
 #, fuzzy
 msgid "The download version file is not valid."
 msgstr "Laden der Versionsdateien ist fehlgeschlagen."
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:442
+#: logic/minecraft/MinecraftVersionList.cpp:442
 #, fuzzy
 msgid "Couldn't process version file: %1"
 msgstr "Fehlschlag beim Laden der Versions-Konfiguration"
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:474
+#: logic/minecraft/MinecraftVersionList.cpp:474
 msgid "Can't open %1 for writing."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:480
+#: logic/minecraft/MinecraftVersionList.cpp:480
 msgid "Failed to write into %1. Written %2 out of %3."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/MinecraftVersionList.cpp:488
+#: logic/minecraft/MinecraftVersionList.cpp:488
 msgid "Can't commit changes to %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuilder.cpp:128
+#: logic/minecraft/VersionBuilder.cpp:128
 msgid "load id %1 does not match internal id %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuilder.cpp:150
+#: logic/minecraft/VersionBuilder.cpp:150
 msgid "%1 has the same order as %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuilder.cpp:276
-#: /data/dev/MMC/src/logic/minecraft/VersionBuilder.cpp:296
+#: logic/minecraft/VersionBuilder.cpp:276
+#: logic/minecraft/VersionBuilder.cpp:296
 msgid "Unable to open the version file %1: %2."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuilder.cpp:284
+#: logic/minecraft/VersionBuilder.cpp:284
 msgid "Unable to process the version file %1: %2 at %3."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuilder.cpp:305
+#: logic/minecraft/VersionBuilder.cpp:305
 msgid "Unable to process the version file %1."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuilder.cpp:346
+#: logic/minecraft/VersionBuilder.cpp:346
 #, fuzzy
 msgid "Invalid order file version, expected %1"
 msgstr "Ungültige Version ausgewählt"
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuildError.h:20
+#: logic/minecraft/VersionBuildError.h:20
 msgid ""
 "The base version file of this instance was meant for a newer (%1) version of "
 "the vanilla launcher than this version of MultiMC supports (%2)."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuildError.h:36
+#: logic/minecraft/VersionBuildError.h:36
 msgid ""
 "The patch %1 is for a different version of Minecraft (%2) than that of the "
 "instance (%3)."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionBuildError.h:53
+#: logic/minecraft/VersionBuildError.h:53
 msgid "Version is incomplete: missing %1."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/minecraft/VersionFile.cpp:530
-#: /data/dev/MMC/src/logic/minecraft/VersionFile.cpp:555
+#: logic/minecraft/VersionFile.cpp:530 logic/minecraft/VersionFile.cpp:555
 msgid "Error resolving library dependencies between %1 and %2 in %3."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/java/JavaVersionList.cpp:175
+#: logic/java/JavaVersionList.cpp:175
 #, fuzzy
 msgid "Detecting Java installations..."
 msgstr "Suche nach Java-Installationen..."
 
-#: /data/dev/MMC/src/logic/assets/AssetsMigrateTask.cpp:19
+#: logic/assets/AssetsMigrateTask.cpp:19
 #, fuzzy
 msgid "Migrating legacy assets..."
 msgstr "Migriere bestehende Daten..."
 
-#: /data/dev/MMC/src/logic/tools/BaseExternalTool.cpp:48
+#: logic/tools/BaseExternalTool.cpp:48
 msgid "MCEdit"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/BaseExternalTool.cpp:48
+#: logic/tools/BaseExternalTool.cpp:48
 msgid "Choose which world to open:"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/MCEditTool.cpp:62
+#: logic/tools/MCEditTool.cpp:62
 msgid "Path is empty"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/MCEditTool.cpp:68
-#: /data/dev/MMC/src/logic/tools/JProfiler.cpp:69
+#: logic/tools/MCEditTool.cpp:68 logic/tools/JProfiler.cpp:69
 msgid "Path does not exist"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/MCEditTool.cpp:73
+#: logic/tools/MCEditTool.cpp:73
 msgid "Path does not seem to be a MCEdit path"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/BaseProfiler.cpp:29
-#: /data/dev/MMC/src/logic/tools/JProfiler.cpp:31
-#: /data/dev/MMC/src/logic/tools/JVisualVM.cpp:28
+#: logic/tools/BaseProfiler.cpp:29 logic/tools/JProfiler.cpp:31
+#: logic/tools/JVisualVM.cpp:28
 msgid "Profiler aborted"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/JProfiler.cpp:24
+#: logic/tools/JProfiler.cpp:24
 msgid "Listening on port: %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/JProfiler.cpp:63
-#: /data/dev/MMC/src/logic/tools/JVisualVM.cpp:64
+#: logic/tools/JProfiler.cpp:63 logic/tools/JVisualVM.cpp:64
 msgid "Empty path"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/JProfiler.cpp:74
+#: logic/tools/JProfiler.cpp:74
 msgid "Invalid JProfiler install"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/JVisualVM.cpp:21
+#: logic/tools/JVisualVM.cpp:21
 msgid "JVisualVM started"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/tools/JVisualVM.cpp:70
+#: logic/tools/JVisualVM.cpp:70
 msgid "Invalid path to JVisualVM"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:156
+#: logic/quickmod/QuickMod.cpp:156
 msgid "QuickMod format to new"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:366
+#: logic/quickmod/QuickMod.cpp:366
 msgid "Website"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:368
+#: logic/quickmod/QuickMod.cpp:368
 msgid "Wiki"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:370
+#: logic/quickmod/QuickMod.cpp:370
 msgid "Forum"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:372
+#: logic/quickmod/QuickMod.cpp:372
 msgid "Donation"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:374
+#: logic/quickmod/QuickMod.cpp:374
 msgid "Issues"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:376
+#: logic/quickmod/QuickMod.cpp:376
 msgid "Source"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:378
+#: logic/quickmod/QuickMod.cpp:378
 #, fuzzy
 msgid "Icon"
 msgstr "Symbole"
 
-#: /data/dev/MMC/src/logic/quickmod/QuickMod.cpp:380
+#: logic/quickmod/QuickMod.cpp:380
 msgid "Logo"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModDependencyResolver.cpp:156
+#: logic/quickmod/QuickModDependencyResolver.cpp:156
 msgid "Didn't select a version for %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModDependencyResolver.cpp:235
+#: logic/quickmod/QuickModDependencyResolver.cpp:235
 msgid "Didn't select a version while resolving from %1 (%2) to %3"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModDependencyResolver.cpp:265
+#: logic/quickmod/QuickModDependencyResolver.cpp:265
 msgid "The dependency from %1 (%2) to %3 cannot be resolved"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModDependencyResolver.cpp:272
+#: logic/quickmod/QuickModDependencyResolver.cpp:272
 msgid "Successfully resolved dependency from %1 (%2) to %3 (%4)"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModDependencyResolver.cpp:286
+#: logic/quickmod/QuickModDependencyResolver.cpp:286
 msgid "The dependency from %1 (%2) to %3 (%4) cannot be resolved"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModFilesUpdater.cpp:189
-#: /data/dev/MMC/src/logic/quickmod/QuickModFilesUpdater.cpp:276
+#: logic/quickmod/QuickModFilesUpdater.cpp:189
+#: logic/quickmod/QuickModFilesUpdater.cpp:276
 msgid "QuickMod parse error"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModFilesUpdater.cpp:209
+#: logic/quickmod/QuickModFilesUpdater.cpp:209
 msgid "Error opening %1 for writing: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModFilesUpdater.cpp:228
+#: logic/quickmod/QuickModFilesUpdater.cpp:228
 msgid "Error downloading %1: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModFilesUpdater.cpp:266
+#: logic/quickmod/QuickModFilesUpdater.cpp:266
 msgid "Error opening %1 for reading: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModInstaller.cpp:134
+#: logic/quickmod/QuickModInstaller.cpp:134
 msgid "Error: Trying to extract an unknown file type %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModInstaller.cpp:145
-#: /data/dev/MMC/src/logic/quickmod/QuickModInstaller.cpp:150
+#: logic/quickmod/QuickModInstaller.cpp:145
+#: logic/quickmod/QuickModInstaller.cpp:150
 msgid "Error: Deploying %1 to %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModInstaller.cpp:160
+#: logic/quickmod/QuickModInstaller.cpp:160
 msgid "Error installing JSON patch"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModInstaller.cpp:193
+#: logic/quickmod/QuickModInstaller.cpp:193
 msgid "Error: Checksum mismatch"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModInstaller.cpp:200
+#: logic/quickmod/QuickModInstaller.cpp:200
 msgid "Error: Trying to save %1: %2"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModInstanceModList.cpp:149
+#: logic/quickmod/QuickModInstanceModList.cpp:149
 #, fuzzy
 msgid "TBD"
 msgstr "FTB"
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModVersion.cpp:98
+#: logic/quickmod/QuickModVersion.cpp:98
 msgid "Unknown reference type '%1'"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModVersion.cpp:155
+#: logic/quickmod/QuickModVersion.cpp:155
 msgid "Unknown value for \"downloadType\" field"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/QuickModVersion.cpp:195
+#: logic/quickmod/QuickModVersion.cpp:195
 msgid "Unknown value for \"installType\" field"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp:33
+#: logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp:33
 msgid "Fetching QuickMods files..."
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp:59
+#: logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp:59
 msgid "Missing %1"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp:121
+#: logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp:121
 msgid "Didn't verify files"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/tasks/QuickModDownloadTask.cpp:85
+#: logic/quickmod/tasks/QuickModDownloadTask.cpp:85
 msgid "Failure downloading QuickMods"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/quickmod/tasks/QuickModForgeDownloadTask.cpp:92
+#: logic/quickmod/tasks/QuickModForgeDownloadTask.cpp:92
 #, fuzzy
 msgid "No forge version selected"
 msgstr "Ungültige Version ausgewählt"
 
-#: /data/dev/MMC/src/logic/quickmod/tasks/QuickModLiteLoaderDownloadTask.cpp:93
+#: logic/quickmod/tasks/QuickModLiteLoaderDownloadTask.cpp:93
 #, fuzzy
 msgid "No LiteLoader version selected"
 msgstr "Ungültige Version ausgewählt"
 
-#: /data/dev/MMC/src/logic/quickmod/tasks/QuickModMavenFindTask.cpp:17
+#: logic/quickmod/tasks/QuickModMavenFindTask.cpp:17
 #, fuzzy
 msgid "Invalid maven identifier"
 msgstr "Ungültige Version ausgewählt"
 
-#: /data/dev/MMC/src/logic/quickmod/tasks/QuickModMavenFindTask.cpp:30
+#: logic/quickmod/tasks/QuickModMavenFindTask.cpp:30
 #, fuzzy
 msgid "Couldn't find maven item"
 msgstr "Fehler beim Installieren von Forge"
 
-#: /data/dev/MMC/src/logic/forge/ForgeVersion.cpp:18
+#: logic/forge/ForgeVersion.cpp:18
 msgid "Recommended"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/forge/ForgeVersionList.cpp:162
+#: logic/forge/ForgeVersionList.cpp:162
 #, fuzzy
 msgid "Fetching Forge version lists..."
 msgstr "Lade die Forge-Versionslisten..."
 
-#: /data/dev/MMC/src/logic/forge/ForgeInstaller.cpp:336
+#: logic/forge/ForgeInstaller.cpp:336
 #, fuzzy
 msgid "Installing forge..."
 msgstr "Forge wird installiert..."
 
-#: /data/dev/MMC/src/logic/forge/ForgeInstaller.cpp:340
+#: logic/forge/ForgeInstaller.cpp:340
 #, fuzzy
 msgid "Unknown error occured"
 msgstr "Ein unbekannter Yggdrasil-Fehler ist aufgetreten."
 
-#: /data/dev/MMC/src/logic/forge/ForgeInstaller.cpp:353
+#: logic/forge/ForgeInstaller.cpp:353
 #, fuzzy
 msgid "Failure to install forge"
 msgstr "Fehler beim Installieren von Forge"
 
-#: /data/dev/MMC/src/logic/forge/ForgeInstaller.cpp:370
+#: logic/forge/ForgeInstaller.cpp:370
 #, fuzzy
 msgid "Failure to download forge"
 msgstr "Fehler beim Herunterladen der Updatedateien."
 
-#: /data/dev/MMC/src/logic/liteloader/LiteLoaderInstaller.cpp:112
+#: logic/liteloader/LiteLoaderInstaller.cpp:112
 #, fuzzy
 msgid ""
 "For reasons unknown, the LiteLoader installation failed. Check your MultiMC "
@@ -1952,16 +1897,16 @@ msgstr ""
 "Aus unbekannten Gründen ist die Installation von LiteLoader fehlgeschlagen. "
 "Sieh dir die MultiMC-Logdateien an, um weitere Details zu erhalten."
 
-#: /data/dev/MMC/src/logic/liteloader/LiteLoaderVersionList.h:38
+#: logic/liteloader/LiteLoaderVersionList.h:38
 msgid "Latest"
 msgstr ""
 
-#: /data/dev/MMC/src/logic/liteloader/LiteLoaderVersionList.cpp:104
+#: logic/liteloader/LiteLoaderVersionList.cpp:104
 #, fuzzy
 msgid "Loading LiteLoader version list..."
 msgstr "Lade Liste von Minecraft-Versionen..."
 
-#: /data/dev/MMC/src/logic/liteloader/LiteLoaderVersionList.cpp:171
+#: logic/liteloader/LiteLoaderVersionList.cpp:171
 msgid "This is a lightweight loader for mods that don't change game mechanics."
 msgstr ""
 
