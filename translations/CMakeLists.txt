@@ -5,31 +5,52 @@ set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM 1)
 file(GLOB PO_TRANSLATION_FILES ${CMAKE_CURRENT_LIST_DIR}/*.po)
 add_custom_target(translations_update)
 
+
+## QT Update Logic
+set(LSTFILE "${CMAKE_CURRENT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/base_lst_file")
+set(LSTFILEBUF)
 foreach(FILE ${FILES_TO_TRANSLATE})
-	if(NOT "${FILE}" MATCHES "\\.ui\$")
-		file(RELATIVE_PATH RELFILE "${PROJECT_SOURCE_DIR}" "${FILE}")
-		list(APPEND CPP_FILES_TO_TRANSLATE "${RELFILE}")
-	endif(NOT "${FILE}" MATCHES "\\.ui\$")
+	set(LSTFILEBUF "${FILE}\n${LSTFILEBUF}")
 endforeach(FILE)
+file(WRITE ${LSTFILE} "${LSTFILEBUF}")
 
 add_custom_command(TARGET translations_update
-	COMMAND xgettext -k -ktr 
-	-o ${CMAKE_CURRENT_LIST_DIR}/messages.pot
-	-D .
-	${CPP_FILES_TO_TRANSLATE}
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	COMMAND lconvert -locations relative ${CMAKE_CURRENT_LIST_DIR}/messages.pot 
+	-o ${CMAKE_CURRENT_LIST_DIR}/base.ts
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+	DEPENDS ${PROJECT_SOURCE_DIR}
 )
+
+add_custom_command(TARGET translations_update
+	COMMAND lupdate-qt5
+	"@${LSTFILE}"
+	-ts ${CMAKE_CURRENT_LIST_DIR}/base.ts
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	DEPENDS ${FILES_TO_TRANSLATE} ${LSTFILE}
+)
+
+add_custom_command(TARGET translations_update
+	COMMAND lconvert -locations relative ${CMAKE_CURRENT_LIST_DIR}/base.ts 
+	-o ${CMAKE_CURRENT_LIST_DIR}/messages.pot
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+	DEPENDS ${FILES_TO_TRANSLATE}
+)
+
 
 ## Handle language
 foreach(POFILE ${PO_TRANSLATION_FILES})
-	string(REGEX REPLACE "\\.po\$" "" LANG "${POFILE}")
+	file(RELATIVE_PATH RELFILE "${PROJECT_SOURCE_DIR}" "${POFILE}")
+	string(REGEX REPLACE "\\.po\$" "" LANG "${RELFILE}")
 
 	# Gettext lang updater
 	add_custom_command(TARGET translations_update
 		COMMAND msgmerge --lang=${LANG}
 		${POFILE} ${CMAKE_CURRENT_LIST_DIR}/messages.pot
+		--force-po
 		-o ${POFILE}.new
+		-D ${PROJECT_SOURCE_DIR}
 		COMMAND mv ${POFILE}.new ${POFILE}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 		DEPENDS ${CMAKE_CURRENT_LIST_DIR}/messages.pot
 	)
 
