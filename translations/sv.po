@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-29 19:31-0400\n"
-"PO-Revision-Date: 2014-08-30 14:13-0400\n"
+"PO-Revision-Date: 2014-08-30 14:23-0400\n"
 "Last-Translator: Jan Dalheimer <jan@dalheimer.de>\n"
 "Language-Team: Swedish "
 "<http://weblate.robotbrain.info/projects/multimc/multimc/sv/>\n"
@@ -631,43 +631,44 @@ msgstr ""
 
 #: gui/pages/global/ExternalToolsPage.cpp:200
 msgid "MCEdit setup seems to be OK"
-msgstr ""
+msgstr "MCEdit inställningarna verkar vara okej"
 
 #: gui/pages/global/ExternalToolsPage.cpp:207
 msgid "JSON Editor"
-msgstr ""
+msgstr "JSON Redigerare"
 
 #: gui/pages/global/ExternalToolsPage.cpp:229
 msgid "Invalid"
-msgstr ""
+msgstr "Ogiltig"
 
 #: gui/pages/global/ExternalToolsPage.cpp:230
 msgid "The file chosen does not seem to be an executable"
-msgstr ""
+msgstr "Den valda filen verkar inte vara ett program"
 
 #: gui/pages/global/ExternalToolsPage.h:36
 msgid "External Tools"
-msgstr ""
+msgstr "Externa Verktyg"
 
 #: gui/pages/global/JavaPage.h:41
 msgid "Java"
-msgstr ""
+msgstr "Java"
 
 #: gui/pages/global/MinecraftPage.h:41
+#, fuzzy
 msgid "Minecraft"
-msgstr ""
+msgstr "Minecraft"
 
 #: gui/pages/global/MultiMCPage.cpp:91
 msgid "FTB Launcher Directory"
-msgstr ""
+msgstr "FTB Launcher Mapp"
 
 #: gui/pages/global/MultiMCPage.cpp:104
 msgid "FTB Directory"
-msgstr ""
+msgstr "FTB Mapp"
 
 #: gui/pages/global/MultiMCPage.cpp:116
 msgid "Instance Directory"
-msgstr ""
+msgstr "Instans Mapp"
 
 #: gui/pages/global/MultiMCPage.cpp:126
 msgid ""
@@ -675,143 +676,149 @@ msgid ""
 "one '!'. Java is known to cause problems if that is the case, your instances "
 "(probably) won't start!"
 msgstr ""
+"Du håller på att välja en instans mapp vilkens adress innehåller minst ett "
+"'!'. Java är känt för att ha problem med detta, och dina instanser kommer "
+"(troligen) inte att starta!"
 
 #: gui/pages/global/MultiMCPage.cpp:131
 msgid ""
 "Do you really want to use this path? Selecting \"No\" will close this and "
 "not alter your instance path."
 msgstr ""
+"Vill du verkligen använda denna adress? Om du väljer \"Nej\" kommer denna "
+"dialog att stängas och inte ändra din instans adress."
 
 #: gui/pages/global/MultiMCPage.cpp:149
 msgid "Icons Directory"
-msgstr ""
+msgstr "Ikon Mapp"
 
 #: gui/pages/global/MultiMCPage.cpp:167
 msgid "Mods Directory"
-msgstr ""
+msgstr "Mods Mapp"
 
 #: gui/pages/global/MultiMCPage.cpp:179
 msgid "LWJGL Directory"
-msgstr ""
+msgstr "LWJGL Mapp"
 
 #: gui/pages/global/MultiMCPage.cpp:339
 msgid "English"
-msgstr ""
+msgstr "Engelska"
 
 #: gui/pages/global/ProxyPage.h:39
 msgid "Proxy"
-msgstr ""
+msgstr "Proxy"
 
 #: gui/dialogs/quickmod/QuickModAddFileDialog.cpp:146
 msgid "Add QuickMod File"
-msgstr ""
+msgstr "Lägg till QuickMod-fil"
 
 #: gui/dialogs/quickmod/QuickModAddFileDialog.cpp:147
 msgid "QuickMod files (*.quickmod *.json)"
-msgstr ""
+msgstr "QuickMod filer (*.quickmod *.json)"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.h:100
 msgid "N/A"
-msgstr ""
+msgstr "Ej tillgänglig"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:148
 msgid "Download waiting"
-msgstr ""
+msgstr "Nedladdning köad"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:201
 msgid "Open website"
-msgstr ""
+msgstr "Öppna hemsida"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:202
 msgid "Copy download link"
-msgstr ""
+msgstr "Kopiera nedladdningslänk"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:203
 msgid "Copy donation link"
-msgstr ""
+msgstr "Kopiera donationslänk"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:284
 msgid "Failed to download QuickMod dependencies."
-msgstr ""
+msgstr "Ett fel uppstod vid nedladdning av påberodda QuickMods."
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:382
 msgid "Choose QuickMod version for %1"
-msgstr ""
+msgstr "Välj QuickMod version för %1"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:416
 msgid "Success: Already installed"
-msgstr ""
+msgstr "Lyckades: Redan installerad"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:425
 msgid "Success: Installed from cache"
-msgstr ""
+msgstr "Lyckades: Installerad från mellanlagring"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:432
 msgid "Error: No download URLs"
-msgstr ""
+msgstr "Fel: Inga nedladdnings URLer"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:447
 msgid "Selecting URL..."
-msgstr ""
+msgstr "Välj en URL..."
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:496
 msgid "Checking Maven repositories"
-msgstr ""
+msgstr "Kontrollerar Maven-repositories"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:502
 msgid "Couldn't find a Maven repository"
-msgstr ""
+msgstr "Kunde inte hitta ett Maven-repository"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:535
 msgid "Waiting on web page."
-msgstr ""
+msgstr "Väntar på hemsida."
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:641
 msgid "Installing"
-msgstr ""
+msgstr "Installerar"
 
 #: gui/dialogs/quickmod/QuickModInstallDialog.cpp:658
 msgid "Success: Downloaded and installed successfully."
-msgstr ""
+msgstr "Lyckades: Nedladdning och installation lyckades."
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:217
 msgid "Author"
-msgstr ""
+msgstr "Författare"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:227
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:228
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:227
 #: logic/minecraft/InstanceVersion.cpp:345
 msgid "Name"
-msgstr ""
+msgstr "Namn"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:228
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:310
 msgid "Select QuickMod File"
-msgstr ""
+msgstr "Välj QuickMod-fil"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:312
 msgid ""
 "QuickMod files (*.quickmod *.qm);;JSON files (*.js *.json);;All Files (*)"
 msgstr ""
+"QuickMod filer (*.quickmod *.qm);;JSON filer (*.js *.json);;Alla filer (*)"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:344
 msgid "Download"
-msgstr ""
+msgstr "Nedladdning"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:345
 msgid "Upload"
-msgstr ""
+msgstr "Uppladdning"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:353
 msgid "Open"
-msgstr ""
+msgstr "Öppna"
 
 #: gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp:354
 msgid "Save"
