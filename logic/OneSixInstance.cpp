@@ -21,6 +21,7 @@
 
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModSettings.h"
 #include "logic/quickmod/tasks/QuickModDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModLiteLoaderDownloadTask.h"
@@ -295,7 +296,6 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr session, QString &launchScr
 	if (!version->quickmods.isEmpty())
 	{
 		QStringList mods;
-		auto list = MMC->quickmodslist().get();
 		for (auto it = version->quickmods.begin(); it != version->quickmods.end(); ++it)
 		{
 			const auto modVersion = it.value().first.findVersion();
@@ -305,11 +305,11 @@ bool OneSixInstance::prepareForLaunch(AuthSessionPtr session, QString &launchScr
 			}
 			if (modVersion->installType == QuickModVersion::ForgeMod)
 			{
-				mods.prepend("mods " + list->existingModFile(modVersion->mod, modVersion));
+				mods.prepend("mods " + MMC->quickmodSettings()->existingModFile(modVersion->mod, modVersion));
 			}
 			else if (modVersion->installType == QuickModVersion::LiteLoaderMod)
 			{
-				mods.prepend("litemods " + list->existingModFile(modVersion->mod, modVersion));
+				mods.prepend("litemods " + MMC->quickmodSettings()->existingModFile(modVersion->mod, modVersion));
 			}
 		}
 		if (!mods.isEmpty())
@@ -647,12 +647,12 @@ void OneSixInstance::removeQuickMods(const QList<QuickModRef> &uids)
 	// remove deployed files
 	for (const auto uid : uids)
 	{
-		const QStringList filenames = MMC->quickmodslist()->installedModFiles(uid, this).values();
+		const QStringList filenames = MMC->quickmodSettings()->installedModFiles(uid, this).values();
 		for (const auto filename : filenames)
 		{
 			if (QFile::remove(filename))
 			{
-				MMC->quickmodslist()->markModAsUninstalled(uid, QuickModVersionRef(), getSharedPtr());
+				MMC->quickmodSettings()->markModAsUninstalled(uid, QuickModVersionRef(), getSharedPtr());
 			}
 			else
 			{

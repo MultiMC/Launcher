@@ -6,29 +6,130 @@
 #include <QVariant>
 
 #include "logic/settings/SettingsObject.h"
+#include "logic/settings/Setting.h"
 #include "QuickModRef.h"
 #include "QuickMod.h"
+#include "QuickModsList.h"
+#include "QuickModSettings.h"
+#include "MultiMC.h"
 
-QuickModIndexList::QuickModIndexList() {}
+QuickModIndexList::QuickModIndexList(QObject *parent) : QAbstractItemModel(parent)
+{
+	connect(MMC->quickmodSettings()->settings()->getSetting("Indices").get(), &Setting::SettingChanged,
+	[this](const Setting &, QVariant)
+	{
+		reload();
+	});
+
+	QMetaObject::invokeMethod(this, "reload", Qt::QueuedConnection); // to prevent infinite loops
+}
+
+int QuickModIndexList::rowCount(const QModelIndex &parent) const
+{
+	if (parent.isValid())
+	{
+		return m_repos.size();
+	}
+	else
+	{
+		return m_repos.at(parent.row()).mods.size();
+	}
+}
+int QuickModIndexList::columnCount(const QModelIndex &parent) const
+{
+	return 2;
+}
+
+QVariant QuickModIndexList::data(const QModelIndex &index, int role) const
+{
+	if (index.parent().isValid())
+	{
+		const Repo repo = m_repos.at(index.row());
+		if (role == Qt::DisplayRole)
+		{
+			switch (index.column())
+			{
+			case 0:
+				return repo.name;
+			case 1:
+				return repo.url;
+			}
+		}
+	}
+	else
+	{
+		const Repo repo = m_repos.at(index.parent().row());
+		const QuickModPtr qm = repo.mods.at(index.row());
+		if (role == Qt::DisplayRole)
+		{
+			switch (index.column())
+			{
+			case 0:
+				return qm->name();
+			case 1:
+				return qm->uid().toString();
+			}
+		}
+		else if (role == Qt::UserRole)
+		{
+			return qm->internalUid();
+		}
+	}
+	return QVariant();
+}
+QVariant QuickModIndexList::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+	{
+		switch (section)
+		{
+		case 0:
+			return tr("Name");
+		case 1:
+			return tr("UID");
+		}
+	}
+	return QVariant();
+}
+Qt::ItemFlags QuickModIndexList::flags(const QModelIndex &index) const
+{
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+QModelIndex QuickModIndexList::index(int row, int column, const QModelIndex &parent) const
+{
+	return createIndex(row, column, parent.isValid() ? parent.row() : -1);
+}
+QModelIndex QuickModIndexList::parent(const QModelIndex &child) const
+{
+	if (child.internalId() == (quintptr)-1)
+	{
+		return createIndex(0, 0);
+	}
+	else
+	{
+		return createIndex(child.internalId(), 0);
+	}
+}
 
 void QuickModIndexList::setRepositoryIndexUrl(const QString &repository, const QUrl &url)
 {
-	QMap<QString, QVariant> map = settings()->get("Indices").toMap();
+	QMap<QString, QVariant> map = MMC->quickmodSettings()->settings()->get("Indices").toMap();
 	map[repository] = url.toString(QUrl::FullyEncoded);
-	settings()->set("Indices", map);
+	MMC->quickmodSettings()->settings()->set("Indices", map);
 }
 QUrl QuickModIndexList::repositoryIndexUrl(const QString &repository) const
 {
-	return QUrl(settings()->get("Indices").toMap()[repository].toString(), QUrl::StrictMode);
+	return QUrl(MMC->quickmodSettings()->settings()->get("Indices").toMap()[repository].toString(), QUrl::StrictMode);
 }
 bool QuickModIndexList::haveRepositoryIndexUrl(const QString &repository) const
 {
-	return settings()->get("Indices").toMap().contains(repository);
+	return MMC->quickmodSettings()->settings()->get("Indices").toMap().contains(repository);
 }
 QList<QUrl> QuickModIndexList::indices() const
 {
 	QList<QUrl> out;
-	const auto map = settings()->get("Indices").toMap();
+	const auto map = MMC->quickmodSettings()->settings()->get("Indices").toMap();
 	for (const auto value : map.values())
 	{
 		out.append(QUrl(value.toString(), QUrl::StrictMode));
@@ -38,7 +139,7 @@ QList<QUrl> QuickModIndexList::indices() const
 
 bool QuickModIndexList::haveUid(const QuickModRef &uid, const QString &repo) const
 {
-	const auto mods = quickmods();
+	const auto mods = MMC->quickmodslist()->quickmods();
 	for (auto mod : mods)
 	{
 		if (mod->uid() == uid && mod->repo() == repo)
@@ -47,4 +148,26 @@ bool QuickModIndexList::haveUid(const QuickModRef &uid, const QString &repo) con
 		}
 	}
 	return false;
+}
+
+void QuickModIndexList::reload()
+{
+
+	QMap<QString, Repo> repos;
+	const auto indices = MMC->quickmodSettings()->settings()->get("Indices").toMap();
+	for (auto it = indices.constBegin(); it != indices.constEnd(); ++it)
+	{
+		repos.insert(it.key(), Repo(it.key(), it.value().toString()));
+	}
+	for (const auto mod : MMC->quickmodslist()->quickmods())
+	{
+		if (!repos.contains(mod->repo()))
+		{
+			repos.insert(mod->repo(), Repo(mod->repo()));
+		}
+		repos[mod->repo()].mods.append(mod);
+	}
+	beginResetModel();
+	m_repos = repos.values();
+	endResetModel();
 }

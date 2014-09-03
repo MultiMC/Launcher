@@ -38,6 +38,7 @@
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
+#include "logic/quickmod/QuickModSettings.h"
 #include "logic/quickmod/tasks/QuickModDependencyDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModMavenFindTask.h"
 #include "logic/quickmod/QuickModDependencyResolver.h"
@@ -409,7 +410,7 @@ void QuickModInstallDialog::processVersionList()
 		// Add a progress list entry for each download
 		addProgressListEntry(version);
 
-		if (MMC->quickmodslist()->isModMarkedAsInstalled(version->mod->uid(),
+		if (MMC->quickmodSettings()->isModMarkedAsInstalled(version->mod->uid(),
 														 QuickModVersionRef(), m_instance))
 		{
 			QLOG_INFO() << version->mod->uid() << " is already installed";
@@ -418,7 +419,7 @@ void QuickModInstallDialog::processVersionList()
 			continue;
 		}
 
-		if (MMC->quickmodslist()->isModMarkedAsExists(version->mod, version))
+		if (MMC->quickmodSettings()->isModMarkedAsExists(version->mod, version))
 		{
 			QLOG_INFO() << version->mod->uid() << "exists already. Only installing.";
 			install(version);

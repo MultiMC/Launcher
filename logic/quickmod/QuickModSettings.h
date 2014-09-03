@@ -29,6 +29,9 @@ typedef std::shared_ptr<class BaseInstance> InstancePtr;
 class QuickModSettings
 {
 public:
+	explicit QuickModSettings();
+	~QuickModSettings();
+
 	void markModAsExists(QuickModPtr mod, const QuickModVersionRef &version,
 						 const QString &fileName);
 	void markModAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
@@ -42,8 +45,11 @@ public:
 														BaseInstance *instance) const;
 	QString existingModFile(QuickModPtr mod, const QuickModVersionRef &version) const;
 
-protected:
-	explicit QuickModSettings();
+	SettingsObject *settings() const
+	{
+		return m_settings;
+	}
 
-	virtual SettingsObject *settings() const = 0;
+private:
+	SettingsObject *m_settings;
 };

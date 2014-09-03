@@ -18,6 +18,7 @@
 #include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/forge/ForgeVersionList.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModSettings.h"
 #include "logic/quickmod/QuickModUpdateMonitor.h"
 #include "logic/liteloader/LiteLoaderVersionList.h"
 #include "logic/LwjglVersionList.h"
@@ -718,6 +719,15 @@ std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
 		m_quickmodslist.reset(new QuickModsList());
 	}
 	return m_quickmodslist;
+}
+
+std::shared_ptr<QuickModSettings> MultiMC::quickmodSettings()
+{
+	if (!m_quickmodSettings)
+	{
+		m_quickmodSettings.reset(new QuickModSettings());
+	}
+	return m_quickmodSettings;
 }
 
 std::shared_ptr<URNResolver> MultiMC::resolver()

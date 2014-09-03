@@ -17,6 +17,7 @@
 
 #include "MultiMC.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModSettings.h"
 #include "logic/quickmod/QuickModLibraryInstaller.h"
 #include "logic/quickmod/QuickModDependencyResolver.h"
 #include "modutils.h"
@@ -351,7 +352,7 @@ bool QuickModInstanceModListProxy::filterAcceptsRow(int source_row,
 			{
 				continue;
 			}
-			const QString existingFile = MMC->quickmodslist()->installedModFiles(
+			const QString existingFile = MMC->quickmodSettings()->installedModFiles(
 				mod->uid(), m_list->m_instance.get())[it.value()];
 			if (file == existingFile)
 			{

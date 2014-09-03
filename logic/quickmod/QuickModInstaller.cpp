@@ -21,9 +21,9 @@
 #include "logic/BaseInstance.h"
 #include "logic/OneSixInstance.h"
 #include "logic/quickmod/QuickModVersion.h"
-#include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModLibraryInstaller.h"
+#include "logic/quickmod/QuickModSettings.h"
 #include "MultiMC.h"
 #include "JlCompress.h"
 
@@ -73,7 +73,7 @@ static QString fileName(const QuickModVersionPtr &version, const QUrl &url)
 void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr instance)
 {
 	QMap<QuickModVersionRef, QString> otherVersions =
-		MMC->quickmodslist()->installedModFiles(version->mod->uid(), instance.get());
+		MMC->quickmodSettings()->installedModFiles(version->mod->uid(), instance.get());
 	for (auto it = otherVersions.begin(); it != otherVersions.end(); ++it)
 	{
 		if (!QFile::remove(it.value()))
@@ -81,11 +81,11 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 			QLOG_ERROR() << "Unable to remove previous version file" << it.value()
 						 << ", this may cause problems";
 		}
-		MMC->quickmodslist()->markModAsUninstalled(version->mod->uid(),
+		MMC->quickmodSettings()->markModAsUninstalled(version->mod->uid(),
 												   version, instance);
 	}
 
-	const QString file = MMC->quickmodslist()->existingModFile(version->mod, version);
+	const QString file = MMC->quickmodSettings()->existingModFile(version->mod, version);
 	QDir finalDir;
 	switch (version->installType)
 	{
@@ -149,7 +149,7 @@ void QuickModInstaller::install(const QuickModVersionPtr version, InstancePtr in
 		{
 			throw MMCError(tr("Error: Deploying %1 to %2").arg(file, dest));
 		}
-		MMC->quickmodslist()->markModAsInstalled(version->mod->uid(), version, dest, instance);
+		MMC->quickmodSettings()->markModAsInstalled(version->mod->uid(), version, dest, instance);
 	}
 
 	QuickModLibraryInstaller installer(version);
@@ -203,5 +203,5 @@ void QuickModInstaller::handleDownload(QuickModVersionPtr version, const QByteAr
 	file.write(data);
 	file.close();
 
-	MMC->quickmodslist()->markModAsExists(version->mod, version, file.fileName());
+	MMC->quickmodSettings()->markModAsExists(version->mod, version, file.fileName());
 }

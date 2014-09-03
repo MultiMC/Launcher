@@ -16,24 +16,37 @@
 #include "QuickModSettings.h"
 
 #include <QMap>
+#include <QDir>
 
-#include "logic/settings/SettingsObject.h"
+#include "logic/settings/INISettingsObject.h"
 #include "logic/settings/Setting.h"
 #include "QuickMod.h"
 #include "QuickModVersionRef.h"
 #include "QuickModRef.h"
 #include "logic/BaseInstance.h"
 
-QuickModSettings::QuickModSettings() {}
+QuickModSettings::QuickModSettings()
+	: m_settings(new INISettingsObject(QDir::current().absoluteFilePath("quickmod.cfg")))
+{
+	m_settings->registerSetting("AvailableMods",
+								QVariant::fromValue(QMap<QString, QMap<QString, QString>>()));
+	m_settings->registerSetting("TrustedWebsites", QVariantList());
+	m_settings->registerSetting("Indices", QVariantMap());
+}
+
+QuickModSettings::~QuickModSettings()
+{
+	delete m_settings;
+}
 
 void QuickModSettings::markModAsExists(QuickModPtr mod, const QuickModVersionRef &version,
 									   const QString &fileName)
 {
-	auto mods = settings()->get("AvailableMods").toMap();
+	auto mods = m_settings->get("AvailableMods").toMap();
 	auto map = mods[mod->internalUid()].toMap();
 	map[version.toString()] = fileName;
 	mods[mod->internalUid()] = map;
-	settings()->getSetting("AvailableMods")->set(QVariant(mods));
+	m_settings->getSetting("AvailableMods")->set(QVariant(mods));
 }
 
 void QuickModSettings::markModAsInstalled(const QuickModRef uid,
@@ -87,9 +100,9 @@ bool QuickModSettings::isModMarkedAsExists(QuickModPtr mod,
 {
 	if (!version.findVersion())
 	{
-		return settings()->get("AvailableMods").toMap().contains(mod->internalUid());
+		return m_settings->get("AvailableMods").toMap().contains(mod->internalUid());
 	}
-	auto mods = settings()->get("AvailableMods").toMap();
+	auto mods = m_settings->get("AvailableMods").toMap();
 	return mods.contains(mod->internalUid()) &&
 		   mods.value(mod->internalUid()).toMap().contains(version.toString());
 }
@@ -112,6 +125,6 @@ QString QuickModSettings::existingModFile(QuickModPtr mod,
 	{
 		return QString();
 	}
-	auto mods = settings()->get("AvailableMods").toMap();
+	auto mods = m_settings->get("AvailableMods").toMap();
 	return mods[mod->internalUid()].toMap()[version.toString()].toString();
 }

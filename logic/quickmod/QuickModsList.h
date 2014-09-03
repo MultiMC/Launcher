@@ -19,8 +19,6 @@
 
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/QuickMod.h"
-#include "logic/quickmod/QuickModIndexList.h"
-#include "logic/quickmod/QuickModSettings.h"
 #include "logic/BaseInstance.h"
 
 class QUrl;
@@ -29,7 +27,7 @@ class QuickModFilesUpdater;
 class Mod;
 class SettingsObject;
 
-class QuickModsList : public QAbstractListModel, public QuickModIndexList, public QuickModSettings
+class QuickModsList : public QAbstractListModel
 {
 	Q_OBJECT
 public:
@@ -96,6 +94,12 @@ public:
 
 	void releaseFromSandbox(QuickModPtr mod);
 
+	/// \internal
+	inline QList<QuickModPtr> quickmods() const
+	{
+		return m_mods;
+	}
+
 public slots:
 	void registerMod(const QString &fileName, bool sandbox);
 	void registerMod(const QUrl &url, bool sandbox);
@@ -127,18 +131,7 @@ private:
 	friend class QuickModFilesUpdater;
 	QuickModFilesUpdater *m_updater;
 
-	SettingsObject *m_settings;
-
 	QList<QuickModPtr> m_mods;
-
-	QList<QuickModPtr> quickmods() const override
-	{
-		return m_mods;
-	}
-	SettingsObject *settings() const override
-	{
-		return m_settings;
-	}
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QuickModsList::Flags)

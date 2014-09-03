@@ -19,6 +19,7 @@
 #include "logic/quickmod/QuickMod.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModSettings.h"
 #include "logic/quickmod/QuickModDependencyResolver.h"
 #include "logic/OneSixInstance.h"
 #include "MultiMC.h"
@@ -35,16 +36,15 @@ void QuickModDownloadTask::executeTask()
 
 	const QMap<QuickModRef, QPair<QuickModVersionRef, bool>> quickmods =
 		m_instance->getFullVersion()->quickmods;
-	auto list = MMC->quickmodslist();
 	QList<QuickModRef> mods;
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
 		const QuickModVersionRef version = it.value().first;
 		QuickModPtr mod = version.isValid() ? version.findMod()
-											: list->mods(it.key()).first();
+											: MMC->quickmodslist()->mods(it.key()).first();
 		QuickModVersionPtr ptr = version.findVersion();
-		if (!ptr || !list->isModMarkedAsExists(mod, version) || hasResolveError ||
-				(ptr->needsDeploy() && !list->isModMarkedAsInstalled(mod->uid(), version, m_instance)))
+		if (!ptr || !MMC->quickmodSettings()->isModMarkedAsExists(mod, version) || hasResolveError ||
+				(ptr->needsDeploy() && !MMC->quickmodSettings()->isModMarkedAsInstalled(mod->uid(), version, m_instance)))
 		{
 			mods.append(mod->uid());
 		}

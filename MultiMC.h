@@ -18,6 +18,7 @@ class ForgeVersionList;
 class LiteLoaderVersionList;
 class JavaVersionList;
 class QuickModsList;
+class QuickModSettings;
 class QuickModUpdateMonitor;
 class UpdateChecker;
 class NotificationChecker;
@@ -134,6 +135,7 @@ public:
 	}
 
 	std::shared_ptr<QuickModsList> quickmodslist();
+	std::shared_ptr<QuickModSettings> quickmodSettings();
 	std::shared_ptr<QuickModUpdateMonitor> quickmodUpdateMonitor()
 	{
 		return m_quickmodUpdateMonitor;
@@ -219,6 +221,7 @@ private:
 	std::shared_ptr<JavaVersionList> m_javalist;
 	std::shared_ptr<URNResolver> m_resolver;
 	std::shared_ptr<QuickModsList> m_quickmodslist;
+	std::shared_ptr<QuickModSettings> m_quickmodSettings;
 	std::shared_ptr<QuickModUpdateMonitor> m_quickmodUpdateMonitor;
 
 	QMap<QString, std::shared_ptr<BaseProfilerFactory>> m_profilers;

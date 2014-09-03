@@ -262,9 +262,7 @@ add_subdirectory(depends/util)
 include_directories(${LIBUTIL_INCLUDE_DIR})
 
 # Add the updater
-if(MultiMC_UPDATER)
-	add_subdirectory(mmc_updater)
-endif()
+add_subdirectory(mmc_updater)
 
 # Add the GUI -> Logic connection header
 add_subdirectory(depends/LogicalGui)

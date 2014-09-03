@@ -16,7 +16,8 @@
 #include <QTest>
 #include <QDir>
 
-#include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModSettings.h"
+#include "logic/quickmod/QuickModVersion.h"
 #include "logic/InstanceFactory.h"
 #include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/BaseInstance.h"
@@ -27,7 +28,7 @@ QDebug operator<<(QDebug dbg, const QuickModVersionRef &version)
 	return dbg << QString("QuickModVersionRef(%1)").arg(version.toString()).toUtf8().constData();
 }
 
-class QuickModsListTest : public QObject
+class QuickModSettingsTest : public QObject
 {
 	Q_OBJECT
 private
@@ -41,8 +42,14 @@ slots:
 
 		QDir current = QDir::current();
 		current.remove("quickmod.cfg");
-		QDir(current.absoluteFilePath("instances")).removeRecursively();
-		QDir(current.absoluteFilePath("quickmod")).removeRecursively();
+		if (current.exists("instances"))
+		{
+			QDir(current.absoluteFilePath("instances")).removeRecursively();
+		}
+		if (current.exists("quickmod"))
+		{
+			QDir(current.absoluteFilePath("quickmod")).removeRecursively();
+		}
 	}
 	void cleanupTestCase()
 	{
@@ -50,13 +57,19 @@ slots:
 
 		current.remove("quickmod.cfg");
 
-		current.cd("instances");
-		current.removeRecursively();
-		current.cdUp();
+		if (current.exists("instances"))
+		{
+			current.cd("instances");
+			current.removeRecursively();
+			current.cdUp();
+		}
 
-		current.cd("quickmod");
-		current.removeRecursively();
-		current.cdUp();
+		if (current.exists("quickmod"))
+		{
+			current.cd("quickmod");
+			current.removeRecursively();
+			current.cdUp();
+		}
 	}
 
 	QuickModVersionPtr createTestingVersion(QuickModPtr mod)
@@ -104,29 +117,29 @@ slots:
 		QFETCH(QVector<QString>, filenames);
 		Q_ASSERT(mods.size() == versions.size() && mods.size() == filenames.size());
 
-		QuickModsList *list = new QuickModsList(QuickModsList::DontCleanup);
+		QuickModSettings *settings = new QuickModSettings();
 
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			list->markModAsExists(mods[i], versions[i], filenames[i]);
+			settings->markModAsExists(mods[i], versions[i], filenames[i]);
 		}
 
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsExists(mods[i], versions[i]), true);
-			QCOMPARE(list->existingModFile(mods[i], versions[i]), filenames[i]);
+			QCOMPARE(settings->isModMarkedAsExists(mods[i], versions[i]), true);
+			QCOMPARE(settings->existingModFile(mods[i], versions[i]), filenames[i]);
 		}
 
-		delete list;
-		list = new QuickModsList(QuickModsList::DontCleanup);
+		delete settings;
+		settings = new QuickModSettings();
 
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsExists(mods[i], versions[i]), true);
-			QCOMPARE(list->existingModFile(mods[i], versions[i]), filenames[i]);
+			QCOMPARE(settings->isModMarkedAsExists(mods[i], versions[i]), true);
+			QCOMPARE(settings->existingModFile(mods[i], versions[i]), filenames[i]);
 		}
 
-		delete list;
+		delete settings;
 	}
 
 	void testMarkAsInstalledUninstalled_data()
@@ -162,60 +175,60 @@ slots:
 		QFETCH(QVector<QString>, filenames);
 		Q_ASSERT(mods.size() == versions.size() && mods.size() == filenames.size());
 
-		QuickModsList *list = new QuickModsList(QuickModsList::DontCleanup);
+		QuickModSettings *settings = new QuickModSettings();
 
 		// mark all as installed and check if it worked
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			list->markModAsInstalled(mods[i]->uid(), versions[i], filenames[i], instance);
+			settings->markModAsInstalled(mods[i]->uid(), versions[i], filenames[i], instance);
 		}
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], instance), true);
-			QCOMPARE(list->installedModFiles(mods[i]->uid(), instance.get())[versions[i]->version()], filenames[i]);
+			QCOMPARE(settings->isModMarkedAsInstalled(mods[i]->uid(), versions[i], instance), true);
+			QCOMPARE(settings->installedModFiles(mods[i]->uid(), instance.get())[versions[i]->version()], filenames[i]);
 		}
 
 		// reload
-		delete list;
-		list = new QuickModsList(QuickModsList::DontCleanup);
+		delete settings;
+		settings = new QuickModSettings();
 		InstancePtr newInstance;
 		InstanceFactory::get().loadInstance(newInstance, instance->instanceRoot());
 
 		// re-check after reloading
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), true);
-			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], filenames[i]);
+			QCOMPARE(settings->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), true);
+			QCOMPARE(settings->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], filenames[i]);
 		}
 
 		// "uninstall" all of them
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			list->markModAsUninstalled(mods[i]->uid(), versions[i], newInstance);
+			settings->markModAsUninstalled(mods[i]->uid(), versions[i], newInstance);
 		}
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), false);
-			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], QString());
+			QCOMPARE(settings->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), false);
+			QCOMPARE(settings->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], QString());
 		}
 
 		// reload again
-		delete list;
-		list = new QuickModsList(QuickModsList::DontCleanup);
+		delete settings;
+		settings = new QuickModSettings();
 		newInstance.reset();
 		InstanceFactory::get().loadInstance(newInstance, instance->instanceRoot());
 
 		// re-check after reloading
 		for (int i = 0; i < mods.size(); ++i)
 		{
-			QCOMPARE(list->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), false);
-			QCOMPARE(list->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], QString());
+			QCOMPARE(settings->isModMarkedAsInstalled(mods[i]->uid(), versions[i], newInstance), false);
+			QCOMPARE(settings->installedModFiles(mods[i]->uid(), newInstance.get())[versions[i]->version()], QString());
 		}
 
-		delete list;
+		delete settings;
 	}
 };
 
-QTEST_GUILESS_MAIN_MULTIMC(QuickModsListTest)
+QTEST_GUILESS_MAIN_MULTIMC(QuickModSettingsTest)
 
-#include "tst_QuickModsList.moc"
+#include "tst_QuickModSettings.moc"

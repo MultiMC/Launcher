@@ -25,6 +25,7 @@
 
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModIndexList.h"
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
 #include "logic/Mod.h"
@@ -35,7 +36,8 @@
 
 #include "logger/QsLog.h"
 
-QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list) : QObject(list), m_list(list)
+QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list)
+	: QObject(list), m_list(list), m_indexList(new QuickModIndexList(this))
 {
 	m_quickmodDir = QDir::current();
 	m_quickmodDir.mkdir("quickmod");
@@ -94,7 +96,7 @@ void QuickModFilesUpdater::update()
 			job->addNetAction(download);
 		}
 	}
-	for (const auto indexUrl : m_list->indices())
+	for (const auto indexUrl : m_indexList->indices())
 	{
 		auto download = ByteArrayDownload::make(Util::expandQMURL(indexUrl.toString(QUrl::FullyEncoded)));
 		download->m_followRedirects = true;
@@ -123,7 +125,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 				if (obj.contains("repo"))
 				{
 					repo = MMCJson::ensureString(obj.value("repo"));
-					m_list->setRepositoryIndexUrl(repo, download->m_url);
+					m_indexList->setRepositoryIndexUrl(repo, download->m_url);
 				}
 				const QJsonArray array = MMCJson::ensureArray(obj.value("index"));
 				for (auto it = array.begin(); it != array.end(); ++it)
@@ -132,7 +134,7 @@ void QuickModFilesUpdater::receivedMod(int notused)
 					const QString baseUrlString =
 							MMCJson::ensureString(obj.value("baseUrl"));
 					const QString uid = MMCJson::ensureString(itemObj.value("uid"));
-					if (!m_list->haveUid(QuickModRef(uid), repo))
+					if (!m_indexList->haveUid(QuickModRef(uid), repo))
 					{
 						const QString urlString =
 								MMCJson::ensureString(itemObj.value("url"));

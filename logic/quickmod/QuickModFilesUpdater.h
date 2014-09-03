@@ -22,6 +22,7 @@
 #include "logic/quickmod/QuickMod.h"
 
 class QuickModsList;
+class QuickModIndexList;
 class Mod;
 
 /**
@@ -57,6 +58,7 @@ slots:
 private:
 	QuickModsList *m_list;
 	QDir m_quickmodDir;
+	QuickModIndexList *m_indexList;
 
 	bool parseQuickMod(const QString &fileName, QuickModPtr mod);
 

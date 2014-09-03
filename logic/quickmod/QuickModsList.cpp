@@ -28,6 +28,7 @@
 #include "QuickModFilesUpdater.h"
 #include "QuickMod.h"
 #include "QuickModVersion.h"
+#include "QuickModSettings.h"
 #include "logic/Mod.h"
 #include "logic/BaseInstance.h"
 #include "logic/OneSixInstance.h"
@@ -39,15 +40,9 @@
 #include "logic/settings/INISettingsObject.h"
 
 QuickModsList::QuickModsList(const Flags flags, QObject *parent)
-	: QAbstractListModel(parent), QuickModIndexList(), QuickModSettings(),
-	  m_updater(new QuickModFilesUpdater(this)),
-	  m_settings(new INISettingsObject(QDir::current().absoluteFilePath("quickmod.cfg"), this))
+	: QAbstractListModel(parent),
+	  m_updater(new QuickModFilesUpdater(this))
 {
-	m_settings->registerSetting("AvailableMods",
-								QVariant::fromValue(QMap<QString, QMap<QString, QString>>()));
-	m_settings->registerSetting("TrustedWebsites", QVariantList());
-	m_settings->registerSetting("Indices", QVariantMap());
-
 	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
 	connect(m_updater, &QuickModFilesUpdater::addedSandboxedMod, this,
 			&QuickModsList::sandboxModAdded);
@@ -60,7 +55,6 @@ QuickModsList::QuickModsList(const Flags flags, QObject *parent)
 
 QuickModsList::~QuickModsList()
 {
-	delete m_settings;
 }
 
 int QuickModsList::getQMIndex(QuickModPtr mod) const
@@ -398,7 +392,7 @@ void QuickModsList::cleanup()
 {
 	// ensure that only mods that really exist on the local filesystem are marked as available
 	QDir dir;
-	auto mods = m_settings->get("AvailableMods").toMap();
+	auto mods = MMC->quickmodSettings()->settings()->get("AvailableMods").toMap();
 	QMutableMapIterator<QString, QVariant> modIt(mods);
 	while (modIt.hasNext())
 	{
@@ -417,7 +411,7 @@ void QuickModsList::cleanup()
 			modIt.remove();
 		}
 	}
-	m_settings->set("AvailableMods", mods);
+	MMC->quickmodSettings()->settings()->set("AvailableMods", mods);
 
 	m_updater->cleanupSandboxedFiles();
 }
