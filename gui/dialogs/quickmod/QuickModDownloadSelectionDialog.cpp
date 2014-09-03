@@ -35,8 +35,6 @@ QuickModDownloadSelectionDialog::QuickModDownloadSelectionDialog(
 		{
 		case QuickModDownload::Direct:
 			item->setText(0, tr("Direct"));
-		case QuickModDownload::Maven:
-			item->setText(0, tr("Direct (Maven)"));
 		case QuickModDownload::Sequential:
 			item->setText(0, tr("Sequential"));
 		case QuickModDownload::Parallel:
@@ -89,10 +87,6 @@ QuickModDownloadSelectionDialog::highestPriorityDownload(const QuickModVersionPt
 	{
 		switch (type)
 		{
-		case QuickModDownload::Direct:
-			return highestPriorityDownload(version, QuickModDownload::Maven);
-		case QuickModDownload::Maven:
-			return highestPriorityDownload(version);
 		case QuickModDownload::Sequential:
 			return highestPriorityDownload(version, QuickModDownload::Parallel);
 		case QuickModDownload::Parallel:

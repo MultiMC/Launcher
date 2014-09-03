@@ -110,11 +110,11 @@ void QuickModVersion::parse(const QJsonObject &object)
 			library.name = MMCJson::ensureString(libObj.value("name"), "library 'name'");
 			if (libObj.contains("url"))
 			{
-				library.url = MMCJson::ensureUrl(libObj.value("url"), "library url");
+				library.repo = MMCJson::ensureUrl(libObj.value("repo"), "library repo");
 			}
 			else
 			{
-				library.url = QUrl("http://repo1.maven.org/maven2/");
+				library.repo = QUrl("http://repo1.maven.org/maven2/");
 			}
 			libraries.append(library);
 		}
@@ -145,10 +145,6 @@ void QuickModVersion::parse(const QJsonObject &object)
 			else if (typeString == "encoded")
 			{
 				download.type = QuickModDownload::Encoded;
-			}
-			else if (typeString == "maven")
-			{
-				download.type = QuickModDownload::Maven;
 			}
 			else
 			{
@@ -264,9 +260,9 @@ QJsonObject QuickModVersion::Library::toJson() const
 {
 	QJsonObject obj;
 	obj.insert("name", name);
-	if (!url.isEmpty())
+	if (!repo.isEmpty())
 	{
-		obj.insert("url", url.toString(QUrl::FullyEncoded));
+		obj.insert("url", repo.toString(QUrl::FullyEncoded));
 	}
 	return obj;
 }

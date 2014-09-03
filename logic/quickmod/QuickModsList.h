@@ -53,7 +53,6 @@ public:
 		UpdateRole,
 		ReferencesRole,
 		DependentUrlsRole,
-		NemNameRole,
 		ModIdRole,
 		CategoriesRole,
 		MCVersionsRole,

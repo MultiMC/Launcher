@@ -86,8 +86,7 @@ void QuickModFilesUpdater::update()
 		auto url = m_list->modAt(i)->updateUrl();
 		if (url.isValid())
 		{
-			auto download =
-					ByteArrayDownload::make(Util::expandQMURL(url.toString(QUrl::FullyEncoded)));
+			auto download = ByteArrayDownload::make(url);
 			download->m_followRedirects = true;
 			connect(download.get(), &ByteArrayDownload::succeeded, this, &QuickModFilesUpdater::receivedMod);
 			connect(download.get(), &ByteArrayDownload::failed, this, &QuickModFilesUpdater::failedMod);
@@ -96,7 +95,7 @@ void QuickModFilesUpdater::update()
 	}
 	for (const auto indexUrl : m_list->indices())
 	{
-		auto download = ByteArrayDownload::make(Util::expandQMURL(indexUrl.toString(QUrl::FullyEncoded)));
+		auto download = ByteArrayDownload::make(indexUrl);
 		download->m_followRedirects = true;
 		connect(download.get(), &ByteArrayDownload::succeeded, this, &QuickModFilesUpdater::receivedMod);
 		connect(download.get(), &ByteArrayDownload::failed, this, &QuickModFilesUpdater::failedMod);
@@ -143,8 +142,8 @@ void QuickModFilesUpdater::receivedMod(int notused)
 						}
 						else
 						{
-							url = Util::expandQMURL(baseUrlString)
-									.resolved(Util::expandQMURL(urlString));
+							url = QUrl(baseUrlString)
+									.resolved(QUrl(urlString));
 						}
 						registerFile(url, false);
 					}

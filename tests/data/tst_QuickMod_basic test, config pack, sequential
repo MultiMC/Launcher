@@ -2,7 +2,6 @@
 	"formatVersion": 1,
     "name": "testmodname",
     "description": "test mod description\nsome more",
-    "nemName": "nemname",
     "uid": "this.should.be.unique",
 	"repo": "some.testing.repo",
     "modId": "modid",

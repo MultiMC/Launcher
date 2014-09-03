@@ -29,7 +29,6 @@ struct TestsInternal
 			mod->m_uid = QuickModRef(name);
 			mod->m_repo = "test_repo";
 			mod->m_name = name;
-			mod->m_nemName = name;
 			mod->m_modId = name;
 			mod->m_description = name + " description";
 			mod->m_updateUrl = "http://localhost/quickmod/" + name + ".json";

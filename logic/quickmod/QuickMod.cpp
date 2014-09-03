@@ -160,7 +160,6 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	m_repo = MMCJson::ensureString(mod.value("repo"), "'repo'");
 	m_name = MMCJson::ensureString(mod.value("name"), "'name'");
 	m_description = mod.value("description").toString();
-	m_nemName = mod.value("nemName").toString();
 	m_modId = mod.value("modId").toString();
 	m_license = mod.value("license").toString();
 
@@ -183,8 +182,7 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 			QList<QUrl> urlList;
 			for (auto listItem : list)
 			{
-				urlList.append(Util::expandQMURL(
-					MMCJson::ensureString(listItem, "url item")));
+				urlList.append(QUrl(MMCJson::ensureString(listItem, "url item")));
 			}
 			m_urls[it.key()] = urlList;
 		}
@@ -194,7 +192,7 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	const QJsonObject references = mod.value("references").toObject();
 	for (auto key : references.keys())
 	{
-		m_references.insert(QuickModRef(key), Util::expandQMURL(MMCJson::ensureString(
+		m_references.insert(QuickModRef(key), QUrl(MMCJson::ensureString(
 												  references[key], "'reference'")));
 	}
 
@@ -210,14 +208,7 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 		m_tags.append(MMCJson::ensureString(val, "'tag'"));
 	}
 
-	m_mavenRepos.clear();
-	for (auto val : mod.value("mavenRepos").toArray())
-	{
-		m_mavenRepos.append(MMCJson::ensureUrl(val, "maven repository"));
-	}
-
-	m_updateUrl =
-		Util::expandQMURL(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
+	m_updateUrl = QUrl(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
 
 	m_versions.clear();
 	for (auto val : MMCJson::ensureArray(mod.value("versions"), "'versions'"))
@@ -249,7 +240,6 @@ QByteArray QuickMod::toJson() const
 	obj.insert("repo", m_repo);
 	obj.insert("name", m_name);
 	obj.insert("updateUrl", m_updateUrl.toString(QUrl::FullyEncoded));
-	writeString(obj, "nemName", m_nemName);
 	writeString(obj, "modId", m_modId);
 	writeString(obj, "description", m_description);
 	writeString(obj, "license", m_license);
@@ -277,15 +267,6 @@ QByteArray QuickMod::toJson() const
 			urls.insert(it.key(), array);
 		}
 		obj.insert("urls", urls);
-	}
-	if (!m_mavenRepos.isEmpty())
-	{
-		QJsonArray array;
-		for (const auto repo : m_mavenRepos)
-		{
-			array.append(repo.toString(QUrl::FullyEncoded));
-		}
-		obj.insert("mavenRepos", array);
 	}
 	writeObjectList(obj, "versions", m_versions);
 	return QJsonDocument(obj).toJson();

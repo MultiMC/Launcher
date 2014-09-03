@@ -55,12 +55,6 @@ public:
 		return *this;
 	}
 
-	QuickModBuilder setNemName(const QString &nemName)
-	{
-		m_mod->m_nemName = nemName;
-		return *this;
-	}
-
 	QuickModBuilder setModId(const QString &modid)
 	{
 		m_mod->m_modId = modid;
@@ -82,12 +76,6 @@ public:
 	QuickModBuilder setCategories(const QStringList &categories)
 	{
 		m_mod->m_categories = categories;
-		return *this;
-	}
-
-	QuickModBuilder setMavenUrls(const QList<QUrl> &urls)
-	{
-		m_mod->m_mavenRepos = urls;
 		return *this;
 	}
 

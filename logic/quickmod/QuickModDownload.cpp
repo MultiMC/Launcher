@@ -18,8 +18,6 @@ QJsonObject QuickModDownload::toJson() const
 		obj.insert("downloadType", QStringLiteral("sequential"));
 	case Encoded:
 		obj.insert("downloadType", QStringLiteral("encoded"));
-	case Maven:
-		obj.insert("downloadType", QStringLiteral("maven"));
 	}
 	return obj;
 }

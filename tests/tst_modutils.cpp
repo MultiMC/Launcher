@@ -146,41 +146,6 @@ private slots:
 
 		QCOMPARE(v1 == v2, equal);
 	}
-
-	void test_expandQMURL_data()
-	{
-		QTest::addColumn<QString>("in");
-		QTest::addColumn<QString>("out");
-
-		QTest::newRow("github, default branch, root dir")
-				<< "github://MultiMC@MultiMC5/CMakeLists.txt"
-				<< "https://raw.github.com/MultiMC/MultiMC5/master/CMakeLists.txt";
-		QTest::newRow("github, default branch, not root")
-				<< "github://02JanDal@QuickModDoc/_layout/index.html"
-				<< "https://raw.github.com/02JanDal/QuickModDoc/master/_layout/index.html";
-		QTest::newRow("github, develop branch, root dir")
-				<< "github://MultiMC@MultiMC5/CMakeLists.txt#develop"
-				<< "https://raw.github.com/MultiMC/MultiMC5/develop/CMakeLists.txt";
-		QTest::newRow("github, develop branch, not root")
-				<< "github://02JanDal@QuickModDoc/_layout/index.html#gh-pages"
-				<< "https://raw.github.com/02JanDal/QuickModDoc/gh-pages/_layout/index.html";
-
-		QTest::newRow("mcf")
-				<< "mcf:123456"
-				<< "http://www.minecraftforum.net/topic/123456-";
-
-		QTest::newRow("curse")
-				<< "curse:buildcraft"
-				<< "http://www.curse.com/mc-mods/minecraft/buildcraft";
-	}
-	void test_expandQMURL()
-	{
-		QFETCH(QString, in);
-		QFETCH(QString, out);
-		QUrl outUrl(out);
-
-		QCOMPARE(Util::expandQMURL(in), outUrl);
-	}
 };
 
 QTEST_GUILESS_MAIN(ModUtilsTest)

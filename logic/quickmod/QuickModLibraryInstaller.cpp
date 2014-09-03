@@ -41,15 +41,8 @@ bool QuickModLibraryInstaller::add(OneSixInstance *to)
 	{
 		QJsonObject libObj;
 		libObj.insert("name", lib.name);
-		const QString urlString = lib.url.toString(QUrl::FullyEncoded);
-		if (urlString.endsWith('/'))
-		{
-			libObj.insert("url", urlString);
-		}
-		else
-		{
-			libObj.insert("MMC-absoluteUrl", urlString);
-		}
+		const QString urlString = lib.repo.toString(QUrl::FullyEncoded);
+		libObj.insert("url", urlString);
 		libObj.insert("insert", QString("prepend"));
 		libObj.insert("MMC-depend", QString("soft"));
 		libObj.insert("MMC-hint", QString("recurse"));

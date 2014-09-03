@@ -309,8 +309,6 @@ int QuickModInstallDialog::exec()
 
 	runDirectDownloads();
 
-	runMavenDownloads();
-
 	// Initialize the web mods progress bar.
 	ui->webModsProgressBar->setMaximum(m_modVersions.size());
 	ui->webModsProgressBar->setValue(0);
@@ -477,38 +475,6 @@ void QuickModInstallDialog::runDirectDownloads()
 		{
 			QLOG_DEBUG() << "Direct download used for" << download.url;
 			processReply(MMC->qnam()->get(QNetworkRequest(QUrl(download.url))), version);
-			it.remove();
-		}
-	}
-}
-
-void QuickModInstallDialog::runMavenDownloads()
-{
-	// do all of the maven downloads
-	QMutableListIterator<QuickModVersionPtr> it(m_modVersions);
-	while (it.hasNext())
-	{
-		QuickModVersionPtr version = it.next();
-		QuickModDownload download = m_selectedDownloadUrls[version];
-		if (download.type == QuickModDownload::Maven)
-		{
-			QLOG_DEBUG() << "Checking Maven repositories for " << download.url;
-			setProgressListMsg(version, tr("Checking Maven repositories"));
-			QuickModMavenFindTask *task =
-				new QuickModMavenFindTask(version->mod->mavenRepos(), download.url);
-			connect(task, &QuickModMavenFindTask::failed, [this, version, download]()
-					{
-				QLOG_ERROR() << "Couldn't find a maven download for" << download.url;
-				setProgressListMsg(version, tr("Couldn't find a Maven repository"), Qt::red);
-			});
-			connect(task, &QuickModMavenFindTask::succeeded, [this, version, download, task]()
-					{
-				QLOG_DEBUG() << "Found Maven download for" << download.url << "at"
-							 << task->url().toString();
-				processReply(MMC->qnam()->get(QNetworkRequest(task->url())), version);
-			});
-			m_mavenFindTasks.append(task);
-			task->start();
 			it.remove();
 		}
 	}

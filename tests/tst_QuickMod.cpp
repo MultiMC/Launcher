@@ -49,7 +49,6 @@ private slots:
 		mod->m_updateUrl = QUrl("http://test.com/testmodname.json");
 		mod->m_references = {{QuickModRef("OtherName"),QUrl("http://other.com/othername.json")}, {QuickModRef("Other2Name"),QUrl("https://other2.com/other2name.json")},
 							 {QuickModRef("stuff"),QUrl("https://stuff.org/stuff.json")}, {QuickModRef("TheWikipediaMod"),QUrl("ftp://wikipedia.org/thewikipediamod.quickmod")}};
-		mod->m_nemName = "nemname";
 		mod->m_modId = "modid";
 		mod->m_categories << "cat" << "grep" << "ls" << "cp";
 		mod->m_tags << "tag" << "tictactoe";
@@ -129,7 +128,6 @@ private slots:
 		QCOMPARE(parsed->logoUrl(), mod->logoUrl());
 		QCOMPARE(parsed->m_updateUrl, mod->m_updateUrl);
 		QCOMPARE(parsed->m_references, mod->m_references);
-		QCOMPARE(parsed->m_nemName, mod->m_nemName);
 		QCOMPARE(parsed->m_modId, mod->m_modId);
 		QCOMPARE(parsed->m_categories, mod->m_categories);
 		QCOMPARE(parsed->m_tags, mod->m_tags);

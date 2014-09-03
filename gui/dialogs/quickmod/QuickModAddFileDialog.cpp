@@ -118,7 +118,7 @@ void QuickModAddFileDialog::run(QWidget *parent)
 		}
 		else
 		{
-			MMC->quickmodslist()->registerMod(Util::expandQMURL(dialog.ui->urlEdit->text()), false);
+			MMC->quickmodslist()->registerMod(QUrl(dialog.ui->urlEdit->text()), false);
 		}
 	}
 }
