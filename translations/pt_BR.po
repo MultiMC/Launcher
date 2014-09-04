@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-08-29 19:31-0400\n"
-"PO-Revision-Date: 2014-09-03 05:18-0400\n"
+"PO-Revision-Date: 2014-09-04 17:13-0400\n"
 "Last-Translator: J Felipe Araujo <j.felipe.araujo@outlook.com>\n"
 "Language-Team: Portuguese (Brazil) "
 "<http://weblate.robotbrain.info/projects/multimc/multimc/pt_BR/>\n"
@@ -1460,35 +1460,30 @@ msgid "Use as default for this instance only?"
 msgstr "Usar a padrão para esta instância?"
 
 #: ../logic/assets/AssetsMigrateTask.cpp:19
-#, fuzzy
 msgctxt "AssetsMigrateTask|"
 msgid "Migrating legacy assets..."
 msgstr "Migrando arquivos..."
 
 #: ../logic/auth/flows/AuthenticateTask.cpp:86
-#, fuzzy
 msgctxt "AuthenticateTask|"
 msgid "Authentication server didn't send a client token."
-msgstr "O server de autenticação não enviou um token do cliente."
+msgstr "O servidor de autenticação não enviou a ficha do cliente."
 
 #: ../logic/auth/flows/AuthenticateTask.cpp:91
-#, fuzzy
 msgctxt "AuthenticateTask|"
 msgid ""
 "Authentication server attempted to change the client token. This isn't "
 "supported."
 msgstr ""
-"Servidor de autenticação tentou mudar o token do cliente. Isto não é "
+"Servidor de autenticação tentou mudar a ficha do cliente. Isto não é "
 "suportado."
 
 #: ../logic/auth/flows/AuthenticateTask.cpp:103
-#, fuzzy
 msgctxt "AuthenticateTask|"
 msgid "Authentication server didn't send an access token."
-msgstr "O server de autenticação não enviou um token de acesso."
+msgstr "O server de autenticação não enviou a ficha de acesso."
 
 #: ../logic/auth/flows/AuthenticateTask.cpp:148
-#, fuzzy
 msgctxt "AuthenticateTask|"
 msgid ""
 "Authentication server didn't specify a currently selected profile. The "
@@ -1498,7 +1493,6 @@ msgstr ""
 "existe, mas provavelmente não é premium."
 
 #: ../logic/auth/flows/AuthenticateTask.cpp:153
-#, fuzzy
 msgctxt "AuthenticateTask|"
 msgid ""
 "Authentication server specified a selected profile that wasn't in the "
@@ -1508,37 +1502,31 @@ msgstr ""
 "lista de perfis disponíveis."
 
 #: ../logic/auth/flows/AuthenticateTask.cpp:190
-#, fuzzy
 msgctxt "AuthenticateTask|"
 msgid "Authenticating: Sending request..."
 msgstr "Autenticando: Enviando pedido..."
 
 #: ../logic/auth/flows/AuthenticateTask.cpp:192
-#, fuzzy
 msgctxt "AuthenticateTask|"
 msgid "Authenticating: Processing response..."
 msgstr "Autenticando: Processando resposta..."
 
 #: ../logic/tools/BaseExternalTool.cpp:48
-#, fuzzy
 msgctxt "BaseExternalTool|"
 msgid "MCEdit"
 msgstr "MCEdit"
 
 #: ../logic/tools/BaseExternalTool.cpp:48
-#, fuzzy
 msgctxt "BaseExternalTool|"
 msgid "Choose which world to open:"
 msgstr "Escolha um mundo para abrir:"
 
 #: ../logic/tools/BaseProfiler.cpp:29
-#, fuzzy
 msgctxt "BaseProfiler|"
 msgid "Profiler aborted"
 msgstr "Profiler abortado"
 
 #: ../gui/ConsoleWindow.cpp:62
-#, fuzzy
 msgctxt "ConsoleWindow|"
 msgid "Console window for "
 msgstr "Janela de console para"
@@ -1546,28 +1534,24 @@ msgstr "Janela de console para"
 #: ../gui/ConsoleWindow.cpp:90
 msgctxt "ConsoleWindow|"
 msgid "Help"
-msgstr ""
+msgstr "Ajuda"
 
 #: ../gui/ConsoleWindow.cpp:98
-#, fuzzy
 msgctxt "ConsoleWindow|"
 msgid "Kill Minecraft"
 msgstr "Finalizar Minecraft"
 
 #: ../gui/ConsoleWindow.cpp:103 ../gui/ConsoleWindow.cpp:165
-#, fuzzy
 msgctxt "ConsoleWindow|"
 msgid "Close"
 msgstr "Fechar"
 
 #: ../gui/ConsoleWindow.cpp:167
-#, fuzzy
 msgctxt "ConsoleWindow|"
 msgid "Hide"
 msgstr "Esconder"
 
 #: ../gui/ConsoleWindow.cpp:225
-#, fuzzy
 msgctxt "ConsoleWindow|"
 msgid "Kill Minecraft?"
 msgstr "Finalizar Minecraft?"
