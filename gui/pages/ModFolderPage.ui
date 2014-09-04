@@ -65,13 +65,6 @@
        <item row="0" column="1">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QPushButton" name="addModBtn">
-           <property name="text">
-            <string>&amp;Add</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="rmModBtn">
            <property name="text">
             <string>&amp;Remove</string>
@@ -131,6 +124,53 @@
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item row="0" column="2" rowspan="3">
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="tabPosition">
+          <enum>QTabWidget::West</enum>
+         </property>
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>File System</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QLineEdit" name="filesystemSearchEdit"/>
+           </item>
+           <item>
+            <widget class="QTreeView" name="filesystemView"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="filesystemBrowseBtn">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_3">
+          <attribute name="title">
+           <string>QuickMods</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QLineEdit" name="quickmodsSearchEdit"/>
+           </item>
+           <item>
+            <widget class="QListView" name="quickmodsView">
+             <property name="resizeMode">
+              <enum>QListView::Adjust</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
       </layout>

@@ -67,7 +67,6 @@
 #include "gui/pages/global/MultiMCPage.h"
 #include "gui/pages/global/ExternalToolsPage.h"
 #include "gui/pages/global/AccountListPage.h"
-#include "gui/pages/QuickModBrowsePage.h"
 #include "gui/pages/global/ProxyPage.h"
 #include "gui/pages/global/JavaPage.h"
 #include "gui/pages/global/MinecraftPage.h"
@@ -270,7 +269,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		m_globalSettingsProvider->addPage<ProxyPage>();
 		m_globalSettingsProvider->addPage<ExternalToolsPage>();
 		m_globalSettingsProvider->addPage<AccountListPage>();
-		m_globalSettingsProvider->addPage<QuickModBrowsePage>(nullptr);
 	}
 
 	// Update the menu when the active account changes.
@@ -1451,11 +1449,6 @@ void MainWindow::selectionBad()
 
 	// ...and then see if we can enable the previously selected instance
 	setSelectedInstanceById(MMC->settings()->get("SelectedInstance").toString());
-}
-
-void MainWindow::on_actionBrowseQuickMods_triggered()
-{
-	ShowPageDialog(m_globalSettingsProvider, this, "quickmod-browse");
 }
 
 void MainWindow::instanceEnded()

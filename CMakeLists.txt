@@ -307,6 +307,10 @@ set(MULTIMC_SOURCES
 	gui/ConsoleWindow.h
 	gui/ConsoleWindow.cpp
 
+	# GUI - delegates
+	gui/delegates/QuickModDelegate.h
+	gui/delegates/QuickModDelegate.cpp
+
 	# GUI - page dialog pages
 	gui/pages/BasePage.h
 	gui/pages/VersionPage.cpp
@@ -329,8 +333,6 @@ set(MULTIMC_SOURCES
 	gui/pages/ScreenshotsPage.h
 	gui/pages/OtherLogsPage.cpp
 	gui/pages/OtherLogsPage.h
-	gui/pages/QuickModBrowsePage.h
-	gui/pages/QuickModBrowsePage.cpp
 
 	# GUI - global settings pages
 	gui/pages/global/AccountListPage.cpp
@@ -435,6 +437,10 @@ set(MULTIMC_SOURCES
 	logic/Mod.cpp
 	logic/ModList.h
 	logic/ModList.cpp
+
+	# Models
+	logic/KRecursiveFilterProxyModel.h
+	logic/KRecursiveFilterProxyModel.cpp
 	
 	# sets and maps for deciding based on versions
 	logic/VersionFilterData.h
@@ -734,7 +740,6 @@ set(MULTIMC_UIS
 	gui/pages/NotesPage.ui
 	gui/pages/ScreenshotsPage.ui
 	gui/pages/OtherLogsPage.ui
-	gui/pages/QuickModBrowsePage.ui
 
 	# Global settings pages
 	gui/pages/global/AccountListPage.ui

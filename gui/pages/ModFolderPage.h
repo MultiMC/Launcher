@@ -77,11 +77,11 @@ slots:
 
 private
 slots:
-	virtual void on_addModBtn_clicked();
 	virtual void on_rmModBtn_clicked();
 	virtual void on_viewModBtn_clicked();
 	virtual void on_updateModBtn_clicked();
 	void on_orphansRemoveBtn_clicked();
+	void on_filesystemBrowseBtn_clicked();
 
 	bool quickmodsConfirmRemoval(const QList<QuickModRef> &uids);
 

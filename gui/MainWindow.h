@@ -110,8 +110,6 @@ slots:
 
 	void on_actionEditInstNotes_triggered();
 
-	void on_actionBrowseQuickMods_triggered();
-
 	void on_actionScreenshots_triggered();
 
 
