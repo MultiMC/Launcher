@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>220</width>
-    <height>234</height>
+    <height>259</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -83,25 +83,42 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="labelVersion">
-       <property name="text">
-        <string>Version:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
       <widget class="QLineEdit" name="versionTextBox">
        <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="0">
+      <widget class="QRadioButton" name="vanillaBtn">
+       <property name="text">
+        <string>Vanilla</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
       <widget class="QToolButton" name="btnChangeVersion">
        <property name="text">
         <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QRadioButton" name="quickmodBtn">
+       <property name="text">
+        <string>QuickMod</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QComboBox" name="quickmodBox">
+       <property name="enabled">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -128,26 +145,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="fromWidget" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>From:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="fromLabel">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -170,12 +167,12 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>210</x>
+     <y>249</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>274</y>
+     <y>258</y>
     </hint>
    </hints>
   </connection>
@@ -186,12 +183,60 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>210</x>
+     <y>249</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
+     <x>219</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>quickmodBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>quickmodBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>56</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>143</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vanillaBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>versionTextBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>147</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vanillaBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>btnChangeVersion</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>203</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>

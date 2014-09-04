@@ -33,8 +33,6 @@ public:
 	explicit NewInstanceDialog(QWidget *parent = 0);
 	~NewInstanceDialog();
 
-	void setFromQuickMod(QuickModRef quickmod);
-
 	void updateDialogState();
 
 	void setSelectedVersion(BaseVersionPtr version, bool initial = false);
@@ -51,11 +49,11 @@ slots:
 	void on_btnChangeVersion_clicked();
 	void on_iconButton_clicked();
 	void on_instNameTextBox_textChanged(const QString &arg1);
+	void on_quickmodBox_currentIndexChanged(int newIndex);
 
 private:
 	Ui::NewInstanceDialog *ui;
 
 	BaseVersionPtr m_selectedVersion;
 	QString InstIconKey;
-	QuickModRef m_fromQuickMod;
 };

@@ -387,6 +387,20 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="quickmodAddBtn">
+         <property name="text">
+          <string>Add QuickMods</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="quickmodUpdateBtn">
+         <property name="text">
+          <string>Update QuickMods</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
           <string>Download Selection</string>

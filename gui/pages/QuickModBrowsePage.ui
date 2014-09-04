@@ -37,6 +37,16 @@
            <string>Search</string>
           </property>
           <layout class="QFormLayout" name="searchLayout">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+           </property>
+           <item row="0" column="0" colspan="2">
+            <widget class="QLineEdit" name="fulltextEdit">
+             <property name="placeholderText">
+              <string>Type your search here...</string>
+             </property>
+            </widget>
+           </item>
            <item row="1" column="0">
             <widget class="QLabel" name="categoryFilterLabel">
              <property name="text">
@@ -74,30 +84,6 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="0" colspan="2">
-            <widget class="QLineEdit" name="fulltextEdit">
-             <property name="placeholderText">
-              <string>Type your search here...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="mcVersionLabel">
-             <property name="text">
-              <string>MC Version:</string>
-             </property>
-             <property name="buddy">
-              <cstring>mcVersionBox</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QComboBox" name="mcVersionBox">
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
           </layout>
          </widget>
         </item>
@@ -130,7 +116,7 @@
           <x>0</x>
           <y>0</y>
           <width>698</width>
-          <height>545</height>
+          <height>549</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -359,13 +345,6 @@
       <widget class="QPushButton" name="updateButton">
        <property name="text">
         <string>Update QuickMods</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="createInstanceButton">
-       <property name="text">
-        <string>Create Instance</string>
        </property>
       </widget>
      </item>

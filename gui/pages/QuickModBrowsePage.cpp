@@ -21,13 +21,11 @@
 #include <QListView>
 #include <QMessageBox>
 
-#include "logic/quickmod/QuickModsList.h"
 #include "gui/dialogs/quickmod/QuickModInstallDialog.h"
 #include "gui/dialogs/quickmod/QuickModAddFileDialog.h"
 #include "gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.h"
-#include "gui/dialogs/NewInstanceDialog.h"
 #include "gui/dialogs/CustomMessageBox.h"
-#include "logic/InstanceFactory.h"
+#include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickMod.h"
 #include "logic/OneSixInstance.h"
 
@@ -264,20 +262,12 @@ QuickModBrowsePage::QuickModBrowsePage(std::shared_ptr<OneSixInstance> instance,
 	m_view->setSelectionMode(QListView::SingleSelection);
 
 	m_filterModel->setSourceModel(MMC->quickmodslist().get());
+	m_filterModel->setMCVersion(instance->intendedVersionId());
 
-	if (m_instance != nullptr)
-	{
-		m_view->setModel(m_checkModel);
-		ui->createInstanceButton->hide();
-		m_checkModel->setSourceModel(m_instance, m_filterModel);
-		connect(m_checkModel, &CheckboxProxyModel::checkChanged, this, &QuickModBrowsePage::checkStateChanged);
-	}
-	else
-	{
-		m_view->setModel(m_filterModel);
-		ui->createFromInstanceBtn->hide();
-		m_isSingleSelect = true;
-	}
+	m_view->setModel(m_checkModel);
+	m_checkModel->setSourceModel(m_instance, m_filterModel);
+
+	connect(m_checkModel, &CheckboxProxyModel::checkChanged, this, &QuickModBrowsePage::checkStateChanged);
 
 	connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this,
 			&QuickModBrowsePage::modSelectionChanged);
@@ -311,47 +301,7 @@ void QuickModBrowsePage::setupComboBoxes()
 	}
 	categories.removeDuplicates();
 	ui->categoryBox->clear();
-	if (!m_isSingleSelect)
-	{
-		ui->categoryBox->addItems(categories);
-	}
-	else
-	{
-		ui->categoryBox->addItem("Modpack");
-	}
-
-	if (m_instance == nullptr)
-	{
-		QStringList versions;
-		versions.append("");
-		for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
-		{
-			versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
-		}
-		versions.removeDuplicates();
-
-		ui->mcVersionBox->clear();
-		ui->mcVersionBox->addItems(versions);
-		ui->mcVersionBox->setCurrentIndex(0);
-
-		if (ui->searchLayout->indexOf(ui->mcVersionBox) == -1)
-		{
-			ui->searchLayout->addRow(ui->mcVersionBox, ui->mcVersionLabel);
-		}
-		ui->mcVersionBox->setVisible(true);
-		ui->mcVersionLabel->setVisible(true);
-	}
-	else
-	{
-		ui->mcVersionBox->clear();
-		ui->mcVersionBox->addItem(m_instance->intendedVersionId());
-		ui->mcVersionBox->setCurrentIndex(0);
-
-		ui->searchLayout->removeWidget(ui->mcVersionBox);
-		ui->searchLayout->removeWidget(ui->mcVersionLabel);
-		ui->mcVersionBox->setVisible(false);
-		ui->mcVersionLabel->setVisible(false);
-	}
+	ui->categoryBox->addItems(categories);
 }
 
 void QuickModBrowsePage::checkStateChanged(const QModelIndex &index, const bool checked)
@@ -380,7 +330,7 @@ bool QuickModBrowsePage::apply()
 
 bool QuickModBrowsePage::shouldDisplay() const
 {
-	if (m_instance && m_instance->isRunning())
+	if (m_instance->isRunning())
 	{
 		return false;
 	}
@@ -389,33 +339,6 @@ bool QuickModBrowsePage::shouldDisplay() const
 
 void QuickModBrowsePage::opened()
 {
-}
-
-void QuickModBrowsePage::on_createInstanceButton_clicked()
-{
-	const QModelIndex index = m_view->currentIndex();
-	if (!index.isValid())
-	{
-		return;
-	}
-
-	NewInstanceDialog dialog(this);
-	dialog.setFromQuickMod(index.data(QuickModsList::UidRole).value<QuickModRef>());
-	if (dialog.exec() == QDialog::Accepted)
-	{
-
-		InstancePtr newInstance;
-		try
-		{
-			newInstance = InstanceFactory::get().addInstance(dialog.instName(), dialog.iconKey(), dialog.selectedVersion(), dialog.fromQuickMod());
-		}
-		catch (MMCError &error)
-		{
-			CustomMessageBox::selectable(this, tr("Error"), error.cause(), QMessageBox::Warning)->show();
-			return;
-		}
-		findParent<QDialog>(this)->accept();
-	}
 }
 
 void QuickModBrowsePage::on_addButton_clicked()
@@ -445,11 +368,6 @@ void QuickModBrowsePage::on_tagsLabel_linkActivated(const QString &link)
 	on_tagsEdit_textChanged();
 }
 
-void QuickModBrowsePage::on_mcVersionsLabel_linkActivated(const QString &link)
-{
-	ui->mcVersionBox->setCurrentText(link);
-}
-
 void QuickModBrowsePage::on_fulltextEdit_textChanged()
 {
 	m_filterModel->setFulltext(ui->fulltextEdit->text());
@@ -464,11 +382,6 @@ void QuickModBrowsePage::on_tagsEdit_textChanged()
 void QuickModBrowsePage::on_categoryBox_currentTextChanged()
 {
 	m_filterModel->setCategory(ui->categoryBox->currentText());
-}
-
-void QuickModBrowsePage::on_mcVersionBox_currentTextChanged()
-{
-	m_filterModel->setMCVersion(ui->mcVersionBox->currentText());
 }
 
 void QuickModBrowsePage::modSelectionChanged(const QItemSelection &selected,

@@ -24,9 +24,10 @@
 
 #include "gui/Platform.h"
 #include "gui/dialogs/quickmod/QuickModRepoDialog.h"
+#include "gui/dialogs/quickmod/QuickModAddFileDialog.h"
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "gui/dialogs/CustomMessageBox.h"
-#include <gui/ColumnResizer.h>
+#include "gui/ColumnResizer.h"
 
 #include "logic/NagUtils.h"
 
@@ -37,6 +38,8 @@
 #include "logic/updater/UpdateChecker.h"
 
 #include "logic/tools/BaseProfiler.h"
+
+#include "logic/quickmod/QuickModsList.h"
 
 #include "logic/settings/SettingsObject.h"
 #include "MultiMC.h"
@@ -62,7 +65,7 @@ MultiMCPage::MultiMCPage(QWidget *parent) : QWidget(parent), ui(new Ui::MultiMCP
 
 	loadSettings();
 
-	QObject::connect(MMC->updateChecker().get(), &UpdateChecker::channelListLoaded, this,
+	connect(MMC->updateChecker().get(), &UpdateChecker::channelListLoaded, this,
 					 &MultiMCPage::refreshUpdateChannelList);
 
 	if (MMC->updateChecker()->hasChannels())
@@ -73,6 +76,9 @@ MultiMCPage::MultiMCPage(QWidget *parent) : QWidget(parent), ui(new Ui::MultiMCP
 	{
 		MMC->updateChecker()->updateChanList(false);
 	}
+
+	connect(ui->quickmodAddBtn, &QPushButton::clicked, [this](){QuickModAddFileDialog::run(this);});
+	connect(ui->quickmodUpdateBtn, &QPushButton::clicked, [](){MMC->quickmodslist()->updateFiles();});
 }
 
 MultiMCPage::~MultiMCPage()
