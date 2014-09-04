@@ -30,14 +30,11 @@ public:
 		mod->m_uid = QuickModRef(name);
 		mod->m_repo = "test_repo";
 		mod->m_name = name;
-		mod->m_nemName = name;
 		mod->m_modId = name;
 		mod->m_description = name + " description";
 		mod->m_updateUrl = "http://localhost/quickmod/" + name + ".json";
 		return mod;
 	}
-	// QMVersionList() << QuickMod::Version("1.0.0", QUrl("http://localhost/" + name + ".jar"),
-	// QStringList() << "1.6.2" << "1.6.4")
 };
 
 #define MULTIMC_GET_TEST_FILE(file) TestsInternal::readFile(QFINDTESTDATA(file))

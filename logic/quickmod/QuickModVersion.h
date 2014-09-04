@@ -55,12 +55,12 @@ public:
 		Library()
 		{
 		}
-		Library(const QString &name, const QUrl &url) : name(name), url(url)
+		Library(const QString &name, const QUrl &repo) : name(name), repo(repo)
 		{
 		}
 		QJsonObject toJson() const;
 		QString name;
-		QUrl url;
+		QUrl repo;
 	};
 
 	QuickModVersion(QuickModPtr mod = 0, bool valid = true) : mod(mod), valid(valid)

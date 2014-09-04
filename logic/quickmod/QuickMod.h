@@ -143,11 +143,6 @@ public:
 		return m_references;
 	}
 
-	QString nemName() const
-	{
-		return m_nemName;
-	}
-
 	QString modId() const
 	{
 		return m_modId;
@@ -166,11 +161,6 @@ public:
 	QString license() const
 	{
 		return m_license;
-	}
-
-	QList<QUrl> mavenRepos() const
-	{
-		return m_mavenRepos;
 	}
 
 	QList<QuickModVersionPtr> versionsInternal() const
@@ -220,12 +210,10 @@ private:
 	QUrl m_updateUrl;
 	QMap<QuickModRef, QUrl> m_references;
 	QStringList m_mcVersionListCache;
-	QString m_nemName;
 	QString m_modId;
 	QStringList m_categories;
 	QStringList m_tags;
 	QString m_license;
-	QList<QUrl> m_mavenRepos;
 
 	QList<QuickModVersionPtr> m_versions;
 

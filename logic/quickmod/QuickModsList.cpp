@@ -91,7 +91,6 @@ QHash<int, QByteArray> QuickModsList::roleNames() const
 	roles[UpdateRole] = "update";
 	roles[ReferencesRole] = "recommendedUrls";
 	roles[DependentUrlsRole] = "dependentUrls";
-	roles[NemNameRole] = "nemName";
 	roles[ModIdRole] = "modId";
 	roles[CategoriesRole] = "categories";
 	roles[TagsRole] = "tags";
@@ -149,8 +148,6 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return mod->updateUrl();
 	case ReferencesRole:
 		return QVariant::fromValue(mod->references());
-	case NemNameRole:
-		return mod->nemName();
 	case ModIdRole:
 		return mod->modId();
 	case CategoriesRole:
@@ -185,7 +182,7 @@ bool QuickModsList::dropMimeData(const QMimeData *data, Qt::DropAction action, i
 
 	if (data->hasText())
 	{
-		registerMod(Util::expandQMURL(data->text()), false);
+		registerMod(QUrl(data->text()), false);
 	}
 	else if (data->hasUrls())
 	{

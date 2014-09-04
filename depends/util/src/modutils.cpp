@@ -92,44 +92,6 @@ void Util::Version::parse()
 	}
 }
 
-QUrl Util::expandQMURL(const QString &in)
-{
-	QUrl inUrl(in);
-	if (inUrl.scheme() == "github")
-	{
-		// needed because QUrl makes the host all lower cases
-		const QString repo =
-			in.mid(in.indexOf(inUrl.host(), 0, Qt::CaseInsensitive), inUrl.host().size());
-		QUrl out;
-		out.setScheme("https");
-		out.setHost("raw.github.com");
-		out.setPath(QString("/%1/%2/%3%4").arg(
-			inUrl.userInfo(), repo, inUrl.fragment().isEmpty() ? "master" : inUrl.fragment(),
-			inUrl.path()));
-		return out;
-	}
-	else if (inUrl.scheme() == "mcf")
-	{
-		QUrl out;
-		out.setScheme("http");
-		out.setHost("www.minecraftforum.net");
-		out.setPath(QString("/topic/%1-").arg(inUrl.path()));
-		return out;
-	}
-	else if (inUrl.scheme() == "curse")
-	{
-		QUrl out;
-		out.setScheme("http");
-		out.setHost("www.curse.com");
-		out.setPath(QString("/mc-mods/minecraft/%1").arg(inUrl.path()));
-		return out;
-	}
-	else
-	{
-		return in;
-	}
-}
-
 bool Util::versionIsInInterval(const QString &version, const QString &interval)
 {
 	return versionIsInInterval(Util::Version(version), interval);

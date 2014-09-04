@@ -55,7 +55,6 @@ private:
 	void parse();
 };
 
-LIBUTIL_EXPORT QUrl expandQMURL(const QString &in);
 LIBUTIL_EXPORT bool versionIsInInterval(const QString &version, const QString &interval);
 LIBUTIL_EXPORT bool versionIsInInterval(const Version &version, const QString &interval);
 }

@@ -82,9 +82,6 @@ private slots:
 	/// Downloads all mods with direct download links.
 	void runDirectDownloads();
 
-	/// Downloads all mods with maven download links.
-	void runMavenDownloads();
-
 	/// Downloads the given version as a webpage download.
 	void runWebDownload(QuickModVersionPtr version);
 

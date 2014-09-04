@@ -11,8 +11,7 @@ public:
 		Direct = 1,
 		Parallel,
 		Sequential,
-		Encoded,
-		Maven
+		Encoded
 	};
 
 	QString url;
