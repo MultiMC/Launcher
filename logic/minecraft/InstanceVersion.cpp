@@ -24,8 +24,6 @@
 #include "logic/minecraft/VersionBuilder.h"
 #include "logic/OneSixInstance.h"
 
-#include <logger/QsLog.h>
-
 InstanceVersion::InstanceVersion(OneSixInstance *instance, QObject *parent)
 	: QAbstractListModel(parent), m_instance(instance)
 {

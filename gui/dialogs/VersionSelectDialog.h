@@ -27,27 +27,7 @@ namespace Ui
 class VersionSelectDialog;
 }
 
-class VersionSelectProxyModel : public QSortFilterProxyModel
-{
-	Q_OBJECT
-public:
-	VersionSelectProxyModel(QObject *parent = 0);
-
-	struct Filter
-	{
-		QString string;
-		bool exact = false;
-	};
-
-	QHash<int, Filter> filters() const;
-	void setFilter(const int column, const QString &filter, const bool exact);
-	void clearFilters();
-
-protected:
-	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
-
-	QHash<int, Filter> m_filters;
-};
+class VersionSelectProxyModel;
 
 class VersionSelectDialog : public QDialog
 {

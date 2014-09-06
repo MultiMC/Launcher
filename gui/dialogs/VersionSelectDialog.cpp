@@ -27,51 +27,65 @@
 #include <depends/util/include/modutils.h>
 #include "logger/QsLog.h"
 
-VersionSelectProxyModel::VersionSelectProxyModel(QObject *parent)
-	: QSortFilterProxyModel(parent)
+class VersionSelectProxyModel : public QSortFilterProxyModel
 {
-}
-
-bool VersionSelectProxyModel::filterAcceptsRow(int source_row,
-											   const QModelIndex &source_parent) const
-{
-	for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
+	Q_OBJECT
+public:
+	VersionSelectProxyModel(QObject *parent = 0) : QSortFilterProxyModel(parent)
 	{
-		const QString version = sourceModel()->index(source_row, it.key()).data().toString();
+	}
 
-		if (it.value().exact)
+	struct Filter
+	{
+		QString string;
+		bool exact = false;
+	};
+
+	QHash<int, Filter> filters() const
+	{
+		return m_filters;
+	}
+	void setFilter(const int column, const QString &filter, const bool exact)
+	{
+		Filter f;
+		f.string = filter;
+		f.exact = exact;
+		m_filters[column] = f;
+		invalidateFilter();
+	}
+	void clearFilters()
+	{
+		m_filters.clear();
+		invalidateFilter();
+	}
+
+protected:
+	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+	{
+		for (auto it = m_filters.begin(); it != m_filters.end(); ++it)
 		{
-			if (version != it.value().string)
+			const QString version =
+				sourceModel()->index(source_row, it.key()).data().toString();
+
+			if (it.value().exact)
+			{
+				if (version != it.value().string)
+				{
+					return false;
+				}
+				continue;
+			}
+
+			if (!Util::versionIsInInterval(version, it.value().string))
 			{
 				return false;
 			}
-			continue;
 		}
-
-		if (!Util::versionIsInInterval(version, it.value().string))
-		{
-			return false;
-		}
+		return true;
 	}
-	return true;
-}
-QHash<int, VersionSelectProxyModel::Filter> VersionSelectProxyModel::filters() const
-{
-	return m_filters;
-}
-void VersionSelectProxyModel::setFilter(const int column, const QString &filter, const bool exact)
-{
-	Filter f;
-	f.string = filter;
-	f.exact = exact;
-	m_filters[column] = f;
-	invalidateFilter();
-}
-void VersionSelectProxyModel::clearFilters()
-{
-	m_filters.clear();
-	invalidateFilter();
-}
+
+	QHash<int, Filter> m_filters;
+};
 
 VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, QWidget *parent,
 										 bool cancelable)
@@ -175,3 +189,5 @@ void VersionSelectDialog::setFuzzyFilter(int column, QString filter)
 {
 	m_proxyModel->setFilter(column, filter, false);
 }
+
+#include "VersionSelectDialog.moc"
