@@ -125,8 +125,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		winTitle += " on " + BuildConfig.BUILD_PLATFORM;
 	setWindowTitle(winTitle);
 
-	setAcceptDrops(true);
-
 	GuiUtil::setup(&InstanceFactory::get(), this);
 	QuickModGuiUtil::setup(&InstanceFactory::get(), this);
 
@@ -741,36 +739,6 @@ void MainWindow::setCatBackground(bool enabled)
 	else
 	{
 		view->setStyleSheet(QString());
-	}
-}
-
-void MainWindow::dragEnterEvent(QDragEnterEvent *event)
-{
-	if (event->mimeData()->hasUrls())
-	{
-		if (event->dropAction() == Qt::CopyAction)
-		{
-			event->acceptProposedAction();
-		}
-		else
-		{
-			event->setDropAction(Qt::CopyAction);
-			event->accept();
-		}
-	}
-}
-
-void MainWindow::dropEvent(QDropEvent *event)
-{
-	event->setDropAction(Qt::CopyAction);
-
-	if(event->mimeData()->hasUrls())
-	{
-		foreach (const QUrl& url, event->mimeData()->urls())
-		{
-			MMC->quickmodslist()->registerMod(url, false);
-		}
-		event->accept();
 	}
 }
 

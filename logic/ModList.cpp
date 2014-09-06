@@ -23,10 +23,6 @@
 #include <QFileSystemWatcher>
 #include "logger/QsLog.h"
 
-#include "quickmod/QuickModsList.h"
-#include "quickmod/QuickMod.h"
-#include "MultiMC.h"
-
 ModList::ModList(const QString &dir, const QString &list_file)
 	: QAbstractListModel(), m_dir(dir), m_list_file(list_file)
 {
@@ -176,30 +172,6 @@ bool ModList::update()
 void ModList::directoryChanged(QString path)
 {
 	update();
-}
-
-void ModList::quickmodDataChanged(const QModelIndex &tr, const QModelIndex &bl, const QVector<int> &roles)
-{
-	if (roles.contains(QuickModsList::IconRole))
-	{
-		const QString modId = tr.data(QuickModsList::ModIdRole).toString();
-		if (!modId.isEmpty())
-		{
-			int row = -1;
-			for (int i = 0; i < rowCount(); ++i)
-			{
-				if (mods.at(i).mod_id() == modId)
-				{
-					row = i;
-					break;
-				}
-			}
-			if (row != -1)
-			{
-				emit dataChanged(index(row), index(row), QVector<int>() << Qt::DecorationRole);
-			}
-		}
-	}
 }
 
 ModList::OrderList ModList::readListFile()
@@ -449,8 +421,10 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 		default:
 			return QVariant();
 		}
+
 	case Qt::ToolTipRole:
 		return mods[row].mmc_id();
+
 	case Qt::CheckStateRole:
 		switch (column)
 		{
@@ -459,8 +433,6 @@ QVariant ModList::data(const QModelIndex &index, int role) const
 		default:
 			return QVariant();
 		}
-	case ModFileRole:
-		return mods[row].filename().absoluteFilePath();
 	default:
 		return QVariant();
 	}

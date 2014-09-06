@@ -102,14 +102,17 @@ QString NewInstanceDialog::instName() const
 {
 	return ui->instNameTextBox->text();
 }
+
 QString NewInstanceDialog::iconKey() const
 {
 	return InstIconKey;
 }
+
 BaseVersionPtr NewInstanceDialog::selectedVersion() const
 {
 	return m_selectedVersion;
 }
+
 QuickModRef NewInstanceDialog::fromQuickMod() const
 {
 	return m_fromQuickMod;
@@ -127,6 +130,7 @@ void NewInstanceDialog::on_btnChangeVersion_clicked()
 			setSelectedVersion(version);
 	}
 }
+
 void NewInstanceDialog::on_iconButton_clicked()
 {
 	IconPickerDialog dlg(this);
@@ -138,6 +142,7 @@ void NewInstanceDialog::on_iconButton_clicked()
 		ui->iconButton->setIcon(MMC->icons()->getIcon(InstIconKey));
 	}
 }
+
 void NewInstanceDialog::on_instNameTextBox_textChanged(const QString &arg1)
 {
 	updateDialogState();

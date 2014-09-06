@@ -55,9 +55,7 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings,
 	: BaseInstance(new OneSixInstancePrivate(), rootDir, settings, parent)
 {
 	I_D(OneSixInstance);
-
 	d->m_settings->registerSetting("IntendedVersion", "");
-
 	d->version.reset(new InstanceVersion(this, this));
 }
 

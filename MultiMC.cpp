@@ -15,12 +15,10 @@
 #include "logic/InstanceList.h"
 #include "logic/auth/MojangAccountList.h"
 #include "logic/icons/IconList.h"
-#include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/forge/ForgeVersionList.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickModSettings.h"
 #include "logic/quickmod/QuickModUpdateMonitor.h"
-#include "logic/liteloader/LiteLoaderVersionList.h"
 #include "logic/LwjglVersionList.h"
 #include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/liteloader/LiteLoaderVersionList.h"
@@ -93,15 +91,7 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override) : QApplication(argc
 		parser.addOption("launch");
 		parser.addShortOpt("launch", 'l');
 		parser.addDocumentation("launch", "tries to launch the given instance", "<inst>");
-		*/
-
-		/***************** QuickMod stuff *****************/
-
-		parser.addOption("qm-register");
-		parser.addShortOpt("qm-register", 'r');
-		parser.addDocumentation("qm-register", "registers a quickmod file or url with the quickmod system", "<file|url>");
-
-		/**************************************************/
+*/
 
 		// parse the arguments
 		try
@@ -285,28 +275,6 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override) : QApplication(argc
 		return;
 	}
 */
-
-	// register quickmod file or url
-	if (!args["qm-register"].isNull())
-	{
-		QUrl url;
-		const QString opt = args["qm-register"].toString();
-		if (QFileInfo(opt).exists())
-		{
-			std::cout << "Registering local QuickMod file with the quickmod system" << std::endl;
-			url = QUrl::fromLocalFile(opt);
-		}
-		else
-		{
-			url = QUrl::fromUserInput(opt);
-		}
-		quickmodslist()->registerMod(url, false);
-		connect(quickmodslist().get(), SIGNAL(modAdded(QuickMod*)), this, SLOT(quit()));
-		exec();
-		m_status = MultiMC::Succeeded;
-		return;
-	}
-
 	// ensure we always create the quickmods list
 	quickmodslist();
 	m_quickmodUpdateMonitor.reset(new QuickModUpdateMonitor(m_instances, m_quickmodslist, this));

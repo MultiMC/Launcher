@@ -24,6 +24,8 @@
 #include "logic/minecraft/VersionBuilder.h"
 #include "logic/OneSixInstance.h"
 
+#include <logger/QsLog.h>
+
 InstanceVersion::InstanceVersion(OneSixInstance *instance, QObject *parent)
 	: QAbstractListModel(parent), m_instance(instance)
 {
@@ -272,6 +274,7 @@ QList<std::shared_ptr<OneSixLibrary> > InstanceVersion::getActiveNormalLibs()
 			{
 				if (other->rawName() == lib->rawName())
 				{
+					QLOG_WARN() << "Multiple libraries with name" << lib->rawName() << "in library list!";
 					continue;
 				}
 			}

@@ -56,10 +56,7 @@ protected:
 
 public:
 	/// virtual destructor to make sure the destruction is COMPLETE
-	virtual ~BaseInstance()
-	{
-
-	};
+	virtual ~BaseInstance() {};
 
 	virtual void init() {}
 	virtual void copy(const QDir &newDir) {}

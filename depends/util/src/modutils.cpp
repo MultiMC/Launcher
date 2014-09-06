@@ -147,3 +147,4 @@ bool Util::versionIsInInterval(const Version &version, const QString &interval)
 
 	return false;
 }
+

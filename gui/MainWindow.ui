@@ -67,8 +67,8 @@
    <addaction name="actionViewInstanceFolder"/>
    <addaction name="actionViewCentralModsFolder"/>
    <addaction name="actionBrowseQuickMods"/>
-   <addaction name="separator"/>
    <addaction name="actionRefresh"/>
+   <addaction name="separator"/>
    <addaction name="actionCheckUpdate"/>
    <addaction name="actionSettings"/>
    <addaction name="separator"/>

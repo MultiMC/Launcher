@@ -271,7 +271,7 @@ include_directories(${LOGICALGUI_INCLUDE_DIR})
 ################################ FILES ################################
 
 ######## Sources and headers ########
-set(MULTIMC_SOURCES
+SET(MULTIMC_SOURCES
 	# Application base
 	MultiMC.h
 	MultiMC.cpp
@@ -413,6 +413,7 @@ set(MULTIMC_SOURCES
 	gui/widgets/ServerStatus.h
 	gui/widgets/VersionListView.cpp
 	gui/widgets/VersionListView.h
+
 
 	# GUI - instance group view
 	gui/groupview/GroupedProxyModel.cpp
@@ -732,7 +733,7 @@ set(MULTIMC_SOURCES
 
 
 ######## UIs ########
-set(MULTIMC_UIS
+SET(MULTIMC_UIS
 	# Windows
 	gui/MainWindow.ui
 

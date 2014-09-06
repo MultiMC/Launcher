@@ -22,7 +22,6 @@ int findLibraryByName(QList<OneSixLibraryPtr> haystack, const GradleSpecifier &n
 	int retval = -1;
 	for (int i = 0; i < haystack.size(); ++i)
 	{
-
 		if (haystack.at(i)->rawName().matchName(needle))
 		{
 			// only one is allowed.
@@ -522,14 +521,12 @@ void VersionFile::applyTo(InstanceVersion *version)
 				// we need a higher version, or we're hard to and the versions aren't
 				// equal
 				if (addedVersion > existingVersion ||
-					(addedLibrary->dependType == RawLibrary::Hard &&
-					 addedVersion != existingVersion))
+					(addedLibrary->dependType == RawLibrary::Hard && addedVersion != existingVersion))
 				{
-					throw VersionBuildError(
-						QObject::tr(
-							"Error resolving library dependencies between %1 and %2 in %3.")
-							.arg(existingLibrary->rawName(), addedLibrary->rawName(),
-								 filename));
+					throw VersionBuildError(QObject::tr(
+						"Error resolving library dependencies between %1 and %2 in %3.")
+												.arg(existingLibrary->rawName(),
+													 addedLibrary->rawName(), filename));
 				}
 				else
 				{
@@ -550,11 +547,10 @@ void VersionFile::applyTo(InstanceVersion *version)
 					// it: fail
 					if (addedLibrary->dependType == RawLibrary::Hard)
 					{
-						throw VersionBuildError(
-							QObject::tr(
-								"Error resolving library dependencies between %1 and %2 in %3.")
-								.arg(existingLibrary->rawName(), addedLibrary->rawName(),
-									 filename));
+						throw VersionBuildError(QObject::tr(
+							"Error resolving library dependencies between %1 and %2 in %3.")
+													.arg(existingLibrary->rawName(),
+														 addedLibrary->rawName(), filename));
 					}
 				}
 			}

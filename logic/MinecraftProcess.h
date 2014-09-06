@@ -41,7 +41,7 @@ enum Enum
 }
 
 /**
- * @file logic/MinecraftProcess.h
+ * @file data/minecraftprocess.h
  * @brief The MinecraftProcess class
  */
 class MinecraftProcess : public QProcess

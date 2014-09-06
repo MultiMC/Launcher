@@ -182,8 +182,7 @@ public:
 		return origcwdPath;
 	}
 
-private
-slots:
+private slots:
 	/**
 	 * Do all the things that should be done before we exit
 	 */

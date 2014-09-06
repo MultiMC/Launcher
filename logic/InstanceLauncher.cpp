@@ -76,7 +76,7 @@ void InstanceLauncher::doLogin(const QString &errorMsg)
 	// onLoginComplete(LoginResponse("Offline","Offline", 1));
 }
 
-bool InstanceLauncher::launch()
+int InstanceLauncher::launch()
 {
 	std::cout << "Launching Instance '" << qPrintable(instId) << "'" << std::endl;
 	auto instance = MMC->instances()->getInstanceById(instId);
@@ -84,11 +84,11 @@ bool InstanceLauncher::launch()
 	{
 		std::cout << "Could not find instance requested. note that you have to specify the ID, "
 					 "not the NAME" << std::endl;
-		return false;
+		return 1;
 	}
 
 	std::cout << "Logging in..." << std::endl;
 	doLogin("");
 
-	return true;
+	return MMC->exec();
 }
