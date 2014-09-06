@@ -21,6 +21,8 @@
 #include <QList>
 #include <memory>
 
+#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModVersion.h"
 #include "OneSixLibrary.h"
 #include "VersionFile.h"
 #include "JarMod.h"
@@ -69,6 +71,7 @@ public:
 	enum MoveDirection { MoveUp, MoveDown };
 	void move(const int index, const MoveDirection direction);
 	void resetOrder();
+	int getHighestOrder();
 
 	// clears and reapplies all version files
 	void reapply(const bool alreadyReseting = false);
@@ -139,11 +142,15 @@ public:
 	 */
 	QString appletClass;
 	
+
+	QStringList modFiles;
+	QMap<QuickModRef, QPair<QuickModVersionRef, bool>> quickmods;
+
 	/// the list of libs - both active and inactive, native and java
-	QList<std::shared_ptr<OneSixLibrary>> libraries;
-	
+	QList<OneSixLibraryPtr> libraries;
+
 	/// same, but only vanilla.
-	QList<std::shared_ptr<OneSixLibrary>> vanillaLibraries;
+	QList<OneSixLibraryPtr> vanillaLibraries;
 
 	/// traits, collected from all the version files (version files can only add)
 	QSet<QString> traits;

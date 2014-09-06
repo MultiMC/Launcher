@@ -40,6 +40,11 @@ public:
 		NameColumn,
 		VersionColumn
 	};
+	enum Roles
+	{
+		ModFileRole = Qt::UserRole
+	};
+
 	ModList(const QString &dir, const QString &list_file = QString());
 
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -139,6 +144,7 @@ private:
 private
 slots:
 	void directoryChanged(QString path);
+	void quickmodDataChanged(const QModelIndex &tr, const QModelIndex &bl, const QVector<int> &roles);
 
 signals:
 	void changed();

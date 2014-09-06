@@ -18,19 +18,20 @@
 #include <QObject>
 #include <QMap>
 #include <QList>
+#include <LogicalGui.h>
 
 #include "BaseVersion.h"
 #include "BaseInstance.h"
 
 struct BaseVersion;
 class BaseInstance;
+class QuickModRef;
 
 /*!
- * The \bInstanceFactory\b is a singleton that manages loading and creating instances.
+ * The \b InstanceFactory\b is a singleton that manages loading and creating instances.
  */
-class InstanceFactory : public QObject
+class InstanceFactory : public Bindable
 {
-	Q_OBJECT
 public:
 	/*!
 	 * \brief Gets a reference to the instance loader.
@@ -61,6 +62,8 @@ public:
 		NormalInst,
 		FTBInstance
 	};
+
+	InstancePtr addInstance(const QString &name, const QString &iconKey, BaseVersionPtr version, const QuickModRef quickmod);
 
 	/*!
 	 * \brief Creates a stub instance

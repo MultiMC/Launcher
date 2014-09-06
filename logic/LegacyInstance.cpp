@@ -53,10 +53,8 @@ QList<BasePage *> LegacyInstance::getPages()
 	// FIXME: actually implement the legacy instance upgrade, then enable this.
 	//values.append(new LegacyUpgradePage(this));
 	values.append(new LegacyJarModPage(this));
-	values.append(new ModFolderPage(this, loaderModList(), "mods", "plugin-blue", tr("Loader mods"),
-									"Loader-mods"));
-	values.append(new ModFolderPage(this, coreModList(), "coremods", "plugin-green", tr("Core mods"),
-									"Core-mods"));
+	values.append(new ModFolderPage(this, loaderModList(), "mods", "plugin-blue", tr("Loader mods"), "Loader-mods"));
+	values.append(new ModFolderPage(this, coreModList(), "coremods", "plugin-green", tr("Core mods"), "Core-mods"));
 	values.append(new TexturePackPage(this));
 	values.append(new NotesPage(this));
 	values.append(new ScreenshotsPage(this));
@@ -287,7 +285,7 @@ QString LegacyInstance::defaultCustomBaseJar() const
 
 QString LegacyInstance::getStatusbarDescription()
 {
-	if (flags().contains(VersionBrokenFlag))
+	if (flags() & VersionBrokenFlag)
 	{
 		return tr("Legacy : %1 (broken)").arg(intendedVersionId());
 	}

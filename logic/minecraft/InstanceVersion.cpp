@@ -57,6 +57,8 @@ void InstanceVersion::clear()
 	tweakers.clear();
 	jarMods.clear();
 	traits.clear();
+	quickmods.clear();
+	modFiles.clear();
 }
 
 bool InstanceVersion::canRemove(const int index) const
@@ -166,6 +168,8 @@ bool InstanceVersion::isVanilla()
 		return false;
 	if(QFile::exists(PathCombine(m_instance->instanceRoot(), "version.json")))
 		return false;
+	if(QFile::exists(PathCombine(m_instance->instanceRoot(), "user.json")))
+		return false;
 	return true;
 }
 
@@ -264,6 +268,13 @@ QList<std::shared_ptr<OneSixLibrary> > InstanceVersion::getActiveNormalLibs()
 	{
 		if (lib->isActive() && !lib->isNative())
 		{
+			for (auto other : output)
+			{
+				if (other->rawName() == lib->rawName())
+				{
+					continue;
+				}
+			}
 			output.append(lib);
 		}
 	}
@@ -408,6 +419,16 @@ void InstanceVersion::resetOrder()
 {
 	QDir(m_instance->instanceRoot()).remove("order.json");
 	reload(m_externalPatches);
+}
+
+int InstanceVersion::getHighestOrder()
+{
+	int highest = 0;
+	for (auto file : VersionPatches)
+	{
+		highest = qMax(highest, file->getOrder());
+	}
+	return highest;
 }
 
 void InstanceVersion::reapply(const bool alreadyReseting)

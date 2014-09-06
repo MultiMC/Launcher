@@ -279,6 +279,36 @@ bool IconList::deleteIcon(QString key)
 	return false;
 }
 
+bool IconList::addIcon(QString key, QString name, QIcon icon, MMCIcon::Type type)
+{
+	if (getIconIndex(key) != -1)
+	{
+		return true;
+	}
+
+	auto sizes = icon.availableSizes();
+	if (sizes.isEmpty())
+	{
+		return false;
+	}
+	std::sort(sizes.begin(), sizes.end(), [](const QSize &s1, const QSize &s2) { return s1.width() < s2.width(); });
+	const QString filename = QDir(MMC->settings()->get("IconsDir").toString()).absoluteFilePath(key + ".png");
+	const bool wasWatching = is_watching;
+	if (wasWatching)
+	{
+		stopWatching();
+	}
+	const bool result = icon.pixmap(sizes.first()).save(filename);
+	if (wasWatching)
+	{
+		startWatching();
+	}
+	if (!result)
+	{
+		return false;
+	}
+	return addIcon(key, name, filename, type);
+}
 bool IconList::addIcon(QString key, QString name, QString path, MMCIcon::Type type)
 {
 	// replace the icon even? is the input valid?

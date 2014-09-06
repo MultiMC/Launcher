@@ -66,8 +66,9 @@
    <addaction name="separator"/>
    <addaction name="actionViewInstanceFolder"/>
    <addaction name="actionViewCentralModsFolder"/>
-   <addaction name="actionRefresh"/>
+   <addaction name="actionBrowseQuickMods"/>
    <addaction name="separator"/>
+   <addaction name="actionRefresh"/>
    <addaction name="actionCheckUpdate"/>
    <addaction name="actionSettings"/>
    <addaction name="separator"/>
@@ -387,7 +388,7 @@
   </action>
   <action name="actionEditInstance">
    <property name="text">
-    <string>Edit Mods</string>
+    <string>Edit Instance</string>
    </property>
    <property name="iconText">
     <string>Edit Instance</string>
@@ -459,6 +460,17 @@
    </property>
    <property name="statusTip">
     <string>Add a new instance.</string>
+   </property>
+  </action>
+  <action name="actionBrowseQuickMods">
+   <property name="icon">
+    <iconset theme="centralmods"/>
+   </property>
+   <property name="text">
+    <string>Browse QuickMods</string>
+   </property>
+   <property name="toolTip">
+    <string>Browse QuickMods</string>
    </property>
   </action>
   <action name="actionManageAccounts">
