@@ -31,7 +31,7 @@ class OneSixUpdate : public Task
 {
 	Q_OBJECT
 public:
-	explicit OneSixUpdate(OneSixInstance *inst, QObject *parent = 0);
+	explicit OneSixUpdate(OneSixInstance *inst, Bindable *parent = nullptr);
 	virtual void executeTask();
 
 private

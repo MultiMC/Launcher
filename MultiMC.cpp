@@ -15,6 +15,12 @@
 #include "logic/InstanceList.h"
 #include "logic/auth/MojangAccountList.h"
 #include "logic/icons/IconList.h"
+#include "logic/minecraft/MinecraftVersionList.h"
+#include "logic/forge/ForgeVersionList.h"
+#include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModSettings.h"
+#include "logic/quickmod/QuickModUpdateMonitor.h"
+#include "logic/liteloader/LiteLoaderVersionList.h"
 #include "logic/LwjglVersionList.h"
 #include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/liteloader/LiteLoaderVersionList.h"
@@ -87,7 +93,15 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override) : QApplication(argc
 		parser.addOption("launch");
 		parser.addShortOpt("launch", 'l');
 		parser.addDocumentation("launch", "tries to launch the given instance", "<inst>");
-*/
+		*/
+
+		/***************** QuickMod stuff *****************/
+
+		parser.addOption("qm-register");
+		parser.addShortOpt("qm-register", 'r');
+		parser.addDocumentation("qm-register", "registers a quickmod file or url with the quickmod system", "<file|url>");
+
+		/**************************************************/
 
 		// parse the arguments
 		try
@@ -251,12 +265,12 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override) : QApplication(argc
 					   std::shared_ptr<BaseProfilerFactory>(new JVisualVMFactory()));
 	for (auto profiler : m_profilers.values())
 	{
-		profiler->registerSettings(m_settings.get());
+		profiler->registerSettings(m_settings);
 	}
 	m_tools.insert("mcedit", std::shared_ptr<BaseDetachedToolFactory>(new MCEditFactory()));
 	for (auto tool : m_tools.values())
 	{
-		tool->registerSettings(m_settings.get());
+		tool->registerSettings(m_settings);
 	}
 
 	// launch instance, if that's what should be done
@@ -271,6 +285,32 @@ MultiMC::MultiMC(int &argc, char **argv, bool root_override) : QApplication(argc
 		return;
 	}
 */
+
+	// register quickmod file or url
+	if (!args["qm-register"].isNull())
+	{
+		QUrl url;
+		const QString opt = args["qm-register"].toString();
+		if (QFileInfo(opt).exists())
+		{
+			std::cout << "Registering local QuickMod file with the quickmod system" << std::endl;
+			url = QUrl::fromLocalFile(opt);
+		}
+		else
+		{
+			url = QUrl::fromUserInput(opt);
+		}
+		quickmodslist()->registerMod(url, false);
+		connect(quickmodslist().get(), SIGNAL(modAdded(QuickMod*)), this, SLOT(quit()));
+		exec();
+		m_status = MultiMC::Succeeded;
+		return;
+	}
+
+	// ensure we always create the quickmods list
+	quickmodslist();
+	m_quickmodUpdateMonitor.reset(new QuickModUpdateMonitor(m_instances, m_quickmodslist, this));
+
 	connect(this, SIGNAL(aboutToQuit()), SLOT(onExit()));
 	m_status = MultiMC::Initialized;
 }
@@ -522,6 +562,10 @@ void MultiMC::initGlobalSettings()
 
 	m_settings->registerSetting("SettingsGeometry", "");
 
+	// QuickMods
+	m_settings->registerSetting("QuickModAlwaysLatestVersion", true);
+	m_settings->registerSetting("QuickModDownloadSelection", "priority");
+
 	m_settings->registerSetting("PagedGeometry", "");
 }
 
@@ -532,10 +576,13 @@ void MultiMC::initHttpMetaCache()
 	m_metacache->addBase("asset_objects", QDir("assets/objects").absolutePath());
 	m_metacache->addBase("versions", QDir("versions").absolutePath());
 	m_metacache->addBase("libraries", QDir("libraries").absolutePath());
+	m_metacache->addBase("maven/pom", QDir("maven/pom").absolutePath());
 	m_metacache->addBase("minecraftforge", QDir("mods/minecraftforge").absolutePath());
 	m_metacache->addBase("fmllibs", QDir("mods/minecraftforge/libs").absolutePath());
 	m_metacache->addBase("liteloader", QDir("mods/liteloader").absolutePath());
 	m_metacache->addBase("skins", QDir("accounts/skins").absolutePath());
+	m_metacache->addBase("quickmod/icons", QDir("quickmod/images/icons").absolutePath());
+	m_metacache->addBase("quickmod/logos", QDir("quickmod/images/logos").absolutePath());
 	m_metacache->addBase("root", QDir(root()).absolutePath());
 	m_metacache->Load();
 }
@@ -663,6 +710,24 @@ std::shared_ptr<JavaVersionList> MultiMC::javalist()
 		m_javalist.reset(new JavaVersionList());
 	}
 	return m_javalist;
+}
+
+std::shared_ptr<QuickModsList> MultiMC::quickmodslist()
+{
+	if (!m_quickmodslist)
+	{
+		m_quickmodslist.reset(new QuickModsList());
+	}
+	return m_quickmodslist;
+}
+
+std::shared_ptr<QuickModSettings> MultiMC::quickmodSettings()
+{
+	if (!m_quickmodSettings)
+	{
+		m_quickmodSettings.reset(new QuickModSettings());
+	}
+	return m_quickmodSettings;
 }
 
 std::shared_ptr<URNResolver> MultiMC::resolver()

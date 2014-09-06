@@ -48,6 +48,7 @@ find_package(Qt5Network REQUIRED)
 find_package(Qt5Test REQUIRED)
 find_package(Qt5Xml REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
+find_package(Qt5WebKitWidgets REQUIRED)
 
 include_directories(
 	${Qt5Core_INCLUDE_DIRS}
@@ -186,6 +187,12 @@ else()
 	set(MultiMC_UPDATER_FORCE_LOCAL_value "false")
 endif()
 
+#### For QuickMods
+option(MultiMC_WEBKIT_INSPECTOR "Enable the QWebInspector for debugging" OFF)
+if(MultiMC_WEBKIT_INSPECTOR)
+    add_definitions(-DWEBKIT_INSPECTOR)
+endif()
+
 #### Custom target to just print the version.
 add_custom_target(version echo "Version: ${MultiMC_VERSION_STRING}")
 
@@ -257,10 +264,14 @@ include_directories(${LIBUTIL_INCLUDE_DIR})
 # Add the updater
 add_subdirectory(mmc_updater)
 
+# Add the GUI -> Logic connection header
+add_subdirectory(depends/LogicalGui)
+include_directories(${LOGICALGUI_INCLUDE_DIR})
+
 ################################ FILES ################################
 
 ######## Sources and headers ########
-SET(MULTIMC_SOURCES
+set(MULTIMC_SOURCES
 	# Application base
 	MultiMC.h
 	MultiMC.cpp
@@ -285,6 +296,8 @@ SET(MULTIMC_SOURCES
 	# GUI - general utilities
 	gui/GuiUtil.h
 	gui/GuiUtil.cpp
+	gui/QuickModGuiUtil.h
+	gui/QuickModGuiUtil.cpp
 	gui/ColumnResizer.h
 	gui/ColumnResizer.cpp
 
@@ -293,6 +306,10 @@ SET(MULTIMC_SOURCES
 	gui/MainWindow.cpp
 	gui/ConsoleWindow.h
 	gui/ConsoleWindow.cpp
+
+	# GUI - delegates
+	gui/delegates/QuickModDelegate.h
+	gui/delegates/QuickModDelegate.cpp
 
 	# GUI - page dialog pages
 	gui/pages/BasePage.h
@@ -332,6 +349,18 @@ SET(MULTIMC_SOURCES
 	gui/pages/global/ProxyPage.h
 
 	# GUI - dialogs
+	gui/dialogs/quickmod/QuickModAddFileDialog.h
+	gui/dialogs/quickmod/QuickModAddFileDialog.cpp
+	gui/dialogs/quickmod/QuickModInstallDialog.h
+	gui/dialogs/quickmod/QuickModInstallDialog.cpp
+	gui/dialogs/quickmod/QuickModRepoDialog.h
+	gui/dialogs/quickmod/QuickModRepoDialog.cpp
+	gui/dialogs/quickmod/QuickModVerifyModsDialog.h
+	gui/dialogs/quickmod/QuickModVerifyModsDialog.cpp
+	gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.h
+	gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.cpp
+	gui/dialogs/quickmod/QuickModDownloadSelectionDialog.h
+	gui/dialogs/quickmod/QuickModDownloadSelectionDialog.cpp
 	gui/dialogs/AboutDialog.cpp
 	gui/dialogs/AboutDialog.h
 	gui/dialogs/AccountSelectDialog.cpp
@@ -374,6 +403,8 @@ SET(MULTIMC_SOURCES
 	gui/widgets/LineSeparator.cpp
 	gui/widgets/LineSeparator.h
 	gui/widgets/MCModInfoFrame.cpp
+	gui/widgets/WebDownloadNavigator.h
+	gui/widgets/WebDownloadNavigator.cpp
 	gui/widgets/MCModInfoFrame.h
 	gui/widgets/ModListView.cpp
 	gui/widgets/ModListView.h
@@ -384,7 +415,6 @@ SET(MULTIMC_SOURCES
 	gui/widgets/ServerStatus.h
 	gui/widgets/VersionListView.cpp
 	gui/widgets/VersionListView.h
-
 
 	# GUI - instance group view
 	gui/groupview/GroupedProxyModel.cpp
@@ -407,6 +437,10 @@ SET(MULTIMC_SOURCES
 	logic/Mod.cpp
 	logic/ModList.h
 	logic/ModList.cpp
+
+	# Models
+	logic/KRecursiveFilterProxyModel.h
+	logic/KRecursiveFilterProxyModel.cpp
 	
 	# sets and maps for deciding based on versions
 	logic/VersionFilterData.h
@@ -458,8 +492,12 @@ SET(MULTIMC_SOURCES
 	logic/net/HttpMetaCache.cpp
 	logic/net/PasteUpload.h
 	logic/net/PasteUpload.cpp
+	logic/net/ByteArrayUpload.h
+	logic/net/ByteArrayUpload.cpp
 	logic/net/URLConstants.h
 	logic/net/URLConstants.cpp
+	logic/net/MavenResolver.h
+	logic/net/MavenResolver.cpp
 
 	# Yggdrasil login stuff
 	logic/auth/AuthSession.h
@@ -619,6 +657,50 @@ SET(MULTIMC_SOURCES
 	logic/tools/JProfiler.cpp
 	logic/tools/JVisualVM.h
 	logic/tools/JVisualVM.cpp
+
+	# QuickMods
+	logic/quickmod/QuickMod.cpp
+	logic/quickmod/QuickMod.h
+	logic/quickmod/QuickModRef.cpp
+	logic/quickmod/QuickModRef.h
+	logic/quickmod/QuickModBuilder.cpp
+	logic/quickmod/QuickModBuilder.h
+	logic/quickmod/QuickModDependencyResolver.cpp
+	logic/quickmod/QuickModDependencyResolver.h
+	logic/quickmod/QuickModDownload.cpp
+	logic/quickmod/QuickModDownload.h
+	logic/quickmod/QuickModFilesUpdater.cpp
+	logic/quickmod/QuickModFilesUpdater.h
+	logic/quickmod/QuickModInstaller.cpp
+	logic/quickmod/QuickModInstaller.h
+	logic/quickmod/QuickModInstanceModList.cpp
+	logic/quickmod/QuickModInstanceModList.h
+	logic/quickmod/QuickModLibraryInstaller.cpp
+	logic/quickmod/QuickModLibraryInstaller.h
+	logic/quickmod/QuickModUpdateMonitor.cpp
+	logic/quickmod/QuickModUpdateMonitor.h
+	logic/quickmod/QuickModVersion.cpp
+	logic/quickmod/QuickModVersion.h
+	logic/quickmod/QuickModVersionList.cpp
+	logic/quickmod/QuickModVersionList.h
+	logic/quickmod/QuickModVersionRef.cpp
+	logic/quickmod/QuickModVersionRef.h
+	logic/quickmod/QuickModsList.cpp
+	logic/quickmod/QuickModsList.h
+	logic/quickmod/QuickModIndexList.cpp
+	logic/quickmod/QuickModIndexList.h
+	logic/quickmod/QuickModSettings.cpp
+	logic/quickmod/QuickModSettings.h
+	logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp
+	logic/quickmod/tasks/QuickModDependencyDownloadTask.h
+	logic/quickmod/tasks/QuickModDownloadTask.cpp
+	logic/quickmod/tasks/QuickModDownloadTask.h
+	logic/quickmod/tasks/QuickModForgeDownloadTask.cpp
+	logic/quickmod/tasks/QuickModForgeDownloadTask.h
+	logic/quickmod/tasks/QuickModLiteLoaderDownloadTask.cpp
+	logic/quickmod/tasks/QuickModLiteLoaderDownloadTask.h
+	logic/quickmod/tasks/QuickModMavenFindTask.cpp
+	logic/quickmod/tasks/QuickModMavenFindTask.h
 	
 	# Forge and all things forge related
 	logic/forge/ForgeVersion.h
@@ -644,7 +726,7 @@ SET(MULTIMC_SOURCES
 
 
 ######## UIs ########
-SET(MULTIMC_UIS
+set(MULTIMC_UIS
 	# Windows
 	gui/MainWindow.ui
 
@@ -680,6 +762,12 @@ SET(MULTIMC_UIS
 	gui/dialogs/LoginDialog.ui
 	gui/dialogs/UpdateDialog.ui
 	gui/dialogs/NotificationDialog.ui
+	gui/dialogs/quickmod/QuickModAddFileDialog.ui
+	gui/dialogs/quickmod/QuickModInstallDialog.ui
+	gui/dialogs/quickmod/QuickModRepoDialog.ui
+	gui/dialogs/quickmod/QuickModVerifyModsDialog.ui
+	gui/dialogs/quickmod/QuickModCreateFromInstanceDialog.ui
+	gui/dialogs/quickmod/QuickModDownloadSelectionDialog.ui
 
 	# Widgets/other
 	gui/widgets/MCModInfoFrame.ui
@@ -744,9 +832,9 @@ add_executable(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_RCS})
 
 # Link
 target_link_libraries(MultiMC MultiMC_common)
-target_link_libraries(MultiMC_common xz-embedded unpack200 quazip libUtil ${MultiMC_LINK_ADDITIONAL_LIBS})
-qt5_use_modules(MultiMC Core Widgets Network Xml Concurrent ${MultiMC_QT_ADDITIONAL_MODULES})
-qt5_use_modules(MultiMC_common Core Widgets Network Xml Concurrent ${MultiMC_QT_ADDITIONAL_MODULES})
+target_link_libraries(MultiMC_common xz-embedded unpack200 quazip libUtil LogicalGui ${MultiMC_LINK_ADDITIONAL_LIBS})
+qt5_use_modules(MultiMC Core Widgets Network Xml Concurrent WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
+qt5_use_modules(MultiMC_common Core Widgets Network Xml Concurrent WebKitWidgets ${MultiMC_QT_ADDITIONAL_MODULES})
 
 ################################ INSTALLATION AND PACKAGING ################################
 

@@ -112,6 +112,7 @@ slots:
 
 	void on_actionScreenshots_triggered();
 
+
 	/*!
 	 * Launches the currently selected instance with the default account.
 	 * If no default account is selected, prompts the user to pick an account.
@@ -177,6 +178,9 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *ev);
 	void setCatBackground(bool enabled);
 	void updateInstanceToolIcon(QString new_icon);
+
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 
 	void setSelectedInstanceById(const QString &id);
 

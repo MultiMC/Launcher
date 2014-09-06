@@ -60,6 +60,11 @@ public:
 	{
 		addPageCreator([](){return new PageClass();});
 	}
+	template<typename PageClass, typename... Params>
+	void addPage(Params... params)
+	{
+		addPageCreator(std::bind([](Params... params){return new PageClass(params...);}, params...));
+	}
 
 private:
 	QList<PageCreator> m_creators;
