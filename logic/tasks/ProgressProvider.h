@@ -17,10 +17,13 @@
 
 #include <QObject>
 
-class ProgressProvider : public QObject
+#include "LogicalGui.h"
+
+class ProgressProvider : public QObject, public Bindable
 {
 	Q_OBJECT
 protected:
+	explicit ProgressProvider(Bindable *parent) : QObject(0), Bindable(parent) {}
 	explicit ProgressProvider(QObject *parent = 0) : QObject(parent)
 	{
 	}
@@ -32,9 +35,7 @@ signals:
 	void status(QString status);
 
 public:
-	virtual ~ProgressProvider() {};
-	virtual QString getStatus() const = 0;
-	virtual void getProgress(qint64 &current, qint64 &total) = 0;
+	virtual ~ProgressProvider() {}
 	virtual bool isRunning() const = 0;
 public
 slots:

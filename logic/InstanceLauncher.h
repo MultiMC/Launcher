@@ -40,5 +40,5 @@ slots:
 	void doLogin(const QString &errorMsg);
 
 public:
-	int launch();
+	bool launch();
 };

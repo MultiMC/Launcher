@@ -45,6 +45,8 @@
 #include "gui/groupview/InstanceDelegate.h"
 
 #include "gui/Platform.h"
+#include "gui/QuickModGuiUtil.h"
+#include "gui/GuiUtil.h"
 
 #include "gui/widgets/LabeledToolButton.h"
 #include "widgets/ServerStatus.h"
@@ -65,9 +67,10 @@
 #include "gui/pages/global/MultiMCPage.h"
 #include "gui/pages/global/ExternalToolsPage.h"
 #include "gui/pages/global/AccountListPage.h"
-#include "pages/global/ProxyPage.h"
-#include "pages/global/JavaPage.h"
-#include "pages/global/MinecraftPage.h"
+#include "gui/pages/QuickModBrowsePage.h"
+#include "gui/pages/global/ProxyPage.h"
+#include "gui/pages/global/JavaPage.h"
+#include "gui/pages/global/MinecraftPage.h"
 
 #include "gui/ConsoleWindow.h"
 #include "pagedialog/PageDialog.h"
@@ -77,6 +80,8 @@
 #include "logic/LwjglVersionList.h"
 #include "logic/icons/IconList.h"
 #include "logic/java/JavaVersionList.h"
+#include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickMod.h"
 
 #include "logic/auth/flows/AuthenticateTask.h"
 #include "logic/auth/flows/RefreshTask.h"
@@ -91,6 +96,7 @@
 #include "logic/net/NetJob.h"
 
 #include "logic/BaseInstance.h"
+#include "logic/OneSixInstance.h"
 #include "logic/InstanceFactory.h"
 #include "logic/MinecraftProcess.h"
 #include "logic/OneSixUpdate.h"
@@ -118,6 +124,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	if (!BuildConfig.BUILD_PLATFORM.isEmpty())
 		winTitle += " on " + BuildConfig.BUILD_PLATFORM;
 	setWindowTitle(winTitle);
+
+	setAcceptDrops(true);
+
+	GuiUtil::setup(&InstanceFactory::get(), this);
+	QuickModGuiUtil::setup(&InstanceFactory::get(), this);
 
 	// OSX magic.
 	// setUnifiedTitleAndToolBarOnMac(true);
@@ -259,6 +270,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		m_globalSettingsProvider->addPage<ProxyPage>();
 		m_globalSettingsProvider->addPage<ExternalToolsPage>();
 		m_globalSettingsProvider->addPage<AccountListPage>();
+		m_globalSettingsProvider->addPage<QuickModBrowsePage>(nullptr);
 	}
 
 	// Update the menu when the active account changes.
@@ -339,6 +351,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	// removing this looks stupid
 	view->setFocus();
+
+	connect(MMC->quickmodslist().get(), &QuickModsList::error, [this](const QString &message){ this->ui->statusBar->showMessage(message, 5 * 1000); });
 }
 
 MainWindow::~MainWindow()
@@ -730,6 +744,36 @@ void MainWindow::setCatBackground(bool enabled)
 	}
 }
 
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+	if (event->mimeData()->hasUrls())
+	{
+		if (event->dropAction() == Qt::CopyAction)
+		{
+			event->acceptProposedAction();
+		}
+		else
+		{
+			event->setDropAction(Qt::CopyAction);
+			event->accept();
+		}
+	}
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+	event->setDropAction(Qt::CopyAction);
+
+	if(event->mimeData()->hasUrls())
+	{
+		foreach (const QUrl& url, event->mimeData()->urls())
+		{
+			MMC->quickmodslist()->registerMod(url, false);
+		}
+		event->accept();
+	}
+}
+
 void MainWindow::on_actionAddInstance_triggered()
 {
 #ifdef TEST_SEGV
@@ -751,64 +795,13 @@ void MainWindow::on_actionAddInstance_triggered()
 		return;
 
 	InstancePtr newInstance;
-
-	QString instancesDir = MMC->settings()->get("InstanceDir").toString();
-	QString instDirName = DirNameFromString(newInstDlg.instName(), instancesDir);
-	QString instDir = PathCombine(instancesDir, instDirName);
-
-	auto &loader = InstanceFactory::get();
-
-	auto error = loader.createInstance(newInstance, newInstDlg.selectedVersion(), instDir);
-	QString errorMsg = tr("Failed to create instance %1: ").arg(instDirName);
-	switch (error)
+	try
 	{
-	case InstanceFactory::NoCreateError:
-		newInstance->setName(newInstDlg.instName());
-		newInstance->setIconKey(newInstDlg.iconKey());
-		MMC->instances()->add(InstancePtr(newInstance));
-		break;
-
-	case InstanceFactory::InstExists:
-	{
-		errorMsg += tr("An instance with the given directory name already exists.");
-		CustomMessageBox::selectable(this, tr("Error"), errorMsg, QMessageBox::Warning)->show();
-		return;
+		newInstance = InstanceFactory::get().addInstance(newInstDlg.instName(), newInstDlg.iconKey(), newInstDlg.selectedVersion(), newInstDlg.fromQuickMod());
 	}
-
-	case InstanceFactory::CantCreateDir:
+	catch (MMCError &error)
 	{
-		errorMsg += tr("Failed to create the instance directory.");
-		CustomMessageBox::selectable(this, tr("Error"), errorMsg, QMessageBox::Warning)->show();
-		return;
-	}
-
-	default:
-	{
-		errorMsg += tr("Unknown instance loader error %1").arg(error);
-		CustomMessageBox::selectable(this, tr("Error"), errorMsg, QMessageBox::Warning)->show();
-		return;
-	}
-	}
-
-	if (MMC->accounts()->anyAccountIsValid())
-	{
-		ProgressDialog loadDialog(this);
-		auto update = newInstance->doUpdate();
-		connect(update.get(), &Task::failed, [this](QString reason)
-		{
-			QString error = QString("Instance load failed: %1").arg(reason);
-			CustomMessageBox::selectable(this, tr("Error"), error, QMessageBox::Warning)
-				->show();
-		});
-		loadDialog.exec(update.get());
-	}
-	else
-	{
-		CustomMessageBox::selectable(
-			this, tr("Error"),
-			tr("MultiMC cannot download Minecraft or update instances unless you have at least "
-			   "one account added.\nPlease add your Mojang or Minecraft account."),
-			QMessageBox::Warning)->show();
+		CustomMessageBox::selectable(this, tr("Error"), error.cause(), QMessageBox::Warning)->show();
 	}
 }
 
@@ -1264,16 +1257,45 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 								BaseProfilerFactory *profiler)
 {
+	if (auto onesix = std::dynamic_pointer_cast<OneSixInstance>(instance))
+	{
+		QList<QuickModRef> mods = MMC->quickmodslist()->updatedModsForInstance(onesix);
+		if (!mods.isEmpty())
+		{
+			QStringList names;
+			QMap<QuickModRef, QPair<QuickModVersionRef, bool>> modsToUpdate;
+			for (auto mod : mods)
+			{
+				auto ptr = MMC->quickmodslist()->mods(mod).first();
+				names.append(ptr->name());
+				modsToUpdate.insert(
+					ptr->uid(),
+					qMakePair(QuickModVersionRef(),
+							  onesix->getFullVersion()->quickmods[ptr->uid()].second));
+			}
+			int res = QMessageBox::question(
+				this, tr("Update"),
+				tr("The following mods have new updates:\n\n%1\n\n Update now?")
+					.arg(names.join(", ")),
+				QMessageBox::Yes, QMessageBox::No);
+			if (res == QMessageBox::Yes)
+			{
+				onesix->setQuickModVersions(modsToUpdate);
+			}
+		}
+	}
+
 	auto updateTask = instance->doUpdate();
 	if (!updateTask)
 	{
 		launchInstance(instance, session, profiler);
 		return;
 	}
-	ProgressDialog tDialog(this);
+	QuickModGuiUtil::setup(updateTask.get(), this);
 	connect(updateTask.get(), &Task::succeeded, [this, instance, session, profiler]
 	{ launchInstance(instance, session, profiler); });
 	connect(updateTask.get(), SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
+	ProgressDialog tDialog(this);
 	tDialog.exec(updateTask.get());
 }
 
@@ -1429,6 +1451,11 @@ void MainWindow::selectionBad()
 
 	// ...and then see if we can enable the previously selected instance
 	setSelectedInstanceById(MMC->settings()->get("SelectedInstance").toString());
+}
+
+void MainWindow::on_actionBrowseQuickMods_triggered()
+{
+	ShowPageDialog(m_globalSettingsProvider, this, "quickmod-browse");
 }
 
 void MainWindow::instanceEnded()

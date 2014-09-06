@@ -33,10 +33,14 @@
 #include "logic/OneSixInstance.h"
 #include "logic/BaseVersion.h"
 #include "logic/minecraft/MinecraftVersion.h"
+#include "logic/InstanceList.h"
+#include "logic/auth/MojangAccountList.h"
+#include "logic/tasks/Task.h"
+#include "MultiMC.h"
 
 InstanceFactory InstanceFactory::loader;
 
-InstanceFactory::InstanceFactory() : QObject(NULL)
+InstanceFactory::InstanceFactory() : Bindable()
 {
 }
 
@@ -52,19 +56,19 @@ InstanceFactory::InstLoadError InstanceFactory::loadInstance(InstancePtr &inst,
 	// FIXME: replace with a map lookup, where instance classes register their types
 	if (inst_type == "OneSix" || inst_type == "Nostalgia")
 	{
-		inst.reset(new OneSixInstance(instDir, m_settings, this));
+		inst.reset(new OneSixInstance(instDir, m_settings));
 	}
 	else if (inst_type == "Legacy")
 	{
-		inst.reset(new LegacyInstance(instDir, m_settings, this));
+		inst.reset(new LegacyInstance(instDir, m_settings));
 	}
 	else if (inst_type == "LegacyFTB")
 	{
-		inst.reset(new LegacyFTBInstance(instDir, m_settings, this));
+		inst.reset(new LegacyFTBInstance(instDir, m_settings));
 	}
 	else if (inst_type == "OneSixFTB")
 	{
-		inst.reset(new OneSixFTBInstance(instDir, m_settings, this));
+		inst.reset(new OneSixFTBInstance(instDir, m_settings));
 	}
 	else
 	{
@@ -72,6 +76,61 @@ InstanceFactory::InstLoadError InstanceFactory::loadInstance(InstancePtr &inst,
 	}
 	inst->init();
 	return NoLoadError;
+}
+
+InstancePtr InstanceFactory::addInstance(const QString &name, const QString &iconKey, BaseVersionPtr version, const QuickModRef quickmod)
+{
+	InstancePtr newInstance;
+
+	const QString instancesDir = MMC->settings()->get("InstanceDir").toString();
+	const QString instDirName = DirNameFromString(name, instancesDir);
+	const QString instDir = PathCombine(instancesDir, instDirName);
+
+	const auto error = createInstance(newInstance, version, instDir);
+	const QString errorMsg = QObject::tr("Failed to create instance %1: ").arg(instDirName);
+	switch (error)
+	{
+	case InstanceFactory::NoCreateError:
+		newInstance->setName(name);
+		newInstance->setIconKey(iconKey);
+		if (quickmod.isValid())
+		{
+			newInstance->setNotes(quickmod.findMod()->description());
+			if (quickmod.findMod()->categories().size() > 1)
+			{
+				newInstance->setGroupInitial(quickmod.findMod()->categories().at(1));
+			}
+			newInstance->settings().set("LastQuickModUrl", quickmod.findMod()->updateUrl());
+			if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(newInstance))
+			{
+				onesix->setQuickModVersion(quickmod, QuickModVersionRef(), true);
+			}
+		}
+		MMC->instances()->add(newInstance);
+		break;
+	case InstanceFactory::InstExists:
+		throw MMCError(errorMsg + QObject::tr("An instance with the given directory name already exists."));
+	case InstanceFactory::CantCreateDir:
+		throw MMCError(errorMsg + QObject::tr("Failed to create the instance directory."));
+	default:
+		throw MMCError(errorMsg + QObject::tr("Unknown instance loader error %1").arg(error));
+	}
+
+	if (!MMC->accounts()->anyAccountIsValid())
+	{
+		throw MMCError(QObject::tr("MultiMC cannot download Minecraft or update instances unless you have at least "
+						  "one account added.\nPlease add your Mojang or Minecraft account."));
+	}
+
+	auto update = newInstance->doUpdate();
+	update->setBindableParent(this);
+	wait<int>("Gui.ProgressDialog", update.get());
+	if (!update->successful())
+	{
+		throw MMCError(QObject::tr("Instance load failed: %1").arg(update->failReason()));
+	}
+
+	return newInstance;
 }
 
 InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &inst, BaseVersionPtr version,
@@ -82,11 +141,15 @@ InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &in
 	QLOG_DEBUG() << instDir.toUtf8();
 	if (!rootDir.exists() && !rootDir.mkpath("."))
 	{
+		QLOG_ERROR() << "Can't create instance folder" << instDir;
 		return InstanceFactory::CantCreateDir;
 	}
 	auto mcVer = std::dynamic_pointer_cast<MinecraftVersion>(version);
 	if (!mcVer)
+	{
+		QLOG_ERROR() << "Can't create instance for non-existing MC version";
 		return InstanceFactory::NoSuchVersion;
+	}
 
 	auto m_settings = new INISettingsObject(PathCombine(instDir, "instance.cfg"));
 	m_settings->registerSetting("InstanceType", "Legacy");
@@ -94,7 +157,7 @@ InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &in
 	if (type == NormalInst)
 	{
 		m_settings->set("InstanceType", "OneSix");
-		inst.reset(new OneSixInstance(instDir, m_settings, this));
+		inst.reset(new OneSixInstance(instDir, m_settings));
 		inst->setIntendedVersionId(version->descriptor());
 		inst->setShouldUseCustomBaseJar(false);
 	}
@@ -103,14 +166,14 @@ InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &in
 		if(mcVer->usesLegacyLauncher())
 		{
 			m_settings->set("InstanceType", "LegacyFTB");
-			inst.reset(new LegacyFTBInstance(instDir, m_settings, this));
+			inst.reset(new LegacyFTBInstance(instDir, m_settings));
 			inst->setIntendedVersionId(version->descriptor());
 			inst->setShouldUseCustomBaseJar(false);
 		}
 		else
 		{
 			m_settings->set("InstanceType", "OneSixFTB");
-			inst.reset(new OneSixFTBInstance(instDir, m_settings, this));
+			inst.reset(new OneSixFTBInstance(instDir, m_settings));
 			inst->setIntendedVersionId(version->descriptor());
 			inst->setShouldUseCustomBaseJar(false);
 		}
@@ -122,7 +185,6 @@ InstanceFactory::InstCreateError InstanceFactory::createInstance(InstancePtr &in
 	}
 
 	inst->init();
-
 	// FIXME: really, how do you even know?
 	return InstanceFactory::NoCreateError;
 }
