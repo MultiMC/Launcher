@@ -16,7 +16,9 @@
 #pragma once
 
 #include <QDialog>
+
 #include "logic/BaseVersion.h"
+#include "logic/quickmod/QuickMod.h"
 
 namespace Ui
 {
@@ -40,12 +42,14 @@ public:
 	QString instName() const;
 	QString iconKey() const;
 	BaseVersionPtr selectedVersion() const;
+	QuickModRef fromQuickMod() const;
 
 private
 slots:
 	void on_btnChangeVersion_clicked();
 	void on_iconButton_clicked();
 	void on_instNameTextBox_textChanged(const QString &arg1);
+	void on_quickmodBox_currentIndexChanged(int newIndex);
 
 private:
 	Ui::NewInstanceDialog *ui;

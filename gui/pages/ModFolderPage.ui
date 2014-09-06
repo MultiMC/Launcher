@@ -36,6 +36,16 @@
        <string>Tab 1</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="0" colspan="2">
+        <widget class="MCModInfoFrame" name="frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="ModListView" name="modTreeView">
          <property name="sizePolicy">
@@ -69,6 +79,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="updateModBtn">
+           <property name="text">
+            <string>&amp;Update</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -90,14 +107,30 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="MCModInfoFrame" name="frame">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="orphansBox">
+         <property name="toolTip">
+          <string>Orphaned mods are mods that where installed as a dependency, but for which the dependee has been uninstalled, and often therefore aren't required anymore</string>
          </property>
+         <property name="title">
+          <string>Orphaned Mods</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
+          <item>
+           <widget class="QLabel" name="orphansLabel">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="orphansRemoveBtn">
+            <property name="text">
+             <string>Remove</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
       </layout>

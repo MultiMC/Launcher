@@ -23,9 +23,11 @@
 #include <pathutils.h>
 
 #include "gui/Platform.h"
+#include "gui/dialogs/quickmod/QuickModRepoDialog.h"
+#include "gui/dialogs/quickmod/QuickModAddFileDialog.h"
 #include "gui/dialogs/VersionSelectDialog.h"
 #include "gui/dialogs/CustomMessageBox.h"
-#include <gui/ColumnResizer.h>
+#include "gui/ColumnResizer.h"
 
 #include "logic/NagUtils.h"
 
@@ -36,6 +38,8 @@
 #include "logic/updater/UpdateChecker.h"
 
 #include "logic/tools/BaseProfiler.h"
+
+#include "logic/quickmod/QuickModsList.h"
 
 #include "logic/settings/SettingsObject.h"
 #include "MultiMC.h"
@@ -61,7 +65,7 @@ MultiMCPage::MultiMCPage(QWidget *parent) : QWidget(parent), ui(new Ui::MultiMCP
 
 	loadSettings();
 
-	QObject::connect(MMC->updateChecker().get(), &UpdateChecker::channelListLoaded, this,
+	connect(MMC->updateChecker().get(), &UpdateChecker::channelListLoaded, this,
 					 &MultiMCPage::refreshUpdateChannelList);
 
 	if (MMC->updateChecker()->hasChannels())
@@ -72,6 +76,9 @@ MultiMCPage::MultiMCPage(QWidget *parent) : QWidget(parent), ui(new Ui::MultiMCP
 	{
 		MMC->updateChecker()->updateChanList(false);
 	}
+
+	connect(ui->quickmodAddBtn, &QPushButton::clicked, [this](){QuickModAddFileDialog::run(this);});
+	connect(ui->quickmodUpdateBtn, &QPushButton::clicked, [](){MMC->quickmodslist()->updateFiles();});
 }
 
 MultiMCPage::~MultiMCPage()
@@ -155,6 +162,12 @@ void MultiMCPage::on_iconsDirBrowseBtn_clicked()
 		ui->iconsDirTextBox->setText(cooked_dir);
 	}
 }
+
+void MultiMCPage::on_quickmodRepoBtn_clicked()
+{
+	QuickModRepoDialog(this).exec();
+}
+
 void MultiMCPage::on_modsDirBrowseBtn_clicked()
 {
 	QString raw_dir = QFileDialog::getExistingDirectory(this, tr("Mods Directory"),
@@ -293,6 +306,25 @@ void MultiMCPage::applySettings()
 	s->set("LWJGLDir", ui->lwjglDirTextBox->text());
 	s->set("IconsDir", ui->iconsDirTextBox->text());
 
+	// QuickMods
+	s->set("QuickModAlwaysLatestVersion", ui->quickmodAlwaysLatestBtn->isChecked());
+	if (ui->qmPriorityBtn->isChecked())
+	{
+		s->set("QuickModDownloadSelection", "priority");
+	}
+	else if (ui->qmAlwaysAskBtn->isChecked())
+	{
+		s->set("QuickModDownloadSelection", "ask");
+	}
+	else if (ui->qmDirectBtn->isChecked())
+	{
+		s->set("QuickModDownloadSelection", "direct");
+	}
+	else if (ui->qmSequentialBtn->isChecked())
+	{
+		s->set("QuickModDownloadSelection", "sequential");
+	}
+
 	auto sortMode = (InstSortMode)ui->sortingModeGroup->checkedId();
 	switch (sortMode)
 	{
@@ -347,6 +379,31 @@ void MultiMCPage::loadSettings()
 	ui->modsDirTextBox->setText(s->get("CentralModsDir").toString());
 	ui->lwjglDirTextBox->setText(s->get("LWJGLDir").toString());
 	ui->iconsDirTextBox->setText(s->get("IconsDir").toString());
+
+	// QuickMods
+	ui->quickmodAlwaysLatestBtn->setChecked(s->get("QuickModAlwaysLatestVersion").toBool());
+	const QString downloadSelect = s->get("QuickModDownloadSelection").toString();
+	if (downloadSelect == "priority")
+	{
+		ui->qmPriorityBtn->setChecked(true);
+	}
+	else if (downloadSelect == "ask")
+	{
+		ui->qmAlwaysAskBtn->setChecked(true);
+	}
+	else if (downloadSelect == "direct")
+	{
+		ui->qmDirectBtn->setChecked(true);
+	}
+	else if (downloadSelect == "sequential")
+	{
+		ui->qmSequentialBtn->setChecked(true);
+	}
+	else
+	{
+		// default
+		ui->qmPriorityBtn->setChecked(true);
+	}
 
 	QString sortMode = s->get("InstSortMode").toString();
 

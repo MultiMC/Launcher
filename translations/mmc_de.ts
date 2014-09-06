@@ -1415,14 +1415,14 @@ p, li { white-space: pre-wrap; }
         <translation>Texturenpakete</translation>
     </message>
     <message>
-        <location filename="../gui/dialogs/OneSixModEditDialog.cpp" line="+325"/>
+        <location filename="../gui/dialogs/OneSixModEditDialog.cpp" line="+361"/>
         <location filename="../gui/dialogs/LegacyModEditDialog.cpp" line="+258"/>
         <source>Select Loader Mods</source>
         <extracomment>Title of regular mod selection dialog</extracomment>
         <translation>Mods auswählen</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+78"/>
         <source>Select Resource Packs</source>
         <translation>Ressourcenpakete auswählen</translation>
     </message>
@@ -1674,7 +1674,7 @@ p, li { white-space: pre-wrap; }
         <translation>Haupt-Werkzeugleiste</translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="+45"/>
         <source>Instance Toolbar</source>
         <translation>Instanz-Werkzeugleiste</translation>
     </message>
@@ -1805,12 +1805,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+3"/>
         <location line="+3"/>
-        <location line="+213"/>
+        <location line="+223"/>
         <source>Launch the selected instance.</source>
         <translation>Die ausgewählte Instanz starten.</translation>
     </message>
     <message>
-        <location line="-208"/>
+        <location line="-218"/>
         <source>Instance Name</source>
         <translation>Instanzname</translation>
     </message>
@@ -1957,7 +1957,17 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+21"/>
+        <source>Add QuickMod File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Update QuickMod Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
         <source>Launch the selected instance in offline mode.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1972,7 +1982,7 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-33"/>
+        <location line="-43"/>
         <source>Copy Instance</source>
         <translation>Kopiere Instanz</translation>
     </message>
@@ -1993,8 +2003,8 @@ p, li { white-space: pre-wrap; }
         <translation>Kopiere die ausgewählte Instanz.</translation>
     </message>
     <message>
-        <location line="+8"/>
-        <location filename="../gui/MainWindow.cpp" line="+248"/>
+        <location line="+18"/>
+        <location filename="../gui/MainWindow.cpp" line="+255"/>
         <source>Manage Accounts</source>
         <translation>Verwalte Konten</translation>
     </message>
@@ -2035,7 +2045,7 @@ You are using the latest version.</source>
 Du verwendest bereits die neueste Version.</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+47"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2056,12 +2066,12 @@ Du verwendest bereits die neueste Version.</translation>
     </message>
     <message>
         <location line="+23"/>
-        <location line="+934"/>
+        <location line="+990"/>
         <source>Launch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-932"/>
+        <location line="-988"/>
         <source>Profilers</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2101,7 +2111,7 @@ Du verwendest bereits die neueste Version.</translation>
         <translation>Keine Nachrichten verfügbar.</translation>
     </message>
     <message>
-        <location line="+190"/>
+        <location line="+220"/>
         <location line="+71"/>
         <source>Failed to create instance %1: </source>
         <translation type="unfinished"></translation>
@@ -2121,14 +2131,14 @@ Du verwendest bereits die neueste Version.</translation>
         <location line="+37"/>
         <location line="+7"/>
         <location line="+7"/>
-        <location line="+429"/>
+        <location line="+455"/>
         <location line="+30"/>
         <location line="+80"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location line="-618"/>
+        <location line="-644"/>
         <location line="+71"/>
         <source>Failed to create the instance directory.</source>
         <translation type="unfinished"></translation>
@@ -2141,14 +2151,14 @@ Du verwendest bereits die neueste Version.</translation>
     </message>
     <message>
         <location line="-49"/>
-        <location line="+590"/>
+        <location line="+616"/>
         <source>MultiMC cannot download Minecraft or update instances unless you have at least one account added.
 Please add your Mojang or Minecraft account.</source>
         <translation>MultiMC kann Minecraft nicht herunterladen und keine Instanzen aktualisieren, solange du kein Konto erstellt hast.
 Bitte füge dein Mojang- oder Minecraft-Konto hinzu.</translation>
     </message>
     <message>
-        <location line="-478"/>
+        <location line="-504"/>
         <source>Group name</source>
         <translation>Gruppenname</translation>
     </message>
@@ -2210,7 +2220,21 @@ Die folgende Instanz löschen:</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location line="+43"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The following mods have new updates:
+
+%1
+
+ Update now?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+51"/>
         <source>Couldn&apos;t start profiler: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2237,7 +2261,7 @@ Die folgende Instanz löschen:</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+294"/>
+        <location line="+304"/>
         <source>Failed to load screenshots!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2248,12 +2272,12 @@ Die folgende Instanz löschen:</translation>
     </message>
     <message>
         <location filename="../gui/MainWindow.ui" line="+5"/>
-        <location filename="../gui/MainWindow.cpp" line="-433"/>
+        <location filename="../gui/MainWindow.cpp" line="-469"/>
         <source>Play Offline</source>
         <translation>Offline spielen</translation>
     </message>
     <message>
-        <location filename="../gui/MainWindow.cpp" line="+150"/>
+        <location filename="../gui/MainWindow.cpp" line="+176"/>
         <source>Error updating instance</source>
         <translation>Fehler beim Aktualisieren der Instanz</translation>
     </message>
@@ -2303,7 +2327,7 @@ Die folgende Instanz löschen:</translation>
         <translation>Instanz umbenennen</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+89"/>
         <source>Select a Java version</source>
         <translation>Wähle eine Java-Version</translation>
     </message>
@@ -2534,6 +2558,15 @@ Die folgende Instanz löschen:</translation>
     </message>
 </context>
 <context>
+    <name>OneSixInstance</name>
+    <message>
+        <location filename="../logic/OneSixInstance.cpp" line="+490"/>
+        <location line="+27"/>
+        <source>Couldn&apos;t open %1 for writing: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>OneSixModEditDialog</name>
     <message>
         <source>Dialog</source>
@@ -2551,12 +2584,12 @@ Die folgende Instanz löschen:</translation>
     </message>
     <message>
         <location line="+30"/>
-        <location line="+67"/>
+        <location line="+88"/>
         <source>&amp;Add</source>
         <translation>&amp;Hinzufügen</translation>
     </message>
     <message>
-        <location line="-232"/>
+        <location line="-253"/>
         <source>Manage Mods</source>
         <translation>Verwalte Mods</translation>
     </message>
@@ -2607,7 +2640,17 @@ Die folgende Instanz löschen:</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-20"/>
+        <location line="+60"/>
+        <source>&amp;Install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-94"/>
         <source>Move up</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2641,7 +2684,7 @@ Die folgende Instanz löschen:</translation>
         <translation type="vanished">Entferne ausgewählte Bibliotheken</translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+91"/>
         <location line="+67"/>
         <source>&amp;Remove</source>
         <translation>&amp;Entfernen</translation>
@@ -2662,17 +2705,17 @@ Die folgende Instanz löschen:</translation>
         <translation>Ressourcenpakete</translation>
     </message>
     <message>
-        <location filename="../gui/dialogs/OneSixModEditDialog.cpp" line="-206"/>
+        <location filename="../gui/dialogs/OneSixModEditDialog.cpp" line="-257"/>
         <source>Couldn&apos;t remove file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-17"/>
+        <location line="-47"/>
         <source>Failed to load the version description file for reasons unknown.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+105"/>
         <location line="+11"/>
         <location line="+24"/>
         <location line="+11"/>
@@ -2707,15 +2750,31 @@ Die folgende Instanz löschen:</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+99"/>
+        <source>Unable to schedule mod for removal:
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Unable to schedule mod for update:
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to revert the version of this instance to its original configuration?</source>
         <translation type="vanished">Möchtest du wirklich die Version dieser Instanz zurücksetzen?</translation>
     </message>
     <message>
-        <location line="-140"/>
+        <location line="-287"/>
         <location line="+6"/>
-        <location line="+18"/>
+        <location line="+48"/>
         <location line="+13"/>
         <location line="+18"/>
+        <location line="+18"/>
+        <location line="+166"/>
         <location line="+18"/>
         <source>Error</source>
         <translation>Fehler</translation>
@@ -2725,7 +2784,7 @@ Die folgende Instanz löschen:</translation>
         <translation type="vanished">Fehler beim Öffnen der custom.json-Datei, überprüfe deine Einstellungen</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="-155"/>
         <source>Select Forge version</source>
         <translation>Wähle Forge-Version</translation>
     </message>
@@ -2753,12 +2812,12 @@ Die folgende Instanz löschen:</translation>
         <translation type="vanished">Java-Installation wird getestet...</translation>
     </message>
     <message>
-        <location filename="../logic/OneSixUpdate.cpp" line="+51"/>
+        <location filename="../logic/OneSixUpdate.cpp" line="+53"/>
         <source>Failed to create folder for minecraft binaries.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+18"/>
         <source>The specified Minecraft version is invalid. Choose a different one.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2912,7 +2971,7 @@ Deine manuellen Einstellungen werden von den vorgesehenen überschrieben.
 Diese Mitteilung wird so lange angezeigt, bis du die Option entfernt hast.</translation>
     </message>
     <message>
-        <location filename="../gui/dialogs/ModEditDialogCommon.cpp" line="+53"/>
+        <location filename="../gui/dialogs/ModEditDialogCommon.cpp" line="+54"/>
         <source>How sad!</source>
         <translation>Wie schade!</translation>
     </message>
@@ -2963,7 +3022,7 @@ Diese Mitteilung wird so lange angezeigt, bis du die Option entfernt hast.</tran
         <translation type="obsolete">Fehler</translation>
     </message>
     <message>
-        <location filename="../logic/VersionFile.cpp" line="+475"/>
+        <location filename="../logic/VersionFile.cpp" line="+551"/>
         <location line="+27"/>
         <source>Error resolving library dependencies between %1 and %2 in %3.</source>
         <translation type="unfinished"></translation>
@@ -2979,18 +3038,460 @@ Diese Mitteilung wird so lange angezeigt, bis du die Option entfernt hast.</tran
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../logic/OneSixVersionBuilder.cpp" line="+127"/>
+        <location filename="../logic/OneSixVersionBuilder.cpp" line="+125"/>
         <source>%1 has the same order as %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+53"/>
         <source>Unable to open the version file %1: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Unable to process the version file %1: %2 at %3.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../logic/quickmod/QuickModVersion.cpp" line="+74"/>
+        <source>Unknown reference type &apos;%1&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Unknown value for &quot;downloadType&quot; field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Unknown value for &quot;installType&quot; field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../logic/MMCJson.h" line="+23"/>
+        <source>Error opening %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModAddFileDialog</name>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModAddFileDialog.ui" line="+20"/>
+        <source>Add QuickMod file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Browse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Protip:&lt;/span&gt; You can also drag and drop files and URLs to anywhere onto MultiMC&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModAddFileDialog.cpp" line="+127"/>
+        <source>Add QuickMod File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>QuickMod files (*.quickmod *.json)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModChooseModDialog</name>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModChooseModDialog.ui" line="+14"/>
+        <source>Browse mods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Download/Add QuickMod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Update QuickMods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Description:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Website:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Categories:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tags:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+46"/>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Category:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Tags:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use commas (,) to separate tags:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;tag1, tag2, tag3, tag4&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>tag1, tag2, tag3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Type your search here...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModChooseModDialog.cpp" line="+257"/>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+</context>
+<context>
+    <name>QuickModDependencyDownloadTask</name>
+    <message>
+        <location filename="../logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp" line="+18"/>
+        <source>Fetching QuickMods files...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModDependencyResolver</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModDependencyResolver.cpp" line="+33"/>
+        <source>Didn&apos;t select a version for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Choose QuickMod version for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>The dependency from %1 (%2) to %3 cannot be resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Didn&apos;t select a version while resolving from %1 (%2) to %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Successfully resolved dependency from %1 (%2) to %3 (%4)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>The dependency from %1 (%2) to %3 (%4) cannot be resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModDownloadTask</name>
+    <message>
+        <location filename="../logic/quickmod/tasks/QuickModDownloadTask.cpp" line="+32"/>
+        <source>Mod not available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>You seem to be missing the QuickMod file for %1. Skip it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Missing %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+50"/>
+        <source>Failure downloading QuickMods</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModFilesUpdater</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModFilesUpdater.cpp" line="+172"/>
+        <location line="+76"/>
+        <source>QuickMod parse error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-59"/>
+        <source>Error opening %1 for writing: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Error downloading %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Error opening %1 for reading: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModForgeDownloadTask</name>
+    <message>
+        <location filename="../logic/quickmod/tasks/QuickModForgeDownloadTask.cpp" line="+53"/>
+        <source>Select Forge version</source>
+        <translation type="unfinished">Wähle Forge-Version</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>No Forge versions are currently available for Minecraft </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>No forge version selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModInstallDialog</name>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModInstallDialog.ui" line="+14"/>
+        <source>Installing mod...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Dependencies</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Web</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Previous</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Downloads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Name</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Version</source>
+        <translation type="unfinished">Version</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Finish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/dialogs/quickmod/QuickModInstallDialog.cpp" line="+187"/>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Nothing to do</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+143"/>
+        <source>Installing...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Success: Installed successfully</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModInstaller</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModInstaller.cpp" line="+110"/>
+        <source>Error: Trying to extract an unknown file type %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <location line="+5"/>
+        <source>Error: Deploying %1 to %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Error: Checksum mismatch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Error: Trying to save %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModInstanceModList</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModInstanceModList.cpp" line="+102"/>
+        <source>TBD</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModVerificationTask</name>
+    <message>
+        <location filename="../logic/quickmod/tasks/QuickModVerificationTask.cpp" line="+22"/>
+        <source>QuickMod verification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <location line="+22"/>
+        <source>Trust website?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-21"/>
+        <source>The QuickMod %1 verifies against %2.
+Trust %2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Once</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Always</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <location line="+24"/>
+        <source>%1 did not pass verification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-12"/>
+        <source>The QuickMod %1 does NOT verify against %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>You may add a one-time exception, but it&apos;s strictly recommended that you don&apos;t.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Add one-time exception</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuickModVersionListLoadTask</name>
+    <message>
+        <location filename="../logic/quickmod/QuickModVersion.cpp" line="+62"/>
+        <source>Fetching QuickMod version list...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Parsing reply...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+19"/>
+        <source>Couldn&apos;t parse reply. See the log for details.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3382,11 +3883,21 @@ Diese Mitteilung wird so lange angezeigt, bis du die Option entfernt hast.</tran
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+24"/>
+        <source>QuickMods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Always use latest version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Login automatically when an instance icon is double clicked?</source>
         <translation type="vanished">Automatisch einloggen, wenn das Instanzsymbol doppelt geklickt wurde?</translation>
     </message>
     <message>
-        <location line="-507"/>
+        <location line="-537"/>
         <source>Java</source>
         <translation>Java</translation>
     </message>
@@ -3531,12 +4042,12 @@ Diese Mitteilung wird so lange angezeigt, bis du die Option entfernt hast.</tran
         <translation>Die ausgewählte Datei scheint keine Anwendung zu sein</translation>
     </message>
     <message>
-        <location line="+206"/>
+        <location line="+209"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+147"/>
         <source>JProfiler Directory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3749,6 +4260,14 @@ Diese Mitteilung wird so lange angezeigt, bis du die Option entfernt hast.</tran
         <location line="+3"/>
         <source>&amp;Refresh</source>
         <translation>&amp;Aktualisieren</translation>
+    </message>
+</context>
+<context>
+    <name>WebDownloadNavigator</name>
+    <message>
+        <location filename="../gui/widgets/WebDownloadNavigator.cpp" line="+14"/>
+        <source>&lt;h1&gt;Loading...&lt;/h1&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

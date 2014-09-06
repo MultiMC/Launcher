@@ -40,6 +40,7 @@ public:
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
+	bool addIcon(QString key, QString name, QIcon icon, MMCIcon::Type type = MMCIcon::FileBased);
 	bool addIcon(QString key, QString name, QString path, MMCIcon::Type type);
 	bool deleteIcon(QString key);
 

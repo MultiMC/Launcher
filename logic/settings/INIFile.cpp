@@ -18,6 +18,9 @@
 #include <QFile>
 #include <QTextStream>
 #include <QStringList>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 INIFile::INIFile()
 {
@@ -70,6 +73,32 @@ QString INIFile::escape(QString orig)
 	return out;
 }
 
+QString variantToString(const QVariant &variant)
+{
+	if (variant.canConvert(QMetaType::QString))
+	{
+		return variant.toString();
+	}
+	else
+	{
+		return QString::fromUtf8(QJsonDocument::fromVariant(variant).toJson(QJsonDocument::Compact));
+	}
+}
+
+QVariant stringToVariant(const QString &string)
+{
+	if ((string.startsWith('{') && string.endsWith('}')) || (string.startsWith('[') && string.endsWith(']')))
+	{
+		QJsonParseError error;
+		QJsonDocument doc = QJsonDocument::fromJson(string.toUtf8(), &error);
+		if (error.error == QJsonParseError::NoError)
+		{
+			return doc.toVariant();
+		}
+	}
+	return QVariant(string);
+}
+
 bool INIFile::saveFile(QString fileName)
 {
 	// TODO Handle errors.
@@ -80,7 +109,7 @@ bool INIFile::saveFile(QString fileName)
 
 	for (Iterator iter = begin(); iter != end(); iter++)
 	{
-		QString value = iter.value().toString();
+		QString value = variantToString(iter.value());
 		value = escape(value);
 		out << iter.key() << "=" << value << "\n";
 	}
@@ -117,7 +146,7 @@ bool INIFile::loadFile(QByteArray file)
 
 		valueStr = unescape(valueStr);
 
-		QVariant value(valueStr);
+		QVariant value(stringToVariant(valueStr));
 		this->operator[](key) = value;
 	}
 

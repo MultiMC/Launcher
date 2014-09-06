@@ -364,6 +364,104 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="quickmods">
+      <attribute name="title">
+       <string>QuickMods</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QCheckBox" name="quickmodAlwaysLatestBtn">
+         <property name="text">
+          <string>Always use latest version</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="quickmodRepoBtn">
+         <property name="text">
+          <string>Repositories</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="quickmodAddBtn">
+         <property name="text">
+          <string>Add QuickMods</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="quickmodUpdateBtn">
+         <property name="text">
+          <string>Update QuickMods</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>Download Selection</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Some QuickMods can come with multiple download hints for one version (different mirrors). Use these settings to select how a download link should be choosen:</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="qmPriorityBtn">
+            <property name="text">
+             <string>Always use highest priority (as selected by the QuickMod provider)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="qmDirectBtn">
+            <property name="text">
+             <string>Prefer direct (no user interaction required, shows donation link)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="qmSequentialBtn">
+            <property name="text">
+             <string>Prefer sequential (usually adfly or similar)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="qmAlwaysAskBtn">
+            <property name="text">
+             <string>Always ask</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

@@ -3,7 +3,7 @@
 #include <modutils.h>
 
 #include "logger/QsLog.h"
-
+#include "logic/quickmod/QuickMod.h"
 #include "logic/minecraft/VersionFile.h"
 #include "logic/minecraft/OneSixLibrary.h"
 #include "logic/minecraft/InstanceVersion.h"
@@ -22,8 +22,8 @@ int findLibraryByName(QList<OneSixLibraryPtr> haystack, const GradleSpecifier &n
 	int retval = -1;
 	for (int i = 0; i < haystack.size(); ++i)
 	{
-		
-		if(haystack.at(i)->rawName().matchName(needle))
+
+		if (haystack.at(i)->rawName().matchName(needle))
 		{
 			// only one is allowed.
 			if (retval != -1)
@@ -67,7 +67,7 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 	out->mcVersion = root.value("mcVersion").toString();
 	out->filename = filename;
 
-	auto readString = [root](const QString & key, QString & variable)
+	auto readString = [root](const QString &key, QString &variable)
 	{
 		if (root.contains(key))
 		{
@@ -75,15 +75,14 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 		}
 	};
 
-	auto readStringRet = [root](const QString & key)->QString
+	auto readStringRet = [root](const QString &key) -> QString
 	{
 		if (root.contains(key))
 		{
 			return ensureString(root.value(key));
 		}
 		return QString();
-	}
-	;
+	};
 
 	// FIXME: This should be ignored when applying.
 	if (!isFTB)
@@ -196,6 +195,82 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 			out->removeLibs.append(ensureString(libObj.value("name")));
 		}
 	}
+
+	if (root.contains("mods"))
+	{
+		out->shouldOverwriteMods = true;
+		QJsonValue modsVal = root.value("mods");
+		if (!modsVal.isObject())
+		{
+			QLOG_ERROR() << filename << "contains a 'mods' field, but it's not an object";
+			return out;
+		}
+		QJsonObject modsObj = ensureObject(modsVal);
+		QStringList fileMods;
+		QList<QuickMod> quickmods;
+		for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
+		{
+			if (it.value().isString() && it.value().toString() == "file")
+			{
+				fileMods += it.key();
+			}
+			else
+			{
+				quickmods.append(QuickMod::parse(it.key(), it.value()));
+			}
+		}
+		out->overwriteMods = qMakePair(fileMods, quickmods);
+	}
+	if (root.contains("+mods"))
+	{
+		QJsonValue modsVal = root.value("+mods");
+		if (!modsVal.isObject())
+		{
+			QLOG_ERROR() << filename << "contains a '+mods' field, but it's not an object";
+			return out;
+		}
+		QJsonObject modsObj = ensureObject(modsVal);
+		QStringList fileMods;
+		QList<QuickMod> quickmods;
+		for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
+		{
+			if (it.value().isString() && it.value().toString() == "file")
+			{
+				fileMods += it.key();
+			}
+			else
+			{
+				quickmods.append(QuickMod::parse(it.key(), it.value()));
+			}
+		}
+		out->addMods = qMakePair(fileMods, quickmods);
+	}
+	if (root.contains("-mods"))
+	{
+		// TODO exceptions
+		QJsonValue modsVal = root.value("-mods");
+		if (!modsVal.isObject())
+		{
+			QLOG_ERROR() << filename << "contains a '-mods' field, but it's not an object";
+			return out;
+		}
+		QJsonObject modsObj = ensureObject(modsVal);
+		QStringList fileMods;
+		QStringList quickmods;
+		for (auto it = modsObj.begin(); it != modsObj.end(); ++it)
+		{
+			if (it.value().isString() && it.value().toString() == "file")
+			{
+				fileMods += it.key();
+			}
+			else
+			{
+				quickmods.append(it.key());
+			}
+		}
+		out->removeMods = qMakePair(fileMods, quickmods);
+	}
+
 	return out;
 }
 
@@ -447,12 +522,14 @@ void VersionFile::applyTo(InstanceVersion *version)
 				// we need a higher version, or we're hard to and the versions aren't
 				// equal
 				if (addedVersion > existingVersion ||
-					(addedLibrary->dependType == RawLibrary::Hard && addedVersion != existingVersion))
+					(addedLibrary->dependType == RawLibrary::Hard &&
+					 addedVersion != existingVersion))
 				{
-					throw VersionBuildError(QObject::tr(
-						"Error resolving library dependencies between %1 and %2 in %3.")
-												.arg(existingLibrary->rawName(),
-													 addedLibrary->rawName(), filename));
+					throw VersionBuildError(
+						QObject::tr(
+							"Error resolving library dependencies between %1 and %2 in %3.")
+							.arg(existingLibrary->rawName(), addedLibrary->rawName(),
+								 filename));
 				}
 				else
 				{
@@ -473,10 +550,11 @@ void VersionFile::applyTo(InstanceVersion *version)
 					// it: fail
 					if (addedLibrary->dependType == RawLibrary::Hard)
 					{
-						throw VersionBuildError(QObject::tr(
-							"Error resolving library dependencies between %1 and %2 in %3.")
-													.arg(existingLibrary->rawName(),
-														 addedLibrary->rawName(), filename));
+						throw VersionBuildError(
+							QObject::tr(
+								"Error resolving library dependencies between %1 and %2 in %3.")
+								.arg(existingLibrary->rawName(), addedLibrary->rawName(),
+									 filename));
 					}
 				}
 			}
@@ -520,4 +598,43 @@ void VersionFile::applyTo(InstanceVersion *version)
 			QLOG_WARN() << "Couldn't find" << lib << "(skipping)";
 		}
 	}
+
+	if (shouldOverwriteMods)
+	{
+		version->modFiles = overwriteMods.first;
+		version->quickmods.clear();
+		for (const auto qm : overwriteMods.second)
+		{
+			version->quickmods.insert(
+				QuickModRef(qm.uid, qm.updateUrl),
+				qMakePair(QuickModVersionRef(QuickModRef(qm.uid, qm.updateUrl), qm.version),
+						  qm.isManualInstall));
+		}
+	}
+	version->modFiles += addMods.first;
+	for (const auto qm : addMods.second)
+	{
+		version->quickmods.insert(
+			QuickModRef(qm.uid, qm.updateUrl),
+			qMakePair(QuickModVersionRef(QuickModRef(qm.uid, qm.updateUrl), qm.version),
+					  qm.isManualInstall));
+	}
+	for (auto mod : removeMods.first)
+	{
+		version->modFiles.removeAll(mod);
+	}
+	for (const auto qm : removeMods.second)
+	{
+		version->quickmods.remove(QuickModRef(qm));
+	}
+}
+
+VersionFile::QuickMod VersionFile::QuickMod::parse(const QString &id, const QJsonValue &value)
+{
+	VersionFile::QuickMod mod;
+	mod.uid = id;
+	mod.version = ensureString(ensureObject(value).value("version"));
+	mod.updateUrl = ensureObject(value).value("updateUrl").toString();
+	mod.isManualInstall = ensureBoolean(ensureObject(value).value("isManualInstall"));
+	return mod;
 }
