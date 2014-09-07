@@ -36,6 +36,31 @@
 
 #include "logger/QsLog.h"
 
+/*
+ * FIXME: this actually fixes some kind of Qt bug that we should report.
+ * The bug leads to segfaults inside QtNetwork when you try to use invalid URLs for downloads.
+ * We will have to validate every single URL.
+ * 
+ * Example of invalid URL: github://peterix@quickmods/CodeChickenCore.quickmod
+ * 
+ * TODO: move to net actions?
+ */
+bool isUrlActuallyValid(const QUrl &url)
+{
+	auto scheme = url.scheme();
+	QLOG_INFO() << "URL " << url << " scheme " << scheme;
+	if(scheme == "file")
+		return true;
+	if(scheme == "http")
+		return true;
+	if(scheme == "https")
+		return true;
+	if(scheme == "ftp")
+		return true;
+	return false;
+}
+
+
 QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list)
 	: QObject(list), m_list(list), m_indexList(new QuickModIndexList(this))
 {
@@ -48,9 +73,13 @@ QuickModFilesUpdater::QuickModFilesUpdater(QuickModsList *list)
 
 void QuickModFilesUpdater::registerFile(const QUrl &url, bool sandbox)
 {
+	if (!url.isValid() || !isUrlActuallyValid(url))
+	{
+		QLOG_ERROR() << "Invalid URL:" << url.toString();
+		return;
+	}
 	auto job = new NetJob("QuickMod download");
-	auto download =
-			ByteArrayDownload::make(url);
+	auto download = ByteArrayDownload::make(url);
 	download->m_followRedirects = true;
 	download->setProperty("sandbox", sandbox);
 	connect(download.get(), SIGNAL(succeeded(int)), this, SLOT(receivedMod(int)));
@@ -86,17 +115,24 @@ void QuickModFilesUpdater::update()
 	for (int i = 0; i < m_list->numMods(); ++i)
 	{
 		auto url = m_list->modAt(i)->updateUrl();
-		if (url.isValid())
+		if (!url.isValid() || !isUrlActuallyValid(url))
 		{
-			auto download = ByteArrayDownload::make(url);
-			download->m_followRedirects = true;
-			connect(download.get(), &ByteArrayDownload::succeeded, this, &QuickModFilesUpdater::receivedMod);
-			connect(download.get(), &ByteArrayDownload::failed, this, &QuickModFilesUpdater::failedMod);
-			job->addNetAction(download);
+			QLOG_ERROR() << "Invalid URL:" << url.toString();
+			continue;
 		}
+		auto download = ByteArrayDownload::make(url);
+		download->m_followRedirects = true;
+		connect(download.get(), &ByteArrayDownload::succeeded, this, &QuickModFilesUpdater::receivedMod);
+		connect(download.get(), &ByteArrayDownload::failed, this, &QuickModFilesUpdater::failedMod);
+		job->addNetAction(download);
 	}
 	for (const auto indexUrl : m_indexList->indices())
 	{
+		if (!indexUrl.isValid() || !isUrlActuallyValid(indexUrl))
+		{
+			QLOG_ERROR() << "Invalid URL:" << indexUrl.toString();
+			continue;
+		}
 		auto download = ByteArrayDownload::make(indexUrl);
 		download->m_followRedirects = true;
 		connect(download.get(), &ByteArrayDownload::succeeded, this, &QuickModFilesUpdater::receivedMod);
