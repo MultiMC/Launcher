@@ -113,12 +113,12 @@ void QuickModAddFileDialog::run(QWidget *parent)
 		{
 			for (auto filename : dialog.ui->fileEdit->text().split(';'))
 			{
-				MMC->quickmodslist()->registerMod(filename, false);
+				MMC->quickmodslist()->registerMod(filename);
 			}
 		}
 		else
 		{
-			MMC->quickmodslist()->registerMod(QUrl(dialog.ui->urlEdit->text()), false);
+			MMC->quickmodslist()->registerMod(QUrl(dialog.ui->urlEdit->text()));
 		}
 	}
 }

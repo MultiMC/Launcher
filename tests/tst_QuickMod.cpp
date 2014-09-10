@@ -16,6 +16,7 @@
 #include <QTest>
 
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/MMCJson.h"
 #include "TestUtil.h"
 
 QDebug operator<<(QDebug dbg, const QuickModVersionRef &version)
@@ -36,9 +37,9 @@ private slots:
 
 	}
 
-	QuickModPtr createTestingMod()
+	QuickModMetadataPtr createTestingMod()
 	{
-		auto mod = QuickModPtr(new QuickMod);
+		auto mod = QuickModMetadataPtr(new QuickModMetadata);
 		mod->m_name = "testmodname";
 		mod->m_uid = QuickModRef("this.should.be.unique");
 		mod->m_repo = "some.testing.repo";
@@ -55,7 +56,7 @@ private slots:
 		mod->m_license = "WTFPL";
 		return mod;
 	}
-	QuickModVersionPtr createTestingVersion(QuickModPtr mod, const QuickModDownload::DownloadType type)
+	QuickModVersionPtr createTestingVersion(QuickModMetadataPtr mod, const QuickModDownload::DownloadType type)
 	{
 		auto version = QuickModVersionPtr(new QuickModVersion(mod));
 		version->name_ = version->versionString = "1.42";
@@ -75,14 +76,14 @@ private slots:
 	void testParsing_data()
 	{
 		QTest::addColumn<QByteArray>("input");
-		QTest::addColumn<QuickModPtr>("mod");
-		QuickModPtr mod;
+		QTest::addColumn<QuickModMetadataPtr>("mod");
+		QuickModMetadataPtr mod;
 		QuickModVersionPtr version;
 
 		mod = createTestingMod();
 		version = createTestingVersion(mod, QuickModDownload::Direct);
 		version->installType = QuickModVersion::ForgeMod;
-		mod->m_versions = QList<QuickModVersionPtr>() << version;
+		//mod->m_versions = QList<QuickModVersionPtr>() << version;
 		QTest::newRow("basic test, forge mod, direct")
 			<< TestsInternal::readFile(QFINDTESTDATA(
 				   "data/tst_QuickMod_basic test, forge mod, direct")) << mod;
@@ -90,7 +91,7 @@ private slots:
 		mod = createTestingMod();
 		version = createTestingVersion(mod, QuickModDownload::Parallel);
 		version->installType = QuickModVersion::ForgeCoreMod;
-		mod->m_versions = QList<QuickModVersionPtr>() << version;
+		//mod->m_versions = QList<QuickModVersionPtr>() << version;
 		QTest::newRow("basic test, core mod, parallel")
 			<< TestsInternal::readFile(QFINDTESTDATA(
 				   "data/tst_QuickMod_basic test, core mod, parallel")) << mod;
@@ -98,7 +99,7 @@ private slots:
 		mod = createTestingMod();
 		version = createTestingVersion(mod, QuickModDownload::Sequential);
 		version->installType = QuickModVersion::ConfigPack;
-		mod->m_versions = QList<QuickModVersionPtr>() << version;
+		//mod->m_versions = QList<QuickModVersionPtr>() << version;
 		QTest::newRow("basic test, config pack, sequential")
 			<< TestsInternal::readFile(QFINDTESTDATA(
 				   "data/tst_QuickMod_basic test, config pack, sequential")) << mod;
@@ -106,13 +107,13 @@ private slots:
 	void testParsing() noexcept
 	{
 		QFETCH(QByteArray, input);
-		QFETCH(QuickModPtr, mod);
+		QFETCH(QuickModMetadataPtr, mod);
 
-		QuickModPtr parsed = QuickModPtr(new QuickMod);
+		QuickModMetadataPtr parsed = QuickModMetadataPtr(new QuickModMetadata);
 
 		try
 		{
-			parsed->parse(parsed, input);
+			parsed->parse(MMCJson::ensureObject(MMCJson::parseDocument(input, "QuickMod")));
 		}
 		catch (MMCError &e)
 		{
@@ -133,8 +134,8 @@ private slots:
 		QCOMPARE(parsed->m_tags, mod->m_tags);
 		QCOMPARE(parsed->m_license, mod->m_license);
 
-		QuickModVersionPtr parsedVersion = parsed->versionsInternal().first();
-		QuickModVersionPtr version = mod->versionsInternal().first();
+		QuickModVersionPtr parsedVersion;//FIXME = parsed->versionsInternal().first();
+		QuickModVersionPtr version;//FIXME = mod->versionsInternal().first();
 		QuickModDownload parsedDownload = parsedVersion->downloads.first();
 		QuickModDownload download = version->downloads.first();
 		QCOMPARE(parsedDownload.url, download.url);
@@ -158,7 +159,7 @@ private slots:
 	void testFileName_data()
 	{
 		QTest::addColumn<QUrl>("url");
-		QTest::addColumn<QuickModPtr>("mod");
+		QTest::addColumn<QuickModMetadataPtr>("mod");
 		QTest::addColumn<QString>("result");
 
 		QTest::newRow("jar") << QUrl("http://downloads.org/filename.jar") << TestsInternal::createMod("SomeMod") << "test_repo.SomeMod.jar";
@@ -167,7 +168,7 @@ private slots:
 	void testFileName()
 	{
 		QFETCH(QUrl, url);
-		QFETCH(QuickModPtr, mod);
+		QFETCH(QuickModMetadataPtr, mod);
 		QFETCH(QString, result);
 
 		QCOMPARE(mod->fileName(url), result);

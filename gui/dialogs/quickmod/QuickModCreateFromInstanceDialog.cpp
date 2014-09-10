@@ -34,7 +34,7 @@
 #include "logic/net/ByteArrayUpload.h"
 #include "logic/net/ByteArrayDownload.h"
 #include "logic/net/NetJob.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModBuilder.h"
 #include "MultiMC.h"
 
@@ -98,9 +98,9 @@ public:
 		}
 		QComboBox *box = new QComboBox(parent);
 		box->setFrame(false);
-		for (const auto type : QuickMod::urlTypes())
+		for (const auto type : QuickModMetadata::urlTypes())
 		{
-			box->addItem(QuickMod::humanUrlId(type), QuickMod::urlId(type));
+			box->addItem(QuickModMetadata::humanUrlId(type), QuickModMetadata::urlId(type));
 		}
 		box->showPopup();
 		return box;
@@ -531,8 +531,8 @@ void QuickModCreateFromInstanceDialog::on_urlsAddBtn_clicked()
 {
 	auto table = ui->urlsTable;
 	const int row = addRowToTableWidget(table);
-	table->item(row, 0)->setData(Qt::UserRole, QuickMod::urlId(QuickMod::Website));
-	table->item(row, 0)->setData(Qt::DisplayRole, QuickMod::humanUrlId(QuickMod::Website));
+	table->item(row, 0)->setData(Qt::UserRole, QuickModMetadata::urlId(QuickModMetadata::Website));
+	table->item(row, 0)->setData(Qt::DisplayRole, QuickModMetadata::humanUrlId(QuickModMetadata::Website));
 }
 
 void QuickModCreateFromInstanceDialog::on_urlsRemoveBtn_clicked()
@@ -601,16 +601,16 @@ QByteArray QuickModCreateFromInstanceDialog::toJson() const
 		builder.addVersion(version);
 	}
 
-	return builder.build()->toJson();
+	return QJsonDocument(builder.build()->toJson()).toJson();
 }
 
 void QuickModCreateFromInstanceDialog::fromJson(const QByteArray &json)
 {
 	resetValues();
 	resetTables();
-	QuickModPtr mod = std::make_shared<QuickMod>();
-	mod->parse(mod, json);
-	m_otherVersions = mod->versionsInternal();
+	QuickModMetadataPtr mod = std::make_shared<QuickModMetadata>();
+	mod->parse(MMCJson::ensureObject(MMCJson::parseDocument(json, "QuickMod")));
+	// FIXME m_otherVersions = mod->versionsInternal();
 	ui->uidEdit->setText(mod->uid().toString());
 	ui->repoEdit->setText(mod->repo());
 	ui->nameEdit->setText(mod->name());
@@ -619,13 +619,13 @@ void QuickModCreateFromInstanceDialog::fromJson(const QByteArray &json)
 	ui->updateUrlEdit->setText(mod->updateUrl().toString());
 	m_tagsModel->setStringList(mod->tags());
 	m_categoriesModel->setStringList(mod->categories());
-	for (const auto type : QuickMod::urlTypes())
+	for (const auto type : QuickModMetadata::urlTypes())
 	{
 		for (const auto url : mod->url(type))
 		{
 			const int row = addRowToTableWidget(ui->urlsTable);
-			ui->urlsTable->item(row, 0)->setText(QuickMod::humanUrlId(type));
-			ui->urlsTable->item(row, 0)->setData(Qt::UserRole, QuickMod::urlId(type));
+			ui->urlsTable->item(row, 0)->setText(QuickModMetadata::humanUrlId(type));
+			ui->urlsTable->item(row, 0)->setData(Qt::UserRole, QuickModMetadata::urlId(type));
 			ui->urlsTable->item(row, 1)->setText(url.toString());
 		}
 	}

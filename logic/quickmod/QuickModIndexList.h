@@ -7,7 +7,9 @@ class QUrl;
 class QString;
 class SettingsObject;
 class QuickModRef;
-typedef std::shared_ptr<class QuickMod> QuickModPtr;
+typedef std::shared_ptr<class QuickModMetadata> QuickModMetadataPtr;
+
+// TODO redownload index
 
 /**
  * @brief The QuickModIndexList class is a model for indexes, as well as an interface to the
@@ -51,7 +53,7 @@ private:
 
 		QString name;
 		QString url;
-		QList<QuickModPtr> mods;
+		QList<QuickModMetadataPtr> mods;
 	};
 	QList<Repo> m_repos;
 };

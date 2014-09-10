@@ -8,7 +8,7 @@
 #include "logic/settings/SettingsObject.h"
 #include "logic/settings/Setting.h"
 #include "QuickModRef.h"
-#include "QuickMod.h"
+#include "QuickModMetadata.h"
 #include "QuickModsList.h"
 #include "QuickModSettings.h"
 #include "MultiMC.h"
@@ -59,7 +59,7 @@ QVariant QuickModIndexList::data(const QModelIndex &index, int role) const
 	else
 	{
 		const Repo repo = m_repos.at(index.parent().row());
-		const QuickModPtr qm = repo.mods.at(index.row());
+		const QuickModMetadataPtr qm = repo.mods.at(index.row());
 		if (role == Qt::DisplayRole)
 		{
 			switch (index.column())

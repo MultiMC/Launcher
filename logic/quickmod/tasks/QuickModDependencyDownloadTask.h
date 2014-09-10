@@ -16,7 +16,7 @@
 #pragma once
 
 #include "logic/tasks/Task.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 
 class QuickModDependencyDownloadTask : public Task
 {
@@ -29,7 +29,7 @@ protected:
 
 private
 slots:
-	void modAdded(QuickModPtr mod);
+	void modAdded(QuickModMetadataPtr mod);
 
 private:
 	QList<QuickModRef> m_mods;
@@ -39,11 +39,11 @@ private:
 	QList<QuickModRef> m_requestedMods;
 
 	// list of mods we have received that are in the sandbox
-	QList<QuickModPtr> m_sandboxedMods;
+	QList<QuickModMetadataPtr> m_sandboxedMods;
 
 	int m_lastSetPercentage;
 	void updateProgress();
 	void finish();
 
-	void requestDependenciesOf(const QuickModPtr mod);
+	void requestDependenciesOf(const QuickModMetadataPtr mod);
 };

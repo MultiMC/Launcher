@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "QuickMod.h"
+#include "QuickModMetadata.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -30,61 +30,27 @@
 
 #define CURRENT_QUICKMOD_VERSION 1
 
-QuickMod::QuickMod(QObject *parent) : QObject(parent), m_imagesLoaded(false)
+QuickModMetadata::QuickModMetadata(QObject *parent) : QObject(parent), m_imagesLoaded(false)
 {
 }
 
-QuickMod::~QuickMod()
+QuickModMetadata::~QuickModMetadata()
 {
-	m_versions.clear(); // as they are shared pointers this will also delete them
 }
 
-QIcon QuickMod::icon()
+QIcon QuickModMetadata::icon()
 {
 	fetchImages();
 	return m_icon;
 }
-
-QPixmap QuickMod::logo()
+QPixmap QuickModMetadata::logo()
 {
 	fetchImages();
 	return m_logo;
 }
 
-QList<QuickModVersionRef> QuickMod::versions() const
+void QuickModMetadata::parse(const QJsonObject &mod)
 {
-	QList<QuickModVersionRef> refs;
-	for (const auto version : m_versions)
-	{
-		refs.append(version);
-	}
-	return refs;
-}
-
-QuickModVersionRef QuickMod::latestVersion(const QString &mcVersion) const
-{
-	for (auto version : m_versions)
-	{
-		if (version->compatibleVersions.contains(mcVersion))
-		{
-			return version;
-		}
-	}
-	return QuickModVersionRef();
-}
-
-void QuickMod::sortVersions()
-{
-	std::sort(m_versions.begin(), m_versions.end(),
-			  [](const QuickModVersionPtr v1, const QuickModVersionPtr v2)
-	{ return v1->m_version > v2->m_version; });
-}
-
-void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
-{
-	const QJsonDocument doc = MMCJson::parseDocument(data, "QuickMod file");
-	const QJsonObject mod = MMCJson::ensureObject(doc, "root");
-
 	auto version = MMCJson::ensureInteger(mod.value("formatVersion"), "'formatVersion'");
 	if (version > CURRENT_QUICKMOD_VERSION)
 	{
@@ -144,28 +110,18 @@ void QuickMod::parse(QuickModPtr _this, const QByteArray &data)
 	}
 	m_updateUrl = QUrl(MMCJson::ensureString(mod.value("updateUrl"), "'updateUrl'"));
 
-	m_versions.clear();
-	for (auto val : MMCJson::ensureArray(mod.value("versions"), "'versions'"))
-	{
-		QuickModVersionPtr ptr(new QuickModVersion(_this));
-		ptr->parse(MMCJson::ensureObject(val, "version"));
-		m_versions.append(ptr);
-	}
-	sortVersions();
-
 	if (!m_uid.isValid())
 	{
-		throw QuickModParseError("The 'uid' field in the QuickMod file for " +
-								 m_name + " is empty");
+		throw MMCError("The 'uid' field in the QuickMod file for " +
+					   m_name + " is empty");
 	}
 	if (m_repo.isEmpty())
 	{
-		throw QuickModParseError("The 'repo' field in the QuickMod file for " +
-								 m_name + " is empty");
+		throw MMCError("The 'repo' field in the QuickMod file for " +
+					   m_name + " is empty");
 	}
 }
-
-QByteArray QuickMod::toJson() const
+QJsonObject QuickModMetadata::toJson() const
 {
 	using namespace MMCJson;
 	QJsonObject obj;
@@ -202,16 +158,15 @@ QByteArray QuickMod::toJson() const
 		}
 		obj.insert("urls", urls);
 	}
-	writeObjectList(obj, "versions", m_versions);
-	return QJsonDocument(obj).toJson();
+	return obj;
 }
 
-bool QuickMod::compare(const QuickModPtr other) const
+bool QuickModMetadata::compare(const QuickModMetadataPtr other) const
 {
 	return m_name == other->m_name || m_uid == other->m_uid;
 }
 
-QuickMod::UrlType QuickMod::urlType(const QString &id)
+QuickModMetadata::UrlType QuickModMetadata::urlType(const QString &id)
 {
 	if (id == "website")
 	{
@@ -247,8 +202,7 @@ QuickMod::UrlType QuickMod::urlType(const QString &id)
 	}
 	return Invalid;
 }
-
-QString QuickMod::urlId(const QuickMod::UrlType type)
+QString QuickModMetadata::urlId(const QuickModMetadata::UrlType type)
 {
 	switch (type)
 	{
@@ -272,8 +226,7 @@ QString QuickMod::urlId(const QuickMod::UrlType type)
 		return QString();
 	}
 }
-
-QString QuickMod::humanUrlId(const QuickMod::UrlType type)
+QString QuickModMetadata::humanUrlId(const QuickModMetadata::UrlType type)
 {
 	switch (type)
 	{
@@ -297,14 +250,13 @@ QString QuickMod::humanUrlId(const QuickMod::UrlType type)
 		return QString();
 	}
 }
-
-QList<QuickMod::UrlType> QuickMod::urlTypes()
+QList<QuickModMetadata::UrlType> QuickModMetadata::urlTypes()
 {
 	return QList<UrlType>() << Website << Wiki << Forum << Donation << Issues << Source << Icon
 							<< Logo;
 }
 
-void QuickMod::iconDownloadFinished(int index)
+void QuickModMetadata::iconDownloadFinished(int index)
 {
 	auto download = qobject_cast<CacheDownload *>(sender());
 	m_icon = QIcon(download->getTargetFilepath());
@@ -313,8 +265,7 @@ void QuickMod::iconDownloadFinished(int index)
 		emit iconUpdated();
 	}
 }
-
-void QuickMod::logoDownloadFinished(int index)
+void QuickModMetadata::logoDownloadFinished(int index)
 {
 	auto download = qobject_cast<CacheDownload *>(sender());
 	m_logo = QPixmap(download->getTargetFilepath());
@@ -324,7 +275,7 @@ void QuickMod::logoDownloadFinished(int index)
 	}
 }
 
-void QuickMod::fetchImages()
+void QuickModMetadata::fetchImages()
 {
 	if (m_imagesLoaded)
 	{
@@ -337,7 +288,7 @@ void QuickMod::fetchImages()
 	{
 		auto icon = CacheDownload::make(
 			iconUrl(), MMC->metacache()->resolveEntry("quickmod/icons", fileName(iconUrl())));
-		connect(icon.get(), &CacheDownload::succeeded, this, &QuickMod::iconDownloadFinished);
+		connect(icon.get(), &CacheDownload::succeeded, this, &QuickModMetadata::iconDownloadFinished);
 		icon->m_followRedirects = true;
 		job->addNetAction(icon);
 		download = true;
@@ -346,7 +297,7 @@ void QuickMod::fetchImages()
 	{
 		auto logo = CacheDownload::make(
 			logoUrl(), MMC->metacache()->resolveEntry("quickmod/logos", fileName(logoUrl())));
-		connect(logo.get(), &CacheDownload::succeeded, this, &QuickMod::logoDownloadFinished);
+		connect(logo.get(), &CacheDownload::succeeded, this, &QuickModMetadata::logoDownloadFinished);
 		logo->m_followRedirects = true;
 		job->addNetAction(logo);
 		download = true;
@@ -362,28 +313,8 @@ void QuickMod::fetchImages()
 	}
 }
 
-QString QuickMod::fileName(const QUrl &url) const
+QString QuickModMetadata::fileName(const QUrl &url) const
 {
 	const QString path = url.path();
 	return internalUid() + path.mid(path.lastIndexOf("."));
-}
-
-QStringList QuickMod::mcVersions()
-{
-	if (!m_mcVersionListCache.isEmpty())
-	{
-		return m_mcVersionListCache;
-	}
-	
-	for (auto quickModV : versionsInternal())
-	{
-		for (const QString mcv : quickModV->compatibleVersions)
-		{
-			if (!m_mcVersionListCache.contains(mcv))
-			{
-				m_mcVersionListCache.append(mcv);
-			}
-		}
-	}
-	return m_mcVersionListCache;
 }

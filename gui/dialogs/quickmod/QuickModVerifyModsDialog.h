@@ -2,7 +2,7 @@
 
 #include <QDialog>
 
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 
 namespace Ui
 {
@@ -14,7 +14,7 @@ class QuickModVerifyModsDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QuickModVerifyModsDialog(QList<QuickModPtr> mods, QWidget *parent = 0);
+	explicit QuickModVerifyModsDialog(QList<QuickModMetadataPtr> mods, QWidget *parent = 0);
 	~QuickModVerifyModsDialog();
 
 private:

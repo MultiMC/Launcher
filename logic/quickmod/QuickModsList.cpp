@@ -25,8 +25,7 @@
 
 #include "logic/net/CacheDownload.h"
 #include "logic/net/NetJob.h"
-#include "QuickModFilesUpdater.h"
-#include "QuickMod.h"
+#include "QuickModBaseDownloadAction.h"
 #include "QuickModVersion.h"
 #include "QuickModSettings.h"
 #include "logic/Mod.h"
@@ -40,13 +39,8 @@
 #include "logic/settings/INISettingsObject.h"
 
 QuickModsList::QuickModsList(const Flags flags, QObject *parent)
-	: QAbstractListModel(parent),
-	  m_updater(new QuickModFilesUpdater(this))
+	: QAbstractListModel(parent)
 {
-	connect(m_updater, &QuickModFilesUpdater::error, this, &QuickModsList::error);
-	connect(m_updater, &QuickModFilesUpdater::addedSandboxedMod, this,
-			&QuickModsList::sandboxModAdded);
-
 	if (!flags.testFlag(DontCleanup))
 	{
 		cleanup();
@@ -57,7 +51,7 @@ QuickModsList::~QuickModsList()
 {
 }
 
-int QuickModsList::getQMIndex(QuickModPtr mod) const
+int QuickModsList::getQMIndex(QuickModMetadataPtr mod) const
 {
 	for (int i = 0; i < m_mods.count(); i++)
 	{
@@ -69,7 +63,7 @@ int QuickModsList::getQMIndex(QuickModPtr mod) const
 	return -1;
 }
 
-QuickModPtr QuickModsList::getQMPtr(QuickMod *mod) const
+QuickModMetadataPtr QuickModsList::getQMPtr(QuickModMetadata *mod) const
 {
 	for (auto m : m_mods)
 	{
@@ -78,7 +72,7 @@ QuickModPtr QuickModsList::getQMPtr(QuickMod *mod) const
 			return m;
 		}
 	}
-	return QuickModPtr();
+	return QuickModMetadataPtr();
 }
 
 QHash<int, QByteArray> QuickModsList::roleNames() const
@@ -113,7 +107,7 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 
-	QuickModPtr mod = m_mods.at(index.row());
+	QuickModMetadataPtr mod = m_mods.at(index.row());
 
 	switch (role)
 	{
@@ -153,7 +147,7 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 	case CategoriesRole:
 		return mod->categories();
 	case MCVersionsRole:
-		return mod->mcVersions();
+		return QStringList();//FIXME mod->mcVersions();
 	case TagsRole:
 		return mod->tags();
 	case QuickModRole:
@@ -182,13 +176,13 @@ bool QuickModsList::dropMimeData(const QMimeData *data, Qt::DropAction action, i
 
 	if (data->hasText())
 	{
-		registerMod(QUrl(data->text()), false);
+		registerMod(QUrl(data->text()));
 	}
 	else if (data->hasUrls())
 	{
 		for (const QUrl &url : data->urls())
 		{
-			registerMod(url, false);
+			registerMod(url);
 		}
 	}
 	else
@@ -207,13 +201,13 @@ Qt::DropActions QuickModsList::supportedDragActions() const
 	return 0;
 }
 
-QuickModPtr QuickModsList::modForModId(const QString &modId) const
+QuickModMetadataPtr QuickModsList::modForModId(const QString &modId) const
 {
 	if (modId.isEmpty())
 	{
 		return 0;
 	}
-	for (QuickModPtr mod : m_mods)
+	for (QuickModMetadataPtr mod : m_mods)
 	{
 		if (mod->modId() == modId)
 		{
@@ -223,11 +217,11 @@ QuickModPtr QuickModsList::modForModId(const QString &modId) const
 
 	return 0;
 }
-QList<QuickModPtr> QuickModsList::mods(const QuickModRef &uid) const
+QList<QuickModMetadataPtr> QuickModsList::mods(const QuickModRef &uid) const
 {
 	// TODO repository priority
-	QList<QuickModPtr> out;
-	for (QuickModPtr mod : m_mods)
+	QList<QuickModMetadataPtr> out;
+	for (QuickModMetadataPtr mod : m_mods)
 	{
 		if (mod->uid() == uid)
 		{
@@ -237,9 +231,9 @@ QList<QuickModPtr> QuickModsList::mods(const QuickModRef &uid) const
 	return out;
 }
 
-QuickModPtr QuickModsList::mod(const QString &internalUid) const
+QuickModMetadataPtr QuickModsList::mod(const QString &internalUid) const
 {
-	for (QuickModPtr mod : m_mods)
+	for (QuickModMetadataPtr mod : m_mods)
 	{
 		if (mod->internalUid() == internalUid)
 		{
@@ -255,7 +249,7 @@ QList<QuickModVersionRef> QuickModsList::modsProvidingModVersion(const QuickModR
 	QList<QuickModVersionRef> out;
 	for (auto mod : m_mods)
 	{
-		for (QuickModVersionRef versionRef : mod->versions())
+		for (QuickModVersionRef versionRef : QList<QuickModVersionRef>())//FIXME mod->versions())
 		{
 			QuickModVersionPtr versionObj = versionRef.findVersion();
 			if (versionObj->provides.contains(uid) &&
@@ -275,7 +269,7 @@ QuickModVersionRef QuickModsList::latestVersion(const QuickModRef &modUid,
 	QuickModVersionRef latest;
 	for (auto mod : mods(modUid))
 	{
-		auto modLatest = mod->latestVersion(mcVersion);
+		auto modLatest = QuickModVersionRef();//FIXME mod->latestVersion(mcVersion);
 		if (!latest.isValid())
 		{
 			latest = modLatest;
@@ -312,42 +306,36 @@ QList<QuickModRef> QuickModsList::updatedModsForInstance(std::shared_ptr<OneSixI
 	return mods;
 }
 
-void QuickModsList::releaseFromSandbox(QuickModPtr mod)
+void QuickModsList::registerMod(const QString &fileName)
 {
-	m_updater->releaseFromSandbox(mod);
+	registerMod(QUrl::fromLocalFile(fileName));
 }
-
-void QuickModsList::registerMod(const QString &fileName, bool sandbox)
+void QuickModsList::registerMod(const QUrl &url)
 {
-	registerMod(QUrl::fromLocalFile(fileName), sandbox);
-}
-void QuickModsList::registerMod(const QUrl &url, bool sandbox)
-{
-	m_updater->registerFile(url, sandbox);
+	NetJob *job = new NetJob("QuickMod Download");
+	job->addNetAction(QuickModBaseDownloadAction::make(job, url));
+	connect(job, &NetJob::succeeded, job, &NetJob::deleteLater);
+	connect(job, &NetJob::failed, job, &NetJob::deleteLater);
+	job->start();
 }
 
 void QuickModsList::updateFiles()
 {
-	m_updater->update();
+	// TODO
 }
 
-void QuickModsList::touchMod(QuickModPtr mod)
+void QuickModsList::addMod(QuickModMetadataPtr mod)
 {
-	emit modAdded(mod);
-}
-
-void QuickModsList::addMod(QuickModPtr mod)
-{
-	connect(mod.get(), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
-	connect(mod.get(), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
+	connect(mod.get(), &QuickModMetadata::iconUpdated, this, &QuickModsList::modIconUpdated);
+	connect(mod.get(), &QuickModMetadata::logoUpdated, this, &QuickModsList::modLogoUpdated);
 
 	for (int i = 0; i < m_mods.size(); ++i)
 	{
 		if (m_mods.at(i)->compare(mod))
 		{
-			disconnect(m_mods.at(i).get(), &QuickMod::iconUpdated, this,
+			disconnect(m_mods.at(i).get(), &QuickModMetadata::iconUpdated, this,
 					   &QuickModsList::modIconUpdated);
-			disconnect(m_mods.at(i).get(), &QuickMod::logoUpdated, this,
+			disconnect(m_mods.at(i).get(), &QuickModMetadata::logoUpdated, this,
 					   &QuickModsList::modLogoUpdated);
 			m_mods.replace(i, mod);
 
@@ -376,12 +364,12 @@ void QuickModsList::clearMods()
 
 void QuickModsList::modIconUpdated()
 {
-	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickMod *>(sender()))), 0);
+	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickModMetadata *>(sender()))), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << Qt::DecorationRole << IconRole);
 }
 void QuickModsList::modLogoUpdated()
 {
-	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickMod *>(sender()))), 0);
+	auto modIndex = index(getQMIndex(getQMPtr(qobject_cast<QuickModMetadata *>(sender()))), 0);
 	emit dataChanged(modIndex, modIndex, QVector<int>() << LogoRole);
 }
 
@@ -409,23 +397,21 @@ void QuickModsList::cleanup()
 		}
 	}
 	MMC->quickmodSettings()->settings()->set("AvailableMods", mods);
-
-	m_updater->cleanupSandboxedFiles();
 }
 
-void QuickModsList::unregisterMod(QuickModPtr mod)
+void QuickModsList::unregisterMod(QuickModMetadataPtr mod)
 {
 	if (!m_mods.contains(mod))
 	{
 		return;
 	}
-	disconnect(mod.get(), &QuickMod::iconUpdated, this, &QuickModsList::modIconUpdated);
-	disconnect(mod.get(), &QuickMod::logoUpdated, this, &QuickModsList::modLogoUpdated);
+	disconnect(mod.get(), &QuickModMetadata::iconUpdated, this, &QuickModsList::modIconUpdated);
+	disconnect(mod.get(), &QuickModMetadata::logoUpdated, this, &QuickModsList::modLogoUpdated);
 
 	beginRemoveRows(QModelIndex(), m_mods.indexOf(mod), m_mods.indexOf(mod));
 	m_mods.removeAll(mod);
 	endRemoveRows();
-	m_updater->unregisterMod(mod);
+	// FIXME actually remove the mod
 
 	emit modsListChanged();
 }

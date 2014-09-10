@@ -18,7 +18,7 @@
 #include "logic/liteloader/LiteLoaderInstaller.h"
 #include "logic/liteloader/LiteLoaderVersionList.h"
 #include "logic/quickmod/QuickModsList.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/OneSixInstance.h"
 #include "MultiMC.h"
 

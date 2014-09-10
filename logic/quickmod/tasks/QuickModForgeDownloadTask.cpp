@@ -19,7 +19,7 @@
 #include "logic/forge/ForgeVersionList.h"
 #include "logic/OneSixInstance.h"
 #include "logic/quickmod/QuickModsList.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "MultiMC.h"
 
 QuickModForgeDownloadTask::QuickModForgeDownloadTask(std::shared_ptr<OneSixInstance> instance, Bindable *parent)

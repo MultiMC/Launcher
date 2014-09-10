@@ -21,7 +21,7 @@
 #include <QList>
 #include <memory>
 
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "OneSixLibrary.h"
 #include "VersionFile.h"

@@ -19,7 +19,7 @@
 #include <QHash>
 #include <memory>
 
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 
 #include "LogicalGui.h"
 
@@ -27,7 +27,7 @@ class QWidget;
 
 class OneSixInstance;
 class QuickModVersion;
-class QuickMod;
+class QuickModMetadata;
 typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
 
 class QuickModDependencyResolver : public QObject, public Bindable
@@ -51,7 +51,7 @@ signals:
 private:
 	std::shared_ptr<OneSixInstance> m_instance;
 
-	QHash<QuickMod *, QuickModVersionPtr> m_mods;
+	QHash<QuickModMetadata *, QuickModVersionPtr> m_mods;
 	// Value is conflicting with Key
 	QHash<QuickModVersionPtr, QuickModVersionPtr> m_blockedVersions;
 

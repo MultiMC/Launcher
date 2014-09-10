@@ -16,7 +16,7 @@
 #include "QuickModUpdateMonitor.h"
 
 #include "QuickModsList.h"
-#include "QuickMod.h"
+#include "QuickModMetadata.h"
 #include "logic/InstanceList.h"
 #include "logic/OneSixInstance.h"
 

@@ -25,7 +25,7 @@
 #include "logic/net/NetJob.h"
 #include "logic/net/CacheDownload.h"
 #include "logic/tasks/Task.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "QuickModDownload.h"
 #include "QuickModVersionRef.h"
 #include "modutils.h"
@@ -63,7 +63,7 @@ public:
 		QUrl repo;
 	};
 
-	QuickModVersion(QuickModPtr mod = 0, bool valid = true) : mod(mod), valid(valid)
+	QuickModVersion(QuickModMetadataPtr mod = 0, bool valid = true) : mod(mod), valid(valid)
 	{
 	}
 
@@ -92,7 +92,7 @@ public:
 
 	bool needsDeploy() const;
 
-	QuickModPtr mod;
+	QuickModMetadataPtr mod;
 	bool valid;
 	QString name_;
 	QString versionString;

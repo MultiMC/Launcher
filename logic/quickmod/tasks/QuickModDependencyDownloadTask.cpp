@@ -15,7 +15,7 @@
 
 #include "QuickModDependencyDownloadTask.h"
 
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "MultiMC.h"
 
@@ -32,7 +32,7 @@ void QuickModDependencyDownloadTask::executeTask()
 
 	setStatus(tr("Fetching QuickMods files..."));
 
-	connect(MMC->quickmodslist().get(), &QuickModsList::sandboxModAdded, this,
+	connect(MMC->quickmodslist().get(), &QuickModsList::modAdded, this,
 			&QuickModDependencyDownloadTask::modAdded);
 	// TODO we cannot know if this is about us
 	connect(MMC->quickmodslist().get(), &QuickModsList::error, this,
@@ -46,7 +46,7 @@ void QuickModDependencyDownloadTask::executeTask()
 			{
 				if (!m_requestedMods.contains(mod))
 				{
-					MMC->quickmodslist()->registerMod(mod.updateUrl(), true);
+					MMC->quickmodslist()->registerMod(mod.updateUrl());
 					m_pendingMods.append(mod);
 					m_requestedMods.append(mod);
 				}
@@ -76,7 +76,7 @@ void QuickModDependencyDownloadTask::executeTask()
 	updateProgress();
 }
 
-void QuickModDependencyDownloadTask::modAdded(QuickModPtr mod)
+void QuickModDependencyDownloadTask::modAdded(QuickModMetadataPtr mod)
 {
 	if (m_pendingMods.contains(mod->uid()))
 	{
@@ -112,7 +112,7 @@ void QuickModDependencyDownloadTask::finish()
 	{
 		for (auto mod : m_sandboxedMods)
 		{
-			MMC->quickmodslist()->releaseFromSandbox(mod);
+			// FIXME MMC->quickmodslist()->releaseFromSandbox(mod);
 		}
 		emitSucceeded();
 	}
@@ -122,7 +122,7 @@ void QuickModDependencyDownloadTask::finish()
 	}
 }
 
-void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModPtr mod)
+void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModMetadataPtr mod)
 {
 	auto references = mod->references();
 	for (auto it = references.begin(); it != references.end(); ++it)
@@ -134,7 +134,7 @@ void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModPtr mod
 		}
 		if (!m_requestedMods.contains(modUid))
 		{
-			MMC->quickmodslist()->registerMod(it.value(), true);
+			MMC->quickmodslist()->registerMod(it.value());
 			m_pendingMods.append(modUid);
 			m_requestedMods.append(modUid);
 		}

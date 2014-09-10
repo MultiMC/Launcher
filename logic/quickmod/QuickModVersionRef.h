@@ -1,7 +1,8 @@
 #pragma once
-#include "QuickMod.h"
+#include "QuickModMetadata.h"
 #include <modutils.h>
 
+typedef std::shared_ptr<class QuickModVersion> QuickModVersionPtr;
 class QuickModVersionRef
 {
 	QuickModRef m_mod;
@@ -21,7 +22,7 @@ public:
 		return m_mod.isValid() && !m_id.isEmpty();
 	}
 	QString userFacing() const;
-	QuickModPtr findMod() const;
+	QuickModMetadataPtr findMod() const;
 	QuickModVersionPtr findVersion() const;
 
 	bool operator<(const QuickModVersionRef &other) const;

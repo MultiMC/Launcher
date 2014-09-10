@@ -23,7 +23,7 @@ class InstanceList;
 class QuickModsList;
 class BaseInstance;
 class OneSixInstance;
-class QuickMod;
+class QuickModMetadata;
 
 class QuickModUpdateMonitor : public QObject
 {

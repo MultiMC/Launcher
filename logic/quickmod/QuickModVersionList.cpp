@@ -6,7 +6,7 @@
 QuickModVersionList::QuickModVersionList(QuickModRef mod, InstancePtr instance, QObject *parent)
 	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
 {
-	for (auto version : m_mod.findVersions())
+	for (auto version : QList<QuickModVersionRef>())// FIXME m_mod.findVersions())
 	{
 		if (version.findVersion()->compatibleVersions.contains(m_instance->intendedVersionId()))
 		{

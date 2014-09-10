@@ -3,7 +3,7 @@
 #include <modutils.h>
 
 #include "logger/QsLog.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/minecraft/VersionFile.h"
 #include "logic/minecraft/OneSixLibrary.h"
 #include "logic/minecraft/InstanceVersion.h"

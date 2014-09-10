@@ -20,7 +20,7 @@
 #include <pathutils.h>
 
 #include "logic/quickmod/QuickModsList.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModSettings.h"
 #include "logic/quickmod/tasks/QuickModDownloadTask.h"
 #include "logic/quickmod/tasks/QuickModForgeDownloadTask.h"

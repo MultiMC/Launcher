@@ -28,7 +28,7 @@
 #include "gui/dialogs/NewInstanceDialog.h"
 #include "gui/dialogs/CustomMessageBox.h"
 #include "logic/InstanceFactory.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/OneSixInstance.h"
 
 #include "MultiMC.h"
@@ -326,7 +326,8 @@ void QuickModBrowsePage::setupComboBoxes()
 		versions.append("");
 		for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
 		{
-			versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
+			// FIXME
+			//versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
 		}
 		versions.removeDuplicates();
 
@@ -476,7 +477,7 @@ void QuickModBrowsePage::modSelectionChanged(const QItemSelection &selected,
 {
 	if (m_currentMod)
 	{
-		disconnect(m_currentMod.get(), &QuickMod::logoUpdated, this,
+		disconnect(m_currentMod.get(), &QuickModMetadata::logoUpdated, this,
 				   &QuickModBrowsePage::modLogoUpdated);
 	}
 
@@ -495,7 +496,7 @@ void QuickModBrowsePage::modSelectionChanged(const QItemSelection &selected,
 	{
 		m_currentMod = m_filterModel->index(selected.first().top(), 0)
 						   .data(QuickModsList::QuickModRole)
-						   .value<QuickModPtr>();
+						   .value<QuickModMetadataPtr>();
 		ui->nameLabel->setText(m_currentMod->name());
 		ui->descriptionLabel->setText(m_currentMod->description());
 		ui->websiteLabel->setText(QString("<a href=\"%1\">%2</a>").arg(
@@ -514,14 +515,14 @@ void QuickModBrowsePage::modSelectionChanged(const QItemSelection &selected,
 		}
 		ui->tagsLabel->setText(tags.join(", "));
 		QStringList mcVersions;
-		for (const QString &mcv : m_currentMod->mcVersions())
+		for (const QString &mcv : QStringList())// FIXME m_currentMod->mcVersions())
 		{
 			mcVersions.append(QString("<a href=\"%1\">%1</a>").arg(mcv));
 		}
 		ui->mcVersionsLabel->setText(mcVersions.join(", "));
 		ui->logoLabel->setPixmap(m_currentMod->logo());
 
-		connect(m_currentMod.get(), &QuickMod::logoUpdated, this,
+		connect(m_currentMod.get(), &QuickModMetadata::logoUpdated, this,
 				&QuickModBrowsePage::modLogoUpdated);
 	}
 }

@@ -18,7 +18,7 @@
 #include <QDialog>
 
 #include "logic/BaseInstance.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "BasePage.h"
 
 class OneSixInstance;
@@ -72,7 +72,7 @@ slots:
 private:
 	Ui::QuickModBrowsePage *ui;
 
-	QuickModPtr m_currentMod;
+	QuickModMetadataPtr m_currentMod;
 
 	std::shared_ptr<OneSixInstance> m_instance;
 

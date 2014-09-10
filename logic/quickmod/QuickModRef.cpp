@@ -35,33 +35,17 @@ QString QuickModRef::userFacing() const
 
 QString QuickModRef::toString() const { return m_uid; }
 
-QuickModPtr QuickModRef::findMod() const
+QuickModMetadataPtr QuickModRef::findMod() const
 {
 	const auto mods = findMods();
 	if (mods.isEmpty())
 	{
-		return QuickModPtr();
+		return QuickModMetadataPtr();
 	}
 	return mods.first();
 }
 
-QList<QuickModPtr> QuickModRef::findMods() const { return MMC->quickmodslist()->mods(*this); }
-
-QList<QuickModVersionRef> QuickModRef::findVersions() const
-{
-	QList<QuickModVersionRef> versions;
-	for (const auto mod : findMods())
-	{
-		for (const auto version : mod->versions())
-		{
-			if (!versions.contains(version))
-			{
-				versions.append(version);
-			}
-		}
-	}
-	return versions;
-}
+QList<QuickModMetadataPtr> QuickModRef::findMods() const { return MMC->quickmodslist()->mods(*this); }
 
 QDebug operator<<(QDebug dbg, const QuickModRef &uid)
 {

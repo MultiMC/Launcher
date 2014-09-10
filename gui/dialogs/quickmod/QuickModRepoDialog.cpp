@@ -24,7 +24,7 @@ QuickModRepoDialog::~QuickModRepoDialog()
 void QuickModRepoDialog::on_removeBtn_clicked()
 {
 	QModelIndexList indexes = ui->treeView->selectionModel()->selectedRows();
-	QList<QuickModPtr> mods;
+	QList<QuickModMetadataPtr> mods;
 	for (const auto index : indexes)
 	{
 		mods.append(MMC->quickmodslist()->mod(index.data(Qt::UserRole).toString()));

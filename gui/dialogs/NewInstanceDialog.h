@@ -18,7 +18,7 @@
 #include <QDialog>
 
 #include "logic/BaseVersion.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 
 namespace Ui
 {

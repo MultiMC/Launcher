@@ -1,6 +1,6 @@
 #pragma once
 
-#include "QuickMod.h"
+#include "QuickModMetadata.h"
 #include "logic/BaseVersionList.h"
 #include "logic/BaseInstance.h"
 

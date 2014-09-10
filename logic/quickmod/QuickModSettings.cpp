@@ -20,7 +20,7 @@
 
 #include "logic/settings/INISettingsObject.h"
 #include "logic/settings/Setting.h"
-#include "QuickMod.h"
+#include "QuickModMetadata.h"
 #include "QuickModVersionRef.h"
 #include "QuickModRef.h"
 #include "logic/BaseInstance.h"
@@ -39,7 +39,7 @@ QuickModSettings::~QuickModSettings()
 	delete m_settings;
 }
 
-void QuickModSettings::markModAsExists(QuickModPtr mod, const QuickModVersionRef &version,
+void QuickModSettings::markModAsExists(QuickModMetadataPtr mod, const QuickModVersionRef &version,
 									   const QString &fileName)
 {
 	auto mods = m_settings->get("AvailableMods").toMap();
@@ -95,7 +95,7 @@ bool QuickModSettings::isModMarkedAsInstalled(const QuickModRef uid,
 	return mods.contains(uid.toString()) &&
 		   mods.value(uid.toString()).toMap().contains(version.toString());
 }
-bool QuickModSettings::isModMarkedAsExists(QuickModPtr mod,
+bool QuickModSettings::isModMarkedAsExists(QuickModMetadataPtr mod,
 										   const QuickModVersionRef &version) const
 {
 	if (!version.findVersion())
@@ -118,7 +118,7 @@ QuickModSettings::installedModFiles(const QuickModRef uid, BaseInstance *instanc
 	}
 	return out;
 }
-QString QuickModSettings::existingModFile(QuickModPtr mod,
+QString QuickModSettings::existingModFile(QuickModMetadataPtr mod,
 										  const QuickModVersionRef &version) const
 {
 	if (!isModMarkedAsExists(mod, version))

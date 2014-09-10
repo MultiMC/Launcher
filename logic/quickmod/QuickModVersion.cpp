@@ -20,7 +20,7 @@
 #include <QJsonDocument>
 
 #include "logic/net/HttpMetaCache.h"
-#include "QuickMod.h"
+#include "QuickModMetadata.h"
 #include "modutils.h"
 #include "MultiMC.h"
 #include "logic/MMCJson.h"

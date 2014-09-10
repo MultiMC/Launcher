@@ -1,7 +1,7 @@
 #include "QuickModVerifyModsDialog.h"
 #include "ui_QuickModVerifyModsDialog.h"
 
-QuickModVerifyModsDialog::QuickModVerifyModsDialog(QList<QuickModPtr> mods, QWidget *parent)
+QuickModVerifyModsDialog::QuickModVerifyModsDialog(QList<QuickModMetadataPtr> mods, QWidget *parent)
 	: QDialog(parent), ui(new Ui::QuickModVerifyModsDialog)
 {
 	ui->setupUi(this);

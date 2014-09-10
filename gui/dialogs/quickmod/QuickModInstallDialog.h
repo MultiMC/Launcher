@@ -20,7 +20,7 @@
 #include <QPair>
 #include <memory>
 
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModVersion.h"
 
 #include "logic/BaseInstance.h"
@@ -34,7 +34,7 @@ class QNetworkReply;
 class WebDownloadNavigator;
 class BaseInstance;
 class OneSixInstance;
-class QuickMod;
+class QuickModMetadata;
 class QuickModInstaller;
 class QTreeWidgetItem;
 
@@ -123,7 +123,7 @@ private slots:
 	// For binding to QuickModDependencyResolver
 	QuickModVersionPtr getVersion(const QuickModRef &modUid, const QuickModVersionRef &filter, bool *ok);
 	// For binding to QuickModDependencyDownloadTask
-	bool verifyMods(const QList<QuickModPtr> &mods);
+	bool verifyMods(const QList<QuickModMetadataPtr> &mods);
 
 private:
 	Ui::QuickModInstallDialog *ui;

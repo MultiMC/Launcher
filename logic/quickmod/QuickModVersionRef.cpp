@@ -21,10 +21,10 @@ QString QuickModVersionRef::userFacing() const
 	const QuickModVersionPtr ptr = findVersion();
 	return ptr ? ptr->name() : QString();
 }
-QuickModPtr QuickModVersionRef::findMod() const
+QuickModMetadataPtr QuickModVersionRef::findMod() const
 {
 	const QuickModVersionPtr ptr = findVersion();
-	return ptr ? ptr->mod : QuickModPtr();
+	return ptr ? ptr->mod : QuickModMetadataPtr();
 }
 QuickModVersionPtr QuickModVersionRef::findVersion() const
 {
@@ -32,10 +32,10 @@ QuickModVersionPtr QuickModVersionRef::findVersion() const
 	{
 		return QuickModVersionPtr();
 	}
-	QList<QuickModPtr> mods = m_mod.findMods();
+	QList<QuickModMetadataPtr> mods = m_mod.findMods();
 	for (const auto mod : mods)
 	{
-		for (const auto version : mod->versionsInternal())
+		for (const auto version : QList<QuickModVersionPtr>())// FIXME mod->versionsInternal())
 		{
 			if (version->version() == *this)
 			{
@@ -46,7 +46,7 @@ QuickModVersionPtr QuickModVersionRef::findVersion() const
 
 	for (const auto mod : mods)
 	{
-		for (const auto version : mod->versionsInternal())
+		for (const auto version : QList<QuickModVersionPtr>())// FIXME mod->versionsInternal())
 		{
 			if (version->version() == *this)
 			{

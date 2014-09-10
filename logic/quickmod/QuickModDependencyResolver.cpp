@@ -18,7 +18,7 @@
 #include <QDebug>
 
 #include "logic/quickmod/QuickModVersion.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/OneSixInstance.h"
 #include "MultiMC.h"

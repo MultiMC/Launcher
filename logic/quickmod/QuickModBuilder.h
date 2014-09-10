@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModVersion.h"
 
 class QuickModVersionBuilder;
@@ -85,9 +85,9 @@ public:
 		return *this;
 	}
 
-	QuickModBuilder addUrl(const QuickMod::UrlType type, const QUrl &url)
+	QuickModBuilder addUrl(const QuickModMetadata::UrlType type, const QUrl &url)
 	{
-		m_mod->m_urls[QuickMod::urlId(type)].append(url);
+		m_mod->m_urls[QuickModMetadata::urlId(type)].append(url);
 		return *this;
 	}
 
@@ -100,15 +100,14 @@ public:
 	QuickModVersionBuilder addVersion();
 	QuickModBuilder addVersion(const QuickModVersionPtr ptr);
 
-	QuickModPtr build()
+	QuickModMetadataPtr build()
 	{
-		m_mod->sortVersions();
 		return m_mod;
 	}
 
 private:
 	friend class QuickModVersionBuilder;
-	QuickModPtr m_mod;
+	QuickModMetadataPtr m_mod;
 
 	void finishVersion(QuickModVersionPtr version);
 };

@@ -652,8 +652,8 @@ SET(MULTIMC_SOURCES
 	logic/tools/JVisualVM.cpp
 
 	# QuickMods
-	logic/quickmod/QuickMod.cpp
-	logic/quickmod/QuickMod.h
+	logic/quickmod/QuickModMetadata.cpp
+	logic/quickmod/QuickModMetadata.h
 	logic/quickmod/QuickModRef.cpp
 	logic/quickmod/QuickModRef.h
 	logic/quickmod/QuickModBuilder.cpp
@@ -662,8 +662,6 @@ SET(MULTIMC_SOURCES
 	logic/quickmod/QuickModDependencyResolver.h
 	logic/quickmod/QuickModDownload.cpp
 	logic/quickmod/QuickModDownload.h
-	logic/quickmod/QuickModFilesUpdater.cpp
-	logic/quickmod/QuickModFilesUpdater.h
 	logic/quickmod/QuickModInstaller.cpp
 	logic/quickmod/QuickModInstaller.h
 	logic/quickmod/QuickModLibraryInstaller.cpp
@@ -682,6 +680,12 @@ SET(MULTIMC_SOURCES
 	logic/quickmod/QuickModIndexList.h
 	logic/quickmod/QuickModSettings.cpp
 	logic/quickmod/QuickModSettings.h
+	logic/quickmod/QuickModBaseDownloadAction.cpp
+	logic/quickmod/QuickModBaseDownloadAction.h
+	logic/quickmod/QuickModDownloadAction.cpp
+	logic/quickmod/QuickModDownloadAction.h
+	logic/quickmod/QuickModIndexDownloadAction.cpp
+	logic/quickmod/QuickModIndexDownloadAction.h
 	logic/quickmod/tasks/QuickModDependencyDownloadTask.cpp
 	logic/quickmod/tasks/QuickModDependencyDownloadTask.h
 	logic/quickmod/tasks/QuickModDownloadTask.cpp
@@ -690,24 +694,6 @@ SET(MULTIMC_SOURCES
 	logic/quickmod/tasks/QuickModForgeDownloadTask.h
 	logic/quickmod/tasks/QuickModLiteLoaderDownloadTask.cpp
 	logic/quickmod/tasks/QuickModLiteLoaderDownloadTask.h
-	logic/quickmod/QuickModsList.h
-	logic/quickmod/QuickModsList.cpp
-	logic/quickmod/QuickModFilesUpdater.h
-	logic/quickmod/QuickModFilesUpdater.cpp
-	logic/quickmod/QuickMod.h
-	logic/quickmod/QuickMod.cpp
-	logic/quickmod/QuickModVersion.h
-	logic/quickmod/QuickModVersion.cpp
-	logic/quickmod/QuickModDependencyResolver.h
-	logic/quickmod/QuickModDependencyResolver.cpp
-	logic/quickmod/QuickModInstaller.h
-	logic/quickmod/QuickModInstaller.cpp
-	logic/quickmod/QuickModUpdateMonitor.h
-	logic/quickmod/QuickModUpdateMonitor.cpp
-	logic/quickmod/QuickModLibraryInstaller.h
-	logic/quickmod/QuickModLibraryInstaller.cpp
-	logic/quickmod/QuickModBuilder.h
-	logic/quickmod/QuickModBuilder.cpp
 	
 	# Forge and all things forge related
 	logic/forge/ForgeVersion.h

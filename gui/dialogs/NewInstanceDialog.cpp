@@ -22,7 +22,7 @@
 #include "logic/icons/IconList.h"
 #include "logic/minecraft/MinecraftVersionList.h"
 #include "logic/tasks/Task.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModVersion.h"
 
 #include "gui/Platform.h"
@@ -64,7 +64,7 @@ void NewInstanceDialog::setFromQuickMod(QuickModRef quickmod)
 			ui->iconButton->setIcon(MMC->icons()->getIcon(InstIconKey));
 		}
 	}
-	const auto versions = quickmod.findVersions();
+	const auto versions = QList<QuickModVersionRef>(); // FIXME quickmod.findVersions();
 	if (!versions.isEmpty())
 	{
 		setSelectedVersion(MMC->minecraftlist()->findVersion(versions.first().findVersion()->compatibleVersions.first()));

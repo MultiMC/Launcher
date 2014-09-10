@@ -26,31 +26,14 @@
 #include "MMCError.h"
 #include "QuickModRef.h"
 
-class QuickMod;
-class QuickModVersion;
-class QuickModVersionRef;
-class OneSixInstance;
+typedef std::shared_ptr<class QuickModMetadata> QuickModMetadataPtr;
 
-typedef std::shared_ptr<QuickMod> QuickModPtr;
-typedef std::shared_ptr<QuickModVersion> QuickModVersionPtr;
-
-class QuickModParseError : public MMCError
-{
-public:
-	QuickModParseError(QString cause) : MMCError(cause)
-	{
-	}
-	virtual ~QuickModParseError() noexcept
-	{
-	}
-};
-
-class QuickMod : public QObject
+class QuickModMetadata : public QObject
 {
 	Q_OBJECT
 public:
-	explicit QuickMod(QObject *parent = 0);
-	~QuickMod();
+	explicit QuickModMetadata(QObject *parent = 0);
+	~QuickModMetadata();
 
 	bool isValid() const
 	{
@@ -74,7 +57,6 @@ public:
 	{
 		return m_uid;
 	}
-
 	QString internalUid() const
 	{
 		return m_repo + '.' + m_uid.toString();
@@ -84,12 +66,10 @@ public:
 	{
 		return m_repo;
 	}
-
 	QString name() const
 	{
 		return m_name;
 	}
-
 	QString description() const
 	{
 		return m_description;
@@ -99,7 +79,6 @@ public:
 	{
 		return m_authors.keys();
 	}
-
 	QStringList authors(const QString &type) const
 	{
 		return m_authors.value(type);
@@ -110,12 +89,10 @@ public:
 		const auto urls = url(type);
 		return urls.isEmpty() ? QUrl() : urls.first();
 	}
-
 	QList<QUrl> url(const UrlType type) const
 	{
 		return m_urls[urlId(type)];
 	}
-
 	QUrl websiteUrl() const
 	{
 		return safeUrl(Website);
@@ -125,14 +102,14 @@ public:
 	{
 		return safeUrl(Icon);
 	}
-
 	QIcon icon();
+
 	QUrl logoUrl() const
 	{
 		return safeUrl(Logo);
 	}
-
 	QPixmap logo();
+
 	QUrl updateUrl() const
 	{
 		return m_updateUrl;
@@ -147,37 +124,23 @@ public:
 	{
 		return m_modId;
 	}
-
 	QStringList categories() const
 	{
 		return m_categories;
 	}
-
 	QStringList tags() const
 	{
 		return m_tags;
 	}
-
 	QString license() const
 	{
 		return m_license;
 	}
 
-	QList<QuickModVersionPtr> versionsInternal() const
-	{
-		return m_versions;
-	}
+	void parse(const QJsonObject &mod);
+	QJsonObject toJson() const;
 
-	QList<QuickModVersionRef> versions() const;
-	/// List of Minecraft versions this QuickMod is compatible with.
-	QStringList mcVersions();
-	QuickModVersionRef latestVersion(const QString &mcVersion) const;
-	void sortVersions();
-
-	void parse(QuickModPtr _this, const QByteArray &data);
-	QByteArray toJson() const;
-
-	bool compare(const QuickModPtr other) const;
+	bool compare(const QuickModMetadataPtr other) const;
 
 	static UrlType urlType(const QString &id);
 	static QString urlId(const UrlType type);
@@ -209,13 +172,10 @@ private:
 	QPixmap m_logo;
 	QUrl m_updateUrl;
 	QMap<QuickModRef, QUrl> m_references;
-	QStringList m_mcVersionListCache;
 	QString m_modId;
 	QStringList m_categories;
 	QStringList m_tags;
 	QString m_license;
-
-	QList<QuickModVersionPtr> m_versions;
 
 	bool m_imagesLoaded;
 
@@ -223,5 +183,5 @@ private:
 	QString fileName(const QUrl &url) const;
 };
 
-Q_DECLARE_METATYPE(QuickModPtr)
+Q_DECLARE_METATYPE(QuickModMetadataPtr)
 Q_DECLARE_METATYPE(QuickModRef)

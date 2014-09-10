@@ -18,7 +18,7 @@
 #include <QAbstractListModel>
 
 #include "logic/quickmod/QuickModVersion.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/BaseInstance.h"
 
 class QUrl;
@@ -26,6 +26,7 @@ class QUrl;
 class QuickModFilesUpdater;
 class Mod;
 class SettingsObject;
+class OneSixInstance;
 
 class QuickModsList : public QAbstractListModel
 {
@@ -77,38 +78,35 @@ public:
 	{
 		return m_mods.size();
 	}
-	QuickModPtr modAt(const int index) const
+	QuickModMetadataPtr modAt(const int index) const
 	{
 		return m_mods[index];
 	}
 
-	QuickModPtr modForModId(const QString &modId) const;
-	QList<QuickModPtr> mods(const QuickModRef &uid) const;
-	QuickModPtr mod(const QString &internalUid) const;
+	QuickModMetadataPtr modForModId(const QString &modId) const;
+	QList<QuickModMetadataPtr> mods(const QuickModRef &uid) const;
+	QuickModMetadataPtr mod(const QString &internalUid) const;
 	QList<QuickModVersionRef> modsProvidingModVersion(const QuickModRef &uid,
 													  const QuickModVersionRef &version) const;
 	QuickModVersionRef latestVersion(const QuickModRef &modUid, const QString &mcVersion) const;
 
 	QList<QuickModRef> updatedModsForInstance(std::shared_ptr<OneSixInstance> instance) const;
 
-	void releaseFromSandbox(QuickModPtr mod);
-
 	/// \internal
-	inline QList<QuickModPtr> quickmods() const
+	inline QList<QuickModMetadataPtr> quickmods() const
 	{
 		return m_mods;
 	}
 
 public slots:
-	void registerMod(const QString &fileName, bool sandbox);
-	void registerMod(const QUrl &url, bool sandbox);
-	void unregisterMod(QuickModPtr mod);
+	void registerMod(const QString &fileName);
+	void registerMod(const QUrl &url);
+	void unregisterMod(QuickModMetadataPtr mod);
 
 	void updateFiles();
 
-private slots:
-	void touchMod(QuickModPtr mod);
-	void addMod(QuickModPtr mod);
+public:
+	void addMod(QuickModMetadataPtr mod);
 	void clearMods();
 
 	void modIconUpdated();
@@ -117,20 +115,16 @@ private slots:
 	void cleanup();
 
 signals:
-	void sandboxModAdded(QuickModPtr mod);
-	void modAdded(QuickModPtr mod);
+	void modAdded(QuickModMetadataPtr mod);
 	void modsListChanged();
 	void error(const QString &message);
 
 private:
 	/// Gets the index of the given mod in the list.
-	int getQMIndex(QuickModPtr mod) const;
-	QuickModPtr getQMPtr(QuickMod *mod) const;
+	int getQMIndex(QuickModMetadataPtr mod) const;
+	QuickModMetadataPtr getQMPtr(QuickModMetadata *mod) const;
 
-	friend class QuickModFilesUpdater;
-	QuickModFilesUpdater *m_updater;
-
-	QList<QuickModPtr> m_mods;
+	QList<QuickModMetadataPtr> m_mods;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QuickModsList::Flags)

@@ -6,7 +6,7 @@
 #include <QDir>
 
 #include "MultiMC.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 
 #include "test_config.h"
 
@@ -24,9 +24,9 @@ public:
 		return QString::fromUtf8(readFile(fileName));
 	}
 
-	static QuickModPtr createMod(QString name)
+	static QuickModMetadataPtr createMod(QString name)
 	{
-		auto mod = QuickModPtr(new QuickMod);
+		auto mod = QuickModMetadataPtr(new QuickModMetadata);
 		mod->m_uid = QuickModRef(name);
 		mod->m_repo = "test_repo";
 		mod->m_name = name;

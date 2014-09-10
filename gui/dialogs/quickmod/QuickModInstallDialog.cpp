@@ -36,7 +36,7 @@
 #include "gui/dialogs/quickmod/QuickModDownloadSelectionDialog.h"
 #include "gui/GuiUtil.h"
 #include "logic/quickmod/QuickModsList.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/QuickModSettings.h"
 #include "logic/quickmod/tasks/QuickModDependencyDownloadTask.h"
@@ -191,7 +191,7 @@ void QuickModInstallDialog::contextMenuRequested(const QPoint &pos)
 	QAction *copyDownload = menu.addAction(tr("Copy download link"));
 	QAction *copyDonation = menu.addAction(tr("Copy donation link"));
 
-	connect(version->mod.get(), &QuickMod::iconUpdated, [openWebsite, version]()
+	connect(version->mod.get(), &QuickModMetadata::iconUpdated, [openWebsite, version]()
 			{
 		openWebsite->setIcon(version->mod->icon());
 	});
@@ -304,7 +304,7 @@ bool QuickModInstallDialog::downloadDeps()
 		   QDialog::Rejected; // Is this really the best way to check for failure?
 }
 
-bool QuickModInstallDialog::verifyMods(const QList<QuickModPtr> &mods)
+bool QuickModInstallDialog::verifyMods(const QList<QuickModMetadataPtr> &mods)
 {
 	return QuickModVerifyModsDialog(mods, this).exec() == QDialog::Accepted;
 }
@@ -417,7 +417,7 @@ void QuickModInstallDialog::selectDownloadUrls()
 		const auto download = QuickModDownloadSelectionDialog::select(version, this);
 		m_selectedDownloadUrls.insert(version, download);
 
-		const auto url = version->mod->safeUrl(QuickMod::Donation);
+		const auto url = version->mod->safeUrl(QuickModMetadata::Donation);
 		if (download.type == QuickModDownload::Direct && !url.isEmpty())
 		{
 			auto item = itemForVersion(version);

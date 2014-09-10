@@ -20,7 +20,7 @@
 #include <QString>
 #include <memory>
 
-#include "QuickMod.h"
+#include "QuickModMetadata.h"
 #include "QuickModVersion.h"
 
 class VersionFinal;

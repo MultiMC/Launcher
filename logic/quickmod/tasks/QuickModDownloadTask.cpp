@@ -16,7 +16,7 @@
 #include "QuickModDownloadTask.h"
 
 #include "logic/net/ByteArrayDownload.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModVersion.h"
 #include "logic/quickmod/QuickModsList.h"
 #include "logic/quickmod/QuickModSettings.h"
@@ -40,7 +40,7 @@ void QuickModDownloadTask::executeTask()
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
 		const QuickModVersionRef version = it.value().first;
-		QuickModPtr mod = version.isValid() ? version.findMod()
+		QuickModMetadataPtr mod = version.isValid() ? version.findMod()
 											: MMC->quickmodslist()->mods(it.key()).first();
 		QuickModVersionPtr ptr = version.findVersion();
 		if (!ptr || !MMC->quickmodSettings()->isModMarkedAsExists(mod, version) || hasResolveError ||

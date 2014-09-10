@@ -21,7 +21,7 @@
 #include "logic/BaseInstance.h"
 #include "logic/OneSixInstance.h"
 #include "logic/quickmod/QuickModVersion.h"
-#include "logic/quickmod/QuickMod.h"
+#include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModLibraryInstaller.h"
 #include "logic/quickmod/QuickModSettings.h"
 #include "MultiMC.h"

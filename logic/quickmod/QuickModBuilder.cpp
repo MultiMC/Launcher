@@ -28,7 +28,7 @@ QuickModBuilder QuickModVersionBuilder::build()
 	return m_builder;
 }
 
-QuickModBuilder::QuickModBuilder() : m_mod(std::make_shared<QuickMod>())
+QuickModBuilder::QuickModBuilder() : m_mod(std::make_shared<QuickModMetadata>())
 {
 }
 
@@ -57,7 +57,7 @@ QuickModBuilder QuickModBuilder::addVersion(const QuickModVersionPtr ptr)
 void QuickModBuilder::finishVersion(QuickModVersionPtr version)
 {
 	Q_ASSERT(version->mod == m_mod);
-	m_mod->m_versions.append(version);
+	// FIXME m_mod->m_versions.append(version);
 	const auto deps =
 		QList<QuickModRef>() << version->dependencies.keys() << version->recommendations.keys()
 							 << version->suggestions.keys() << version->conflicts.keys()
@@ -68,7 +68,7 @@ void QuickModBuilder::finishVersion(QuickModVersionPtr version)
 		{
 			continue;
 		}
-		const QList<QuickModPtr> ptrs = MMC->quickmodslist()->mods(dep);
+		const QList<QuickModMetadataPtr> ptrs = MMC->quickmodslist()->mods(dep);
 		if (ptrs.isEmpty())
 		{
 			continue;

@@ -19,7 +19,7 @@
 
 class QString;
 template <typename Key, typename Value> class QMap;
-typedef std::shared_ptr<class QuickMod> QuickModPtr;
+typedef std::shared_ptr<class QuickModMetadata> QuickModMetadataPtr;
 class QuickModVersionRef;
 class QuickModRef;
 class BaseInstance;
@@ -32,7 +32,7 @@ public:
 	explicit QuickModSettings();
 	~QuickModSettings();
 
-	void markModAsExists(QuickModPtr mod, const QuickModVersionRef &version,
+	void markModAsExists(QuickModMetadataPtr mod, const QuickModVersionRef &version,
 						 const QString &fileName);
 	void markModAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
 							const QString &fileName, InstancePtr instance);
@@ -40,10 +40,10 @@ public:
 							  InstancePtr instance);
 	bool isModMarkedAsInstalled(const QuickModRef uid, const QuickModVersionRef &version,
 								InstancePtr instance) const;
-	bool isModMarkedAsExists(QuickModPtr mod, const QuickModVersionRef &version) const;
+	bool isModMarkedAsExists(QuickModMetadataPtr mod, const QuickModVersionRef &version) const;
 	QMap<QuickModVersionRef, QString> installedModFiles(const QuickModRef uid,
 														BaseInstance *instance) const;
-	QString existingModFile(QuickModPtr mod, const QuickModVersionRef &version) const;
+	QString existingModFile(QuickModMetadataPtr mod, const QuickModVersionRef &version) const;
 
 	SettingsObject *settings() const
 	{
