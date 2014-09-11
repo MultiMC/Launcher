@@ -5,15 +5,33 @@
 #include <QStringList>
 #include <math.h>
 
+static bool isBinaryJson(const QByteArray &data)
+{
+	decltype(QJsonDocument::BinaryFormatTag) tag = QJsonDocument::BinaryFormatTag;
+	return memcmp(data.constData(), &tag, sizeof(QJsonDocument::BinaryFormatTag)) == 0;
+}
+
 QJsonDocument MMCJson::parseDocument(const QByteArray &data, const QString &what)
 {
-	QJsonParseError error;
-	QJsonDocument doc = QJsonDocument::fromJson(data, &error);
-	if (error.error != QJsonParseError::NoError)
+	if (isBinaryJson(data))
 	{
-		throw JSONValidationError(what + " is not valid JSON: " + error.errorString() + " at " + error.offset);
+		QJsonDocument doc = QJsonDocument::fromBinaryData(data);
+		if (doc.isNull())
+		{
+			throw JSONValidationError(what + " is not valid JSON (binary JSON detected)");
+		}
+		return doc;
 	}
-	return doc;
+	else
+	{
+		QJsonParseError error;
+		QJsonDocument doc = QJsonDocument::fromJson(data, &error);
+		if (error.error != QJsonParseError::NoError)
+		{
+			throw JSONValidationError(what + " is not valid JSON: " + error.errorString() + " at " + error.offset);
+		}
+		return doc;
+	}
 }
 
 bool MMCJson::ensureBoolean(const QJsonValue val, const QString what)

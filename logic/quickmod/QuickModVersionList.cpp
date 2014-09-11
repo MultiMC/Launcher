@@ -1,18 +1,14 @@
 #include "QuickModVersionList.h"
 #include "QuickModVersionRef.h"
 #include "QuickModVersion.h"
+#include "QuickModsList.h"
 #include "logger/QsLog.h"
+#include "MultiMC.h"
 
 QuickModVersionList::QuickModVersionList(QuickModRef mod, InstancePtr instance, QObject *parent)
 	: BaseVersionList(parent), m_mod(mod), m_instance(instance)
 {
-	for (auto version : QList<QuickModVersionRef>())// FIXME m_mod.findVersions())
-	{
-		if (version.findVersion()->compatibleVersions.contains(m_instance->intendedVersionId()))
-		{
-			m_versions.append(version);
-		}
-	}
+	m_versions = MMC->quickmodslist()->versions(mod, m_instance->intendedVersionId());
 }
 
 Task *QuickModVersionList::getLoadTask()
@@ -27,7 +23,9 @@ bool QuickModVersionList::isLoaded()
 const BaseVersionPtr QuickModVersionList::at(int i) const
 {
 	if(i < m_versions.size() && i >= 0)
-		return m_versions[i].findVersion();
+	{
+		return MMC->quickmodslist()->version(m_versions[i]);
+	}
 
 	QLOG_WARN() << "QuickModVersionList::at -> Index out of range (" << i << ")";
 	return QuickModVersionPtr();

@@ -601,16 +601,17 @@ QByteArray QuickModCreateFromInstanceDialog::toJson() const
 		builder.addVersion(version);
 	}
 
-	return QJsonDocument(builder.build()->toJson()).toJson();
+	return QJsonDocument(builder.build()).toJson();
 }
 
 void QuickModCreateFromInstanceDialog::fromJson(const QByteArray &json)
 {
 	resetValues();
 	resetTables();
+	auto root = MMCJson::ensureObject(MMCJson::parseDocument(json, "QuickMod"));
 	QuickModMetadataPtr mod = std::make_shared<QuickModMetadata>();
-	mod->parse(MMCJson::ensureObject(MMCJson::parseDocument(json, "QuickMod")));
-	// FIXME m_otherVersions = mod->versionsInternal();
+	mod->parse(root);
+	m_otherVersions = QuickModVersion::parse(root, mod);
 	ui->uidEdit->setText(mod->uid().toString());
 	ui->repoEdit->setText(mod->repo());
 	ui->nameEdit->setText(mod->name());

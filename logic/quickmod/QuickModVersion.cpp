@@ -26,12 +26,14 @@
 #include "logic/MMCJson.h"
 #include "logic/BaseInstance.h"
 
-static QMap<QString, QString> jsonObjectToStringStringMap(const QJsonObject &obj)
+QList<QuickModVersionPtr> QuickModVersion::parse(const QJsonObject &object, QuickModMetadataPtr mod)
 {
-	QMap<QString, QString> out;
-	for (auto it = obj.begin(); it != obj.end(); ++it)
+	QList<QuickModVersionPtr> out;
+	for (auto versionVal : MMCJson::ensureObject(object.value("versions")))
 	{
-		out.insert(it.key(), MMCJson::ensureString(it.value()));
+		QuickModVersionPtr ptr = std::make_shared<QuickModVersion>(mod);
+		ptr->parse(MMCJson::ensureObject(versionVal));
+		out.append(ptr);
 	}
 	return out;
 }

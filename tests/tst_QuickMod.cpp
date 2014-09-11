@@ -56,50 +56,24 @@ private slots:
 		mod->m_license = "WTFPL";
 		return mod;
 	}
-	QuickModVersionPtr createTestingVersion(QuickModMetadataPtr mod, const QuickModDownload::DownloadType type)
-	{
-		auto version = QuickModVersionPtr(new QuickModVersion(mod));
-		version->name_ = version->versionString = "1.42";
-		version->m_version = Util::Version(version->name_);
-		QuickModDownload download;
-		download.url = "http://downloads.com/deadbeaf";
-		download.type = type;
-		version->downloads.append(download);
-		version->forgeVersionFilter = "(9.8.42,)";
-		version->compatibleVersions << "1.6.2" << "1.6.4";
-		version->dependencies = {{QuickModRef("stuff"), qMakePair(QuickModVersionRef(QuickModRef("stuff"), "1.0.0.0.0"), false)}};
-		version->recommendations = {{QuickModRef("OtherName"), QuickModVersionRef(QuickModRef("OtherName"), "1.2.3")}};
-		version->sha1 = "a68b86df2f3fff44";
-		return version;
-	}
 
 	void testParsing_data()
 	{
 		QTest::addColumn<QByteArray>("input");
 		QTest::addColumn<QuickModMetadataPtr>("mod");
 		QuickModMetadataPtr mod;
-		QuickModVersionPtr version;
 
 		mod = createTestingMod();
-		version = createTestingVersion(mod, QuickModDownload::Direct);
-		version->installType = QuickModVersion::ForgeMod;
-		//mod->m_versions = QList<QuickModVersionPtr>() << version;
 		QTest::newRow("basic test, forge mod, direct")
 			<< TestsInternal::readFile(QFINDTESTDATA(
 				   "data/tst_QuickMod_basic test, forge mod, direct")) << mod;
 
 		mod = createTestingMod();
-		version = createTestingVersion(mod, QuickModDownload::Parallel);
-		version->installType = QuickModVersion::ForgeCoreMod;
-		//mod->m_versions = QList<QuickModVersionPtr>() << version;
 		QTest::newRow("basic test, core mod, parallel")
 			<< TestsInternal::readFile(QFINDTESTDATA(
 				   "data/tst_QuickMod_basic test, core mod, parallel")) << mod;
 
 		mod = createTestingMod();
-		version = createTestingVersion(mod, QuickModDownload::Sequential);
-		version->installType = QuickModVersion::ConfigPack;
-		//mod->m_versions = QList<QuickModVersionPtr>() << version;
 		QTest::newRow("basic test, config pack, sequential")
 			<< TestsInternal::readFile(QFINDTESTDATA(
 				   "data/tst_QuickMod_basic test, config pack, sequential")) << mod;
@@ -133,27 +107,6 @@ private slots:
 		QCOMPARE(parsed->m_categories, mod->m_categories);
 		QCOMPARE(parsed->m_tags, mod->m_tags);
 		QCOMPARE(parsed->m_license, mod->m_license);
-
-		QuickModVersionPtr parsedVersion;//FIXME = parsed->versionsInternal().first();
-		QuickModVersionPtr version;//FIXME = mod->versionsInternal().first();
-		QuickModDownload parsedDownload = parsedVersion->downloads.first();
-		QuickModDownload download = version->downloads.first();
-		QCOMPARE(parsedDownload.url, download.url);
-		QCOMPARE((int)parsedDownload.type, (int)download.type);
-		QVERIFY(parsedVersion->valid);
-		QCOMPARE(parsedVersion->name(), version->name());
-		QCOMPARE(parsedVersion->version(), version->version());
-		QCOMPARE(parsedVersion->compatibleVersions, version->compatibleVersions);
-		QCOMPARE(parsedVersion->forgeVersionFilter, version->forgeVersionFilter);
-		QCOMPARE(parsedVersion->dependencies, version->dependencies);
-		QCOMPARE(parsedVersion->recommendations, version->recommendations);
-		QCOMPARE(parsedVersion->suggestions, version->suggestions);
-		QCOMPARE(parsedVersion->conflicts, version->conflicts);
-		QCOMPARE(parsedVersion->provides, version->provides);
-		QCOMPARE(parsedVersion->sha1, version->sha1);
-		QCOMPARE((int)parsedVersion->installType, (int)version->installType);
-		parsedVersion->mod = version->mod; // otherwise the below breaks
-		QVERIFY(parsedVersion->operator ==(*version));
 	}
 
 	void testFileName_data()

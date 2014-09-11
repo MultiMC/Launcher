@@ -46,8 +46,7 @@ void QuickModLiteLoaderDownloadTask::executeTask()
 	QStringList versionFilters;
 	for (auto it = mods.cbegin(); it != mods.cend(); ++it)
 	{
-		QuickModVersionPtr version =
-			it.value().first.findVersion();
+		QuickModVersionPtr version = MMC->quickmodslist()->version(it.value().first);
 		if (!version)
 		{
 			continue;

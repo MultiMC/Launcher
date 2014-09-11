@@ -32,8 +32,6 @@ public:
 	QUrl updateUrl() const { return m_updateUrl; }
 	QString userFacing() const;
 	QString toString() const;
-	QuickModMetadataPtr findMod() const;
-	QList<QuickModMetadataPtr> findMods() const;
 
 	bool isValid() const { return !m_uid.isEmpty(); }
 

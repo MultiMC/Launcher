@@ -680,6 +680,8 @@ SET(MULTIMC_SOURCES
 	logic/quickmod/QuickModIndexList.h
 	logic/quickmod/QuickModSettings.cpp
 	logic/quickmod/QuickModSettings.h
+	logic/quickmod/QuickModDatabase.cpp
+	logic/quickmod/QuickModDatabase.h
 	logic/quickmod/QuickModBaseDownloadAction.cpp
 	logic/quickmod/QuickModBaseDownloadAction.h
 	logic/quickmod/QuickModDownloadAction.cpp

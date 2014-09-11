@@ -29,23 +29,11 @@ QuickModRef::QuickModRef(const QString &uid, const QUrl &updateUrl)
 
 QString QuickModRef::userFacing() const
 {
-	const auto mod = findMod();
+	const auto mod = MMC->quickmodslist()->mod(*this);
 	return mod ? mod->name() : m_uid;
 }
 
 QString QuickModRef::toString() const { return m_uid; }
-
-QuickModMetadataPtr QuickModRef::findMod() const
-{
-	const auto mods = findMods();
-	if (mods.isEmpty())
-	{
-		return QuickModMetadataPtr();
-	}
-	return mods.first();
-}
-
-QList<QuickModMetadataPtr> QuickModRef::findMods() const { return MMC->quickmodslist()->mods(*this); }
 
 QDebug operator<<(QDebug dbg, const QuickModRef &uid)
 {

@@ -28,6 +28,7 @@
 #include "QuickModBaseDownloadAction.h"
 #include "QuickModVersion.h"
 #include "QuickModSettings.h"
+#include "QuickModDatabase.h"
 #include "logic/Mod.h"
 #include "logic/BaseInstance.h"
 #include "logic/OneSixInstance.h"
@@ -39,12 +40,23 @@
 #include "logic/settings/INISettingsObject.h"
 
 QuickModsList::QuickModsList(const Flags flags, QObject *parent)
-	: QAbstractListModel(parent)
+	: QAbstractListModel(parent), m_storage(new QuickModDatabase(this))
 {
 	if (!flags.testFlag(DontCleanup))
 	{
 		cleanup();
 	}
+
+	connect(m_storage, &QuickModDatabase::aboutToReset, [this]()
+	{
+		beginResetModel();
+	});
+	connect(m_storage, &QuickModDatabase::reset, [this]()
+	{
+		m_mods = m_storage->metadata();
+		m_uids = m_mods.keys();
+		endResetModel();
+	});
 }
 
 QuickModsList::~QuickModsList()
@@ -53,9 +65,9 @@ QuickModsList::~QuickModsList()
 
 int QuickModsList::getQMIndex(QuickModMetadataPtr mod) const
 {
-	for (int i = 0; i < m_mods.count(); i++)
+	for (int i = 0; i < m_uids.count(); i++)
 	{
-		if (mod == m_mods[i])
+		if (mod->uid() == m_uids[i])
 		{
 			return i;
 		}
@@ -65,7 +77,7 @@ int QuickModsList::getQMIndex(QuickModMetadataPtr mod) const
 
 QuickModMetadataPtr QuickModsList::getQMPtr(QuickModMetadata *mod) const
 {
-	for (auto m : m_mods)
+	for (auto m : m_mods[mod->uid()])
 	{
 		if (m.get() == mod)
 		{
@@ -93,7 +105,7 @@ QHash<int, QByteArray> QuickModsList::roleNames() const
 
 int QuickModsList::rowCount(const QModelIndex &) const
 {
-	return m_mods.size(); // <-----
+	return m_uids.size(); // <-----
 }
 Qt::ItemFlags QuickModsList::flags(const QModelIndex &index) const
 {
@@ -102,12 +114,12 @@ Qt::ItemFlags QuickModsList::flags(const QModelIndex &index) const
 
 QVariant QuickModsList::data(const QModelIndex &index, int role) const
 {
-	if (0 > index.row() || index.row() >= m_mods.size())
+	if (0 > index.row() || index.row() >= m_uids.size())
 	{
 		return QVariant();
 	}
 
-	QuickModMetadataPtr mod = m_mods.at(index.row());
+	QuickModMetadataPtr mod = modAt(index.row());
 
 	switch (role)
 	{
@@ -147,7 +159,7 @@ QVariant QuickModsList::data(const QModelIndex &index, int role) const
 	case CategoriesRole:
 		return mod->categories();
 	case MCVersionsRole:
-		return QStringList();//FIXME mod->mcVersions();
+		return minecraftVersions(mod->uid());
 	case TagsRole:
 		return mod->tags();
 	case QuickModRole:
@@ -201,39 +213,23 @@ Qt::DropActions QuickModsList::supportedDragActions() const
 	return 0;
 }
 
-QuickModMetadataPtr QuickModsList::modForModId(const QString &modId) const
-{
-	if (modId.isEmpty())
-	{
-		return 0;
-	}
-	for (QuickModMetadataPtr mod : m_mods)
-	{
-		if (mod->modId() == modId)
-		{
-			return mod;
-		}
-	}
-
-	return 0;
-}
 QList<QuickModMetadataPtr> QuickModsList::mods(const QuickModRef &uid) const
 {
-	// TODO repository priority
-	QList<QuickModMetadataPtr> out;
-	for (QuickModMetadataPtr mod : m_mods)
+	return m_mods[uid];
+}
+QuickModMetadataPtr QuickModsList::mod(const QuickModRef &uid) const
+{
+	const auto mods = this->mods(uid);
+	if (mods.isEmpty())
 	{
-		if (mod->uid() == uid)
-		{
-			out.append(mod);
-		}
+		return QuickModMetadataPtr();
 	}
-	return out;
+	return mods.first();
 }
 
 QuickModMetadataPtr QuickModsList::mod(const QString &internalUid) const
 {
-	for (QuickModMetadataPtr mod : m_mods)
+	for (QuickModMetadataPtr mod : allQuickMods())
 	{
 		if (mod->internalUid() == internalUid)
 		{
@@ -243,24 +239,16 @@ QuickModMetadataPtr QuickModsList::mod(const QString &internalUid) const
 	return nullptr;
 }
 
-QList<QuickModVersionRef> QuickModsList::modsProvidingModVersion(const QuickModRef &uid,
-																 const QuickModVersionRef &version) const
+QuickModVersionPtr QuickModsList::version(const QuickModVersionRef &version) const
 {
-	QList<QuickModVersionRef> out;
-	for (auto mod : m_mods)
+	for (auto verPtr : m_versions[version.mod()])
 	{
-		for (QuickModVersionRef versionRef : QList<QuickModVersionRef>())//FIXME mod->versions())
+		if (verPtr->version() == version)
 		{
-			QuickModVersionPtr versionObj = versionRef.findVersion();
-			if (versionObj->provides.contains(uid) &&
-				Util::versionIsInInterval(versionObj->provides.value(uid).toString(), version.toString()))
-			{
-				// this mod provides exactly the needed version :)
-				out.append(versionObj->version());
-			}
+			return verPtr;
 		}
 	}
-	return out;
+	return QuickModVersionPtr();
 }
 
 QuickModVersionRef QuickModsList::latestVersion(const QuickModRef &modUid,
@@ -269,7 +257,7 @@ QuickModVersionRef QuickModsList::latestVersion(const QuickModRef &modUid,
 	QuickModVersionRef latest;
 	for (auto mod : mods(modUid))
 	{
-		auto modLatest = QuickModVersionRef();//FIXME mod->latestVersion(mcVersion);
+		auto modLatest = latestVersion(modUid, mcVersion); // FIXME!!!!! infinite recursion
 		if (!latest.isValid())
 		{
 			latest = modLatest;
@@ -282,8 +270,31 @@ QuickModVersionRef QuickModsList::latestVersion(const QuickModRef &modUid,
 	return latest;
 }
 
-QList<QuickModRef> QuickModsList::updatedModsForInstance(std::shared_ptr<OneSixInstance> instance)
-	const
+QStringList QuickModsList::minecraftVersions(const QuickModRef &uid) const
+{
+	QStringList out;
+	for (const auto version : m_versions[uid])
+	{
+		out.append(version->compatibleVersions);
+	}
+	return out;
+}
+
+QList<QuickModVersionRef> QuickModsList::versions(const QuickModRef &uid, const QString &mcVersion) const
+{
+	QSet<QuickModVersionRef> out;
+	for (const auto v : m_versions[uid])
+	{
+		if (v->compatibleVersions.contains(mcVersion))
+		{
+			out.insert(v->version());
+		}
+	}
+	return out.toList();
+}
+
+QList<QuickModRef>
+QuickModsList::updatedModsForInstance(std::shared_ptr<OneSixInstance> instance) const
 {
 	QList<QuickModRef> mods;
 	for (auto it = instance->getFullVersion()->quickmods.begin();
@@ -306,6 +317,26 @@ QList<QuickModRef> QuickModsList::updatedModsForInstance(std::shared_ptr<OneSixI
 	return mods;
 }
 
+bool QuickModsList::haveUid(const QuickModRef &uid, const QString &repo) const
+{
+	if (!m_mods.contains(uid))
+	{
+		return false;
+	}
+	if (repo.isNull())
+	{
+		return true;
+	}
+	for (auto mod : m_mods[uid])
+	{
+		if (mod->repo() == repo)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void QuickModsList::registerMod(const QString &fileName)
 {
 	registerMod(QUrl::fromLocalFile(fileName));
@@ -326,40 +357,26 @@ void QuickModsList::updateFiles()
 
 void QuickModsList::addMod(QuickModMetadataPtr mod)
 {
+	m_storage->add(mod);
+
 	connect(mod.get(), &QuickModMetadata::iconUpdated, this, &QuickModsList::modIconUpdated);
 	connect(mod.get(), &QuickModMetadata::logoUpdated, this, &QuickModsList::modLogoUpdated);
 
-	for (int i = 0; i < m_mods.size(); ++i)
+	m_mods[mod->uid()].append(mod);
+
+	if (!m_uids.contains(mod->uid()))
 	{
-		if (m_mods.at(i)->compare(mod))
-		{
-			disconnect(m_mods.at(i).get(), &QuickModMetadata::iconUpdated, this,
-					   &QuickModsList::modIconUpdated);
-			disconnect(m_mods.at(i).get(), &QuickModMetadata::logoUpdated, this,
-					   &QuickModsList::modLogoUpdated);
-			m_mods.replace(i, mod);
-
-			emit modAdded(mod);
-			emit modsListChanged();
-
-			return;
-		}
+		beginInsertRows(QModelIndex(), 0, 0);
+		m_uids.prepend(mod->uid());
+		endInsertRows();
 	}
 
-	beginInsertRows(QModelIndex(), 0, 0);
-	m_mods.prepend(mod);
-	endInsertRows();
-
-	emit modAdded(mod);
 	emit modsListChanged();
 }
-void QuickModsList::clearMods()
-{
-	beginResetModel();
-	m_mods.clear();
-	endResetModel();
 
-	emit modsListChanged();
+void QuickModsList::addVersion(QuickModVersionPtr version)
+{
+	m_storage->add(version);
 }
 
 void QuickModsList::modIconUpdated()
@@ -397,21 +414,4 @@ void QuickModsList::cleanup()
 		}
 	}
 	MMC->quickmodSettings()->settings()->set("AvailableMods", mods);
-}
-
-void QuickModsList::unregisterMod(QuickModMetadataPtr mod)
-{
-	if (!m_mods.contains(mod))
-	{
-		return;
-	}
-	disconnect(mod.get(), &QuickModMetadata::iconUpdated, this, &QuickModsList::modIconUpdated);
-	disconnect(mod.get(), &QuickModMetadata::logoUpdated, this, &QuickModsList::modLogoUpdated);
-
-	beginRemoveRows(QModelIndex(), m_mods.indexOf(mod), m_mods.indexOf(mod));
-	m_mods.removeAll(mod);
-	endRemoveRows();
-	// FIXME actually remove the mod
-
-	emit modsListChanged();
 }

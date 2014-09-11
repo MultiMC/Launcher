@@ -22,8 +22,6 @@ public:
 		return m_mod.isValid() && !m_id.isEmpty();
 	}
 	QString userFacing() const;
-	QuickModMetadataPtr findMod() const;
-	QuickModVersionPtr findVersion() const;
 
 	bool operator<(const QuickModVersionRef &other) const;
 	bool operator<=(const QuickModVersionRef &other) const;
@@ -40,4 +38,6 @@ public:
 		return m_mod;
 	}
 };
+uint qHash(const QuickModVersionRef &ref);
+
 Q_DECLARE_METATYPE(QuickModVersionRef)

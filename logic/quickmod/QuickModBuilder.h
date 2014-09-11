@@ -100,14 +100,12 @@ public:
 	QuickModVersionBuilder addVersion();
 	QuickModBuilder addVersion(const QuickModVersionPtr ptr);
 
-	QuickModMetadataPtr build()
-	{
-		return m_mod;
-	}
+	QJsonObject build() const;
 
 private:
 	friend class QuickModVersionBuilder;
 	QuickModMetadataPtr m_mod;
+	QList<QuickModVersionPtr> m_versions;
 
 	void finishVersion(QuickModVersionPtr version);
 };

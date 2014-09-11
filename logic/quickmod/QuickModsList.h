@@ -23,7 +23,7 @@
 
 class QUrl;
 
-class QuickModFilesUpdater;
+class QuickModDatabase;
 class Mod;
 class SettingsObject;
 class OneSixInstance;
@@ -80,34 +80,47 @@ public:
 	}
 	QuickModMetadataPtr modAt(const int index) const
 	{
-		return m_mods[index];
+		// TODO repository priority
+		return m_mods[m_uids[index]].first();
 	}
 
-	QuickModMetadataPtr modForModId(const QString &modId) const;
 	QList<QuickModMetadataPtr> mods(const QuickModRef &uid) const;
+	QuickModMetadataPtr mod(const QuickModRef &uid) const;
 	QuickModMetadataPtr mod(const QString &internalUid) const;
-	QList<QuickModVersionRef> modsProvidingModVersion(const QuickModRef &uid,
-													  const QuickModVersionRef &version) const;
+	QuickModVersionPtr version(const QuickModVersionRef &version) const;
 	QuickModVersionRef latestVersion(const QuickModRef &modUid, const QString &mcVersion) const;
+	QStringList minecraftVersions(const QuickModRef &uid) const;
+	QList<QuickModVersionRef> versions(const QuickModRef &uid, const QString &mcVersion) const;
 
 	QList<QuickModRef> updatedModsForInstance(std::shared_ptr<OneSixInstance> instance) const;
 
+	bool haveUid(const QuickModRef &uid, const QString &repo = QString()) const;
+
 	/// \internal
-	inline QList<QuickModMetadataPtr> quickmods() const
+	inline QHash<QuickModRef, QList<QuickModMetadataPtr>> quickmods() const
 	{
 		return m_mods;
+	}
+	inline QList<QuickModMetadataPtr> allQuickMods() const
+	{
+		QList<QuickModMetadataPtr> out;
+		for (const auto mods : m_mods)
+		{
+			out.append(mods);
+		}
+		return out;
 	}
 
 public slots:
 	void registerMod(const QString &fileName);
 	void registerMod(const QUrl &url);
-	void unregisterMod(QuickModMetadataPtr mod);
 
 	void updateFiles();
 
 public:
+	// called from QuickModDownloadAction
 	void addMod(QuickModMetadataPtr mod);
-	void clearMods();
+	void addVersion(QuickModVersionPtr version);
 
 	void modIconUpdated();
 	void modLogoUpdated();
@@ -115,7 +128,6 @@ public:
 	void cleanup();
 
 signals:
-	void modAdded(QuickModMetadataPtr mod);
 	void modsListChanged();
 	void error(const QString &message);
 
@@ -124,7 +136,11 @@ private:
 	int getQMIndex(QuickModMetadataPtr mod) const;
 	QuickModMetadataPtr getQMPtr(QuickModMetadata *mod) const;
 
-	QList<QuickModMetadataPtr> m_mods;
+	QHash<QuickModRef, QList<QuickModMetadataPtr>> m_mods;
+	QList<QuickModRef> m_uids; // list that stays ordered for the model
+	QHash<QuickModRef, QList<QuickModVersionPtr>> m_versions;
+
+	QuickModDatabase *m_storage;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QuickModsList::Flags)

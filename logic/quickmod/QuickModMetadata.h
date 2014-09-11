@@ -26,6 +26,8 @@
 #include "MMCError.h"
 #include "QuickModRef.h"
 
+// TODO move icon/logo downloading somewhere else, and remove the QObject superclass
+
 typedef std::shared_ptr<class QuickModMetadata> QuickModMetadataPtr;
 
 class QuickModMetadata : public QObject

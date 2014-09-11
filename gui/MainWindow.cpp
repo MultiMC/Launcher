@@ -1234,7 +1234,7 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 			QMap<QuickModRef, QPair<QuickModVersionRef, bool>> modsToUpdate;
 			for (auto mod : mods)
 			{
-				auto ptr = MMC->quickmodslist()->mods(mod).first();
+				auto ptr = MMC->quickmodslist()->mod(mod);
 				names.append(ptr->name());
 				modsToUpdate.insert(
 					ptr->uid(),

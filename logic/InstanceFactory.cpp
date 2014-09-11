@@ -25,6 +25,7 @@
 
 #include "logic/InstanceFactory.h"
 
+#include "logic/quickmod/QuickModsList.h"
 #include "logic/BaseInstance.h"
 #include "logic/LegacyInstance.h"
 #include "logic/LegacyFTBInstance.h"
@@ -95,12 +96,13 @@ InstancePtr InstanceFactory::addInstance(const QString &name, const QString &ico
 		newInstance->setIconKey(iconKey);
 		if (quickmod.isValid())
 		{
-			newInstance->setNotes(quickmod.findMod()->description());
-			if (quickmod.findMod()->categories().size() > 1)
+			auto mod = MMC->quickmodslist()->mod(quickmod);
+			newInstance->setNotes(mod->description());
+			if (mod->categories().size() > 1)
 			{
-				newInstance->setGroupInitial(quickmod.findMod()->categories().at(1));
+				newInstance->setGroupInitial(mod->categories().at(1));
 			}
-			newInstance->settings().set("LastQuickModUrl", quickmod.findMod()->updateUrl());
+			newInstance->settings().set("LastQuickModUrl", quickmod.updateUrl());
 			if (std::shared_ptr<OneSixInstance> onesix = std::dynamic_pointer_cast<OneSixInstance>(newInstance))
 			{
 				onesix->setQuickModVersion(quickmod, QuickModVersionRef(), true);

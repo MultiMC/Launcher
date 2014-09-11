@@ -24,6 +24,7 @@
 #include "logic/tasks/Task.h"
 #include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModVersion.h"
+#include "logic/quickmod/QuickModsList.h"
 
 #include "gui/Platform.h"
 #include "VersionSelectDialog.h"
@@ -56,18 +57,13 @@ void NewInstanceDialog::setFromQuickMod(QuickModRef quickmod)
 	ui->instNameTextBox->setText(quickmod.userFacing());
 	ui->fromLabel->setText(quickmod.userFacing());
 	ui->fromWidget->setVisible(true);
-	if (!quickmod.findMod()->icon().isNull())
+	if (!MMC->quickmodslist()->mod(quickmod)->icon().isNull())
 	{
-		if (MMC->icons()->addIcon(quickmod.toString(), quickmod.userFacing(), quickmod.findMod()->icon(), MMCIcon::FileBased))
+		if (MMC->icons()->addIcon(quickmod.toString(), quickmod.userFacing(), MMC->quickmodslist()->mod(quickmod)->icon(), MMCIcon::FileBased))
 		{
 			InstIconKey = quickmod.toString();
 			ui->iconButton->setIcon(MMC->icons()->getIcon(InstIconKey));
 		}
-	}
-	const auto versions = QList<QuickModVersionRef>(); // FIXME quickmod.findVersions();
-	if (!versions.isEmpty())
-	{
-		setSelectedVersion(MMC->minecraftlist()->findVersion(versions.first().findVersion()->compatibleVersions.first()));
 	}
 	m_fromQuickMod = quickmod;
 }

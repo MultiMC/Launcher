@@ -1,6 +1,10 @@
 #include "QuickModVersion.h"
-#include "QuickModVersionRef.h"
+
 #include <QString>
+
+#include "QuickModVersionRef.h"
+#include "QuickModsList.h"
+#include "MultiMC.h"
 
 QuickModVersionRef::QuickModVersionRef(const QuickModRef &mod, const QString &id,
 									   const Util::Version &version)
@@ -18,44 +22,8 @@ QuickModVersionRef::QuickModVersionRef(const QuickModVersionPtr &ptr)
 
 QString QuickModVersionRef::userFacing() const
 {
-	const QuickModVersionPtr ptr = findVersion();
+	const QuickModVersionPtr ptr = MMC->quickmodslist()->version(*this);
 	return ptr ? ptr->name() : QString();
-}
-QuickModMetadataPtr QuickModVersionRef::findMod() const
-{
-	const QuickModVersionPtr ptr = findVersion();
-	return ptr ? ptr->mod : QuickModMetadataPtr();
-}
-QuickModVersionPtr QuickModVersionRef::findVersion() const
-{
-	if (!isValid())
-	{
-		return QuickModVersionPtr();
-	}
-	QList<QuickModMetadataPtr> mods = m_mod.findMods();
-	for (const auto mod : mods)
-	{
-		for (const auto version : QList<QuickModVersionPtr>())// FIXME mod->versionsInternal())
-		{
-			if (version->version() == *this)
-			{
-				return version;
-			}
-		}
-	}
-
-	for (const auto mod : mods)
-	{
-		for (const auto version : QList<QuickModVersionPtr>())// FIXME mod->versionsInternal())
-		{
-			if (version->version() == *this)
-			{
-				return version;
-			}
-		}
-	}
-
-	return QuickModVersionPtr();
 }
 
 bool QuickModVersionRef::operator<(const QuickModVersionRef &other) const
@@ -81,4 +49,9 @@ bool QuickModVersionRef::operator>=(const QuickModVersionRef &other) const
 bool QuickModVersionRef::operator==(const QuickModVersionRef &other) const
 {
 	return m_mod == other.m_mod && m_version == other.m_version;
+}
+
+uint qHash(const QuickModVersionRef &ref)
+{
+	return qHash(ref.mod().toString() + ref.toString());
 }

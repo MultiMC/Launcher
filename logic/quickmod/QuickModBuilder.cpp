@@ -54,10 +54,22 @@ QuickModBuilder QuickModBuilder::addVersion(const QuickModVersionPtr ptr)
 	return builder.build();
 }
 
+QJsonObject QuickModBuilder::build() const
+{
+	QJsonObject obj = m_mod->toJson();
+	QJsonArray versions;
+	for (const auto version : m_versions)
+	{
+		versions.append(version->toJson());
+	}
+	obj.insert("versions", versions);
+	return obj;
+}
+
 void QuickModBuilder::finishVersion(QuickModVersionPtr version)
 {
 	Q_ASSERT(version->mod == m_mod);
-	// FIXME m_mod->m_versions.append(version);
+	m_versions.append(version);
 	const auto deps =
 		QList<QuickModRef>() << version->dependencies.keys() << version->recommendations.keys()
 							 << version->suggestions.keys() << version->conflicts.keys()

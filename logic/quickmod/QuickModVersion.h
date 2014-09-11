@@ -67,6 +67,7 @@ public:
 	{
 	}
 
+	static QList<QuickModVersionPtr> parse(const QJsonObject &object, QuickModMetadataPtr mod);
 	void parse(const QJsonObject &object);
 	QJsonObject toJson() const;
 

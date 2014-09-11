@@ -40,9 +40,9 @@ void QuickModDownloadTask::executeTask()
 	for (auto it = quickmods.cbegin(); it != quickmods.cend(); ++it)
 	{
 		const QuickModVersionRef version = it.value().first;
-		QuickModMetadataPtr mod = version.isValid() ? version.findMod()
-											: MMC->quickmodslist()->mods(it.key()).first();
-		QuickModVersionPtr ptr = version.findVersion();
+		QuickModMetadataPtr mod = version.isValid() ? MMC->quickmodslist()->mod(version.mod())
+											: MMC->quickmodslist()->mod(it.key());
+		QuickModVersionPtr ptr = MMC->quickmodslist()->version(version);
 		if (!ptr || !MMC->quickmodSettings()->isModMarkedAsExists(mod, version) || hasResolveError ||
 				(ptr->needsDeploy() && !MMC->quickmodSettings()->isModMarkedAsInstalled(mod->uid(), version, m_instance)))
 		{

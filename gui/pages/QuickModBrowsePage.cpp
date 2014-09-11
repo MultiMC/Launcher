@@ -326,7 +326,7 @@ void QuickModBrowsePage::setupComboBoxes()
 		versions.append("");
 		for (int i = 0; i < MMC->quickmodslist()->numMods(); ++i)
 		{
-			// FIXME
+			// this'll be removed either way
 			//versions.append(MMC->quickmodslist()->modAt(i)->mcVersions());
 		}
 		versions.removeDuplicates();
@@ -515,7 +515,7 @@ void QuickModBrowsePage::modSelectionChanged(const QItemSelection &selected,
 		}
 		ui->tagsLabel->setText(tags.join(", "));
 		QStringList mcVersions;
-		for (const QString &mcv : QStringList())// FIXME m_currentMod->mcVersions())
+		for (const QString &mcv : MMC->quickmodslist()->minecraftVersions(m_currentMod->uid()))
 		{
 			mcVersions.append(QString("<a href=\"%1\">%1</a>").arg(mcv));
 		}

@@ -32,7 +32,7 @@ void QuickModRepoDialog::on_removeBtn_clicked()
 	mods.removeAll(nullptr);
 	for (const auto mod : mods)
 	{
-		MMC->quickmodslist()->unregisterMod(mod);
+		// FIXME MMC->quickmodslist()->unregisterMod(mod);
 	}
 	m_list->reload();
 }

@@ -17,12 +17,14 @@
 
 #include "logic/quickmod/QuickModMetadata.h"
 #include "logic/quickmod/QuickModsList.h"
+#include "logic/quickmod/QuickModDownloadAction.h"
 #include "MultiMC.h"
 
 QuickModDependencyDownloadTask::QuickModDependencyDownloadTask(QList<QuickModRef> mods,
 															   QObject *parent)
 	: Task(parent), m_mods(mods)
 {
+	m_netjob.reset(new NetJob("QuickMod Download"));
 }
 
 void QuickModDependencyDownloadTask::executeTask()
@@ -32,24 +34,14 @@ void QuickModDependencyDownloadTask::executeTask()
 
 	setStatus(tr("Fetching QuickMods files..."));
 
-	connect(MMC->quickmodslist().get(), &QuickModsList::modAdded, this,
-			&QuickModDependencyDownloadTask::modAdded);
-	// TODO we cannot know if this is about us
-	connect(MMC->quickmodslist().get(), &QuickModsList::error, this,
-			&QuickModDependencyDownloadTask::emitFailed);
-
 	for (const QuickModRef mod : m_mods)
 	{
-		if (mod.findMods().isEmpty())
+		auto mods = MMC->quickmodslist()->mods(mod);
+		if (mods.isEmpty()) // means we don't have it yet
 		{
-			if (mod.updateUrl().isValid())
+			if (mod.updateUrl().isValid()) // do we have the required information to fetch it?
 			{
-				if (!m_requestedMods.contains(mod))
-				{
-					MMC->quickmodslist()->registerMod(mod.updateUrl());
-					m_pendingMods.append(mod);
-					m_requestedMods.append(mod);
-				}
+				fetch(mod);
 			}
 			else
 			{
@@ -63,7 +55,7 @@ void QuickModDependencyDownloadTask::executeTask()
 		}
 		else
 		{
-			for (const auto m : mod.findMods())
+			for (const auto m : mods)
 			{
 				requestDependenciesOf(m);
 			}
@@ -74,6 +66,8 @@ void QuickModDependencyDownloadTask::executeTask()
 		emitSucceeded();
 	}
 	updateProgress();
+
+	m_netjob->start();
 }
 
 void QuickModDependencyDownloadTask::modAdded(QuickModMetadataPtr mod)
@@ -82,7 +76,6 @@ void QuickModDependencyDownloadTask::modAdded(QuickModMetadataPtr mod)
 	{
 		m_pendingMods.removeAll(mod->uid());
 		m_mods.append(mod->uid());
-		m_sandboxedMods.append(mod);
 		requestDependenciesOf(mod);
 	}
 	updateProgress();
@@ -103,16 +96,21 @@ void QuickModDependencyDownloadTask::updateProgress()
 
 void QuickModDependencyDownloadTask::finish()
 {
-	if (m_sandboxedMods.isEmpty())
+	if (m_actions.isEmpty())
 	{
 		emitSucceeded();
 		return;
 	}
-	if (wait<bool>("QuickMods.VerifyMods", m_sandboxedMods))
+	QList<QuickModMetadataPtr> addedMods;
+	for (auto action : m_actions)
 	{
-		for (auto mod : m_sandboxedMods)
+		addedMods.append(action->m_resultMetadata);
+	}
+	if (wait<bool>("QuickMods.VerifyMods", addedMods))
+	{
+		for (auto action : m_actions)
 		{
-			// FIXME MMC->quickmodslist()->releaseFromSandbox(mod);
+			action->add();
 		}
 		emitSucceeded();
 	}
@@ -122,21 +120,30 @@ void QuickModDependencyDownloadTask::finish()
 	}
 }
 
+void QuickModDependencyDownloadTask::fetch(const QuickModRef &mod)
+{
+	if (!m_requestedMods.contains(mod))
+	{
+		m_pendingMods.append(mod);
+		m_requestedMods.append(mod);
+
+		auto action = std::make_shared<QuickModDownloadAction>(mod.updateUrl(), mod.toString());
+		connect(action.get(), &QuickModDownloadAction::succeeded, [this, action](int){modAdded(action->m_resultMetadata);});
+		m_actions.append(action);
+		m_netjob->addNetAction(action);
+	}
+}
+
 void QuickModDependencyDownloadTask::requestDependenciesOf(const QuickModMetadataPtr mod)
 {
 	auto references = mod->references();
 	for (auto it = references.begin(); it != references.end(); ++it)
 	{
-		const QuickModRef modUid = it.key();
+		const QuickModRef modUid = QuickModRef(it.key().toString(), it.value());
 		if (!MMC->quickmodslist()->mods(modUid).isEmpty())
 		{
 			return;
 		}
-		if (!m_requestedMods.contains(modUid))
-		{
-			MMC->quickmodslist()->registerMod(it.value());
-			m_pendingMods.append(modUid);
-			m_requestedMods.append(modUid);
-		}
+		fetch(modUid);
 	}
 }

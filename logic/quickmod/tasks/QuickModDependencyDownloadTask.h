@@ -18,6 +18,9 @@
 #include "logic/tasks/Task.h"
 #include "logic/quickmod/QuickModMetadata.h"
 
+class QuickModDownloadAction;
+typedef std::shared_ptr<class NetJob> NetJobPtr;
+
 class QuickModDependencyDownloadTask : public Task
 {
 	Q_OBJECT
@@ -38,12 +41,15 @@ private:
 	// list of mods we have requested
 	QList<QuickModRef> m_requestedMods;
 
-	// list of mods we have received that are in the sandbox
-	QList<QuickModMetadataPtr> m_sandboxedMods;
+	QList<std::shared_ptr<QuickModDownloadAction>> m_actions;
+
+	NetJobPtr m_netjob;
 
 	int m_lastSetPercentage;
 	void updateProgress();
 	void finish();
+
+	void fetch(const QuickModRef &mod);
 
 	void requestDependenciesOf(const QuickModMetadataPtr mod);
 };

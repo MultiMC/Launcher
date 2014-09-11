@@ -139,33 +139,28 @@ QList<QUrl> QuickModIndexList::indices() const
 
 bool QuickModIndexList::haveUid(const QuickModRef &uid, const QString &repo) const
 {
-	const auto mods = MMC->quickmodslist()->quickmods();
-	for (auto mod : mods)
-	{
-		if (mod->uid() == uid && mod->repo() == repo)
-		{
-			return true;
-		}
-	}
-	return false;
+	return MMC->quickmodslist()->haveUid(uid, repo);
 }
 
+// FIXME this one is bad
 void QuickModIndexList::reload()
 {
-
 	QMap<QString, Repo> repos;
 	const auto indices = MMC->quickmodSettings()->settings()->get("Indices").toMap();
 	for (auto it = indices.constBegin(); it != indices.constEnd(); ++it)
 	{
 		repos.insert(it.key(), Repo(it.key(), it.value().toString()));
 	}
-	for (const auto mod : MMC->quickmodslist()->quickmods())
+	for (const auto mods : MMC->quickmodslist()->quickmods())
 	{
-		if (!repos.contains(mod->repo()))
+		for (const auto mod : mods)
 		{
-			repos.insert(mod->repo(), Repo(mod->repo()));
+			if (!repos.contains(mod->repo()))
+			{
+				repos.insert(mod->repo(), Repo(mod->repo()));
+			}
+			repos[mod->repo()].mods.append(mod);
 		}
-		repos[mod->repo()].mods.append(mod);
 	}
 	beginResetModel();
 	m_repos = repos.values();

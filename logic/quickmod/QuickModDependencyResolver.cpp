@@ -87,12 +87,12 @@ struct DepNode
 		for (auto it = nodes.constBegin(); it != nodes.constEnd(); ++it)
 		{
 			const DepNode *node = it.value();
-			if (!node->version.findVersion())
+			const auto ptr = MMC->quickmodslist()->version(node->version);
+			if (!ptr)
 			{
 				ok_internal = false;
 				continue;
 			}
-			const auto ptr = node->version.findVersion();
 			for (auto versionIt = ptr->dependencies.constBegin();
 					versionIt != ptr->dependencies.constEnd(); ++versionIt)
 			{
@@ -238,26 +238,28 @@ void QuickModDependencyResolver::resolve(const QuickModVersionPtr version)
 		}
 		else
 		{
-			QList<QuickModVersionRef> versions =
-				MMC->quickmodslist()->modsProvidingModVersion(it.key(), it.value().first);
-			if (!versions.isEmpty())
-			{
-				for (QuickModVersionRef providingVersion : versions)
-				{
-					if (m_mods.values().contains(providingVersion.findVersion()))
-					{
-						// found already added mod
-						dep = providingVersion.findVersion();
-						break;
-					}
-				}
-				if (!dep)
-				{
-					// no dependency added...
-					// TODO show a dialog to select mod and version
-					dep = versions.first().findVersion();
-				}
-			}
+			// FIXME
+//			QList<QuickModVersionRef> versions =
+//				MMC->quickmodslist()->versions(it.key(), it.value().first);
+//			if (!versions.isEmpty())
+//			{
+//				for (QuickModVersionRef providingVersion : versions)
+//				{
+//					auto providingVersionPtr = MMC->quickmodslist()->version(providingVersion);
+//					if (m_mods.values().contains(providingVersionPtr))
+//					{
+//						// found already added mod
+//						dep = providingVersionPtr;
+//						break;
+//					}
+//				}
+//				if (!dep)
+//				{
+//					// no dependency added...
+//					// TODO show a dialog to select mod and version
+//					dep = MMC->quickmodslist()->version(versions.first());
+//				}
+//			}
 		}
 
 		if (!dep)
