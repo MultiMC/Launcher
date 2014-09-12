@@ -5,6 +5,8 @@
 
 #include "QuickModDownloadAction.h"
 #include "QuickModIndexDownloadAction.h"
+#include "QuickModsList.h"
+#include "QuickModDatabase.h"
 
 /*
  * FIXME: this actually fixes some kind of Qt bug that we should report.
@@ -32,21 +34,25 @@ bool isUrlActuallyValid(const QUrl &url)
 
 QuickModBaseDownloadAction::QuickModBaseDownloadAction(const QUrl &url) : NetAction()
 {
-	m_url = url;
+	m_url = m_originalUrl = url;
 	m_status = Job_NotStarted;
 }
 
-QuickModBaseDownloadActionPtr
-QuickModBaseDownloadAction::make(NetJob *netjob, const QUrl &url, const QString &uid)
+QuickModBaseDownloadActionPtr QuickModBaseDownloadAction::make(NetJob *netjob, const QUrl &url,
+															   const QString &uid,
+															   const QByteArray &checksum)
 {
+	QuickModBaseDownloadActionPtr ret;
 	if (url.path().endsWith("index.json"))
 	{
-		return std::make_shared<QuickModIndexDownloadAction>(url, netjob);
+		ret = std::make_shared<QuickModIndexDownloadAction>(url, netjob);
 	}
 	else
 	{
-		return std::make_shared<QuickModDownloadAction>(url, uid);
+		ret = std::make_shared<QuickModDownloadAction>(url, uid);
 	}
+	ret->m_expectedChecksum = checksum;
+	return ret;
 }
 
 void QuickModBaseDownloadAction::start()
@@ -60,13 +66,16 @@ void QuickModBaseDownloadAction::start()
 	QLOG_INFO() << "Downloading " << m_url.toString();
 	QNetworkRequest request(m_url);
 	request.setHeader(QNetworkRequest::UserAgentHeader, "MultiMC/5.0 (Cached)");
+	request.setRawHeader("If-None-Match", m_expectedChecksum);
 	QNetworkReply *rep = MMC->qnam()->get(request);
 
 	m_reply = std::shared_ptr<QNetworkReply>(rep);
 	connect(rep, &QNetworkReply::downloadProgress, this,
 			&QuickModBaseDownloadAction::downloadProgress);
 	connect(rep, &QNetworkReply::finished, this, &QuickModBaseDownloadAction::downloadFinished);
-	connect(rep, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), this, &QuickModBaseDownloadAction::downloadError);
+	connect(rep, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(
+					 &QNetworkReply::error),
+			this, &QuickModBaseDownloadAction::downloadError);
 }
 
 void QuickModBaseDownloadAction::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
@@ -112,11 +121,19 @@ void QuickModBaseDownloadAction::downloadFinished()
 	}
 
 	// if the download succeeded
-	if (m_status != Job_Failed && handle(m_reply->readAll()))
+	if (m_status != Job_Failed)
 	{
-		// nothing went wrong...
-		m_status = Job_Finished;
-		emit succeeded(m_index_within_job);
+		const QByteArray receivedHash = m_reply->rawHeader("ETag").replace("\"", "");
+		if (!receivedHash.isEmpty())
+		{
+			MMC->quickmodslist()->database()->setChecksum(m_originalUrl, receivedHash);
+		}
+		if (receivedHash == m_expectedChecksum || handle(m_reply->readAll()))
+		{
+			// nothing went wrong...
+			m_status = Job_Finished;
+			emit succeeded(m_index_within_job);
+		}
 	}
 	// else the download failed
 	else

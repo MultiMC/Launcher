@@ -96,6 +96,11 @@ public:
 
 	bool haveUid(const QuickModRef &uid, const QString &repo = QString()) const;
 
+	inline QuickModDatabase *database() const
+	{
+		return m_storage;
+	}
+
 	/// \internal
 	inline QHash<QuickModRef, QList<QuickModMetadataPtr>> quickmods() const
 	{

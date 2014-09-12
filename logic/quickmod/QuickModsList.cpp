@@ -57,6 +57,9 @@ QuickModsList::QuickModsList(const Flags flags, QObject *parent)
 		m_uids = m_mods.keys();
 		endResetModel();
 	});
+
+	m_storage->syncFromDisk();
+	updateFiles();
 }
 
 QuickModsList::~QuickModsList()
@@ -352,7 +355,14 @@ void QuickModsList::registerMod(const QUrl &url)
 
 void QuickModsList::updateFiles()
 {
-	// TODO
+	NetJob *job = new NetJob("QuickMod Download");
+	for (const auto mod : allQuickMods())
+	{
+		job->addNetAction(QuickModBaseDownloadAction::make(job, mod->updateUrl(), mod->uid().toString(), m_storage->checksum(mod->updateUrl())));
+	}
+	connect(job, &NetJob::succeeded, job, &NetJob::deleteLater);
+	connect(job, &NetJob::failed, job, &NetJob::deleteLater);
+	job->start();
 }
 
 void QuickModsList::addMod(QuickModMetadataPtr mod)

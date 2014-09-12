@@ -228,7 +228,7 @@ QJsonObject QuickModVersion::toJson() const
 	for (auto it = dependencies.constBegin(); it != dependencies.constEnd(); ++it)
 	{
 		QJsonObject obj;
-		obj.insert("type", type);
+		obj.insert("type", QStringLiteral("depends"));
 		obj.insert("uid", it.key().toString());
 		obj.insert("version", it.value().first.toString());
 		obj.insert("isSoft", it.value().second);
