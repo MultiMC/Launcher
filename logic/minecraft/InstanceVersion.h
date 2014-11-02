@@ -74,6 +74,8 @@ public:
 	void reapply(const bool alreadyReseting = false);
 	void finalize();
 
+	QJsonObject toJson() const;
+
 public
 slots:
 	bool remove(const int index);

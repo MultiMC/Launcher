@@ -4,9 +4,15 @@
 #include <QProcess>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QJsonDocument>
+#include <QFile>
+#include <QTemporaryFile>
 
 #include "logic/settings/SettingsObject.h"
+#include "logic/net/HttpMetaCache.h"
 #include "logic/BaseInstance.h"
+#include "logic/OneSixInstance.h"
+#include "logic/MMCJson.h"
 #include "MultiMC.h"
 #include "pathutils.h"
 
@@ -17,13 +23,27 @@ AMIDSTTool::AMIDSTTool(InstancePtr instance, QObject *parent)
 
 void AMIDSTTool::runImpl()
 {
+	auto instance = std::dynamic_pointer_cast<OneSixInstance>(m_instance);
+	if (!instance)
+	{
+		throw MMCError(tr("AMIDST only works with OneSix instances"));
+	}
 	const QString amidstPath = MMC->settings()->get("AMIDSTPath").toString();
-	QProcess::startDetached(m_instance->settings().get("JavaPath").toString(),
+	const QString versionId = instance->currentVersionId();
+	const QString versionDir = PathCombine(MMC->metacache()->getBasePath("versions"), versionId);
+	const QString tmpJsonPath = PathCombine(QDir::tempPath(), "multimc-" + versionId + ".json");
+	if (QDir().exists(tmpJsonPath))
+	{
+		QDir().remove(tmpJsonPath);
+	}
+	MMCJson::writeFile(tmpJsonPath, QJsonDocument(instance->getFullVersion()->toJson()));
+	QProcess::startDetached(instance->settings().get("JavaPath").toString(),
 							QStringList() << "-jar" << amidstPath
-							<< "-mcpath" << PathCombine(QDir::currentPath(), m_instance->minecraftRoot())
-							<< "-mcjar" << PathCombine(QDir::current().absoluteFilePath("versions"), m_instance->currentVersionId(), m_instance->currentVersionId() + ".jar")
-							<< "-mcjson" << PathCombine(QDir::currentPath(), m_instance->instanceRoot(), "version.json"),
-							m_instance->instanceRoot());
+							<< "-mcpath" << PathCombine(QDir::currentPath(), instance->minecraftRoot())
+							<< "-mclibs" << MMC->metacache()->getBasePath("libraries")
+							<< "-mcjar" << PathCombine(versionDir, versionId + ".jar")
+							<< "-mcjson" << tmpJsonPath,
+							instance->instanceRoot());
 }
 
 void AMIDSTFactory::registerSettings(std::shared_ptr<SettingsObject> settings)

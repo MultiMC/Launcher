@@ -5,15 +5,32 @@
 #include <QStringList>
 #include <math.h>
 
+static bool isBinaryJson(const QByteArray &data)
+{
+	decltype(QJsonDocument::BinaryFormatTag) tag = QJsonDocument::BinaryFormatTag;
+	return memcmp(data.constData(), &tag, sizeof(QJsonDocument::BinaryFormatTag)) == 0;
+}
 QJsonDocument MMCJson::parseDocument(const QByteArray &data, const QString &what)
 {
-	QJsonParseError error;
-	QJsonDocument doc = QJsonDocument::fromJson(data, &error);
-	if (error.error != QJsonParseError::NoError)
+	if (isBinaryJson(data))
 	{
-		throw JSONValidationError(what + " is not valid JSON: " + error.errorString() + " at " + error.offset);
+		QJsonDocument doc = QJsonDocument::fromBinaryData(data);
+		if (doc.isNull())
+		{
+			throw JSONValidationError(what + " is not valid JSON (binary JSON detected)");
+		}
+		return doc;
 	}
-	return doc;
+	else
+	{
+		QJsonParseError error;
+		QJsonDocument doc = QJsonDocument::fromJson(data, &error);
+		if (error.error != QJsonParseError::NoError)
+		{
+			throw JSONValidationError(what + " is not valid JSON: " + error.errorString() + " at " + error.offset);
+		}
+		return doc;
+	}
 }
 
 bool MMCJson::ensureBoolean(const QJsonValue val, const QString what)
@@ -100,6 +117,19 @@ QJsonDocument MMCJson::parseFile(const QString &filename, const QString &what)
 		throw FileOpenError(f);
 	}
 	return parseDocument(f.readAll(), what);
+}
+void MMCJson::writeFile(const QString &filename, const QJsonDocument &doc, const bool binary)
+{
+	QFile f(filename);
+	if (!f.open(QFile::WriteOnly))
+	{
+		throw FileOpenError(f);
+	}
+	const QByteArray data = binary ? doc.toBinaryData() : doc.toJson();
+	if (data.size() != f.write(data))
+	{
+		throw MMCError(QObject::tr("Unable to write to %1: %2").arg(f.fileName(), f.errorString()));
+	}
 }
 
 int MMCJson::ensureInteger(const QJsonValue val, QString what, const int def)

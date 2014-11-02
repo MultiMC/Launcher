@@ -23,6 +23,7 @@
 #include "logic/minecraft/InstanceVersion.h"
 #include "logic/minecraft/VersionBuilder.h"
 #include "logic/OneSixInstance.h"
+#include "logic/MMCJson.h"
 
 InstanceVersion::InstanceVersion(OneSixInstance *instance, QObject *parent)
 	: QAbstractListModel(parent), m_instance(instance)
@@ -463,6 +464,26 @@ void InstanceVersion::finalize()
 	};
 	finalizeArguments(vanillaMinecraftArguments, vanillaProcessArguments);
 	finalizeArguments(minecraftArguments, processArguments);
+}
+
+QJsonObject InstanceVersion::toJson() const
+{
+	using namespace MMCJson;
+	QJsonObject obj;
+	obj.insert("id", id);
+	obj.insert("releaseTime", m_releaseTimeString);
+	obj.insert("time", m_updateTimeString);
+	obj.insert("type", type);
+	writeString(obj, "assets", assets);
+	writeString(obj, "processArguments", processArguments);
+	obj.insert("minecraftArguments", minecraftArguments);
+	obj.insert("minimumLauncherVersion", minimumLauncherVersion);
+	obj.insert("mainClass", mainClass);
+	obj.insert("appletClass", appletClass);
+	writeStringList(obj, "traits", traits.toList());
+	writeStringList(obj, "tweakers", tweakers);
+	writeObjectList(obj, "libraries", libraries);
+	return obj;
 }
 
 void InstanceVersion::installJarMods(QStringList selectedFiles)
