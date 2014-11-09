@@ -655,6 +655,10 @@ SET(MULTIMC_SOURCES
 	# Translations
 	logic/trans/TranslationDownloader.h
 	logic/trans/TranslationDownloader.cpp
+
+	# FTB stuff
+	logic/FTBUtils.h
+	logic/FTBUtils.cpp
 )
 
 

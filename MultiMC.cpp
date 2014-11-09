@@ -30,6 +30,7 @@
 #include "logic/net/URLConstants.h"
 
 #include "logic/java/JavaUtils.h"
+#include "logic/FTBUtils.h"
 
 #include "logic/updater/UpdateChecker.h"
 #include "logic/updater/NotificationChecker.h"
@@ -457,43 +458,8 @@ void MultiMC::initGlobalSettings(bool test_mode)
 	QLOG_INFO() << "FTB Launcher paths:" << m_settings->get("FTBLauncherDataRoot").toString()
 				<< "and" << m_settings->get("FTBLauncherRoot").toString();
 
-	m_settings->registerSetting("FTBRoot");
-	if (m_settings->get("FTBRoot").isNull())
-	{
-		QString ftbRoot;
-		QFile f(QDir(m_settings->get("FTBLauncherRoot").toString())
-					.absoluteFilePath("ftblaunch.cfg"));
-		QLOG_INFO() << "Attempting to read" << f.fileName();
-		if (f.open(QFile::ReadOnly))
-		{
-			const QString data = QString::fromLatin1(f.readAll());
-			QRegularExpression exp("installPath=(.*)");
-			ftbRoot = QDir::cleanPath(exp.match(data).captured(1));
-#ifdef Q_OS_WIN32
-			if (!ftbRoot.isEmpty())
-			{
-				if (ftbRoot.at(0).isLetter() && ftbRoot.size() > 1 && ftbRoot.at(1) == '/')
-				{
-					ftbRoot.remove(1, 1);
-				}
-			}
-#endif
-			if (ftbRoot.isEmpty())
-			{
-				QLOG_INFO() << "Failed to get FTB root path";
-			}
-			else
-			{
-				QLOG_INFO() << "FTB is installed at" << ftbRoot;
-				m_settings->set("FTBRoot", ftbRoot);
-			}
-		}
-		else
-		{
-			QLOG_WARN() << "Couldn't open" << f.fileName() << ":" << f.errorString();
-			QLOG_WARN() << "This is perfectly normal if you don't have FTB installed";
-		}
-	}
+	const QString ftbRootPath = FTBUtils::getInstallPath(m_settings->get("FTBLauncherRoot").toString());
+	m_settings->registerSetting("FTBRoot", ftbRootPath);
 
 	// Folders
 	m_settings->registerSetting("InstanceDir", "instances");

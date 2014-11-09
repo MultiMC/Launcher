@@ -9,10 +9,40 @@
 #include "OneSixInstance_p.h"
 #include "MultiMC.h"
 #include "pathutils.h"
+#include "FTBUtils.h"
 
 OneSixFTBInstance::OneSixFTBInstance(const QString &rootDir, SettingsObject *settings, QObject *parent) :
 	OneSixInstance(rootDir, settings, parent)
 {
+	bool memChanged = false;
+
+	const auto ftbFlags = FTBUtils::getLaunchOptions();
+	if (!ftbFlags.ramMax.isEmpty() && settings->isDefault("MaxMemAlloc"))
+	{
+		memChanged = true;
+		settings->set("MaxMemAlloc", ftbFlags.ramMax);
+	}
+	if (!ftbFlags.additionalJavaOptions.isEmpty() && settings->isDefault("JvmArgs"))
+	{
+		settings->set("OverrideJava", true);
+		settings->set("OverrideJavaArgs", true);
+		settings->set("JvmArgs", ftbFlags.additionalJavaOptions);
+	}
+	if (settings->isDefault("MinMemAlloc"))
+	{
+		memChanged = true;
+		settings->set("MinMemAlloc", 256);
+	}
+	if (settings->isDefault("PermGen"))
+	{
+		memChanged = true;
+		settings->set("PermGen", 256);
+	}
+
+	if (memChanged)
+	{
+		settings->set("OverrideMemory", true);
+	}
 }
 
 void OneSixFTBInstance::copy(const QDir &newDir)

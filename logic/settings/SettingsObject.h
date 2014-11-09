@@ -112,6 +112,12 @@ public:
 	bool contains(const QString &id);
 
 	/*!
+	 * \brief Checks if the value of the setting with the given ID was changed
+	 * \return True if the setting was changed, otherwise false
+	 */
+	bool isDefault(const QString &id) const;
+
+	/*!
 	 * \brief Reloads the settings and emit signals for changed settings
 	 * \return True if reloading was successful
 	 */

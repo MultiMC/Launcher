@@ -103,6 +103,16 @@ bool SettingsObject::contains(const QString &id)
 	return m_settings.contains(id);
 }
 
+bool SettingsObject::isDefault(const QString &id) const
+{
+	auto setting = getSetting(id);
+	if (setting)
+	{
+		return setting->get() == setting->defValue();
+	}
+	return true;
+}
+
 bool SettingsObject::reload()
 {
 	for (auto setting : m_settings.values())
