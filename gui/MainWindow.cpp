@@ -161,20 +161,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	// Create the instance list widget
 	{
-		view = new GroupView(ui->centralWidget);
+		if (MMC->settings()->get("View").toString() == "icon")
+		{
+			view = new GroupView(ui->centralWidget);
+			view->setItemDelegate(new ListViewDelegate());
+		}
+		else
+		{
+			view = new QListView(ui->centralWidget);
+		}
 
 		view->setSelectionMode(QAbstractItemView::SingleSelection);
-		// view->setCategoryDrawer(drawer);
-		// view->setCollapsibleBlocks(true);
-		// view->setViewMode(QListView::IconMode);
-		// view->setFlow(QListView::LeftToRight);
-		// view->setWordWrap(true);
-		// view->setMouseTracking(true);
-		// view->viewport()->setAttribute(Qt::WA_Hover);
-		auto delegate = new ListViewDelegate();
-		view->setItemDelegate(delegate);
-		// view->setSpacing(10);
-		// view->setUniformItemWidths(true);
 
 		// do not show ugly blue border on the mac
 		view->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -182,9 +179,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		view->installEventFilter(this);
 
 		proxymodel = new InstanceProxyModel(this);
-		//		proxymodel->setSortRole(KCategorizedSortFilterProxyModel::CategorySortRole);
-		// proxymodel->setFilterRole(KCategorizedSortFilterProxyModel::CategorySortRole);
-		// proxymodel->setDynamicSortFilter ( true );
 
 		// FIXME: instList should be global-ish, or at least not tied to the main window...
 		// maybe the application itself?
