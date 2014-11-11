@@ -52,5 +52,7 @@ FTBUtils::FTBLaunchOptions FTBUtils::getLaunchOptions()
 	const QString data = readFtbLaunchCfg(MMC->settings()->get("FTBLauncherRoot").toString());
 	QRegularExpression ramExp("ramMax=(.*)");
 	QRegularExpression extraArgs("additionalJavaOptions=(.*)");
-	return FTBLaunchOptions{ramExp.match(data).captured(1), extraArgs.match(data).captured(1)};
+	const QString extraArgsUnescaped = extraArgs.match(data).captured(1)
+			.replace("\\:", ":").replace("\\=", "=").replace("\\\\", "\\");
+	return FTBLaunchOptions{ramExp.match(data).captured(1), extraArgsUnescaped};
 }
