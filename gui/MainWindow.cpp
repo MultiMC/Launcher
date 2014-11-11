@@ -36,6 +36,7 @@
 #include <QWidgetAction>
 #include <QProgressDialog>
 #include <QShortcut>
+#include <QTreeView>
 
 #include "osutils.h"
 #include "userutils.h"
@@ -43,6 +44,7 @@
 
 #include "gui/groupview/GroupView.h"
 #include "gui/groupview/InstanceDelegate.h"
+#include "logic/InstanceTreeProxyModel.h"
 
 #include "gui/Platform.h"
 
@@ -161,31 +163,31 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	// Create the instance list widget
 	{
+		proxymodel = new InstanceProxyModel(this);
+		proxymodel->setSourceModel(MMC->instances().get());
+		proxymodel->sort(0);
+
 		if (MMC->settings()->get("View").toString() == "icon")
 		{
 			view = new GroupView(ui->centralWidget);
 			view->setItemDelegate(new ListViewDelegate());
+			view->setModel(proxymodel);
 		}
 		else
 		{
-			view = new QListView(ui->centralWidget);
+			view = new QTreeView(ui->centralWidget);
+			qobject_cast<QTreeView *>(view)->setHeaderHidden(true);
+			auto treeProxy = new InstanceTreeProxyModel(view);
+			treeProxy->setSourceModel(proxymodel);
+			view->setModel(treeProxy);
 		}
 
 		view->setSelectionMode(QAbstractItemView::SingleSelection);
+		view->setFrameShape(QFrame::NoFrame);
+		view->installEventFilter(this);
 
 		// do not show ugly blue border on the mac
 		view->setAttribute(Qt::WA_MacShowFocusRect, false);
-
-		view->installEventFilter(this);
-
-		proxymodel = new InstanceProxyModel(this);
-
-		// FIXME: instList should be global-ish, or at least not tied to the main window...
-		// maybe the application itself?
-		proxymodel->setSourceModel(MMC->instances().get());
-		proxymodel->sort(0);
-		view->setFrameShape(QFrame::NoFrame);
-		view->setModel(proxymodel);
 
 		view->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(view, SIGNAL(customContextMenuRequested(const QPoint &)), this,

@@ -525,6 +525,8 @@ SET(MULTIMC_SOURCES
 
 	logic/InstanceList.h
 	logic/InstanceList.cpp
+	logic/InstanceTreeProxyModel.h
+	logic/InstanceTreeProxyModel.cpp
 	logic/LwjglVersionList.h
 	logic/LwjglVersionList.cpp
 
