@@ -57,13 +57,6 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 
 	auto globalSettings = MMC->settings();
 
-	// Java Settings
-	settings().registerSetting("OverrideJava", false);
-	settings().registerSetting("OverrideJavaLocation", false);
-	settings().registerSetting("OverrideJavaArgs", false);
-	settings().registerOverride(globalSettings->getSetting("JavaPath"));
-	settings().registerOverride(globalSettings->getSetting("JvmArgs"));
-
 	// Custom Commands
 	settings().registerSetting({"OverrideCommands","OverrideLaunchCmd"}, false);
 	settings().registerOverride(globalSettings->getSetting("PreLaunchCommand"));
@@ -75,17 +68,32 @@ BaseInstance::BaseInstance(BaseInstancePrivate *d_in, const QString &rootDir,
 	settings().registerOverride(globalSettings->getSetting("MinecraftWinWidth"));
 	settings().registerOverride(globalSettings->getSetting("MinecraftWinHeight"));
 
-	// Memory
-	settings().registerSetting("OverrideMemory", false);
-	settings().registerOverride(globalSettings->getSetting("MinMemAlloc"));
-	settings().registerOverride(globalSettings->getSetting("MaxMemAlloc"));
-	settings().registerOverride(globalSettings->getSetting("PermGen"));
-
 	// Console
 	settings().registerSetting("OverrideConsole", false);
 	settings().registerOverride(globalSettings->getSetting("ShowConsole"));
 	settings().registerOverride(globalSettings->getSetting("AutoCloseConsole"));
 	settings().registerOverride(globalSettings->getSetting("LogPrePostOutput"));
+}
+
+void BaseInstance::init()
+{
+	auto globalSettings = MMC->settings();
+
+	const QString javaArgs = defaultJavaArgs();
+	const int maxMem = defaultMaxMemory();
+
+	// Java Settings
+	settings().registerSetting("OverrideJava", false);
+	settings().registerSetting("OverrideJavaLocation", false);
+	settings().registerSetting("OverrideJavaArgs", !javaArgs.isEmpty());
+	settings().registerOverride(globalSettings->getSetting("JavaPath"));
+	settings().registerOverride(globalSettings->getSetting("JvmArgs"), javaArgs);
+
+	// Memory
+	settings().registerSetting("OverrideMemory", maxMem > 0);
+	settings().registerOverride(globalSettings->getSetting("MinMemAlloc"));
+	settings().registerOverride(globalSettings->getSetting("MaxMemAlloc"), maxMem);
+	settings().registerOverride(globalSettings->getSetting("PermGen"));
 }
 
 void BaseInstance::iconUpdated(QString key)

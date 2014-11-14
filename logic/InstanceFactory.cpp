@@ -156,6 +156,7 @@ InstanceFactory::InstCreateError InstanceFactory::copyInstance(InstancePtr &newI
 	oldInstance->copy(instDir);
 
 	auto error = loadInstance(newInstance, instDir);
+	oldInstance->postCopy(newInstance);
 
 	switch (error)
 	{

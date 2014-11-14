@@ -58,8 +58,9 @@ public:
 	/// virtual destructor to make sure the destruction is COMPLETE
 	virtual ~BaseInstance() {};
 
-	virtual void init() {}
+	virtual void init();
 	virtual void copy(const QDir &newDir) {}
+	virtual void postCopy(InstancePtr copy) {}
 
 	/// nuke thoroughly - deletes the instance contents, notifies the list/model which is
 	/// responsible of cleaning up the husk
@@ -230,6 +231,10 @@ signals:
 
 protected slots:
 	void iconUpdated(QString key);
+
+protected:
+	virtual int defaultMaxMemory() const { return 0; }
+	virtual QString defaultJavaArgs() const { return QString(); }
 
 protected:
 	std::shared_ptr<BaseInstancePrivate> inst_d;

@@ -50,6 +50,7 @@ OneSixInstance::OneSixInstance(const QString &rootDir, SettingsObject *settings,
 
 void OneSixInstance::init()
 {
+	BaseInstance::init();
 	try
 	{
 		reloadVersion();

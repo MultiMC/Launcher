@@ -29,7 +29,7 @@ SettingsObject::~SettingsObject()
 	m_settings.clear();
 }
 
-std::shared_ptr<Setting> SettingsObject::registerOverride(std::shared_ptr<Setting> original)
+std::shared_ptr<Setting> SettingsObject::registerOverride(std::shared_ptr<Setting> original, const QVariant &defVal)
 {
 	if (contains(original->id()))
 	{
@@ -37,7 +37,7 @@ std::shared_ptr<Setting> SettingsObject::registerOverride(std::shared_ptr<Settin
 				   .arg(original->id());
 		return nullptr; // Fail
 	}
-	auto override = std::make_shared<OverrideSetting>(original);
+	auto override = std::make_shared<OverrideSetting>(original, defVal);
 	override->m_storage = this;
 	connectSignals(*override);
 	m_settings.insert(override->id(), override);

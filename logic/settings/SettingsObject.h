@@ -48,7 +48,8 @@ public:
 	 * the one that is being registered.
 	 * \return A valid Setting shared pointer if successful.
 	 */
-	std::shared_ptr<Setting> registerOverride(std::shared_ptr<Setting> original);
+	std::shared_ptr<Setting> registerOverride(std::shared_ptr<Setting> original,
+											  const QVariant &defVal = QVariant());
 
 	/*!
 	 * Registers the given setting with this SettingsObject and connects the necessary  signals.

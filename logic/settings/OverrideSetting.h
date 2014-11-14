@@ -25,12 +25,15 @@
  * This means that the setting's default value will be the value of another setting.
  * The other setting can be (and usually is) a part of a different SettingsObject
  * than this one.
+ *
+ * If this setting is given a non-null default value that default value will be used, rather
+ * than that of the other setting.
  */
 class OverrideSetting : public Setting
 {
 	Q_OBJECT
 public:
-	explicit OverrideSetting(std::shared_ptr<Setting> other);
+	explicit OverrideSetting(std::shared_ptr<Setting> other, const QVariant &defValue);
 
 	virtual QVariant defValue() const;
 

@@ -15,16 +15,22 @@
 
 #include "OverrideSetting.h"
 
-OverrideSetting::OverrideSetting(std::shared_ptr<Setting> other)
-	: Setting(other->configKeys(), QVariant())
+OverrideSetting::OverrideSetting(std::shared_ptr<Setting> other, const QVariant &defValue)
+	: Setting(other->configKeys(), defValue)
 {
 	m_other = other;
 }
 
 QVariant OverrideSetting::defValue() const
 {
-	if (m_other)
+	if (Setting::defValue().isNull() && m_other)
+	{
+		// no local default, and other exists
 		return m_other->get();
+	}
 	else
-		return QVariant();
+	{
+		// local default, or other doesn't exist
+		return Setting::defValue();
+	}
 }

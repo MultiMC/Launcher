@@ -14,35 +14,7 @@
 OneSixFTBInstance::OneSixFTBInstance(const QString &rootDir, SettingsObject *settings, QObject *parent) :
 	OneSixInstance(rootDir, settings, parent)
 {
-	bool memChanged = false;
-
-	const auto ftbFlags = FTBUtils::getLaunchOptions();
-	if (!ftbFlags.ramMax.isEmpty() && settings->isDefault("MaxMemAlloc"))
-	{
-		memChanged = true;
-		settings->set("MaxMemAlloc", ftbFlags.ramMax);
-	}
-	if (!ftbFlags.additionalJavaOptions.isEmpty() && settings->isDefault("JvmArgs"))
-	{
-		settings->set("OverrideJava", true);
-		settings->set("OverrideJavaArgs", true);
-		settings->set("JvmArgs", ftbFlags.additionalJavaOptions);
-	}
-	if (settings->isDefault("MinMemAlloc"))
-	{
-		memChanged = true;
-		settings->set("MinMemAlloc", 256);
-	}
-	if (settings->isDefault("PermGen"))
-	{
-		memChanged = true;
-		settings->set("PermGen", 256);
-	}
-
-	if (memChanged)
-	{
-		settings->set("OverrideMemory", true);
-	}
+	m_launchOptions = FTBUtils::getLaunchOptions();
 }
 
 void OneSixFTBInstance::copy(const QDir &newDir)
@@ -132,6 +104,36 @@ QStringList OneSixFTBInstance::externalPatches() const
 bool OneSixFTBInstance::providesVersionFile() const
 {
 	return true;
+}
+
+int OneSixFTBInstance::defaultMaxMemory() const
+{
+	return m_launchOptions.ramMax.toInt();
+}
+
+QString OneSixFTBInstance::defaultJavaArgs() const
+{
+	return m_launchOptions.additionalJavaOptions;
+}
+
+void OneSixFTBInstance::postCopy(InstancePtr copy)
+{
+	/* if the original value is different from the value in the copy (=> default value was
+	   changed using the ftblaunch.cfg file, but not modified by the user) we need to make the
+	   FTB provided value permanent */
+	if (copy->settings().get("OverrideJavaArgs").toBool() !=
+		settings().get("OverrideJavaArgs").toBool())
+	{
+		copy->settings().set("OverrideJavaArgs", settings().get("OverrideJavaArgs").toBool());
+	}
+	if (copy->settings().get("JvmArgs").toString() != settings().get("JvmArgs").toString())
+	{
+		copy->settings().set("JvmArgs", settings().get("JvmArgs").toString());
+	}
+	if (copy->settings().get("MaxMemAlloc").toInt() != settings().get("MaxMemAlloc").toInt())
+	{
+		copy->settings().set("MaxMemAlloc", settings().get("MaxMemAlloc").toInt());
+	}
 }
 
 QString OneSixFTBInstance::getStatusbarDescription()

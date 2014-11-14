@@ -2,6 +2,8 @@
 
 #include "OneSixInstance.h"
 
+#include "FTBUtils.h"
+
 class OneSixLibrary;
 
 class OneSixFTBInstance : public OneSixInstance
@@ -27,4 +29,9 @@ public:
 
 private:
 	std::shared_ptr<OneSixLibrary> m_forge;
+	FTBUtils::FTBLaunchOptions m_launchOptions;
+
+	int defaultMaxMemory() const override;
+	QString defaultJavaArgs() const override;
+	void postCopy(InstancePtr copy) override;
 };
