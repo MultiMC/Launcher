@@ -84,8 +84,8 @@
 #include "logic/updater/DownloadUpdateTask.h"
 
 #include "logic/news/NewsChecker.h"
-
 #include "logic/status/StatusChecker.h"
+#include "logic/modmymc/ModMyMCModel.h"
 
 #include "logic/net/URLConstants.h"
 #include "logic/net/NetJob.h"
@@ -261,6 +261,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		m_globalSettingsProvider->addPage<ExternalToolsPage>();
 		m_globalSettingsProvider->addPage<AccountListPage>();
 	}
+
+	connect(ui->actionModMyMC, &QAction::triggered, [this]()
+	{
+		ui->mmmDockWidget->toggleViewAction()->trigger();
+		m_modMyMCModel->update();
+	});
+	ui->mmmView->setModel(m_modMyMCModel = new ModMyMCModel);
+	// start with the dock widget hidden
+	QMetaObject::invokeMethod(ui->mmmDockWidget->toggleViewAction(), "trigger", Qt::QueuedConnection);
 
 	// Update the menu when the active account changes.
 	// Shouldn't have to use lambdas here like this, but if I don't, the compiler throws a fit.

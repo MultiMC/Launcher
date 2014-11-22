@@ -71,6 +71,9 @@ public:
 	 */
 	QString NEWS_RSS_URL;
 
+	/// This is used to fetch ModMyMC news
+	QString MODMYMC_URL;
+
 	/**
 	 * \brief Converts the Version to a string.
 	 * \return The version number in string format (major.minor.revision.build).
