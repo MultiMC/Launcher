@@ -34,6 +34,8 @@
 #include "logic/InstanceFactory.h"
 #include "logger/QsLog.h"
 #include "gui/groupview/GroupView.h"
+#include "logic/ComponentsModel.h"
+#include "logic/ModList.h"
 
 const static int GROUP_FILE_FORMAT_VERSION = 1;
 
@@ -113,9 +115,80 @@ Qt::ItemFlags InstanceList::flags(const QModelIndex &index) const
 	Qt::ItemFlags f;
 	if (index.isValid())
 	{
-		f |= (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+		f |= (Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDropEnabled);
 	}
 	return f;
+}
+
+// QUESTION WTF is it parent we want????
+bool InstanceList::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row,
+								   int column, const QModelIndex &parent) const
+{
+	const QModelIndex instanceIndex = parent;
+	if (action == Qt::CopyAction && instanceIndex.isValid() &&
+		data->hasFormat("application/x-multimc-components"))
+	{
+		return true;
+	}
+	return false;
+}
+bool InstanceList::dropMimeData(const QMimeData *data, Qt::DropAction action, int row,
+								int column, const QModelIndex &parent)
+{
+	if (!canDropMimeData(data, action, row, column, parent))
+	{
+		return false;
+	}
+	InstancePtr instance = m_instances[parent.row()];
+	QList<ComponentsModel::Component> comps =
+		ComponentsModel::Component::fromJson(data->data("application/x-multimc-components"));
+	int numConflicts = 0, numDropped = 0;
+	for (const auto component : comps)
+	{
+		if (component.mcversion != instance->intendedVersionId())
+		{
+			QLOG_WARN() << "Component " << component.name << " " << component.version
+						<< "has a different Minecraft version from the drop target. Ignoring. "
+						   "(Component: " << component.mcversion
+						<< ", instance: " << instance->intendedVersionId() << ")";
+			numConflicts++;
+			continue;
+		}
+		if (component.type == ComponentsModel::Component::LoaderMod)
+		{
+			instance->loaderModList()->installMod(QFileInfo(component.path));
+		}
+		else if (component.type == ComponentsModel::Component::CoreMod)
+		{
+			instance->coreModList()->installMod(QFileInfo(component.path));
+		}
+		else if (component.type == ComponentsModel::Component::ResourcePack)
+		{
+			instance->resourcePackList()->installMod(QFileInfo(component.path));
+		}
+		else if (component.type == ComponentsModel::Component::TexturePack)
+		{
+			instance->texturePackList()->installMod(QFileInfo(component.path));
+		}
+		numDropped++;
+	}
+	MMC->showMessage(tr("Dropped %1 components. %2 ignored because of conflicts.")
+						 .arg(numDropped)
+						 .arg(numConflicts));
+	return true;
+}
+QStringList InstanceList::mimeTypes() const
+{
+	return QStringList() << "application/x-multimc-components";
+}
+
+Qt::DropActions InstanceList::supportedDragActions() const
+{
+	return Qt::IgnoreAction;
+}
+Qt::DropActions InstanceList::supportedDropActions() const
+{
+	return Qt::CopyAction;
 }
 
 void InstanceList::groupChanged()

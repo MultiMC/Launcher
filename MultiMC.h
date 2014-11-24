@@ -170,6 +170,12 @@ public:
 		return origcwdPath;
 	}
 
+public slots:
+	void showMessage(const QString &msg);
+
+signals:
+	void showMessageSignal(const QString &msg, int timeout);
+
 private slots:
 	/**
 	 * Do all the things that should be done before we exit

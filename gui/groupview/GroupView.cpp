@@ -485,6 +485,7 @@ void GroupView::resizeEvent(QResizeEvent *event)
 	}
 }
 
+/* FIXME
 void GroupView::dragEnterEvent(QDragEnterEvent *event)
 {
 	if (!isDragEventAccepted(event))
@@ -590,7 +591,7 @@ void GroupView::startDrag(Qt::DropActions supportedActions)
 			model()->removeRows((*it).top(), count, parent);
 		}
 	}
-}
+}*/
 
 QRect GroupView::visualRect(const QModelIndex &index) const
 {
@@ -689,7 +690,7 @@ QList<QPair<QRect, QModelIndex>> GroupView::draggablePaintPairs(const QModelInde
 	return ret;
 }
 
-bool GroupView::isDragEventAccepted(QDropEvent *event)
+/*bool GroupView::isDragEventAccepted(QDropEvent *event)
 {
 	return false;
 }
@@ -698,7 +699,7 @@ QPair<VisualGroup *, int> GroupView::rowDropPos(const QPoint &pos)
 {
 	return qMakePair<VisualGroup*, int>(nullptr, -1);
 	// FIXME: PIXIE DUST.
-	/*
+
 	// check that we aren't on a category header and calculate which category we're in
 	VisualGroup *category = 0;
 	{
@@ -785,8 +786,7 @@ QPair<VisualGroup *, int> GroupView::rowDropPos(const QPoint &pos)
 	}
 
 	return qMakePair(category, indices.at(categoryRow).row());
-	*/
-}
+}*/
 
 QPoint GroupView::offset() const
 {

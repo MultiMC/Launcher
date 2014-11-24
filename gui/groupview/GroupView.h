@@ -68,13 +68,6 @@ protected:
 	void paintEvent(QPaintEvent *event) override;
 	void resizeEvent(QResizeEvent *event) override;
 
-	void dragEnterEvent(QDragEnterEvent *event) override;
-	void dragMoveEvent(QDragMoveEvent *event) override;
-	void dragLeaveEvent(QDragLeaveEvent *event) override;
-	void dropEvent(QDropEvent *event) override;
-
-	void startDrag(Qt::DropActions supportedActions) override;
-
 private:
 	friend struct VisualGroup;
 	QList<VisualGroup *> m_groups;
@@ -116,10 +109,6 @@ private: /* methods */
 	QPixmap renderToPixmap(const QModelIndexList &indices, QRect *r) const;
 	QList<QPair<QRect, QModelIndex>> draggablePaintPairs(const QModelIndexList &indices,
 														 QRect *r) const;
-
-	bool isDragEventAccepted(QDropEvent *event);
-
-	QPair<VisualGroup *, int> rowDropPos(const QPoint &pos);
 
 	QPoint offset() const;
 };

@@ -84,8 +84,10 @@
 #include "logic/updater/DownloadUpdateTask.h"
 
 #include "logic/news/NewsChecker.h"
-
 #include "logic/status/StatusChecker.h"
+
+#include "logic/ComponentsModel.h"
+#include "logic/LineEditFilterProxyModel.h"
 
 #include "logic/net/URLConstants.h"
 #include "logic/net/NetJob.h"
@@ -164,6 +166,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		view = new GroupView(ui->centralWidget);
 
 		view->setSelectionMode(QAbstractItemView::SingleSelection);
+		view->setDragDropMode(GroupView::DropOnly);
 		// view->setCategoryDrawer(drawer);
 		// view->setCollapsibleBlocks(true);
 		// view->setViewMode(QListView::IconMode);
@@ -262,6 +265,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		m_globalSettingsProvider->addPage<AccountListPage>();
 	}
 
+	LineEditFilterProxyModel *componentsProxy = new LineEditFilterProxyModel(ui->componentsFilterEdit);
+	ComponentsModel *components = new ComponentsModel(this);
+	componentsProxy->setSourceModel(components);
+	componentsProxy->sort(0);
+	ui->componentsView->setModel(componentsProxy);
+
 	// Update the menu when the active account changes.
 	// Shouldn't have to use lambdas here like this, but if I don't, the compiler throws a fit.
 	// Template hell sucks...
@@ -338,6 +347,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	}
 
 	setSelectedInstanceById(MMC->settings()->get("SelectedInstance").toString());
+
+	connect(MMC, &MultiMC::showMessageSignal, statusBar(), &QStatusBar::showMessage);
 
 	// removing this looks stupid
 	view->setFocus();
