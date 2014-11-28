@@ -75,6 +75,11 @@ void ComponentsModel::update()
 		[&hashes](InstancePtr instance, Component::Type type, std::shared_ptr<ModList> list)
 	{
 		QList<Component> comps;
+		if (!list)
+		{
+			return comps;
+		}
+
 		for (int i = 0; i < list->size(); ++i)
 		{
 			Mod mod = list->operator[](i);

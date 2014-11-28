@@ -126,6 +126,7 @@ bool InstanceList::canDropMimeData(const QMimeData *data, Qt::DropAction action,
 {
 	const QModelIndex instanceIndex = parent;
 	if (action == Qt::CopyAction && instanceIndex.isValid() &&
+		parent.row() < m_instances.size() &&
 		data->hasFormat("application/x-multimc-components"))
 	{
 		return true;
@@ -154,19 +155,23 @@ bool InstanceList::dropMimeData(const QMimeData *data, Qt::DropAction action, in
 			numConflicts++;
 			continue;
 		}
-		if (component.type == ComponentsModel::Component::LoaderMod)
+		if (component.type == ComponentsModel::Component::LoaderMod &&
+			instance->loaderModList())
 		{
 			instance->loaderModList()->installMod(QFileInfo(component.path));
 		}
-		else if (component.type == ComponentsModel::Component::CoreMod)
+		else if (component.type == ComponentsModel::Component::CoreMod &&
+				 instance->coreModList())
 		{
 			instance->coreModList()->installMod(QFileInfo(component.path));
 		}
-		else if (component.type == ComponentsModel::Component::ResourcePack)
+		else if (component.type == ComponentsModel::Component::ResourcePack &&
+				 instance->resourcePackList())
 		{
 			instance->resourcePackList()->installMod(QFileInfo(component.path));
 		}
-		else if (component.type == ComponentsModel::Component::TexturePack)
+		else if (component.type == ComponentsModel::Component::TexturePack &&
+				 instance->texturePackList())
 		{
 			instance->texturePackList()->installMod(QFileInfo(component.path));
 		}
