@@ -448,7 +448,16 @@ void MainWindow::updateToolsMenu()
 		else
 		{
 			connect(toolAction, &QAction::triggered, [this, tool]()
-			{ tool->createDetachedTool(m_selectedInstance, this)->run(); });
+			{
+				try
+				{
+					tool->createDetachedTool(m_selectedInstance, this)->run();
+				}
+				catch (MMCError &e)
+				{
+					QMessageBox::critical(this, tr("Error running %1").arg(tool->name()), e.cause());
+				}
+			});
 		}
 	}
 	ui->actionLaunchInstance->setMenu(launchMenu);

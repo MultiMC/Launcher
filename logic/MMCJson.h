@@ -32,6 +32,9 @@ QJsonDocument parseDocument(const QByteArray &data, const QString &what);
 /// tries to open and then parses the specified file. throws if there's an error
 QJsonDocument parseFile(const QString &filename, const QString &what);
 
+/// tries to open and then write the specified file. throws if there's an error
+void writeFile(const QString &filename, const QJsonDocument &doc, const bool binary = false);
+
 /// make sure the value exists. throw otherwise.
 QJsonValue ensureExists(QJsonValue val, const QString what = "value");
 
