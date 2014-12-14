@@ -69,6 +69,12 @@ public:
 	QVariant data(const QModelIndex &index, int role) const;
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 
+	bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override;
+	bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+	QStringList mimeTypes() const override;
+	Qt::DropActions supportedDragActions() const override;
+	Qt::DropActions supportedDropActions() const override;
+
 	enum AdditionalRoles
 	{
 		InstancePointerRole = 0x34B1CB48, ///< Return pointer to real instance

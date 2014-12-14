@@ -791,4 +791,9 @@ bool MultiMC::openJsonEditor(const QString &filename)
 	}
 }
 
+void MultiMC::showMessage(const QString &msg)
+{
+	emit showMessageSignal(msg, 5000);
+}
+
 #include "MultiMC.moc"

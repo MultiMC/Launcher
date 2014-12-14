@@ -622,6 +622,14 @@ SET(MULTIMC_SOURCES
 	# Translations
 	logic/trans/TranslationDownloader.h
 	logic/trans/TranslationDownloader.cpp
+
+	# Components D&D
+	logic/ComponentsModel.h
+	logic/ComponentsModel.cpp
+	logic/LineEditFilterProxyModel.h
+	logic/LineEditFilterProxyModel.cpp
+	logic/FileHashCache.h
+	logic/FileHashCache.cpp
 )
 
 

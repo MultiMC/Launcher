@@ -127,6 +127,14 @@ public:
 	{
 		return nullptr;
 	}
+	virtual std::shared_ptr<ModList> loaderModList()
+	{
+		return nullptr;
+	}
+	virtual std::shared_ptr<ModList> coreModList()
+	{
+		return nullptr;
+	}
 	
 	/// Traits. Normally inside the version, depends on instance implementation.
 	virtual QSet <QString> traits() = 0;
