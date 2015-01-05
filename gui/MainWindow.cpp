@@ -175,11 +175,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		}
 		else
 		{
-			view = new QTreeView(ui->centralWidget);
-			qobject_cast<QTreeView *>(view)->setHeaderHidden(true);
+			auto treeView = new QTreeView(ui->centralWidget);
+			view = treeView;
+			treeView->setHeaderHidden(true);
 			auto treeProxy = new InstanceTreeProxyModel(view);
 			treeProxy->setSourceModel(proxymodel);
 			view->setModel(treeProxy);
+			treeView->expandAll();
 		}
 
 		view->setSelectionMode(QAbstractItemView::SingleSelection);
