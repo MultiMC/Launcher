@@ -35,7 +35,7 @@ VersionFilterData::VersionFilterData()
 		{"guava-14.0-rc3.jar", "931ae21fa8014c3ce686aaa621eae565fefb1a6a", false},
 		{"asm-all-4.1.jar", "054986e962b88d8660ae4566475658469595ef58", false},
 		{"bcprov-jdk15on-148.jar", "960dea7c9181ba0b17e8bab0c06a43f0a5f04e65", true},
-		{"deobfuscation_data_1.5.zip", "5f7c142d53776f16304c0bbe10542014abad6af8", false},
+        {"deobfuscation_data_1.5.zip", "5f7c142d53776f16304c0bbe10542014abad6af8", false},
 		{"scala-library.jar", "458d046151ad179c85429ed7420ffb1eaf6ddf85", true}};
 
 	// 1.5.1
