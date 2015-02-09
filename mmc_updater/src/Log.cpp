@@ -1,7 +1,7 @@
 #include "Log.h"
 
-#include "Platform.h"
-#include "StringUtils.h"
+#include <QDebug>
+
 #include "ProcessUtils.h"
 
 #include <string.h>
@@ -27,6 +27,19 @@ void Log::open(const std::string& path)
 	m_mutex.lock();
 	m_output.open(path.c_str(),std::ios_base::out | std::ios_base::app);
 	m_mutex.unlock();
+
+	qInstallMessageHandler([](QtMsgType type, const QMessageLogContext &, const QString &msg)
+	{
+		Type t;
+		switch (type)
+		{
+		case QtDebugMsg: t = Info; break;
+		case QtWarningMsg: t = Warn; break;
+		case QtCriticalMsg: t = Error; break;
+		case QtFatalMsg: t = Error; break;
+		}
+		Log::instance()->write(t, msg);
+	});
 }
 
 void Log::writeToStream(std::ostream& stream, Type type, const char* text)
@@ -49,7 +62,7 @@ void Log::writeToStream(std::ostream& stream, Type type, const char* text)
 			stream << "ERROR ";
 			break;
 	}
-	stream << '(' << intToStr(ProcessUtils::currentProcessId()) << ") " << text << std::endl;
+	stream << '(' << QString::number(ProcessUtils::currentProcessId()).toStdString() << ") " << text << std::endl;
 }
 
 void Log::write(Type type, const char* text)
@@ -62,4 +75,3 @@ void Log::write(Type type, const char* text)
 	}
 	m_mutex.unlock();
 }
-

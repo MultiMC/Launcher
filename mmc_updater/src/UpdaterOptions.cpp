@@ -1,87 +1,50 @@
 #include "UpdaterOptions.h"
 
-#include "Log.h"
-#include "AnyOption/anyoption.h"
-#include "FileUtils.h"
-#include "Platform.h"
-#include "StringUtils.h"
+#include <QCommandLineParser>
 
-#include <cstdlib>
-#include <iostream>
-
-UpdaterOptions::UpdaterOptions()
-: mode(UpdateInstaller::Setup)
-, waitPid(0)
-, showVersion(false)
-, forceElevated(false)
-, autoClose(false)
+void UpdaterOptions::parse(int argc, char **argv)
 {
-}
-
-UpdateInstaller::Mode stringToMode(const std::string& modeStr)
-{
-	if (modeStr == "main")
+	QStringList args;
+	for (int i = 0; i < argc; ++i)
 	{
-		return UpdateInstaller::Main;
-	}
-	else
-	{
-		if (!modeStr.empty())
-		{
-			LOG(Error,"Unknown mode " + modeStr);
-		}
-		return UpdateInstaller::Setup;
-	}
-}
-
-void UpdaterOptions::parse(int argc, char** argv)
-{
-	AnyOption parser;
-	parser.setOption("install-dir");
-	parser.setOption("package-dir");
-	parser.setOption("finish-cmd");
-	parser.setOption("finish-dir");
-	parser.setOption("script");
-	parser.setOption("wait");
-	parser.setOption("mode");
-	parser.setFlag("version");
-	parser.setFlag("force-elevated");
-	parser.setFlag("dry-run");
-	parser.setFlag("auto-close");
-
-	parser.processCommandArgs(argc,argv);
-
-	if (parser.getValue("mode"))
-	{
-		mode = stringToMode(parser.getValue("mode"));
-	}
-	if (parser.getValue("install-dir"))
-	{
-		installDir = parser.getValue("install-dir");
-	}
-	if (parser.getValue("package-dir"))
-	{
-		packageDir = parser.getValue("package-dir");
-	}
-	if (parser.getValue("script"))
-	{
-		scriptPath = parser.getValue("script");
-	}
-	if (parser.getValue("wait"))
-	{
-		waitPid = static_cast<PLATFORM_PID>(atoll(parser.getValue("wait")));
-	}
-	if (parser.getValue("finish-cmd"))
-	{
-		finishCmd = parser.getValue("finish-cmd");
-	}
-	if (parser.getValue("finish-dir"))
-	{
-		finishDir = parser.getValue("finish-dir");
+		args += QString::fromLocal8Bit(argv[i]);
 	}
 
-	showVersion = parser.getFlag("version");
-	forceElevated = parser.getFlag("force-elevated");
-	dryRun = parser.getFlag("dry-run");
-	autoClose = parser.getFlag("auto-close");
+	QCommandLineParser parser;
+	parser.addOption(QCommandLineOption("install-dir", "", "DIR"));
+	parser.addOption(QCommandLineOption("package-dir", "", "DIR"));
+	parser.addOption(QCommandLineOption("script", "", "FILE"));
+	parser.addOption(QCommandLineOption("wait", "", "PID"));
+	parser.addOption(QCommandLineOption("dry-run"));
+	parser.addOption(QCommandLineOption("finish-cmd", "", "CMD"));
+	parser.addOption(QCommandLineOption("finish-dir", "", "DIR"));
+	parser.addVersionOption();
+	parser.process(args);
+
+	if (parser.isSet("install-dir"))
+	{
+		installDir = parser.value("install-dir");
+	}
+	if (parser.isSet("package-dir"))
+	{
+		packageDir = parser.value("package-dir");
+	}
+	if (parser.isSet("script"))
+	{
+		scriptPath = parser.value("script");
+	}
+	if (parser.isSet("wait"))
+	{
+		waitPid = parser.value("wait").toULongLong();
+	}
+	if (parser.isSet("finish-cmd"))
+	{
+		finishCmd = parser.value("finish-cmd");
+	}
+	if (parser.isSet("finish-dir"))
+	{
+		finishDir = parser.value("finish-dir");
+	}
+
+	dryRun = parser.isSet("dry-run");
 }

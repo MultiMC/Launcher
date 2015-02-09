@@ -104,5 +104,6 @@ inline std::string TestUtils::toString(const char* value, const char*)
 
 #define TEST_COMPARE(x,y) \
 	TestUtils::compare(x,y,#x,#y);
-
+#define TEST_ENSURE(x) \
+	TestUtils::compare(x, true, #x, "true");
 

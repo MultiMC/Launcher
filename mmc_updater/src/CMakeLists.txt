@@ -2,21 +2,18 @@
 add_subdirectory(tests)
 
 find_package(Threads REQUIRED)
+find_package(Qt5 COMPONENTS Core)
 include(GenerateCppResourceFile)
 
 set(UPDATER_SOURCES
  AppInfo.cpp
  AppInfo.h
- DirIterator.cpp
- DirIterator.h
  FileUtils.cpp
  FileUtils.h
  Log.cpp
  Log.h
  ProcessUtils.cpp
  ProcessUtils.h
- StandardDirs.cpp
- StandardDirs.h
  UpdateDialog.cpp
  UpdateInstaller.cpp
  UpdateInstaller.h
@@ -43,7 +40,6 @@ if(UNIX)
 		set(UPDATER_SOURCES ${UPDATER_SOURCES}
 		 MacBundle.h
 		 MacBundle.cpp
-		 StandardDirs.mm
 		 StlSymbolsLeopard.cpp
 		 UpdateDialogCocoa.mm
 		 UpdateDialogCocoa.h
@@ -69,8 +65,7 @@ if(UNIX)
 endif()
 
 add_library(updatershared STATIC ${UPDATER_SOURCES})
-
-target_link_libraries(updatershared anyoption tinyxml)
+qt5_use_modules(updatershared Core)
 
 if(UNIX)
 	if(APPLE)
@@ -88,8 +83,8 @@ if(WIN32)
 endif()
 
 add_executable(updater ${EXE_FLAGS} main.cpp)
-
 target_link_libraries(updater updatershared)
+qt5_use_modules(updater Core)
 
 
 #### Updater Executable ####

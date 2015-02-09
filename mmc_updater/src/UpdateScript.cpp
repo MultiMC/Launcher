@@ -1,99 +1,144 @@
 #include "UpdateScript.h"
 
-#include "Log.h"
-#include "StringUtils.h"
-
-#include "tinyxml/tinyxml.h"
-
-std::string elementText(const TiXmlElement* element)
-{
-	if (!element)
-	{
-		return std::string();
-	}
-	return element->GetText();
-}
+#include <QXmlStreamReader>
+#include <QFile>
+#include <stdexcept>
 
 UpdateScript::UpdateScript()
 {
 }
 
-void UpdateScript::parse(const std::string& path)
+void UpdateScript::parse(const QString &path)
 {
 	m_path.clear();
 
-	TiXmlDocument document(path);
-	if (document.LoadFile())
+	QFile file(path);
+	if (!file.open(QFile::ReadOnly))
 	{
-		m_path = path;
-
-		LOG(Info,"Loaded script from " + path);
-
-		const TiXmlElement* updateNode = document.RootElement();
-		parseUpdate(updateNode);
+		throw std::runtime_error("Unable to open script file: " +
+								 file.errorString().toStdString());
 	}
-	else
+	QXmlStreamReader reader(&file);
+	if (!reader.readNextStartElement())
 	{
-		LOG(Error,"Unable to load script " + path);
+		throw std::runtime_error("Invalid XML document");
 	}
+	if (reader.name() != "update")
+	{
+		throw std::runtime_error("Not an updater script");
+	}
+	parseUpdate(reader);
+	if (reader.hasError())
+	{
+		throw std::runtime_error("Unable to read script: " +
+								 reader.errorString().toStdString());
+	}
+
+	m_path = path;
 }
 
 bool UpdateScript::isValid() const
 {
-	return !m_path.empty();
+	return !m_path.isEmpty();
 }
 
-void UpdateScript::parseUpdate(const TiXmlElement* updateNode)
+void UpdateScript::parseUpdate(QXmlStreamReader &reader)
 {
-	const TiXmlElement* installNode = updateNode->FirstChildElement("install");
-	if (installNode)
+	bool inInstall = false;
+	bool inUninstall = false;
+	while (!reader.atEnd() && !reader.hasError())
 	{
-		const TiXmlElement* installFileNode = installNode->FirstChildElement("file");
-		while (installFileNode)
+		const QXmlStreamReader::TokenType type = reader.readNext();
+		if (type == QXmlStreamReader::StartElement)
 		{
-			m_filesToInstall.push_back(parseFile(installFileNode));
-			installFileNode = installFileNode->NextSiblingElement("file");
+			if (reader.name() == "install")
+			{
+				inInstall = true;
+			}
+			else if (reader.name() == "uninstall")
+			{
+				inUninstall = true;
+			}
+			else if (reader.name() == "file")
+			{
+				if (inInstall)
+				{
+					m_filesToInstall.push_back(parseFile(reader));
+				}
+				else if (inUninstall)
+				{
+					m_filesToUninstall.push_back(reader.readElementText());
+				}
+			}
+			else
+			{
+				throw std::runtime_error("Unknown XML tag in script: " +
+										 reader.name().toString().toStdString());
+			}
 		}
-	}
-
-	const TiXmlElement* uninstallNode = updateNode->FirstChildElement("uninstall");
-	if (uninstallNode)
-	{
-		const TiXmlElement* uninstallFileNode = uninstallNode->FirstChildElement("file");
-		while (uninstallFileNode)
+		else if (type == QXmlStreamReader::EndElement)
 		{
-			m_filesToUninstall.push_back(uninstallFileNode->GetText());
-			uninstallFileNode = uninstallFileNode->NextSiblingElement("file");
+			if (reader.name() == "install")
+			{
+				inInstall = false;
+			}
+			else if (reader.name() == "uninstall")
+			{
+				inUninstall = false;
+			}
 		}
 	}
 }
 
-UpdateScriptFile UpdateScript::parseFile(const TiXmlElement* element)
+UpdateScriptFile UpdateScript::parseFile(QXmlStreamReader &reader)
 {
 	UpdateScriptFile file;
-	// The name within the update files folder.
-	file.source = elementText(element->FirstChildElement("source"));
-	// The path to install to.
-	file.dest = elementText(element->FirstChildElement("dest"));
-
-	std::string modeString = elementText(element->FirstChildElement("mode"));
-	sscanf(modeString.c_str(),"%i",&file.permissions);
+	while (!reader.hasError() && !reader.atEnd())
+	{
+		const QXmlStreamReader::TokenType type = reader.readNext();
+		if (type == QXmlStreamReader::StartElement)
+		{
+			if (reader.name() == "source")
+			{
+				file.source = reader.readElementText();
+			}
+			else if (reader.name() == "dest")
+			{
+				file.dest = reader.readElementText();
+			}
+			else if (reader.name() == "mode")
+			{
+				file.permissions = reader.readElementText().toInt(nullptr, 8);
+			}
+			else
+			{
+				throw std::runtime_error("Unknown XML tag in script: " +
+										 reader.name().toString().toStdString());
+			}
+		}
+		else if (type == QXmlStreamReader::EndElement)
+		{
+			if (reader.name() == "file")
+			{
+				break;
+			}
+		}
+	}
 
 	return file;
 }
 
-const std::vector<UpdateScriptFile>& UpdateScript::filesToInstall() const
+const std::vector<UpdateScriptFile> &UpdateScript::filesToInstall() const
 {
 	return m_filesToInstall;
 }
 
-const std::vector<std::string>& UpdateScript::filesToUninstall() const
+const std::vector<QString> &UpdateScript::filesToUninstall() const
 {
 	return m_filesToUninstall;
 }
 
-const std::string UpdateScript::path() const
+const QString UpdateScript::path() const
 {
 	return m_path;
 }
-

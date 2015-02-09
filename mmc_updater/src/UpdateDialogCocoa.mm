@@ -5,7 +5,6 @@
 
 #include "AppInfo.h"
 #include "Log.h"
-#include "StringUtils.h"
 
 @interface UpdateDialogDelegate : NSObject
 {

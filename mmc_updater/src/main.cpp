@@ -3,23 +3,23 @@
 #include "Log.h"
 #include "Platform.h"
 #include "ProcessUtils.h"
-#include "StringUtils.h"
 #include "UpdateScript.h"
 #include "UpdaterOptions.h"
+#include "UpdateInstaller.h"
 
 #include <thread>
 
-#if defined(PLATFORM_LINUX)
+#if defined(Q_OS_LINUX)
   #include "UpdateDialogGtkFactory.h"
   #include "UpdateDialogAscii.h"
 #endif
 
-#if defined(PLATFORM_MAC)
+#if defined(Q_OS_OSX)
   #include "MacBundle.h"
   #include "UpdateDialogCocoa.h"
 #endif
 
-#if defined(PLATFORM_WINDOWS)
+#if defined(Q_OS_WIN)
   #include "UpdateDialogWin32.h"
 #endif
 
@@ -32,7 +32,7 @@ UpdateDialog* createUpdateDialog();
 
 void runUpdaterThread(void* arg)
 {
-#ifdef PLATFORM_MAC
+#ifdef Q_OS_OSX
 	// create an autorelease pool to free any temporary objects
 	// created by Cocoa whilst handling notifications from the UpdateInstaller
 	void* pool = UpdateDialogCocoa::createAutoreleasePool();
@@ -48,12 +48,12 @@ void runUpdaterThread(void* arg)
 		LOG(Error,"Unexpected exception " + std::string(ex.what()));
 	}
 
-#ifdef PLATFORM_MAC
+#ifdef Q_OS_OSX
 	UpdateDialogCocoa::releaseAutoreleasePool(pool);
 #endif
 }
 
-#ifdef PLATFORM_MAC
+#ifdef Q_OS_OSX
 extern unsigned char Info_plist[];
 extern unsigned int Info_plist_len;
 
@@ -62,10 +62,10 @@ extern unsigned int mac_icns_len;
 
 bool unpackBundle(int argc, char** argv)
 {
-	MacBundle bundle(FileUtils::tempPath(),AppInfo::name());
-	std::string currentExePath = ProcessUtils::currentProcessPath();
+	MacBundle bundle(FileUtils::tempPath(), QString::fromStdString(AppInfo::name()));
+	QString currentExePath = ProcessUtils::currentProcessPath();
 
-	if (currentExePath.find(bundle.bundlePath()) != std::string::npos)
+	if (currentExePath.contains(bundle.bundlePath()))
 	{
 		// already running from a bundle
 		return false;
@@ -77,19 +77,19 @@ bool unpackBundle(int argc, char** argv)
 	std::string iconContent(reinterpret_cast<const char*>(mac_icns),mac_icns_len);
 	bundle.create(plistContent,iconContent,ProcessUtils::currentProcessPath());
 
-	std::list<std::string> args;
+	std::list<QString> args;
 	for (int i = 1; i < argc; i++)
 	{
 		args.push_back(argv[i]);
 	}
-	ProcessUtils::runSync(bundle.executablePath(),args);
+	ProcessUtils::runSync(bundle.executablePath(), args);
 	return true;
 }
 #endif
 
 void setupConsole()
 {
-#ifdef PLATFORM_WINDOWS
+#ifdef Q_OS_WIN
 	// see http://stackoverflow.com/questions/587767/how-to-output-to-console-in-c-windows
 	// and http://www.libsdl.org/cgi/docwiki.cgi/FAQ_Console
 	AttachConsole(ATTACH_PARENT_PROCESS);
@@ -100,13 +100,13 @@ void setupConsole()
 
 int main(int argc, char** argv)
 {
-#ifdef PLATFORM_MAC
+#ifdef Q_OS_OSX
 	void* pool = UpdateDialogCocoa::createAutoreleasePool();
 #endif
 	
 	Log::instance()->open(AppInfo::logFilePath());
 
-#ifdef PLATFORM_MAC
+#ifdef Q_OS_OSX
 	// when the updater is run for the first time, create a Mac app bundle
 	// and re-launch the application from the bundle.  This permits
 	// setting up bundle properties (such as application icon)
@@ -118,70 +118,62 @@ int main(int argc, char** argv)
 
 	UpdaterOptions options;
 	options.parse(argc,argv);
-	if (options.showVersion)
-	{
-		setupConsole();
-		std::cout << "Update installer version " << UPDATER_VERSION << std::endl;
-		return 0;
-	}
 
 	UpdateInstaller installer;
 	UpdateScript script;
 
-	if (!options.scriptPath.empty())
+	if (!options.scriptPath.isEmpty())
 	{
-		script.parse(FileUtils::makeAbsolute(options.scriptPath.c_str(),options.packageDir.c_str()));
+		try
+		{
+			script.parse(options.scriptPath);
+			LOG(Info,"Loaded script from " + options.scriptPath);
+		}
+		catch (std::exception &e)
+		{
+			LOG(Error, "Unable to load script: " + std::string(e.what()));
+			return -1;
+		}
 	}
 
 	LOG(Info,"started updater. install-dir: " + options.installDir
-	         + ", package-dir: " + options.packageDir
-	         + ", wait-pid: " + intToStr(options.waitPid)
-	         + ", script-path: " + options.scriptPath
-	         + ", mode: " + intToStr(options.mode)
-			 + ", finish-cmd: " + options.finishCmd
-			 + ", finish-dir: " + options.finishDir);
+		+ ", package-dir: " + options.packageDir
+		+ ", wait-pid: " + QString::number(options.waitPid)
+		+ ", script-path: " + options.scriptPath
+		+ ", finish-cmd: " + options.finishCmd
+		+ ", finish-dir: " + options.finishDir);
 
-	installer.setMode(options.mode);
 	installer.setInstallDir(options.installDir);
 	installer.setPackageDir(options.packageDir);
 	installer.setScript(&script);
-	installer.setWaitPid(options.waitPid);
-	installer.setForceElevated(options.forceElevated);
-	installer.setAutoClose(options.autoClose);
+	installer.setWaitPid(static_cast<Q_PID>(options.waitPid));
 	installer.setFinishCmd(options.finishCmd);
 	installer.setFinishDir(options.finishDir);
 	installer.setDryRun(options.dryRun);
 
-	if (options.mode == UpdateInstaller::Main)
-	{
-		LOG(Info, "Showing updater UI - auto close? " + intToStr(options.autoClose));
-		std::auto_ptr<UpdateDialog> dialog(createUpdateDialog());
-		dialog->setAutoClose(options.autoClose);
-		dialog->init(argc, argv);
-		installer.setObserver(dialog.get());
-		std::thread updaterThread(runUpdaterThread, &installer);
-		dialog->exec();
-		updaterThread.join();
-	}
-	else
-	{
-		installer.run();
-	}
+	LOG(Info, "Showing updater UI");
+	std::unique_ptr<UpdateDialog> dialog(createUpdateDialog());
+	dialog->setAutoClose(true);
+	dialog->init(argc, argv);
+	installer.setObserver(dialog.get());
+	std::thread updaterThread(runUpdaterThread, &installer);
+	dialog->exec();
+	updaterThread.join();
 
-#ifdef PLATFORM_MAC
+#ifdef Q_OS_OSX
 	UpdateDialogCocoa::releaseAutoreleasePool(pool);
 #endif
 
-	return 0;
+	return installer.wasFailure() ? 1 : 0;
 }
 
 UpdateDialog* createUpdateDialog()
 {
-#if defined(PLATFORM_WINDOWS)
+#if defined(Q_OS_WIN)
 	return new UpdateDialogWin32();
-#elif defined(PLATFORM_MAC)
+#elif defined(Q_OS_OSX)
 	return new UpdateDialogCocoa();
-#elif defined(PLATFORM_LINUX)
+#elif defined(Q_OS_LINUX)
 	UpdateDialog* dialog = UpdateDialogGtkFactory::createDialog();
 	if (!dialog)
 	{
@@ -191,7 +183,7 @@ UpdateDialog* createUpdateDialog()
 #endif
 }
 
-#ifdef PLATFORM_WINDOWS
+#ifdef Q_OS_WIN
 // application entry point under Windows
 int CALLBACK WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
