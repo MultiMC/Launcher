@@ -4,10 +4,14 @@
 #include <QSet>
 #include <QDateTime>
 
+// FML libs get downloaded to metacache->resolveEntry("fmllibs", lib.filename);
+// then copied to the instance:
+// QFile::copy(entry->getFullPath(), PathCombine(inst->libDir(), lib.filename))
 struct FMLlib
 {
 	QString filename;
 	QString checksum;
+	//if ours, use URLConstants::FMLLIBS_OUR_BASE_URL. Otherwise use URLConstants::FMLLIBS_FORGE_BASE_URL
 	bool ours;
 };
 
@@ -22,7 +26,5 @@ struct VersionFilterData
 	QSet<QString> legacyBlacklist;
 	// no new versions below this date will be accepted from Mojang servers
 	QDateTime legacyCutoffDate;
-	// Libraries that belong to LWJGL
-	QSet<QString> lwjglWhitelist;
 };
 extern VersionFilterData g_VersionFilterData;

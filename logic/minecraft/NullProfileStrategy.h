@@ -9,11 +9,7 @@ class NullProfileStrategy: public ProfileStrategy
 		return false;
 	}
 	virtual void load() {};
-	virtual bool removePatch(ProfilePatchPtr jarMod)
-	{
-		return false;
-	}
-	virtual bool resetOrder()
+	virtual bool removePatch(PackagePtr jarMod)
 	{
 		return false;
 	}

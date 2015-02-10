@@ -1,6 +1,6 @@
 #pragma once
-#include "RawLibrary.h"
-#include "VersionFile.h"
+#include "Library.h"
+#include "Package.h"
 
 namespace ProfileUtils
 {
@@ -14,12 +14,9 @@ bool writeOverrideOrders(QString path, const PatchOrder &order);
 
 
 /// Parse a version file in JSON format
-VersionFilePtr parseJsonFile(const QFileInfo &fileInfo, const bool requireOrder);
-
-/// Parse a version file in binary JSON format
-VersionFilePtr parseBinaryJsonFile(const QFileInfo &fileInfo);
+PackagePtr parseJsonFile(const QFileInfo &fileInfo, const bool requireOrder);
 
 /// Remove LWJGL from a patch file. This is applied to all Mojang-like profile files.
-void removeLwjglFromPatch(VersionFilePtr patch);
+void removeLwjglFromPatch(PackagePtr patch);
 
 }

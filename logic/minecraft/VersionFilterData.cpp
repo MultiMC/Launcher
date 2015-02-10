@@ -1,5 +1,4 @@
 #include "VersionFilterData.h"
-#include "ParseUtils.h"
 
 VersionFilterData g_VersionFilterData = VersionFilterData();
 
@@ -64,9 +63,5 @@ VersionFilterData::VersionFilterData()
 	 * nothing older than this will be accepted from Mojang servers
 	 * (these versions need to be tested by us first)
 	 */
-	legacyCutoffDate = timeFromS3Time("2013-06-25T15:08:56+02:00");
-	lwjglWhitelist =
-		QSet<QString>{"net.java.jinput:jinput",	 "net.java.jinput:jinput-platform",
-					  "net.java.jutils:jutils",	 "org.lwjgl.lwjgl:lwjgl",
-					  "org.lwjgl.lwjgl:lwjgl_util", "org.lwjgl.lwjgl:lwjgl-platform"};
+	legacyCutoffDate = QDateTime::fromString("2013-06-25T15:08:56+02:00", Qt::ISODate);
 }

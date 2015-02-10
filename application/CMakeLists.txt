@@ -29,6 +29,9 @@ set(MultiMC_UPDATER false CACHE BOOL "Whether or not the update system is enable
 # Notification URL
 set(MultiMC_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications.")
 
+# Wonko repo url
+set(MultiMC_WONKO_URL "file:///home/peterix/minecraft/src/WonkoTheSane/files" CACHE STRING "URL where the wonko repo is.")
+
 #### Check the current Git commit
 include(GitFunctions)
 git_run(COMMAND rev-parse HEAD DEFAULT "Unknown" OUTPUT_VAR MultiMC_GIT_COMMIT)
@@ -313,7 +316,6 @@ set(MULTIMC_QRCS
 	resources/OSX/OSX.qrc
 	resources/iOS/iOS.qrc
 	resources/instances/instances.qrc
-	resources/versions/versions.qrc
 )
 
 ######## Windows resource files ########
@@ -344,7 +346,7 @@ qt5_add_resources(MULTIMC_RESOURCES ${MULTIMC_QRCS})
 
 # Add executable
 add_executable(MultiMC MACOSX_BUNDLE WIN32 ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_RESOURCES} ${MULTIMC_RCS})
-target_link_libraries(MultiMC MultiMC_logic xz-embedded unpack200 iconfix libUtil LogicalGui
+target_link_libraries(MultiMC MultiMC_logic iconfix libUtil LogicalGui
 	${QUAZIP_LIBRARIES} Qt5::Core Qt5::Xml Qt5::Widgets Qt5::Network Qt5::Concurrent
 		${MultiMC_LINK_ADDITIONAL_LIBS})
 

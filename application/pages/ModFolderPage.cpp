@@ -83,10 +83,13 @@ bool CoreModFolderPage::shouldDisplay() const
 		auto version = inst->getMinecraftProfile();
 		if (!version)
 			return true;
+		/*
+		 * FIXME: replace this hack with traits in FML/forge
 		if (version->m_releaseTime < g_VersionFilterData.legacyCutoffDate)
 		{
 			return true;
 		}
+		*/
 	}
 	return false;
 }

@@ -23,8 +23,6 @@
 LIBUTIL_EXPORT QString PathCombine(QString path1, QString path2);
 LIBUTIL_EXPORT QString PathCombine(QString path1, QString path2, QString path3);
 
-LIBUTIL_EXPORT QString AbsolutePath(QString path);
-
 /**
  * Normalize path
  *

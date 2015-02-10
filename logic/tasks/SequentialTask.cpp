@@ -9,6 +9,11 @@ void SequentialTask::addTask(std::shared_ptr<Task> task)
 	m_queue.append(task);
 }
 
+int SequentialTask::size()
+{
+	return m_queue.size();
+}
+
 void SequentialTask::executeTask()
 {
 	m_currentIndex = -1;

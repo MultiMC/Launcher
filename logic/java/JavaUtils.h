@@ -18,26 +18,13 @@
 #include <QStringList>
 #include <QWidget>
 
-#include <osutils.h>
 #include "JavaCheckerJob.h"
 #include "JavaChecker.h"
 #include "JavaVersionList.h"
 
-#if WINDOWS
-#include <windows.h>
-#endif
-
-class JavaUtils : public QObject
+namespace JavaUtils
 {
-	Q_OBJECT
-public:
-	JavaUtils();
-
 	JavaVersionPtr MakeJavaPtr(QString path, QString id = "unknown", QString arch = "unknown");
 	QList<QString> FindJavaPaths();
 	JavaVersionPtr GetDefaultJava();
-
-#if WINDOWS
-	QList<JavaVersionPtr> FindJavaFromRegistryKey(DWORD keyType, QString keyName);
-#endif
-};
+}

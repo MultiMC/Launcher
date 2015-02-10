@@ -8,6 +8,7 @@
 #include <QNetworkAccessManager>
 #include <QDebug>
 #include "tasks/Task.h"
+#include "FileStore.h"
 #include <QDebug>
 
 /*
@@ -22,6 +23,7 @@ Env::Env()
 void Env::destroy()
 {
 	m_metacache.reset();
+	m_filestore.reset();
 	m_qnam.reset();
 	m_icons.reset();
 	m_versionLists.clear();
@@ -39,6 +41,12 @@ std::shared_ptr< HttpMetaCache > Env::metacache()
 	return m_metacache;
 }
 
+std::shared_ptr< FileStore > Env::filestore()
+{
+	Q_ASSERT(m_filestore != nullptr);
+	return m_filestore;
+}
+
 std::shared_ptr< QNetworkAccessManager > Env::qnam()
 {
 	return m_qnam;
@@ -49,63 +57,6 @@ std::shared_ptr<IconList> Env::icons()
 	Q_ASSERT(m_icons != nullptr);
 	return m_icons;
 }
-/*
-class NullVersion : public BaseVersion
-{
-	Q_OBJECT
-public:
-	virtual QString name()
-	{
-		return "null";
-	}
-	virtual QString descriptor()
-	{
-		return "null";
-	}
-	virtual QString typeString() const
-	{
-		return "Null";
-	}
-};
-
-class NullTask: public Task
-{
-	Q_OBJECT
-public:
-	virtual void executeTask()
-	{
-		emitFailed(tr("Nothing to do."));
-	}
-};
-
-class NullVersionList: public BaseVersionList
-{
-	Q_OBJECT
-public:
-	virtual const BaseVersionPtr at(int i) const
-	{
-		return std::make_shared<NullVersion>();
-	}
-	virtual int count() const
-	{
-		return 0;
-	};
-	virtual Task* getLoadTask()
-	{
-		return new NullTask;
-	}
-	virtual bool isLoaded()
-	{
-		return false;
-	}
-	virtual void sort()
-	{
-	}
-	virtual void updateListData(QList< BaseVersionPtr >)
-	{
-	}
-};
-*/
 
 BaseVersionPtr Env::getVersion(QString component, QString version)
 {
@@ -124,7 +75,6 @@ std::shared_ptr< BaseVersionList > Env::getVersionList(QString component)
 	{
 		return *iter;
 	}
-	//return std::make_shared<NullVersionList>();
 	return nullptr;
 }
 
@@ -136,7 +86,10 @@ void Env::registerVersionList(QString name, std::shared_ptr< BaseVersionList > v
 
 void Env::initHttpMetaCache(QString rootPath, QString staticDataPath)
 {
+	m_filestore.reset(new FileStore(QDir("cache").absolutePath()));
 	m_metacache.reset(new HttpMetaCache("metacache"));
+	m_metacache->addBase("cache", QDir("cache").absolutePath());
+
 	m_metacache->addBase("asset_indexes", QDir("assets/indexes").absolutePath());
 	m_metacache->addBase("asset_objects", QDir("assets/objects").absolutePath());
 	m_metacache->addBase("versions", QDir("versions").absolutePath());

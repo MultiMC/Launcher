@@ -26,11 +26,9 @@
 #include "java/JavaCheckerJob.h"
 #include "java/JavaVersionList.h"
 
-JavaUtils::JavaUtils()
+namespace JavaUtils
 {
-}
-
-JavaVersionPtr JavaUtils::MakeJavaPtr(QString path, QString id, QString arch)
+JavaVersionPtr MakeJavaPtr(QString path, QString id, QString arch)
 {
 	JavaVersionPtr javaVersion(new JavaVersion());
 
@@ -41,7 +39,7 @@ JavaVersionPtr JavaUtils::MakeJavaPtr(QString path, QString id, QString arch)
 	return javaVersion;
 }
 
-JavaVersionPtr JavaUtils::GetDefaultJava()
+JavaVersionPtr GetDefaultJava()
 {
 	JavaVersionPtr javaVersion(new JavaVersion());
 
@@ -51,9 +49,12 @@ JavaVersionPtr JavaUtils::GetDefaultJava()
 
 	return javaVersion;
 }
-
-#if WINDOWS
-QList<JavaVersionPtr> JavaUtils::FindJavaFromRegistryKey(DWORD keyType, QString keyName)
+}
+#if defined(Q_OS_WIN32)
+#include <windows.h>
+namespace JavaUtils
+{
+QList<JavaVersionPtr> FindJavaFromRegistryKey(DWORD keyType, QString keyName)
 {
 	QList<JavaVersionPtr> javas;
 
@@ -136,17 +137,17 @@ QList<JavaVersionPtr> JavaUtils::FindJavaFromRegistryKey(DWORD keyType, QString 
 	return javas;
 }
 
-QList<QString> JavaUtils::FindJavaPaths()
+QList<QString> FindJavaPaths()
 {
 	QList<JavaVersionPtr> java_candidates;
 
-	QList<JavaVersionPtr> JRE64s = this->FindJavaFromRegistryKey(
+	QList<JavaVersionPtr> JRE64s = FindJavaFromRegistryKey(
 		KEY_WOW64_64KEY, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
-	QList<JavaVersionPtr> JDK64s = this->FindJavaFromRegistryKey(
+	QList<JavaVersionPtr> JDK64s = FindJavaFromRegistryKey(
 		KEY_WOW64_64KEY, "SOFTWARE\\JavaSoft\\Java Development Kit");
-	QList<JavaVersionPtr> JRE32s = this->FindJavaFromRegistryKey(
+	QList<JavaVersionPtr> JRE32s = FindJavaFromRegistryKey(
 		KEY_WOW64_32KEY, "SOFTWARE\\JavaSoft\\Java Runtime Environment");
-	QList<JavaVersionPtr> JDK32s = this->FindJavaFromRegistryKey(
+	QList<JavaVersionPtr> JDK32s = FindJavaFromRegistryKey(
 		KEY_WOW64_32KEY, "SOFTWARE\\JavaSoft\\Java Development Kit");
 
 	java_candidates.append(JRE64s);
@@ -157,7 +158,7 @@ QList<QString> JavaUtils::FindJavaPaths()
 	java_candidates.append(MakeJavaPtr("C:/Program Files (x86)/Java/jre7/bin/javaw.exe"));
 	java_candidates.append(MakeJavaPtr("C:/Program Files (x86)/Java/jre6/bin/javaw.exe"));
 	java_candidates.append(JDK32s);
-	java_candidates.append(MakeJavaPtr(this->GetDefaultJava()->path));
+	java_candidates.append(MakeJavaPtr(GetDefaultJava()->path));
 
 	QList<QString> candidates;
 	for(JavaVersionPtr java_candidate : java_candidates)
@@ -170,12 +171,15 @@ QList<QString> JavaUtils::FindJavaPaths()
 
 	return candidates;
 }
+}
+#elif defined (Q_OS_MAC)
 
-#elif OSX
-QList<QString> JavaUtils::FindJavaPaths()
+namespace JavaUtils
+{
+QList<QString> FindJavaPaths()
 {
 	QList<QString> javas;
-	javas.append(this->GetDefaultJava()->path);
+	javas.append(GetDefaultJava()->path);
 	javas.append("/Applications/Xcode.app/Contents/Applications/Application Loader.app/Contents/MacOS/itms/java/bin/java");
 	javas.append("/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java");
 	javas.append("/System/Library/Frameworks/JavaVM.framework/Versions/Current/Commands/java");
@@ -193,27 +197,33 @@ QList<QString> JavaUtils::FindJavaPaths()
 	}
 	return javas;
 }
-
-#elif LINUX
-QList<QString> JavaUtils::FindJavaPaths()
+}
+#elif defined (Q_OS_LINUX)
+namespace JavaUtils
+{
+QList<QString> FindJavaPaths()
 {
 	qDebug() << "Linux Java detection incomplete - defaulting to \"java\"";
 
 	QList<QString> javas;
-	javas.append(this->GetDefaultJava()->path);
-    javas.append("/opt/java/bin/java");
-    javas.append("/usr/bin/java");
+	javas.append(GetDefaultJava()->path);
+	javas.append("/opt/java/bin/java");
+	javas.append("/usr/bin/java");
 
 	return javas;
 }
+}
 #else
-QList<QString> JavaUtils::FindJavaPaths()
+namespace JavaUtils
+{
+QList<QString> FindJavaPaths()
 {
 	qDebug() << "Unknown operating system build - defaulting to \"java\"";
 
 	QList<QString> javas;
-	javas.append(this->GetDefaultJava()->path);
+	javas.append(GetDefaultJava()->path);
 
 	return javas;
+}
 }
 #endif

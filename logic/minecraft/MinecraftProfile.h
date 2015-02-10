@@ -21,13 +21,13 @@
 #include <QList>
 #include <memory>
 
-#include "OneSixLibrary.h"
-#include "VersionFile.h"
-#include "JarMod.h"
+#include "Library.h"
+#include "Package.h"
+#include "Resources.h"
 
 class ProfileStrategy;
-class OneSixInstance;
 
+// FIXME: needs to be not minecraft, push it up the abstraction ladder.
 class MinecraftProfile : public QAbstractListModel
 {
 	Q_OBJECT
@@ -35,9 +35,6 @@ class MinecraftProfile : public QAbstractListModel
 
 public:
 	explicit MinecraftProfile(ProfileStrategy *strategy);
-
-	/// construct a MinecraftProfile from a single file
-	static std::shared_ptr<MinecraftProfile> fromJson(const QJsonObject &obj);
 
 	void setStrategy(ProfileStrategy * strategy);
 	ProfileStrategy *strategy();
@@ -48,17 +45,9 @@ public:
 	virtual int columnCount(const QModelIndex &parent) const;
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
-	/// is this version unchanged by the user?
-	bool isVanilla();
-
-	/// remove any customizations on top of whatever 'vanilla' means
-	bool revertToVanilla();
-
+	// FIXME: kill this
 	/// install more jar mods
 	void installJarMods(QStringList selectedFiles);
-
-	/// DEPRECATED, remove ASAP
-	int getFreeOrderNumber();
 
 	/// Can patch file # be removed?
 	bool canRemove(const int index) const;
@@ -73,8 +62,6 @@ public:
 	/// remove patch file by id - including files/records
 	bool remove(const QString id);
 
-	void resetOrder();
-
 	/// reload all profile patches from storage, clear the profile and apply the patches
 	void reload();
 
@@ -84,24 +71,15 @@ public:
 	/// apply the patches
 	void reapply();
 
-	/// do a finalization step (should always be done after applying all patches to profile)
-	void finalize();
-
 public:
-	/// get all java libraries that belong to the classpath
-	QList<std::shared_ptr<OneSixLibrary>> getActiveNormalLibs();
-
-	/// get all native libraries that need to be available to the process
-	QList<std::shared_ptr<OneSixLibrary>> getActiveNativeLibs();
-
 	/// get file ID of the patch file at #
 	QString versionFileId(const int index) const;
 
 	/// get the profile patch by id
-	ProfilePatchPtr versionPatch(const QString &id);
+	PackagePtr versionPatch(const QString &id);
 
 	/// get the profile patch by index
-	ProfilePatchPtr versionPatch(int index);
+	PackagePtr versionPatch(int index);
 
 	/// save the current patch order
 	void saveCurrentOrder() const;
@@ -111,91 +89,13 @@ public: /* only use in ProfileStrategy */
 	void clearPatches();
 
 	/// Add the patch object to the internal list of patches
-	void appendPatch(ProfilePatchPtr patch);
+	void appendPatch(PackagePtr patch);
 
 public: /* data */
-	/// the ID - determines which jar to use! ACTUALLY IMPORTANT!
-	QString id;
+	// FIXME: needs to be not minecraft
+	Minecraft::Resources resources;
 
-	/// the time this version was actually released by Mojang, as string and as QDateTime
-	QString m_releaseTimeString;
-	QDateTime m_releaseTime;
-
-	/// the time this version was last updated by Mojang, as string and as QDateTime
-	QString m_updateTimeString;
-	QDateTime m_updateTime;
-
-	/// Release type - "release" or "snapshot"
-	QString type;
-	/// Assets type - "legacy" or a version ID
-	QString assets;
-	/**
-	 * DEPRECATED: Old versions of the new vanilla launcher used this
-	 * ex: "username_session_version"
-	 */
-	QString processArguments;
-	/// Same as above, but only for vanilla
-	QString vanillaProcessArguments;
-	/**
-	 * arguments that should be used for launching minecraft
-	 *
-	 * ex: "--username ${auth_player_name} --session ${auth_session}
-	 *      --version ${version_name} --gameDir ${game_directory} --assetsDir ${game_assets}"
-	 */
-	QString minecraftArguments;
-	/// Same as above, but only for vanilla
-	QString vanillaMinecraftArguments;
-	/**
-	 * the minimum launcher version required by this version ... current is 4 (at point of
-	 * writing)
-	 */
-	int minimumLauncherVersion = 0xDEADBEEF;
-	/**
-	 * A list of all tweaker classes
-	 */
-	QStringList tweakers;
-	/**
-	 * The main class to load first
-	 */
-	QString mainClass;
-	/**
-	 * The applet class, for some very old minecraft releases
-	 */
-	QString appletClass;
-
-	/// the list of libs - both active and inactive, native and java
-	QList<OneSixLibraryPtr> libraries;
-
-	/// same, but only vanilla.
-	QList<OneSixLibraryPtr> vanillaLibraries;
-
-	/// traits, collected from all the version files (version files can only add)
-	QSet<QString> traits;
-
-	/// A list of jar mods. version files can add those.
-	QList<JarmodPtr> jarMods;
-
-	/*
-	FIXME: add support for those rules here? Looks like a pile of quick hacks to me though.
-
-	"rules": [
-		{
-		"action": "allow"
-		},
-		{
-		"action": "disallow",
-		"os": {
-			"name": "osx",
-			"version": "^10\\.5\\.\\d$"
-		}
-		}
-	],
-	"incompatibilityReason": "There is a bug in LWJGL which makes it incompatible with OSX
-	10.5.8. Please go to New Profile and use 1.5.2 for now. Sorry!"
-	}
-	*/
-	// QList<Rule> rules;
 private:
-	QList<ProfilePatchPtr> VersionPatches;
+	QList<PackagePtr> VersionPatches;
 	ProfileStrategy *m_strategy = nullptr;
 };

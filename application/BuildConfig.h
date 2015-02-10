@@ -26,6 +26,9 @@ public:
 	/// A short string identifying this build's platform. For example, "lin64" or "win32".
 	QString BUILD_PLATFORM;
 
+	/// URL for the wonko repo
+	QString WONKO_URL;
+
 	/// URL for the updater's channel
 	QString CHANLIST_URL;
 

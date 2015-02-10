@@ -26,7 +26,7 @@
 #include "dialogs/ProgressDialog.h"
 #include "dialogs/ModEditDialogCommon.h"
 #include "minecraft/ModList.h"
-#include "minecraft/LegacyInstance.h"
+#include "minecraft/legacy/LegacyInstance.h"
 #include "Env.h"
 #include "MultiMC.h"
 

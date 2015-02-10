@@ -9,31 +9,15 @@ public:
 		setFlag(BaseInstance::VersionBrokenFlag);
 	}
 	virtual ~NullInstance() {};
-	virtual bool setIntendedVersionId(QString) override
-	{
-		return false;
-	}
 	virtual void cleanupAfterRun() override
 	{
 	}
-	virtual QString currentVersionId() const
-	{
-		return "Null";
-	};
-	virtual QString intendedVersionId() const
-	{
-		return "Null";
-	};
 	virtual void init() override
 	{
 	};
 	virtual QString getStatusbarDescription() override
 	{
 		return tr("Unknown instance type");
-	};
-	virtual bool shouldUpdate() const override
-	{
-		return false;
 	};
 	virtual QSet< QString > traits()
 	{
@@ -51,11 +35,4 @@ public:
 	{
 		return nullptr;
 	}
-	virtual void setShouldUpdate(bool)
-	{
-	};
-	virtual std::shared_ptr< BaseVersionList > versionList() const
-	{
-		return nullptr;
-	};
 };

@@ -21,6 +21,8 @@
 #include <QDateTime>
 #include <QDebug>
 #include "Env.h"
+#include "Json.h"
+#include "FileSystem.h"
 
 CacheDownload::CacheDownload(QUrl url, MetaEntryPtr entry)
 	: NetAction(), md5sum(QCryptographicHash::Md5)
@@ -149,6 +151,22 @@ void CacheDownload::downloadFinished()
 			emit failed(m_index_within_job);
 			return;
 		}
+
+		if (m_validator)
+		{
+			try
+			{
+				m_validator->validate(FS::read(m_output_file->fileName()));
+			}
+			catch (Exception &e)
+			{
+				qCritical() << "Download failed because:" << e.cause();
+				m_reply.reset();
+				m_status = Job_Failed;
+				emit failed(m_index_within_job);
+				return;
+			}
+		}
 	}
 	else
 	{
@@ -187,4 +205,18 @@ void CacheDownload::downloadReadyRead()
 		emit failed(m_index_within_job);
 	}
 	wroteAnyData = true;
+}
+
+void JsonValidator::validate(const QByteArray &data)
+{
+	Json::ensureDocument(data);
+}
+void MD5HashValidator::validate(const QByteArray &data)
+{
+	QCryptographicHash hash(QCryptographicHash::Md5);
+	hash.addData(data);
+	if (hash.result() != m_expected)
+	{
+		throw Exception("Invalid MD5 hash: " + hash.result().toHex() + " (expected " + m_expected.toHex() + ")");
+	}
 }

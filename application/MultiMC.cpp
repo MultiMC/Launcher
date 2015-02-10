@@ -16,11 +16,8 @@
 #include "InstanceList.h"
 #include "auth/MojangAccountList.h"
 #include "icons/IconList.h"
-#include "minecraft/LwjglVersionList.h"
-#include "minecraft/MinecraftVersionList.h"
-#include "liteloader/LiteLoaderVersionList.h"
-
-#include "forge/ForgeVersionList.h"
+#include "minecraft/legacy/LwjglVersionList.h"
+#include "wonko/WonkoPackage.h"
 
 #include "net/HttpMetaCache.h"
 #include "net/URLConstants.h"
@@ -42,7 +39,7 @@
 
 #include "trans/TranslationDownloader.h"
 
-#include "ftb/FTBPlugin.h"
+#include "minecraft/ftb/FTBPlugin.h"
 
 using namespace Util::Commandline;
 
@@ -224,6 +221,9 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 	// init the http meta cache
 	ENV.initHttpMetaCache(rootPath, staticDataPath);
 
+	// and the common version lists...
+	initVersionLists();
+
 	// create the global network manager
 	ENV.m_qnam.reset(new QNetworkAccessManager(this));
 
@@ -310,6 +310,15 @@ void MultiMC::initTranslations()
 		m_mmc_translator.reset();
 	}
 }
+
+void MultiMC::initVersionLists()
+{
+	ENV.registerVersionList("net.minecraft", std::make_shared<WonkoPackage>(BuildConfig.WONKO_URL ,"net.minecraft"));
+	ENV.registerVersionList("org.lwjgl", std::make_shared<WonkoPackage>(BuildConfig.WONKO_URL ,"org.lwjgl"));
+	ENV.registerVersionList("net.minecraftforge", std::make_shared<WonkoPackage>(BuildConfig.WONKO_URL ,"net.minecraftforge"));
+	ENV.registerVersionList("com.mumfrey.liteloader", std::make_shared<WonkoPackage>(BuildConfig.WONKO_URL ,"com.mumfrey.liteloader"));
+}
+
 
 void MultiMC::initIcons()
 {
@@ -490,36 +499,6 @@ std::shared_ptr<LWJGLVersionList> MultiMC::lwjgllist()
 	return m_lwjgllist;
 }
 
-std::shared_ptr<ForgeVersionList> MultiMC::forgelist()
-{
-	if (!m_forgelist)
-	{
-		m_forgelist.reset(new ForgeVersionList());
-		ENV.registerVersionList("net.minecraftforge", m_forgelist);
-	}
-	return m_forgelist;
-}
-
-std::shared_ptr<LiteLoaderVersionList> MultiMC::liteloaderlist()
-{
-	if (!m_liteloaderlist)
-	{
-		m_liteloaderlist.reset(new LiteLoaderVersionList());
-		ENV.registerVersionList("com.mumfrey.liteloader", m_liteloaderlist);
-	}
-	return m_liteloaderlist;
-}
-
-std::shared_ptr<MinecraftVersionList> MultiMC::minecraftlist()
-{
-	if (!m_minecraftlist)
-	{
-		m_minecraftlist.reset(new MinecraftVersionList());
-		ENV.registerVersionList("net.minecraft", m_minecraftlist);
-	}
-	return m_minecraftlist;
-}
-
 std::shared_ptr<JavaVersionList> MultiMC::javalist()
 {
 	if (!m_javalist)
@@ -546,13 +525,13 @@ void MultiMC::installUpdates(const QString updateFilesDir, UpdateFlags flags)
 		m_updateOnExitPath.clear();
 	}
 	qDebug() << "Installing updates.";
-#ifdef WINDOWS
+#if defined(Q_OS_WIN32)
 	QString finishCmd = applicationFilePath();
 	QString updaterBinary = PathCombine(applicationDirPath(), "updater.exe");
-#elif LINUX
+#elif defined (Q_OS_LINUX)
 	QString finishCmd = PathCombine(root(), "MultiMC");
 	QString updaterBinary = PathCombine(applicationDirPath(), "updater");
-#elif OSX
+#elif defined (Q_OS_MAC)
 	QString finishCmd = applicationFilePath();
 	QString updaterBinary = PathCombine(applicationDirPath(), "updater");
 #else

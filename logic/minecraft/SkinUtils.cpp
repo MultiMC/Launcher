@@ -18,9 +18,6 @@
 #include "Env.h"
 
 #include <QFile>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
 
 namespace SkinUtils
 {

@@ -15,8 +15,6 @@ set(LIBUTIL_SOURCES
 	include/pathutils.h
 	src/pathutils.cpp
 
-	include/osutils.h
-
 	include/userutils.h
 	src/userutils.cpp
 

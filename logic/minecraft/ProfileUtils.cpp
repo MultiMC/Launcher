@@ -1,6 +1,7 @@
 #include "ProfileUtils.h"
 #include "minecraft/VersionFilterData.h"
-#include "MMCJson.h"
+#include "onesix/OneSixFormat.h"
+#include "Json.h"
 #include <QDebug>
 
 #include <QJsonDocument>
@@ -74,21 +75,21 @@ bool readOverrideOrders(QString path, PatchOrder &order)
 	// and then read it and process it if all above is true.
 	try
 	{
-		auto obj = MMCJson::ensureObject(doc);
+		auto obj = Json::ensureObject(doc);
 		// check order file version.
-		auto version = MMCJson::ensureInteger(obj.value("version"), "version");
+		auto version = Json::ensureInteger(obj.value("version"));
 		if (version != currentOrderFileVersion)
 		{
-			throw JSONValidationError(QObject::tr("Invalid order file version, expected %1")
+			throw Json::JsonException(QObject::tr("Invalid order file version, expected %1")
 										  .arg(currentOrderFileVersion));
 		}
-		auto orderArray = MMCJson::ensureArray(obj.value("order"));
+		auto orderArray = Json::ensureArray(obj.value("order"));
 		for(auto item: orderArray)
 		{
-			order.append(MMCJson::ensureString(item));
+			order.append(Json::ensureString(item));
 		}
 	}
-	catch (JSONValidationError &err)
+	catch (Json::JsonException &err)
 	{
 		qCritical() << "Couldn't parse" << orderFile.fileName() << ": bad file format";
 		qWarning() << "Ignoring overriden order";
@@ -98,60 +99,47 @@ bool readOverrideOrders(QString path, PatchOrder &order)
 	return true;
 }
 
-VersionFilePtr parseJsonFile(const QFileInfo &fileInfo, const bool requireOrder)
+PackagePtr parseJsonFile(const QFileInfo &fileInfo, const bool requireOrder)
 {
 	QFile file(fileInfo.absoluteFilePath());
 	if (!file.open(QFile::ReadOnly))
 	{
-		throw JSONValidationError(QObject::tr("Unable to open the version file %1: %2.")
+		throw Json::JsonException(QObject::tr("Unable to open the version file %1: %2.")
 									  .arg(fileInfo.fileName(), file.errorString()));
 	}
 	QJsonParseError error;
 	QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &error);
 	if (error.error != QJsonParseError::NoError)
 	{
-		throw JSONValidationError(
+		throw Json::JsonException(
 			QObject::tr("Unable to process the version file %1: %2 at %3.")
 				.arg(fileInfo.fileName(), error.errorString())
 				.arg(error.offset));
 	}
-	return VersionFile::fromJson(doc, file.fileName(), requireOrder);
+	return OneSixFormat::fromJson(doc, file.fileName(), requireOrder);
 }
 
-VersionFilePtr parseBinaryJsonFile(const QFileInfo &fileInfo)
+void removeLwjglFromPatch(Minecraft::Patch &resources)
 {
-	QFile file(fileInfo.absoluteFilePath());
-	if (!file.open(QFile::ReadOnly))
+	const auto lwjglWhitelist =
+		QSet<QString>{"net.java.jinput:jinput",	 "net.java.jinput:jinput-platform",
+					  "net.java.jutils:jutils",	 "org.lwjgl.lwjgl:lwjgl",
+					  "org.lwjgl.lwjgl:lwjgl_util", "org.lwjgl.lwjgl:lwjgl-platform"};
+	auto filter = [&lwjglWhitelist](QList<LibraryPtr>& libs)
 	{
-		throw JSONValidationError(QObject::tr("Unable to open the version file %1: %2.")
-									  .arg(fileInfo.fileName(), file.errorString()));
-	}
-	QJsonDocument doc = QJsonDocument::fromBinaryData(file.readAll());
-	file.close();
-	if (doc.isNull())
-	{
-		file.remove();
-		throw JSONValidationError(
-			QObject::tr("Unable to process the version file %1.").arg(fileInfo.fileName()));
-	}
-	return VersionFile::fromJson(doc, file.fileName(), false);
-}
-
-void removeLwjglFromPatch(VersionFilePtr patch)
-{
-	auto filter = [](QList<RawLibraryPtr>& libs)
-	{
-		QList<RawLibraryPtr> filteredLibs;
+		QList<LibraryPtr> filteredLibs;
 		for (auto lib : libs)
 		{
-			if (!g_VersionFilterData.lwjglWhitelist.contains(lib->artifactPrefix()))
+			if (!lwjglWhitelist.contains(lib->name().artifactPrefix()))
 			{
 				filteredLibs.append(lib);
 			}
 		}
 		libs = filteredLibs;
 	};
-	filter(patch->addLibs);
-	filter(patch->overwriteLibs);
+	filter(resources.libraries->addLibs);
+	filter(resources.libraries->overwriteLibs);
+	filter(resources.natives->addLibs);
+	filter(resources.natives->overwriteLibs);
 }
 }

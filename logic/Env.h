@@ -4,6 +4,7 @@
 #include <QString>
 #include <QMap>
 
+class FileStore;
 class IconList;
 class QNetworkAccessManager;
 class HttpMetaCache;
@@ -30,6 +31,8 @@ public:
 
 	std::shared_ptr<HttpMetaCache> metacache();
 
+	std::shared_ptr<FileStore> filestore();
+
 	std::shared_ptr<IconList> icons();
 
 	/// init the cache. FIXME: possible future hook point
@@ -48,6 +51,7 @@ public:
 protected:
 	std::shared_ptr<QNetworkAccessManager> m_qnam;
 	std::shared_ptr<HttpMetaCache> m_metacache;
+	std::shared_ptr<FileStore> m_filestore;
 	std::shared_ptr<IconList> m_icons;
 	QMap<QString, std::shared_ptr<BaseVersionList>> m_versionLists;
 };

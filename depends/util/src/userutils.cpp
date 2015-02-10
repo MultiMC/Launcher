@@ -4,12 +4,9 @@
 #include <QFile>
 #include <QTextStream>
 
-#include "include/osutils.h"
 #include "include/pathutils.h"
-
 // Win32 crap
-#if WINDOWS
-
+#if defined(Q_OS_WIN32)
 #include <windows.h>
 #include <winnls.h>
 #include <shobjidl.h>
@@ -73,7 +70,7 @@ QString Util::getDesktopDir()
 bool Util::createShortCut(QString location, QString dest, QStringList args, QString name,
 						  QString icon)
 {
-#if LINUX
+#if defined (Q_OS_LINUX)
 	location = PathCombine(location, name + ".desktop");
 
 	QFile f(location);
@@ -100,7 +97,8 @@ bool Util::createShortCut(QString location, QString dest, QStringList args, QStr
 					 QFileDevice::ExeOther);
 
 	return true;
-#elif WINDOWS
+#elif defined(Q_OS_WIN32)
+
 	// TODO: Fix
 	//	QFile file(PathCombine(location, name + ".lnk"));
 	//	WCHAR *file_w;

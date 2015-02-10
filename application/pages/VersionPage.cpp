@@ -37,11 +37,9 @@
 #include <QString>
 #include <QUrl>
 
+#include "tasks/Task.h"
+
 #include "minecraft/MinecraftProfile.h"
-#include "forge/ForgeVersionList.h"
-#include "forge/ForgeInstaller.h"
-#include "liteloader/LiteLoaderVersionList.h"
-#include "liteloader/LiteLoaderInstaller.h"
 #include "auth/MojangAccountList.h"
 #include "minecraft/Mod.h"
 #include "icons/IconList.h"
@@ -112,7 +110,7 @@ bool VersionPage::reloadMinecraftProfile()
 		m_inst->reloadProfile();
 		return true;
 	}
-	catch (MMCError &e)
+	catch (Exception &e)
 	{
 		QMessageBox::critical(this, tr("Error"), e.cause());
 		return false;
@@ -177,18 +175,6 @@ void VersionPage::on_jarmodBtn_clicked()
 		m_version->installJarMods(w.selectedFiles());
 }
 
-void VersionPage::on_resetLibraryOrderBtn_clicked()
-{
-	try
-	{
-		m_version->resetOrder();
-	}
-	catch (MMCError &e)
-	{
-		QMessageBox::critical(this, tr("Error"), e.cause());
-	}
-}
-
 void VersionPage::on_moveLibraryUpBtn_clicked()
 {
 	if (ui->libraryTreeView->selectionModel()->selectedRows().isEmpty())
@@ -200,7 +186,7 @@ void VersionPage::on_moveLibraryUpBtn_clicked()
 		const int row = ui->libraryTreeView->selectionModel()->selectedRows().first().row();
 		m_version->move(row, MinecraftProfile::MoveUp);
 	}
-	catch (MMCError &e)
+	catch (Exception &e)
 	{
 		QMessageBox::critical(this, tr("Error"), e.cause());
 	}
@@ -217,45 +203,52 @@ void VersionPage::on_moveLibraryDownBtn_clicked()
 		const int row = ui->libraryTreeView->selectionModel()->selectedRows().first().row();
 		m_version->move(row, MinecraftProfile::MoveDown);
 	}
-	catch (MMCError &e)
+	catch (Exception &e)
 	{
 		QMessageBox::critical(this, tr("Error"), e.cause());
 	}
 }
 
-void VersionPage::on_changeMCVersionBtn_clicked()
+void VersionPage::on_changeVersionBtn_clicked()
 {
-	VersionSelectDialog vselect(m_inst->versionList().get(), tr("Change Minecraft version"),
+	if(!ui->libraryTreeView->currentIndex().isValid())
+		return;
+
+	auto patch = m_version->versionPatch(ui->libraryTreeView->currentIndex().row());
+	auto uid = patch->getPatchID();
+	auto vlist = ENV.getVersionList(uid);
+	if(!vlist)
+		return;
+
+	VersionSelectDialog vselect(vlist.get(), tr("Change %1 version").arg(patch->getPatchName()),
 								this);
 	if (!vselect.exec() || !vselect.selectedVersion())
 		return;
 
-	if (!MMC->accounts()->anyAccountIsValid())
+	QString version = vselect.selectedVersion()->descriptor();
+	qDebug() << "Version" << vselect.selectedVersion()->descriptor() << "selected for" << uid;
+
+	if(uid == "net.minecraft")
 	{
-		CustomMessageBox::selectable(
-			this, tr("Error"),
-			tr("MultiMC cannot download Minecraft or update instances unless you have at least "
-			   "one account added.\nPlease add your Mojang or Minecraft account."),
-			QMessageBox::Warning)->show();
+		m_inst->setMinecraftVersion(version);
+	}
+	else if(uid == "org.lwjgl")
+	{
+		m_inst->setLwjglVersion(version);
+	}
+	else if(uid == "net.minecraftforge")
+	{
+		m_inst->setForgeVersion(version);
+	}
+	else if(uid == "com.mumfrey.liteloader")
+	{
+		m_inst->setLiteloaderVersion(version);
+	}
+	else
+	{
+		qDebug() << "UID" << uid << "not allowed for OneSix";
 		return;
 	}
-
-	if (!m_version->isVanilla())
-	{
-		auto result = CustomMessageBox::selectable(
-			this, tr("Are you sure?"),
-			tr("This will remove any library/version customization you did previously. "
-			   "This includes things like Forge install and similar."),
-			QMessageBox::Warning, QMessageBox::Ok | QMessageBox::Abort,
-			QMessageBox::Abort)->exec();
-
-		if (result != QMessageBox::Ok)
-			return;
-		m_version->revertToVanilla();
-		reloadMinecraftProfile();
-	}
-	m_inst->setIntendedVersionId(vselect.selectedVersion()->descriptor());
-
 	auto updateTask = m_inst->doUpdate();
 	if (!updateTask)
 	{
@@ -268,31 +261,50 @@ void VersionPage::on_changeMCVersionBtn_clicked()
 
 void VersionPage::on_forgeBtn_clicked()
 {
-	VersionSelectDialog vselect(MMC->forgelist().get(), tr("Select Forge version"), this);
-	vselect.setExactFilter(BaseVersionList::ParentGameVersionRole, m_inst->currentVersionId());
-	vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft ") +
-						   m_inst->currentVersionId());
+	auto vlist = ENV.getVersionList("net.minecraftforge");
+	if(!vlist)
+		return;
+	VersionSelectDialog vselect(vlist.get(), tr("Select Forge version"), this);
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(
-			ForgeInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		m_inst->setForgeVersion(vselect.selectedVersion()->descriptor());
+		auto updateTask = m_inst->doUpdate();
+		if (!updateTask)
+		{
+			return;
+		}
+		ProgressDialog tDialog(this);
+		connect(updateTask.get(), SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
+		tDialog.exec(updateTask.get());
 	}
 }
 
 void VersionPage::on_liteloaderBtn_clicked()
 {
-	VersionSelectDialog vselect(MMC->liteloaderlist().get(), tr("Select LiteLoader version"),
-								this);
-	vselect.setExactFilter(BaseVersionList::ParentGameVersionRole, m_inst->currentVersionId());
-	vselect.setEmptyString(tr("No LiteLoader versions are currently available for Minecraft ") +
-						   m_inst->currentVersionId());
+	auto vlist = ENV.getVersionList("com.mumfrey.liteloader");
+	if(!vlist)
+		return;
+	VersionSelectDialog vselect(vlist.get(), tr("Select LiteLoader version"), this);
 	if (vselect.exec() && vselect.selectedVersion())
 	{
 		ProgressDialog dialog(this);
-		dialog.exec(
-			LiteLoaderInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
+		m_inst->setLiteloaderVersion(vselect.selectedVersion()->descriptor());
+		auto updateTask = m_inst->doUpdate();
+		if (!updateTask)
+		{
+			return;
+		}
+		ProgressDialog tDialog(this);
+		connect(updateTask.get(), SIGNAL(failed(QString)), SLOT(onGameUpdateError(QString)));
+		tDialog.exec(updateTask.get());
 	}
+	// FIXME: add back filtering by mc version and the 'nice' message
+	/*
+	vselect.setExactFilter(BaseVersionList::ParentGameVersionRole, m_inst->currentVersionId());
+	vselect.setEmptyString(tr("No LiteLoader versions are currently available for Minecraft ") +
+						   m_inst->currentVersionId());
+	*/
 }
 
 void VersionPage::versionCurrent(const QModelIndex &current, const QModelIndex &previous)
@@ -311,13 +323,13 @@ void VersionPage::versionCurrent(const QModelIndex &current, const QModelIndex &
 		ui->moveLibraryUpBtn->setEnabled(enabled);
 	}
 	QString selectedId = m_version->versionFileId(current.row());
-	if (selectedId == "net.minecraft")
+	if(ENV.getVersionList(selectedId))
 	{
-		ui->changeMCVersionBtn->setEnabled(true);
+		ui->changeVersionBtn->setEnabled(true);
 	}
 	else
 	{
-		ui->changeMCVersionBtn->setEnabled(false);
+		ui->changeVersionBtn->setEnabled(false);
 	}
 }
 

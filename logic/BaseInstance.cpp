@@ -24,7 +24,6 @@
 
 #include "pathutils.h"
 #include <cmdutils.h>
-#include "minecraft/MinecraftVersionList.h"
 #include "icons/IconList.h"
 
 BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString &rootDir)

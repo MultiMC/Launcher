@@ -65,7 +65,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="changeMCVersionBtn">
+          <widget class="QPushButton" name="changeVersionBtn">
            <property name="text">
             <string>Change version</string>
            </property>
@@ -145,16 +145,6 @@
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="resetLibraryOrderBtn">
-           <property name="toolTip">
-            <string>This isn't implemented yet.</string>
-           </property>
-           <property name="text">
-            <string>Reset order</string>
            </property>
           </widget>
          </item>

@@ -22,12 +22,6 @@ public:
 	{
 		return nullptr;
 	}
-	/// get all jar mods applicable to this instance's jar
-	virtual QList<Mod> getJarMods() const
-	{
-		return QList<Mod>();
-	}
-	virtual std::shared_ptr< BaseVersionList > versionList() const;
 };
 
 typedef std::shared_ptr<MinecraftInstance> MinecraftInstancePtr;

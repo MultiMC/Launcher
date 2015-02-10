@@ -17,10 +17,9 @@
 #include "NewInstanceDialog.h"
 #include "ui_NewInstanceDialog.h"
 
-#include <BaseVersion.h>
-#include <icons/IconList.h>
-#include <minecraft/MinecraftVersionList.h>
-#include <tasks/Task.h>
+#include "BaseVersion.h"
+#include "icons/IconList.h"
+#include "tasks/Task.h"
 #include <InstanceList.h>
 
 #include "Platform.h"
@@ -64,7 +63,7 @@ NewInstanceDialog::NewInstanceDialog(QWidget *parent)
 	resize(minimumSizeHint());
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 
-	setSelectedVersion(MMC->minecraftlist()->getLatestStable(), true);
+	setSelectedVersion(ENV.getVersionList("net.minecraft")->getLatestStable(), true);
 	InstIconKey = "infinity";
 	ui->iconButton->setIcon(ENV.icons()->getIcon(InstIconKey));
 
@@ -162,7 +161,7 @@ BaseVersionPtr NewInstanceDialog::selectedVersion() const
 
 void NewInstanceDialog::on_btnChangeVersion_clicked()
 {
-	VersionSelectDialog vselect(MMC->minecraftlist().get(), tr("Change Minecraft version"),
+	VersionSelectDialog vselect(ENV.getVersionList("net.minecraft").get(), tr("Change Minecraft version"),
 								this);
 	vselect.exec();
 	if (vselect.result() == QDialog::Accepted)

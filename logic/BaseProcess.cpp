@@ -20,6 +20,8 @@
 #include <QDir>
 #include <QEventLoop>
 
+#define IBUS "@im=ibus"
+
 MessageLevel::Enum MessageLevel::getLevel(const QString& levelName)
 {
 	if (levelName == "MultiMC")
@@ -72,20 +74,20 @@ void BaseProcess::init()
 		// filter out dangerous java crap
 		if(ignored.contains(key))
 		{
-			qDebug() << "Env: ignoring" << key << value;
+			qDebug() << "Env: ignoring" << key;
 			continue;
 		}
 		// filter MultiMC-related things
 		if(key.startsWith("QT_"))
 		{
-			qDebug() << "Env: ignoring" << key << value;
+			qDebug() << "Env: ignoring" << key;
 			continue;
 		}
-#ifdef LINUX
+#ifdef Q_OS_LINUX
 		// Do not pass LD_* variables to java. They were intended for MultiMC
 		if(key.startsWith("LD_"))
 		{
-			qDebug() << "Env: ignoring" << key << value;
+			qDebug() << "Env: ignoring" << key;
 			continue;
 		}
 		// Strip IBus
@@ -97,10 +99,9 @@ void BaseProcess::init()
 			qDebug() << "Env: stripped" << IBUS << "from" << save << ":" << value;
 		}
 #endif
-		qDebug() << "Env: " << key << value;
 		env.insert(key, value);
 	}
-#ifdef LINUX
+#ifdef Q_OS_LINUX
 	// HACK: Workaround for QTBUG-42500
 	env.insert("LD_LIBRARY_PATH", "");
 #endif

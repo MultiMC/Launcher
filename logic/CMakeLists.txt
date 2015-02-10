@@ -2,8 +2,6 @@ project(MultiMC-Logic)
 
 SET(LOGIC_SOURCES
 	# LOGIC - Base classes and infrastructure
-	BaseInstaller.h
-	BaseInstaller.cpp
 	BaseVersionList.h
 	BaseVersionList.cpp
 	InstanceList.h
@@ -13,10 +11,19 @@ SET(LOGIC_SOURCES
 	BaseProcess.cpp
 	BaseInstance.h
 	BaseInstance.cpp
+	FileStore.h
+	FileStore.cpp
 	NullInstance.h
-	MMCError.h
 	MMCZip.h
 	MMCZip.cpp
+
+	# Various utility classes
+	Json.h
+	Json.cpp
+	Exception.h
+	FileSystem.h
+	FileSystem.cpp
+	Functional.h
 	MMCStrings.h
 	MMCStrings.cpp
 
@@ -27,10 +34,6 @@ SET(LOGIC_SOURCES
 	Env.h
 	Env.cpp
 
-	# JSON parsing helpers
-	MMCJson.h
-	MMCJson.cpp
-
 	# RW lock protected map
 	RWStorage.h
 
@@ -39,6 +42,20 @@ SET(LOGIC_SOURCES
 
 	# a smart pointer wrapper intended for safer use with Qt signal/slot mechanisms
 	QObjectPtr.h
+
+	# Wonko stuff
+	wonko/BaseResource.h
+	wonko/BaseResource.cpp
+	wonko/DownloadableResource.cpp
+	wonko/DownloadableResource.h
+	wonko/WonkoPackage.h
+	wonko/WonkoPackage.cpp
+	wonko/WonkoPackageVersion.h
+	wonko/WonkoPackageVersion.cpp
+	wonko/Rules.h
+	wonko/Rules.cpp
+	wonko/OpSys.h
+	wonko/OpSys.cpp
 
 	# network stuffs
 	net/NetAction.h
@@ -95,69 +112,71 @@ SET(LOGIC_SOURCES
 	status/StatusChecker.h
 	status/StatusChecker.cpp
 
-	# Minecraft support
-	minecraft/OneSixUpdate.h
-	minecraft/OneSixUpdate.cpp
-	minecraft/OneSixInstance.h
-	minecraft/OneSixInstance.cpp
-	minecraft/LegacyUpdate.h
-	minecraft/LegacyUpdate.cpp
-	minecraft/LegacyInstance.h
-	minecraft/LegacyInstance.cpp
-	minecraft/LwjglVersionList.h
-	minecraft/LwjglVersionList.cpp
+	# Minecraft - OneSix support
+	minecraft/onesix/OneSixFormat.h
+	minecraft/onesix/OneSixRead.cpp
+	minecraft/onesix/OneSixWrite.cpp
+	minecraft/onesix/OneSixUtils.cpp
+	minecraft/onesix/OneSixProfileStrategy.cpp
+	minecraft/onesix/OneSixProfileStrategy.h
+	minecraft/onesix/OneSixUpdate.h
+	minecraft/onesix/OneSixUpdate.cpp
+	minecraft/onesix/OneSixInstance.h
+	minecraft/onesix/OneSixInstance.cpp
+
+	# Minecraft - Legacy support
+	minecraft/legacy/LegacyInstance.cpp
+	minecraft/legacy/LegacyInstance.h
+	minecraft/legacy/LegacyUpdate.cpp
+	minecraft/legacy/LegacyUpdate.h
+	minecraft/legacy/LwjglVersionList.h
+	minecraft/legacy/LwjglVersionList.cpp
+
+	# FTB
+	minecraft/ftb/FTBInstance.h
+	minecraft/ftb/FTBInstance.cpp
+	minecraft/ftb/FTBProfileStrategy.h
+	minecraft/ftb/FTBProfileStrategy.cpp
+	minecraft/ftb/FTBPlugin.h
+	minecraft/ftb/FTBPlugin.cpp
+
+	# Minecraft - Wonko
+	minecraft/wonko/WonkoFormat.h
+	minecraft/wonko/WonkoRead.cpp
+
+	# Minecrafr resource types
+	minecraft/Assets.h
+	minecraft/Assets.cpp
+	minecraft/Libraries.h
+	minecraft/Libraries.cpp
+
 	minecraft/SkinUtils.h
 	minecraft/SkinUtils.cpp
 	minecraft/GradleSpecifier.h
-	minecraft/MinecraftProfile.cpp
-	minecraft/MinecraftProfile.h
-	minecraft/JarMod.cpp
 	minecraft/JarMod.h
 	minecraft/MinecraftInstance.cpp
 	minecraft/MinecraftInstance.h
-	minecraft/MinecraftProcess.cpp
-	minecraft/MinecraftProcess.h
-	minecraft/MinecraftVersion.cpp
-	minecraft/MinecraftVersion.h
-	minecraft/MinecraftVersionList.cpp
-	minecraft/MinecraftVersionList.h
+	minecraft/Process.cpp
+	minecraft/Process.h
+	minecraft/MinecraftProfile.cpp
+	minecraft/MinecraftProfile.h
+	minecraft/Patch.cpp
+	minecraft/Patch.h
+	minecraft/Resources.h
 	minecraft/NullProfileStrategy.h
-	minecraft/OneSixLibrary.cpp
-	minecraft/OneSixLibrary.h
-	minecraft/OneSixProfileStrategy.cpp
-	minecraft/OneSixProfileStrategy.h
-	minecraft/OneSixRule.cpp
-	minecraft/OneSixRule.h
-	minecraft/OpSys.cpp
-	minecraft/OpSys.h
-	minecraft/ParseUtils.cpp
-	minecraft/ParseUtils.h
 	minecraft/ProfileUtils.cpp
 	minecraft/ProfileUtils.h
 	minecraft/ProfileStrategy.h
-	minecraft/RawLibrary.cpp
-	minecraft/RawLibrary.h
+	minecraft/Library.cpp
+	minecraft/Library.h
 	minecraft/VersionBuildError.h
-	minecraft/VersionFile.cpp
-	minecraft/VersionFile.h
-	minecraft/ProfilePatch.h
-	minecraft/VersionSource.h
+	minecraft/Package.h
 	minecraft/VersionFilterData.h
 	minecraft/VersionFilterData.cpp
 	minecraft/Mod.h
 	minecraft/Mod.cpp
 	minecraft/ModList.h
 	minecraft/ModList.cpp
-
-	# FTB
-	ftb/OneSixFTBInstance.h
-	ftb/OneSixFTBInstance.cpp
-	ftb/LegacyFTBInstance.h
-	ftb/LegacyFTBInstance.cpp
-	ftb/FTBProfileStrategy.h
-	ftb/FTBProfileStrategy.cpp
-	ftb/FTBPlugin.h
-	ftb/FTBPlugin.cpp
 
 	# A Recursive file system watcher
 	RecursiveFileSystemWatcher.h
@@ -206,31 +225,6 @@ SET(LOGIC_SOURCES
 	java/JavaCheckerJob.h
 	java/JavaCheckerJob.cpp
 
-	# Assets
-	minecraft/AssetsUtils.h
-	minecraft/AssetsUtils.cpp
-
-	# Forge and all things forge related
-	forge/ForgeVersion.h
-	forge/ForgeVersion.cpp
-	forge/ForgeVersionList.h
-	forge/ForgeVersionList.cpp
-	forge/ForgeMirror.h
-	forge/ForgeMirrors.h
-	forge/ForgeMirrors.cpp
-	forge/ForgeXzDownload.h
-	forge/ForgeXzDownload.cpp
-	forge/LegacyForge.h
-	forge/LegacyForge.cpp
-	forge/ForgeInstaller.h
-	forge/ForgeInstaller.cpp
-
-	# Liteloader and related things
-	liteloader/LiteLoaderInstaller.h
-	liteloader/LiteLoaderInstaller.cpp
-	liteloader/LiteLoaderVersionList.h
-	liteloader/LiteLoaderVersionList.cpp
-
 	# Translations
 	trans/TranslationDownloader.h
 	trans/TranslationDownloader.cpp
@@ -254,7 +248,7 @@ SET(LOGIC_SOURCES
 add_library(MultiMC_logic STATIC ${LOGIC_SOURCES})
 
 # Link
-target_link_libraries(MultiMC_logic xz-embedded unpack200 iconfix libUtil LogicalGui ${QUAZIP_LIBRARIES}
+target_link_libraries(MultiMC_logic iconfix libUtil LogicalGui ${QUAZIP_LIBRARIES}
 	Qt5::Core Qt5::Xml Qt5::Widgets Qt5::Network Qt5::Concurrent
 		${MultiMC_LINK_ADDITIONAL_LIBS})
 

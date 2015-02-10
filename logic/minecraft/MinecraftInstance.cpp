@@ -2,7 +2,6 @@
 #include "settings/SettingsObject.h"
 #include <pathutils.h>
 #include "Env.h"
-#include "minecraft/MinecraftVersionList.h"
 
 MinecraftInstance::MinecraftInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString &rootDir)
 	: BaseInstance(globalSettings, settings, rootDir)
@@ -38,7 +37,3 @@ QString MinecraftInstance::minecraftRoot() const
 		return mcDir.filePath();
 }
 
-std::shared_ptr< BaseVersionList > MinecraftInstance::versionList() const
-{
-	return ENV.getVersionList("net.minecraft");
-}

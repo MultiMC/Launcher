@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
 	Q_INIT_RESOURCE(instances);
 	Q_INIT_RESOURCE(multimc);
 	Q_INIT_RESOURCE(backgrounds);
-	Q_INIT_RESOURCE(versions);
 
 	Q_INIT_RESOURCE(pe_dark);
 	Q_INIT_RESOURCE(pe_light);

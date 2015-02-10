@@ -32,11 +32,10 @@
 #include "BaseInstance.h"
 
 //FIXME: this really doesn't belong *here*
-#include "minecraft/OneSixInstance.h"
-#include "minecraft/LegacyInstance.h"
-#include "minecraft/MinecraftVersion.h"
+#include "minecraft/legacy/LegacyInstance.h"
+#include "minecraft/onesix/OneSixInstance.h"
 #include "settings/INISettingsObject.h"
-#include "ftb/FTBPlugin.h"
+#include "minecraft/ftb/FTBPlugin.h"
 #include "NullInstance.h"
 
 const static int GROUP_FILE_FORMAT_VERSION = 1;
@@ -479,20 +478,17 @@ InstanceList::createInstance(InstancePtr &inst, BaseVersionPtr version, const QS
 		return InstanceList::NoSuchVersion;
 	}
 
-	auto instanceSettings = std::make_shared<INISettingsObject>(PathCombine(instDir, "instance.cfg"));
-	instanceSettings->registerSetting("InstanceType", "Legacy");
-
-	auto minecraftVersion = std::dynamic_pointer_cast<MinecraftVersion>(version);
-	if(minecraftVersion)
+	// ugly old format instances
 	{
-		auto mcVer = std::dynamic_pointer_cast<MinecraftVersion>(version);
+		auto instanceSettings = std::make_shared<INISettingsObject>(PathCombine(instDir, "instance.cfg"));
+		instanceSettings->registerSetting("InstanceType", "Legacy");
 		instanceSettings->set("InstanceType", "OneSix");
-		inst.reset(new OneSixInstance(m_globalSettings, instanceSettings, instDir));
-		inst->setIntendedVersionId(version->descriptor());
-		inst->init();
-		return InstanceList::NoCreateError;
+		auto minecraftInst = new OneSixInstance(m_globalSettings, instanceSettings, instDir);
+		minecraftInst->setMinecraftVersion(version->descriptor());
+		inst.reset(minecraftInst);
 	}
-	return InstanceList::NoSuchVersion;
+	inst->init();
+	return InstanceList::NoCreateError;
 }
 
 InstanceList::InstCreateError

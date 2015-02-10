@@ -156,8 +156,7 @@ void JavaListLoadTask::executeTask()
 {
 	setStatus(tr("Detecting Java installations..."));
 
-	JavaUtils ju;
-	QList<QString> candidate_paths = ju.FindJavaPaths();
+	QList<QString> candidate_paths = JavaUtils::FindJavaPaths();
 
 	m_job = std::shared_ptr<JavaCheckerJob>(new JavaCheckerJob("Java detection"));
 	connect(m_job.get(), SIGNAL(finished(QList<JavaCheckResult>)), this, SLOT(javaCheckerFinished(QList<JavaCheckResult>)));

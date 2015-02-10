@@ -17,7 +17,7 @@
 
 #include <QWidget>
 
-#include "minecraft/OneSixInstance.h"
+#include "minecraft/onesix/OneSixInstance.h"
 #include "BasePage.h"
 
 namespace Ui
@@ -54,14 +54,13 @@ slots:
 	void on_liteloaderBtn_clicked();
 	void on_reloadLibrariesBtn_clicked();
 	void on_removeLibraryBtn_clicked();
-	void on_resetLibraryOrderBtn_clicked();
 	void on_moveLibraryUpBtn_clicked();
 	void on_moveLibraryDownBtn_clicked();
 	void on_jarmodBtn_clicked();
 
 	void updateVersionControls();
 	void disableVersionControls();
-	void on_changeMCVersionBtn_clicked();
+	void on_changeVersionBtn_clicked();
 
 protected:
 	/// FIXME: this shouldn't be necessary!
