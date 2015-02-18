@@ -25,8 +25,9 @@
 #include "logic/net/NetJob.h"
 
 class QToolButton;
-class LabeledToolButton;
 class QLabel;
+class QAbstractItemView;
+class LabeledToolButton;
 class MinecraftProcess;
 class ConsoleWindow;
 class BaseProfilerFactory;
@@ -182,7 +183,7 @@ protected:
 
 private:
 	Ui::MainWindow *ui;
-	class GroupView *view;
+	QAbstractItemView *view;
 	InstanceProxyModel *proxymodel;
     NetJobPtr skin_download_job;
 	MinecraftProcess *proc;

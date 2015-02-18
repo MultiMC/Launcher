@@ -324,6 +324,15 @@ void MultiMCPage::applySettings()
 	s->set("LWJGLDir", ui->lwjglDirTextBox->text());
 	s->set("IconsDir", ui->iconsDirTextBox->text());
 
+	if (ui->iconViewBtn->isChecked())
+	{
+		s->set("View", "icon");
+	}
+	else if (ui->listViewBtn->isChecked())
+	{
+		s->set("View", "list");
+	}
+
 	auto sortMode = (InstSortMode)ui->sortingModeGroup->checkedId();
 	switch (sortMode)
 	{
@@ -412,8 +421,16 @@ void MultiMCPage::loadSettings()
 	ui->lwjglDirTextBox->setText(s->get("LWJGLDir").toString());
 	ui->iconsDirTextBox->setText(s->get("IconsDir").toString());
 
-	QString sortMode = s->get("InstSortMode").toString();
+	if (s->get("View").toString() == "icon")
+	{
+		ui->iconViewBtn->setChecked(true);
+	}
+	else if (s->get("View").toString() == "list")
+	{
+		ui->listViewBtn->setChecked(true);
+	}
 
+	QString sortMode = s->get("InstSortMode").toString();
 	if (sortMode == "LastLaunch")
 	{
 		ui->sortLastLaunchedBtn->setChecked(true);

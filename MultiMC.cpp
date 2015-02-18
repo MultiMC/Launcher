@@ -526,6 +526,7 @@ void MultiMC::initGlobalSettings(bool test_mode)
 	// The cat
 	m_settings->registerSetting("TheCat", false);
 
+	m_settings->registerSetting("View", "icon");
 	m_settings->registerSetting("InstSortMode", "Name");
 	m_settings->registerSetting("SelectedInstance", QString());
 

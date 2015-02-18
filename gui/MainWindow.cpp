@@ -36,6 +36,7 @@
 #include <QWidgetAction>
 #include <QProgressDialog>
 #include <QShortcut>
+#include <QTreeView>
 
 #include "osutils.h"
 #include "userutils.h"
@@ -43,6 +44,7 @@
 
 #include "gui/groupview/GroupView.h"
 #include "gui/groupview/InstanceDelegate.h"
+#include "logic/InstanceTreeProxyModel.h"
 
 #include "gui/Platform.h"
 
@@ -161,37 +163,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	// Create the instance list widget
 	{
-		view = new GroupView(ui->centralWidget);
+		proxymodel = new InstanceProxyModel(this);
+		proxymodel->setSourceModel(MMC->instances().get());
+		proxymodel->sort(0);
+
+		if (MMC->settings()->get("View").toString() == "icon")
+		{
+			view = new GroupView(ui->centralWidget);
+			view->setItemDelegate(new ListViewDelegate());
+			view->setModel(proxymodel);
+		}
+		else
+		{
+			auto treeView = new QTreeView(ui->centralWidget);
+			view = treeView;
+			treeView->setHeaderHidden(true);
+			auto treeProxy = new InstanceTreeProxyModel(view);
+			treeProxy->setSourceModel(proxymodel);
+			view->setModel(treeProxy);
+			treeView->expandAll();
+		}
 
 		view->setSelectionMode(QAbstractItemView::SingleSelection);
-		// view->setCategoryDrawer(drawer);
-		// view->setCollapsibleBlocks(true);
-		// view->setViewMode(QListView::IconMode);
-		// view->setFlow(QListView::LeftToRight);
-		// view->setWordWrap(true);
-		// view->setMouseTracking(true);
-		// view->viewport()->setAttribute(Qt::WA_Hover);
-		auto delegate = new ListViewDelegate();
-		view->setItemDelegate(delegate);
-		// view->setSpacing(10);
-		// view->setUniformItemWidths(true);
+		view->setFrameShape(QFrame::NoFrame);
+		view->installEventFilter(this);
 
 		// do not show ugly blue border on the mac
 		view->setAttribute(Qt::WA_MacShowFocusRect, false);
-
-		view->installEventFilter(this);
-
-		proxymodel = new InstanceProxyModel(this);
-		//		proxymodel->setSortRole(KCategorizedSortFilterProxyModel::CategorySortRole);
-		// proxymodel->setFilterRole(KCategorizedSortFilterProxyModel::CategorySortRole);
-		// proxymodel->setDynamicSortFilter ( true );
-
-		// FIXME: instList should be global-ish, or at least not tied to the main window...
-		// maybe the application itself?
-		proxymodel->setSourceModel(MMC->instances().get());
-		proxymodel->sort(0);
-		view->setFrameShape(QFrame::NoFrame);
-		view->setModel(proxymodel);
 
 		view->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(view, SIGNAL(customContextMenuRequested(const QPoint &)), this,
