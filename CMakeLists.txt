@@ -79,6 +79,7 @@ endif(${BIGENDIAN})
 
 ######## Set URLs ########
 set(MultiMC_NEWS_RSS_URL "http://multimc.org/rss.xml" CACHE STRING "URL to fetch MultiMC's news RSS feed from.")
+set(MultiMC_MODMYMC_URL "http://files.multimc.org/modmymc.json" CACHE STRING "URL to fetch ModMyMC news from.")
 
 ######## Set version numbers ########
 set(MultiMC_VERSION_MAJOR	 0)
@@ -620,6 +621,10 @@ SET(MULTIMC_SOURCES
 	# Translations
 	logic/trans/TranslationDownloader.h
 	logic/trans/TranslationDownloader.cpp
+
+	# ModMyMC stuff
+	logic/modmymc/ModMyMCModel.h
+	logic/modmymc/ModMyMCModel.cpp
 )
 
 

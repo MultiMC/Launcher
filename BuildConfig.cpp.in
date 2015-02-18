@@ -31,6 +31,7 @@ Config::Config()
 	GIT_COMMIT = "@MultiMC_GIT_COMMIT@";
 	VERSION_STR = "@MultiMC_VERSION_STRING@";
 	NEWS_RSS_URL = "@MultiMC_NEWS_RSS_URL@";
+	MODMYMC_URL = "@MultiMC_MODMYMC_URL@";
 }
 
 QString Config::versionTypeName() const

@@ -31,6 +31,7 @@ class MinecraftProcess;
 class ConsoleWindow;
 class BaseProfilerFactory;
 class GenericPageProvider;
+class ModMyMCModel;
 
 namespace Ui
 {
@@ -200,6 +201,8 @@ private:
 
 	QLabel *m_statusLeft;
 	class ServerStatus *m_statusRight;
+
+	ModMyMCModel *m_modMyMCModel;
 
 	QMenu *accountMenu;
 	QToolButton *accountMenuButton;

@@ -24,6 +24,15 @@
 		<file>48x48/minecraft.png</file>
 		<file>256x256/minecraft.png</file>
 
+		<!-- ModMyMC icon. Source: https://twitter.com/modmymc -->
+		<file>8x8/modmymc.png</file>
+		<file>16x16/modmymc.png</file>
+		<file>22x22/modmymc.png</file>
+		<file>24x24/modmymc.png</file>
+		<file>32x32/modmymc.png</file>
+		<file>64x64/modmymc.png</file>
+		<file>256x256/modmymc.png</file>
+
 		<!-- About dialog. GPLv2, http://openiconlibrary.sourceforge.net/gallery2/?./Icons/actions/help-contents.png -->
 		<file>16x16/about.png</file>
 		<file>22x22/about.png</file>
