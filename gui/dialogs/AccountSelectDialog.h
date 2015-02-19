@@ -38,14 +38,19 @@ public:
 		 * Shows a check box on the dialog that allows the user to specify that the account
 		 * they've selected should be used as the global default for all instances.
 		 */
-		GlobalDefaultCheckbox,
+		GlobalDefaultCheckbox = 0x1,
 
 		/*!
 		 * Shows a check box on the dialog that allows the user to specify that the account
 		 * they've selected should be used as the default for the instance they are currently launching.
 		 * This is not currently implemented.
 		 */
-		InstanceDefaultCheckbox,
+		InstanceDefaultCheckbox = 0x2,
+
+		/*!
+		 * Don't preselect the first account by default. This allows not selecting any account at all.
+		 */
+		DontPreselectFirst = 0x4
 	};
 
 	/*!
@@ -75,8 +80,8 @@ public:
 
 public
 slots:
+	void on_deselectBtn_clicked();
 	void on_buttonBox_accepted();
-
 	void on_buttonBox_rejected();
 
 protected:

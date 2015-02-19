@@ -93,27 +93,27 @@ public: /* manipulation */
 										 QString password = QString());
 
 public: /* queries */
-	const QString &username() const
+	const QString username() const
 	{
 		return m_username;
 	}
 
-	const QString &clientToken() const
+	const QString clientToken() const
 	{
 		return m_clientToken;
 	}
 
-	const QString &accessToken() const
+	const QString accessToken() const
 	{
 		return m_accessToken;
 	}
 
-	const QList<AccountProfile> &profiles() const
+	const QList<AccountProfile> profiles() const
 	{
 		return m_profiles;
 	}
 
-	const User &user()
+	const User user()
 	{
 		return m_user;
 	}

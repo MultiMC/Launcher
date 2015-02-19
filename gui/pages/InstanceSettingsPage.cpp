@@ -6,6 +6,7 @@
 #include <QMessageBox>
 
 #include "gui/dialogs/VersionSelectDialog.h"
+#include "gui/dialogs/AccountSelectDialog.h"
 #include "logic/NagUtils.h"
 #include "logic/java/JavaVersionList.h"
 #include "MultiMC.h"
@@ -123,6 +124,8 @@ void InstanceSettingsPage::applySettings()
 		m_settings->reset("PreLaunchCommand");
 		m_settings->reset("PostExitCommand");
 	}
+
+	m_instance->setDefaultAccount(ui->accountLabel->text());
 }
 
 void InstanceSettingsPage::loadSettings()
@@ -159,6 +162,8 @@ void InstanceSettingsPage::loadSettings()
 	ui->customCommandsGroupBox->setChecked(m_settings->get("OverrideCommands").toBool());
 	ui->preLaunchCmdTextBox->setText(m_settings->get("PreLaunchCommand").toString());
 	ui->postExitCmdTextBox->setText(m_settings->get("PostExitCommand").toString());
+
+	ui->accountLabel->setText(m_instance->defaultAccount());
 }
 
 void InstanceSettingsPage::on_javaDetectBtn_clicked()
@@ -175,7 +180,6 @@ void InstanceSettingsPage::on_javaDetectBtn_clicked()
 		ui->javaPathTextBox->setText(java->path);
 	}
 }
-
 void InstanceSettingsPage::on_javaBrowseBtn_clicked()
 {
 	QString dir = QFileDialog::getOpenFileName(this, tr("Find Java executable"));
@@ -184,7 +188,6 @@ void InstanceSettingsPage::on_javaBrowseBtn_clicked()
 		ui->javaPathTextBox->setText(dir);
 	}
 }
-
 void InstanceSettingsPage::on_javaTestBtn_clicked()
 {
 	checker.reset(new JavaChecker());
@@ -212,5 +215,24 @@ void InstanceSettingsPage::checkFinished(JavaCheckResult result)
 			this, tr("Java test failure"),
 			tr("The specified java binary didn't work. You should use the auto-detect feature, "
 			   "or set the path to the java executable."));
+	}
+}
+
+void InstanceSettingsPage::on_changeAccountBtn_clicked()
+{
+	AccountSelectDialog dlg(
+		tr("Please select a new default dialog for %1").arg(m_instance->name()),
+		AccountSelectDialog::DontPreselectFirst, this);
+	if (dlg.exec() != QDialog::Accepted)
+	{
+		return;
+	}
+	if (dlg.selectedAccount())
+	{
+		ui->accountLabel->setText(dlg.selectedAccount()->username());
+	}
+	else
+	{
+		ui->accountLabel->clear();
 	}
 }

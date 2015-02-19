@@ -42,8 +42,11 @@ AccountSelectDialog::AccountSelectDialog(const QString &message, int flags, QWid
 	ui->instDefaultCheck->setVisible(flags & InstanceDefaultCheckbox);
 	QLOG_DEBUG() << flags;
 
-	// Select the first entry in the list.
-	ui->listView->setCurrentIndex(ui->listView->model()->index(0, 0));
+	if (!(flags & DontPreselectFirst))
+	{
+		// Select the first entry in the list.
+		ui->listView->setCurrentIndex(ui->listView->model()->index(0, 0));
+	}
 
 	connect(ui->listView, SIGNAL(doubleClicked(QModelIndex)), SLOT(on_buttonBox_accepted()));
 }
@@ -62,10 +65,15 @@ bool AccountSelectDialog::useAsGlobalDefault() const
 {
 	return ui->globalDefaultCheck->isChecked();
 }
-
 bool AccountSelectDialog::useAsInstDefaullt() const
 {
 	return ui->instDefaultCheck->isChecked();
+}
+
+void AccountSelectDialog::on_deselectBtn_clicked()
+{
+	ui->listView->setCurrentIndex(QModelIndex());
+	ui->listView->clearSelection();
 }
 
 void AccountSelectDialog::on_buttonBox_accepted()
@@ -76,10 +84,9 @@ void AccountSelectDialog::on_buttonBox_accepted()
 		QModelIndex selected = selection.first();
 		m_selected = selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
 	}
-	close();
+	accept();
 }
-
 void AccountSelectDialog::on_buttonBox_rejected()
 {
-	close();
+	reject();
 }
