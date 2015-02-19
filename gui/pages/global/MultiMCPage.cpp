@@ -317,6 +317,8 @@ void MultiMCPage::applySettings()
 	s->set("FTBLauncherRoot", ui->ftbLauncherBox->text());
 	s->set("FTBRoot", ui->ftbBox->text());
 
+	s->set("CopyToCentralMods", ui->copyCentralModsBox->isChecked());
+
 	// Folders
 	// TODO: Offer to move instances to new instance folder.
 	s->set("InstanceDir", ui->instDirTextBox->text());
@@ -405,6 +407,8 @@ void MultiMCPage::loadSettings()
 	ui->trackFtbBox->setChecked(s->get("TrackFTBInstances").toBool());
 	ui->ftbLauncherBox->setText(s->get("FTBLauncherRoot").toString());
 	ui->ftbBox->setText(s->get("FTBRoot").toString());
+
+	ui->copyCentralModsBox->setChecked(s->get("CopyToCentralMods").toBool());
 
 	// Folders
 	ui->instDirTextBox->setText(s->get("InstanceDir").toString());
