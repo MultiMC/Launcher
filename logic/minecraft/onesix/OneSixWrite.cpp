@@ -101,6 +101,8 @@ static QList<LibraryPtr> toOneSixLibraries(const QList<LibraryPtr> &libraries)
 }
 QJsonDocument OneSixFormat::toJson(PackagePtr file, bool saveOrder)
 {
+	using namespace Json;
+
 	QJsonObject root;
 	if (saveOrder)
 	{
@@ -179,6 +181,6 @@ QJsonDocument OneSixFormat::toJson(PackagePtr file, bool saveOrder)
 QJsonObject OneSixFormat::toJson(JarmodPtr mod)
 {
 	QJsonObject out;
-	writeString(out, "name", mod->name);
+	Json::writeString(out, "name", mod->name);
 	return out;
 }

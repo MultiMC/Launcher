@@ -40,9 +40,9 @@
 #include "tasks/Task.h"
 
 #include "minecraft/MinecraftProfile.h"
-#include "auth/yggdrasil/MojangAccountList.h"
 #include "minecraft/Mod.h"
 #include "icons/IconList.h"
+#include "Exception.h"
 
 
 QIcon VersionPage::icon() const

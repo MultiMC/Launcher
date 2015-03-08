@@ -16,7 +16,7 @@
 
 #include "ValidateTask.h"
 
-#include "auth/yggdrasil/MojangAccount.h"
+#include "auth/minecraft/MojangAccount.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -25,7 +25,7 @@
 
 #include <QDebug>
 
-ValidateTask::ValidateTask(AuthSessionPtr session, MojangAccount * account, QObject *parent)
+ValidateTask::ValidateTask(MojangAuthSessionPtr session, MojangAccount * account, QObject *parent)
 	: YggdrasilTask(session, account, parent)
 {
 }
@@ -37,7 +37,7 @@ QJsonObject ValidateTask::getRequestContent() const
 	return req;
 }
 
-void ValidateTask::processResponse(QJsonObject responseData)
+void ValidateTask::processResponse(const QJsonObject &responseData)
 {
 	// Assume that if processError wasn't called, then the request was successful.
 	changeState(YggdrasilTask::STATE_SUCCEEDED);

@@ -15,11 +15,7 @@
 
 #pragma once
 
-#include "auth/yggdrasil/YggdrasilTask.h"
-
-#include <QObject>
-#include <QString>
-#include <QJsonObject>
+#include "YggdrasilTask.h"
 
 /**
  * The authenticate task takes a MojangAccount with a possibly timed-out access token
@@ -30,15 +26,12 @@ class RefreshTask : public YggdrasilTask
 {
 	Q_OBJECT
 public:
-	RefreshTask(AuthSessionPtr session, MojangAccount * account);
+	RefreshTask(MojangAuthSessionPtr session, MojangAccount * account);
 
 protected:
-	virtual QJsonObject getRequestContent() const override;
-
-	virtual QString getEndpoint() const override;
-
-	virtual void processResponse(QJsonObject responseData) override;
-
-	virtual QString getStateMessage() const override;
+	QJsonObject getRequestContent() const override;
+	QString getEndpoint() const override;
+	void processResponse(const QJsonObject &responseData) override;
+	QString getStateMessage() const override;
 };
 

@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <QDir>
 #include <QUuid>
+#include <QVariant>
 
 #include "Exception.h"
 

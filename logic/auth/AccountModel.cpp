@@ -8,8 +8,11 @@
 #include "BaseInstance.h"
 #include "BaseAccount.h"
 #include "BaseAccountType.h"
+#include "FileSystem.h"
 
-#include "yggdrasil/MojangAccount.h"
+#include "minecraft/MojangAccount.h"
+
+#define ACCOUNT_LIST_FORMAT_VERSION 3
 
 class AccountTypesModel : public AbstractCommonModel<BaseAccountType *>
 {
@@ -238,24 +241,56 @@ void AccountModel::doLoad(const QByteArray &data)
 	QList<BaseAccount *> accs;
 	QMap<QString, QMap<QString, BaseAccount *>> defs;
 
-	const auto accounts = ensureIsArrayOf<QJsonObject>(root, "accounts");
-	for (const auto account : accounts)
+	const int formatVersion = ensureInteger(root, "formatVersion", 0);
+	if (formatVersion == 2) // old, pre-multiauth format
 	{
-		const QString type = ensureString(account, "type");
-		if (!m_types.contains(type))
+		const QString active = ensureString(root, "activeAccount", "");
+		for (const QJsonObject &account : ensureIsArrayOf<QJsonObject>(root, "accounts"))
 		{
-			qWarning() << "Unable to load account of type" << type << "(unknown factory)";
-		}
-		else
-		{
-			BaseAccount *acc = m_types[type]->createAccount(shared_from_this());
+			BaseAccount *acc = m_types["minecraft"]->createAccount(shared_from_this());
 			acc->load(account);
 			accs.append(acc);
+
+			if (!active.isEmpty() && !acc->loginUsername().isEmpty() && acc->loginUsername() == active)
+			{
+				m_defaults[acc->type()][QString()] = acc;
+				m_latest = acc;
+			}
+		}
+
+		// schedule a resaving so we save using the new format
+		scheduleSave();
+	}
+	else if (formatVersion != ACCOUNT_LIST_FORMAT_VERSION)
+	{
+		const QString newName = fileName() + ".old";
+		qWarning() << "Format version mismatch when loading account list. Existing one will be renamed to " << newName;
+		QFile file(fileName());
+		if (!file.rename(newName))
+		{
+			throw Exception(tr("Unable to move to %1: %2").arg(newName, file.errorString()));
 		}
 	}
+	else
+	{
+		const auto accounts = ensureIsArrayOf<QJsonObject>(root, "accounts");
+		for (const auto account : accounts)
+		{
+			const QString type = ensureString(account, "type");
+			if (!m_types.contains(type))
+			{
+				qWarning() << "Unable to load account of type" << type << "(unknown factory)";
+			}
+			else
+			{
+				BaseAccount *acc = m_types[type]->createAccount(shared_from_this());
+				acc->load(account);
+				accs.append(acc);
+			}
+		}
 
-	const auto defaults = ensureIsArrayOf<QJsonObject>(root, "defaults");
-	for (const auto def : defaults)
+		const auto defaults = ensureIsArrayOf<QJsonObject>(root, "defaults");
+		for (const auto def : defaults)
 	{
 		const int index = ensureInteger(def, "account");
 		if (index >= 0 && index < accs.size())
@@ -263,6 +298,7 @@ void AccountModel::doLoad(const QByteArray &data)
 			defs[ensureString(def, "type")][ensureString(def, "container")]
 					= accs.at(index);
 		}
+	}
 	}
 
 	beginResetModel();
@@ -295,6 +331,7 @@ QByteArray AccountModel::doSave() const
 	}
 
 	QJsonObject root;
+	root.insert("formatVersion", ACCOUNT_LIST_FORMAT_VERSION);
 	root.insert("accounts", accounts);
 	root.insert("defaults", defaults);
 	return toBinary(root);

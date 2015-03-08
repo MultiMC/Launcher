@@ -23,7 +23,7 @@
 #include <QMap>
 
 #include <memory>
-#include "AuthSession.h"
+#include "MojangAuthSession.h"
 #include "auth/BaseAccount.h"
 #include "auth/BaseAccountType.h"
 
@@ -98,7 +98,7 @@ public: /* manipulation */
 		m_profiles = profiles;
 		changed();
 	}
-	void setUser(const AuthSession::User &user)
+	void setUser(const MojangAuthSession::User &user)
 	{
 		m_user = user;
 		changed();
@@ -118,7 +118,7 @@ public: /* queries */
 		return m_profiles;
 	}
 
-	const AuthSession::User &user()
+	const MojangAuthSession::User &user()
 	{
 		return m_user;
 	}
@@ -138,13 +138,13 @@ protected: /* variables */
 	QList<AccountProfile> m_profiles;
 
 	// the user structure, whatever it is.
-	AuthSession::User m_user;
+	MojangAuthSession::User m_user;
 
 	// current task we are executing here
 	std::shared_ptr<YggdrasilTask> m_currentTask;
 
 private:
-	void populateSessionFromThis(AuthSessionPtr session);
+	void populateSessionFromThis(MojangAuthSessionPtr session);
 
 public:
 	friend class YggdrasilTask;

@@ -7,7 +7,7 @@
 
 class BaseAccount;
 class QString;
-using AccountModelPtr = std::shared_ptr<class AccountModel>;
+using AccountModelPtr = std::weak_ptr<class AccountModel>;
 
 class BaseAccountType
 {

@@ -10,7 +10,7 @@
 
 class Task;
 class QJsonObject;
-using AccountModelPtr = std::shared_ptr<class AccountModel>;
+using AccountModelPtr = std::weak_ptr<class AccountModel>;
 
 class BaseAccount
 {

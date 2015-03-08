@@ -22,7 +22,7 @@
 #include <QTimer>
 #include <qsslerror.h>
 
-#include "MojangAccount.h"
+#include "auth/minecraft/MojangAccount.h"
 
 class QNetworkReply;
 
@@ -33,17 +33,7 @@ class YggdrasilTask : public Task
 {
 	Q_OBJECT
 public:
-	explicit YggdrasilTask(AuthSessionPtr session, MojangAccount *account, QObject *parent = 0);
-
-	/**
-	 * Class describing a Yggdrasil error response.
-	 */
-	struct Error
-	{
-		QString m_errorMessageShort;
-		QString m_errorMessageVerbose;
-		QString m_cause;
-	};
+	explicit YggdrasilTask(MojangAuthSessionPtr session, MojangAccount *account, QObject *parent = 0);
 
 	enum AbortedBy
 	{
@@ -65,6 +55,8 @@ public:
 		STATE_FAILED_HARD, //!< hard failure. auth is invalid
 		STATE_SUCCEEDED
 	} m_state = STATE_CREATED;
+
+	bool canAbort() const override { return true; }
 
 protected:
 
@@ -90,14 +82,14 @@ protected:
 	 * Note: If the response from the server was blank, and the HTTP code was 200, this function is called with
 	 * an empty QJsonObject.
 	 */
-	virtual void processResponse(QJsonObject responseData) = 0;
+	virtual void processResponse(const QJsonObject &responseData) = 0;
 
 	/**
 	 * Processes an error response received from the server.
 	 * The default implementation will read data from Yggdrasil's standard error response format and set it as this task's Error.
 	 * \returns a QString error message that will be passed to emitFailed.
 	 */
-	virtual void processError(QJsonObject responseData);
+	virtual void processError(const QJsonObject &responseData);
 
 	/**
 	 * Returns the state message for the given state.
@@ -128,9 +120,8 @@ slots:
 protected:
 	// FIXME: segfault disaster waiting to happen
 	MojangAccount *m_account = nullptr;
-	AuthSessionPtr m_session;
+	MojangAuthSessionPtr m_session;
 	QNetworkReply *m_netReply = nullptr;
-	std::shared_ptr<Error> m_error;
 	QTimer timeout_keeper;
 	QTimer counter;
 	int count = 0; // num msec since time reset

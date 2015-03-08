@@ -61,13 +61,13 @@ public:
 		m_nativeFolder = natives;
 	}
 
-	inline void setLogin(AuthSessionPtr session)
+	inline void setLogin(MojangAuthSessionPtr session)
 	{
 		m_session = session;
 	}
 
 protected:
-	AuthSessionPtr m_session;
+	MojangAuthSessionPtr m_session;
 	QString launchScript;
 	QString m_nativeFolder;
 

@@ -15,17 +15,12 @@
  */
 
 #include "AuthenticateTask.h"
-
-#include "auth/yggdrasil/MojangAccount.h"
-
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QVariant>
-
 #include <QDebug>
 
-AuthenticateTask::AuthenticateTask(AuthSessionPtr session, const QString &username, const QString &password, MojangAccount *account,
+#include "auth/minecraft/MojangAccount.h"
+#include "Json.h"
+
+AuthenticateTask::AuthenticateTask(MojangAuthSessionPtr session, const QString &username, const QString &password, MojangAccount *account,
 								   QObject *parent)
 	: YggdrasilTask(session, account, parent), m_username(username), m_password(password)
 {
@@ -72,8 +67,10 @@ QJsonObject AuthenticateTask::getRequestContent() const
 	return req;
 }
 
-void AuthenticateTask::processResponse(QJsonObject responseData)
+void AuthenticateTask::processResponse(const QJsonObject &responseData)
 {
+	using namespace Json;
+
 	// Read the response data. We need to get the client token, access token, and the selected
 	// profile.
 	qDebug() << "Processing authentication response.";
@@ -81,7 +78,7 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
 	// If we already have a client token, make sure the one the server gave us matches our
 	// existing one.
 	qDebug() << "Getting client token.";
-	QString clientToken = responseData.value("clientToken").toString("");
+	const QString clientToken = ensureString(responseData, "clientToken", "");
 	if (clientToken.isEmpty())
 	{
 		// Fail if the server gave us an empty client token
@@ -98,7 +95,7 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
 
 	// Now, we set the access token.
 	qDebug() << "Getting access token.";
-	QString accessToken = responseData.value("accessToken").toString("");
+	const QString accessToken = ensureString(responseData, "accessToken", "");
 	if (accessToken.isEmpty())
 	{
 		// Fail if the server didn't give us an access token.
@@ -113,15 +110,13 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
 	// but we might as well support what's there so we
 	// don't have trouble implementing it later.
 	qDebug() << "Loading profile list.";
-	QJsonArray availableProfiles = responseData.value("availableProfiles").toArray();
 	QList<AccountProfile> loadedProfiles;
-	for (auto iter : availableProfiles)
+	for (auto profile : ensureIsArrayOf<QJsonObject>(responseData, "availableProfiles"))
 	{
-		QJsonObject profile = iter.toObject();
 		// Profiles are easy, we just need their ID and name.
-		QString id = profile.value("id").toString("");
-		QString name = profile.value("name").toString("");
-		bool legacy = profile.value("legacy").toBool(false);
+		const QString id = ensureString(profile, "id", "");
+		const QString name = ensureString(profile, "name", "");
+		const bool legacy = ensureBoolean(profile, QStringLiteral("legacy"), false);
 
 		if (id.isEmpty() || name.isEmpty())
 		{
@@ -130,6 +125,7 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
 			// You never know when Mojang might do something truly derpy.
 			qWarning() << "Found entry in available profiles list with missing ID or name "
 						   "field. Ignoring it.";
+			continue;
 		}
 
 		// Now, add a new AccountProfile entry to the list.
@@ -143,8 +139,8 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
 	// is actually in the available profiles list.
 	// If it isn't, we'll just fail horribly (*shouldn't* ever happen, but you never know).
 	qDebug() << "Setting current profile.";
-	QJsonObject currentProfile = responseData.value("selectedProfile").toObject();
-	QString currentProfileId = currentProfile.value("id").toString("");
+	const QJsonObject currentProfile = ensureObject(responseData, "selectedProfile");
+	const QString currentProfileId = ensureString(currentProfile, "id", "");
 	if (currentProfileId.isEmpty())
 	{
 		changeState(STATE_FAILED_HARD, tr("Authentication server didn't specify a currently selected profile. The account exists, but likely isn't premium."));
@@ -159,16 +155,14 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
 	// this is what the vanilla launcher passes to the userProperties launch param
 	if (responseData.contains("user"))
 	{
-		AuthSession::User u;
-		auto obj = responseData.value("user").toObject();
-		u.id = obj.value("id").toString();
-		auto propArray = obj.value("properties").toArray();
-		for (auto prop : propArray)
+		MojangAuthSession::User u;
+		const QJsonObject obj = ensureObject(responseData, "user");
+		u.id = ensureString(obj, "id");
+		for (const QJsonObject &propTuple : ensureIsArrayOf<QJsonObject>(obj, "properties"))
 		{
-			auto propTuple = prop.toObject();
-			auto name = propTuple.value("name").toString();
-			auto value = propTuple.value("value").toString();
-			u.properties.insert(name, value);
+			u.properties.insert(
+						ensureString(propTuple, "name"),
+						ensureString(propTuple, "value"));
 		}
 		m_account->setUser(u);
 	}

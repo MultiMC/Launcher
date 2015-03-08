@@ -17,8 +17,6 @@ public:
 	}
 };
 
-using namespace Json;
-
 static LibraryPtr convertLibrary(LibraryPtr lib, const bool isNative)
 {
 	std::shared_ptr<Library> out = std::make_shared<Library>();
@@ -105,6 +103,8 @@ convertLibs(std::shared_ptr<Minecraft::Libraries> libs, const bool isNative)
 
 PackagePtr WonkoFormat::fromJson(const QJsonDocument &doc, const QString &filename)
 {
+	using namespace Json;
+
 	WonkoVersionPtr file = std::make_shared<WonkoPackageVersion>();
 	PackagePtr result = std::make_shared<Package>();
 	// read metadata -- not sure if we need to here.

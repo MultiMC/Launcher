@@ -20,7 +20,7 @@
 #include <QTimer>
 
 #include "BaseInstance.h"
-#include "auth/yggdrasil/MojangAccount.h"
+#include "auth/minecraft/MojangAuthSession.h"
 #include "net/NetJob.h"
 #include "updater/GoUpdate.h"
 
@@ -126,12 +126,12 @@ slots:
 	 * Launches the given instance with the given account.
 	 * This function assumes that the given account has a valid, usable access token.
 	 */
-	void launchInstance(InstancePtr instance, AuthSessionPtr session, BaseProfilerFactory *profiler = 0);
+	void launchInstance(InstancePtr instance, SessionPtr session, BaseProfilerFactory *profiler = 0);
 
 	/*!
 	 * Prepares the given instance for launch with the given account.
 	 */
-	void updateInstance(InstancePtr instance, AuthSessionPtr account, BaseProfilerFactory *profiler = 0);
+	void updateInstance(InstancePtr instance, SessionPtr account, BaseProfilerFactory *profiler = 0);
 
 	void onGameUpdateError(QString error);
 

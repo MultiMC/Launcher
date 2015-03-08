@@ -21,14 +21,14 @@
 #include <QJsonDocument>
 #include <QNetworkReply>
 #include <QByteArray>
-
-#include <Env.h>
-#include "MojangAccount.h"
-#include <net/URLConstants.h>
-
 #include <QDebug>
 
-YggdrasilTask::YggdrasilTask(AuthSessionPtr session, MojangAccount *account, QObject *parent)
+#include "Env.h"
+#include "auth/minecraft/MojangAccount.h"
+#include "net/URLConstants.h"
+#include "Json.h"
+
+YggdrasilTask::YggdrasilTask(MojangAuthSessionPtr session, MojangAccount *account, QObject *parent)
 	: Task(parent), m_account(account), m_session(session)
 {
 	changeState(STATE_CREATED);
@@ -38,16 +38,10 @@ void YggdrasilTask::executeTask()
 {
 	changeState(STATE_SENDING_REQUEST);
 
-	// Get the content of the request we're going to send to the server.
-	QJsonDocument doc(getRequestContent());
-
-	auto worker = ENV.qnam();
-	QUrl reqUrl("https://" + URLConstants::AUTH_BASE + getEndpoint());
-	QNetworkRequest netRequest(reqUrl);
+	QNetworkRequest netRequest(QUrl("https://" + URLConstants::AUTH_BASE + getEndpoint()));
 	netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-	QByteArray requestData = doc.toJson();
-	m_netReply = worker->post(netRequest, requestData);
+	m_netReply = ENV.qnam()->post(netRequest, Json::toText(getRequestContent()));
 	connect(m_netReply, &QNetworkReply::finished, this, &YggdrasilTask::processReply);
 	connect(m_netReply, &QNetworkReply::uploadProgress, this, &YggdrasilTask::refreshTimers);
 	connect(m_netReply, &QNetworkReply::downloadProgress, this, &YggdrasilTask::refreshTimers);
@@ -138,76 +132,64 @@ void YggdrasilTask::processReply()
 		return;
 	}
 
-	// Try to parse the response regardless of the response code.
-	// Sometimes the auth server will give more information and an error code.
-	QJsonParseError jsonError;
-	QByteArray replyData = m_netReply->readAll();
-	QJsonDocument doc = QJsonDocument::fromJson(replyData, &jsonError);
-	// Check the response code.
-	int responseCode = m_netReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-	if (responseCode == 200)
+	const QByteArray replyData = m_netReply->readAll();
+	const int responseCode = m_netReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+	if (replyData.isEmpty() && responseCode == 200)
 	{
-		// If the response code was 200, then there shouldn't be an error. Make sure
-		// anyways.
-		// Also, sometimes an empty reply indicates success. If there was no data received,
-		// pass an empty json object to the processResponse function.
-		if (jsonError.error == QJsonParseError::NoError || replyData.size() == 0)
-		{
-			processResponse(replyData.size() > 0 ? doc.object() : QJsonObject());
-			return;
-		}
-		else
-		{
-			changeState(STATE_FAILED_SOFT, tr("Failed to parse authentication server response "
-											  "JSON response: %1 at offset %2.")
-											   .arg(jsonError.errorString())
-											   .arg(jsonError.offset));
-			qCritical() << replyData;
-		}
+		// an empty reply is also valid
+		processResponse(QJsonObject());
 		return;
 	}
 
-	// If the response code was not 200, then Yggdrasil may have given us information
-	// about the error.
-	// If we can parse the response, then get information from it. Otherwise just say
-	// there was an unknown error.
-	if (jsonError.error == QJsonParseError::NoError)
+	try
 	{
-		// We were able to parse the server's response. Woo!
-		// Call processError. If a subclass has overridden it then they'll handle their
-		// stuff there.
-		qDebug() << "The request failed, but the server gave us an error message. "
+		const QJsonObject response = Json::ensureObject(Json::ensureDocument(replyData));
+
+		if (responseCode == 200)
+		{
+			processResponse(response);
+		}
+		else
+		{
+			// We were able to parse the server's response. Woo!
+			// Call processError. If a subclass has overridden it then they'll handle their
+			// stuff there.
+			qDebug() << "The request failed, but the server gave us an error message. "
 						"Processing error.";
-		processError(doc.object());
+			processError(response);
+		}
 	}
-	else
+	catch (Exception &e)
 	{
-		// The server didn't say anything regarding the error. Give the user an unknown
-		// error.
-		qDebug()
-			<< "The request failed and the server gave no error message. Unknown error.";
-		changeState(STATE_FAILED_SOFT,
-					tr("An unknown error occurred when trying to communicate with the "
-					   "authentication server: %1").arg(m_netReply->errorString()));
+		if (responseCode == 200)
+		{
+			changeState(STATE_FAILED_SOFT, tr("Failed to parse authentication server response: %1").arg(e.cause()));
+			qCritical() << replyData;
+		}
+		else
+		{
+			// The server didn't say anything regarding the error. Give the user an unknown
+			// error.
+			qDebug()
+				<< "The request failed and the server gave no error message. Unknown error.";
+			changeState(STATE_FAILED_SOFT,
+						tr("An unknown error occurred when trying to communicate with the "
+						   "authentication server: %1").arg(m_netReply->errorString()));
+		}
 	}
 }
 
-void YggdrasilTask::processError(QJsonObject responseData)
+void YggdrasilTask::processError(const QJsonObject &responseData)
 {
-	QJsonValue errorVal = responseData.value("error");
-	QJsonValue errorMessageValue = responseData.value("errorMessage");
-	QJsonValue causeVal = responseData.value("cause");
+	using namespace Json;
 
-	if (errorVal.isString() && errorMessageValue.isString())
+	try
 	{
-		m_error = std::shared_ptr<Error>(new Error{
-			errorVal.toString(""), errorMessageValue.toString(""), causeVal.toString("")});
-		changeState(STATE_FAILED_HARD, m_error->m_errorMessageVerbose);
+		changeState(STATE_FAILED_HARD, ensureString(responseData, "errorMessage"));
 	}
-	else
+	catch (...)
 	{
-		// Error is not in standard format. Don't set m_error and return unknown error.
+		// Error is not in standard format. Return unknown error.
 		changeState(STATE_FAILED_HARD, tr("An unknown Yggdrasil error occurred."));
 	}
 }
@@ -238,7 +220,7 @@ void YggdrasilTask::finalizeSessionSuccess()
 	if (m_session)
 	{
 		m_session->status =
-			m_session->wants_online ? AuthSession::PlayableOnline : AuthSession::PlayableOffline;
+			m_session->wants_online ? MojangAuthSession::PlayableOnline : MojangAuthSession::PlayableOffline;
 		m_account->populateSessionFromThis(m_session);
 		m_session->auth_server_online = true;
 	}
@@ -249,8 +231,8 @@ void YggdrasilTask::finalizeSessionFailure(const QString &reason)
 	{
 		if (m_session)
 		{
-			m_session->status = m_account->accountStatus() == Verified ? AuthSession::PlayableOffline
-														  : AuthSession::RequiresPassword;
+			m_session->status = m_account->accountStatus() == Verified ? MojangAuthSession::PlayableOffline
+														  : MojangAuthSession::RequiresPassword;
 			m_session->auth_server_online = false;
 			m_account->populateSessionFromThis(m_session);
 		}
@@ -260,7 +242,7 @@ void YggdrasilTask::finalizeSessionFailure(const QString &reason)
 		m_account->setAccessToken(QString());
 		if (m_session)
 		{
-			m_session->status = AuthSession::RequiresPassword;
+			m_session->status = MojangAuthSession::RequiresPassword;
 			m_session->auth_server_online = true;
 			m_account->populateSessionFromThis(m_session);
 		}

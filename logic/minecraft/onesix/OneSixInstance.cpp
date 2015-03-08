@@ -22,6 +22,7 @@
 #include "minecraft/onesix/OneSixUpdate.h"
 #include "minecraft/onesix/OneSixProfileStrategy.h"
 
+#include "auth/minecraft/MojangAuthSession.h"
 #include "minecraft/MinecraftProfile.h"
 #include "minecraft/VersionBuildError.h"
 #include "minecraft/Process.h"
@@ -130,7 +131,7 @@ QString replaceTokensIn(QString text, QMap<QString, QString> with)
 	return result;
 }
 
-QStringList OneSixInstance::processMinecraftArgs(AuthSessionPtr session)
+QStringList OneSixInstance::processMinecraftArgs(MojangAuthSessionPtr acc)
 {
 	QString args_pattern = m_version->resources.minecraftArguments;
 	for (auto tweaker : m_version->resources.tweakers)
@@ -140,11 +141,11 @@ QStringList OneSixInstance::processMinecraftArgs(AuthSessionPtr session)
 
 	QMap<QString, QString> token_mapping;
 	// yggdrasil!
-	token_mapping["auth_username"] = session->username;
-	token_mapping["auth_session"] = session->session;
-	token_mapping["auth_access_token"] = session->access_token;
-	token_mapping["auth_player_name"] = session->player_name;
-	token_mapping["auth_uuid"] = session->uuid;
+	token_mapping["auth_username"] = acc->username;
+	token_mapping["auth_session"] = acc->session;
+	token_mapping["auth_access_token"] = acc->access_token;
+	token_mapping["auth_player_name"] = acc->player_name;
+	token_mapping["auth_uuid"] = acc->uuid;
 
 	// blatant self-promotion.
 	token_mapping["profile_name"] = token_mapping["version_name"] = "MultiMC5";
@@ -154,8 +155,8 @@ QStringList OneSixInstance::processMinecraftArgs(AuthSessionPtr session)
 	QString absAssetsDir = QDir("assets/").absolutePath();
 	token_mapping["game_assets"] = m_version->resources.assets->storageFolder();
 
-	token_mapping["user_properties"] = session->serializeUserProperties();
-	token_mapping["user_type"] = session->user_type;
+	token_mapping["user_properties"] = acc->serializeUserProperties();
+	token_mapping["user_type"] = acc->user_type;
 	// 1.7.3+ assets tokens
 	token_mapping["assets_root"] = absAssetsDir;
 	token_mapping["assets_index_name"] = m_version->resources.assets->id();
@@ -169,8 +170,10 @@ QStringList OneSixInstance::processMinecraftArgs(AuthSessionPtr session)
 }
 
 // FIXME: this should be split and turned into a task
-BaseProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
+BaseProcess *OneSixInstance::prepareForLaunch(SessionPtr acc)
 {
+	MojangAuthSessionPtr account = std::dynamic_pointer_cast<MojangAuthSession>(acc);
+
 	QString launchScript;
 	QIcon icon = ENV.icons()->getIcon(iconKey());
 	auto pixmap = icon.pixmap(128, 128);
@@ -250,7 +253,7 @@ BaseProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 	}
 
 	// generic minecraft params
-	for (auto param : processMinecraftArgs(session))
+	for (auto param : processMinecraftArgs(account))
 	{
 		launchScript += "param " + param + "\n";
 	}
@@ -270,8 +273,8 @@ BaseProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 
 	// legacy auth
 	{
-		launchScript += "userName " + session->player_name + "\n";
-		launchScript += "sessionId " + session->session + "\n";
+		launchScript += "userName " + account->player_name + "\n";
+		launchScript += "sessionId " + account->session + "\n";
 	}
 
 	// native libraries (mostly LWJGL)
@@ -296,7 +299,7 @@ BaseProcess *OneSixInstance::prepareForLaunch(AuthSessionPtr session)
 	auto process = Minecraft::Process::create(std::dynamic_pointer_cast<MinecraftInstance>(getSharedPtr()));
 	process->setLaunchScript(launchScript);
 	process->setWorkdir(minecraftRoot());
-	process->setLogin(session);
+	process->setLogin(account);
 	return process;
 }
 

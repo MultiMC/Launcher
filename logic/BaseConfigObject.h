@@ -21,6 +21,8 @@ protected:
 
 	void setSavingDisabled(bool savingDisabled) { m_disableSaving = savingDisabled; }
 
+	QString fileName() const { return m_filename; }
+
 public:
 	void scheduleSave();
 	void saveNow();

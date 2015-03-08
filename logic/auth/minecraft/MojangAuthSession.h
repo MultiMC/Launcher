@@ -4,7 +4,7 @@
 #include <QMultiMap>
 #include "auth/BaseSession.h"
 
-class AuthSession : public BaseSession
+class MojangAuthSession : public BaseSession
 {
 public:
 	bool makeOffline(QString offline_playername);
@@ -47,4 +47,4 @@ public:
 	bool invalidPassword() const override { return status == RequiresPassword; }
 };
 
-typedef std::shared_ptr<AuthSession> AuthSessionPtr;
+typedef std::shared_ptr<MojangAuthSession> MojangAuthSessionPtr;

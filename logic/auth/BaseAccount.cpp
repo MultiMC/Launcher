@@ -26,7 +26,7 @@ void BaseAccount::load(const QJsonObject &obj)
 {
 	using namespace Json;
 	m_username = ensureString(obj, "username");
-	const QJsonObject tokens = ensureObject(obj, "tokens");
+	const QJsonObject tokens = ensureObject(obj, "tokens", QJsonObject());
 	m_tokens.clear();
 	for (auto it = tokens.constBegin(); it != tokens.constEnd(); ++it)
 	{
@@ -48,5 +48,8 @@ QJsonObject BaseAccount::save() const
 
 void BaseAccount::changed()
 {
-	m_model->accountChanged(this);
+	if (auto model = m_model.lock())
+	{
+		model->accountChanged(this);
+	}
 }

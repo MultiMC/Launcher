@@ -364,7 +364,7 @@ namespace Ui {
 #include "java/JavaVersionList.h"
 
 #include "auth/AccountModel.h"
-#include "auth/yggdrasil/MojangAccount.h"
+#include "auth/minecraft/MojangAccount.h"
 
 #include "updater/DownloadTask.h"
 
@@ -1476,7 +1476,7 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 
 	while (true)
 	{
-		AuthSessionPtr session(new AuthSession());
+		MojangAuthSessionPtr session(new MojangAuthSession());
 		session->wants_online = online;
 		AuthTask *task = new AuthTask("minecraft", m_selectedInstance, session);
 
@@ -1493,17 +1493,17 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 
 		switch (session->status)
 		{
-		case AuthSession::Undetermined:
+		case MojangAuthSession::Undetermined:
 		{
 			qCritical() << "Received undetermined session status during login. Bye.";
 			break;
 		}
-		case AuthSession::RequiresPassword:
+		case MojangAuthSession::RequiresPassword:
 		{
 			qCritical() << "This should not be reachable";
 			break;
 		}
-		case AuthSession::PlayableOffline:
+		case MojangAuthSession::PlayableOffline:
 		{
 			// we ask the user for a player name
 			bool ok = false;
@@ -1523,7 +1523,7 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 			// offline flavored game from here :3
 			// intentional fallthrough to PlayableOnline
 		}
-		case AuthSession::PlayableOnline:
+		case MojangAuthSession::PlayableOnline:
 		{
 			// update first if the server actually responded
 			if (session->auth_server_online)
@@ -1540,7 +1540,7 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 	}
 }
 
-void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
+void MainWindow::updateInstance(InstancePtr instance, SessionPtr session,
 								BaseProfilerFactory *profiler)
 {
 	auto updateTask = instance->doUpdate();
@@ -1556,7 +1556,7 @@ void MainWindow::updateInstance(InstancePtr instance, AuthSessionPtr session,
 	tDialog.exec(updateTask.get());
 }
 
-void MainWindow::launchInstance(InstancePtr instance, AuthSessionPtr session,
+void MainWindow::launchInstance(InstancePtr instance, SessionPtr session,
 								BaseProfilerFactory *profiler)
 {
 	Q_ASSERT_X(instance != NULL, "launchInstance", "instance is NULL");

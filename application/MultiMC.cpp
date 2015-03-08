@@ -14,7 +14,6 @@
 
 #include "dialogs/VersionSelectDialog.h"
 #include "InstanceList.h"
-#include "auth/yggdrasil/MojangAccountList.h"
 #include "auth/AccountModel.h"
 #include "icons/IconList.h"
 #include "minecraft/legacy/LwjglVersionList.h"
@@ -213,12 +212,6 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 	m_instances->loadList();
 	connect(InstDirSetting.get(), SIGNAL(SettingChanged(const Setting &, QVariant)),
 			m_instances.get(), SLOT(on_InstFolderChanged(const Setting &, QVariant)));
-
-	// and accounts
-	m_accounts.reset(new MojangAccountList(this));
-	qDebug() << "Loading accounts...";
-	m_accounts->setListFilePath("accounts.json", true);
-	m_accounts->loadList();
 
 	m_accountsModel.reset(new AccountModel(this));
 

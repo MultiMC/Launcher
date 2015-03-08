@@ -13,7 +13,6 @@ class WonkoPackage;
 class HttpMetaCache;
 class SettingsObject;
 class InstanceList;
-class MojangAccountList;
 class IconList;
 class QNetworkAccessManager;
 class ForgeVersionList;
@@ -87,12 +86,6 @@ public:
 	std::shared_ptr<InstanceList> instances()
 	{
 		return m_instances;
-	}
-
-	// APPLICATION ONLY
-	std::shared_ptr<MojangAccountList> accounts()
-	{
-		return m_accounts;
 	}
 
 	std::shared_ptr<IconRegistry> iconRegistry()
@@ -171,7 +164,6 @@ private:
 	std::shared_ptr<SettingsObject> m_settings;
 	std::shared_ptr<InstanceList> m_instances;
 	std::shared_ptr<UpdateChecker> m_updateChecker;
-	std::shared_ptr<MojangAccountList> m_accounts;
 	std::shared_ptr<LWJGLVersionList> m_lwjgllist;
 	std::shared_ptr<IconRegistry> m_iconRegistry;
 	std::shared_ptr<AccountModel> m_accountsModel;

@@ -1,10 +1,10 @@
-#include "AuthSession.h"
+#include "MojangAuthSession.h"
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QStringList>
 
-QString AuthSession::serializeUserProperties()
+QString MojangAuthSession::serializeUserProperties()
 {
 	QJsonObject userAttrs;
 	for (auto key : u.properties.keys())
@@ -17,7 +17,7 @@ QString AuthSession::serializeUserProperties()
 
 }
 
-bool AuthSession::makeOffline(QString offline_playername)
+bool MojangAuthSession::makeOffline(QString offline_playername)
 {
 	if (status != PlayableOffline && status != PlayableOnline)
 	{

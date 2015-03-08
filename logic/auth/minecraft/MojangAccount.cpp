@@ -16,9 +16,9 @@
  */
 
 #include "MojangAccount.h"
-#include "flows/RefreshTask.h"
-#include "flows/AuthenticateTask.h"
-#include "flows/ValidateTask.h"
+#include "tasks/RefreshTask.h"
+#include "tasks/AuthenticateTask.h"
+#include "tasks/ValidateTask.h"
 
 #include <QUuid>
 #include <QJsonObject>
@@ -28,10 +28,12 @@
 #include <QJsonDocument>
 #include <QDebug>
 
-#include "Exception.h"
+#include "Json.h"
 
 void MojangAccount::load(const QJsonObject &object)
 {
+	using namespace Json;
+
 	// The JSON object must at least have a username for it to be valid.
 	if (!object.value("username").isString())
 	{
@@ -41,21 +43,21 @@ void MojangAccount::load(const QJsonObject &object)
 
 	BaseAccount::load(object);
 
-	setUsername(object.value("username").toString(""));
+	setToken("login_username", ensureString(object, "username"));
 
-	QJsonArray profileArray = object.value("profiles").toArray();
+	const QJsonArray profileArray = ensureArray(object, "profiles");
 	if (profileArray.size() < 1)
 	{
 		throw Exception("Can't load Mojang account with username \"" + username()
 					   + "\". No profiles found.");
 	}
 
-	for (QJsonValue profileVal : profileArray)
+	for (const QJsonValue &profileVal : profileArray)
 	{
-		QJsonObject profileObject = profileVal.toObject();
-		QString id = profileObject.value("id").toString("");
-		QString name = profileObject.value("name").toString("");
-		bool legacy = profileObject.value("legacy").toBool(false);
+		const QJsonObject profileObject = ensureObject(profileVal);
+		const QString id = ensureString(profileObject, "id", "");
+		const QString name = ensureString(profileObject, "name", "");
+		const bool legacy = ensureBoolean(profileObject, QStringLiteral("legacy"), false);
 		if (id.isEmpty() || name.isEmpty())
 		{
 			qWarning() << "Unable to load a profile because it was missing an ID or a name.";
@@ -66,25 +68,18 @@ void MojangAccount::load(const QJsonObject &object)
 
 	if (object.value("user").isObject())
 	{
-		AuthSession::User u;
-		QJsonObject userStructure = object.value("user").toObject();
+		MojangAuthSession::User u;
+		const QJsonObject userStructure = ensureObject(object, "user");
 		u.id = userStructure.value("id").toString();
-		/*
-		QJsonObject propMap = userStructure.value("properties").toObject();
-		for(auto key: propMap.keys())
-		{
-			auto values = propMap.operator[](key).toArray();
-			for(auto value: values)
-				u.properties.insert(key, value.toString());
-		}
-		*/
 		m_user = u;
 	}
 
 	// Get the currently selected profile.
-	QString currentProfile = object.value("activeProfile").toString("");
+	const QString currentProfile = ensureString(object, "activeProfile", "");
 	if (!currentProfile.isEmpty())
+	{
 		setCurrentProfile(currentProfile);
+	}
 }
 QJsonObject MojangAccount::save() const
 {
@@ -143,21 +138,21 @@ Task *MojangAccount::createLoginTask(const QString &username, const QString &pas
 {
 	if (accountStatus() == NotVerified && password.isEmpty())
 	{
-		AuthSessionPtr authSession = std::dynamic_pointer_cast<AuthSession>(session);
+		MojangAuthSessionPtr authSession = std::dynamic_pointer_cast<MojangAuthSession>(session);
 		if (authSession)
 		{
-			authSession->status = AuthSession::RequiresPassword;
+			authSession->status = MojangAuthSession::RequiresPassword;
 			populateSessionFromThis(authSession);
 		}
 		return nullptr;
 	}
 	setToken("login_username", username);
-	return new AuthenticateTask(std::dynamic_pointer_cast<AuthSession>(session),
+	return new AuthenticateTask(std::dynamic_pointer_cast<MojangAuthSession>(session),
 								username, password, this);
 }
 Task *MojangAccount::createCheckTask(SessionPtr session)
 {
-	return new RefreshTask(std::dynamic_pointer_cast<AuthSession>(session), this);
+	return new RefreshTask(std::dynamic_pointer_cast<MojangAuthSession>(session), this);
 }
 Task *MojangAccount::createLogoutTask(SessionPtr session)
 {
@@ -195,7 +190,7 @@ AccountStatus MojangAccount::accountStatus() const
 		return Verified;
 }
 
-void MojangAccount::populateSessionFromThis(AuthSessionPtr session)
+void MojangAccount::populateSessionFromThis(MojangAuthSessionPtr session)
 {
 	// the user name. you have to have an user name
 	session->username = username();

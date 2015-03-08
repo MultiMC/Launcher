@@ -13,35 +13,30 @@
  * limitations under the License.
  */
 
-/*
- * :FIXME: DEAD CODE, DEAD CODE, DEAD CODE! :FIXME:
- */
-
 #pragma once
 
-#include "auth/yggdrasil/YggdrasilTask.h"
+#include "YggdrasilTask.h"
 
-#include <QObject>
 #include <QString>
-#include <QJsonObject>
 
 /**
- * The validate task takes a MojangAccount and checks to make sure its access token is valid.
+ * The authenticate task takes a MojangAccount with no access token and password and attempts to
+ * authenticate with Mojang's servers.
+ * If successful, it will set the MojangAccount's access token.
  */
-class ValidateTask : public YggdrasilTask
+class AuthenticateTask : public YggdrasilTask
 {
 	Q_OBJECT
 public:
-	ValidateTask(AuthSessionPtr session, MojangAccount *account, QObject *parent = 0);
+	AuthenticateTask(MojangAuthSessionPtr session, const QString &username, const QString &password, MojangAccount *account, QObject *parent = 0);
 
 protected:
-	virtual QJsonObject getRequestContent() const override;
-
-	virtual QString getEndpoint() const override;
-
-	virtual void processResponse(QJsonObject responseData) override;
-
-	virtual QString getStateMessage() const override;
+	QJsonObject getRequestContent() const override;
+	QString getEndpoint() const override;
+	void processResponse(const QJsonObject &responseData) override;
+	QString getStateMessage() const override;
 
 private:
+	QString m_username;
+	QString m_password;
 };

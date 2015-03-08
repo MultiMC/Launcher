@@ -111,7 +111,7 @@ public:
 	void setShouldUpdate(bool val);
 	virtual std::shared_ptr<Task> doUpdate() override;
 
-	virtual BaseProcess *prepareForLaunch(AuthSessionPtr account) override;
+	virtual BaseProcess *prepareForLaunch(SessionPtr acc) override;
 	virtual void cleanupAfterRun() override;
 
 	virtual QString getStatusbarDescription() override;
