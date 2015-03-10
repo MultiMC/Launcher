@@ -22,7 +22,6 @@ class UpdateChecker;
 class BaseProfilerFactory;
 class BaseDetachedToolFactory;
 class TranslationDownloader;
-class IconRegistry;
 class AccountModel;
 
 #if defined(MMC)
@@ -86,11 +85,6 @@ public:
 	std::shared_ptr<InstanceList> instances()
 	{
 		return m_instances;
-	}
-
-	std::shared_ptr<IconRegistry> iconRegistry()
-	{
-		return m_iconRegistry;
 	}
 
 	std::shared_ptr<AccountModel> accountsModel()
@@ -165,7 +159,6 @@ private:
 	std::shared_ptr<InstanceList> m_instances;
 	std::shared_ptr<UpdateChecker> m_updateChecker;
 	std::shared_ptr<LWJGLVersionList> m_lwjgllist;
-	std::shared_ptr<IconRegistry> m_iconRegistry;
 	std::shared_ptr<AccountModel> m_accountsModel;
 	std::shared_ptr<JavaVersionList> m_javalist;
 	std::shared_ptr<TranslationDownloader> m_translationChecker;

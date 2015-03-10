@@ -9,6 +9,7 @@
 #include "BaseAccount.h"
 #include "BaseAccountType.h"
 #include "FileSystem.h"
+#include "resources/ResourceProxyModel.h"
 
 #include "minecraft/MojangAccount.h"
 
@@ -165,6 +166,10 @@ QVariant AccountModel::data(const QModelIndex &index, int role) const
 		{
 			return account->type();
 		}
+	}
+	else if (role == ResourceProxyModel::PlaceholderRole)
+	{
+		return "icon:hourglass";
 	}
 	return QVariant();
 }

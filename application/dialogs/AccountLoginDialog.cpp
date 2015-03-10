@@ -7,8 +7,7 @@
 #include "auth/BaseAccount.h"
 #include "auth/BaseAccountType.h"
 #include "tasks/Task.h"
-#include "IconRegistry.h"
-#include "IconProxyModel.h"
+#include "resources/ResourceProxyModel.h"
 #include "MultiMC.h"
 
 AccountLoginDialog::AccountLoginDialog(QWidget *parent) :
@@ -21,7 +20,7 @@ AccountLoginDialog::AccountLoginDialog(QWidget *parent) :
 	ui->errorLbl->setVisible(false);
 	ui->loginBtn->setFocus();
 	ui->usernameEdit->setFocus();
-	ui->typeBox->setModel(IconProxyModel::mixin(MMC->accountsModel()->typesModel()));
+	ui->typeBox->setModel(ResourceProxyModel::mixin<QIcon>(MMC->accountsModel()->typesModel()));
 
 	connect(ui->typeBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AccountLoginDialog::currentTypeChanged);
 	currentTypeChanged(0);

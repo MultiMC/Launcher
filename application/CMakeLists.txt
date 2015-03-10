@@ -165,12 +165,6 @@ SET(MULTIMC_SOURCES
 	NagUtils.h
 	NagUtils.cpp
 
-	# Icons
-	IconProxyModel.h
-	IconProxyModel.cpp
-	IconRegistry.h
-	IconRegistry.cpp
-
 	# GUI - page dialog pages
 	pages/BasePage.h
 	pages/VersionPage.cpp

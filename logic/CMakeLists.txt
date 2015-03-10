@@ -61,6 +61,20 @@ set(LOGIC_SOURCES
 	wonko/OpSys.h
 	wonko/OpSys.cpp
 
+	# Resources
+	resources/IconResourceHandler.cpp
+	resources/IconResourceHandler.h
+	resources/Resource.cpp
+	resources/Resource.h
+	resources/ResourceHandler.cpp
+	resources/ResourceHandler.h
+	resources/ResourceObserver.cpp
+	resources/ResourceObserver.h
+	resources/WebResourceHandler.cpp
+	resources/WebResourceHandler.h
+	resources/ResourceProxyModel.h
+	resources/ResourceProxyModel.cpp
+
 	# network stuffs
 	net/NetAction.h
 	net/MD5EtagDownload.h

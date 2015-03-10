@@ -123,7 +123,7 @@ QString MojangAccount::avatar() const
 	{
 		return QString();
 	}
-	return "https://crafatar.com/avatars/" + token("uuid");
+	return "web:https://crafatar.com/avatars/" + token("uuid");
 }
 QString MojangAccount::bigAvatar() const
 {
@@ -131,7 +131,7 @@ QString MojangAccount::bigAvatar() const
 	{
 		return QString();
 	}
-	return "https://crafatar.com/renders/body/" + token("uuid");
+	return "web:https://crafatar.com/renders/body/" + token("uuid");
 }
 
 Task *MojangAccount::createLoginTask(const QString &username, const QString &password, SessionPtr session)
