@@ -11,8 +11,8 @@
 #include "tasks/Task.h"
 #include "BaseInstance.h"
 #include "Env.h"
-#include "IconRegistry.h"
-#include "IconProxyModel.h"
+#include "resources/ResourceProxyModel.h"
+#include "resources/Resource.h"
 #include "MultiMC.h"
 
 AccountsWidget::AccountsWidget(InstancePtr instance, QWidget *parent) :
@@ -27,7 +27,7 @@ AccountsWidget::AccountsWidget(InstancePtr instance, QWidget *parent) :
 	ui->progressWidget->setVisible(false);
 	ui->cancelBtn->setText(m_instance ? tr("Cancel") : tr("Close"));
 
-	ui->view->setModel(IconProxyModel::mixin(MMC->accountsModel().get()));
+	ui->view->setModel(ResourceProxyModel::mixin<QIcon>(MMC->accountsModel().get()));
 	connect(ui->view->selectionModel(), &QItemSelectionModel::currentChanged, this, &AccountsWidget::currentChanged);
 	currentChanged(ui->view->currentIndex(), QModelIndex());
 
@@ -158,7 +158,7 @@ void AccountsWidget::currentChanged(const QModelIndex &current, const QModelInde
 	{
 		BaseAccount *account = MMC->accountsModel()->get(current);
 		ui->groupBox->setEnabled(true);
-		MMC->iconRegistry()->setForTarget(ui->avatarLbl, account->bigAvatar());
+		Resource::create(account->bigAvatar())->applyTo(ui->avatarLbl)->placeholder(Resource::create("icon:hourglass"));
 		ui->usernameLbl->setText(account->username());
 		ui->containerDefaultBtn->setText(tr("Default for %1 (%2)").arg(MMC->accountsModel()->type(account->type())->text(), m_instance ? m_instance->name() : QString()));
 		ui->globalDefaultBtn->setText(tr("Default for %1").arg(MMC->accountsModel()->type(account->type())->text()));

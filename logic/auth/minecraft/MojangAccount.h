@@ -158,7 +158,7 @@ class MinecraftAccountType : public BaseAccountType
 public:
 	QString id() const override { return "minecraft"; }
 	QString text() const override { return QObject::tr("Minecraft"); }
-	QString icon() const override { return "minecraft"; }
+	QString icon() const override { return "icon:minecraft"; }
 	QString usernameText() const override { return QObject::tr("E-Mail/Username:"); }
 	QString passwordText() const override { return QObject::tr("Password:"); }
 	BaseAccount *createAccount(AccountModelPtr model) override { return new MojangAccount(model); }

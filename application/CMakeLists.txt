@@ -162,12 +162,6 @@ SET(MULTIMC_SOURCES
 	JavaCommon.h
 	JavaCommon.cpp
 
-	# Icons
-	IconProxyModel.h
-	IconProxyModel.cpp
-	IconRegistry.h
-	IconRegistry.cpp
-
 	# GUI - page dialog pages
 	pages/BasePage.h
 	pages/VersionPage.cpp

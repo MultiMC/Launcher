@@ -22,7 +22,6 @@ class UpdateChecker;
 class BaseProfilerFactory;
 class BaseDetachedToolFactory;
 class TranslationDownloader;
-class IconRegistry;
 class AccountModel;
 
 #if defined(MMC)
@@ -89,11 +88,6 @@ public:
 	std::shared_ptr<InstanceList> instances()
 	{
 		return m_instances;
-	}
-
-	std::shared_ptr<IconRegistry> iconRegistry()
-	{
-		return m_iconRegistry;
 	}
 
 	std::shared_ptr<AccountModel> accountsModel()
@@ -171,7 +165,6 @@ private:
 	std::shared_ptr<ForgeVersionList> m_forgelist;
 	std::shared_ptr<LiteLoaderVersionList> m_liteloaderlist;
 	std::shared_ptr<MinecraftVersionList> m_minecraftlist;
-	std::shared_ptr<IconRegistry> m_iconRegistry;
 	std::shared_ptr<AccountModel> m_accountsModel;
 	std::shared_ptr<JavaVersionList> m_javalist;
 	std::shared_ptr<TranslationDownloader> m_translationChecker;
