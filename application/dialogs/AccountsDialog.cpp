@@ -1,0 +1,38 @@
+// Licensed under the Apache-2.0 license. See README.md for details.
+
+#include "AccountsDialog.h"
+
+#include <QHBoxLayout>
+
+#include "widgets/AccountsWidget.h"
+
+AccountsDialog::AccountsDialog(InstancePtr instance, QWidget *parent) :
+	QDialog(parent),
+	m_instance(instance)
+{
+	m_widget = new AccountsWidget(instance, this);
+	m_widget->setCancelEnabled(true);
+
+	QHBoxLayout *layout = new QHBoxLayout(this);
+	layout->addWidget(m_widget);
+
+	connect(m_widget, &AccountsWidget::accepted, this, &AccountsDialog::accept);
+	connect(m_widget, &AccountsWidget::rejected, this, &AccountsDialog::reject);
+}
+
+AccountsDialog::~AccountsDialog()
+{
+}
+
+void AccountsDialog::setRequestedAccountType(const QString &type)
+{
+	m_widget->setRequestedAccountType(type);
+}
+void AccountsDialog::setSession(SessionPtr session)
+{
+	m_widget->setSession(session);
+}
+BaseAccount *AccountsDialog::account() const
+{
+	return m_widget->account();
+}

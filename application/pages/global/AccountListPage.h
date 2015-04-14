@@ -20,15 +20,10 @@
 
 #include "pages/BasePage.h"
 
-#include "auth/MojangAccountList.h"
-#include <MultiMC.h>
+#include "MultiMC.h"
 
-namespace Ui
-{
-class AccountListPage;
-}
-
-class AuthenticateTask;
+class QTabWidget;
+class AccountsWidget;
 
 class AccountListPage : public QWidget, public BasePage
 {
@@ -59,28 +54,7 @@ public:
 		return "Accounts";
 	}
 
-public
-slots:
-	void on_addAccountBtn_clicked();
-
-	void on_rmAccountBtn_clicked();
-
-	void on_setDefaultBtn_clicked();
-
-	void on_noDefaultBtn_clicked();
-
-	void listChanged();
-
-	//! Updates the states of the dialog's buttons.
-	void updateButtonStates();
-
-protected:
-	std::shared_ptr<MojangAccountList> m_accounts;
-
-protected
-slots:
-	void addAccount(const QString& errMsg="");
-
 private:
-	Ui::AccountListPage *ui;
+	QTabWidget *m_tabs;
+	AccountsWidget *m_accountsWidget;
 };

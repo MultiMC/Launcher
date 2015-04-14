@@ -14,7 +14,8 @@
 
 #include "dialogs/VersionSelectDialog.h"
 #include "InstanceList.h"
-#include "auth/MojangAccountList.h"
+#include "auth/yggdrasil/MojangAccountList.h"
+#include "auth/AccountModel.h"
 #include "icons/IconList.h"
 #include "minecraft/legacy/LwjglVersionList.h"
 #include "wonko/WonkoPackage.h"
@@ -38,6 +39,7 @@
 #include "settings/Setting.h"
 
 #include "trans/TranslationDownloader.h"
+#include "IconRegistry.h"
 
 #include "minecraft/ftb/FTBPlugin.h"
 
@@ -218,6 +220,8 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 	m_accounts->setListFilePath("accounts.json", true);
 	m_accounts->loadList();
 
+	m_accountsModel.reset(new AccountModel(this));
+
 	// init the http meta cache
 	ENV.initHttpMetaCache(rootPath, staticDataPath);
 
@@ -328,6 +332,8 @@ void MultiMC::initIcons()
 	{
 		ENV.m_icons->directoryChanged(value.toString());
 	});
+
+	m_iconRegistry = std::make_shared<IconRegistry>();
 }
 
 

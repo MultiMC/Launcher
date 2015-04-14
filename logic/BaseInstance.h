@@ -23,7 +23,7 @@
 
 #include "settings/INIFile.h"
 #include "BaseVersionList.h"
-#include "auth/MojangAccount.h"
+#include "auth/yggdrasil/MojangAccount.h"
 
 class QDir;
 class Task;

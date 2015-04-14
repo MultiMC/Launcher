@@ -40,7 +40,7 @@
 #include "tasks/Task.h"
 
 #include "minecraft/MinecraftProfile.h"
-#include "auth/MojangAccountList.h"
+#include "auth/yggdrasil/MojangAccountList.h"
 #include "minecraft/Mod.h"
 #include "icons/IconList.h"
 

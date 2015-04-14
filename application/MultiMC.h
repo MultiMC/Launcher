@@ -23,6 +23,8 @@ class UpdateChecker;
 class BaseProfilerFactory;
 class BaseDetachedToolFactory;
 class TranslationDownloader;
+class IconRegistry;
+class AccountModel;
 
 #if defined(MMC)
 #undef MMC
@@ -93,6 +95,16 @@ public:
 		return m_accounts;
 	}
 
+	std::shared_ptr<IconRegistry> iconRegistry()
+	{
+		return m_iconRegistry;
+	}
+
+	std::shared_ptr<AccountModel> accountsModel()
+	{
+		return m_accountsModel;
+	}
+
 	// APPLICATION ONLY
 	Status status()
 	{
@@ -143,13 +155,9 @@ private slots:
 
 private:
 	void initVersionLists();
-
 	void initLogger();
-
 	void initIcons();
-
 	void initGlobalSettings(bool test_mode);
-
 	void initTranslations();
 
 private:
@@ -165,6 +173,8 @@ private:
 	std::shared_ptr<UpdateChecker> m_updateChecker;
 	std::shared_ptr<MojangAccountList> m_accounts;
 	std::shared_ptr<LWJGLVersionList> m_lwjgllist;
+	std::shared_ptr<IconRegistry> m_iconRegistry;
+	std::shared_ptr<AccountModel> m_accountsModel;
 	std::shared_ptr<JavaVersionList> m_javalist;
 	std::shared_ptr<TranslationDownloader> m_translationChecker;
 

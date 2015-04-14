@@ -20,7 +20,7 @@
 #include <QTimer>
 
 #include "BaseInstance.h"
-#include "auth/MojangAccount.h"
+#include "auth/yggdrasil/MojangAccount.h"
 #include "net/NetJob.h"
 #include "updater/GoUpdate.h"
 
@@ -135,11 +135,6 @@ slots:
 
 	void onGameUpdateError(QString error);
 
-	void taskStart();
-	void taskEnd();
-
-	void instanceEnded();
-
 	// called when an icon is changed in the icon model.
 	void iconUpdated(QString);
 
@@ -147,29 +142,22 @@ slots:
 
 	void updateToolsMenu();
 
-    void skinJobFinished();
 public
 slots:
 	void instanceActivated(QModelIndex);
-
 	void instanceChanged(const QModelIndex &current, const QModelIndex &previous);
 
 	void instanceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 	void selectionBad();
 
-	void startTask(Task *task);
-
 	void updateAvailable(GoUpdate::Status status);
-
 	void updateNotAvailable();
 
 	void notificationsChanged();
 
-	void activeAccountChanged();
-
-	void changeActiveAccount();
-
+	void latestAccountChanged();
+	void makeAccountGlobalDefault();
 	void repopulateAccountsMenu();
 
 	void updateNewsLabel();
