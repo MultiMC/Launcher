@@ -201,13 +201,7 @@ void MinecraftVersionList::loadBuiltinList()
 		mcVersion->m_mainClass = versionObj.value("mainClass").toString("");
 		mcVersion->m_jarChecksum = versionObj.value("checksum").toString("");
 		mcVersion->m_processArguments = versionObj.value("processArguments").toString("legacy");
-		if (versionObj.contains("+traits"))
-		{
-			for (auto traitVal : Json::requireArray(versionObj.value("+traits")))
-			{
-				mcVersion->m_traits.insert(Json::requireString(traitVal));
-			}
-		}
+		mcVersion->m_traits = Json::ensureIsArrayOf<QString>(versionObj, "+traits", QStringList()).toSet();
 		m_lookup[versionID] = mcVersion;
 		m_vlist.append(mcVersion);
 	}

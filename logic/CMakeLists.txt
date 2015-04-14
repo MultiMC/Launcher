@@ -78,21 +78,36 @@ set(LOGIC_SOURCES
 	net/URLConstants.h
 	net/URLConstants.cpp
 
-	# Yggdrasil login stuff
-	auth/AuthSession.h
-	auth/AuthSession.cpp
-	auth/MojangAccountList.h
-	auth/MojangAccountList.cpp
-	auth/MojangAccount.h
-	auth/MojangAccount.cpp
-	auth/YggdrasilTask.h
-	auth/YggdrasilTask.cpp
-	auth/flows/AuthenticateTask.h
-	auth/flows/AuthenticateTask.cpp
-	auth/flows/RefreshTask.cpp
-	auth/flows/RefreshTask.cpp
-	auth/flows/ValidateTask.h
-	auth/flows/ValidateTask.cpp
+	# Accounts stuff
+	auth/DefaultAccountProxyModel.h
+	auth/DefaultAccountProxyModel.cpp
+	auth/AccountModel.h
+	auth/AccountModel.cpp
+	auth/BaseAccount.h
+	auth/BaseAccount.cpp
+	auth/BaseSession.h
+	auth/BaseSession.cpp
+	auth/BaseAccountType.h
+
+	# Imgur accounts
+	#auth/imgur/ImgurAccount.h
+	#auth/imgur/ImgurAccount.cpp
+	#auth/imgur/ImgurAuthTask.h
+	#auth/imgur/ImgurAuthTask.cpp
+
+	# Mojang (yggdrasil) accounts
+	minecraft/auth/MojangAuthSession.h
+	minecraft/auth/MojangAuthSession.cpp
+	minecraft/auth/MojangAccount.h
+	minecraft/auth/MojangAccount.cpp
+	minecraft/auth/tasks/YggdrasilTask.h
+	minecraft/auth/tasks/YggdrasilTask.cpp
+	minecraft/auth/tasks/AuthenticateTask.h
+	minecraft/auth/tasks/AuthenticateTask.cpp
+	minecraft/auth/tasks/RefreshTask.cpp
+	minecraft/auth/tasks/RefreshTask.cpp
+	minecraft/auth/tasks/ValidateTask.h
+	minecraft/auth/tasks/ValidateTask.cpp
 
 	# Update system
 	updater/GoUpdate.h

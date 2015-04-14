@@ -42,7 +42,7 @@
 #include "forge/ForgeInstaller.h"
 #include "liteloader/LiteLoaderVersionList.h"
 #include "liteloader/LiteLoaderInstaller.h"
-#include "auth/MojangAccountList.h"
+#include "auth/AccountModel.h"
 #include "minecraft/Mod.h"
 #include <minecraft/MinecraftVersion.h>
 #include <minecraft/MinecraftVersionList.h>
@@ -239,7 +239,7 @@ void VersionPage::on_changeVersionBtn_clicked()
 	if (!vselect.exec() || !vselect.selectedVersion())
 		return;
 
-	if (!MMC->accounts()->anyAccountIsValid())
+	if (!MMC->accountsModel()->hasAny("minecraft"))
 	{
 		CustomMessageBox::selectable(
 			this, tr("Error"),
