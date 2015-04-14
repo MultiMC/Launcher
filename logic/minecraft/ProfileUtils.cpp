@@ -8,6 +8,8 @@
 #include <QRegularExpression>
 #include <QSaveFile>
 
+#include "Json.h"
+
 namespace ProfileUtils
 {
 
@@ -76,13 +78,13 @@ bool readOverrideOrders(QString path, PatchOrder &order)
 	{
 		auto obj = MMCJson::ensureObject(doc);
 		// check order file version.
-		auto version = MMCJson::ensureInteger(obj.value("version"), "version");
+		auto version = Json::ensureInteger(obj, "version", Json::Required, "version");
 		if (version != currentOrderFileVersion)
 		{
 			throw JSONValidationError(QObject::tr("Invalid order file version, expected %1")
 										  .arg(currentOrderFileVersion));
 		}
-		auto orderArray = MMCJson::ensureArray(obj.value("order"));
+		auto orderArray = Json::ensureArray(obj, "order");
 		for(auto item: orderArray)
 		{
 			order.append(MMCJson::ensureString(item));

@@ -1,6 +1,6 @@
 project(MultiMC-Logic)
 
-SET(LOGIC_SOURCES
+set(LOGIC_SOURCES
 	# LOGIC - Base classes and infrastructure
 	BaseInstaller.h
 	BaseInstaller.cpp
@@ -19,6 +19,10 @@ SET(LOGIC_SOURCES
 	MMCZip.cpp
 	MMCStrings.h
 	MMCStrings.cpp
+	BaseConfigObject.h
+	BaseConfigObject.cpp
+	AbstractCommonModel.h
+	AbstractCommonModel.cpp
 
 	# Prefix tree where node names are strings between separators
 	SeparatorPrefixTree.h
@@ -30,6 +34,11 @@ SET(LOGIC_SOURCES
 	# JSON parsing helpers
 	MMCJson.h
 	MMCJson.cpp
+	Json.h
+	Json.cpp
+	FileSystem.h
+	FileSystem.cpp
+	Exception.h
 
 	# RW lock protected map
 	RWStorage.h
@@ -57,21 +66,34 @@ SET(LOGIC_SOURCES
 	net/URLConstants.h
 	net/URLConstants.cpp
 
-	# Yggdrasil login stuff
-	auth/AuthSession.h
-	auth/AuthSession.cpp
-	auth/MojangAccountList.h
-	auth/MojangAccountList.cpp
-	auth/MojangAccount.h
-	auth/MojangAccount.cpp
-	auth/YggdrasilTask.h
-	auth/YggdrasilTask.cpp
-	auth/flows/AuthenticateTask.h
-	auth/flows/AuthenticateTask.cpp
-	auth/flows/RefreshTask.cpp
-	auth/flows/RefreshTask.cpp
-	auth/flows/ValidateTask.h
-	auth/flows/ValidateTask.cpp
+	# Accounts stuff
+	auth/AccountModel.h
+	auth/AccountModel.cpp
+	auth/BaseAccount.h
+	auth/BaseAccount.cpp
+	auth/BaseSession.h
+	auth/BaseSession.cpp
+	auth/BaseAccountType.h
+
+	# Imgur accounts
+	#auth/imgur/ImgurAccount.h
+	#auth/imgur/ImgurAccount.cpp
+	#auth/imgur/ImgurAuthTask.h
+	#auth/imgur/ImgurAuthTask.cpp
+
+	# Mojang (yggdrasil) accounts
+	auth/minecraft/MojangAuthSession.h
+	auth/minecraft/MojangAuthSession.cpp
+	auth/minecraft/MojangAccount.h
+	auth/minecraft/MojangAccount.cpp
+	auth/minecraft/tasks/YggdrasilTask.h
+	auth/minecraft/tasks/YggdrasilTask.cpp
+	auth/minecraft/tasks/AuthenticateTask.h
+	auth/minecraft/tasks/AuthenticateTask.cpp
+	auth/minecraft/tasks/RefreshTask.cpp
+	auth/minecraft/tasks/RefreshTask.cpp
+	auth/minecraft/tasks/ValidateTask.h
+	auth/minecraft/tasks/ValidateTask.cpp
 
 	# Update system
 	updater/GoUpdate.h
@@ -183,6 +205,12 @@ SET(LOGIC_SOURCES
 	tasks/ThreadTask.cpp
 	tasks/SequentialTask.h
 	tasks/SequentialTask.cpp
+	tasks/StandardTask.h
+	tasks/StandardTask.cpp
+	tasks/MoveFileTask.h
+	tasks/MoveFileTask.cpp
+	tasks/CopyFileTask.h
+	tasks/CopyFileTask.cpp
 
 	# Settings
 	settings/INIFile.cpp
@@ -261,3 +289,5 @@ target_link_libraries(MultiMC_logic xz-embedded unpack200 iconfix libUtil Logica
 		${MultiMC_LINK_ADDITIONAL_LIBS})
 
 add_dependencies(MultiMC_logic QuaZIP)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})

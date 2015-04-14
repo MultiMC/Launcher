@@ -95,8 +95,10 @@ std::shared_ptr<Task> LegacyInstance::doUpdate()
 	return std::shared_ptr<Task>(new LegacyUpdate(this, this));
 }
 
-BaseProcess *LegacyInstance::prepareForLaunch(AuthSessionPtr account)
+BaseProcess *LegacyInstance::prepareForLaunch(SessionPtr acc)
 {
+	MojangAuthSessionPtr account = std::dynamic_pointer_cast<MojangAuthSession>(acc);
+
 	QString launchScript;
 	QIcon icon = ENV.icons()->getIcon(iconKey());
 	auto pixmap = icon.pixmap(128, 128);

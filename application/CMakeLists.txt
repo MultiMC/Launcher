@@ -145,6 +145,8 @@ SET(MULTIMC_SOURCES
 	InstanceProxyModel.cpp
 	VersionProxyModel.h
 	VersionProxyModel.cpp
+	AuthTask.h
+	AuthTask.cpp
 
 	# GUI - windows
 	MainWindow.h
@@ -159,6 +161,12 @@ SET(MULTIMC_SOURCES
 	# Common java checking UI
 	JavaCommon.h
 	JavaCommon.cpp
+
+	# Icons
+	IconProxyModel.h
+	IconProxyModel.cpp
+	IconRegistry.h
+	IconRegistry.cpp
 
 	# GUI - page dialog pages
 	pages/BasePage.h
@@ -200,20 +208,14 @@ SET(MULTIMC_SOURCES
 	# GUI - dialogs
 	dialogs/AboutDialog.cpp
 	dialogs/AboutDialog.h
-	dialogs/AccountSelectDialog.cpp
-	dialogs/AccountSelectDialog.h
 	dialogs/CopyInstanceDialog.cpp
 	dialogs/CopyInstanceDialog.h
 	dialogs/CustomMessageBox.cpp
 	dialogs/CustomMessageBox.h
-	dialogs/EditAccountDialog.cpp
-	dialogs/EditAccountDialog.h
 	dialogs/ExportInstanceDialog.cpp
 	dialogs/ExportInstanceDialog.h
 	dialogs/IconPickerDialog.cpp
 	dialogs/IconPickerDialog.h
-	dialogs/LoginDialog.cpp
-	dialogs/LoginDialog.h
 	dialogs/ModEditDialogCommon.cpp
 	dialogs/ModEditDialogCommon.h
 	dialogs/NewInstanceDialog.cpp
@@ -228,6 +230,10 @@ SET(MULTIMC_SOURCES
 	dialogs/UpdateDialog.h
 	dialogs/VersionSelectDialog.cpp
 	dialogs/VersionSelectDialog.h
+	dialogs/AccountLoginDialog.cpp
+	dialogs/AccountLoginDialog.h
+	dialogs/AccountsDialog.cpp
+	dialogs/AccountsDialog.h
 
 
 	# GUI - widgets
@@ -250,6 +256,10 @@ SET(MULTIMC_SOURCES
 	widgets/ServerStatus.h
 	widgets/VersionListView.cpp
 	widgets/VersionListView.h
+	widgets/ProgressWidget.h
+	widgets/ProgressWidget.cpp
+	widgets/AccountsWidget.h
+	widgets/AccountsWidget.cpp
 
 
 	# GUI - instance group view
@@ -291,15 +301,14 @@ SET(MULTIMC_UIS
 	dialogs/VersionSelectDialog.ui
 	dialogs/ProgressDialog.ui
 	dialogs/IconPickerDialog.ui
-	dialogs/AccountSelectDialog.ui
-	dialogs/EditAccountDialog.ui
 	dialogs/ExportInstanceDialog.ui
-	dialogs/LoginDialog.ui
 	dialogs/UpdateDialog.ui
 	dialogs/NotificationDialog.ui
+	dialogs/AccountLoginDialog.ui
 
 	# Widgets/other
 	widgets/MCModInfoFrame.ui
+	widgets/AccountsWidget.ui
 )
 
 set(MULTIMC_QRCS
@@ -336,7 +345,8 @@ if(WIN32)
 	set(MultiMC_LINK_ADDITIONAL_LIBS ${MultiMC_LINK_ADDITIONAL_LIBS} Qt5::WinMain)
 endif(WIN32)
 
-include_directories(../logic)
+include_directories(${CMAKE_SOURCE_DIR}/logic ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 # Qt 5 stuff
 qt5_wrap_ui(MULTIMC_UI ${MULTIMC_UIS})

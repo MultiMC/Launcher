@@ -109,7 +109,7 @@ RawLibraryPtr RawLibrary::fromJsonPlus(const QJsonObject &libObj, const QString 
 				throw JSONValidationError("Empty compound insert rule in " + filename);
 			}
 			QString insertString = insertObj.keys().first();
-			// really, only replace makes sense in combination with 
+			// really, only replace makes sense in combination with
 			if(insertString != "replace")
 			{
 				throw JSONValidationError("Compound insert rule is not 'replace' in " + filename);

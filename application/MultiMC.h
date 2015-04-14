@@ -13,7 +13,6 @@ class LWJGLVersionList;
 class HttpMetaCache;
 class SettingsObject;
 class InstanceList;
-class MojangAccountList;
 class IconList;
 class QNetworkAccessManager;
 class ForgeVersionList;
@@ -23,6 +22,8 @@ class UpdateChecker;
 class BaseProfilerFactory;
 class BaseDetachedToolFactory;
 class TranslationDownloader;
+class IconRegistry;
+class AccountModel;
 
 #if defined(MMC)
 #undef MMC
@@ -90,10 +91,14 @@ public:
 		return m_instances;
 	}
 
-	// APPLICATION ONLY
-	std::shared_ptr<MojangAccountList> accounts()
+	std::shared_ptr<IconRegistry> iconRegistry()
 	{
-		return m_accounts;
+		return m_iconRegistry;
+	}
+
+	std::shared_ptr<AccountModel> accountsModel()
+	{
+		return m_accountsModel;
 	}
 
 	// APPLICATION ONLY
@@ -146,11 +151,8 @@ private slots:
 
 private:
 	void initLogger();
-
 	void initIcons();
-
 	void initGlobalSettings(bool test_mode);
-
 	void initTranslations();
     void initSSL();
 
@@ -165,11 +167,12 @@ private:
 	std::shared_ptr<SettingsObject> m_settings;
 	std::shared_ptr<InstanceList> m_instances;
 	std::shared_ptr<UpdateChecker> m_updateChecker;
-	std::shared_ptr<MojangAccountList> m_accounts;
 	std::shared_ptr<LWJGLVersionList> m_lwjgllist;
 	std::shared_ptr<ForgeVersionList> m_forgelist;
 	std::shared_ptr<LiteLoaderVersionList> m_liteloaderlist;
 	std::shared_ptr<MinecraftVersionList> m_minecraftlist;
+	std::shared_ptr<IconRegistry> m_iconRegistry;
+	std::shared_ptr<AccountModel> m_accountsModel;
 	std::shared_ptr<JavaVersionList> m_javalist;
 	std::shared_ptr<TranslationDownloader> m_translationChecker;
 
