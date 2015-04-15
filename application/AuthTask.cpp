@@ -43,7 +43,7 @@ void AuthTask::executeTask()
 			}
 			else
 			{
-				throw Exception(tr("No valid authentication details given"));
+				emitFailed(tr("No valid authentication details given"));
 			}
 		}
 	}
@@ -55,7 +55,8 @@ void AuthTask::executeTask()
 		dlg.setRequestedAccountType(m_type);
 		if (dlg.exec() != QDialog::Accepted)
 		{
-			throw Exception(tr("No account choosen"));
+			emitFailed(tr("No account choosen"));
+			return;
 		}
 		BaseAccount *acc = dlg.account();
 		if (acc)
@@ -66,7 +67,7 @@ void AuthTask::executeTask()
 		}
 		else
 		{
-			throw Exception(tr("No account choosen"));
+			emitFailed(tr("No account choosen"));
 		}
 	}
 }

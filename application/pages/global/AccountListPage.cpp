@@ -30,6 +30,7 @@ AccountListPage::AccountListPage(QWidget *parent)
 	layout->addWidget(m_tabs);
 
 	m_accountsWidget = new AccountsWidget(nullptr, this);
+	m_accountsWidget->setCancelEnabled(false);
 	m_tabs->addTab(m_accountsWidget, QString());
 }
 
