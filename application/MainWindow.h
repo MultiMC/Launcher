@@ -20,7 +20,7 @@
 #include <QTimer>
 
 #include "BaseInstance.h"
-#include "auth/minecraft/MojangAuthSession.h"
+#include "minecraft/auth/MojangAuthSession.h"
 #include "net/NetJob.h"
 #include "updater/GoUpdate.h"
 

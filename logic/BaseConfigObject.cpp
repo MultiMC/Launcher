@@ -3,6 +3,7 @@
 #include "BaseConfigObject.h"
 
 #include <QTimer>
+#include <QSaveFile>
 #include <QFile>
 #include <QCoreApplication>
 
@@ -47,7 +48,7 @@ void BaseConfigObject::saveNow()
 		return;
 	}
 
-	QFile file(m_filename);
+	QSaveFile file(m_filename);
 	if (!file.open(QFile::WriteOnly))
 	{
 		qWarning() << "Couldn't open" << m_filename << "for writing:" << file.errorString();
@@ -55,6 +56,12 @@ void BaseConfigObject::saveNow()
 	}
 	// cppcheck-suppress pureVirtualCall
 	file.write(doSave());
+
+	if (!file.commit())
+	{
+		qCritical() << "Unable to commit the file" << file.fileName() << ":" << file.errorString();
+		file.cancelWriting();
+	}
 }
 void BaseConfigObject::loadNow()
 {

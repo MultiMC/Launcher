@@ -22,7 +22,7 @@
 #include "minecraft/onesix/OneSixUpdate.h"
 #include "minecraft/onesix/OneSixProfileStrategy.h"
 
-#include "auth/minecraft/MojangAuthSession.h"
+#include "minecraft/auth/MojangAuthSession.h"
 #include "minecraft/MinecraftProfile.h"
 #include "minecraft/VersionBuildError.h"
 #include "minecraft/Process.h"

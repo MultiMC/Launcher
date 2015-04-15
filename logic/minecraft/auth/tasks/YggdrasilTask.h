@@ -22,7 +22,7 @@
 #include <QTimer>
 #include <qsslerror.h>
 
-#include "auth/minecraft/MojangAccount.h"
+#include "../MojangAccount.h"
 
 class QNetworkReply;
 

@@ -108,18 +108,18 @@ set(LOGIC_SOURCES
 	#auth/imgur/ImgurAuthTask.cpp
 
 	# Mojang (yggdrasil) accounts
-	auth/minecraft/MojangAuthSession.h
-	auth/minecraft/MojangAuthSession.cpp
-	auth/minecraft/MojangAccount.h
-	auth/minecraft/MojangAccount.cpp
-	auth/minecraft/tasks/YggdrasilTask.h
-	auth/minecraft/tasks/YggdrasilTask.cpp
-	auth/minecraft/tasks/AuthenticateTask.h
-	auth/minecraft/tasks/AuthenticateTask.cpp
-	auth/minecraft/tasks/RefreshTask.cpp
-	auth/minecraft/tasks/RefreshTask.cpp
-	auth/minecraft/tasks/ValidateTask.h
-	auth/minecraft/tasks/ValidateTask.cpp
+	minecraft/auth/MojangAuthSession.h
+	minecraft/auth/MojangAuthSession.cpp
+	minecraft/auth/MojangAccount.h
+	minecraft/auth/MojangAccount.cpp
+	minecraft/auth/tasks/YggdrasilTask.h
+	minecraft/auth/tasks/YggdrasilTask.cpp
+	minecraft/auth/tasks/AuthenticateTask.h
+	minecraft/auth/tasks/AuthenticateTask.cpp
+	minecraft/auth/tasks/RefreshTask.cpp
+	minecraft/auth/tasks/RefreshTask.cpp
+	minecraft/auth/tasks/ValidateTask.h
+	minecraft/auth/tasks/ValidateTask.cpp
 
 	# Update system
 	updater/GoUpdate.h

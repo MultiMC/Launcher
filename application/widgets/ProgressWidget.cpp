@@ -45,7 +45,10 @@ bool ProgressWidget::exec(std::shared_ptr<Task> task)
 	QEventLoop loop;
 	connect(task.get(), &Task::finished, &loop, &QEventLoop::quit);
 	start(task);
-	loop.exec();
+	if (task->isRunning())
+	{
+		loop.exec();
+	}
 	return task->successful();
 }
 

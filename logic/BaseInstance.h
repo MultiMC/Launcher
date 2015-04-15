@@ -23,7 +23,7 @@
 
 #include "settings/INIFile.h"
 #include "BaseVersionList.h"
-#include "auth/minecraft/MojangAccount.h"
+#include "minecraft/auth/MojangAccount.h"
 
 class QDir;
 class Task;

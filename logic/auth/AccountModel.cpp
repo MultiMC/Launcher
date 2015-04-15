@@ -11,7 +11,7 @@
 #include "FileSystem.h"
 #include "resources/ResourceProxyModel.h"
 
-#include "minecraft/MojangAccount.h"
+#include "minecraft/auth/MojangAccount.h"
 
 #define ACCOUNT_LIST_FORMAT_VERSION 3
 

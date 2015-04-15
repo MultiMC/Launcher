@@ -17,7 +17,7 @@
 
 #include <QDebug>
 
-#include "auth/minecraft/MojangAccount.h"
+#include "../MojangAccount.h"
 #include "Json.h"
 
 RefreshTask::RefreshTask(MojangAuthSessionPtr session, MojangAccount *account) : YggdrasilTask(session, account)

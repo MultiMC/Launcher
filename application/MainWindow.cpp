@@ -364,7 +364,7 @@ namespace Ui {
 #include "java/JavaVersionList.h"
 
 #include "auth/AccountModel.h"
-#include "auth/minecraft/MojangAccount.h"
+#include "minecraft/auth/MojangAccount.h"
 
 #include "updater/DownloadTask.h"
 
