@@ -18,6 +18,8 @@ protected:
 	void changeSetting(const Setting &setting, QVariant value) override {}
 	void resetSetting(const Setting &setting) override {}
 	QVariant retrieveValue(const Setting &setting) override { return QVariant(); }
+	void suspendSave() override {}
+	void resumeSave() override {}
 };
 class TestsInternal
 {

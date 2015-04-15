@@ -17,11 +17,13 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QDebug>
 #include <pathutils.h>
 
 #include "minecraft/MinecraftProfile.h"
 #include "ProfileUtils.h"
 #include "NullProfileStrategy.h"
+#include "Exception.h"
 
 MinecraftProfile::MinecraftProfile(ProfileStrategy *strategy)
 	: QAbstractListModel()
@@ -276,7 +278,7 @@ std::shared_ptr<MinecraftProfile> MinecraftProfile::fromJson(const QJsonObject &
 		file->applyTo(version.get());
 		version->appendPatch(file);
 	}
-	catch(MMCError & err)
+	catch(Exception &err)
 	{
 		return 0;
 	}

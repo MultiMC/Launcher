@@ -16,7 +16,7 @@
 
 #include "ValidateTask.h"
 
-#include "auth/minecraft/MojangAccount.h"
+#include "../MojangAccount.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>

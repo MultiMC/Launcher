@@ -3,7 +3,7 @@
 class VersionBuildError : public Exception
 {
 public:
-	VersionBuildError(QString cause) : Exception(cause) {}
+	explicit VersionBuildError(QString cause) : Exception(cause) {}
 	virtual ~VersionBuildError() noexcept
 	{
 	}

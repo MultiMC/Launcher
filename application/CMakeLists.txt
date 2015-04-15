@@ -145,8 +145,6 @@ SET(MULTIMC_SOURCES
 	InstanceProxyModel.cpp
 	VersionProxyModel.h
 	VersionProxyModel.cpp
-	AuthTask.h
-	AuthTask.cpp
 
 	# GUI - windows
 	MainWindow.h
@@ -339,7 +337,7 @@ if(WIN32)
 	set(MultiMC_LINK_ADDITIONAL_LIBS ${MultiMC_LINK_ADDITIONAL_LIBS} Qt5::WinMain)
 endif(WIN32)
 
-include_directories(${CMAKE_SOURCE_DIR}/logic ${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(../logic)
 
 
 # Qt 5 stuff

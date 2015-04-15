@@ -1,4 +1,17 @@
-// Licensed under the Apache-2.0 license. See README.md for details.
+/* Copyright 2015 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #pragma once
 
@@ -14,32 +27,31 @@ class Container;
 class AccountTypesModel;
 using InstancePtr = std::shared_ptr<class BaseInstance>;
 
-class AccountModel : public QAbstractListModel, public BaseConfigObject, public std::enable_shared_from_this<AccountModel>
+class AccountModel : public AbstractCommonModel<BaseAccount *>,
+		public BaseConfigObject,
+		public std::enable_shared_from_this<AccountModel>
 {
 	Q_OBJECT
 public:
-	explicit AccountModel(QObject *parent = nullptr);
+	explicit AccountModel();
 	~AccountModel();
 
 	void registerType(BaseAccountType *type);
 	BaseAccountType *type(const QString &id) const;
 	QStringList types() const;
 
-	BaseAccount *get(const QModelIndex &index) const;
-	BaseAccount *get(const QString &type, const InstancePtr instance = nullptr) const;
+	BaseAccount *getAccount(const QModelIndex &index) const;
+	BaseAccount *getAccount(const QString &type, const InstancePtr instance = nullptr) const;
 
 	void setGlobalDefault(BaseAccount *account);
 	void setInstanceDefault(InstancePtr instance, BaseAccount *account);
 	void unsetDefault(const QString &type, InstancePtr instance = nullptr);
+	bool isGlobalDefault(BaseAccount *account) const;
+	bool isInstanceDefaultExplicit(InstancePtr instance, BaseAccount *account) const;
 
 	BaseAccount *latest() const { return m_latest; }
 	QList<BaseAccount *> accountsForType(const QString &type) const;
 	bool hasAny(const QString &type) const;
-
-	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-	int columnCount(const QModelIndex &parent) const override;
-	QVariant data(const QModelIndex &index, int role) const override;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 	QAbstractItemModel *typesModel() const;
 
@@ -47,6 +59,7 @@ signals:
 	void listChanged();
 	void latestChanged();
 	void globalDefaultsChanged();
+	void defaultsChanged();
 
 public slots:
 	void registerAccount(BaseAccount *account);
@@ -60,7 +73,6 @@ protected:
 private:
 	//   type          instance
 	QMap<QString, QMap<QString, BaseAccount *>> m_defaults;
-	QList<BaseAccount *> m_accounts;
 
 	BaseAccount *m_latest = nullptr;
 

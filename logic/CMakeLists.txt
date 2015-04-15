@@ -14,7 +14,6 @@ set(LOGIC_SOURCES
 	BaseInstance.h
 	BaseInstance.cpp
 	NullInstance.h
-	MMCError.h
 	MMCZip.h
 	MMCZip.cpp
 	MMCStrings.h
@@ -32,8 +31,6 @@ set(LOGIC_SOURCES
 	Env.cpp
 
 	# JSON parsing helpers
-	MMCJson.h
-	MMCJson.cpp
 	Json.h
 	Json.cpp
 	FileSystem.h
@@ -81,6 +78,8 @@ set(LOGIC_SOURCES
 	net/URLConstants.cpp
 
 	# Accounts stuff
+	auth/DefaultAccountProxyModel.h
+	auth/DefaultAccountProxyModel.cpp
 	auth/AccountModel.h
 	auth/AccountModel.cpp
 	auth/BaseAccount.h
@@ -96,18 +95,18 @@ set(LOGIC_SOURCES
 	#auth/imgur/ImgurAuthTask.cpp
 
 	# Mojang (yggdrasil) accounts
-	auth/minecraft/MojangAuthSession.h
-	auth/minecraft/MojangAuthSession.cpp
-	auth/minecraft/MojangAccount.h
-	auth/minecraft/MojangAccount.cpp
-	auth/minecraft/tasks/YggdrasilTask.h
-	auth/minecraft/tasks/YggdrasilTask.cpp
-	auth/minecraft/tasks/AuthenticateTask.h
-	auth/minecraft/tasks/AuthenticateTask.cpp
-	auth/minecraft/tasks/RefreshTask.cpp
-	auth/minecraft/tasks/RefreshTask.cpp
-	auth/minecraft/tasks/ValidateTask.h
-	auth/minecraft/tasks/ValidateTask.cpp
+	minecraft/auth/MojangAuthSession.h
+	minecraft/auth/MojangAuthSession.cpp
+	minecraft/auth/MojangAccount.h
+	minecraft/auth/MojangAccount.cpp
+	minecraft/auth/tasks/YggdrasilTask.h
+	minecraft/auth/tasks/YggdrasilTask.cpp
+	minecraft/auth/tasks/AuthenticateTask.h
+	minecraft/auth/tasks/AuthenticateTask.cpp
+	minecraft/auth/tasks/RefreshTask.cpp
+	minecraft/auth/tasks/RefreshTask.cpp
+	minecraft/auth/tasks/ValidateTask.h
+	minecraft/auth/tasks/ValidateTask.cpp
 
 	# Update system
 	updater/GoUpdate.h
@@ -221,10 +220,6 @@ set(LOGIC_SOURCES
 	tasks/SequentialTask.cpp
 	tasks/StandardTask.h
 	tasks/StandardTask.cpp
-	tasks/MoveFileTask.h
-	tasks/MoveFileTask.cpp
-	tasks/CopyFileTask.h
-	tasks/CopyFileTask.cpp
 
 	# Settings
 	settings/INIFile.cpp
@@ -303,5 +298,3 @@ target_link_libraries(MultiMC_logic xz-embedded unpack200 iconfix libUtil Logica
 		${MultiMC_LINK_ADDITIONAL_LIBS})
 
 add_dependencies(MultiMC_logic QuaZIP)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})

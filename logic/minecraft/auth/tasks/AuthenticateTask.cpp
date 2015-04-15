@@ -17,7 +17,7 @@
 #include "AuthenticateTask.h"
 #include <QDebug>
 
-#include "auth/minecraft/MojangAccount.h"
+#include "../MojangAccount.h"
 #include "Json.h"
 
 AuthenticateTask::AuthenticateTask(MojangAuthSessionPtr session, const QString &username, const QString &password, MojangAccount *account,

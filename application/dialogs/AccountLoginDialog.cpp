@@ -40,6 +40,8 @@ AccountLoginDialog::AccountLoginDialog(BaseAccount *account, QWidget *parent)
 	setWindowTitle(tr("Login"));
 	m_account = account;
 	ui->usernameEdit->setText(account->loginUsername());
+	ui->usernameEdit->setVisible(false);
+	ui->usernameLbl->setVisible(false);
 }
 
 AccountLoginDialog::~AccountLoginDialog()
@@ -66,6 +68,7 @@ void AccountLoginDialog::on_loginBtn_clicked()
 	ui->passwordEdit->setEnabled(false);
 	ui->loginBtn->setEnabled(false);
 	ui->progressWidget->setVisible(true);
+
 	ui->progressWidget->start(task);
 }
 
@@ -78,7 +81,7 @@ void AccountLoginDialog::taskFinished()
 	}
 	else
 	{
-		ui->typeBox->setEnabled(true);
+		ui->typeBox->setEnabled(m_type.isEmpty());
 		ui->errorLbl->setVisible(true);
 		ui->errorLbl->setText(task->failReason());
 		ui->usernameEdit->setEnabled(true);
@@ -98,6 +101,8 @@ void AccountLoginDialog::currentTypeChanged(const int index)
 }
 void AccountLoginDialog::setupForType(const QString &type)
 {
+	m_type = type;
+
 	const BaseAccountType *t = MMC->accountsModel()->type(type);
 	ui->usernameLbl->setText(t->usernameText());
 	ui->usernameLbl->setVisible(!t->usernameText().isNull());

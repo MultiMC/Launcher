@@ -16,11 +16,11 @@
 #include <QIcon>
 #include <pathutils.h>
 #include <QDebug>
-#include "MMCError.h"
 
 #include "minecraft/OneSixInstance.h"
 
 #include "minecraft/OneSixUpdate.h"
+#include "minecraft/auth/MojangAuthSession.h"
 #include "minecraft/MinecraftProfile.h"
 #include "minecraft/VersionBuildError.h"
 #include "minecraft/MinecraftProcess.h"
@@ -314,7 +314,7 @@ void OneSixInstance::reloadProfile()
 	catch (VersionIncomplete &error)
 	{
 	}
-	catch (MMCError &error)
+	catch (Exception &error)
 	{
 		m_version->clear();
 		setFlag(VersionBrokenFlag);

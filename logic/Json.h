@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QUuid>
 #include <QVariant>
+#include <memory>
 
 #include "Exception.h"
 
@@ -30,8 +31,8 @@ QByteArray toBinary(const QJsonArray &array);
 QByteArray toText(const QJsonObject &obj);
 QByteArray toText(const QJsonArray &array);
 
-QJsonDocument ensureDocument(const QByteArray &data);
-QJsonDocument ensureDocument(const QString &filename);
+QJsonDocument ensureDocument(const QByteArray &data, const QString &what = "Document");
+QJsonDocument ensureDocument(const QString &filename, const QString &what = "Document");
 QJsonObject ensureObject(const QJsonDocument &doc, const QString &what = "Document");
 QJsonArray ensureArray(const QJsonDocument &doc, const QString &what = "Document");
 
@@ -40,7 +41,20 @@ QJsonArray ensureArray(const QJsonDocument &doc, const QString &what = "Document
 void writeString(QJsonObject & to, const QString &key, const QString &value);
 void writeStringList(QJsonObject & to, const QString &key, const QStringList &values);
 
-template <typename IO, typename T>
+template <typename T>
+void writeObjectList(QJsonObject & to, QString key, QList<std::shared_ptr<T>> values)
+{
+	if (!values.isEmpty())
+	{
+		QJsonArray array;
+		for (auto value: values)
+		{
+			array.append(value->toJson());
+		}
+		to.insert(key, array);
+	}
+}
+template <typename T>
 void writeObjectList(QJsonObject & to, QString key, QList<T> values)
 {
 	if (!values.isEmpty())
@@ -48,7 +62,7 @@ void writeObjectList(QJsonObject & to, QString key, QList<T> values)
 		QJsonArray array;
 		for (auto value: values)
 		{
-			array.append(IO::toJson(value));
+			array.append(value.toJson());
 		}
 		to.insert(key, array);
 	}
@@ -222,3 +236,4 @@ JSON_HELPERFUNCTIONS(Variant, QVariant)
 #undef JSON_HELPERFUNCTIONS
 
 }
+using JSONValidationError = Json::JsonException;

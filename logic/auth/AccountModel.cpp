@@ -1,8 +1,19 @@
-// Licensed under the Apache-2.0 license. See README.md for details.
+/* Copyright 2015 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "AccountModel.h"
-
-#include <QTimer>
 
 #include "Json.h"
 #include "BaseInstance.h"
@@ -10,8 +21,9 @@
 #include "BaseAccountType.h"
 #include "FileSystem.h"
 #include "resources/ResourceProxyModel.h"
+#include"pathutils.h"
 
-#include "minecraft/MojangAccount.h"
+#include "minecraft/auth/MojangAccount.h"
 
 #define ACCOUNT_LIST_FORMAT_VERSION 3
 
@@ -20,29 +32,43 @@ class AccountTypesModel : public AbstractCommonModel<BaseAccountType *>
 public:
 	explicit AccountTypesModel() : AbstractCommonModel<BaseAccountType *>(Qt::Vertical)
 	{
-		addEntry<QString>(&BaseAccountType::id, 0, Qt::UserRole);
-		addEntry<QString>(&BaseAccountType::text, 0, Qt::DisplayRole);
-		addEntry<QString>(&BaseAccountType::icon, 0, Qt::DecorationRole);
+		addEntry<QString>(0, Qt::UserRole, &BaseAccountType::id);
+		addEntry<QString>(0, Qt::DisplayRole, &BaseAccountType::text);
+		addEntry<QString>(0, Qt::DecorationRole, &BaseAccountType::icon);
 	}
 };
 
-AccountModel::AccountModel(QObject *parent)
-	: QAbstractListModel(parent), BaseConfigObject("accounts.json")
+AccountModel::AccountModel()
+	: AbstractCommonModel(Qt::Vertical), BaseConfigObject("accounts.json")
 {
 	m_typesModel = new AccountTypesModel;
 
 	registerType(new MinecraftAccountType);
 
+	addEntry<QString>(0, Qt::DecorationRole, &BaseAccount::avatar);
+	addEntry<QString>(0, Qt::DisplayRole, &BaseAccount::username);
+	addEntry<QString>(0, ResourceProxyModel::PlaceholderRole, [](BaseAccount *) { return "icon:hourglass"; });
+	addEntry<QString>(1, Qt::DecorationRole, [this](BaseAccount *account)
+	{
+		return m_types.contains(account->type()) ? m_types[account->type()]->icon() : QString();
+	});
+	addEntry<QString>(1, Qt::DisplayRole, [this](BaseAccount *account)
+	{
+		return m_types.contains(account->type()) ? m_types[account->type()]->text() : account->type();
+	});
+	addEntry<QString>(1, Qt::UserRole, &BaseAccount::type);
+	addEntry<QString>(1, ResourceProxyModel::PlaceholderRole, [](BaseAccount *) { return "icon:hourglass"; });
+
+	setEntryTitle(0, tr("Username"));
+	setEntryTitle(1, tr("Type"));
+
 	connect(this, &AccountModel::modelReset, this, &AccountModel::listChanged);
 	connect(this, &AccountModel::rowsInserted, this, &AccountModel::listChanged);
 	connect(this, &AccountModel::rowsRemoved, this, &AccountModel::listChanged);
 	connect(this, &AccountModel::dataChanged, this, &AccountModel::listChanged);
-
-	QTimer::singleShot(0, [this](){loadNow();});
 }
 AccountModel::~AccountModel()
 {
-	qDeleteAll(m_accounts);
 	delete m_typesModel;
 }
 
@@ -60,11 +86,11 @@ QStringList AccountModel::types() const
 	return m_types.keys();
 }
 
-BaseAccount *AccountModel::get(const QModelIndex &index) const
+BaseAccount *AccountModel::getAccount(const QModelIndex &index) const
 {
-	return index.isValid() ? m_accounts.at(index.row()) : nullptr;
+	return index.isValid() ? get(index.row()) : nullptr;
 }
-BaseAccount *AccountModel::get(const QString &type, const InstancePtr instance) const
+BaseAccount *AccountModel::getAccount(const QString &type, const InstancePtr instance) const
 {
 	QMap<QString, BaseAccount *> defaults = m_defaults[type];
 	// instance default?
@@ -89,6 +115,7 @@ void AccountModel::setGlobalDefault(BaseAccount *account)
 	m_latest = account;
 	emit latestChanged();
 	emit globalDefaultsChanged();
+	emit defaultsChanged();
 
 	scheduleSave();
 }
@@ -98,6 +125,7 @@ void AccountModel::setInstanceDefault(InstancePtr instance, BaseAccount *account
 
 	m_latest = account;
 	emit latestChanged();
+	emit defaultsChanged();
 
 	scheduleSave();
 }
@@ -108,14 +136,25 @@ void AccountModel::unsetDefault(const QString &type, InstancePtr instance)
 	{
 		emit globalDefaultsChanged();
 	}
+	emit defaultsChanged();
 
 	scheduleSave();
+}
+
+bool AccountModel::isGlobalDefault(BaseAccount *account) const
+{
+	return getAccount(account->type(), nullptr) == account;
+}
+
+bool AccountModel::isInstanceDefaultExplicit(InstancePtr instance, BaseAccount *account) const
+{
+	return m_defaults[account->type()][instance->id()] == account;
 }
 
 QList<BaseAccount *> AccountModel::accountsForType(const QString &type) const
 {
 	QList<BaseAccount *> out;
-	for (BaseAccount *acc : m_accounts)
+	for (BaseAccount *acc : getAll())
 	{
 		if (acc->type() == type)
 		{
@@ -127,7 +166,7 @@ QList<BaseAccount *> AccountModel::accountsForType(const QString &type) const
 
 bool AccountModel::hasAny(const QString &type) const
 {
-	for (const BaseAccount *acc : m_accounts)
+	for (const BaseAccount *acc : getAll())
 	{
 		if (acc->type() == type)
 		{
@@ -137,83 +176,14 @@ bool AccountModel::hasAny(const QString &type) const
 	return false;
 }
 
-int AccountModel::rowCount(const QModelIndex &parent) const
-{
-	return m_accounts.size();
-}
-int AccountModel::columnCount(const QModelIndex &parent) const
-{
-	return 2;
-}
-QVariant AccountModel::data(const QModelIndex &index, int role) const
-{
-	if (!hasIndex(index.row(), index.column(), index.parent()))
-	{
-		return QVariant();
-	}
-
-	BaseAccount *account = m_accounts.at(index.row());
-	if (role == Qt::DisplayRole)
-	{
-		if (index.column() == 0)
-		{
-			return account->username();
-		}
-		else
-		{
-			return m_types.contains(account->type()) ? m_types[account->type()]->text() : account->type();
-		}
-	}
-	else if (role == Qt::DecorationRole)
-	{
-		if (index.column() == 0)
-		{
-			return account->avatar();
-		}
-		else
-		{
-			return m_types.contains(account->type()) ? m_types[account->type()]->icon() : QVariant();
-		}
-	}
-	else if (role == Qt::UserRole)
-	{
-		if (index.column() == 1)
-		{
-			return account->type();
-		}
-	}
-	else if (role == ResourceProxyModel::PlaceholderRole)
-	{
-		return "icon:hourglass";
-	}
-	return QVariant();
-}
-QVariant AccountModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-	{
-		if (section == 0)
-		{
-			return tr("Username");
-		}
-		else
-		{
-			return tr("Type");
-		}
-	}
-	return QVariant();
-}
-
 QAbstractItemModel *AccountModel::typesModel() const
 {
-	return m_typesModel->model();
+	return m_typesModel;
 }
 
 void AccountModel::registerAccount(BaseAccount *account)
 {
-	beginInsertRows(QModelIndex(), m_accounts.size(), m_accounts.size());
-	m_accounts.append(account);
-	endInsertRows();
+	append(account);
 	m_latest = account;
 	emit latestChanged();
 
@@ -221,9 +191,8 @@ void AccountModel::registerAccount(BaseAccount *account)
 }
 void AccountModel::unregisterAccount(BaseAccount *account)
 {
-	Q_ASSERT(m_accounts.contains(account));
-	beginRemoveRows(QModelIndex(), m_accounts.indexOf(account), m_accounts.indexOf(account));
-	m_accounts.removeOne(account);
+	Q_ASSERT(find(account) > -1);
+	remove(find(account));
 
 	// unset the all defaults that are using this account
 	const QList<QString> instanceIds = m_defaults[account->type()].keys(account); // get all instance ids that use this account
@@ -235,7 +204,6 @@ void AccountModel::unregisterAccount(BaseAccount *account)
 	{
 		m_defaults.remove(account->type());
 	}
-	endRemoveRows();
 
 	m_latest = nullptr;
 	emit latestChanged();
@@ -244,7 +212,7 @@ void AccountModel::unregisterAccount(BaseAccount *account)
 }
 void AccountModel::accountChanged(BaseAccount *account)
 {
-	const int row = m_accounts.indexOf(account);
+	const int row = find(account);
 	emit dataChanged(index(row, 0), index(row, 1));
 
 	m_latest = account;
@@ -277,6 +245,9 @@ void AccountModel::doLoad(const QByteArray &data)
 				m_latest = acc;
 			}
 		}
+
+		// back up the old file
+		QFile::copy(fileName(), fileName() + ".backup");
 
 		// schedule a resaving so we save using the new format
 		scheduleSave();
@@ -321,17 +292,14 @@ void AccountModel::doLoad(const QByteArray &data)
 	}
 	}
 
-	beginResetModel();
 	m_defaults = defs;
-	qDeleteAll(m_accounts);
-	m_accounts = accs;
-	endResetModel();
+	setAll(accs);
 }
 QByteArray AccountModel::doSave() const
 {
 	using namespace Json;
 	QJsonArray accounts;
-	for (const auto account : m_accounts)
+	for (const auto account : getAll())
 	{
 		QJsonObject obj = account->save();
 		obj.insert("type", account->type());
@@ -345,7 +313,7 @@ QByteArray AccountModel::doSave() const
 			QJsonObject obj;
 			obj.insert("type", it.key());
 			obj.insert("container", it2.key());
-			obj.insert("account", m_accounts.indexOf(it2.value()));
+			obj.insert("account", find(it2.value()));
 			defaults.append(obj);
 		}
 	}

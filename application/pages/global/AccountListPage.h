@@ -24,12 +24,13 @@
 
 class QTabWidget;
 class AccountsWidget;
+using InstancePtr = std::shared_ptr<class BaseInstance>;
 
 class AccountListPage : public QWidget, public BasePage
 {
 	Q_OBJECT
 public:
-	explicit AccountListPage(QWidget *parent = 0);
+	explicit AccountListPage(InstancePtr instance = nullptr, QWidget *parent = nullptr);
 	~AccountListPage();
 
 	QString displayName() const override

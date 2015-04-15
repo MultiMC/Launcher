@@ -24,7 +24,7 @@
 #include <QDebug>
 
 #include "Env.h"
-#include "auth/minecraft/MojangAccount.h"
+#include "../MojangAccount.h"
 #include "net/URLConstants.h"
 #include "Json.h"
 

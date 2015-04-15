@@ -45,14 +45,14 @@ static bool isBinaryJson(const QByteArray &data)
 	decltype(QJsonDocument::BinaryFormatTag) tag = QJsonDocument::BinaryFormatTag;
 	return memcmp(data.constData(), &tag, sizeof(QJsonDocument::BinaryFormatTag)) == 0;
 }
-QJsonDocument ensureDocument(const QByteArray &data)
+QJsonDocument ensureDocument(const QByteArray &data, const QString &what)
 {
 	if (isBinaryJson(data))
 	{
 		QJsonDocument doc = QJsonDocument::fromBinaryData(data);
 		if (doc.isNull())
 		{
-			throw JsonException("Invalid JSON (binary JSON detected)");
+			throw JsonException(what + ": Invalid JSON (binary JSON detected)");
 		}
 		return doc;
 	}
@@ -62,14 +62,14 @@ QJsonDocument ensureDocument(const QByteArray &data)
 		QJsonDocument doc = QJsonDocument::fromJson(data, &error);
 		if (error.error != QJsonParseError::NoError)
 		{
-			throw JsonException("Error parsing JSON: " + error.errorString());
+			throw JsonException(what + ": Error parsing JSON: " + error.errorString());
 		}
 		return doc;
 	}
 }
-QJsonDocument ensureDocument(const QString &filename)
+QJsonDocument ensureDocument(const QString &filename, const QString &what)
 {
-	return ensureDocument(FS::read(filename));
+	return ensureDocument(FS::read(filename), what);
 }
 QJsonObject ensureObject(const QJsonDocument &doc, const QString &what)
 {

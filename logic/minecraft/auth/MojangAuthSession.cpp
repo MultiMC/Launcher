@@ -17,7 +17,7 @@ QString MojangAuthSession::serializeUserProperties()
 
 }
 
-bool MojangAuthSession::makeOffline(QString offline_playername)
+bool MojangAuthSession::makeOffline(const QString &offline_playername)
 {
 	if (status != PlayableOffline && status != PlayableOnline)
 	{

@@ -1,52 +1,74 @@
-// Licensed under the Apache-2.0 license. See README.md for details.
+/* Copyright 2015 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "AbstractCommonModel.h"
 
-CommonModel::CommonModel(const Qt::Orientation orientation, BaseAbstractCommonModel *backend, QObject *parent)
-	: QAbstractListModel(parent), m_orientation(orientation), m_backend(backend)
+BaseAbstractCommonModel::BaseAbstractCommonModel(const Qt::Orientation orientation, QObject *parent)
+	: QAbstractListModel(parent), m_orientation(orientation)
 {
 }
 
-int CommonModel::rowCount(const QModelIndex &parent) const
+int BaseAbstractCommonModel::rowCount(const QModelIndex &parent) const
 {
-	return m_orientation == Qt::Horizontal ? m_backend->entryCount() : m_backend->size();
+	return m_orientation == Qt::Horizontal ? entryCount() : size();
 }
-int CommonModel::columnCount(const QModelIndex &parent) const
+int BaseAbstractCommonModel::columnCount(const QModelIndex &parent) const
 {
-	return m_orientation == Qt::Horizontal ? m_backend->size() : m_backend->entryCount();
+	return m_orientation == Qt::Horizontal ? size() : entryCount();
 }
-QVariant CommonModel::data(const QModelIndex &index, int role) const
+QVariant BaseAbstractCommonModel::data(const QModelIndex &index, int role) const
 {
+	if (!hasIndex(index.row(), index.column(), index.parent()))
+	{
+		return QVariant();
+	}
 	const int i = m_orientation == Qt::Horizontal ? index.column() : index.row();
 	const int entry = m_orientation == Qt::Horizontal ? index.row() : index.column();
-	return m_backend->formatData(i, role, m_backend->get(i, entry, role));
+	return formatData(i, role, get(i, entry, role));
 }
-QVariant CommonModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant BaseAbstractCommonModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if (orientation != m_orientation && role == Qt::DisplayRole)
 	{
-		return m_backend->entryTitle(section);
+		return entryTitle(section);
 	}
 	else
 	{
 		return QVariant();
 	}
 }
-bool CommonModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool BaseAbstractCommonModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
 	const int i = m_orientation == Qt::Horizontal ? index.column() : index.row();
 	const int entry = m_orientation == Qt::Horizontal ? index.row() : index.column();
-	const bool result = m_backend->set(i, entry, role, m_backend->sanetizeData(i, role, value));
+	const bool result = set(i, entry, role, sanetizeData(i, role, value));
 	if (result)
 	{
 		emit dataChanged(index, index, QVector<int>() << role);
 	}
 	return result;
 }
-Qt::ItemFlags CommonModel::flags(const QModelIndex &index) const
+Qt::ItemFlags BaseAbstractCommonModel::flags(const QModelIndex &index) const
 {
+	if (!hasIndex(index.row(), index.column(), index.parent()))
+	{
+		return Qt::NoItemFlags;
+	}
+
 	const int entry = m_orientation == Qt::Horizontal ? index.row() : index.column();
-	if (m_backend->canSet(entry))
+	if (canSet(entry))
 	{
 		return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 	}
@@ -56,7 +78,7 @@ Qt::ItemFlags CommonModel::flags(const QModelIndex &index) const
 	}
 }
 
-void CommonModel::notifyAboutToAddObject(const int at)
+void BaseAbstractCommonModel::notifyAboutToAddObject(const int at)
 {
 	if (m_orientation == Qt::Horizontal)
 	{
@@ -67,7 +89,7 @@ void CommonModel::notifyAboutToAddObject(const int at)
 		beginInsertRows(QModelIndex(), at, at);
 	}
 }
-void CommonModel::notifyObjectAdded()
+void BaseAbstractCommonModel::notifyObjectAdded()
 {
 	if (m_orientation == Qt::Horizontal)
 	{
@@ -78,7 +100,7 @@ void CommonModel::notifyObjectAdded()
 		endInsertRows();
 	}
 }
-void CommonModel::notifyAboutToRemoveObject(const int at)
+void BaseAbstractCommonModel::notifyAboutToRemoveObject(const int at)
 {
 	if (m_orientation == Qt::Horizontal)
 	{
@@ -89,7 +111,7 @@ void CommonModel::notifyAboutToRemoveObject(const int at)
 		beginRemoveRows(QModelIndex(), at, at);
 	}
 }
-void CommonModel::notifyObjectRemoved()
+void BaseAbstractCommonModel::notifyObjectRemoved()
 {
 	if (m_orientation == Qt::Horizontal)
 	{
@@ -99,4 +121,13 @@ void CommonModel::notifyObjectRemoved()
 	{
 		endRemoveRows();
 	}
+}
+
+void BaseAbstractCommonModel::notifyBeginReset()
+{
+	beginResetModel();
+}
+void BaseAbstractCommonModel::notifyEndReset()
+{
+	endResetModel();
 }
