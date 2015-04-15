@@ -27,8 +27,11 @@ public:
 
 	BaseAccount *get(const QModelIndex &index) const;
 	BaseAccount *get(const QString &type, const InstancePtr instance = nullptr) const;
+
 	void setGlobalDefault(BaseAccount *account);
 	void setInstanceDefault(InstancePtr instance, BaseAccount *account);
+	void unsetDefault(const QString &type, InstancePtr instance = nullptr);
+
 	BaseAccount *latest() const { return m_latest; }
 	QList<BaseAccount *> accountsForType(const QString &type) const;
 	bool hasAny(const QString &type) const;

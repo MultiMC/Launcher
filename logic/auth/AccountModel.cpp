@@ -67,7 +67,7 @@ BaseAccount *AccountModel::get(const QModelIndex &index) const
 BaseAccount *AccountModel::get(const QString &type, const InstancePtr instance) const
 {
 	QMap<QString, BaseAccount *> defaults = m_defaults[type];
-	// container default?
+	// instance default?
 	if (instance)
 	{
 		if (defaults.contains(instance->id()))
@@ -98,6 +98,16 @@ void AccountModel::setInstanceDefault(InstancePtr instance, BaseAccount *account
 
 	m_latest = account;
 	emit latestChanged();
+
+	scheduleSave();
+}
+void AccountModel::unsetDefault(const QString &type, InstancePtr instance)
+{
+	m_defaults[type].remove(instance ? instance->id() : QString());
+	if (!instance)
+	{
+		emit globalDefaultsChanged();
+	}
 
 	scheduleSave();
 }
@@ -137,6 +147,11 @@ int AccountModel::columnCount(const QModelIndex &parent) const
 }
 QVariant AccountModel::data(const QModelIndex &index, int role) const
 {
+	if (!hasIndex(index.row(), index.column(), index.parent()))
+	{
+		return QVariant();
+	}
+
 	BaseAccount *account = m_accounts.at(index.row());
 	if (role == Qt::DisplayRole)
 	{

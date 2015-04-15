@@ -98,4 +98,4 @@ slots:
 
 QTEST_GUILESS_MAIN(ResourceTest)
 
-#include "tst_resource.moc"
+#include "tst_Resource.moc"
