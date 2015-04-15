@@ -16,6 +16,11 @@ static const char *defaultPropertyForTarget(QObject *target)
 	{
 		return "icon";
 	}
+	// for unit tests
+	else if (target->inherits("DummyObserverObject"))
+	{
+		return "property";
+	}
 	else
 	{
 		Q_ASSERT_X(false, "ResourceObserver.cpp: defaultPropertyForTarget", "Unrecognized QObject subclass");

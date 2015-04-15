@@ -63,12 +63,13 @@ public:
 	template<typename Func>
 	Ptr then(Func &&func)
 	{
-		static_assert(Detail::Function<Func>::Arity == 1, "Exactly one argument required");
-		static_assert(!std::is_same<typename Detail::Function<Func>::ReturnType::type, void>::value, "Return type may not be void");
+		using Arg = typename std::remove_cv<
+			typename std::remove_reference<typename Detail::Function<Func>::Argument>::type
+		>::type;
 		return applyTo(new FunctionResourceObserver<
 					   typename Detail::Function<Func>::ReturnType,
-					   typename Detail::Function<Func>::Argument
-					   >(std::forward(func)));
+					   Arg, Func
+					   >(std::forward<Func>(func)));
 	}
 
 	/// Retrieve the currently active resource. If it's type is different from T a conversion will be attempted.
