@@ -51,14 +51,14 @@ private:
 	QMetaProperty m_property;
 };
 
-template <typename Ret, typename Arg>
+template <typename Ret, typename Arg, typename Func>
 class FunctionResourceObserver : public ResourceObserver
 {
 	std::function<Ret(Arg)> m_function;
 public:
 	template <typename T>
 	explicit FunctionResourceObserver(T &&func)
-		: m_function(std::forward(func)) {}
+		: m_function(std::forward<Func>(func)) {}
 
 	void resourceUpdated() override
 	{

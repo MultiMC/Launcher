@@ -105,7 +105,7 @@ void RefreshTask::processResponse(const QJsonObject &responseData)
 		MojangAuthSession::User u;
 		const QJsonObject obj = ensureObject(responseData, "user");
 		u.id = ensureString(obj, "id");
-		for (const QJsonObject &propTuple : ensureIsArrayOf<QJsonObject>(obj, "properties"))
+		for (const QJsonObject &propTuple : ensureIsArrayOf<QJsonObject>(obj, "properties", QList<QJsonObject>()))
 		{
 			u.properties.insert(
 						ensureString(propTuple, "name"),

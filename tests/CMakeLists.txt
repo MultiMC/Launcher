@@ -27,6 +27,7 @@ add_unit_test(gradlespecifier tst_gradlespecifier.cpp)
 add_unit_test(userutils tst_userutils.cpp)
 add_unit_test(modutils tst_modutils.cpp)
 add_unit_test(inifile tst_inifile.cpp)
+add_unit_test(resource tst_resource.cpp)
 add_unit_test(UpdateChecker tst_UpdateChecker.cpp)
 add_unit_test(DownloadTask tst_DownloadTask.cpp)
 
