@@ -119,7 +119,7 @@ LibraryPtr OneSixFormat::readRawLibraryPlus(const QJsonObject &libObj, const QSt
 	LibraryPtr lib = readRawLibrary(libObj, filename);
 	if (libObj.contains("insert"))
 	{
-		QJsonValue insertVal = ensureJsonValue(libObj.value("insert"), "library insert rule");
+		QJsonValue insertVal = libObj.value("insert");
 		if (insertVal.isString())
 		{
 			// it's just a simple string rule. OK.

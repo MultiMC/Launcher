@@ -2,8 +2,6 @@
 
 #include "AccountModel.h"
 
-#include <QTimer>
-
 #include "Json.h"
 #include "BaseInstance.h"
 #include "BaseAccount.h"
@@ -37,8 +35,6 @@ AccountModel::AccountModel(QObject *parent)
 	connect(this, &AccountModel::rowsInserted, this, &AccountModel::listChanged);
 	connect(this, &AccountModel::rowsRemoved, this, &AccountModel::listChanged);
 	connect(this, &AccountModel::dataChanged, this, &AccountModel::listChanged);
-
-	QTimer::singleShot(0, [this](){loadNow();});
 }
 AccountModel::~AccountModel()
 {

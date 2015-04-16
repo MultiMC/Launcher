@@ -18,12 +18,26 @@ BaseConfigObject::BaseConfigObject(const QString &filename)
 	QObject::connect(m_saveTimer, &QTimer::timeout, [this](){saveNow();});
 	setSaveTimeout(250);
 
+	m_initialReadTimer = new QTimer;
+	m_initialReadTimer->setSingleShot(true);
+	QObject::connect(m_initialReadTimer, &QTimer::timeout, [this]()
+	{
+		loadNow();
+		m_initialReadTimer->deleteLater();
+		m_initialReadTimer = 0;
+	});
+	m_initialReadTimer->start(0);
+
 	// cppcheck-suppress pureVirtualCall
 	m_appQuitConnection = QObject::connect(qApp, &QCoreApplication::aboutToQuit, [this](){saveNow();});
 }
 BaseConfigObject::~BaseConfigObject()
 {
 	delete m_saveTimer;
+	if (m_initialReadTimer)
+	{
+		delete m_initialReadTimer;
+	}
 	QObject::disconnect(m_appQuitConnection);
 }
 

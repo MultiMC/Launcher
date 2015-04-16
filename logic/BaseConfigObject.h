@@ -30,6 +30,7 @@ public:
 
 private:
 	QTimer *m_saveTimer;
+	QTimer *m_initialReadTimer;
 	QString m_filename;
 	QMetaObject::Connection m_appQuitConnection;
 	bool m_disableSaving = false;
