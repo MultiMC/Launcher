@@ -23,12 +23,12 @@
 
 #include "settings/INIFile.h"
 #include "BaseVersionList.h"
-#include "minecraft/auth/MojangAccount.h"
 
 class QDir;
 class Task;
 class BaseProcess;
 class BaseInstance;
+using SessionPtr = std::shared_ptr<class BaseSession>;
 
 // pointer for lazy people
 typedef std::shared_ptr<BaseInstance> InstancePtr;

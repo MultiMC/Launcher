@@ -20,6 +20,8 @@
 #include "minecraft/MinecraftProfile.h"
 #include "minecraft/ModList.h"
 
+using MojangAuthSessionPtr = std::shared_ptr<class MojangAuthSession>;
+
 class OneSixInstance : public MinecraftInstance
 {
 	Q_OBJECT

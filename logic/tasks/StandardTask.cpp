@@ -11,8 +11,6 @@
 #include "FileSystem.h"
 #include "Exception.h"
 #include "Env.h"
-#include "CopyFileTask.h"
-#include "MoveFileTask.h"
 
 StandardTask::StandardTask(QObject *parent)
 	: Task(parent)
@@ -102,14 +100,6 @@ void StandardTask::networkGetCachedNonBlocking(const QString &name, const QStrin
 	CacheDownloadPtr dl = CacheDownload::make(url, entry);
 	dl->setValidator(validator);
 	runTaskNonBlocking(wrapDownload(name, dl));
-}
-void StandardTask::moveFile(const QString &from, const QString &to)
-{
-	runTask(new MoveFileTask(from, to, this));
-}
-void StandardTask::copyFile(const QString &from, const QString &to)
-{
-	runTask(new CopyFileTask(from, to, this));
 }
 void StandardTask::waitOnPending()
 {

@@ -26,6 +26,7 @@
 #include "icons/IconList.h"
 #include "minecraft/Process.h"
 #include "minecraft/ModList.h"
+#include "minecraft/auth/MojangAuthSession.h"
 
 LegacyInstance::LegacyInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString &rootDir)
 	: MinecraftInstance(globalSettings, settings, rootDir)

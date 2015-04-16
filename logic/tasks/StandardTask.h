@@ -32,8 +32,6 @@ protected:
 								INetworkValidator *validator = nullptr);
 	void networkGetCachedNonBlocking(const QString &name, const QString &base, const QString &path, const QUrl &url, const bool alwaysRefetch = false,
 									 INetworkValidator *validator = nullptr);
-	void moveFile(const QString &from, const QString &to);
-	void copyFile(const QString &from, const QString &to);
 	void waitOnPending();
 
 private:

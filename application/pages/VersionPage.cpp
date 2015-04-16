@@ -42,7 +42,6 @@
 #include "minecraft/MinecraftProfile.h"
 #include "minecraft/Mod.h"
 #include "icons/IconList.h"
-#include "Exception.h"
 
 
 QIcon VersionPage::icon() const

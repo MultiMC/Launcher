@@ -47,4 +47,4 @@ public:
 	bool invalidPassword() const override { return status == RequiresPassword; }
 };
 
-typedef std::shared_ptr<MojangAuthSession> MojangAuthSessionPtr;
+using MojangAuthSessionPtr = std::shared_ptr<MojangAuthSession>;

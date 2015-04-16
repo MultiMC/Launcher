@@ -21,6 +21,8 @@
 #include "minecraft/MinecraftInstance.h"
 #include "BaseProcess.h"
 
+using MojangAuthSessionPtr = std::shared_ptr<class MojangAuthSession>;
+
 namespace Minecraft
 {
 /**

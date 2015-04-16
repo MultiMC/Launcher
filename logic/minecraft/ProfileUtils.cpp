@@ -9,8 +9,6 @@
 #include <QRegularExpression>
 #include <QSaveFile>
 
-#include "Json.h"
-
 namespace ProfileUtils
 {
 
@@ -79,13 +77,13 @@ bool readOverrideOrders(QString path, PatchOrder &order)
 	{
 		auto obj = Json::ensureObject(doc);
 		// check order file version.
-		auto version = Json::ensureInteger(obj, "version", Json::Required, "version");
+		auto version = Json::ensureInteger(obj.value("version"));
 		if (version != currentOrderFileVersion)
 		{
 			throw Json::JsonException(QObject::tr("Invalid order file version, expected %1")
 										  .arg(currentOrderFileVersion));
 		}
-		auto orderArray = Json::ensureArray(obj, "order");
+		auto orderArray = Json::ensureArray(obj.value("order"));
 		for(auto item: orderArray)
 		{
 			order.append(Json::ensureString(item));

@@ -8,6 +8,7 @@
 #include "BaseAccountType.h"
 #include "FileSystem.h"
 #include "resources/ResourceProxyModel.h"
+#include"pathutils.h"
 
 #include "minecraft/auth/MojangAccount.h"
 
@@ -273,6 +274,9 @@ void AccountModel::doLoad(const QByteArray &data)
 				m_latest = acc;
 			}
 		}
+
+		// back up the old file
+		copyPath(fileName(), fileName() + ".backup");
 
 		// schedule a resaving so we save using the new format
 		scheduleSave();

@@ -25,6 +25,7 @@
 #include <QStandardPaths>
 #include <QCoreApplication>
 
+#include "auth/MojangAuthSession.h"
 #include "pathutils.h"
 #include "cmdutils.h"
 

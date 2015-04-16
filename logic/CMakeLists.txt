@@ -235,10 +235,6 @@ set(LOGIC_SOURCES
 	tasks/SequentialTask.cpp
 	tasks/StandardTask.h
 	tasks/StandardTask.cpp
-	tasks/MoveFileTask.h
-	tasks/MoveFileTask.cpp
-	tasks/CopyFileTask.h
-	tasks/CopyFileTask.cpp
 
 	# Settings
 	settings/INIFile.cpp
@@ -290,5 +286,3 @@ target_link_libraries(MultiMC_logic iconfix libUtil LogicalGui ${QUAZIP_LIBRARIE
 		${MultiMC_LINK_ADDITIONAL_LIBS})
 
 add_dependencies(MultiMC_logic QuaZIP)
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})

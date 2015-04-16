@@ -6,6 +6,7 @@
 #include "dialogs/AccountLoginDialog.h"
 #include "dialogs/ProgressDialog.h"
 #include "auth/BaseAccount.h"
+#include "auth/BaseAccountType.h"
 #include "auth/AccountModel.h"
 #include "auth/AccountModel.h"
 #include "tasks/Task.h"
