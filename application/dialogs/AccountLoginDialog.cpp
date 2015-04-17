@@ -40,6 +40,8 @@ AccountLoginDialog::AccountLoginDialog(BaseAccount *account, QWidget *parent)
 	setWindowTitle(tr("Login"));
 	m_account = account;
 	ui->usernameEdit->setText(account->loginUsername());
+	ui->usernameEdit->setVisible(false);
+	ui->usernameLbl->setVisible(false);
 }
 
 AccountLoginDialog::~AccountLoginDialog()
