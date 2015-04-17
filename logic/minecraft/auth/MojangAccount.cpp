@@ -43,7 +43,7 @@ void MojangAccount::load(const QJsonObject &object)
 
 	BaseAccount::load(object);
 
-	setToken("login_username", ensureString(object, "username"));
+	setToken("login_username", ensureString(object, "login_username"));
 
 	const QJsonArray profileArray = ensureArray(object, "profiles");
 	if (profileArray.size() < 1)
@@ -84,6 +84,7 @@ void MojangAccount::load(const QJsonObject &object)
 QJsonObject MojangAccount::save() const
 {
 	QJsonObject json = BaseAccount::save();
+	json.insert("login_username", token("login_username"));
 
 	QJsonArray profileArray;
 	for (AccountProfile profile : m_profiles)

@@ -29,7 +29,7 @@ AccountListPage::AccountListPage(InstancePtr instance, QWidget *parent)
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->addWidget(m_tabs);
 
-	m_accountsWidget = new AccountsWidget(instance, this);
+	m_accountsWidget = new AccountsWidget("", instance, this);
 	m_accountsWidget->setCancelEnabled(false);
 	m_tabs->addTab(m_accountsWidget, QString());
 }

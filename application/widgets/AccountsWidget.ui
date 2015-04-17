@@ -101,6 +101,13 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
+        <widget class="QPushButton" name="offlineBtn">
+         <property name="text">
+          <string>Offline</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="useBtn">
          <property name="text">
           <string>&amp;Use</string>

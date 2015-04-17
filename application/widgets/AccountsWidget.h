@@ -17,12 +17,12 @@ class AccountsWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit AccountsWidget(InstancePtr instance = nullptr, QWidget *parent = nullptr);
+	explicit AccountsWidget(const QString &type, InstancePtr instance = nullptr, QWidget *parent = nullptr);
 	~AccountsWidget();
 
-	void setRequestedAccountType(const QString &type);
 	void setSession(SessionPtr session);
 	void setCancelEnabled(const bool enableCancel);
+	void setOfflineEnabled(const bool enabled, const QString &text);
 
 	BaseAccount *account() const;
 
@@ -36,6 +36,7 @@ private slots:
 	void on_containerDefaultBtn_toggled();
 	void on_globalDefaultBtn_toggled();
 	void on_useBtn_clicked();
+	void on_offlineBtn_clicked();
 	void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
@@ -43,4 +44,5 @@ private:
 	InstancePtr m_instance;
 	SessionPtr m_session;
 	QString m_requestedType;
+	bool m_offlineEnabled = false;
 };

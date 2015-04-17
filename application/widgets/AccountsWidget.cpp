@@ -3,6 +3,8 @@
 #include "AccountsWidget.h"
 #include "ui_AccountsWidget.h"
 
+#include <QInputDialog>
+
 #include "dialogs/AccountLoginDialog.h"
 #include "dialogs/ProgressDialog.h"
 #include "auth/BaseAccount.h"
@@ -16,17 +18,19 @@
 #include "resources/Resource.h"
 #include "MultiMC.h"
 
-AccountsWidget::AccountsWidget(InstancePtr instance, QWidget *parent) :
+AccountsWidget::AccountsWidget(const QString &type, InstancePtr instance, QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::AccountsWidget),
-	m_instance(instance)
+	m_instance(instance),
+	m_requestedType(type)
 {
 	ui->setupUi(this);
 
 	ui->containerDefaultBtn->setVisible(!!m_instance);
-	ui->useBtn->setVisible(!!m_instance);
+	ui->useBtn->setVisible(!!m_instance && !type.isEmpty());
 	ui->progressWidget->setVisible(false);
 	ui->cancelBtn->setText(m_instance ? tr("Cancel") : tr("Close"));
+	ui->offlineBtn->setVisible(false);
 
 	DefaultAccountProxyModel *proxy = new DefaultAccountProxyModel(m_instance, this);
 	proxy->setSourceModel(MMC->accountsModel().get());
@@ -35,6 +39,14 @@ AccountsWidget::AccountsWidget(InstancePtr instance, QWidget *parent) :
 	currentChanged(ui->view->currentIndex(), QModelIndex());
 
 	connect(ui->cancelBtn, &QPushButton::clicked, this, &AccountsWidget::rejected);
+
+	BaseAccount *def = MMC->accountsModel()->getAccount(m_requestedType, m_instance);
+	if (def)
+	{
+		ui->view->setCurrentIndex(ui->view->model()->index(MMC->accountsModel()->find(def), 0));
+		// need to delay invocation since signals get emitted that we haven't connected to yet
+		QMetaObject::invokeMethod(this, "on_useBtn_clicked", Qt::QueuedConnection);
+	}
 }
 
 AccountsWidget::~AccountsWidget()
@@ -42,12 +54,6 @@ AccountsWidget::~AccountsWidget()
 	delete ui;
 }
 
-void AccountsWidget::setRequestedAccountType(const QString &type)
-{
-	m_requestedType = type;
-	ui->useBtn->setVisible(true);
-	currentChanged(ui->view->currentIndex(), QModelIndex());
-}
 void AccountsWidget::setSession(SessionPtr session)
 {
 	m_session = session;
@@ -55,6 +61,11 @@ void AccountsWidget::setSession(SessionPtr session)
 void AccountsWidget::setCancelEnabled(const bool enableCancel)
 {
 	ui->cancelBtn->setVisible(enableCancel);
+}
+void AccountsWidget::setOfflineEnabled(const bool enabled, const QString &text)
+{
+	ui->offlineBtn->setVisible(m_offlineEnabled = enabled);
+	ui->offlineBtn->setText(text);
 }
 
 BaseAccount *AccountsWidget::account() const
@@ -134,6 +145,7 @@ void AccountsWidget::on_useBtn_clicked()
 		ui->groupBox->setEnabled(false);
 		ui->useBtn->setEnabled(false);
 		ui->view->setEnabled(false);
+		ui->offlineBtn->setEnabled(false);
 		ui->progressWidget->setVisible(true);
 		std::shared_ptr<Task> task = std::shared_ptr<Task>(account->createCheckTask(m_session));
 		ui->progressWidget->exec(task);
@@ -155,9 +167,24 @@ void AccountsWidget::on_useBtn_clicked()
 				ui->groupBox->setEnabled(true);
 				ui->useBtn->setEnabled(true);
 				ui->view->setEnabled(true);
+				ui->offlineBtn->setEnabled(m_offlineEnabled);
 			}
 		}
 	}
+}
+
+void AccountsWidget::on_offlineBtn_clicked()
+{
+	bool ok = false;
+	const QString name = QInputDialog::getText(this, tr("Player name"),
+											   tr("Choose your offline mode player name."),
+											   QLineEdit::Normal, m_session->defaultPlayerName(), &ok);
+	if (!ok)
+	{
+		return;
+	}
+	m_session->makeOffline(name.isEmpty() ? m_session->defaultPlayerName() : name);
+	emit accepted();
 }
 
 void AccountsWidget::currentChanged(const QModelIndex &current, const QModelIndex &previous)

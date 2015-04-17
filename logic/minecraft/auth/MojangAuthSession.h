@@ -7,7 +7,7 @@
 class MojangAuthSession : public BaseSession
 {
 public:
-	bool makeOffline(QString offline_playername);
+	bool makeOffline(const QString &offline_playername) override;
 
 	QString serializeUserProperties();
 
@@ -45,6 +45,7 @@ public:
 	bool wants_online = true;
 
 	bool invalidPassword() const override { return status == RequiresPassword; }
+	QString defaultPlayerName() const override { return player_name; }
 };
 
 using MojangAuthSessionPtr = std::shared_ptr<MojangAuthSession>;

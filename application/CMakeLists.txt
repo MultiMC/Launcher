@@ -148,8 +148,6 @@ SET(MULTIMC_SOURCES
 	InstanceProxyModel.cpp
 	VersionProxyModel.h
 	VersionProxyModel.cpp
-	AuthTask.h
-	AuthTask.cpp
 
 	# GUI - windows
 	MainWindow.h

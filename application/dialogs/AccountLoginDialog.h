@@ -36,6 +36,7 @@ private:
 	Ui::AccountLoginDialog *ui;
 	BaseAccount *m_account = nullptr;
 	SessionPtr m_session;
+	QString m_type;
 
 	void setupForType(const QString &type);
 };

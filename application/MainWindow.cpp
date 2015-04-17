@@ -347,6 +347,7 @@ namespace Ui {
 #include "dialogs/UpdateDialog.h"
 #include "dialogs/NotificationDialog.h"
 #include "dialogs/ExportInstanceDialog.h"
+#include "dialogs/AccountsDialog.h"
 
 #include "pages/global/MultiMCPage.h"
 #include "pages/global/ExternalToolsPage.h"
@@ -380,7 +381,6 @@ namespace Ui {
 #include "NagUtils.h"
 #include "InstancePageProvider.h"
 #include "minecraft/SkinUtils.h"
-#include "AuthTask.h"
 #include "resources/Resource.h"
 
 #include <updater/UpdateChecker.h>
@@ -1474,69 +1474,24 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 		return;
 	}
 
-	while (true)
+	MojangAuthSessionPtr session = std::make_shared<MojangAuthSession>();
+	session->wants_online = online;
+
+	AccountsDialog dlg("minecraft", m_selectedInstance, this);
+	dlg.setSession(session);
+	if (dlg.exec() != QDialog::Accepted)
 	{
-		MojangAuthSessionPtr session(new MojangAuthSession());
-		session->wants_online = online;
-		AuthTask *task = new AuthTask("minecraft", m_selectedInstance, session);
+		return;
+	}
 
-		ProgressDialog dlg(this);
-		if (online)
-		{
-			dlg.setSkipButton(true, tr("Play Offline"));
-		}
-		dlg.exec(task);
-		if (dlg.exec(task) != QDialog::Accepted)
-		{
-			return;
-		}
-
-		switch (session->status)
-		{
-		case MojangAuthSession::Undetermined:
-		{
-			qCritical() << "Received undetermined session status during login. Bye.";
-			break;
-		}
-		case MojangAuthSession::RequiresPassword:
-		{
-			qCritical() << "This should not be reachable";
-			break;
-		}
-		case MojangAuthSession::PlayableOffline:
-		{
-			// we ask the user for a player name
-			bool ok = false;
-			QString usedname = session->player_name;
-			QString name = QInputDialog::getText(this, tr("Player name"),
-												 tr("Choose your offline mode player name."),
-												 QLineEdit::Normal, session->player_name, &ok);
-			if (!ok)
-			{
-				return;
-			}
-			if (!name.isEmpty())
-			{
-				usedname = name;
-			}
-			session->makeOffline(usedname);
-			// offline flavored game from here :3
-			// intentional fallthrough to PlayableOnline
-		}
-		case MojangAuthSession::PlayableOnline:
-		{
-			// update first if the server actually responded
-			if (session->auth_server_online)
-			{
-				updateInstance(m_selectedInstance, session, profiler);
-			}
-			else
-			{
-				launchInstance(m_selectedInstance, session, profiler);
-			}
-			return;
-		}
-		}
+	// update first if the server actually responded
+	if (session->auth_server_online)
+	{
+		updateInstance(m_selectedInstance, session, profiler);
+	}
+	else
+	{
+		launchInstance(m_selectedInstance, session, profiler);
 	}
 }
 

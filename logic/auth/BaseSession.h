@@ -17,11 +17,15 @@
 
 #include <memory>
 
+class QString;
+
 class BaseSession
 {
 public:
 	virtual ~BaseSession() {}
 
 	virtual bool invalidPassword() const = 0;
+	virtual QString defaultPlayerName() const = 0;
+	virtual bool makeOffline(const QString &name) = 0;
 };
 using SessionPtr = std::shared_ptr<BaseSession>;

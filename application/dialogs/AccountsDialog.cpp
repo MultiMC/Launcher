@@ -6,12 +6,13 @@
 
 #include "widgets/AccountsWidget.h"
 
-AccountsDialog::AccountsDialog(InstancePtr instance, QWidget *parent) :
+AccountsDialog::AccountsDialog(const QString &type, InstancePtr instance, QWidget *parent) :
 	QDialog(parent),
 	m_instance(instance)
 {
-	m_widget = new AccountsWidget(instance, this);
+	m_widget = new AccountsWidget(type, instance, this);
 	m_widget->setCancelEnabled(true);
+	m_widget->setOfflineEnabled(!!m_instance, tr("Play Offline"));
 
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->addWidget(m_widget);
@@ -24,10 +25,6 @@ AccountsDialog::~AccountsDialog()
 {
 }
 
-void AccountsDialog::setRequestedAccountType(const QString &type)
-{
-	m_widget->setRequestedAccountType(type);
-}
 void AccountsDialog::setSession(SessionPtr session)
 {
 	m_widget->setSession(session);

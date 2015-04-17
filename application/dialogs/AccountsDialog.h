@@ -14,10 +14,9 @@ class AccountsDialog : public QDialog
 {
 	Q_OBJECT
 public:
-	explicit AccountsDialog(InstancePtr instance = nullptr, QWidget *parent = nullptr);
+	explicit AccountsDialog(const QString &type, InstancePtr instance = nullptr, QWidget *parent = nullptr);
 	~AccountsDialog();
 
-	void setRequestedAccountType(const QString &type);
 	void setSession(SessionPtr session);
 
 	BaseAccount *account() const;
