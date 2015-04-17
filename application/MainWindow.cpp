@@ -723,7 +723,7 @@ void MainWindow::repopulateAccountsMenu()
 		// TODO: Nicer way to iterate?
 		for (int i = 0; i < accounts->rowCount(); i++)
 		{
-			BaseAccount *account = accounts->get(accounts->index(i));
+			BaseAccount *account = accounts->getAccount(accounts->index(i));
 
 			// Styling hack
 			QAction *section = new QAction(account->username(), this);
@@ -739,7 +739,7 @@ void MainWindow::repopulateAccountsMenu()
 					QAction *action = new QAction(profile.name, this);
 					action->setData(qVariantFromValue(account));
 					action->setCheckable(true);
-					if (mojangAccount->currentProfile().id == profile.id && MMC->accountsModel()->get(account->type()) == account)
+					if (mojangAccount->currentProfile().id == profile.id && MMC->accountsModel()->getAccount(account->type()) == account)
 					{
 						action->setChecked(true);
 					}

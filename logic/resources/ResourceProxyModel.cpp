@@ -39,7 +39,7 @@ ResourceProxyModel::ResourceProxyModel(const int resultTypeId, QObject *parent)
 QVariant ResourceProxyModel::data(const QModelIndex &proxyIndex, int role) const
 {
 	const QModelIndex mapped = mapToSource(proxyIndex);
-	if (mapped.isValid() && role == Qt::DecorationRole)
+	if (mapped.isValid() && role == Qt::DecorationRole && !mapToSource(proxyIndex).data(role).toString().isEmpty())
 	{
 		if (!m_resources.contains(mapped))
 		{

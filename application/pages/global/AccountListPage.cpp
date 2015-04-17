@@ -21,7 +21,7 @@
 
 #include "widgets/AccountsWidget.h"
 
-AccountListPage::AccountListPage(QWidget *parent)
+AccountListPage::AccountListPage(InstancePtr instance, QWidget *parent)
 	: QWidget(parent)
 {
 	m_tabs = new QTabWidget(this);
@@ -29,7 +29,7 @@ AccountListPage::AccountListPage(QWidget *parent)
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->addWidget(m_tabs);
 
-	m_accountsWidget = new AccountsWidget(nullptr, this);
+	m_accountsWidget = new AccountsWidget(instance, this);
 	m_accountsWidget->setCancelEnabled(false);
 	m_tabs->addTab(m_accountsWidget, QString());
 }

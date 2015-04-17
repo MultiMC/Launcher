@@ -93,6 +93,8 @@ set(LOGIC_SOURCES
 	net/URLConstants.cpp
 
 	# Accounts stuff
+	auth/DefaultAccountProxyModel.h
+	auth/DefaultAccountProxyModel.cpp
 	auth/AccountModel.h
 	auth/AccountModel.cpp
 	auth/BaseAccount.h

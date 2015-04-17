@@ -17,7 +17,7 @@ AuthTask::AuthTask(const QString &type, InstancePtr instance, SessionPtr session
 
 void AuthTask::executeTask()
 {
-	BaseAccount *account = MMC->accountsModel()->get(m_type, m_instance);
+	BaseAccount *account = MMC->accountsModel()->getAccount(m_type, m_instance);
 	if (account)
 	{
 		try

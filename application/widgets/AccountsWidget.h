@@ -33,8 +33,8 @@ signals:
 private slots:
 	void on_addBtn_clicked();
 	void on_removeBtn_clicked();
-	void on_containerDefaultBtn_clicked();
-	void on_globalDefaultBtn_clicked();
+	void on_containerDefaultBtn_toggled();
+	void on_globalDefaultBtn_toggled();
 	void on_useBtn_clicked();
 	void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 

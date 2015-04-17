@@ -214,7 +214,7 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 	connect(InstDirSetting.get(), SIGNAL(SettingChanged(const Setting &, QVariant)),
 			m_instances.get(), SLOT(on_InstFolderChanged(const Setting &, QVariant)));
 
-	m_accountsModel.reset(new AccountModel(this));
+	m_accountsModel.reset(new AccountModel);
 
 	// init the http meta cache
 	ENV.initHttpMetaCache(rootPath, staticDataPath);
