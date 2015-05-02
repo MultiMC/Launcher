@@ -23,12 +23,12 @@
 
 #include "settings/INIFile.h"
 #include "BaseVersionList.h"
-#include "auth/MojangAccount.h"
 
 class QDir;
 class Task;
 class BaseProcess;
 class BaseInstance;
+using SessionPtr = std::shared_ptr<class BaseSession>;
 
 // pointer for lazy people
 typedef std::shared_ptr<BaseInstance> InstancePtr;
@@ -115,7 +115,7 @@ public:
 	virtual std::shared_ptr<Task> doUpdate() = 0;
 
 	/// returns a valid process, ready for launch with the given account.
-	virtual BaseProcess *prepareForLaunch(AuthSessionPtr account) = 0;
+	virtual BaseProcess *prepareForLaunch(SessionPtr acc) = 0;
 
 	/// do any necessary cleanups after the instance finishes. also runs before
 	/// 'prepareForLaunch'

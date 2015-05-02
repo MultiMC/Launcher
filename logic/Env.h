@@ -19,6 +19,7 @@ class BaseVersion;
 class Env
 {
 	friend class MultiMC;
+	friend class TestsInternal;
 private:
 	Env();
 public:

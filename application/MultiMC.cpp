@@ -14,7 +14,7 @@
 
 #include "dialogs/VersionSelectDialog.h"
 #include "InstanceList.h"
-#include "auth/MojangAccountList.h"
+#include "auth/AccountModel.h"
 #include "icons/IconList.h"
 #include "minecraft/legacy/LwjglVersionList.h"
 #include "wonko/WonkoPackage.h"
@@ -38,6 +38,8 @@
 #include "settings/Setting.h"
 
 #include "trans/TranslationDownloader.h"
+#include "resources/Resource.h"
+#include "resources/IconResourceHandler.h"
 
 #include "minecraft/ftb/FTBPlugin.h"
 
@@ -212,11 +214,7 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 	connect(InstDirSetting.get(), SIGNAL(SettingChanged(const Setting &, QVariant)),
 			m_instances.get(), SLOT(on_InstFolderChanged(const Setting &, QVariant)));
 
-	// and accounts
-	m_accounts.reset(new MojangAccountList(this));
-	qDebug() << "Loading accounts...";
-	m_accounts->setListFilePath("accounts.json", true);
-	m_accounts->loadList();
+	m_accountsModel.reset(new AccountModel);
 
 	// init the http meta cache
 	ENV.initHttpMetaCache(rootPath, staticDataPath);
@@ -328,6 +326,37 @@ void MultiMC::initIcons()
 	{
 		ENV.m_icons->directoryChanged(value.toString());
 	});
+
+	Resource::registerTransformer([](const QVariantMap &map) -> QIcon
+	{
+		QIcon icon;
+		for (auto it = map.constBegin(); it != map.constEnd(); ++it)
+		{
+			icon.addFile(it.key(), QSize(it.value().toInt(), it.value().toInt()));
+		}
+		return icon;
+	});
+	Resource::registerTransformer([](const QVariantMap &map) -> QPixmap
+	{
+		QVariantList sizes = map.values();
+		if (sizes.isEmpty())
+		{
+			return QPixmap();
+		}
+		std::sort(sizes.begin(), sizes.end());
+		if (sizes.last().toInt() != -1) // only scalable available
+		{
+			return QPixmap(map.key(sizes.last()));
+		}
+		else
+		{
+			return QPixmap();
+		}
+	});
+	Resource::registerTransformer([](const QByteArray &data) -> QPixmap
+	{ return QPixmap::fromImage(QImage::fromData(data)); });
+	Resource::registerTransformer([](const QByteArray &data) -> QIcon
+	{ return QIcon(QPixmap::fromImage(QImage::fromData(data))); });
 }
 
 
@@ -569,6 +598,7 @@ void MultiMC::installUpdates(const QString updateFilesDir, UpdateFlags flags)
 void MultiMC::setIconTheme(const QString& name)
 {
 	XdgIcon::setThemeName(name);
+	IconResourceHandler::setTheme(name);
 }
 
 QIcon MultiMC::getThemedIcon(const QString& name)

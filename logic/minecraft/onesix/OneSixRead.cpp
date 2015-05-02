@@ -1,4 +1,5 @@
 #include "OneSixFormat.h"
+
 #include <QJsonArray>
 
 #include "minecraft/Package.h"
@@ -114,6 +115,7 @@ LibraryPtr readRawLibrary(const QJsonObject &libObj, const QString &filename)
 
 LibraryPtr OneSixFormat::readRawLibraryPlus(const QJsonObject &libObj, const QString &filename)
 {
+	using namespace Json;
 	LibraryPtr lib = readRawLibrary(libObj, filename);
 	if (libObj.contains("insert"))
 	{
@@ -191,6 +193,8 @@ LibraryPtr OneSixFormat::readRawLibraryPlus(const QJsonObject &libObj, const QSt
 PackagePtr OneSixFormat::fromJson(const QJsonDocument &doc, const QString &filename,
 								  const bool requireOrder)
 {
+	using namespace Json;
+
 	PackagePtr out(new Package());
 	if (doc.isEmpty() || doc.isNull())
 	{

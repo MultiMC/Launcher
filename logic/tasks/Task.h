@@ -39,7 +39,10 @@ public:
 	 */
 	virtual QString failReason() const;
 
+	virtual bool canAbort() const { return false; }
+
 signals:
+	void finished();
 	void started();
 	void progress(qint64 current, qint64 total);
 	void succeeded();

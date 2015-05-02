@@ -20,7 +20,7 @@
 #include <QTimer>
 
 #include "BaseInstance.h"
-#include "auth/MojangAccount.h"
+#include "minecraft/auth/MojangAuthSession.h"
 #include "net/NetJob.h"
 #include "updater/GoUpdate.h"
 
@@ -126,19 +126,14 @@ slots:
 	 * Launches the given instance with the given account.
 	 * This function assumes that the given account has a valid, usable access token.
 	 */
-	void launchInstance(InstancePtr instance, AuthSessionPtr session, BaseProfilerFactory *profiler = 0);
+	void launchInstance(InstancePtr instance, SessionPtr session, BaseProfilerFactory *profiler = 0);
 
 	/*!
 	 * Prepares the given instance for launch with the given account.
 	 */
-	void updateInstance(InstancePtr instance, AuthSessionPtr account, BaseProfilerFactory *profiler = 0);
+	void updateInstance(InstancePtr instance, SessionPtr account, BaseProfilerFactory *profiler = 0);
 
 	void onGameUpdateError(QString error);
-
-	void taskStart();
-	void taskEnd();
-
-	void instanceEnded();
 
 	// called when an icon is changed in the icon model.
 	void iconUpdated(QString);
@@ -147,29 +142,22 @@ slots:
 
 	void updateToolsMenu();
 
-    void skinJobFinished();
 public
 slots:
 	void instanceActivated(QModelIndex);
-
 	void instanceChanged(const QModelIndex &current, const QModelIndex &previous);
 
 	void instanceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 	void selectionBad();
 
-	void startTask(Task *task);
-
 	void updateAvailable(GoUpdate::Status status);
-
 	void updateNotAvailable();
 
 	void notificationsChanged();
 
-	void activeAccountChanged();
-
-	void changeActiveAccount();
-
+	void latestAccountChanged();
+	void makeAccountGlobalDefault();
 	void repopulateAccountsMenu();
 
 	void updateNewsLabel();
