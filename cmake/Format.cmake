@@ -1,12 +1,12 @@
 find_program(CLANGFORMAT_PATH clang-format)
 
-set(FILES_TO_FORMAT)
-
 add_custom_target(format)
 
 function(Format NAME)
     if(EXISTS ${CLANGFORMAT_PATH})
         add_custom_target(format-${NAME})
+
+        set(FILES_TO_FORMAT)
 
         foreach(infile ${ARGN})
             get_filename_component(dir ${infile} DIRECTORY)
