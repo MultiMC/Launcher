@@ -1,23 +1,19 @@
 #include "AppInfo.h"
 
-#include "FileUtils.h"
-#include "Platform.h"
-#include "StringUtils.h"
-#include "StandardDirs.h"
+#include <QDir>
 
-#include <iostream>
+#include <string>
 
 std::string AppInfo::logFilePath()
 {
-	return StandardDirs::appDataPath(organizationName(),appName())  + '/' + "update-log.txt";
+	return QDir::current().absoluteFilePath("update-log.txt").toStdString();
 }
 
-std::string AppInfo::updateErrorMessage(const std::string& details)
+std::string AppInfo::updateErrorMessage(const std::string &details)
 {
 	std::string result = "There was a problem installing the update:\n\n";
 	result += details;
 	result += "\n\nYou can try downloading and installing the latest version of "
-	          "MultiMC from http://multimc.org/";
+			  "MultiMC from http://multimc.org/";
 	return result;
 }
-

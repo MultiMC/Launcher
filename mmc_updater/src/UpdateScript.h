@@ -1,82 +1,58 @@
 #pragma once
 
-#include <string>
 #include <vector>
+#include <QString>
 
-class TiXmlElement;
-
-/** Represents a package containing one or more
-  * files for an update.
-  */
-class UpdateScriptPackage
-{
-	public:
-		UpdateScriptPackage()
-		: size(0)
-		{}
-
-		std::string name;
-		std::string sha1;
-		std::string source;
-		int size;
-
-		bool operator==(const UpdateScriptPackage& other) const
-		{
-			return name == other.name &&
-			       sha1 == other.sha1 &&
-			       source == other.source &&
-			       size == other.size;
-		}
-};
+class QXmlStreamReader;
 
 /** Represents a file to be installed as part of an update. */
-class UpdateScriptFile
+struct UpdateScriptFile
 {
-	public:
-		UpdateScriptFile()
-		: permissions(0)
-		{}
+	explicit UpdateScriptFile()
+	{
+	}
+	explicit UpdateScriptFile(const QString &src, const QString &dest, const int permissions)
+		: source(src), dest(dest), permissions(permissions)
+	{
+	}
 
-		/// Path to copy from.
-		std::string source;
-		/// The path to copy to.
-		std::string dest;
+	/// Path to copy from.
+	QString source;
+	/// The path to copy to.
+	QString dest;
 
-		/** The permissions for this file, specified
+	/** The permissions for this file, specified
 		  * using the standard Unix mode_t values.
 		  */
-		int permissions;
+	int permissions = 0;
 
-		bool operator==(const UpdateScriptFile& other) const
-		{
-			return source == other.source &&
-			       dest == other.dest &&
-			       permissions == other.permissions;
-		}
+	bool operator==(const UpdateScriptFile &other) const
+	{
+		return source == other.source && dest == other.dest && permissions == other.permissions;
+	}
 };
 
 /** Stores information about the files included in an update, parsed from an XML file. */
 class UpdateScript
 {
-	public:
-		UpdateScript();
+public:
+	UpdateScript();
 
-		/** Initialize this UpdateScript with the script stored
+	/** Initialize this UpdateScript with the script stored
 		  * in the XML file at @p path.
 		  */
-		void parse(const std::string& path);
+	void parse(const QString &path);
 
-		bool isValid() const;
-		const std::string path() const;
-		const std::vector<UpdateScriptFile>& filesToInstall() const;
-		const std::vector<std::string>& filesToUninstall() const;
+	bool isValid() const;
+	const QString path() const;
+	const std::vector<UpdateScriptFile> &filesToInstall() const;
+	const std::vector<QString> &filesToUninstall() const;
 
-	private:
-		void parseUpdate(const TiXmlElement* element);
-		UpdateScriptFile parseFile(const TiXmlElement* element);
+private:
+	void parseUpdate(QXmlStreamReader &reader);
+	UpdateScriptFile parseFile(QXmlStreamReader &reader);
 
-		std::string m_path;
-		std::vector<UpdateScriptFile> m_filesToInstall;
-		std::vector<std::string> m_filesToUninstall;
+	QString m_path;
+	std::vector<UpdateScriptFile> m_filesToInstall;
+	std::vector<QString> m_filesToUninstall;
 };
-

@@ -1,0 +1,15 @@
+static int UNITE = 1;
+static int UNITED = 2;
+
+// meowwwww meow
+int meow(int KITTENS_OF_THE_WORLD) {
+	// MEOW
+	if (KITTENS_OF_THE_WORLD < UNITED) {
+		return KITTENS_OF_THE_WORLD;
+	} else {
+		// meeoowwwwwwwww
+		// meoooowwwwwwwwwwwwwwwww
+		return meow(KITTENS_OF_THE_WORLD - UNITE)
+			+ meow(KITTENS_OF_THE_WORLD - UNITED);
+	}
+}

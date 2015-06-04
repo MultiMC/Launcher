@@ -1,0 +1,16 @@
+<update>
+	<install>
+		<file>
+			<source>kitteeens-4242</source>
+			<dest>bin/kitteeens</dest>
+			<mode>755</mode>
+		</file>
+		<file>
+			<source>README-4444</source>
+			<dest>README</dest>
+		</file>
+	</install>
+	<uninstall>
+		<file>lib/libdog.so</file>
+	</uninstall>
+</update>

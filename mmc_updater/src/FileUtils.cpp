@@ -1,517 +1,250 @@
 #include "FileUtils.h"
 
-#include "DirIterator.h"
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+
 #include "Log.h"
-#include "Platform.h"
-#include "StringUtils.h"
 
-#include <algorithm>
-#include <assert.h>
-#include <string.h>
-#include <fstream>
-#include <iostream>
-// this actually works with mingw32, which we use.
-#include <libgen.h>
+#ifdef Q_OS_UNIX
+// from <sys/stat.h>
+#ifndef S_IRUSR
+#define __S_IREAD 0400	 /* Read by owner.  */
+#define __S_IWRITE 0200	/* Write by owner.  */
+#define __S_IEXEC 0100	 /* Execute by owner.  */
+#define S_IRUSR __S_IREAD  /* Read by owner.  */
+#define S_IWUSR __S_IWRITE /* Write by owner.  */
+#define S_IXUSR __S_IEXEC  /* Execute by owner.  */
 
-#ifdef PLATFORM_UNIX
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/stat.h>
-#include <errno.h>
+#define S_IRGRP (S_IRUSR >> 3) /* Read by group.  */
+#define S_IWGRP (S_IWUSR >> 3) /* Write by group.  */
+#define S_IXGRP (S_IXUSR >> 3) /* Execute by group.  */
+
+#define S_IROTH (S_IRGRP >> 3) /* Read by others.  */
+#define S_IWOTH (S_IWGRP >> 3) /* Write by others.  */
+#define S_IXOTH (S_IXGRP >> 3) /* Execute by others.  */
+#endif
+static QFile::Permissions unixModeToPermissions(const int mode)
+{
+	QFile::Permissions perms;
+
+	if (mode & S_IRUSR)
+	{
+		perms |= QFile::ReadUser;
+	}
+	if (mode & S_IWUSR)
+	{
+		perms |= QFile::WriteUser;
+	}
+	if (mode & S_IXUSR)
+	{
+		perms |= QFile::ExeUser;
+	}
+
+	if (mode & S_IRGRP)
+	{
+		perms |= QFile::ReadGroup;
+	}
+	if (mode & S_IWGRP)
+	{
+		perms |= QFile::WriteGroup;
+	}
+	if (mode & S_IXGRP)
+	{
+		perms |= QFile::ExeGroup;
+	}
+
+	if (mode & S_IROTH)
+	{
+		perms |= QFile::ReadOther;
+	}
+	if (mode & S_IWOTH)
+	{
+		perms |= QFile::WriteOther;
+	}
+	if (mode & S_IXOTH)
+	{
+		perms |= QFile::ExeOther;
+	}
+	return perms;
+}
 #endif
 
-FileUtils::IOException::IOException(const std::string& error)
+FileUtils::IOException::IOException(const QString &error)
 {
-	init(errno,error);
+	init(errno, error);
 }
 
-FileUtils::IOException::IOException(int errorCode, const std::string& error)
+FileUtils::IOException::IOException(int errorCode, const QString &error)
 {
-	init(errorCode,error);
+	init(errorCode, error);
 }
 
-void FileUtils::IOException::init(int errorCode, const std::string& error)
+void FileUtils::IOException::init(int errorCode, const QString &error)
 {
 	m_error = error;
 
-#ifdef PLATFORM_UNIX
+#ifdef Q_OS_LINUX
 	m_errorCode = errorCode;
 
 	if (m_errorCode > 0)
 	{
-		m_error += " details: " + std::string(strerror(m_errorCode));
+		m_error += " details: " + QString::fromLocal8Bit(strerror(m_errorCode));
 	}
 #endif
 
-#ifdef PLATFORM_WINDOWS
+#ifdef Q_OS_WIN
 	m_errorCode = 0;
-	m_error += " GetLastError returned: " + intToStr(GetLastError());
+	m_error += " GetLastError returned: " + QString::number(GetLastError());
 #endif
 }
 
-FileUtils::IOException::~IOException() throw ()
+FileUtils::IOException::~IOException() throw()
 {
 }
 
 FileUtils::IOException::Type FileUtils::IOException::type() const
 {
-#ifdef PLATFORM_UNIX
+#ifdef Q_OS_LINUX
 	switch (m_errorCode)
 	{
-		case 0:
-			return NoError;
-		case EROFS:
-			return ReadOnlyFileSystem;
-		case ENOSPC:
-			return DiskFull;
-		default:
-			return Unknown;
+	case 0:
+		return NoError;
+	case EROFS:
+		return ReadOnlyFileSystem;
+	case ENOSPC:
+		return DiskFull;
+	default:
+		return Unknown;
 	}
 #else
 	return Unknown;
 #endif
 }
 
-bool FileUtils::fileExists(const char* path) throw (IOException)
+bool FileUtils::fileExists(const QString &path) throw(IOException)
 {
-#ifdef PLATFORM_UNIX
-	struct stat fileInfo;
-	if (lstat(path,&fileInfo) != 0)
-	{
-		if (errno == ENOENT)
-		{
-			return false;
-		}
-		else
-		{
-			throw IOException("Error checking for file " + std::string(path));
-		}
-	}
-	return true;
-#else
-	DWORD result = GetFileAttributes(path);
-	if (result == INVALID_FILE_ATTRIBUTES)
-	{
-		return false;
-	}
-	return true;
-#endif
+	return QFile::exists(path);
 }
 
-int FileUtils::fileMode(const char* path) throw (IOException)
+int FileUtils::fileMode(const QString &path) throw(IOException)
 {
-#ifdef PLATFORM_UNIX
-	struct stat fileInfo;
-	if (stat(path,&fileInfo) != 0)
-	{
-		throw IOException("Error reading file permissions for " + std::string(path));
-	}
-	return fileInfo.st_mode;
-#else
-	// not implemented for Windows
-	return 0;
-#endif
+	return QFile::permissions(path);
 }
 
-void FileUtils::chmod(const char* path, int mode) throw (IOException)
+void FileUtils::chmod(const QString &path, int mode) throw(IOException)
 {
-#ifdef PLATFORM_UNIX
-	if (::chmod(path,static_cast<mode_t>(mode)) != 0)
+#ifdef Q_OS_LINUX
+	if (!QFile::setPermissions(path, unixModeToPermissions(mode)))
 	{
-		throw IOException("Failed to set permissions on " + std::string(path) + " to " + intToStr(mode));
-	}
-#else
-	// TODO - Not implemented under Windows - all files
-	// get default permissions
-#endif
-}
-
-void FileUtils::moveFile(const char* src, const char* dest) throw (IOException)
-{
-#ifdef PLATFORM_UNIX
-	if (rename(src,dest) != 0)
-	{
-		throw IOException("Unable to rename " + std::string(src) + " to " + std::string(dest));
-	}
-#else
-	if (!MoveFile(src,dest))
-	{
-		throw IOException("Unable to rename " + std::string(src) + " to " + std::string(dest));
+		throw IOException("Failed to set permissions on " + path + " to " +
+						  QString::number(mode));
 	}
 #endif
 }
 
-void FileUtils::mkpath(const char* dir) throw (IOException)
+void FileUtils::moveFile(const QString &src, const QString &dest) throw(IOException)
 {
-	std::string currentPath;
-	std::istringstream stream(dir);
-	while (!stream.eof())
+	if (!QFile::rename(src, dest))
 	{
-		std::string segment;
-		std::getline(stream,segment,'/');
-		currentPath += segment;
-		if (!currentPath.empty() && !fileExists(currentPath.c_str()))
-		{
-			mkdir(currentPath.c_str());
-		}
-		currentPath += '/';
+		throw IOException("Unable to move " + src + " to " + dest);
 	}
 }
 
-void FileUtils::mkdir(const char* dir) throw (IOException)
+void FileUtils::mkpath(const QString &dir) throw(IOException)
 {
-#ifdef PLATFORM_UNIX
-	if (::mkdir(dir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0)
+	if (!QDir().mkpath(dir))
 	{
-		throw IOException("Unable to create directory " + std::string(dir));
+		throw IOException("Unable to create directory " + dir);
 	}
-#else
-	if (!CreateDirectory(dir,0 /* default security attributes */))
-	{
-		throw IOException("Unable to create directory " + std::string(dir));
-	}
-#endif
 }
 
-void FileUtils::rmdir(const char* dir) throw (IOException)
+void FileUtils::removeFile(const QString &src) throw(IOException)
 {
-#ifdef PLATFORM_UNIX
-	if (::rmdir(dir) != 0)
+	QFile file(src);
+	if (!file.remove())
 	{
-		throw IOException("Unable to remove directory " + std::string(dir));
+		throw IOException("Unable to remove file " + src);
 	}
-#else
-	if (!RemoveDirectory(dir))
-	{
-		throw IOException("Unable to remove directory " + std::string(dir));
-	}
-#endif
 }
 
-void FileUtils::createSymLink(const char* link, const char* target) throw (IOException)
+QString FileUtils::fileName(const QString &path)
 {
-#ifdef PLATFORM_UNIX
-	if (symlink(target,link) != 0)
-	{
-		throw IOException("Unable to create symlink " + std::string(link) + " to " + std::string(target));
-	}
-#else
-	// symlinks are not supported under Windows (at least, not universally.
-	// Windows Vista and later do actually support symlinks)
-	LOG(Warn,"Skipping symlink creation - not implemented in Windows");
-#endif
+	return QFileInfo(path).fileName();
 }
 
-void FileUtils::removeFile(const char* src) throw (IOException)
+QString FileUtils::dirname(const QString &path)
 {
-#ifdef PLATFORM_UNIX
-	if (unlink(src) != 0)
+	const QFileInfo info(path);
+	if (info.isRelative())
 	{
-		if (errno != ENOENT)
-		{
-			throw IOException("Unable to remove file " + std::string(src));
-		}
-	}
-#else
-	if (!DeleteFile(src))
-	{
-		if (GetLastError() == ERROR_ACCESS_DENIED)
-		{
-			// if another process is using the file, try moving it to
-			// a temporary directory and then
-			// scheduling it for deletion on reboot
-			std::string tempDeletePathBase = tempPath();
-			tempDeletePathBase += '/';
-			tempDeletePathBase += fileName(src);
-
-			int suffix = 0;
-			std::string tempDeletePath = tempDeletePathBase;
-			while (fileExists(tempDeletePath.c_str()))
-			{
-				++suffix;
-				tempDeletePath = tempDeletePathBase + '_' + intToStr(suffix);
-			}
-
-			LOG(Warn,"Unable to remove file " + std::string(src) + " - it may be in use.  Moving to "
-			         + tempDeletePath + " and scheduling delete on reboot.");
-			moveFile(src,tempDeletePath.c_str());
-			MoveFileEx(tempDeletePath.c_str(),0,MOVEFILE_DELAY_UNTIL_REBOOT);
-		}
-		else if (GetLastError() != ERROR_FILE_NOT_FOUND)
-		{
-			throw IOException("Unable to remove file " + std::string(src));
-		}
-	}
-#endif
-}
-
-std::string FileUtils::fileName(const char* path)
-{
-	char* pathCopy = strdup(path);
-	std::string basename = ::basename(pathCopy);
-	free(pathCopy);
-	return basename;
-}
-
-std::string FileUtils::dirname(const char* path)
-{
-	char* pathCopy = strdup(path);
-	std::string dirname = ::dirname(pathCopy);
-	free(pathCopy);
-	return dirname;
-}
-
-void FileUtils::touch(const char* path) throw (IOException)
-{
-#ifdef PLATFORM_UNIX
-	// see http://pubs.opengroup.org/onlinepubs/9699919799/utilities/touch.html
-	//
-	// we use utimes/futimes instead of utimensat/futimens for compatibility
-	// with older Linux and Mac
-
-	if (fileExists(path))
-	{
-		utimes(path,0 /* use current date/time */);
+		const QString ret = QDir::current().relativeFilePath(info.absoluteDir().absolutePath());
+		return ret.isEmpty() ? "." : ret;
 	}
 	else
 	{
-		int fd = creat(path,S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-		if (fd != -1)
-		{
-			futimes(fd,0 /* use current date/time */);
-			close(fd);
-		}
-		else
-		{
-			throw IOException("Unable to touch file " + std::string(path));
-		}
+		return info.absoluteDir().absolutePath();
 	}
-#else
-	HANDLE result = CreateFile(path,GENERIC_WRITE,
-	                           FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-	                           0,
-							   CREATE_ALWAYS,
-                               FILE_ATTRIBUTE_NORMAL,
-                               0);
-	if (result == INVALID_HANDLE_VALUE)
-	{
-		throw IOException("Unable to touch file " + std::string(path));
-	}
-	else
-	{
-		CloseHandle(result);
-	}
-#endif
 }
 
-void FileUtils::rmdirRecursive(const char* path) throw (IOException)
+void FileUtils::touch(const QString &path) throw(IOException)
 {
-	// remove dir contents
-	DirIterator dir(path);
-	while (dir.next())
+	QFile file(path);
+	if (!file.open(QFile::WriteOnly | QFile::Append))
 	{
-		std::string name = dir.fileName();
-		if (name != "." && name != "..")
-		{
-			if (dir.isDir())
-			{
-				rmdir(dir.filePath().c_str());
-			}
-			else
-			{
-				removeFile(dir.filePath().c_str());
-			}
-		}
+		throw IOException("Couldn't open a file for writing: " + file.errorString());
 	}
-
-	// remove the directory itself
-	rmdir(path);
+	file.close();
 }
 
-std::string FileUtils::canonicalPath(const char* path)
+QString FileUtils::canonicalPath(const QString &path)
 {
-#ifdef PLATFORM_UNIX
-	// on Linux and Mac OS 10.6, realpath() can allocate the required
-	// amount of memory automatically, however Mac OS 10.5 does not support
-	// this, so we used a fixed-sized buffer on all platforms
-	char canonicalPathBuffer[PATH_MAX+1];
-	if (realpath(path,canonicalPathBuffer) != 0)
-	{
-		return std::string(canonicalPathBuffer);
-	}
-	else
-	{
-		throw IOException("Error reading canonical path for " + std::string(path));
-	}
-#else
-	throw IOException("canonicalPath() not implemented");
-#endif
+	return QFileInfo(path).canonicalFilePath();
 }
 
-std::string FileUtils::toWindowsPathSeparators(const std::string& str)
+QString FileUtils::tempPath()
 {
-	std::string result = str;
-	std::replace(result.begin(),result.end(),'/','\\');
-	return result;
+	return QDir::tempPath();
 }
 
-std::string FileUtils::toUnixPathSeparators(const std::string& str)
+QString FileUtils::readFile(const QString &path) throw(IOException)
 {
-	std::string result = str;
-	std::replace(result.begin(),result.end(),'\\','/');
-	return result;
+	QFile file(path);
+	if (!file.open(QFile::ReadOnly))
+	{
+		throw IOException("Failed to read file " + path);
+	}
+	return QString::fromLatin1(file.readAll());
 }
 
-std::string FileUtils::tempPath()
+void FileUtils::copyFile(const QString &src, const QString &dest) throw(IOException)
 {
-#ifdef PLATFORM_UNIX
-	std::string tmpDir(notNullString(getenv("TMPDIR")));
-	if (tmpDir.empty())
+	if (!QFile::copy(src, dest))
 	{
-		tmpDir = "/tmp";
+		throw IOException("Failed to copy " + src + " to " + dest);
 	}
-	return tmpDir;
-#else
-	char buffer[MAX_PATH+1];
-	GetTempPath(MAX_PATH+1,buffer);
-	return toUnixPathSeparators(buffer);
-#endif
+	QFile::setPermissions(dest, QFile::permissions(src));
 }
 
-bool startsWithDriveLetter(const char* path)
+QString FileUtils::makeAbsolute(const QString &path, const QString &basePath)
 {
-	return strlen(path) >= 2 &&
-	      (isalpha(path[0])) &&
-	       path[1] == ':';
+	return QDir(basePath).absoluteFilePath(path);
 }
 
-bool FileUtils::isRelative(const char* path)
+void FileUtils::removeDir(const QString &path) throw(IOException)
 {
-#ifdef PLATFORM_UNIX
-	return strlen(path) == 0 || path[0] != '/';
-#else
-	// on Windows, a path is relative if it does not start with:
-	// - '\\' (a UNC name)
-	// - '[Drive Letter]:\'
-	// - A single backslash
-	//
-	// the input path is assumed to have already been converted to use
-	// Unix-style path separators
-
-	std::string pathStr(path);
-
-	if ((!pathStr.empty() && pathStr.at(0) == '/') ||
-	    (startsWith(pathStr,"//")) ||
-	    (startsWithDriveLetter(pathStr.c_str())))
+	if (!QDir(path).removeRecursively())
 	{
-		return false;
+		throw IOException("Couldn't remove directory " + path);
 	}
-	else
-	{
-		return true;
-	}
-#endif
 }
 
-void FileUtils::writeFile(const char* path, const char* data, int length) throw (IOException)
+void FileUtils::writeFile(const QString &path, const QByteArray &contents) throw(IOException)
 {
-	std::ofstream stream(path,std::ios::binary | std::ios::trunc);
-	stream.write(data,length);
+	QFile file(path);
+	if (!file.open(QFile::WriteOnly))
+	{
+		throw IOException("Failed to write file " + path);
+	}
+	file.write(contents);
 }
-
-std::string FileUtils::readFile(const char* path) throw (IOException)
-{
-	std::ifstream inputFile(path, std::ios::in | std::ios::binary);
-	std::string content;
-	inputFile.seekg(0, std::ios::end);
-	content.resize(static_cast<unsigned int>(inputFile.tellg()));
-	inputFile.seekg(0, std::ios::beg);
-	inputFile.read(&content[0], static_cast<int>(content.size()));
-	return content;
-}
-
-void FileUtils::copyFile(const char* src, const char* dest) throw (IOException)
-{
-#ifdef PLATFORM_UNIX
-	std::ifstream inputFile(src,std::ios::binary);
-	std::ofstream outputFile(dest,std::ios::binary | std::ios::trunc);
-
-	if (!inputFile.good())
-	{
-		throw IOException("Failed to read file " + std::string(src));
-	}
-	if (!outputFile.good())
-	{
-		throw IOException("Failed to write file " + std::string(dest));
-	}
-	
-	outputFile << inputFile.rdbuf();
-
-	if (inputFile.bad())
-	{
-		throw IOException("Error reading file " + std::string(src));
-	}
-	if (outputFile.bad())
-	{
-		throw IOException("Error writing file " + std::string(dest));
-	}
-
-	chmod(dest,fileMode(src));
-#else
-	if (!CopyFile(src,dest,FALSE))
-	{
-		throw IOException("Failed to copy " + std::string(src) + " to " + std::string(dest));
-	}
-#endif
-}
-
-std::string FileUtils::makeAbsolute(const char* path, const char* basePath)
-{
-	if (isRelative(path))
-	{
-		assert(!isRelative(basePath));
-		return std::string(basePath) + '/' + std::string(path);
-	}
-	else
-	{
-		return path;
-	}
-}
-
-void FileUtils::chdir(const char* path) throw (IOException)
-{
-#ifdef PLATFORM_UNIX
-	if (::chdir(path) != 0)
-	{
-		throw FileUtils::IOException("Unable to change directory");
-	}
-#else
-	if (!SetCurrentDirectory(path))
-	{
-		throw FileUtils::IOException("Unable to change directory");
-	}
-#endif
-}
-
-std::string FileUtils::getcwd() throw (IOException)
-{
-#ifdef PLATFORM_UNIX
-	char path[PATH_MAX];
-	if (!::getcwd(path,PATH_MAX))
-	{
-		throw FileUtils::IOException("Failed to get current directory");
-	}
-	return std::string(path);
-#else
-	char path[MAX_PATH];
-	if (GetCurrentDirectory(MAX_PATH,path) == 0)
-	{
-		throw FileUtils::IOException("Failed to get current directory");
-	}
-	return toUnixPathSeparators(std::string(path));
-#endif
-}
-

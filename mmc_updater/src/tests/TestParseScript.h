@@ -2,7 +2,6 @@
 
 class TestParseScript
 {
-	public:
-		void testParse();
+public:
+	void testParse();
 };
-

@@ -2,36 +2,23 @@
 <update version="3">
  <install>
   <file>
-   <name>$APP_FILENAME</name>
-   <hash>$UPDATED_APP_HASH</hash>
-   <size>$UPDATED_APP_SIZE</size>
-   <permissions>0755</permissions>
-   <package>app-pkg</package>
-   <is-main-binary>true</is-main-binary>
+   <source>SourceA</source>
+   <dest>DestA</dest>
+   <mode>0755</mode>
   </file>
   <file>
-   <name>$UPDATER_FILENAME</name>
-   <hash>$UPDATER_HASH</hash>
-   <size>$UPDATER_SIZE</size>
-   <permissions>0755</permissions>
+   <source>SourceB</source>
+   <dest>DestB</dest>
+   <mode>0644</mode>
   </file>
-  <!-- Test symlink !-->
   <file>
-   <name>test-dir/app-symlink</name>
-   <target>../app</target>
-  </file>
-  <!-- Test file in new directory !-->
-  <file>
-   <name>new-dir/new-dir2/new-file.txt</name>
-   <hash>$TEST_FILENAME</hash>
-   <size>$TEST_SIZE</size>
-   <package>app-pkg</package>
-   <permissions>0644</permissions>
+   <source>SourceC</source>
+   <dest>DestC</dest>
+   <mode>0644</mode>
   </file>
  </install>
  <uninstall>
-  <!-- TODO - List some files to uninstall here !-->
   <file>file-to-uninstall.txt</file>
-  <file>symlink-to-file-to-uninstall.txt</file>
+  <file>other-file-to-uninstall.txt</file>
  </uninstall>
 </update>

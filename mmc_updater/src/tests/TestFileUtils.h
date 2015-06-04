@@ -2,9 +2,6 @@
 
 class TestFileUtils
 {
-	public:
-		void testDirName();
-		void testIsRelative();
-		void testSymlinkFileExists();
-		void testStandardDirs();
+public:
+	void testDirName();
 };

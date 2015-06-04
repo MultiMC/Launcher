@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 include_directories(depends)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 if(WIN32)
 	include_directories(depends/win32cpp)
 
@@ -38,7 +40,7 @@ if(APPLE)
 	# Build the updater as a dual 32/64bit binary.  If only one architecture
 	# is required, removing the other architecture will reduce the size
 	# of the updater binary
-	set(CMAKE_OSX_ARCHITECTURES i386;x86_64)
+        set(CMAKE_OSX_ARCHITECTURES x86_64)
 
 	# Build the updater so that it works on OS X 10.7 and above.
 	set(MIN_OSX_VERSION 10.7)
@@ -47,6 +49,4 @@ if(APPLE)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(depends/AnyOption)
-add_subdirectory(depends/tinyxml)
 
