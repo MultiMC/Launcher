@@ -43,7 +43,7 @@ AccountModel::AccountModel()
 {
 	m_typesModel = new AccountTypesModel;
 
-	registerType(new MinecraftAccountType);
+	registerType(new MojangAccountType);
 
 	addEntry<QString>(0, Qt::DecorationRole, &BaseAccount::avatar);
 	addEntry<QString>(0, Qt::DisplayRole, &BaseAccount::username);
@@ -241,7 +241,7 @@ bool AccountModel::doLoad(const QByteArray &data)
 		const QString active = ensureString(root, "activeAccount", "");
 		for (const QJsonObject &account : requireIsArrayOf<QJsonObject>(root, "accounts"))
 		{
-			BaseAccount *acc = m_types["minecraft"]->createAccount();
+			BaseAccount *acc = m_types["mojang"]->createAccount();
 			acc->load(formatVersion, account);
 			accs.append(acc);
 
@@ -336,5 +336,5 @@ QByteArray AccountModel::doSave() const
 	root.insert("formatVersion", ACCOUNT_LIST_FORMAT_VERSION);
 	root.insert("accounts", accounts);
 	root.insert("defaults", defaults);
-	return toBinary(root);
+	return toText(root);
 }

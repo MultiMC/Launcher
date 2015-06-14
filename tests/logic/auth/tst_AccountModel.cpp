@@ -24,7 +24,7 @@ public:
 	void populate(std::shared_ptr<QAbstractItemModel> model) const override
 	{
 		auto m = std::dynamic_pointer_cast<AccountModel>(model);
-		m->registerAccount(m->type("minecraft")->createAccount());
+		m->registerAccount(m->type("mojang")->createAccount());
 	}
 
 private slots:
@@ -33,10 +33,10 @@ private slots:
 		auto checkModel = [](AccountModel *model)
 		{
 			QCOMPARE(model->size(), 2);
-			QVERIFY(model->hasAny("minecraft"));
-			QCOMPARE(model->accountsForType("minecraft").size(), 2);
+			QVERIFY(model->hasAny("mojang"));
+			QCOMPARE(model->accountsForType("mojang").size(), 2);
 
-			MojangAccount *first = dynamic_cast<MojangAccount *>(model->accountsForType("minecraft").first());
+			MojangAccount *first = dynamic_cast<MojangAccount *>(model->accountsForType("mojang").first());
 			QVERIFY(first);
 			QCOMPARE(first->username(), QString("IWantTea"));
 			QCOMPARE(first->loginUsername(), QString("arthur.philip@dent.co.uk"));
@@ -47,7 +47,7 @@ private slots:
 			QCOMPARE(first->profiles().first().legacy, false);
 			QCOMPARE(first->profiles().first().name, QString("IWantTea"));
 
-			MojangAccount *second = dynamic_cast<MojangAccount *>(model->accountsForType("minecraft").at(1));
+			MojangAccount *second = dynamic_cast<MojangAccount *>(model->accountsForType("mojang").at(1));
 			QVERIFY(second);
 			QCOMPARE(second->username(), QString("IAmTheBest"));
 			QCOMPARE(second->loginUsername(), QString("zaphod.beeblebrox@galaxy.gov"));
@@ -77,8 +77,8 @@ private slots:
 		std::shared_ptr<AccountModel> model = std::dynamic_pointer_cast<AccountModel>(createModel());
 		QVERIFY(model->typesModel());
 		QVERIFY(!model->types().isEmpty());
-		QVERIFY(model->type("minecraft"));
-		QCOMPARE(model->type("minecraft")->id(), QStringLiteral("minecraft"));
+		QVERIFY(model->type("mojang"));
+		QCOMPARE(model->type("mojang")->id(), QStringLiteral("mojang"));
 	}
 
 	void test_Querying()
@@ -111,45 +111,45 @@ private slots:
 		QVERIFY(acc2);
 
 		// no default set
-		QCOMPARE(model->getAccount("minecraft"), accNull);
-		QCOMPARE(model->getAccount("minecraft", instance1), accNull);
-		QCOMPARE(model->getAccount("minecraft", instance2), accNull);
+		QCOMPARE(model->getAccount("mojang"), accNull);
+		QCOMPARE(model->getAccount("mojang", instance1), accNull);
+		QCOMPARE(model->getAccount("mojang", instance2), accNull);
 		QCOMPARE(model->getAccount("asdf"), accNull);
 		QCOMPARE(model->getAccount("asdf", instance1), accNull);
 		QCOMPARE(model->getAccount("asdf", instance2), accNull);
 
 		model->setInstanceDefault(instance1, acc1);
 		// instance default
-		QCOMPARE(model->getAccount("minecraft"), accNull);
-		QCOMPARE(model->getAccount("minecraft", instance1), acc1);
-		QCOMPARE(model->getAccount("minecraft", instance2), accNull);
+		QCOMPARE(model->getAccount("mojang"), accNull);
+		QCOMPARE(model->getAccount("mojang", instance1), acc1);
+		QCOMPARE(model->getAccount("mojang", instance2), accNull);
 		QCOMPARE(model->getAccount("asdf"), accNull);
 		QCOMPARE(model->getAccount("asdf", instance1), accNull);
 		QCOMPARE(model->getAccount("asdf", instance2), accNull);
 
 		model->setGlobalDefault(acc2);
 		// global default
-		QCOMPARE(model->getAccount("minecraft"), acc2);
-		QCOMPARE(model->getAccount("minecraft", instance1), acc1);
-		QCOMPARE(model->getAccount("minecraft", instance2), acc2);
+		QCOMPARE(model->getAccount("mojang"), acc2);
+		QCOMPARE(model->getAccount("mojang", instance1), acc1);
+		QCOMPARE(model->getAccount("mojang", instance2), acc2);
 		QCOMPARE(model->getAccount("asdf"), accNull);
 		QCOMPARE(model->getAccount("asdf", instance1), accNull);
 		QCOMPARE(model->getAccount("asdf", instance2), accNull);
 
-		model->unsetDefault("minecraft");
+		model->unsetDefault("mojang");
 		// unsetting global default
-		QCOMPARE(model->getAccount("minecraft"), accNull);
-		QCOMPARE(model->getAccount("minecraft", instance1), acc1);
-		QCOMPARE(model->getAccount("minecraft", instance2), accNull);
+		QCOMPARE(model->getAccount("mojang"), accNull);
+		QCOMPARE(model->getAccount("mojang", instance1), acc1);
+		QCOMPARE(model->getAccount("mojang", instance2), accNull);
 		QCOMPARE(model->getAccount("asdf"), accNull);
 		QCOMPARE(model->getAccount("asdf", instance1), accNull);
 		QCOMPARE(model->getAccount("asdf", instance2), accNull);
 
-		model->unsetDefault("minecraft", instance1);
+		model->unsetDefault("mojang", instance1);
 		// unsetting instance default
-		QCOMPARE(model->getAccount("minecraft"), accNull);
-		QCOMPARE(model->getAccount("minecraft", instance1), accNull);
-		QCOMPARE(model->getAccount("minecraft", instance2), accNull);
+		QCOMPARE(model->getAccount("mojang"), accNull);
+		QCOMPARE(model->getAccount("mojang", instance1), accNull);
+		QCOMPARE(model->getAccount("mojang", instance2), accNull);
 		QCOMPARE(model->getAccount("asdf"), accNull);
 		QCOMPARE(model->getAccount("asdf", instance1), accNull);
 		QCOMPARE(model->getAccount("asdf", instance2), accNull);

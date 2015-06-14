@@ -1130,7 +1130,7 @@ void MainWindow::instanceFromVersion(QString instName, QString instGroup, QStrin
 
 void MainWindow::finalizeInstance(InstancePtr inst)
 {
-	if (MMC->accountsModel()->hasAny("minecraft"))
+	if (MMC->accountsModel()->hasAny("mojang"))
 	{
 		ProgressDialog loadDialog(this);
 		auto update = inst->doUpdate();
@@ -1523,7 +1523,7 @@ void MainWindow::doLaunch(bool online, BaseProfilerFactory *profiler)
 	MojangAuthSessionPtr session = std::make_shared<MojangAuthSession>();
 	session->wants_online = online;
 
-	AccountsDialog dlg("minecraft", m_selectedInstance, this);
+	AccountsDialog dlg("mojang", m_selectedInstance, this);
 	dlg.setSession(session);
 	if (dlg.exec() != QDialog::Accepted)
 	{

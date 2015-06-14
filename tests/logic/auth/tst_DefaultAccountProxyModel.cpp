@@ -17,7 +17,7 @@ public:
 	void populate(std::shared_ptr<QAbstractItemModel> model) const override
 	{
 		auto m = dynamic_cast<AccountModel *>(std::dynamic_pointer_cast<DefaultAccountProxyModel>(model)->sourceModel());
-		m->registerAccount(m->type("minecraft")->createAccount());
+		m->registerAccount(m->type("mojang")->createAccount());
 	}
 };
 
