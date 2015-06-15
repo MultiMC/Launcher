@@ -32,7 +32,7 @@ class AccountTypesModel : public AbstractCommonModel<BaseAccountType *>
 public:
 	explicit AccountTypesModel() : AbstractCommonModel<BaseAccountType *>(Qt::Vertical)
 	{
-		addEntry<QString>(0, Qt::UserRole, &BaseAccountType::id);
+		addEntry<BaseAccountType *>(0, Qt::UserRole, [](BaseAccountType *type) { return type; });
 		addEntry<QString>(0, Qt::DisplayRole, &BaseAccountType::text);
 		addEntry<QString>(0, Qt::DecorationRole, &BaseAccountType::icon);
 	}
@@ -43,20 +43,20 @@ AccountModel::AccountModel()
 {
 	m_typesModel = new AccountTypesModel;
 
-	registerType(new MojangAccountType);
+	registerType<MojangAccountType, MojangAccount>("mojang");
 
 	addEntry<QString>(0, Qt::DecorationRole, &BaseAccount::avatar);
 	addEntry<QString>(0, Qt::DisplayRole, &BaseAccount::username);
 	addEntry<QString>(0, ResourceProxyModel::PlaceholderRole, [](BaseAccount *) { return "icon:hourglass"; });
 	addEntry<QString>(1, Qt::DecorationRole, [this](BaseAccount *account)
 	{
-		return m_types.contains(account->type()) ? m_types[account->type()]->icon() : QString();
+		return account->type()->icon();
 	});
 	addEntry<QString>(1, Qt::DisplayRole, [this](BaseAccount *account)
 	{
-		return m_types.contains(account->type()) ? m_types[account->type()]->text() : account->type();
+		return account->type()->text();
 	});
-	addEntry<QString>(1, Qt::UserRole, &BaseAccount::type);
+	addEntry<BaseAccountType *>(1, Qt::UserRole, &BaseAccount::type);
 	addEntry<QString>(1, ResourceProxyModel::PlaceholderRole, [](BaseAccount *) { return "icon:hourglass"; });
 
 	setEntryTitle(0, tr("Username"));
@@ -73,25 +73,19 @@ AccountModel::~AccountModel()
 	delete m_typesModel;
 }
 
-void AccountModel::registerType(BaseAccountType *type)
+void AccountModel::registerTypeInternal(const QString &storageId, const QString &internalId, BaseAccountType *type, AccountFactory factory)
 {
-	m_types.insert(type->id(), type);
+	m_types.insert(internalId, type);
+	m_typeStorageIds.insert(type, storageId);
+	m_accountFactories.insert(type, factory);
 	m_typesModel->append(type);
-}
-BaseAccountType *AccountModel::type(const QString &id) const
-{
-	return m_types.value(id);
-}
-QStringList AccountModel::types() const
-{
-	return m_types.keys();
 }
 
 BaseAccount *AccountModel::getAccount(const QModelIndex &index) const
 {
 	return index.isValid() ? get(index.row()) : nullptr;
 }
-BaseAccount *AccountModel::getAccount(const QString &type, const InstancePtr instance) const
+BaseAccount *AccountModel::getAccount(BaseAccountType *type, const InstancePtr instance) const
 {
 	QMap<QString, BaseAccount *> defaults = m_defaults[type];
 	// instance default?
@@ -130,7 +124,7 @@ void AccountModel::setInstanceDefault(InstancePtr instance, BaseAccount *account
 
 	scheduleSave();
 }
-void AccountModel::unsetDefault(const QString &type, InstancePtr instance)
+void AccountModel::unsetDefault(BaseAccountType *type, InstancePtr instance)
 {
 	m_defaults[type].remove(instance ? instance->id() : QString());
 	if (!instance)
@@ -146,13 +140,12 @@ bool AccountModel::isGlobalDefault(BaseAccount *account) const
 {
 	return getAccount(account->type(), nullptr) == account;
 }
-
 bool AccountModel::isInstanceDefaultExplicit(InstancePtr instance, BaseAccount *account) const
 {
 	return m_defaults[account->type()][instance->id()] == account;
 }
 
-QList<BaseAccount *> AccountModel::accountsForType(const QString &type) const
+QList<BaseAccount *> AccountModel::accountsForType(BaseAccountType *type) const
 {
 	QList<BaseAccount *> out;
 	for (BaseAccount *acc : getAll())
@@ -165,7 +158,7 @@ QList<BaseAccount *> AccountModel::accountsForType(const QString &type) const
 	return out;
 }
 
-bool AccountModel::hasAny(const QString &type) const
+bool AccountModel::hasAny(BaseAccountType *type) const
 {
 	for (const BaseAccount *acc : getAll())
 	{
@@ -231,7 +224,7 @@ bool AccountModel::doLoad(const QByteArray &data)
 	const QJsonObject root = requireObject(requireDocument(data));
 
 	QList<BaseAccount *> accs;
-	QMap<QString, QMap<QString, BaseAccount *>> defs;
+	QMap<BaseAccountType *, QMap<QString, BaseAccount *>> defs;
 
 	const int formatVersion = ensureInteger(root, "formatVersion", 0);
 	if (formatVersion == 2) // old, pre-multiauth format
@@ -241,7 +234,7 @@ bool AccountModel::doLoad(const QByteArray &data)
 		const QString active = ensureString(root, "activeAccount", "");
 		for (const QJsonObject &account : requireIsArrayOf<QJsonObject>(root, "accounts"))
 		{
-			BaseAccount *acc = m_types["mojang"]->createAccount();
+			BaseAccount *acc = createAccount<MojangAccount>();
 			acc->load(formatVersion, account);
 			accs.append(acc);
 
@@ -276,13 +269,13 @@ bool AccountModel::doLoad(const QByteArray &data)
 		for (const auto account : accounts)
 		{
 			const QString type = requireString(account, "type");
-			if (!m_types.contains(type))
+			if (!m_typeStorageIds.values().contains(type))
 			{
 				qWarning() << "Unable to load account of type" << type << "(unknown factory)";
 			}
 			else
 			{
-				BaseAccount *acc = m_types[type]->createAccount();
+				BaseAccount *acc = m_accountFactories[m_typeStorageIds.key(type)]();
 				acc->load(formatVersion, account);
 				accs.append(acc);
 			}
@@ -290,14 +283,14 @@ bool AccountModel::doLoad(const QByteArray &data)
 
 		const auto defaults = requireIsArrayOf<QJsonObject>(root, "defaults");
 		for (const auto def : defaults)
-	{
-		const int index = requireInteger(def, "account");
-		if (index >= 0 && index < accs.size())
 		{
-			defs[requireString(def, "type")][requireString(def, "container")]
-					= accs.at(index);
+			const int index = requireInteger(def, "account");
+			if (index >= 0 && index < accs.size())
+			{
+				defs[m_typeStorageIds.key(requireString(def, "type"))][requireString(def, "container")]
+						= accs.at(index);
+			}
 		}
-	}
 	}
 
 	m_defaults = defs;
@@ -316,7 +309,7 @@ QByteArray AccountModel::doSave() const
 	for (const auto account : getAll())
 	{
 		QJsonObject obj = account->save();
-		obj.insert("type", account->type());
+		obj.insert("type", m_typeStorageIds[account->type()]);
 		accounts.append(obj);
 	}
 	QJsonArray defaults;
@@ -325,7 +318,7 @@ QByteArray AccountModel::doSave() const
 		for (auto it2 = it.value().constBegin(); it2 != it.value().constEnd(); ++it2)
 		{
 			QJsonObject obj;
-			obj.insert("type", it.key());
+			obj.insert("type", m_typeStorageIds[it.key()]);
 			obj.insert("container", it2.key());
 			obj.insert("account", find(it2.value()));
 			defaults.append(obj);
@@ -336,5 +329,5 @@ QByteArray AccountModel::doSave() const
 	root.insert("formatVersion", ACCOUNT_LIST_FORMAT_VERSION);
 	root.insert("accounts", accounts);
 	root.insert("defaults", defaults);
-	return toText(root);
+	return toBinary(root);
 }

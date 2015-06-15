@@ -3,6 +3,7 @@
 #include "logic/auth/DefaultAccountProxyModel.h"
 #include "logic/auth/AccountModel.h"
 #include "logic/auth/BaseAccountType.h"
+#include "logic/minecraft/auth/MojangAccount.h"
 
 class DefaultAccountProxyModelTest : public ModelTester
 {
@@ -17,7 +18,7 @@ public:
 	void populate(std::shared_ptr<QAbstractItemModel> model) const override
 	{
 		auto m = dynamic_cast<AccountModel *>(std::dynamic_pointer_cast<DefaultAccountProxyModel>(model)->sourceModel());
-		m->registerAccount(m->type("mojang")->createAccount());
+		m->registerAccount(m->createAccount<MojangAccount>());
 	}
 };
 

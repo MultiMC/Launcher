@@ -16,11 +16,11 @@
 #pragma once
 
 #include <QUrl>
+#include <QMetaType>
 #include <memory>
 
 class BaseAccount;
 class QString;
-using AccountModelPtr = std::weak_ptr<class AccountModel>;
 
 class BaseAccountType
 {
@@ -33,13 +33,12 @@ public:
 		UsernamePassword
 	};
 
-	virtual QString id() const = 0;
 	virtual QString text() const = 0;
 	virtual QString icon() const = 0;
 	virtual QString usernameText() const = 0;
 	virtual QString passwordText() const = 0;
 	virtual Type type() const = 0;
 	virtual QUrl oauth2PinUrl() const { return QUrl(); }
-
-	virtual BaseAccount *createAccount() = 0;
 };
+
+Q_DECLARE_METATYPE(BaseAccountType *)

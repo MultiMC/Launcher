@@ -18,8 +18,8 @@
 #include "Json.h"
 #include "AccountModel.h"
 
-BaseAccount::BaseAccount(QObject *parent)
-	: QObject(parent)
+BaseAccount::BaseAccount(BaseAccountType *type, QObject *parent)
+	: QObject(parent), m_type(type)
 {
 }
 

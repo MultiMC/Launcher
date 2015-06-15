@@ -13,7 +13,7 @@ class AuthenticateTaskTest : public QObject
 
 	std::shared_ptr<AuthenticateTask> createTask(const QString &clientToken = "")
 	{
-		MojangAccount *account = new MojangAccount();
+		MojangAccount *account = new MojangAccount(new MojangAccountType);
 		account->setClientToken(clientToken);
 		MojangAuthSessionPtr sess = std::make_shared<MojangAuthSession>();
 		return std::make_shared<AuthenticateTask>(sess, "IWantTea", "ILoveTrillian", account);

@@ -10,6 +10,7 @@ class AccountLoginDialog;
 }
 
 class BaseAccount;
+class BaseAccountType;
 using SessionPtr = std::shared_ptr<class BaseSession>;
 
 class AccountLoginDialog : public QDialog
@@ -17,7 +18,7 @@ class AccountLoginDialog : public QDialog
 	Q_OBJECT
 public:
 	explicit AccountLoginDialog(QWidget *parent = nullptr);
-	explicit AccountLoginDialog(const QString &type, QWidget *parent = nullptr);
+	explicit AccountLoginDialog(BaseAccountType *type, QWidget *parent = nullptr);
 	explicit AccountLoginDialog(BaseAccount *account, QWidget *parent = nullptr);
 	~AccountLoginDialog();
 
@@ -36,7 +37,7 @@ private:
 	Ui::AccountLoginDialog *ui;
 	BaseAccount *m_account = nullptr;
 	SessionPtr m_session;
-	QString m_type;
+	BaseAccountType *m_type;
 
-	void setupForType(const QString &type);
+	void setupForType(BaseAccountType *type);
 };

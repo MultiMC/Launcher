@@ -10,6 +10,7 @@ class AccountsWidget;
 }
 
 class BaseAccount;
+class BaseAccountType;
 using InstancePtr = std::shared_ptr<class BaseInstance>;
 using SessionPtr = std::shared_ptr<class BaseSession>;
 
@@ -17,7 +18,7 @@ class AccountsWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit AccountsWidget(const QString &type, InstancePtr instance = nullptr, QWidget *parent = nullptr);
+	explicit AccountsWidget(BaseAccountType *type, InstancePtr instance = nullptr, QWidget *parent = nullptr);
 	~AccountsWidget();
 
 	void setSession(SessionPtr session);
@@ -43,6 +44,6 @@ private:
 	Ui::AccountsWidget *ui;
 	InstancePtr m_instance;
 	SessionPtr m_session;
-	QString m_requestedType;
+	BaseAccountType *m_requestedType;
 	bool m_offlineEnabled = false;
 };

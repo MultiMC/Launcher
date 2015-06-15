@@ -25,11 +25,11 @@ AccountLoginDialog::AccountLoginDialog(QWidget *parent) :
 	connect(ui->typeBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AccountLoginDialog::currentTypeChanged);
 	currentTypeChanged(0);
 }
-AccountLoginDialog::AccountLoginDialog(const QString &type, QWidget *parent)
+AccountLoginDialog::AccountLoginDialog(BaseAccountType *type, QWidget *parent)
 	: AccountLoginDialog(parent)
 {
-	setWindowTitle(tr("New Account for %1").arg(MMC->accountsModel()->type(type)->text()));
-	ui->typeBox->setCurrentIndex(ui->typeBox->findData(type));
+	setWindowTitle(tr("New Account for %1").arg(type->text()));
+	ui->typeBox->setCurrentIndex(ui->typeBox->findData(QVariant::fromValue<BaseAccountType *>(type)));
 	ui->typeBox->setDisabled(true);
 
 	setupForType(type);
@@ -81,7 +81,7 @@ void AccountLoginDialog::taskFinished()
 	}
 	else
 	{
-		ui->typeBox->setEnabled(m_type.isEmpty());
+		ui->typeBox->setEnabled(m_type);
 		ui->errorLbl->setVisible(true);
 		ui->errorLbl->setText(task->failReason());
 		ui->usernameEdit->setEnabled(true);
@@ -93,28 +93,27 @@ void AccountLoginDialog::taskFinished()
 
 void AccountLoginDialog::currentTypeChanged(const int index)
 {
-	const QString type = ui->typeBox->itemData(index).toString();
-	if (!type.isEmpty())
+	BaseAccountType *type = ui->typeBox->itemData(index).value<BaseAccountType *>();
+	if (type)
 	{
 		setupForType(type);
 	}
 }
-void AccountLoginDialog::setupForType(const QString &type)
+void AccountLoginDialog::setupForType(BaseAccountType *type)
 {
 	m_type = type;
 
-	const BaseAccountType *t = MMC->accountsModel()->type(type);
-	ui->usernameLbl->setText(t->usernameText());
-	ui->usernameLbl->setVisible(!t->usernameText().isNull());
-	ui->usernameEdit->setVisible(!t->usernameText().isNull());
-	ui->passwordLbl->setText(t->passwordText());
-	ui->passwordLbl->setVisible(!t->passwordText().isNull());
-	ui->passwordEdit->setVisible(!t->passwordText().isNull());
-	if (t->type() == BaseAccountType::OAuth2Pin)
+	ui->usernameLbl->setText(type->usernameText());
+	ui->usernameLbl->setVisible(!type->usernameText().isNull());
+	ui->usernameEdit->setVisible(!type->usernameText().isNull());
+	ui->passwordLbl->setText(type->passwordText());
+	ui->passwordLbl->setVisible(!type->passwordText().isNull());
+	ui->passwordEdit->setVisible(!type->passwordText().isNull());
+	if (type->type() == BaseAccountType::OAuth2Pin)
 	{
 		ui->infoLbl->setVisible(true);
 		ui->infoLbl->setText(tr("To authorize, go to <a href=\"%1\">%1</a> and follow the instructions. You will receive a PIN code which you need to enter below.")
-							 .arg(t->oauth2PinUrl().toString()));
+							 .arg(type->oauth2PinUrl().toString()));
 	}
 	else
 	{
@@ -127,6 +126,6 @@ void AccountLoginDialog::setupForType(const QString &type)
 	}
 	if (!m_account)
 	{
-		m_account = MMC->accountsModel()->type(type)->createAccount();
+		m_account = MMC->accountsModel()->createAccount(type);
 	}
 }

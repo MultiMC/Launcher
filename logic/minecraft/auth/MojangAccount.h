@@ -71,11 +71,8 @@ class MojangAccount : public BaseAccount
 {
 	Q_OBJECT
 public: /* construction */
-	//! Do not copy accounts. ever.
-	explicit MojangAccount(const MojangAccount &other, QObject *parent = nullptr) = delete;
-
 	//! Default constructor
-	explicit MojangAccount(QObject *parent = nullptr) : BaseAccount(parent) {}
+	explicit MojangAccount(BaseAccountType *type, QObject *parent = nullptr) : BaseAccount(type, parent) {}
 
 	//! Loads a MojangAccount from the given JSON object.
 	void load(const int formatVersion, const QJsonObject &json);
@@ -86,7 +83,6 @@ public: /* construction */
 public: /* BaseAccount interface (parts of it) */
 	QString avatar() const override;
 	QString bigAvatar() const override;
-	QString type() const override { return "mojang"; }
 	QString loginUsername() const override { return token("login_username"); }
 	Task *createLoginTask(const QString &username, const QString &password, SessionPtr session) override;
 	Task *createCheckTask(SessionPtr session) override;
@@ -163,11 +159,9 @@ public:
 class MojangAccountType : public BaseAccountType
 {
 public:
-	QString id() const override { return "mojang"; }
 	QString text() const override { return QObject::tr("Mojang"); }
 	QString icon() const override { return "icon:mojang"; }
 	QString usernameText() const override { return QObject::tr("E-Mail/Username:"); }
 	QString passwordText() const override { return QObject::tr("Password:"); }
-	BaseAccount *createAccount() override { return new MojangAccount; }
 	Type type() const override { return UsernamePassword; }
 };

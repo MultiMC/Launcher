@@ -6,7 +6,7 @@
 
 #include "widgets/AccountsWidget.h"
 
-AccountsDialog::AccountsDialog(const QString &type, InstancePtr instance, QWidget *parent) :
+AccountsDialog::AccountsDialog(BaseAccountType *type, InstancePtr instance, QWidget *parent) :
 	QDialog(parent),
 	m_instance(instance)
 {

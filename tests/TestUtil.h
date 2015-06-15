@@ -62,11 +62,21 @@ public:
 		QFile file2(f2);
 		if (file1.size() != file2.size())
 		{
+			qDebug() << "Size of" << f1 << "and" << f2 << "differ, they are" << file1.size() << "and" << file2.size();
 			return false;
 		}
 		Q_ASSERT(file1.open(QFile::ReadOnly));
 		Q_ASSERT(file2.open(QFile::ReadOnly));
-		return file1.readAll() == file2.readAll();
+		const QByteArray data1 = file1.readAll();
+		const QByteArray data2 = file2.readAll();
+		if (data1 != data2)
+		{
+			qDebug() << "The contents of" << f1 << "and" << f2 << "differ";
+			qDebug() << data1;
+			qDebug() << data2;
+			return false;
+		}
+		return true;
 	}
 
 	static int nextInteger()

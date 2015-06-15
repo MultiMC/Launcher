@@ -18,7 +18,7 @@
 #include "resources/Resource.h"
 #include "MultiMC.h"
 
-AccountsWidget::AccountsWidget(const QString &type, InstancePtr instance, QWidget *parent) :
+AccountsWidget::AccountsWidget(BaseAccountType *type, InstancePtr instance, QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::AccountsWidget),
 	m_instance(instance),
@@ -27,7 +27,7 @@ AccountsWidget::AccountsWidget(const QString &type, InstancePtr instance, QWidge
 	ui->setupUi(this);
 
 	ui->containerDefaultBtn->setVisible(!!m_instance);
-	ui->useBtn->setVisible(!!m_instance && !type.isEmpty());
+	ui->useBtn->setVisible(!!m_instance && type);
 	ui->progressWidget->setVisible(false);
 	ui->cancelBtn->setText(m_instance ? tr("Cancel") : tr("Close"));
 	ui->offlineBtn->setVisible(false);
@@ -75,7 +75,7 @@ BaseAccount *AccountsWidget::account() const
 
 void AccountsWidget::on_addBtn_clicked()
 {
-	if (m_requestedType.isEmpty())
+	if (!m_requestedType)
 	{
 		AccountLoginDialog dlg(this);
 		if (dlg.exec() == QDialog::Accepted)
@@ -206,8 +206,8 @@ void AccountsWidget::currentChanged(const QModelIndex &current, const QModelInde
 		ui->groupBox->setEnabled(true);
 		Resource::create(account->bigAvatar(), Resource::create("icon:hourglass"))->applyTo(ui->avatarLbl);
 		ui->usernameLbl->setText(account->username());
-		ui->containerDefaultBtn->setText(tr("Default for %1 (%2)").arg(MMC->accountsModel()->type(account->type())->text(), m_instance ? m_instance->name() : QString()));
-		ui->globalDefaultBtn->setText(tr("Default for %1").arg(MMC->accountsModel()->type(account->type())->text()));
+		ui->containerDefaultBtn->setText(tr("Default for %1 (%2)").arg(account->type()->text(), m_instance ? m_instance->name() : QString()));
+		ui->globalDefaultBtn->setText(tr("Default for %1").arg(account->type()->text()));
 		ui->containerDefaultBtn->setChecked(m_instance && MMC->accountsModel()->isInstanceDefaultExplicit(m_instance, account));
 		ui->globalDefaultBtn->setChecked(MMC->accountsModel()->isGlobalDefault(account));
 		ui->useBtn->setEnabled(m_requestedType == account->type());

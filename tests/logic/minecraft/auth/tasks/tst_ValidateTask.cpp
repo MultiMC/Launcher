@@ -9,7 +9,7 @@ class ValidateTaskTest : public QObject
 
 	std::shared_ptr<ValidateTask> createTask(const QString &accessToken = "")
 	{
-		MojangAccount *account = new MojangAccount();
+		MojangAccount *account = new MojangAccount(new MojangAccountType);
 		account->setAccessToken(accessToken);
 		MojangAuthSessionPtr sess = std::make_shared<MojangAuthSession>();
 		return std::make_shared<ValidateTask>(sess, account);

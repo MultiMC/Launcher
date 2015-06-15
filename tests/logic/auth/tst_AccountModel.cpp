@@ -11,6 +11,25 @@
 #include "logic/FileSystem.h"
 #include "logic/Json.h"
 
+class AsdfAccount : public BaseAccount
+{
+public:
+	explicit AsdfAccount(BaseAccountType *type) : BaseAccount(type) {}
+
+	Task *createLoginTask(const QString &username, const QString &password, SessionPtr session) override { return nullptr; }
+	Task *createCheckTask(SessionPtr session) override { return nullptr; }
+	Task *createLogoutTask(SessionPtr session) override { return nullptr; }
+};
+class AsdfAccountType : public BaseAccountType
+{
+public:
+	QString text() const override { return QString(); }
+	QString icon() const override { return QString(); }
+	QString usernameText() const override { return QString(); }
+	QString passwordText() const override { return QString(); }
+	Type type() const override { return UsernamePassword; }
+};
+
 class AccountModelTest : public ModelTester
 {
 	Q_OBJECT
@@ -18,13 +37,14 @@ public:
 	std::shared_ptr<QAbstractItemModel> createModel() const override
 	{
 		auto m = std::make_shared<AccountModel>();
+		m->registerType<AsdfAccountType, AsdfAccount>("asdf");
 		m->setSaveTimeout(INT_MAX);
 		return m;
 	}
 	void populate(std::shared_ptr<QAbstractItemModel> model) const override
 	{
 		auto m = std::dynamic_pointer_cast<AccountModel>(model);
-		m->registerAccount(m->type("mojang")->createAccount());
+		m->registerAccount(m->createAccount<MojangAccount>());
 	}
 
 private slots:
@@ -33,10 +53,10 @@ private slots:
 		auto checkModel = [](AccountModel *model)
 		{
 			QCOMPARE(model->size(), 2);
-			QVERIFY(model->hasAny("mojang"));
-			QCOMPARE(model->accountsForType("mojang").size(), 2);
+			QVERIFY(model->hasAny<MojangAccount>());
+			QCOMPARE(model->accountsForType<MojangAccount>().size(), 2);
 
-			MojangAccount *first = dynamic_cast<MojangAccount *>(model->accountsForType("mojang").first());
+			MojangAccount *first = dynamic_cast<MojangAccount *>(model->accountsForType<MojangAccount>().first());
 			QVERIFY(first);
 			QCOMPARE(first->username(), QString("IWantTea"));
 			QCOMPARE(first->loginUsername(), QString("arthur.philip@dent.co.uk"));
@@ -47,7 +67,7 @@ private slots:
 			QCOMPARE(first->profiles().first().legacy, false);
 			QCOMPARE(first->profiles().first().name, QString("IWantTea"));
 
-			MojangAccount *second = dynamic_cast<MojangAccount *>(model->accountsForType("mojang").at(1));
+			MojangAccount *second = dynamic_cast<MojangAccount *>(model->accountsForType<MojangAccount>().at(1));
 			QVERIFY(second);
 			QCOMPARE(second->username(), QString("IAmTheBest"));
 			QCOMPARE(second->loginUsername(), QString("zaphod.beeblebrox@galaxy.gov"));
@@ -76,9 +96,7 @@ private slots:
 	{
 		std::shared_ptr<AccountModel> model = std::dynamic_pointer_cast<AccountModel>(createModel());
 		QVERIFY(model->typesModel());
-		QVERIFY(!model->types().isEmpty());
-		QVERIFY(model->type("mojang"));
-		QCOMPARE(model->type("mojang")->id(), QStringLiteral("mojang"));
+		QVERIFY(model->type<MojangAccount>());
 	}
 
 	void test_Querying()
@@ -88,8 +106,8 @@ private slots:
 
 		BaseAccount *account = model->getAccount(model->index(0, 0));
 		QVERIFY(account);
-		QCOMPARE(model->hasAny(account->type()), true);
-		QCOMPARE(model->accountsForType(account->type()), QList<BaseAccount *>() << account);
+		QCOMPARE(model->hasAny<MojangAccount>(), true);
+		QCOMPARE(model->accountsForType<MojangAccount>(), QList<BaseAccount *>() << account);
 		QCOMPARE(model->latest(), account);
 	}
 
@@ -111,48 +129,48 @@ private slots:
 		QVERIFY(acc2);
 
 		// no default set
-		QCOMPARE(model->getAccount("mojang"), accNull);
-		QCOMPARE(model->getAccount("mojang", instance1), accNull);
-		QCOMPARE(model->getAccount("mojang", instance2), accNull);
-		QCOMPARE(model->getAccount("asdf"), accNull);
-		QCOMPARE(model->getAccount("asdf", instance1), accNull);
-		QCOMPARE(model->getAccount("asdf", instance2), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(instance1), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(instance2), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance1), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance2), accNull);
 
 		model->setInstanceDefault(instance1, acc1);
 		// instance default
-		QCOMPARE(model->getAccount("mojang"), accNull);
-		QCOMPARE(model->getAccount("mojang", instance1), acc1);
-		QCOMPARE(model->getAccount("mojang", instance2), accNull);
-		QCOMPARE(model->getAccount("asdf"), accNull);
-		QCOMPARE(model->getAccount("asdf", instance1), accNull);
-		QCOMPARE(model->getAccount("asdf", instance2), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(instance1), acc1);
+		QCOMPARE(model->getAccount<MojangAccount>(instance2), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance1), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance2), accNull);
 
 		model->setGlobalDefault(acc2);
 		// global default
-		QCOMPARE(model->getAccount("mojang"), acc2);
-		QCOMPARE(model->getAccount("mojang", instance1), acc1);
-		QCOMPARE(model->getAccount("mojang", instance2), acc2);
-		QCOMPARE(model->getAccount("asdf"), accNull);
-		QCOMPARE(model->getAccount("asdf", instance1), accNull);
-		QCOMPARE(model->getAccount("asdf", instance2), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(), acc2);
+		QCOMPARE(model->getAccount<MojangAccount>(instance1), acc1);
+		QCOMPARE(model->getAccount<MojangAccount>(instance2), acc2);
+		QCOMPARE(model->getAccount<AsdfAccount>(), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance1), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance2), accNull);
 
-		model->unsetDefault("mojang");
+		model->unsetDefault<MojangAccount>();
 		// unsetting global default
-		QCOMPARE(model->getAccount("mojang"), accNull);
-		QCOMPARE(model->getAccount("mojang", instance1), acc1);
-		QCOMPARE(model->getAccount("mojang", instance2), accNull);
-		QCOMPARE(model->getAccount("asdf"), accNull);
-		QCOMPARE(model->getAccount("asdf", instance1), accNull);
-		QCOMPARE(model->getAccount("asdf", instance2), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(instance1), acc1);
+		QCOMPARE(model->getAccount<MojangAccount>(instance2), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance1), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance2), accNull);
 
-		model->unsetDefault("mojang", instance1);
+		model->unsetDefault<MojangAccount>(instance1);
 		// unsetting instance default
-		QCOMPARE(model->getAccount("mojang"), accNull);
-		QCOMPARE(model->getAccount("mojang", instance1), accNull);
-		QCOMPARE(model->getAccount("mojang", instance2), accNull);
-		QCOMPARE(model->getAccount("asdf"), accNull);
-		QCOMPARE(model->getAccount("asdf", instance1), accNull);
-		QCOMPARE(model->getAccount("asdf", instance2), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(instance1), accNull);
+		QCOMPARE(model->getAccount<MojangAccount>(instance2), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance1), accNull);
+		QCOMPARE(model->getAccount<AsdfAccount>(instance2), accNull);
 	}
 };
 

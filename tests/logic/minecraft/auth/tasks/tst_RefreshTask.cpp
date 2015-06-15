@@ -13,7 +13,7 @@ class RefreshTaskTest : public QObject
 
 	std::shared_ptr<RefreshTask> createTask(const QString &clientToken = "")
 	{
-		MojangAccount *account = new MojangAccount();
+		MojangAccount *account = new MojangAccount(new MojangAccountType);
 		account->setClientToken(clientToken);
 		account->setAccessToken(QString(clientToken).replace("asdf", "fdsa"));
 		MojangAuthSessionPtr sess = std::make_shared<MojangAuthSession>();

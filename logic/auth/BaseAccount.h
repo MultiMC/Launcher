@@ -23,19 +23,20 @@
 #include "BaseSession.h"
 
 class Task;
+class BaseAccountType;
 class QJsonObject;
 
 class BaseAccount : public QObject
 {
 	Q_OBJECT
 public:
-	explicit BaseAccount(QObject *parent = nullptr);
+	explicit BaseAccount(BaseAccountType *type, QObject *parent = nullptr);
 	virtual ~BaseAccount() {}
+
+	BaseAccountType *type() const { return m_type; }
 
 	virtual QString avatar() const { return QString(); }
 	virtual QString bigAvatar() const { return avatar(); }
-
-	virtual QString type() const = 0;
 
 	virtual Task *createLoginTask(const QString &username, const QString &password, SessionPtr session = nullptr) = 0;
 	virtual Task *createCheckTask(SessionPtr session = nullptr) = 0;
@@ -60,4 +61,5 @@ signals:
 private:
 	QString m_username;
 	QMap<QString, QString> m_tokens;
+	BaseAccountType *m_type;
 };
