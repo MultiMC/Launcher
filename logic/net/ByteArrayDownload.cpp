@@ -17,7 +17,7 @@
 #include "Env.h"
 #include <QDebug>
 
-ByteArrayDownload::ByteArrayDownload(QUrl url) : NetAction()
+ByteArrayDownload::ByteArrayDownload(const QUrl &url) : NetAction()
 {
 	m_url = url;
 	m_status = Job_NotStarted;
@@ -29,7 +29,7 @@ void ByteArrayDownload::start()
 	QNetworkRequest request(m_url);
 	request.setHeader(QNetworkRequest::UserAgentHeader, "MultiMC/5.0 (Uncached)");
 	auto worker = ENV.qnam();
-	QNetworkReply *rep = worker->get(request);
+	QNetworkReply *rep = m_postData.isNull() ? worker->get(request) : worker->post(request, m_postData);
 
 	m_reply.reset(rep);
 	connect(rep, SIGNAL(downloadProgress(qint64, qint64)),

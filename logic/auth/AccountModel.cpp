@@ -24,6 +24,7 @@
 #include "pathutils.h"
 
 #include "minecraft/auth/MojangAccount.h"
+#include "screenshots/auth/ImgurAccount.h"
 
 #define ACCOUNT_LIST_FORMAT_VERSION 3
 
@@ -44,6 +45,7 @@ AccountModel::AccountModel()
 	m_typesModel = new AccountTypesModel;
 
 	registerType<MojangAccountType, MojangAccount>("mojang");
+	registerType<ImgurAccountType, ImgurAccount>("imgur");
 
 	addEntry<QString>(0, Qt::DecorationRole, &BaseAccount::avatar);
 	addEntry<QString>(0, Qt::DisplayRole, &BaseAccount::username);

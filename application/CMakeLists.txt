@@ -29,6 +29,10 @@ set(MultiMC_UPDATER false CACHE BOOL "Whether or not the update system is enable
 # Notification URL
 set(MultiMC_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications.")
 
+# Imgur API tokens
+set(MultiMC_IMGUR_CLIENT_ID "" CACHE STRING "The client ID used for authenticating with the Imgur API")
+set(MultiMC_IMGUR_CLIENT_SECRET "" CACHE STRING "The client secret used for authenticating with the Imgur API")
+
 #### Check the current Git commit
 include(GitFunctions)
 git_run(COMMAND rev-parse HEAD DEFAULT "Unknown" OUTPUT_VAR MultiMC_GIT_COMMIT)

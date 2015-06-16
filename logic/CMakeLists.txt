@@ -90,10 +90,10 @@ set(LOGIC_SOURCES
 	auth/BaseAccountType.h
 
 	# Imgur accounts
-	#auth/imgur/ImgurAccount.h
-	#auth/imgur/ImgurAccount.cpp
-	#auth/imgur/ImgurAuthTask.h
-	#auth/imgur/ImgurAuthTask.cpp
+	screenshots/auth/ImgurAccount.h
+	screenshots/auth/ImgurAccount.cpp
+	screenshots/auth/ImgurAuthTask.h
+	screenshots/auth/ImgurAuthTask.cpp
 
 	# Mojang (yggdrasil) accounts
 	minecraft/auth/MojangAuthSession.h

@@ -37,7 +37,6 @@ endforeach()
 # Tests END #
 
 set(MultiMC_TEST_DATA_PATH "${CMAKE_CURRENT_BINARY_DIR}/data")
-message("${CMAKE_CURRENT_BINARY_DIR}/data")
 if(UNIX)
 	# on unix we get the third / from the filename
 	set(MultiMC_TEST_DATA_PATH "file://${MultiMC_TEST_DATA_PATH}")

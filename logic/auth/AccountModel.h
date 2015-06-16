@@ -21,6 +21,7 @@
 #include "BaseConfigObject.h"
 #include "AbstractCommonModel.h"
 #include "BaseAccount.h"
+#include "BaseAccountType.h"
 
 class Container;
 class AccountTypesModel;
@@ -60,6 +61,11 @@ public:
 		static_assert(std::is_base_of<BaseAccountType, TypeClass>::value, "TypeClass needs to be a subclass of BaseAccountType");
 		static_assert(std::is_base_of<BaseAccount, Class>::value, "Class needs to be a subclass of BaseAccount");
 		BaseAccountType *type = new TypeClass;
+		if (!type->isAvailable())
+		{
+			delete type;
+			return;
+		}
 		registerTypeInternal(storageId, internalId<Class>(), type, [type]() { return new Class(type); });
 	}
 

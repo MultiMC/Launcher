@@ -39,6 +39,7 @@ public:
 	virtual QString passwordText() const = 0;
 	virtual Type type() const = 0;
 	virtual QUrl oauth2PinUrl() const { return QUrl(); }
+	virtual bool isAvailable() const { return true; }
 };
 
 Q_DECLARE_METATYPE(BaseAccountType *)

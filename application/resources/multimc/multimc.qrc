@@ -31,6 +31,22 @@
 		<file>48x48/minecraft.png</file>
 		<file>256x256/minecraft.png</file>
 
+		<!-- Mojang logo. Mojang -->
+		<file>16x16/mojang.png</file>
+		<file>24x24/mojang.png</file>
+		<file>32x32/mojang.png</file>
+		<file>48x48/mojang.png</file>
+		<file>64x64/mojang.png</file>
+		<file>256x256/mojang.png</file>
+
+		<!-- Imgur icon. Imgur -->
+		<file>16x16/imgur.png</file>
+		<file>24x24/imgur.png</file>
+		<file>32x32/imgur.png</file>
+		<file>48x48/imgur.png</file>
+		<file>64x64/imgur.png</file>
+		<file>256x256/imgur.png</file>
+
 		<!-- About dialog. GPLv2, http://openiconlibrary.sourceforge.net/gallery2/?./Icons/actions/help-contents.png -->
 		<file>16x16/about.png</file>
 		<file>22x22/about.png</file>
@@ -103,8 +119,8 @@
 
 		<!-- New instance. GPLv2, http://openiconlibrary.sourceforge.net/gallery2/?./Icons/actions/document-new-3.png -->
 		<file>16x16/new.png</file>
-        <file>22x22/new.png</file>
-        <file>32x32/new.png</file>
+		<file>22x22/new.png</file>
+		<file>32x32/new.png</file>
 		<file>48x48/new.png</file>
 		<file>64x64/new.png</file>
 
@@ -173,7 +189,7 @@
 
 		<!-- Settings, LGPL-2.1, http://openiconlibrary.sourceforge.net/gallery2/?./Icons/apps/system-settings-3.png -->
 		<file>16x16/settings.png</file>
-        <file>22x22/settings.png</file>
+		<file>22x22/settings.png</file>
 		<file>32x32/settings.png</file>
 		<file>48x48/settings.png</file>
 		<file>64x64/settings.png</file>
@@ -188,7 +204,7 @@
 		<!-- View folder. CC-BY-SA 3.0, http://openiconlibrary.sourceforge.net/gallery2/?./Icons/actions/document-open-folder.png -->
 		<file>scalable/viewfolder.svg</file>
 		<file>16x16/viewfolder.png</file>
-        <file>22x22/viewfolder.png</file>
+		<file>22x22/viewfolder.png</file>
 		<file>32x32/viewfolder.png</file>
 		<file>48x48/viewfolder.png</file>
 		<file>64x64/viewfolder.png</file>

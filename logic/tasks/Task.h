@@ -52,7 +52,7 @@ signals:
 public
 slots:
 	virtual void start();
-	virtual void abort() {};
+	virtual void abort() {}
 
 protected:
 	virtual void executeTask() = 0;
@@ -64,7 +64,7 @@ protected slots:
 protected
 slots:
 	void setStatus(const QString &status);
-	void setProgress(int progress);
+	void setProgress(int progress, int total_progress = 100);
 
 protected:
 	bool m_running = false;

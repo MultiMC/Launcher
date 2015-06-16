@@ -21,15 +21,18 @@ class ByteArrayDownload : public NetAction
 {
 	Q_OBJECT
 public:
-	ByteArrayDownload(QUrl url);
-	static ByteArrayDownloadPtr make(QUrl url)
+	ByteArrayDownload(const QUrl &url);
+	static ByteArrayDownloadPtr make(const QUrl &url)
 	{
 		return ByteArrayDownloadPtr(new ByteArrayDownload(url));
 	}
-    virtual ~ByteArrayDownload() {};
+	virtual ~ByteArrayDownload() {}
 public:
 	/// if not saving to file, downloaded data is placed here
 	QByteArray m_data;
+
+	/// if not null, will make a HTTP POST request
+	QByteArray m_postData;
 
 	QString m_errorString;
 
