@@ -1,11 +1,11 @@
 #include <QTest>
 #include <QSignalSpy>
 
-#include "TestUtil.h"
+#include "tests/TestUtil.h"
 
-#include "updater/GoUpdate.h"
-#include "updater/DownloadTask.h"
-#include "updater/UpdateChecker.h"
+#include "logic/updater/GoUpdate.h"
+#include "logic/updater/DownloadTask.h"
+#include "logic/updater/UpdateChecker.h"
 #include "pathutils.h"
 
 using namespace GoUpdate;

@@ -1,8 +1,8 @@
 #include <QTest>
 #include <QSignalSpy>
 
-#include "TestUtil.h"
-#include "updater/UpdateChecker.h"
+#include "tests/TestUtil.h"
+#include "logic/updater/UpdateChecker.h"
 
 Q_DECLARE_METATYPE(UpdateChecker::ChannelListEntry)
 

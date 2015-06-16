@@ -57,6 +57,7 @@ include_directories(
 	${Qt5Test_INCLUDE_DIRS}
 	${Qt5Network_INCLUDE_DIRS}
 	${Qt5Xml_INCLUDE_DIRS}
+	${MMC_SRC}
 )
 
 # The Qt5 cmake files don't provide its install paths, so ask qmake.

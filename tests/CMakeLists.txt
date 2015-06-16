@@ -15,12 +15,12 @@ foreach(test ${tests})
 	string(REPLACE "tst_" "" name "${name}")
 
 	# Gather a list of source files
-	set(src ${test})
+	set(src ${test} TestUtil.h)
 	file(READ "${test}" test_contents)
 	if("${test_contents}" MATCHES "ModelTester\\.h")
-		list(APPEND src ModelTester.h TestUtil.h)
-	elseif("${test_contents}" MATCHES "TestUtil\\.h")
-		list(APPEND src TestUtil.h)
+		list(APPEND src ModelTester.h)
+	elseif("${test_contents}" MATCHES "AccountTester\\.h")
+		list(APPEND src AccountTester.h ${CMAKE_BINARY_DIR}/application/BuildConfig.cpp)
 	endif()
 
 	# Extra file needed on windows

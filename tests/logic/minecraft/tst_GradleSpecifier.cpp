@@ -1,7 +1,7 @@
 #include <QTest>
 #include "TestUtil.h"
 
-#include "minecraft/GradleSpecifier.h"
+#include "logic/minecraft/GradleSpecifier.h"
 
 class GradleSpecifierTest : public QObject
 {

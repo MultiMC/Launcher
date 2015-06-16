@@ -7,9 +7,9 @@
 #include "logic/auth/BaseAccountType.h"
 #include "logic/auth/BaseAccount.h"
 #include "logic/minecraft/auth/MojangAccount.h"
-#include "TestUtil.h"
 #include "logic/FileSystem.h"
 #include "logic/Json.h"
+#include "tests/TestUtil.h"
 
 class AsdfAccount : public BaseAccount
 {

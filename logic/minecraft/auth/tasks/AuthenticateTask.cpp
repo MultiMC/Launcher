@@ -158,7 +158,7 @@ void AuthenticateTask::processResponse(const QJsonObject &responseData)
 		MojangAuthSession::User u;
 		const QJsonObject obj = requireObject(responseData, "user");
 		u.id = requireString(obj, "id");
-		for (const QJsonObject &propTuple : requireIsArrayOf<QJsonObject>(obj, "properties"))
+		for (const QJsonObject &propTuple : ensureIsArrayOf<QJsonObject>(obj, "properties", QList<QJsonObject>()))
 		{
 			u.properties.insert(
 						requireString(propTuple, "name"),

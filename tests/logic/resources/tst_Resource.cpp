@@ -1,10 +1,10 @@
 #include <QTest>
 #include <QAction>
-#include "TestUtil.h"
 
-#include "resources/Resource.h"
-#include "resources/ResourceHandler.h"
-#include "resources/ResourceObserver.h"
+#include "logic/resources/Resource.h"
+#include "logic/resources/ResourceHandler.h"
+#include "logic/resources/ResourceObserver.h"
+#include "tests/TestUtil.h"
 
 class DummyStringResourceHandler : public ResourceHandler
 {
