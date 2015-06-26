@@ -15,18 +15,18 @@
 
 #include "AbstractCommonModel.h"
 
-BaseAbstractCommonModel::BaseAbstractCommonModel(const Qt::Orientation orientation, QObject *parent)
-	: QAbstractListModel(parent), m_orientation(orientation)
+BaseAbstractCommonModel::BaseAbstractCommonModel(QObject *parent)
+	: QAbstractListModel(parent)
 {
 }
 
 int BaseAbstractCommonModel::rowCount(const QModelIndex &parent) const
 {
-	return m_orientation == Qt::Horizontal ? entryCount() : size();
+	return size();
 }
 int BaseAbstractCommonModel::columnCount(const QModelIndex &parent) const
 {
-	return m_orientation == Qt::Horizontal ? size() : entryCount();
+	return entryCount();
 }
 QVariant BaseAbstractCommonModel::data(const QModelIndex &index, int role) const
 {
@@ -34,13 +34,13 @@ QVariant BaseAbstractCommonModel::data(const QModelIndex &index, int role) const
 	{
 		return QVariant();
 	}
-	const int i = m_orientation == Qt::Horizontal ? index.column() : index.row();
-	const int entry = m_orientation == Qt::Horizontal ? index.row() : index.column();
+	const int i = index.row();
+	const int entry = index.column();
 	return formatData(i, role, get(i, entry, role));
 }
 QVariant BaseAbstractCommonModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if (orientation != m_orientation && role == Qt::DisplayRole)
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
 	{
 		return entryTitle(section);
 	}
@@ -51,8 +51,14 @@ QVariant BaseAbstractCommonModel::headerData(int section, Qt::Orientation orient
 }
 bool BaseAbstractCommonModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-	const int i = m_orientation == Qt::Horizontal ? index.column() : index.row();
-	const int entry = m_orientation == Qt::Horizontal ? index.row() : index.column();
+	if (!hasIndex(index.row(), index.column(), index.parent()))
+	{
+		return false;
+	}
+
+	const int i = index.row();
+	const int entry = index.column();
+
 	const bool result = set(i, entry, role, sanetizeData(i, role, value));
 	if (result)
 	{
@@ -67,10 +73,9 @@ Qt::ItemFlags BaseAbstractCommonModel::flags(const QModelIndex &index) const
 		return Qt::NoItemFlags;
 	}
 
-	const int entry = m_orientation == Qt::Horizontal ? index.row() : index.column();
-	if (canSet(entry))
+	if (canSet(index.column()))
 	{
-		return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+		return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 	}
 	else
 	{
@@ -80,47 +85,19 @@ Qt::ItemFlags BaseAbstractCommonModel::flags(const QModelIndex &index) const
 
 void BaseAbstractCommonModel::notifyAboutToAddObject(const int at)
 {
-	if (m_orientation == Qt::Horizontal)
-	{
-		beginInsertColumns(QModelIndex(), at, at);
-	}
-	else
-	{
-		beginInsertRows(QModelIndex(), at, at);
-	}
+	beginInsertRows(QModelIndex(), at, at);
 }
 void BaseAbstractCommonModel::notifyObjectAdded()
 {
-	if (m_orientation == Qt::Horizontal)
-	{
-		endInsertColumns();
-	}
-	else
-	{
-		endInsertRows();
-	}
+	endInsertRows();
 }
 void BaseAbstractCommonModel::notifyAboutToRemoveObject(const int at)
 {
-	if (m_orientation == Qt::Horizontal)
-	{
-		beginRemoveColumns(QModelIndex(), at, at);
-	}
-	else
-	{
-		beginRemoveRows(QModelIndex(), at, at);
-	}
+	beginRemoveRows(QModelIndex(), at, at);
 }
 void BaseAbstractCommonModel::notifyObjectRemoved()
 {
-	if (m_orientation == Qt::Horizontal)
-	{
-		endRemoveColumns();
-	}
-	else
-	{
-		endRemoveRows();
-	}
+	endRemoveRows();
 }
 
 void BaseAbstractCommonModel::notifyBeginReset()
