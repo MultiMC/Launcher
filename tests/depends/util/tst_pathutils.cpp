@@ -1,9 +1,9 @@
 #include <QTest>
-#include "TestUtil.h"
+#include "tests/TestUtil.h"
 
 #include "pathutils.h"
 
-class PathUtilsTest : public QObject
+class PathUtilsTest : public BaseTest
 {
 	Q_OBJECT
 private
@@ -69,6 +69,6 @@ slots:
 	}
 };
 
-QTEST_GUILESS_MAIN(PathUtilsTest)
+MMCTEST_GUILESS_MAIN(PathUtilsTest)
 
 #include "tst_pathutils.moc"

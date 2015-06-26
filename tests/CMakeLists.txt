@@ -1,96 +1,50 @@
 # run the unit tests with `make test`
-find_package(Qt5 COMPONENTS Test Core Network)
+find_package(Qt5 REQUIRED COMPONENTS Test Core Network)
 
-include_directories(../logic)
-include_directories(../depends/util/include/)
-
-unset(MultiMC_TESTS)
-macro(add_unit_test name)
-	unset(srcs)
-	foreach(arg ${testname} ${ARGN})
-		list(APPEND srcs ${CMAKE_CURRENT_SOURCE_DIR}/${arg})
-	if(WIN32)
-		list(APPEND srcs ${CMAKE_CURRENT_SOURCE_DIR}/test.rc)
-	endif()
-	endforeach()
-	add_executable(tst_${name} ${srcs})
-	qt5_use_modules(tst_${name} Test Core Network)
-	target_link_libraries(tst_${name} MultiMC_logic)
-	list(APPEND MultiMC_TESTS tst_${name})
-	add_test(NAME ${name} COMMAND tst_${name})
-endmacro()
+include_directories(${MMC_SRC} ${CMAKE_CURRENT_SOURCE_DIR} ${MMC_SRC}/logic ${MMC_SRC}/depends/util/include)
 
 # Tests START #
 
-add_unit_test(pathutils tst_pathutils.cpp)
-add_unit_test(gradlespecifier tst_gradlespecifier.cpp)
-add_unit_test(userutils tst_userutils.cpp)
-add_unit_test(modutils tst_modutils.cpp)
-add_unit_test(inifile tst_inifile.cpp)
-add_unit_test(UpdateChecker tst_UpdateChecker.cpp)
-add_unit_test(DownloadTask tst_DownloadTask.cpp)
-add_unit_test(Resource tst_Resource.cpp)
+# a test is a file named tst_<name>.cpp anywhere in a subdirectory of the current directory
+# it can contain an include for ModelTester.h and/or AccountTester.h, in which case they will be
+# compiled into the executable
+file(GLOB_RECURSE tests "tst_*.cpp")
+set(test_targets )
+foreach(test ${tests})
+	# Extract the name from the source file
+	get_filename_component(name "${test}" NAME_WE)
+	string(REPLACE "tst_" "" name "${name}")
+
+	# Gather a list of source files
+	set(src ${test} TestUtil.h)
+	file(READ "${test}" test_contents)
+	if("${test_contents}" MATCHES "ModelTester\\.h")
+		list(APPEND src ModelTester.h)
+	endif()
+
+	# Extra file needed on windows
+	if(WIN32)
+		list(APPEND src ${CMAKE_CURRENT_SOURCE_DIR}/test.rc)
+	endif()
+
+	# Create and set up the executable
+	add_executable(tst_${name} ${src})
+	target_link_libraries(tst_${name} Qt5::Core Qt5::Test Qt5::Network MultiMC_logic)
+	add_test(NAME ${name} COMMAND tst_${name})
+	list(APPEND test_targets tst_${name})
+endforeach()
 
 # Tests END #
 
-set(COVERAGE_SOURCE_DIRS
-	${MMC_SRC}/logic/*
-	${MMC_SRC}/logic/auth/*
-	${MMC_SRC}/logic/auth/flows/*
-	${MMC_SRC}/logic/lists/*
-	${MMC_SRC}/logic/net/*
-	${MMC_SRC}/logic/tasks/*
-	${MMC_SRC}/application/*
-	${MMC_SRC}/application/dialogs/*
-	${MMC_SRC}/application/widgets/*
-	${MMC_SRC}/depends/settings/include/*
-	${MMC_SRC}/depends/settings/src/*
-	${MMC_SRC}/depends/util/include/*
-	${MMC_SRC}/depends/util/src/*
-)
-
-if(MultiMC_CODE_COVERAGE)
-	unset(MultiMC_RUN_TESTS)
-	unset(MultiMC_TEST_COVERAGE_FILES)
-
-	foreach(test ${MultiMC_TESTS})
-		add_custom_target(MultiMC_RUN_TEST_${test}
-			COMMAND lcov -d ${CMAKE_CURRENT_BINARY_DIR} -z -q # clean test
-				&& lcov -d ${MMC_BIN} -z -q # clean common
-				&& lcov -d ${MMC_BIN}/depends/settings/CMakeFiles/libSettings.dir -z -q # clean settings
-				&& lcov -d ${MMC_BIN}/depends/utils/CMakeFiles/libUtil.dir -z -q # clean utils
-				&& ${MMC_BIN}/${test} -o coverage_${test}.out,xml # run test
-				&& lcov -q --checksum -b ${MMC_SRC} -d ${CMAKE_CURRENT_BINARY_DIR} -c -o coverage_${test}.info # generate for test
-				&& lcov -q --checksum -b ${MMC_SRC} -d ${MMC_BIN} -c -o coverage_common.info # generate for common
-				&& lcov -q --checksum -b ${MMC_SRC} -d ${MMC_BIN}/depends/settings/CMakeFiles/libSettings.dir -c -o coverage_settings.info # generate for settings
-				&& lcov -q --checksum -b ${MMC_SRC} -d ${MMC_BIN}/depends/util/CMakeFiles/libUtil.dir -c -o coverage_utils.info # generate for utils
-				&& lcov -q --checksum -b ${MMC_SRC} -d .
-					-a coverage_${test}.info -a coverage_common.info -a coverage_settings.info -a coverage_utils.info
-					-o coverage_${test}-combined.info # combine test and common
-				&& lcov -q --checksum -b ${MMC_SRC} --list-full-path --extract coverage_${test}-combined.info ${COVERAGE_SOURCE_DIRS} -o coverage_${test}-stripped.info # strip
-			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-			VERBATIM
-			DEPENDS ${test}
-			COMMENT "Running ${test}..."
-		)
-		list(APPEND MultiMC_TEST_COVERAGE_FILES coverage_${test}-stripped.info)
-		list(APPEND MultiMC_RUN_TESTS MultiMC_RUN_TEST_${test})
-	endforeach(test)
-
-	add_custom_target(MultiMC_GENERATE_COVERAGE
-		DEPENDS ${MultiMC_RUN_TESTS}
-		COMMENT "Generating coverage files..."
-	)
-	add_custom_target(MultiMC_GENERATE_COVERAGE_HTML
-		COMMAND genhtml -t "MultiMC 5 Test Coverage" --num-spaces 4 --demangle-cpp --legend -o ${MMC_SRC}/html/coverage ${MultiMC_TEST_COVERAGE_FILES}
-		DEPENDS MultiMC_GENERATE_COVERAGE
-		COMMENT "Generating test coverage html..."
-	)
-	add_custom_target(MultiMC_RUN_TESTS DEPENDS MultiMC_GENERATE_COVERAGE_HTML)
-endif(MultiMC_CODE_COVERAGE)
+if(SQUISHCOCO_IS_COVERAGE)
+	set(GIT_BRANCH ${MultiMC_GIT_REF})
+	setup_coverage_for(${test_targets})
+	# Exclude things in depends/ (keep utils tho), qrc_*.cpp files, tests and
+	add_coverage_flags("--cs-exclude-file-regex='.*/depends/[^u].*' --cs-exclude-file-regex=qrc_.* --cs-exclude-path=${CMAKE_CURRENT_SOURCE_DIR}")
+	setup_coverage_report(TITLE "MultiMC Coverage" ICON "${MMC_SRC}/application/resources/MultiMC.ico" CSS "${CMAKE_CURRENT_SOURCE_DIR}/codecoverage.css")
+endif(SQUISHCOCO_IS_COVERAGE)
 
 set(MultiMC_TEST_DATA_PATH "${CMAKE_CURRENT_BINARY_DIR}/data")
-message("${CMAKE_CURRENT_BINARY_DIR}/data")
 if(UNIX)
 	# on unix we get the third / from the filename
 	set(MultiMC_TEST_DATA_PATH "file://${MultiMC_TEST_DATA_PATH}")
@@ -100,13 +54,20 @@ else()
 endif()
 file(GLOB data_files "data/*")
 foreach(data_file ${data_files})
-	get_filename_component(filename ${data_file} NAME)
-	configure_file(
-		${data_file}
-		${CMAKE_CURRENT_BINARY_DIR}/data/${filename}
-		@ONLY
-		NEWLINE_STYLE LF
-	)
+	if (NOT IS_DIRECTORY ${data_file})
+		get_filename_component(filename ${data_file} NAME)
+		configure_file(
+			${data_file}
+			${CMAKE_CURRENT_BINARY_DIR}/data/${filename}
+			@ONLY
+			NEWLINE_STYLE LF
+		)
+	endif()
+endforeach()
+file(GLOB binary_files "data/binary/*")
+foreach(binary_file ${binary_files})
+	get_filename_component(filename ${binary_file} NAME)
+	configure_file(${binary_file} ${CMAKE_CURRENT_BINARY_DIR}/data/${filename} COPYONLY)
 endforeach()
 
 configure_file(test_config.h.in test_config.h @ONLY)

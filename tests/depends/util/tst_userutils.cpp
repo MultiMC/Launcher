@@ -1,10 +1,10 @@
 #include <QTest>
 #include <QStandardPaths>
-#include "TestUtil.h"
+#include "tests/TestUtil.h"
 
 #include "userutils.h"
 
-class UserUtilsTest : public QObject
+class UserUtilsTest : public BaseTest
 {
 	Q_OBJECT
 private
@@ -66,6 +66,6 @@ slots:
 };
 
 
-QTEST_GUILESS_MAIN(UserUtilsTest)
+MMCTEST_GUILESS_MAIN(UserUtilsTest)
 
 #include "tst_userutils.moc"
