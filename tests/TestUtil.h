@@ -93,14 +93,11 @@ protected:
 #define MULTIMC_GET_TEST_FILE_UTF8(file) TestsInternal::readFileUtf8(QFINDTESTDATA(file))
 
 #ifdef SQUISHCOCO_COVERAGE
-static const char *currentExecutable = SQUISHCOCO_CURRENTEXECUTABLE;
 # warning "Compiling with Squish Coco code coverage"
 # define MMCTEST_GUILESS_MAIN(TestObject) \
 	int main(int argc, char *argv[]) \
 	{ \
-		__coveragescanner_install(currentExecutable); \
 		QCoreApplication app(argc, argv); \
-		qDebug() << "Coverage reporting for" << currentExecutable << "enabled"; \
 		app.setAttribute(Qt::AA_Use96Dpi, true); \
 		TestObject tc; \
 		return QTest::qExec(&tc, argc, argv); \

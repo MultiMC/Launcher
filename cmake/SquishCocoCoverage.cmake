@@ -31,7 +31,6 @@ function(setup_coverage_for)
 	set(csmes_files )
 	foreach(target ${targets})
 		message(STATUS "Setting up coverage for ${target}")
-		target_compile_definitions(${target} PRIVATE -DSQUISHCOCO_COVERAGE -DSQUISHCOCO_CURRENTEXECUTABLE="$<TARGET_FILE:${target}>")
 		add_custom_command(OUTPUT ${target}.csexe COMMAND ${target} DEPENDS ${target})
 		add_custom_command(OUTPUT merged_${target}.csmes VERBATIM
 			COMMENT "Collecting coverage for ${target}"
