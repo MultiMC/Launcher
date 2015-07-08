@@ -19,22 +19,17 @@
 #include <memory>
 
 #include "pages/BasePage.h"
-
-#include "auth/MojangAccountList.h"
 #include "MultiMC.h"
 
-namespace Ui
-{
-class AccountListPage;
-}
-
-class AuthenticateTask;
+class QTabWidget;
+class AccountsWidget;
+using InstancePtr = std::shared_ptr<class BaseInstance>;
 
 class AccountListPage : public QWidget, public BasePage
 {
 	Q_OBJECT
 public:
-	explicit AccountListPage(QWidget *parent = 0);
+	explicit AccountListPage(InstancePtr instance = nullptr, QWidget *parent = nullptr);
 	~AccountListPage();
 
 	QString displayName() const override
@@ -59,28 +54,7 @@ public:
 		return "Getting-Started#adding-an-account";
 	}
 
-public
-slots:
-	void on_addAccountBtn_clicked();
-
-	void on_rmAccountBtn_clicked();
-
-	void on_setDefaultBtn_clicked();
-
-	void on_noDefaultBtn_clicked();
-
-	void listChanged();
-
-	//! Updates the states of the dialog's buttons.
-	void updateButtonStates();
-
-protected:
-	std::shared_ptr<MojangAccountList> m_accounts;
-
-protected
-slots:
-	void addAccount(const QString& errMsg="");
-
 private:
-	Ui::AccountListPage *ui;
+	QTabWidget *m_tabs;
+	AccountsWidget *m_accountsWidget;
 };

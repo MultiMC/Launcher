@@ -176,25 +176,13 @@ T ensureIsType(const QJsonObject &parent, const QString &key, const T default_, 
 }
 
 template <typename T>
-QList<T> requireIsArrayOf(const QJsonDocument &doc)
-{
-	const QJsonArray array = requireArray(doc);
-	QList<T> out;
-	for (const QJsonValue val : array)
-	{
-		out.append(requireIsType<T>(val, "Document"));
-	}
-	return out;
-}
-
-template <typename T>
-QList<T> ensureIsArrayOf(const QJsonValue &value, const QString &what = "Value")
+QList<T> requireIsArrayOf(const QJsonValue &value, const QString &what = "Value")
 {
 	const QJsonArray array = requireIsType<QJsonArray>(value, what);
 	QList<T> out;
 	for (const QJsonValue val : array)
 	{
-		out.append(ensureIsType<T>(val, what));
+		out.append(requireIsType<T>(val, what));
 	}
 	return out;
 }
@@ -206,7 +194,14 @@ QList<T> ensureIsArrayOf(const QJsonValue &value, const QList<T> default_, const
 	{
 		return default_;
 	}
-	return ensureIsArrayOf<T>(value, what);
+	try
+	{
+		return requireIsArrayOf<T>(value, what);
+	}
+	catch (JsonException &)
+	{
+		return default_;
+	}
 }
 
 /// @throw JsonException
@@ -239,7 +234,7 @@ QList<T> ensureIsArrayOf(const QJsonObject &parent, const QString &key,
 	{ \
 		return requireIsType<TYPE>(value, what); \
 	} \
-	inline TYPE ensure##NAME(const QJsonValue &value, const TYPE default_, const QString &what = "Value") \
+	inline TYPE ensure##NAME(const QJsonValue &value, const TYPE default_ = TYPE(), const QString &what = "Value") \
 	{ \
 		return ensureIsType<TYPE>(value, default_, what); \
 	} \
@@ -247,7 +242,7 @@ QList<T> ensureIsArrayOf(const QJsonObject &parent, const QString &key,
 	{ \
 		return requireIsType<TYPE>(parent, key, what); \
 	} \
-	inline TYPE ensure##NAME(const QJsonObject &parent, const QString &key, const TYPE default_, const QString &what = "__placeholder") \
+	inline TYPE ensure##NAME(const QJsonObject &parent, const QString &key, const TYPE default_ = TYPE(), const QString &what = "__placeholder") \
 	{ \
 		return ensureIsType<TYPE>(parent, key, default_, what); \
 	}
@@ -269,4 +264,5 @@ JSON_HELPERFUNCTIONS(Variant, QVariant)
 #undef JSON_HELPERFUNCTIONS
 
 }
+
 using JSONValidationError = Json::JsonException;

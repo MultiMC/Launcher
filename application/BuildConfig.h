@@ -47,6 +47,11 @@ public:
 	 */
 	QString NEWS_RSS_URL;
 
+	/// Imgur API client id
+	QString IMGUR_CLIENT_ID;
+	/// Imgur API client secret
+	QString IMGUR_CLIENT_SECRET;
+
 	/**
 	 * \brief Converts the Version to a string.
 	 * \return The version number in string format (major.minor.revision.build).

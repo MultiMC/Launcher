@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <QString>
+#include <QVariantMap>
 #include <QMap>
 
 class IconList;
@@ -18,6 +19,7 @@ class BaseVersion;
 class Env
 {
 	friend class MultiMC;
+	friend class TestsInternal;
 private:
 	Env();
 public:
@@ -45,9 +47,14 @@ public:
 	std::shared_ptr<BaseVersion> getVersion(QString component, QString version);
 
 	void registerVersionList(QString name, std::shared_ptr<BaseVersionList> vlist);
+
+	void setConfiguration(const QVariantMap &config);
+	QVariantMap configuration() const;
+
 protected:
 	std::shared_ptr<QNetworkAccessManager> m_qnam;
 	std::shared_ptr<HttpMetaCache> m_metacache;
 	std::shared_ptr<IconList> m_icons;
 	QMap<QString, std::shared_ptr<BaseVersionList>> m_versionLists;
+	QVariantMap m_configuration;
 };

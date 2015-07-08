@@ -28,6 +28,7 @@
 #include <QCoreApplication>
 
 #include "osutils.h"
+#include "auth/MojangAuthSession.h"
 #include "pathutils.h"
 #include "cmdutils.h"
 

@@ -26,9 +26,9 @@ void Task::setStatus(const QString &new_status)
 	emit status(new_status);
 }
 
-void Task::setProgress(int new_progress)
+void Task::setProgress(int new_progress, int total_progress)
 {
-	emit progress(new_progress, 100);
+	emit progress(new_progress, total_progress);
 }
 
 void Task::start()

@@ -40,6 +40,3 @@ before_script:
  - cmake -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH ..
 script:
  - make -j4 && make test ARGS="-V"
-
-notifications:
- email: false

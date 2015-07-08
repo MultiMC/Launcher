@@ -30,7 +30,7 @@ protected:
 
 	// cppcheck-suppress pureVirtualCall
 	virtual QByteArray doSave() const = 0;
-	virtual void doLoad(const QByteArray &data) = 0;
+	virtual bool doLoad(const QByteArray &data) = 0;
 
 	void setSavingDisabled(bool savingDisabled) { m_disableSaving = savingDisabled; }
 
@@ -39,7 +39,7 @@ protected:
 public:
 	void scheduleSave();
 	void saveNow();
-	void loadNow();
+	bool loadNow();
 
 private:
 	QTimer *m_saveTimer;

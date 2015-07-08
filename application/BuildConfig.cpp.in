@@ -1,4 +1,4 @@
-#include "BuildConfig.h"
+#include "application/BuildConfig.h"
 #include <QObject>
 
 Config BuildConfig;
@@ -20,6 +20,9 @@ Config::Config()
 	GIT_COMMIT = "@MultiMC_GIT_COMMIT@";
 	VERSION_STR = "@MultiMC_VERSION_STRING@";
 	NEWS_RSS_URL = "@MultiMC_NEWS_RSS_URL@";
+
+	IMGUR_CLIENT_ID = "@MultiMC_IMGUR_CLIENT_ID@";
+	IMGUR_CLIENT_SECRET = "@MultiMC_IMGUR_CLIENT_SECRET@";
 }
 
 QString Config::printableVersionString() const

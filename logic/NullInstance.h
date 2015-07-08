@@ -43,7 +43,7 @@ public:
 	{
 		return instanceRoot();
 	};
-	virtual BaseProcess* prepareForLaunch(AuthSessionPtr)
+	virtual BaseProcess* prepareForLaunch(SessionPtr)
 	{
 		return nullptr;
 	}

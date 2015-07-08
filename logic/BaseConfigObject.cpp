@@ -16,6 +16,7 @@
 #include "BaseConfigObject.h"
 
 #include <QTimer>
+#include <QSaveFile>
 #include <QFile>
 #include <QCoreApplication>
 #include <QDebug>
@@ -47,6 +48,10 @@ BaseConfigObject::BaseConfigObject(const QString &filename)
 }
 BaseConfigObject::~BaseConfigObject()
 {
+	if (m_saveTimer->isActive())
+	{
+		qFatal("We still have a pending save! You need to call saveNow() from the subclass deconstructor if m_saveTimer->isActive()");
+	}
 	delete m_saveTimer;
 	if (m_initialReadTimer)
 	{
@@ -85,7 +90,7 @@ void BaseConfigObject::saveNow()
 		qCritical() << e.cause();
 	}
 }
-void BaseConfigObject::loadNow()
+bool BaseConfigObject::loadNow()
 {
 	if (m_saveTimer->isActive())
 	{
@@ -94,10 +99,11 @@ void BaseConfigObject::loadNow()
 
 	try
 	{
-		doLoad(FS::read(m_filename));
+		return doLoad(FS::read(m_filename));
 	}
 	catch (Exception & e)
 	{
 		qWarning() << "Error loading" << m_filename << ":" << e.cause();
+		return false;
 	}
 }

@@ -2,10 +2,9 @@
 
 #include "Json.h"
 
-#include <QFile>
+#include <math.h>
 
 #include "FileSystem.h"
-#include <math.h>
 
 namespace Json
 {
@@ -139,7 +138,6 @@ QJsonValue toJson<QVariant>(const QVariant &variant)
 	return QJsonValue::fromVariant(variant);
 }
 
-
 template<> QByteArray requireIsType<QByteArray>(const QJsonValue &value, const QString &what)
 {
 	const QString string = ensureIsType<QString>(value, what);
@@ -159,7 +157,6 @@ template<> QJsonArray requireIsType<QJsonArray>(const QJsonValue &value, const Q
 	}
 	return value.toArray();
 }
-
 
 template<> QString requireIsType<QString>(const QJsonValue &value, const QString &what)
 {

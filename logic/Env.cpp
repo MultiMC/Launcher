@@ -133,6 +133,15 @@ void Env::registerVersionList(QString name, std::shared_ptr< BaseVersionList > v
 	m_versionLists[name] = vlist;
 }
 
+void Env::setConfiguration(const QVariantMap &config)
+{
+	m_configuration = config;
+}
+QVariantMap Env::configuration() const
+{
+	return m_configuration;
+}
+
 
 void Env::initHttpMetaCache(QString rootPath, QString staticDataPath)
 {

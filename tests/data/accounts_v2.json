@@ -1,0 +1,38 @@
+{
+    "accounts": [
+        {
+			"accessToken": "214c57e4fe0b58253e3409cdd5e63053",
+			"activeProfile": "d716718a0ede7865c8a4a00e9cb1b6f5",
+			"clientToken": "f11bc5a96e8428cae87df606c6ed05cb",
+            "profiles": [
+                {
+					"id": "d716718a0ede7865c8a4a00e9cb1b6f5",
+                    "legacy": false,
+					"name": "IWantTea"
+                }
+            ],
+            "user": {
+				"id": "4366e8e755b00442b932d87fa6211763"
+            },
+			"username": "arthur.philip@dent.co.uk"
+        },
+        {
+			"accessToken": "204fe2edcee69f8c207c392e6cc25c9c",
+			"activeProfile": "40db0352edab1d1afb8443a34680ef10",
+			"clientToken": "d03a2bcf2d1cc467042c7b2680ba947d",
+            "profiles": [
+                {
+					"id": "40db0352edab1d1afb8443a34680ef10",
+                    "legacy": false,
+					"name": "IAmTheBest"
+                }
+            ],
+            "user": {
+				"id": "c06d6c5039baab84c0c1993f4fa3d51e"
+            },
+			"username": "zaphod.beeblebrox@galaxy.gov"
+        }
+    ],
+	"activeAccount": "arthur.philip@dent.co.uk",
+    "formatVersion": 2
+}
