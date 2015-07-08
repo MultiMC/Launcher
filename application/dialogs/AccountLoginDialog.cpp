@@ -3,6 +3,8 @@
 #include "AccountLoginDialog.h"
 #include "ui_AccountLoginDialog.h"
 
+#include <QPushButton>
+
 #include "auth/AccountModel.h"
 #include "auth/BaseAccount.h"
 #include "auth/BaseAccountType.h"
@@ -18,12 +20,14 @@ AccountLoginDialog::AccountLoginDialog(QWidget *parent) :
 	ui->setupUi(this);
 	ui->progressWidget->setVisible(false);
 	ui->errorLbl->setVisible(false);
-	ui->loginBtn->setFocus();
-	ui->usernameEdit->setFocus();
+	ui->userTextBox->setFocus();
 	ui->typeBox->setModel(ResourceProxyModel::mixin<QIcon>(MMC->accountsModel()->typesModel()));
 
 	connect(ui->typeBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AccountLoginDialog::currentTypeChanged);
 	currentTypeChanged(0);
+
+	connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &AccountLoginDialog::loginClicked);
+	connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &AccountLoginDialog::reject);
 }
 AccountLoginDialog::AccountLoginDialog(BaseAccountType *type, QWidget *parent)
 	: AccountLoginDialog(parent)
@@ -39,9 +43,7 @@ AccountLoginDialog::AccountLoginDialog(BaseAccount *account, QWidget *parent)
 {
 	setWindowTitle(tr("Login"));
 	m_account = account;
-	ui->usernameEdit->setText(account->loginUsername());
-	ui->usernameEdit->setVisible(false);
-	ui->usernameLbl->setVisible(false);
+	ui->userTextBox->setVisible(false);
 }
 
 AccountLoginDialog::~AccountLoginDialog()
@@ -54,19 +56,15 @@ void AccountLoginDialog::setSession(SessionPtr session)
 	m_session = session;
 }
 
-void AccountLoginDialog::on_cancelBtn_clicked()
+void AccountLoginDialog::loginClicked()
 {
-	reject();
-}
-void AccountLoginDialog::on_loginBtn_clicked()
-{
-	std::shared_ptr<Task> task = std::shared_ptr<Task>(m_account->createLoginTask(ui->usernameEdit->text(), ui->passwordEdit->text(), m_session));
+	std::shared_ptr<Task> task = std::shared_ptr<Task>(m_account->createLoginTask(ui->userTextBox->text(), ui->passTextBox->text(), m_session));
 	connect(task.get(), &Task::finished, this, &AccountLoginDialog::taskFinished);
 	ui->typeBox->setEnabled(false);
 	ui->errorLbl->setVisible(false);
-	ui->usernameEdit->setEnabled(false);
-	ui->passwordEdit->setEnabled(false);
-	ui->loginBtn->setEnabled(false);
+	ui->userTextBox->setEnabled(false);
+	ui->passTextBox->setEnabled(false);
+	ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 	ui->progressWidget->setVisible(true);
 
 	ui->progressWidget->start(task);
@@ -84,9 +82,9 @@ void AccountLoginDialog::taskFinished()
 		ui->typeBox->setEnabled(m_type);
 		ui->errorLbl->setVisible(true);
 		ui->errorLbl->setText(task->failReason());
-		ui->usernameEdit->setEnabled(true);
-		ui->passwordEdit->setEnabled(true);
-		ui->loginBtn->setEnabled(true);
+		ui->userTextBox->setEnabled(true);
+		ui->passTextBox->setEnabled(true);
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 		ui->progressWidget->setVisible(false);
 	}
 }
@@ -103,12 +101,10 @@ void AccountLoginDialog::setupForType(BaseAccountType *type)
 {
 	m_type = type;
 
-	ui->usernameLbl->setText(type->usernameText());
-	ui->usernameLbl->setVisible(!type->usernameText().isNull());
-	ui->usernameEdit->setVisible(!type->usernameText().isNull());
-	ui->passwordLbl->setText(type->passwordText());
-	ui->passwordLbl->setVisible(!type->passwordText().isNull());
-	ui->passwordEdit->setVisible(!type->passwordText().isNull());
+	ui->userTextBox->setPlaceholderText(type->usernameText());
+	ui->userTextBox->setVisible(!type->usernameText().isNull());
+	ui->passTextBox->setPlaceholderText(type->passwordText());
+	ui->passTextBox->setVisible(!type->passwordText().isNull());
 	if (type->type() == BaseAccountType::OAuth2Pin)
 	{
 		ui->infoLbl->setVisible(true);
