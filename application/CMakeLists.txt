@@ -311,6 +311,8 @@ set(MULTIMC_QRCS
 	resources/certs/certs.qrc
 )
 
+Format(Application ${MULTIMC_SOURCES})
+
 ######## Windows resource files ########
 if(WIN32)
 	set(MULTIMC_RCS resources/multimc.rc)
