@@ -1,21 +1,13 @@
 #include <QTest>
 #include "TestUtil.h"
 
-#include "settings/INIFile.h"
+#include "logic/settings/INIFile.h"
 
-class IniFileTest : public QObject
+class IniFileTest : public BaseTest
 {
 	Q_OBJECT
 private
 slots:
-	void initTestCase()
-	{
-
-	}
-	void cleanupTestCase()
-	{
-
-	}
 
 	void test_Escape_data()
 	{
@@ -57,6 +49,6 @@ slots:
 	}
 };
 
-QTEST_GUILESS_MAIN(IniFileTest)
+MMCTEST_GUILESS_MAIN(IniFileTest)
 
-#include "tst_inifile.moc"
+#include "tst_INIFile.moc"

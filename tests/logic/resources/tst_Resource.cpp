@@ -2,9 +2,9 @@
 #include <QAction>
 #include "TestUtil.h"
 
-#include "resources/Resource.h"
-#include "resources/ResourceHandler.h"
-#include "resources/ResourceObserver.h"
+#include "logic/resources/Resource.h"
+#include "logic/resources/ResourceHandler.h"
+#include "logic/resources/ResourceObserver.h"
 
 class DummyStringResourceHandler : public ResourceHandler
 {
@@ -40,7 +40,7 @@ public:
 	QString property;
 };
 
-class ResourceTest : public QObject
+class ResourceTest : public BaseTest
 {
 	Q_OBJECT
 	private
@@ -112,6 +112,6 @@ class ResourceTest : public QObject
 	}
 };
 
-QTEST_GUILESS_MAIN(ResourceTest)
+MMCTEST_GUILESS_MAIN(ResourceTest)
 
 #include "tst_Resource.moc"

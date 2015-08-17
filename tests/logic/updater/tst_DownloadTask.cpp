@@ -1,11 +1,11 @@
 #include <QTest>
 #include <QSignalSpy>
 
-#include "TestUtil.h"
+#include "tests/TestUtil.h"
 
-#include "updater/GoUpdate.h"
-#include "updater/DownloadTask.h"
-#include "updater/UpdateChecker.h"
+#include "logic/updater/GoUpdate.h"
+#include "logic/updater/DownloadTask.h"
+#include "logic/updater/UpdateChecker.h"
 #include "pathutils.h"
 
 using namespace GoUpdate;
@@ -57,7 +57,7 @@ QDebug operator<<(QDebug dbg, const Operation &u)
 	return dbg.maybeSpace();
 }
 
-class DownloadTaskTest : public QObject
+class DownloadTaskTest : public BaseTest
 {
 	Q_OBJECT
 private
@@ -228,9 +228,6 @@ slots:
 	}
 };
 
-extern "C"
-{
-	QTEST_GUILESS_MAIN(DownloadTaskTest)
-}
+MMCTEST_GUILESS_MAIN(DownloadTaskTest)
 
 #include "tst_DownloadTask.moc"

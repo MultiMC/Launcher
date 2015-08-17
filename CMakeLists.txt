@@ -72,6 +72,12 @@ if (Qt5_POSITION_INDEPENDENT_CODE)
     SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
+#### Check the current Git commit/branch
+include(GitFunctions)
+git_run(COMMAND rev-parse HEAD DEFAULT "Unknown" OUTPUT_VAR MultiMC_GIT_COMMIT)
+git_run(COMMAND rev-parse --abbrev-ref HEAD DEFAULT "Unknown" OUTPUT_VAR MultiMC_GIT_REF)
+message(STATUS "Git commit: ${MultiMC_GIT_REF}")
+
 ################################ Included Libs ################################
 
 include(ExternalProject)

@@ -1,8 +1,8 @@
 #include <QTest>
 #include <QSignalSpy>
 
-#include "TestUtil.h"
-#include "updater/UpdateChecker.h"
+#include "tests/TestUtil.h"
+#include "logic/updater/UpdateChecker.h"
 
 Q_DECLARE_METATYPE(UpdateChecker::ChannelListEntry)
 
@@ -20,20 +20,11 @@ QDebug operator<<(QDebug dbg, const UpdateChecker::ChannelListEntry &c)
 	return dbg.maybeSpace();
 }
 
-class UpdateCheckerTest : public QObject
+class UpdateCheckerTest : public BaseTest
 {
 	Q_OBJECT
 private
 slots:
-	void initTestCase()
-	{
-
-	}
-	void cleanupTestCase()
-	{
-
-	}
-
 	static QString findTestDataUrl(const char *file)
 	{
 		return QUrl::fromLocalFile(QFINDTESTDATA(file)).toString();
@@ -103,7 +94,6 @@ slots:
 		}
 		else
 		{
-			channelListLoadedSpy.wait();
 			QCOMPARE(channelListLoadedSpy.size(), 0);
 		}
 
@@ -140,6 +130,6 @@ slots:
 	}
 };
 
-QTEST_GUILESS_MAIN(UpdateCheckerTest)
+MMCTEST_GUILESS_MAIN(UpdateCheckerTest)
 
 #include "tst_UpdateChecker.moc"

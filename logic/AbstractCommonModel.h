@@ -24,7 +24,7 @@ class BaseAbstractCommonModel : public QAbstractListModel
 {
 	Q_OBJECT
 public:
-	explicit BaseAbstractCommonModel(const Qt::Orientation orientation, QObject *parent = nullptr);
+	explicit BaseAbstractCommonModel(QObject *parent = nullptr);
 
 	// begin QAbstractItemModel interface
 	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -53,299 +53,53 @@ protected:
 	void notifyObjectRemoved();
 	void notifyBeginReset();
 	void notifyEndReset();
-
-	const Qt::Orientation m_orientation;
 };
 
-template<typename Object>
-class AbstractCommonModel : public BaseAbstractCommonModel
+namespace Detail
 {
-public:
-	explicit AbstractCommonModel(const Qt::Orientation orientation)
-		: BaseAbstractCommonModel(orientation) {}
-	virtual ~AbstractCommonModel() {}
+/// Helper to be able to handle pointers and references the same way
+template<typename Object>
+struct dereferenceObject
+{
+	Object &operator()(Object &obj) { return obj; }
+	const Object &operator()(const Object &obj) { return obj; }
+};
+template <typename Object>
+struct dereferenceObject<Object *>
+{
+	Object &operator()(Object *obj) { return *obj; }
+};
 
-	int size() const override { return m_objects.size(); }
-	int entryCount() const override { return m_entries.size(); }
+template<typename Type, typename EntrySetterType, typename EntryGetterType>
+class AbstractCommonModelCommon : public BaseAbstractCommonModel
+{
+	// helper needed for some stuff
+	using Object = typename std::remove_pointer<Type>::type;
 
-	void append(const Object &object)
-	{
-		notifyAboutToAddObject(size());
-		m_objects.append(object);
-		notifyObjectAdded();
-	}
-	void prepend(const Object &object)
-	{
-		notifyAboutToAddObject(0);
-		m_objects.prepend(object);
-		notifyObjectAdded();
-	}
-	void insert(const Object &object, const int index)
-	{
-		if (index >= size())
-		{
-			prepend(object);
-		}
-		else if (index <= 0)
-		{
-			append(object);
-		}
-		else
-		{
-			notifyAboutToAddObject(index);
-			m_objects.insert(index, object);
-			notifyObjectAdded();
-		}
-	}
-	void remove(const int index)
-	{
-		notifyAboutToRemoveObject(index);
-		m_objects.removeAt(index);
-		notifyObjectRemoved();
-	}
-	Object get(const int index) const
-	{
-		return m_objects.at(index);
-	}
-
-private:
-	friend class CommonModel;
-	QVariant get(const int index, const int entry, const int role) const override
-	{
-		if (m_entries.size() < entry || !m_entries[entry].second.contains(role))
-		{
-			return QVariant();
-		}
-		return m_entries[entry].second.value(role)->get(m_objects.at(index));
-	}
-	bool set(const int index, const int entry, const int role, const QVariant &value) override
-	{
-		if (m_entries.size() < entry || !m_entries[entry].second.contains(role))
-		{
-			return false;
-		}
-		IEntry *e = m_entries[entry].second.value(role);
-		if (!e->canSet())
-		{
-			return false;
-		}
-		e->set(m_objects[index], value);
-		return true;
-	}
-	bool canSet(const int entry) const override
-	{
-		if (m_entries.size() < entry || !m_entries[entry].second.contains(Qt::EditRole))
-		{
-			return false;
-		}
-		IEntry *e = m_entries[entry].second.value(Qt::EditRole);
-		return e->canSet();
-	}
-
-	QString entryTitle(const int entry) const override
-	{
-		return m_entries.at(entry).first;
-	}
-
-private:
 	struct IEntry
 	{
 		virtual ~IEntry() {}
-		virtual void set(Object &object, const QVariant &value) = 0;
-		virtual QVariant get(const Object &object) const = 0;
+		virtual void set(EntrySetterType object, const QVariant &value) = 0;
+		virtual QVariant get(EntryGetterType object) const = 0;
 		virtual bool canSet() const = 0;
 	};
-	template<typename T>
-	struct VariableEntry : public IEntry
+	template<typename T, typename Lambda>
+	struct LambdaEntry : public IEntry
 	{
-		typedef T (Object::*Member);
+		using Getter = std::function<T(EntryGetterType)>;
 
-		explicit VariableEntry(Member member)
-			: m_member(member) {}
+		explicit LambdaEntry(Lambda getter)
+			: m_getter(getter) {}
 
-		void set(Object &object, const QVariant &value) override
+		void set(EntrySetterType object, const QVariant &value) override {}
+		QVariant get(EntryGetterType object) const override
 		{
-			object.*m_member = value.value<T>();
+			return QVariant::fromValue<T>(m_getter(object));
 		}
-		QVariant get(const Object &object) const override
-		{
-			return QVariant::fromValue<T>(object.*m_member);
-		}
-		bool canSet() const override { return true; }
-
-	private:
-		Member m_member;
-	};
-	template<typename T>
-	struct FunctionEntry : public IEntry
-	{
-		typedef T (Object::*Getter)() const;
-		typedef void (Object::*Setter)(T);
-
-		explicit FunctionEntry(Getter getter, Setter setter)
-			: m_getter(m_getter), m_setter(m_setter) {}
-
-		void set(Object &object, const QVariant &value) override
-		{
-			object.*m_setter(value.value<T>());
-		}
-		QVariant get(const Object &object) const override
-		{
-			return QVariant::fromValue<T>(object.*m_getter());
-		}
-		bool canSet() const override { return !!m_setter; }
+		bool canSet() const override { return false; }
 
 	private:
 		Getter m_getter;
-		Setter m_setter;
-	};
-
-	QList<Object> m_objects;
-	QVector<QPair<QString, QMap<int, IEntry *>>> m_entries;
-
-	void addEntryInternal(IEntry *e, const int entry, const int role)
-	{
-		if (m_entries.size() <= entry)
-		{
-			m_entries.resize(entry + 1);
-		}
-		m_entries[entry].second.insert(role, e);
-	}
-
-protected:
-	template<typename Getter, typename Setter>
-	typename std::enable_if<std::is_member_function_pointer<Getter>::value && std::is_member_function_pointer<Getter>::value, void>::type
-	addEntry(Getter getter, Setter setter, const int entry, const int role)
-	{
-		addEntryInternal(new FunctionEntry<typename std::result_of<Getter>::type>(getter, setter), entry, role);
-	}
-	template<typename Getter>
-	typename std::enable_if<std::is_member_function_pointer<Getter>::value, void>::type
-	addEntry(Getter getter, const int entry, const int role)
-	{
-		addEntryInternal(new FunctionEntry<typename std::result_of<Getter>::type>(getter, nullptr), entry, role);
-	}
-	template<typename T>
-	typename std::enable_if<!std::is_member_function_pointer<T (Object::*)>::value, void>::type
-	addEntry(T (Object::*member), const int entry, const int role)
-	{
-		addEntryInternal(new VariableEntry<T>(member), entry, role);
-	}
-
-	void setEntryTitle(const int entry, const QString &title)
-	{
-		m_entries[entry].first = title;
-	}
-};
-template<typename Object>
-class AbstractCommonModel<Object *> : public BaseAbstractCommonModel
-{
-public:
-	explicit AbstractCommonModel(const Qt::Orientation orientation)
-		: BaseAbstractCommonModel(orientation) {}
-	virtual ~AbstractCommonModel()
-	{
-		qDeleteAll(m_objects);
-	}
-
-	int size() const override { return m_objects.size(); }
-	int entryCount() const override { return m_entries.size(); }
-
-	void append(Object *object)
-	{
-		notifyAboutToAddObject(size());
-		m_objects.append(object);
-		notifyObjectAdded();
-	}
-	void prepend(Object *object)
-	{
-		notifyAboutToAddObject(0);
-		m_objects.prepend(object);
-		notifyObjectAdded();
-	}
-	void insert(Object *object, const int index)
-	{
-		if (index >= size())
-		{
-			prepend(object);
-		}
-		else if (index <= 0)
-		{
-			append(object);
-		}
-		else
-		{
-			notifyAboutToAddObject(index);
-			m_objects.insert(index, object);
-			notifyObjectAdded();
-		}
-	}
-	void remove(const int index)
-	{
-		notifyAboutToRemoveObject(index);
-		m_objects.removeAt(index);
-		notifyObjectRemoved();
-	}
-	Object *get(const int index) const
-	{
-		return m_objects.at(index);
-	}
-	int find(Object * const obj) const
-	{
-		return m_objects.indexOf(obj);
-	}
-
-	QList<Object *> getAll() const
-	{
-		return m_objects;
-	}
-
-private:
-	friend class CommonModel;
-	QVariant get(const int index, const int entry, const int role) const override
-	{
-		if (m_entries.size() < entry || !m_entries[entry].second.contains(role))
-		{
-			return QVariant();
-		}
-		return m_entries[entry].second.value(role)->get(m_objects.at(index));
-	}
-	bool set(const int index, const int entry, const int role, const QVariant &value) override
-	{
-		if (m_entries.size() < entry || !m_entries[entry].second.contains(role))
-		{
-			return false;
-		}
-		IEntry *e = m_entries[entry].second.value(role);
-		if (!e->canSet())
-		{
-			return false;
-		}
-		e->set(m_objects[index], value);
-		return true;
-	}
-	bool canSet(const int entry) const override
-	{
-		if (m_entries.size() < entry || !m_entries[entry].second.contains(Qt::EditRole))
-		{
-			return false;
-		}
-		IEntry *e = m_entries[entry].second.value(Qt::EditRole);
-		return e->canSet();
-	}
-
-	QString entryTitle(const int entry) const override
-	{
-		return m_entries.at(entry).first;
-	}
-
-private:
-	struct IEntry
-	{
-		virtual ~IEntry() {}
-		virtual void set(Object *object, const QVariant &value) = 0;
-		virtual QVariant get(Object *object) const = 0;
-		virtual bool canSet() const = 0;
 	};
 	template<typename T>
 	struct VariableEntry : public IEntry
@@ -355,13 +109,13 @@ private:
 		explicit VariableEntry(Member member)
 			: m_member(member) {}
 
-		void set(Object *object, const QVariant &value) override
+		void set(EntrySetterType object, const QVariant &value) override
 		{
-			object->*m_member = value.value<T>();
+			Detail::dereferenceObject<Type>()(object).*m_member = value.value<T>();
 		}
-		QVariant get(Object *object) const override
+		QVariant get(EntryGetterType object) const override
 		{
-			return QVariant::fromValue<T>(object->*m_member);
+			return QVariant::fromValue<T>(Detail::dereferenceObject<Type>()(object).*m_member);
 		}
 		bool canSet() const override { return true; }
 
@@ -377,13 +131,13 @@ private:
 		explicit FunctionEntry(Getter getter, Setter setter)
 			: m_getter(getter), m_setter(setter) {}
 
-		void set(Object *object, const QVariant &value) override
+		void set(EntrySetterType object, const QVariant &value) override
 		{
-			(object->*m_setter)(value.value<T>());
+			(Detail::dereferenceObject<Type>()(object).*m_setter)(value.value<T>());
 		}
-		QVariant get(Object *object) const override
+		QVariant get(EntryGetterType object) const override
 		{
-			return QVariant::fromValue<T>((object->*m_getter)());
+			return QVariant::fromValue<T>((Detail::dereferenceObject<Type>()(object).*m_getter)());
 		}
 		bool canSet() const override { return !!m_setter; }
 
@@ -391,30 +145,26 @@ private:
 		Getter m_getter;
 		Setter m_setter;
 	};
-	template<typename T>
-	struct LambdaEntry : public IEntry
+
+	/// \internal Returns true if the given entry/role pair already exists
+	bool hasEntryRolePair(const int entry, const int role) const
 	{
-		using Getter = std::function<T(Object *)>;
+		return m_entries.size() > entry && m_entries[entry].second.contains(role);
+	}
 
-		explicit LambdaEntry(Getter getter)
-			: m_getter(getter) {}
-
-		void set(Object *object, const QVariant &value) override {}
-		QVariant get(Object *object) const override
-		{
-			return QVariant::fromValue<T>(m_getter(object));
-		}
-		bool canSet() const override { return false; }
-
-	private:
-		Getter m_getter;
-	};
-
-	QList<Object *> m_objects;
-	QVector<QPair<QString, QMap<int, IEntry *>>> m_entries;
-
+	/// \internal Adds the entry to the list of entries
 	void addEntryInternal(IEntry *e, const int entry, const int role)
 	{
+		// in debug, we fail hard
+		Q_ASSERT_X(!hasEntryRolePair(entry, role),
+				   "AbstractCommonModel::addEntry",
+				   "This entry/role pair has already been set");
+		// in release, we fail silently
+		if (hasEntryRolePair(entry, role))
+		{
+			return;
+		}
+
 		if (m_entries.size() <= entry)
 		{
 			m_entries.resize(entry + 1);
@@ -422,41 +172,191 @@ private:
 		m_entries[entry].second.insert(role, e);
 	}
 
+	/// \internal \reimp
+	QVariant get(const int index, const int entry, const int role) const override
+	{
+		Q_ASSERT(entry < m_entries.size());
+		if (!m_entries[entry].second.contains(role))
+		{
+			return QVariant();
+		}
+		return m_entries[entry].second.value(role)->get(m_objects.at(index));
+	}
+	/// \internal \reimp
+	bool set(const int index, const int entry, const int role, const QVariant &value) override
+	{
+		Q_ASSERT(entry < m_entries.size());
+		if (!m_entries[entry].second.contains(role))
+		{
+			return false;
+		}
+		IEntry *e = m_entries[entry].second.value(role);
+		if (!e->canSet())
+		{
+			return false;
+		}
+		e->set(m_objects[index], value);
+		return true;
+	}
+	/// \internal \reimp
+	bool canSet(const int entry) const override
+	{
+		Q_ASSERT(entry < m_entries.size());
+		if (!m_entries[entry].second.contains(Qt::EditRole))
+		{
+			return false;
+		}
+		IEntry *e = m_entries[entry].second.value(Qt::EditRole);
+		return e->canSet();
+	}
+
+	/// \internal \reimp
+	QString entryTitle(const int entry) const override
+	{
+		return m_entries.at(entry).first;
+	}
+
+	/// The list of columns (in vertical mode). Each entry has the title (header) and a list of entries for each role
+	QVector<QPair<QString, QMap<int, IEntry *>>> m_entries;
+	/// The list of all rows (in vertical mode)
+	QList<Type> m_objects;
+
 protected:
-	template<typename Getter, typename Setter>
-	typename std::enable_if<std::is_member_function_pointer<Getter>::value && std::is_member_function_pointer<Getter>::value, void>::type
+	explicit AbstractCommonModelCommon()
+		: BaseAbstractCommonModel() {}
+
+	/// Can be reimplemented. Will be called by setAll after emitting aboutToReset.
+	virtual void cleanup() = 0;
+
+	void setEntryTitle(const int entry, const QString &title)
+	{
+		if (m_entries.size() <= entry)
+		{
+			m_entries.resize(entry + 1);
+		}
+		m_entries[entry].first = title;
+	}
+
+	/// For usage on initial set up (for example loading from a file)
+	void setAll(const QList<Type> objects)
+	{
+		notifyBeginReset();
+		cleanup();
+		m_objects = objects;
+		notifyEndReset();
+	}
+
+	// Functions for registering columns (in vertical mode)/roles. Usage: addEntry<Type>(<column>, <role>, <accessors...>)
+	template<typename T, typename Getter, typename Setter>
+	typename std::enable_if<std::is_member_function_pointer<Getter>::value && std::is_member_function_pointer<Setter>::value, void>::type
 	addEntry(const int entry, const int role, Getter getter, Setter setter)
 	{
-		addEntryInternal(new FunctionEntry<typename std::result_of<Getter>::type>(getter, setter), entry, role);
+		addEntryInternal(new FunctionEntry<T>(getter, setter), entry, role);
 	}
-	template<typename T>
-	typename std::enable_if<std::is_member_function_pointer<typename FunctionEntry<T>::Getter>::value, void>::type
-	addEntry(const int entry, const int role, typename FunctionEntry<T>::Getter getter)
+	template<typename T, typename Getter>
+	typename std::enable_if<std::is_member_function_pointer<Getter>::value, void>::type
+	addEntry(const int entry, const int role, Getter getter)
 	{
 		addEntryInternal(new FunctionEntry<T>(getter, nullptr), entry, role);
 	}
 	template<typename T>
-	typename std::enable_if<!std::is_member_function_pointer<T (Object::*)>::value, void>::type
+	typename std::enable_if<std::is_member_object_pointer<T (Object::*)>::value, void>::type
 	addEntry(const int entry, const int role, T (Object::*member))
 	{
 		addEntryInternal(new VariableEntry<T>(member), entry, role);
 	}
-	template<typename T>
-	void addEntry(const int entry, const int role, typename LambdaEntry<T>::Getter lambda)
+	template<typename T, typename Lambda>
+	typename std::enable_if<!std::is_member_function_pointer<Lambda>::value && !std::is_member_object_pointer<Lambda>::value, void>::type
+	addEntry(const int entry, const int role, Lambda lambda)
 	{
-		addEntryInternal(new LambdaEntry<T>(lambda), entry, role);
+		addEntryInternal(new LambdaEntry<T, Lambda>(lambda), entry, role);
 	}
 
-	void setEntryTitle(const int entry, const QString &title)
+public:
+	virtual ~AbstractCommonModelCommon() {}
+
+	int size() const override { return m_objects.size(); }
+	int entryCount() const override { return m_entries.size(); }
+
+	void append(const Type &object)
 	{
-		m_entries[entry].first = title;
+		notifyAboutToAddObject(size());
+		m_objects.append(object);
+		notifyObjectAdded();
+	}
+	void prepend(const Type &object)
+	{
+		notifyAboutToAddObject(0);
+		m_objects.prepend(object);
+		notifyObjectAdded();
+	}
+	void insert(const Type &object, const int index)
+	{
+		if (index >= size())
+		{
+			append(object);
+		}
+		else if (index <= 0)
+		{
+			prepend(object);
+		}
+		else
+		{
+			notifyAboutToAddObject(index);
+			m_objects.insert(index, object);
+			notifyObjectAdded();
+		}
+	}
+	void remove(const int index)
+	{
+		notifyAboutToRemoveObject(index);
+		m_objects.removeAt(index);
+		notifyObjectRemoved();
+	}
+	Type get(const int index) const
+	{
+		return m_objects.at(index);
+	}
+	int find(Type obj) const
+	{
+		return m_objects.indexOf(obj);
+	}
+	QList<Type> getAll() const
+	{
+		return m_objects;
+	}
+};
+}
+
+template<typename Object>
+class AbstractCommonModel : public Detail::AbstractCommonModelCommon<Object, Object &, const Object &>
+{
+	using SuperClass = Detail::AbstractCommonModelCommon<Object, Object &, const Object &>;
+
+public:
+	explicit AbstractCommonModel()
+		: SuperClass() {}
+	virtual ~AbstractCommonModel() {}
+
+private:
+	void cleanup() override {}
+};
+template<typename Object>
+class AbstractCommonModel<Object *> : public Detail::AbstractCommonModelCommon<Object *, Object *, Object *>
+{
+	using SuperClass = Detail::AbstractCommonModelCommon<Object *, Object *, Object *>;
+
+public:
+	explicit AbstractCommonModel()
+		: SuperClass() {}
+	virtual ~AbstractCommonModel()
+	{
+		cleanup();
 	}
 
-	void setAll(const QList<Object *> objects)
+private:
+	void cleanup() override
 	{
-		notifyBeginReset();
-		qDeleteAll(m_objects);
-		m_objects = objects;
-		notifyEndReset();
+		return qDeleteAll(SuperClass::getAll());
 	}
 };

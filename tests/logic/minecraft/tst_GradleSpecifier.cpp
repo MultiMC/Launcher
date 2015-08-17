@@ -1,9 +1,9 @@
 #include <QTest>
-#include "TestUtil.h"
 
-#include "minecraft/GradleSpecifier.h"
+#include "logic/minecraft/GradleSpecifier.h"
+#include "tests/TestUtil.h"
 
-class GradleSpecifierTest : public QObject
+class GradleSpecifierTest : public BaseTest
 {
 	Q_OBJECT
 private
@@ -72,6 +72,6 @@ slots:
 	}
 };
 
-QTEST_GUILESS_MAIN(GradleSpecifierTest)
+MMCTEST_GUILESS_MAIN(GradleSpecifierTest)
 
-#include "tst_gradlespecifier.moc"
+#include "tst_GradleSpecifier.moc"
