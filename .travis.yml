@@ -12,8 +12,7 @@ os:
  - linux
 # - osx
 env:
- - QT_VERSION=5.4.1 # latest stable
-# - QT_VERSION=5.5-beta # latest
+ - QT_VERSION=5.5.1 # latest stable
 matrix:
   exclude:
     # only use clang on OS X
@@ -21,13 +20,7 @@ matrix:
       compiler: gcc
     # only use the qt available from homebrew
     - os: osx
-      env: QT_VERSION=5.4.1
-    - os: osx
-      env: QT_VERSION=5.5-beta
-
-  allow_failures:
-    # Qt 5.5 is not yet released and is therefore allowed to fail
-    - env: QT_VERSION=5.5-beta
+      env: QT_VERSION=5.5.1
 
 notifications:
   irc: "irc.esper.net#MultiMC"

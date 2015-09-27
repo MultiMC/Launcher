@@ -149,6 +149,7 @@ slots:
 
 signals:
 	void changed();
+	void remoteUrlDropped(const QUrl &url);
 
 protected:
 	QFileSystemWatcher *m_watcher;

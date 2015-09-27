@@ -560,7 +560,7 @@ bool ModList::dropMimeData(const QMimeData *data, Qt::DropAction action, int row
 		row = rowCount();
 	if (column == -1)
 		column = 0;
-	qDebug() << "Drop row: " << row << " column: " << column;
+	qDebug() << "Drop row:" << row << "column:" << column << "formats:" << data->formats();
 
 	// files dropped from outside?
 	if (data->hasUrls())
@@ -568,12 +568,27 @@ bool ModList::dropMimeData(const QMimeData *data, Qt::DropAction action, int row
 		bool was_watching = is_watching;
 		if (was_watching)
 			stopWatching();
-		auto urls = data->urls();
+		QList<QUrl> urls = data->urls();
+		// workaround for chromium, which encodes the urls weirdly
+		if (data->hasFormat("_NETSCAPE_URL")) {
+			for (const QUrl &url : urls) {
+				const QString str = url.toString();
+				// some arbitrary threshold for when a url is concidered "broken"
+				if (str.count("%00") > (str.length() / 4) || str.isEmpty()) {
+					const QString urlStr = QString::fromUtf8(data->data("_NETSCAPE_URL")).split('\n').first();
+					urls = QList<QUrl>() << QUrl(urlStr);
+					break;
+				}
+			}
+		}
+
 		for (auto url : urls)
 		{
-			// only local files may be dropped...
-			if (!url.isLocalFile())
+			// handle remote urls elsewhere
+			if (!url.isLocalFile()) {
+				emit remoteUrlDropped(url);
 				continue;
+			}
 			QString filename = url.toLocalFile();
 			installMod(filename, row);
 			qDebug() << "installing: " << filename;
