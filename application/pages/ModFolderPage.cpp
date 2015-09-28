@@ -27,7 +27,9 @@
 #include "MultiMC.h"
 #include "dialogs/CustomMessageBox.h"
 #include "dialogs/ModEditDialogCommon.h"
-#include <GuiUtil.h>
+#include "dialogs/WebDownloadDialog.h"
+#include "GuiUtil.h"
+
 #include "minecraft/ModList.h"
 #include "minecraft/Mod.h"
 #include "minecraft/VersionFilterData.h"
@@ -49,8 +51,8 @@ ModFolderPage::ModFolderPage(BaseInstance *inst, std::shared_ptr<ModList> mods, 
 	ui->modTreeView->setModel(m_mods.get());
 	ui->modTreeView->installEventFilter(this);
 	auto smodel = ui->modTreeView->selectionModel();
-	connect(smodel, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-			SLOT(modCurrent(QModelIndex, QModelIndex)));
+	connect(smodel, &QItemSelectionModel::currentChanged, this, &ModFolderPage::modCurrent);
+	connect(m_mods.get(), &ModList::remoteUrlDropped, this, &ModFolderPage::remoteDownloadRequest);
 }
 
 void ModFolderPage::opened()
@@ -164,6 +166,11 @@ void ModFolderPage::on_rmModBtn_clicked()
 void ModFolderPage::on_viewModBtn_clicked()
 {
 	openDirInDefaultProgram(m_mods->dir().absolutePath(), true);
+}
+
+void ModFolderPage::remoteDownloadRequest(const QUrl &url)
+{
+	WebDownloadDialog::runNonModal(url, m_mods->dir(), this);
 }
 
 void ModFolderPage::modCurrent(const QModelIndex &current, const QModelIndex &previous)

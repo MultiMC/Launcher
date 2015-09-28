@@ -87,6 +87,8 @@ slots:
 	void on_addModBtn_clicked();
 	void on_rmModBtn_clicked();
 	void on_viewModBtn_clicked();
+
+	void remoteDownloadRequest(const QUrl &url);
 };
 
 class CoreModFolderPage : public ModFolderPage

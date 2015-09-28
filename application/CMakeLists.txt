@@ -231,6 +231,8 @@ SET(MULTIMC_SOURCES
 	dialogs/UpdateDialog.h
 	dialogs/VersionSelectDialog.cpp
 	dialogs/VersionSelectDialog.h
+	dialogs/WebDownloadDialog.cpp
+	dialogs/WebDownloadDialog.h
 
 
 	# GUI - widgets
@@ -341,7 +343,7 @@ qt5_add_resources(MULTIMC_RESOURCES ${MULTIMC_QRCS})
 # Add executable
 add_executable(MultiMC MACOSX_BUNDLE WIN32 ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_RESOURCES} ${MULTIMC_RCS})
 target_link_libraries(MultiMC MultiMC_logic xz-embedded unpack200 iconfix libUtil LogicalGui
-	${QUAZIP_LIBRARIES} Qt5::Core Qt5::Xml Qt5::Widgets Qt5::Network Qt5::Concurrent
+	${QUAZIP_LIBRARIES} Qt5::Core Qt5::Xml Qt5::Widgets Qt5::Network Qt5::Concurrent Qt5::WebEngineWidgets
 		hoedown rainbow
 			${MultiMC_LINK_ADDITIONAL_LIBS})
 
