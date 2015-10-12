@@ -29,7 +29,7 @@ PasteEEPage::PasteEEPage(QWidget *parent) :
 	ui(new Ui::PasteEEPage)
 {
 	ui->setupUi(this);
-	ui->tabWidget->tabBar()->hide();\
+	ui->tabWidget->tabBar()->hide();
 	connect(ui->customAPIkeyEdit, &QLineEdit::textEdited, this, &PasteEEPage::textEdited);
 	loadSettings();
 }

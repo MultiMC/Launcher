@@ -35,6 +35,8 @@
 #include "minecraft/AssetsUtils.h"
 #include "icons/IconList.h"
 #include "minecraft/WorldList.h"
+#include "wonko/WonkoVersion.h"
+#include "wonko/WonkoUtil.h"
 #include <FileSystem.h>
 
 OneSixInstance::OneSixInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString &rootDir)
@@ -474,6 +476,16 @@ void OneSixInstance::clearProfile()
 std::shared_ptr<MinecraftProfile> OneSixInstance::getMinecraftProfile() const
 {
 	return m_version;
+}
+
+void OneSixInstance::installWonkoVersion(const WonkoVersionPtr &version)
+{
+	// TODO: run through serializer? roll back on error?
+	// TODO: proper error reporting for QFile::copy
+	FS::ensureFolderPathExists(QDir(instanceRoot()).absoluteFilePath("patches"));
+	Q_ASSERT(QFile::copy(Wonko::localWonkoDir().absoluteFilePath(version->localFilename()),
+				 QDir(instanceRoot()).absoluteFilePath("patches/%1.json").arg(version->uid())));
+	reloadProfile();
 }
 
 QDir OneSixInstance::librariesPath() const

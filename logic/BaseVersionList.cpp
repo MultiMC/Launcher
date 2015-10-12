@@ -72,7 +72,7 @@ QVariant BaseVersionList::data(const QModelIndex &index, int role) const
 	}
 }
 
-BaseVersionList::RoleList BaseVersionList::providesRoles()
+BaseVersionList::RoleList BaseVersionList::providesRoles() const
 {
 	return {VersionPointerRole, VersionRole, VersionIdRole, TypeRole};
 }

@@ -99,7 +99,7 @@ QVariant LiteLoaderVersionList::data(const QModelIndex &index, int role) const
 	}
 }
 
-QList<BaseVersionList::ModelRoles> LiteLoaderVersionList::providesRoles()
+BaseVersionList::RoleList LiteLoaderVersionList::providesRoles() const
 {
 	return {VersionPointerRole, VersionRole, VersionIdRole, ParentGameVersionRole, RecommendedRole};
 }

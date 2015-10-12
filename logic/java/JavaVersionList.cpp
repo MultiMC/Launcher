@@ -77,7 +77,7 @@ QVariant JavaVersionList::data(const QModelIndex &index, int role) const
 	}
 }
 
-BaseVersionList::RoleList JavaVersionList::providesRoles()
+BaseVersionList::RoleList JavaVersionList::providesRoles() const
 {
 	return {VersionPointerRole, VersionIdRole, VersionRole, RecommendedRole, PathRole, ArchitectureRole};
 }

@@ -8,6 +8,7 @@
 #include "pages/global/ExternalToolsPage.h"
 #include "pages/global/AccountListPage.h"
 #include "pages/global/PasteEEPage.h"
+#include "pages/global/WonkoPage.h"
 
 #include <iostream>
 #include <QDir>
@@ -28,6 +29,8 @@
 #include "liteloader/LiteLoaderVersionList.h"
 
 #include "forge/ForgeVersionList.h"
+
+#include "wonko/WonkoIndex.h"
 
 #include "net/HttpMetaCache.h"
 #include "net/URLConstants.h"
@@ -237,6 +240,10 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 	qDebug() << "Loading accounts...";
 	m_accounts->setListFilePath("accounts.json", true);
 	m_accounts->loadList();
+
+	ENV.setWonkoRootUrl(BuildConfig.WONKO_ROOT_URL);
+	// FIXME: move elsewhere
+	ENV.wonkoIndex()->localUpdateTask()->start();
 
 	// init the http meta cache
 	ENV.initHttpMetaCache(rootPath, staticDataPath);
@@ -550,6 +557,7 @@ void MultiMC::initGlobalSettings(bool test_mode)
 		m_globalSettingsProvider->addPage<ExternalToolsPage>();
 		m_globalSettingsProvider->addPage<AccountListPage>();
 		m_globalSettingsProvider->addPage<PasteEEPage>();
+		m_globalSettingsProvider->addPage<WonkoPage>();
 	}
 }
 

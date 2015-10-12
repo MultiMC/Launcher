@@ -69,8 +69,8 @@ public:
 	{
 		return CacheDownloadPtr(new CacheDownload(url, entry));
 	}
-	virtual ~CacheDownload(){};
-	QString getTargetFilepath()
+	virtual ~CacheDownload() {}
+	QString getTargetFilepath() const
 	{
 		return m_target_path;
 	}

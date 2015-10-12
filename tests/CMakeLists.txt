@@ -29,6 +29,10 @@ add_unit_test(DownloadTask tst_DownloadTask.cpp)
 add_unit_test(filematchers tst_filematchers.cpp)
 add_unit_test(Resource tst_Resource.cpp)
 add_unit_test(GZip tst_GZip.cpp)
+add_unit_test(BaseWonkoEntityLocalLoadTask tst_BaseWonkoEntityLocalLoadTask.cpp)
+add_unit_test(BaseWonkoEntityRemoteLoadTask tst_BaseWonkoEntityRemoteLoadTask.cpp)
+add_unit_test(WonkoVersionList tst_WonkoVersionList.cpp)
+add_unit_test(WonkoIndex tst_WonkoIndex.cpp)
 
 # Tests END #
 

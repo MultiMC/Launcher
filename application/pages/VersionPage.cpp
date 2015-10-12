@@ -42,9 +42,13 @@
 #include "liteloader/LiteLoaderInstaller.h"
 #include "auth/MojangAccountList.h"
 #include "minecraft/Mod.h"
-#include <minecraft/MinecraftVersion.h>
-#include <minecraft/MinecraftVersionList.h>
+#include "minecraft/MinecraftVersion.h"
+#include "minecraft/MinecraftVersionList.h"
+#include "wonko/WonkoIndex.h"
+#include "wonko/WonkoVersionList.h"
+#include "wonko/WonkoVersion.h"
 #include "icons/IconList.h"
+#include "Env.h"
 #include "Exception.h"
 
 QIcon VersionPage::icon() const
@@ -281,17 +285,39 @@ int VersionPage::doUpdate()
 
 void VersionPage::on_forgeBtn_clicked()
 {
-	VersionSelectDialog vselect(MMC->forgelist().get(), tr("Select Forge version"), this);
-	vselect.setExactFilter(BaseVersionList::ParentGameVersionRole, m_inst->currentVersionId());
+	if (!ENV.wonkoIndex()->isLocalLoaded())
+	{
+		ProgressDialog(this).execWithTask(ENV.wonkoIndex()->localUpdateTask());
+		if (!ENV.wonkoIndex()->hasUid("net.minecraftforge"))
+		{
+			if (ProgressDialog(this).execWithTask(ENV.wonkoIndex()->remoteUpdateTask()) == QDialog::Rejected)
+			{
+				return;
+			}
+		}
+	}
+	Q_ASSERT(ENV.wonkoIndex()->hasUid("net.minecraftforge"));
+
+	VersionSelectDialog vselect(ENV.wonkoIndex()->getList("net.minecraftforge").get(), tr("Select Forge version"), this);
+	//vselect.setExactFilter(BaseVersionList::ParentGameVersionRole, m_inst->currentVersionId());
 	vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft ") +
 						   m_inst->currentVersionId());
 	vselect.setEmptyErrorString(tr("Couldn't load or download the Forge version lists!"));
-	if (vselect.exec() && vselect.selectedVersion())
+	if (vselect.exec() == QDialog::Accepted && vselect.selectedVersion())
 	{
-		ProgressDialog dialog(this);
-		dialog.execWithTask(
-			ForgeInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
-		preselect(m_version->rowCount(QModelIndex())-1);
+		const WonkoVersionPtr wversion = std::dynamic_pointer_cast<WonkoVersion>(vselect.selectedVersion());
+		if (!wversion->isComplete())
+		{
+			if (ProgressDialog(this).execWithTask(wversion->localUpdateTask()) == QDialog::Rejected)
+			{
+				if (ProgressDialog(this).execWithTask(wversion->remoteUpdateTask()) == QDialog::Rejected)
+				{
+					return;
+				}
+			}
+		}
+		m_inst->installWonkoVersion(wversion);
+		preselect(m_version->rowCount(QModelIndex()) - 1);
 	}
 }
 

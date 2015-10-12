@@ -52,7 +52,7 @@ public:
 		PathRole,
 		ArchitectureRole
 	};
-	typedef QList<ModelRoles> RoleList;
+	typedef QList<int> RoleList;
 
 	explicit BaseVersionList(QObject *parent = 0);
 
@@ -80,7 +80,7 @@ public:
 	virtual int columnCount(const QModelIndex &parent) const;
 
 	//! which roles are provided by this version list?
-	virtual RoleList providesRoles();
+	virtual RoleList providesRoles() const;
 
 	/*!
 	 * \brief Finds a version by its descriptor.

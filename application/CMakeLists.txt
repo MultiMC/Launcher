@@ -32,6 +32,9 @@ set(MultiMC_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications
 # paste.ee API key
 set(MultiMC_PASTE_EE_API_KEY "" CACHE STRING "API key you can get from paste.ee when you register an account")
 
+# Root URL for wonko files
+set(MultiMC_WONKO_ROOT_URL "" CACHE STRING "Root URL for wonko stuff")
+
 #### Check the current Git commit
 include(GitFunctions)
 git_run(COMMAND rev-parse HEAD DEFAULT "Unknown" OUTPUT_VAR MultiMC_GIT_COMMIT)
@@ -115,7 +118,7 @@ set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${C
 ################################ FILES ################################
 
 ######## Sources and headers ########
-SET(MULTIMC_SOURCES
+set(MULTIMC_SOURCES
 	# Application base
 	main.cpp
 	MultiMC.h
@@ -204,6 +207,8 @@ SET(MULTIMC_SOURCES
 	pages/global/ProxyPage.h
 	pages/global/PasteEEPage.cpp
 	pages/global/PasteEEPage.h
+	pages/global/WonkoPage.cpp
+	pages/global/WonkoPage.h
 
 	# GUI - dialogs
 	dialogs/AboutDialog.cpp
@@ -295,6 +300,7 @@ SET(MULTIMC_UIS
 	pages/global/MultiMCPage.ui
 	pages/global/ProxyPage.ui
 	pages/global/PasteEEPage.ui
+	pages/global/WonkoPage.ui
 
 	# Dialogs
 	dialogs/CopyInstanceDialog.ui

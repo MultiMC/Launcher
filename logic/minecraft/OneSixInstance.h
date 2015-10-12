@@ -22,12 +22,14 @@
 
 #include "multimc_logic_export.h"
 
+using WonkoVersionPtr = std::shared_ptr<class WonkoVersion>;
+
 class MULTIMC_LOGIC_EXPORT OneSixInstance : public MinecraftInstance
 {
 	Q_OBJECT
 public:
 	explicit OneSixInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString &rootDir);
-	virtual ~OneSixInstance(){};
+	virtual ~OneSixInstance() {}
 
 	virtual void init() override;
 
@@ -78,6 +80,8 @@ public:
 
 	/// get the current full version info
 	std::shared_ptr<MinecraftProfile> getMinecraftProfile() const;
+
+	void installWonkoVersion(const WonkoVersionPtr &version);
 
 	virtual QDir jarmodsPath() const;
 	virtual QDir librariesPath() const;

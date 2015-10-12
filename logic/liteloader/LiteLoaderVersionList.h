@@ -81,7 +81,7 @@ public:
 	virtual int count() const;
 	virtual void sortVersions();
     virtual QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
-    virtual QList< ModelRoles > providesRoles();
+	virtual RoleList providesRoles() const override;
 
 	virtual BaseVersionPtr getLatestStable() const;
 
