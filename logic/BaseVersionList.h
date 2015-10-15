@@ -50,7 +50,8 @@ public:
 		TypeRole,
 		BranchRole,
 		PathRole,
-		ArchitectureRole
+		ArchitectureRole,
+		SortRole
 	};
 	typedef QList<int> RoleList;
 

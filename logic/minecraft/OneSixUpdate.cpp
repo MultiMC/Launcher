@@ -22,10 +22,13 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QDataStream>
+#include <QEventLoop>
 #include <JlCompress.h>
 
 #include "BaseInstance.h"
-#include "minecraft/MinecraftVersionList.h"
+#include "wonko/WonkoVersionList.h"
+#include "wonko/WonkoVersion.h"
+#include "wonko/WonkoIndex.h"
 #include "minecraft/MinecraftProfile.h"
 #include "minecraft/OneSixLibrary.h"
 #include "minecraft/OneSixInstance.h"
@@ -40,6 +43,22 @@ OneSixUpdate::OneSixUpdate(OneSixInstance *inst, QObject *parent) : Task(parent)
 {
 }
 
+bool OneSixUpdate::run(const std::unique_ptr<Task> &task)
+{
+	if (task->isFinished())
+	{
+		return task->successful();
+	}
+	connect(task.get(), &Task::progress, this, &OneSixUpdate::progress);
+	connect(task.get(), &Task::status, this, &OneSixUpdate::setStatus);
+
+	QEventLoop loop;
+	connect(task.get(), &Task::finished, &loop, &QEventLoop::quit);
+	QMetaObject::invokeMethod(task.get(), "start", Qt::QueuedConnection); // < need to wait until the loop is started
+	loop.exec();
+	return task->successful();
+}
+
 void OneSixUpdate::executeTask()
 {
 	// Make directories
@@ -50,39 +69,47 @@ void OneSixUpdate::executeTask()
 		return;
 	}
 
-	// Get a pointer to the version object that corresponds to the instance's version.
-	targetVersion = std::dynamic_pointer_cast<MinecraftVersion>(
-		ENV.getVersion("net.minecraft", m_inst->intendedVersionId()));
+	// step 1: load the index
+	if (!ENV.wonkoIndex()->isLocalLoaded())
+	{
+		run(ENV.wonkoIndex()->localUpdateTask());
+	}
+	if (!ENV.wonkoIndex()->hasUid("net.minecraft") && !ENV.wonkoIndex()->isRemoteLoaded())
+	{
+		run(ENV.wonkoIndex()->remoteUpdateTask());
+	}
+
+	// step 2: load the list
+	WonkoVersionListPtr list = ENV.wonkoIndex()->getList("net.minecraft");
+	if (!list->isLocalLoaded())
+	{
+		if (!run(list->localUpdateTask()) && !run(list->remoteUpdateTask()))
+		{
+			emitFailed(tr("Unable to load versions list for minecraft"));
+			return;
+		}
+	}
+
+	// step 3: load the version
+	targetVersion = list->version(m_inst->intendedVersionId());
 	if (targetVersion == nullptr)
 	{
 		// don't do anything if it was invalid
-		emitFailed(tr("The specified Minecraft version is invalid. Choose a different one."));
+		emitFailed(tr("The specified Minecraft version is invalid (%1). Choose a different one.").arg(m_inst->intendedVersionId()));
 		return;
 	}
-	if (m_inst->providesVersionFile() || !targetVersion->needsUpdate())
-	{
-		qDebug() << "Instance either provides a version file or doesn't need an update.";
-		jarlibStart();
-		return;
-	}
-	versionUpdateTask = std::dynamic_pointer_cast<MinecraftVersionList>(ENV.getVersionList("net.minecraft"))->createUpdateTask(m_inst->intendedVersionId());
-	if (!versionUpdateTask)
-	{
-		qDebug() << "Didn't spawn an update task.";
-		jarlibStart();
-		return;
-	}
-	connect(versionUpdateTask.get(), SIGNAL(succeeded()), SLOT(jarlibStart()));
-	connect(versionUpdateTask.get(), &NetJob::failed, this, &OneSixUpdate::versionUpdateFailed);
-	connect(versionUpdateTask.get(), SIGNAL(progress(qint64, qint64)),
-			SIGNAL(progress(qint64, qint64)));
-	setStatus(tr("Getting the version files from Mojang..."));
-	versionUpdateTask->start();
-}
 
-void OneSixUpdate::versionUpdateFailed(QString reason)
-{
-	emitFailed(reason);
+	if (!targetVersion->isLocalLoaded())
+	{
+		if (!run(targetVersion->localUpdateTask()) && !run(targetVersion->remoteUpdateTask()))
+		{
+			emitFailed(tr("Unable to load minecraft version %1").arg(m_inst->intendedVersionId()));
+			return;
+		}
+	}
+
+	// step 4: start the actual update process
+	jarlibStart();
 }
 
 void OneSixUpdate::assetIndexStart()

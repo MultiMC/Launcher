@@ -36,8 +36,6 @@ public:
 
 private
 slots:
-	void versionUpdateFailed(QString reason);
-
 	void jarlibStart();
 	void jarlibFinished();
 	void jarlibFailed(QString reason);
@@ -58,11 +56,13 @@ private:
 	NetJobPtr legacyDownloadJob;
 
 	/// target version, determined during this task
-	std::shared_ptr<MinecraftVersion> targetVersion;
+	std::shared_ptr<class WonkoVersion> targetVersion;
 	/// the task that is spawned for version updates
 	std::shared_ptr<Task> versionUpdateTask;
 
 	OneSixInstance *m_inst = nullptr;
 	QString jarHashOnEntry;
 	QList<FMLlib> fmlLibsToProcess;
+
+	bool run(const std::unique_ptr<Task> &task);
 };

@@ -4,6 +4,8 @@
 #include <InstanceList.h>
 #include <QDebug>
 
+#include "WonkoGui.h"
+
 int launchMainWindow(MultiMC &app)
 {
 	MainWindow mainWin;
@@ -17,7 +19,7 @@ int launchMainWindow(MultiMC &app)
 
 int launchInstance(MultiMC &app, InstancePtr inst)
 {
-	app.minecraftlist();
+	Wonko::ensureVersionListLoaded("net.minecraft", nullptr);
 	LaunchController launchController;
 	launchController.setInstance(inst);
 	launchController.setOnline(true);

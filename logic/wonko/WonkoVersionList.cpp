@@ -15,7 +15,7 @@ WonkoVersionList::WonkoVersionList(const QString &uid, QObject *parent)
 
 Task *WonkoVersionList::getLoadTask()
 {
-	return remoteUpdateTask();
+	return remoteUpdateTask().release();
 }
 
 bool WonkoVersionList::isLoaded()
@@ -92,13 +92,13 @@ QHash<int, QByteArray> WonkoVersionList::roleNames() const
 	return roles;
 }
 
-Task *WonkoVersionList::remoteUpdateTask()
+std::unique_ptr<Task> WonkoVersionList::remoteUpdateTask()
 {
-	return new WonkoVersionListRemoteLoadTask(this, this);
+	return std::make_unique<WonkoVersionListRemoteLoadTask>(this, this);
 }
-Task *WonkoVersionList::localUpdateTask()
+std::unique_ptr<Task> WonkoVersionList::localUpdateTask()
 {
-	return new WonkoVersionListLocalLoadTask(this, this);
+	return std::make_unique<WonkoVersionListLocalLoadTask>(this, this);
 }
 
 QString WonkoVersionList::localFilename() const

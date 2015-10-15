@@ -1,8 +1,10 @@
 #include "MinecraftInstance.h"
+
+#include <QCoreApplication>
+
 #include <settings/Setting.h>
 #include "settings/SettingsObject.h"
 #include "Env.h"
-#include "minecraft/MinecraftVersionList.h"
 #include <MMCStrings.h>
 #include <pathmatcher/RegexpMatcher.h>
 #include <pathmatcher/MultiMatcher.h>

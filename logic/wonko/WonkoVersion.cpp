@@ -13,7 +13,7 @@ WonkoVersion::WonkoVersion(const QString &uid, const QString &version)
 
 QString WonkoVersion::descriptor()
 {
-	return "";
+	return m_version;
 }
 QString WonkoVersion::name()
 {
@@ -29,13 +29,13 @@ QDateTime WonkoVersion::time() const
 	return QDateTime::fromMSecsSinceEpoch(m_time * 1000, Qt::UTC);
 }
 
-Task *WonkoVersion::remoteUpdateTask()
+std::unique_ptr<Task> WonkoVersion::remoteUpdateTask()
 {
-	return new WonkoVersionRemoteLoadTask(this, this);
+	return std::make_unique<WonkoVersionRemoteLoadTask>(this, this);
 }
-Task *WonkoVersion::localUpdateTask()
+std::unique_ptr<Task> WonkoVersion::localUpdateTask()
 {
-	return new WonkoVersionLocalLoadTask(this, this);
+	return std::make_unique<WonkoVersionLocalLoadTask>(this, this);
 }
 
 void WonkoVersion::merge(const std::shared_ptr<BaseWonkoEntity> &other)

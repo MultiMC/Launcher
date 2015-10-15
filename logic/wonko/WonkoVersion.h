@@ -5,6 +5,7 @@
 
 #include <QVector>
 #include <QStringList>
+#include <QJsonObject>
 #include <memory>
 
 #include "WonkoReference.h"
@@ -45,8 +46,8 @@ public:
 	QVector<QJsonObject> jarMods() const { return m_jarMods; }
 	int order() const { return m_order; }
 
-	Task *remoteUpdateTask() override;
-	Task *localUpdateTask() override;
+	std::unique_ptr<Task> remoteUpdateTask() override;
+	std::unique_ptr<Task> localUpdateTask() override;
 	void merge(const std::shared_ptr<BaseWonkoEntity> &other) override;
 
 	QString localFilename() const override;

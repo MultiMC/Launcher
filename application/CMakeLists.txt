@@ -143,6 +143,8 @@ set(MULTIMC_SOURCES
 	VersionProxyModel.cpp
 	ColorCache.h
 	ColorCache.cpp
+	WonkoGui.h
+	WonkoGui.cpp
 
 	# GUI - windows
 	MainWindow.h

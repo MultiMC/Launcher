@@ -22,7 +22,6 @@
 #include "settings/Setting.h"
 #include "settings/OverrideSetting.h"
 
-#include "minecraft/MinecraftVersionList.h"
 #include "icons/IconList.h"
 #include "FileSystem.h"
 #include "Commandline.h"

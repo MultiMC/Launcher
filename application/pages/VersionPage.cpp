@@ -38,14 +38,13 @@
 #include "minecraft/MinecraftProfile.h"
 #include "auth/MojangAccountList.h"
 #include "minecraft/Mod.h"
-#include "minecraft/MinecraftVersion.h"
-#include "minecraft/MinecraftVersionList.h"
 #include "wonko/WonkoIndex.h"
 #include "wonko/WonkoVersionList.h"
 #include "wonko/WonkoVersion.h"
 #include "icons/IconList.h"
 #include "Env.h"
 #include "Exception.h"
+#include "WonkoGui.h"
 
 QIcon VersionPage::icon() const
 {
@@ -349,18 +348,7 @@ void VersionPage::onGameUpdateError(QString error)
 void VersionPage::attemptResourceInstall(const QString &uid, const QString &name)
 {
 	// TODO forge for pre-installer needs to download the jarmod. this is currently not implemented yet.
-	if (!ENV.wonkoIndex()->isLocalLoaded())
-	{
-		ProgressDialog(this).execWithTask(ENV.wonkoIndex()->localUpdateTask());
-		if (!ENV.wonkoIndex()->hasUid(uid))
-		{
-			if (ProgressDialog(this).execWithTask(ENV.wonkoIndex()->remoteUpdateTask()) == QDialog::Rejected)
-			{
-				return;
-			}
-		}
-	}
-	if (!ENV.wonkoIndex()->hasUid(uid))
+	if (Wonko::ensureVersionListLoaded(uid, this) == nullptr)
 	{
 		QMessageBox::critical(this, tr("Error"), tr("An internal error occured"));
 		return;
@@ -415,15 +403,7 @@ void VersionPage::on_customizeBtn_clicked()
 		return;
 	}
 	//HACK HACK remove, this is dumb
-	auto patch = m_version->versionPatch(version);
-	auto mc = std::dynamic_pointer_cast<MinecraftVersion>(patch);
-	if(mc && mc->needsUpdate())
-	{
-		if(!doUpdate())
-		{
-			return;
-		}
-	}
+	Wonko::ensureVersionLoaded("net.minecraft", m_inst->intendedVersionId(), this);
 	if(!m_version->customize(version))
 	{
 		// TODO: some error box here
@@ -455,15 +435,7 @@ void VersionPage::on_revertBtn_clicked()
 	{
 		return;
 	}
-	auto mcraw = MMC->minecraftlist()->findVersion(m_inst->intendedVersionId());
-	auto mc = std::dynamic_pointer_cast<MinecraftVersion>(mcraw);
-	if(mc && mc->needsUpdate())
-	{
-		if(!doUpdate())
-		{
-			return;
-		}
-	}
+	Wonko::ensureVersionLoaded("net.minecraft", m_inst->intendedVersionId(), this);
 	if(!m_version->revertToBase(version))
 	{
 		// TODO: some error box here

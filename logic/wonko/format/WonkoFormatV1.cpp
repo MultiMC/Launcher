@@ -151,6 +151,7 @@ QJsonObject WonkoFormatV1::serializeVersionInternal(const WonkoVersion *ptr) con
 	obj.insert("+libraries", vectorToJsArray(ptr->libraries()));
 	obj.insert("+jarMods", vectorToJsArray(ptr->jarMods()));
 	obj.insert("order", ptr->order());
+	obj.insert("id", ptr->version());
 
 	return obj;
 }

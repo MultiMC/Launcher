@@ -140,8 +140,8 @@ void WonkoPage::updateCurrentVersionList(const QModelIndex &index)
 
 		if (!list->isLocalLoaded())
 		{
-			Task *task = list->localUpdateTask();
-			connect(task, &Task::finished, this, [this, list]()
+			std::unique_ptr<Task> task = list->localUpdateTask();
+			connect(task.get(), &Task::finished, this, [this, list]()
 			{
 				if (list->count() == 0 && !list->isRemoteLoaded())
 				{
@@ -207,8 +207,8 @@ void WonkoPage::opened()
 {
 	if (!ENV.wonkoIndex()->isLocalLoaded())
 	{
-		Task *task = ENV.wonkoIndex()->localUpdateTask();
-		connect(task, &Task::finished, this, [this]()
+		std::unique_ptr<Task> task = ENV.wonkoIndex()->localUpdateTask();
+		connect(task.get(), &Task::finished, this, [this]()
 		{
 			if (!ENV.wonkoIndex()->isRemoteLoaded())
 			{

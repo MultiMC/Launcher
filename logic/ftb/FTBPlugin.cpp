@@ -5,7 +5,6 @@
 #include <BaseInstance.h>
 #include <icons/IconList.h>
 #include <InstanceList.h>
-#include <minecraft/MinecraftVersionList.h>
 #include <settings/INISettingsObject.h>
 #include <FileSystem.h>
 #include "QDebug"

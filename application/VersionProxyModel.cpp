@@ -11,6 +11,7 @@ public:
 	VersionFilterModel(VersionProxyModel *parent) : QSortFilterProxyModel(parent)
 	{
 		m_parent = parent;
+		setSortRole(BaseVersionList::SortRole);
 	}
 
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -56,6 +57,7 @@ public:
 		}
 		return true;
 	}
+
 private:
 	VersionProxyModel *m_parent;
 };

@@ -26,7 +26,6 @@
 #include "LegacyUpdate.h"
 
 #include "minecraft/LwjglVersionList.h"
-#include "minecraft/MinecraftVersionList.h"
 #include "minecraft/ModList.h"
 #include "minecraft/LegacyInstance.h"
 #include <FileSystem.h>

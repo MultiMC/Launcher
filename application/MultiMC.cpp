@@ -25,7 +25,6 @@
 #include "auth/MojangAccountList.h"
 #include "icons/IconList.h"
 #include "minecraft/LwjglVersionList.h"
-#include "minecraft/MinecraftVersionList.h"
 
 #include "wonko/WonkoIndex.h"
 
@@ -566,16 +565,6 @@ std::shared_ptr<LWJGLVersionList> MultiMC::lwjgllist()
 		ENV.registerVersionList("org.lwjgl.legacy", m_lwjgllist);
 	}
 	return m_lwjgllist;
-}
-
-std::shared_ptr<MinecraftVersionList> MultiMC::minecraftlist()
-{
-	if (!m_minecraftlist)
-	{
-		m_minecraftlist.reset(new MinecraftVersionList());
-		ENV.registerVersionList("net.minecraft", m_minecraftlist);
-	}
-	return m_minecraftlist;
 }
 
 std::shared_ptr<JavaVersionList> MultiMC::javalist()

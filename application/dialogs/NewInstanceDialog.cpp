@@ -17,11 +17,12 @@
 #include "NewInstanceDialog.h"
 #include "ui_NewInstanceDialog.h"
 
-#include <BaseVersion.h>
-#include <icons/IconList.h>
-#include <minecraft/MinecraftVersionList.h>
-#include <tasks/Task.h>
-#include <InstanceList.h>
+#include "BaseVersion.h"
+#include "icons/IconList.h"
+#include "tasks/Task.h"
+#include "InstanceList.h"
+#include "WonkoGui.h"
+#include "wonko/WonkoVersionList.h"
 
 #include "VersionSelectDialog.h"
 #include "ProgressDialog.h"
@@ -62,7 +63,8 @@ NewInstanceDialog::NewInstanceDialog(QWidget *parent)
 	resize(minimumSizeHint());
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 
-	setSelectedVersion(MMC->minecraftlist()->getRecommended());
+	m_versionList = Wonko::ensureVersionListExists("net.minecraft", this);
+	setSelectedVersion(m_versionList->getRecommended());
 	InstIconKey = "default";
 	ui->iconButton->setIcon(ENV.icons()->getIcon(InstIconKey));
 
@@ -193,7 +195,7 @@ BaseVersionPtr NewInstanceDialog::selectedVersion() const
 
 void NewInstanceDialog::on_btnChangeVersion_clicked()
 {
-	VersionSelectDialog vselect(MMC->minecraftlist().get(), tr("Change Minecraft version"),
+	VersionSelectDialog vselect(m_versionList.get(), tr("Change Minecraft version"),
 								this);
 	vselect.exec();
 	if (vselect.result() == QDialog::Accepted)

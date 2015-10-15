@@ -54,6 +54,7 @@ slots:
 private:
 	Ui::NewInstanceDialog *ui;
 
+	std::shared_ptr<class WonkoVersionList> m_versionList;
 	BaseVersionPtr m_selectedVersion;
 	QString InstIconKey;
 	QString originalPlaceholderText;

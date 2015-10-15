@@ -37,6 +37,12 @@ class MinecraftLauncher;
 class BaseProfilerFactory;
 class GroupView;
 class ServerStatus;
+using WonkoVersionPtr = std::shared_ptr<class WonkoVersion>;
+
+namespace Ui
+{
+class MainWindow;
+}
 
 class MainWindow : public QMainWindow
 {
@@ -113,8 +119,6 @@ private slots:
 
 	void on_actionScreenshots_triggered();
 
-	void taskEnd();
-
 	/**
 	 * called when an icon is changed in the icon model.
 	 */
@@ -133,8 +137,6 @@ private slots:
 	void instanceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 	void selectionBad();
-
-	void startTask(Task *task);
 
 	void updateAvailable(GoUpdate::Status status);
 
@@ -160,8 +162,7 @@ private:
 	void updateInstanceToolIcon(QString new_icon);
 	void setSelectedInstanceById(const QString &id);
 
-	void waitForMinecraftVersions();
-	InstancePtr instanceFromVersion(QString instName, QString instGroup, QString instIcon, BaseVersionPtr version);
+	InstancePtr instanceFromVersion(QString instName, QString instGroup, QString instIcon, WonkoVersionPtr version);
 	InstancePtr instanceFromZipPack(QString instName, QString instGroup, QString instIcon, QUrl url);
 	void finalizeInstance(InstancePtr inst);
 	void launch(InstancePtr instance, bool online = true, BaseProfilerFactory *profiler = nullptr);

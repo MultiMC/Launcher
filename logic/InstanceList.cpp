@@ -33,7 +33,7 @@
 //FIXME: this really doesn't belong *here*
 #include "minecraft/OneSixInstance.h"
 #include "minecraft/LegacyInstance.h"
-#include "minecraft/MinecraftVersion.h"
+#include "wonko/WonkoVersion.h"
 #include "settings/INISettingsObject.h"
 #include "ftb/FTBPlugin.h"
 #include "NullInstance.h"
@@ -450,7 +450,7 @@ InstanceList::loadInstance(InstancePtr &inst, const QString &instDir)
 }
 
 InstanceList::InstCreateError
-InstanceList::createInstance(InstancePtr &inst, BaseVersionPtr version, const QString &instDir)
+InstanceList::createInstance(InstancePtr &inst, WonkoVersionPtr version, const QString &instDir)
 {
 	QDir rootDir(instDir);
 
@@ -461,26 +461,19 @@ InstanceList::createInstance(InstancePtr &inst, BaseVersionPtr version, const QS
 		return InstanceList::CantCreateDir;
 	}
 
-	if (!version)
+	if (!version || !version->isComplete())
 	{
 		qCritical() << "Can't create instance for non-existing MC version";
 		return InstanceList::NoSuchVersion;
 	}
 
 	auto instanceSettings = std::make_shared<INISettingsObject>(FS::PathCombine(instDir, "instance.cfg"));
-	instanceSettings->registerSetting("InstanceType", "Legacy");
-
-	auto minecraftVersion = std::dynamic_pointer_cast<MinecraftVersion>(version);
-	if(minecraftVersion)
-	{
-		auto mcVer = std::dynamic_pointer_cast<MinecraftVersion>(version);
-		instanceSettings->set("InstanceType", "OneSix");
-		inst.reset(new OneSixInstance(m_globalSettings, instanceSettings, instDir));
-		inst->setIntendedVersionId(version->descriptor());
-		inst->init();
-		return InstanceList::NoCreateError;
-	}
-	return InstanceList::NoSuchVersion;
+	instanceSettings->registerSetting("InstanceType", "OneSix");
+	inst.reset(new OneSixInstance(m_globalSettings, instanceSettings, instDir));
+	inst->setIntendedVersionId(version->version());
+	inst->init();
+	std::dynamic_pointer_cast<OneSixInstance>(inst)->installWonkoVersion(version);
+	return InstanceList::NoCreateError;
 }
 
 InstanceList::InstCreateError

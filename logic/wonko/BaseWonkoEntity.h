@@ -14,8 +14,8 @@ public:
 
 	using Ptr = std::shared_ptr<BaseWonkoEntity>;
 
-	virtual Task *remoteUpdateTask() = 0;
-	virtual Task *localUpdateTask() = 0;
+	virtual std::unique_ptr<Task> remoteUpdateTask() = 0;
+	virtual std::unique_ptr<Task> localUpdateTask() = 0;
 	virtual void merge(const std::shared_ptr<BaseWonkoEntity> &other) = 0;
 
 	void store() const;

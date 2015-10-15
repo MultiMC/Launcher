@@ -26,6 +26,8 @@
 class BaseInstance;
 class QDir;
 
+using WonkoVersionPtr = std::shared_ptr<class WonkoVersion>;
+
 class MULTIMC_LOGIC_EXPORT InstanceList : public QAbstractListModel
 {
 	Q_OBJECT
@@ -126,7 +128,7 @@ public:
 	 * - InstExists if the given instance directory is already an instance.
 	 * - CantCreateDir if the given instance directory cannot be created.
 	 */
-	InstCreateError createInstance(InstancePtr &inst, BaseVersionPtr version,
+	InstCreateError createInstance(InstancePtr &inst, WonkoVersionPtr version,
 								   const QString &instDir);
 
 	/*!

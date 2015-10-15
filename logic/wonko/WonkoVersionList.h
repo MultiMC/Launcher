@@ -17,9 +17,8 @@ public:
 
 	enum Roles
 	{
-		UidRole = ArchitectureRole + 1,
+		UidRole = Qt::UserRole + 100,
 		TimeRole,
-		SortRole,
 		RequiresRole,
 		WonkoVersionPtrRole
 	};
@@ -34,8 +33,8 @@ public:
 	RoleList providesRoles() const override;
 	QHash<int, QByteArray> roleNames() const override;
 
-	Task *remoteUpdateTask() override;
-	Task *localUpdateTask() override;
+	std::unique_ptr<Task> remoteUpdateTask() override;
+	std::unique_ptr<Task> localUpdateTask() override;
 
 	QString localFilename() const override;
 	QJsonObject serialized() const override;

@@ -29,8 +29,8 @@ public:
 	int columnCount(const QModelIndex &parent) const override;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
-	Task *remoteUpdateTask() override;
-	Task *localUpdateTask() override;
+	std::unique_ptr<Task> remoteUpdateTask() override;
+	std::unique_ptr<Task> localUpdateTask() override;
 
 	QString localFilename() const override { return "index.json"; }
 	QJsonObject serialized() const override;

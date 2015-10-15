@@ -174,8 +174,6 @@ set(LOGIC_SOURCES
 	minecraft/MinecraftInstance.h
 	minecraft/MinecraftVersion.cpp
 	minecraft/MinecraftVersion.h
-	minecraft/MinecraftVersionList.cpp
-	minecraft/MinecraftVersionList.h
 	minecraft/NullProfileStrategy.h
 	minecraft/OneSixLibrary.cpp
 	minecraft/OneSixLibrary.h

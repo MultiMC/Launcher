@@ -18,8 +18,8 @@ slots:
 
 	void test_providesTasks()
 	{
-		QVERIFY(ENV.wonkoIndex()->localUpdateTask());
-		QVERIFY(ENV.wonkoIndex()->remoteUpdateTask());
+		QVERIFY(ENV.wonkoIndex()->localUpdateTask() != nullptr);
+		QVERIFY(ENV.wonkoIndex()->remoteUpdateTask() != nullptr);
 	}
 
 	void test_hasUid_and_getList()
