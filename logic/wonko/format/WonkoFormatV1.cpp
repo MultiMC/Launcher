@@ -80,10 +80,13 @@ BaseWonkoEntity::Ptr WonkoFormatV1::parseVersionInternal(const QJsonObject &obj)
 				ensureString(obj, "mainClass"),
 				ensureString(obj, "appletClass"),
 				ensureString(obj, "assets"),
-				ensureString(obj, "minecraftArguments"),
+				obj.value("minecraftArguments").isString() ?
+					ensureString(obj, "minecraftArguments")
+				  : QStringList(ensureIsArrayOf<QString>(obj, "minecraftArguments").toList()).join(' '),
 				ensureIsArrayOf<QString>(obj, "+tweakers").toList(),
 				ensureIsArrayOf<QJsonObject>(obj, "+libraries"),
-				ensureIsArrayOf<QJsonObject>(obj, "+jarMods")
+				ensureIsArrayOf<QJsonObject>(obj, "+jarMods"),
+				ensureInteger(obj, "order", 99)
 				);
 	return version;
 }
@@ -147,6 +150,7 @@ QJsonObject WonkoFormatV1::serializeVersionInternal(const WonkoVersion *ptr) con
 	obj.insert("+tweakers", QJsonArray::fromStringList(ptr->tweakers()));
 	obj.insert("+libraries", vectorToJsArray(ptr->libraries()));
 	obj.insert("+jarMods", vectorToJsArray(ptr->jarMods()));
+	obj.insert("order", ptr->order());
 
 	return obj;
 }

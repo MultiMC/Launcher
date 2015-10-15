@@ -36,10 +36,6 @@
 #include <QUrl>
 
 #include "minecraft/MinecraftProfile.h"
-#include "forge/ForgeVersionList.h"
-#include "forge/ForgeInstaller.h"
-#include "liteloader/LiteLoaderVersionList.h"
-#include "liteloader/LiteLoaderInstaller.h"
 #include "auth/MojangAccountList.h"
 #include "minecraft/Mod.h"
 #include "minecraft/MinecraftVersion.h"
@@ -285,57 +281,11 @@ int VersionPage::doUpdate()
 
 void VersionPage::on_forgeBtn_clicked()
 {
-	if (!ENV.wonkoIndex()->isLocalLoaded())
-	{
-		ProgressDialog(this).execWithTask(ENV.wonkoIndex()->localUpdateTask());
-		if (!ENV.wonkoIndex()->hasUid("net.minecraftforge"))
-		{
-			if (ProgressDialog(this).execWithTask(ENV.wonkoIndex()->remoteUpdateTask()) == QDialog::Rejected)
-			{
-				return;
-			}
-		}
-	}
-	Q_ASSERT(ENV.wonkoIndex()->hasUid("net.minecraftforge"));
-
-	VersionSelectDialog vselect(ENV.wonkoIndex()->getList("net.minecraftforge").get(), tr("Select Forge version"), this);
-	//vselect.setExactFilter(BaseVersionList::ParentGameVersionRole, m_inst->currentVersionId());
-	vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft ") +
-						   m_inst->currentVersionId());
-	vselect.setEmptyErrorString(tr("Couldn't load or download the Forge version lists!"));
-	if (vselect.exec() == QDialog::Accepted && vselect.selectedVersion())
-	{
-		const WonkoVersionPtr wversion = std::dynamic_pointer_cast<WonkoVersion>(vselect.selectedVersion());
-		if (!wversion->isComplete())
-		{
-			if (ProgressDialog(this).execWithTask(wversion->localUpdateTask()) == QDialog::Rejected)
-			{
-				if (ProgressDialog(this).execWithTask(wversion->remoteUpdateTask()) == QDialog::Rejected)
-				{
-					return;
-				}
-			}
-		}
-		m_inst->installWonkoVersion(wversion);
-		preselect(m_version->rowCount(QModelIndex()) - 1);
-	}
+	attemptResourceInstall("net.minecraftforge", "Forge");
 }
-
 void VersionPage::on_liteloaderBtn_clicked()
 {
-	VersionSelectDialog vselect(MMC->liteloaderlist().get(), tr("Select LiteLoader version"),
-								this);
-	vselect.setExactFilter(BaseVersionList::ParentGameVersionRole, m_inst->currentVersionId());
-	vselect.setEmptyString(tr("No LiteLoader versions are currently available for Minecraft ") +
-						   m_inst->currentVersionId());
-	vselect.setEmptyErrorString(tr("Couldn't load or download the LiteLoader version lists!"));
-	if (vselect.exec() && vselect.selectedVersion())
-	{
-		ProgressDialog dialog(this);
-		dialog.execWithTask(
-			LiteLoaderInstaller().createInstallTask(m_inst, vselect.selectedVersion(), this));
-		preselect(m_version->rowCount(QModelIndex())-1);
-	}
+	attemptResourceInstall("com.mumfrey.liteloader", "LiteLoader");
 }
 
 void VersionPage::versionCurrent(const QModelIndex &current, const QModelIndex &previous)
@@ -394,6 +344,48 @@ void VersionPage::onGameUpdateError(QString error)
 {
 	CustomMessageBox::selectable(this, tr("Error updating instance"), error,
 								 QMessageBox::Warning)->show();
+}
+
+void VersionPage::attemptResourceInstall(const QString &uid, const QString &name)
+{
+	// TODO forge for pre-installer needs to download the jarmod. this is currently not implemented yet.
+	if (!ENV.wonkoIndex()->isLocalLoaded())
+	{
+		ProgressDialog(this).execWithTask(ENV.wonkoIndex()->localUpdateTask());
+		if (!ENV.wonkoIndex()->hasUid(uid))
+		{
+			if (ProgressDialog(this).execWithTask(ENV.wonkoIndex()->remoteUpdateTask()) == QDialog::Rejected)
+			{
+				return;
+			}
+		}
+	}
+	if (!ENV.wonkoIndex()->hasUid(uid))
+	{
+		QMessageBox::critical(this, tr("Error"), tr("An internal error occured"));
+		return;
+	}
+
+	VersionSelectDialog vselect(ENV.wonkoIndex()->getList(uid).get(), tr("Select %1 version").arg(name), this);
+	vselect.setExactFilter(BaseVersionList::ParentGameVersionRole, m_inst->currentVersionId());
+	vselect.setEmptyString(tr("No %1 versions are currently available for Minecraft %2").arg(name, m_inst->currentVersionId()));
+	vselect.setEmptyErrorString(tr("Couldn't load or download the %1 version lists!").arg(name));
+	if (vselect.exec() == QDialog::Accepted && vselect.selectedVersion())
+	{
+		const WonkoVersionPtr wversion = std::dynamic_pointer_cast<WonkoVersion>(vselect.selectedVersion());
+		if (!wversion->isComplete())
+		{
+			if (ProgressDialog(this).execWithTask(wversion->localUpdateTask()) == QDialog::Rejected)
+			{
+				if (ProgressDialog(this).execWithTask(wversion->remoteUpdateTask()) == QDialog::Rejected)
+				{
+					return;
+				}
+			}
+		}
+		m_inst->installWonkoVersion(wversion);
+		preselect(m_version->rowCount(QModelIndex()) - 1);
+	}
 }
 
 ProfilePatchPtr VersionPage::current()

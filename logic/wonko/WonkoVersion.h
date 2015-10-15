@@ -4,6 +4,7 @@
 #include "BaseWonkoEntity.h"
 
 #include <QVector>
+#include <QStringList>
 #include <memory>
 
 #include "WonkoReference.h"
@@ -42,6 +43,7 @@ public:
 	QStringList tweakers() const { return m_tweakers; }
 	QVector<QJsonObject> libraries() const { return m_libraries; }
 	QVector<QJsonObject> jarMods() const { return m_jarMods; }
+	int order() const { return m_order; }
 
 	Task *remoteUpdateTask() override;
 	Task *localUpdateTask() override;
@@ -56,7 +58,8 @@ public: // for usage by format parsers only
 	void setRequires(const QVector<WonkoReference> &requires);
 	void setData(const QString &mainClass, const QString &appletClass, const QString &assets,
 				 const QString &minecraftArguments, const QStringList &tweakers,
-				 const QVector<QJsonObject> &libraries, const QVector<QJsonObject> &jarMods);
+				 const QVector<QJsonObject> &libraries, const QVector<QJsonObject> &jarMods,
+				 const int order);
 
 signals:
 	void typeChanged();
@@ -78,6 +81,7 @@ private: // actual data fields
 	QStringList m_tweakers;
 	QVector<QJsonObject> m_libraries;
 	QVector<QJsonObject> m_jarMods;
+	int m_order;
 };
 
 Q_DECLARE_METATYPE(WonkoVersionPtr)

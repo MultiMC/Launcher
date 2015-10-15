@@ -32,6 +32,7 @@ public:
 
 	QVariant data(const QModelIndex &index, int role) const override;
 	RoleList providesRoles() const override;
+	QHash<int, QByteArray> roleNames() const override;
 
 	Task *remoteUpdateTask() override;
 	Task *localUpdateTask() override;

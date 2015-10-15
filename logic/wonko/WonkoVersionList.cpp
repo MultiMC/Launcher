@@ -82,6 +82,16 @@ BaseVersionList::RoleList WonkoVersionList::providesRoles() const
 				TypeRole, UidRole, TimeRole, RequiresRole, SortRole};
 }
 
+QHash<int, QByteArray> WonkoVersionList::roleNames() const
+{
+	QHash<int, QByteArray> roles = BaseVersionList::roleNames();
+	roles.insert(UidRole, "uid");
+	roles.insert(TimeRole, "time");
+	roles.insert(SortRole, "sort");
+	roles.insert(RequiresRole, "requires");
+	return roles;
+}
+
 Task *WonkoVersionList::remoteUpdateTask()
 {
 	return new WonkoVersionListRemoteLoadTask(this, this);

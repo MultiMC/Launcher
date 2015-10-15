@@ -18,8 +18,6 @@ class InstanceList;
 class MojangAccountList;
 class IconList;
 class QNetworkAccessManager;
-class ForgeVersionList;
-class LiteLoaderVersionList;
 class JavaVersionList;
 class UpdateChecker;
 class BaseProfilerFactory;
@@ -77,8 +75,6 @@ public:
 
 	std::shared_ptr<MinecraftVersionList> minecraftlist();
 	std::shared_ptr<LWJGLVersionList> lwjgllist();
-	std::shared_ptr<ForgeVersionList> forgelist();
-	std::shared_ptr<LiteLoaderVersionList> liteloaderlist();
 	std::shared_ptr<JavaVersionList> javalist();
 
 	// APPLICATION ONLY
@@ -164,8 +160,6 @@ private:
 	std::shared_ptr<UpdateChecker> m_updateChecker;
 	std::shared_ptr<MojangAccountList> m_accounts;
 	std::shared_ptr<LWJGLVersionList> m_lwjgllist;
-	std::shared_ptr<ForgeVersionList> m_forgelist;
-	std::shared_ptr<LiteLoaderVersionList> m_liteloaderlist;
 	std::shared_ptr<MinecraftVersionList> m_minecraftlist;
 	std::shared_ptr<JavaVersionList> m_javalist;
 	std::shared_ptr<TranslationDownloader> m_translationChecker;

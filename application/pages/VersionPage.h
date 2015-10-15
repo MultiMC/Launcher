@@ -90,4 +90,5 @@ public slots:
 
 private slots:
 	void onGameUpdateError(QString error);
+	void attemptResourceInstall(const QString &uid, const QString &name);
 };

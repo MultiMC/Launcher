@@ -78,6 +78,7 @@ public:
 	virtual QVariant data(const QModelIndex &index, int role) const;
 	virtual int rowCount(const QModelIndex &parent) const;
 	virtual int columnCount(const QModelIndex &parent) const;
+	virtual QHash<int, QByteArray> roleNames() const override;
 
 	//! which roles are provided by this version list?
 	virtual RoleList providesRoles() const;

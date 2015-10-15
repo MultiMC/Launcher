@@ -1,11 +1,11 @@
 #include "OneSixFTBInstance.h"
 #include "FTBProfileStrategy.h"
 
+#include <QJsonArray>
+
 #include "minecraft/MinecraftProfile.h"
 #include "minecraft/OneSixLibrary.h"
 #include "tasks/SequentialTask.h"
-#include "forge/ForgeInstaller.h"
-#include "forge/ForgeVersionList.h"
 #include <settings/INISettingsObject.h>
 #include <FileSystem.h>
 

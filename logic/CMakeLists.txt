@@ -272,25 +272,11 @@ set(LOGIC_SOURCES
 	minecraft/AssetsUtils.cpp
 
 	# Forge and all things forge related
-	forge/ForgeVersion.h
-	forge/ForgeVersion.cpp
-	forge/ForgeVersionList.h
-	forge/ForgeVersionList.cpp
 	forge/ForgeMirror.h
 	forge/ForgeMirrors.h
 	forge/ForgeMirrors.cpp
 	forge/ForgeXzDownload.h
 	forge/ForgeXzDownload.cpp
-	forge/LegacyForge.h
-	forge/LegacyForge.cpp
-	forge/ForgeInstaller.h
-	forge/ForgeInstaller.cpp
-
-	# Liteloader and related things
-	liteloader/LiteLoaderInstaller.h
-	liteloader/LiteLoaderInstaller.cpp
-	liteloader/LiteLoaderVersionList.h
-	liteloader/LiteLoaderVersionList.cpp
 
 	# Translations
 	trans/TranslationDownloader.h

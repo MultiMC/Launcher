@@ -26,9 +26,6 @@
 #include "icons/IconList.h"
 #include "minecraft/LwjglVersionList.h"
 #include "minecraft/MinecraftVersionList.h"
-#include "liteloader/LiteLoaderVersionList.h"
-
-#include "forge/ForgeVersionList.h"
 
 #include "wonko/WonkoIndex.h"
 
@@ -569,26 +566,6 @@ std::shared_ptr<LWJGLVersionList> MultiMC::lwjgllist()
 		ENV.registerVersionList("org.lwjgl.legacy", m_lwjgllist);
 	}
 	return m_lwjgllist;
-}
-
-std::shared_ptr<ForgeVersionList> MultiMC::forgelist()
-{
-	if (!m_forgelist)
-	{
-		m_forgelist.reset(new ForgeVersionList());
-		ENV.registerVersionList("net.minecraftforge", m_forgelist);
-	}
-	return m_forgelist;
-}
-
-std::shared_ptr<LiteLoaderVersionList> MultiMC::liteloaderlist()
-{
-	if (!m_liteloaderlist)
-	{
-		m_liteloaderlist.reset(new LiteLoaderVersionList());
-		ENV.registerVersionList("com.mumfrey.liteloader", m_liteloaderlist);
-	}
-	return m_liteloaderlist;
 }
 
 std::shared_ptr<MinecraftVersionList> MultiMC::minecraftlist()
