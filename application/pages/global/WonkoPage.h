@@ -9,6 +9,7 @@ class WonkoPage;
 }
 
 class QSortFilterProxyModel;
+class VersionProxyModel;
 
 class WonkoPage : public QWidget, public BasePage
 {
@@ -34,7 +35,8 @@ private slots:
 private:
 	Ui::WonkoPage *ui;
 	QSortFilterProxyModel *m_fileProxy;
-	QSortFilterProxyModel *m_versionProxy;
+	QSortFilterProxyModel *m_filterProxy;
+	VersionProxyModel *m_versionProxy;
 
 	void updateVersion();
 };

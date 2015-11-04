@@ -1079,7 +1079,7 @@ InstancePtr MainWindow::instanceFromVersion(QString instName, QString instGroup,
 {
 	InstancePtr newInstance;
 
-	Wonko::ensureVersionLoaded(version->uid(), version->version(), this);
+	Wonko::ensureVersionLoaded(version->uid(), version->version(), this, true);
 
 	QString instancesDir = MMC->settings()->get("InstanceDir").toString();
 	QString instDirName = FS::DirNameFromString(instName, instancesDir);

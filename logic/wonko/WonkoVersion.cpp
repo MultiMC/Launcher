@@ -56,7 +56,7 @@ void WonkoVersion::merge(const std::shared_ptr<BaseWonkoEntity> &other)
 
 	setData(version->m_mainClass, version->m_appletClass, version->m_assets,
 			version->m_minecraftArguments, version->m_tweakers,
-			version->m_libraries, version->m_jarMods, version->m_order);
+			version->m_libraries, version->m_jarMods, version->m_order, version->m_traits);
 }
 
 QString WonkoVersion::localFilename() const
@@ -86,7 +86,7 @@ void WonkoVersion::setRequires(const QVector<WonkoReference> &requires)
 
 void WonkoVersion::setData(const QString &mainClass, const QString &appletClass, const QString &assets,
 						   const QString &minecraftArguments, const QStringList &tweakers,
-						   const QVector<QJsonObject> &libraries, const QVector<QJsonObject> &jarMods, const int order)
+						   const QVector<QJsonObject> &libraries, const QVector<QJsonObject> &jarMods, const int order, const QStringList &traits)
 {
 	m_mainClass = mainClass;
 	m_appletClass = appletClass;
@@ -96,4 +96,5 @@ void WonkoVersion::setData(const QString &mainClass, const QString &appletClass,
 	m_libraries = libraries;
 	m_jarMods = jarMods;
 	m_order = order;
+	m_traits = traits;
 }

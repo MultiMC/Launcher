@@ -29,6 +29,9 @@ public:
 	int count() const override;
 	void sortVersions() override;
 
+	BaseVersionPtr getLatestStable() const override;
+	BaseVersionPtr getRecommended() const override;
+
 	QVariant data(const QModelIndex &index, int role) const override;
 	RoleList providesRoles() const override;
 	QHash<int, QByteArray> roleNames() const override;
@@ -65,7 +68,10 @@ private:
 	QString m_uid;
 	QString m_name;
 
-	void connectVersion(const int row, const WonkoVersionPtr &version);
+	WonkoVersionPtr m_recommended;
+	WonkoVersionPtr m_latest;
+
+	void setupAddedVersion(const int row, const WonkoVersionPtr &version);
 };
 
 Q_DECLARE_METATYPE(WonkoVersionListPtr)

@@ -55,17 +55,17 @@ WonkoVersionPtr Wonko::ensureVersionExists(const QString &uid, const QString &ve
 	}
 	return list->version(version);
 }
-WonkoVersionPtr Wonko::ensureVersionLoaded(const QString &uid, const QString &version, QWidget *parent)
+WonkoVersionPtr Wonko::ensureVersionLoaded(const QString &uid, const QString &version, QWidget *parent, const bool alwaysUpdate)
 {
 	WonkoVersionPtr vptr = ensureVersionExists(uid, version, parent);
 	if (!vptr)
 	{
 		return nullptr;
 	}
-	if (!vptr->isLocalLoaded())
+	if (!vptr->isLocalLoaded() || alwaysUpdate)
 	{
 		ProgressDialog(parent).execWithTask(vptr->localUpdateTask());
-		if (!vptr->isLocalLoaded())
+		if (!vptr->isLocalLoaded() || alwaysUpdate)
 		{
 			ProgressDialog(parent).execWithTask(vptr->remoteUpdateTask());
 		}

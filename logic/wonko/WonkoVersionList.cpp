@@ -72,6 +72,8 @@ QVariant WonkoVersionList::data(const QModelIndex &index, int role) const
 	case RequiresRole: return QVariant::fromValue(version->requires());
 	case SortRole: return version->rawTime();
 	case WonkoVersionPtrRole: return QVariant::fromValue(version);
+	case RecommendedRole: return version == getRecommended();
+	case LatestRole: return version == getLatestStable();
 	default: return QVariant();
 	}
 }
@@ -79,7 +81,8 @@ QVariant WonkoVersionList::data(const QModelIndex &index, int role) const
 BaseVersionList::RoleList WonkoVersionList::providesRoles() const
 {
 	return {VersionPointerRole, VersionRole, VersionIdRole, ParentGameVersionRole,
-				TypeRole, UidRole, TimeRole, RequiresRole, SortRole};
+				TypeRole, UidRole, TimeRole, RequiresRole, SortRole,
+				RecommendedRole, LatestRole};
 }
 
 QHash<int, QByteArray> WonkoVersionList::roleNames() const
@@ -133,6 +136,19 @@ void WonkoVersionList::setVersions(const QVector<WonkoVersionPtr> &versions)
 {
 	beginResetModel();
 	m_versions = versions;
+	std::sort(m_versions.begin(), m_versions.end(), [](const WonkoVersionPtr &a, const WonkoVersionPtr &b)
+	{
+		return a->rawTime() > b->rawTime();
+	});
+	for (int i = 0; i < m_versions.size(); ++i)
+	{
+		m_lookup.insert(m_versions.at(i)->version(), m_versions.at(i));
+		setupAddedVersion(i, m_versions.at(i));
+	}
+
+	m_latest = m_versions.isEmpty() ? nullptr : m_versions.first();
+	auto recommendedIt = std::find_if(m_versions.constBegin(), m_versions.constEnd(), [](const WonkoVersionPtr &ptr) { return ptr->type() == "release"; });
+	m_recommended = recommendedIt == m_versions.constEnd() ? nullptr : *recommendedIt;
 	endResetModel();
 }
 
@@ -146,14 +162,7 @@ void WonkoVersionList::merge(const BaseWonkoEntity::Ptr &other)
 
 	if (m_versions.isEmpty())
 	{
-		beginResetModel();
-		m_versions = list->m_versions;
-		for (int i = 0; i < m_versions.size(); ++i)
-		{
-			m_lookup.insert(m_versions.at(i)->version(), m_versions.at(i));
-			connectVersion(i, m_versions.at(i));
-		}
-		endResetModel();
+		setVersions(list->m_versions);
 	}
 	else
 	{
@@ -166,18 +175,39 @@ void WonkoVersionList::merge(const BaseWonkoEntity::Ptr &other)
 			else
 			{
 				beginInsertRows(QModelIndex(), m_versions.size(), m_versions.size());
-				connectVersion(m_versions.size(), version);
+				setupAddedVersion(m_versions.size(), version);
 				m_versions.append(version);
 				m_lookup.insert(version->uid(), version);
 				endInsertRows();
+
+				if (!m_latest || version->rawTime() > m_latest->rawTime())
+				{
+					m_latest = version;
+					emit dataChanged(index(0), index(m_versions.size() - 1), QVector<int>() << LatestRole);
+				}
+				if (!m_recommended || (version->type() == "release" && version->rawTime() > m_recommended->rawTime()))
+				{
+					m_recommended = version;
+					emit dataChanged(index(0), index(m_versions.size() - 1), QVector<int>() << RecommendedRole);
+				}
 			}
 		}
 	}
 }
 
-void WonkoVersionList::connectVersion(const int row, const WonkoVersionPtr &version)
+void WonkoVersionList::setupAddedVersion(const int row, const WonkoVersionPtr &version)
 {
 	connect(version.get(), &WonkoVersion::requiresChanged, this, [this, row]() { emit dataChanged(index(row), index(row), QVector<int>() << RequiresRole); });
 	connect(version.get(), &WonkoVersion::timeChanged, this, [this, row]() { emit dataChanged(index(row), index(row), QVector<int>() << TimeRole << SortRole); });
 	connect(version.get(), &WonkoVersion::typeChanged, this, [this, row]() { emit dataChanged(index(row), index(row), QVector<int>() << TypeRole); });
+}
+
+BaseVersionPtr WonkoVersionList::getLatestStable() const
+{
+	return m_latest;
+}
+
+BaseVersionPtr WonkoVersionList::getRecommended() const
+{
+	return m_recommended;
 }

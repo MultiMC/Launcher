@@ -6,6 +6,7 @@
 #include <QRegularExpression>
 
 #include "dialogs/ProgressDialog.h"
+#include "VersionProxyModel.h"
 
 #include "wonko/WonkoIndex.h"
 #include "wonko/WonkoVersionList.h"
@@ -48,17 +49,20 @@ WonkoPage::WonkoPage(QWidget *parent) :
 	m_fileProxy->setSourceModel(ENV.wonkoIndex().get());
 	ui->indexView->setModel(m_fileProxy);
 
-	m_versionProxy = new QSortFilterProxyModel(this);
-	m_versionProxy->setSortRole(WonkoVersionList::SortRole);
-	m_versionProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	m_versionProxy->setFilterRole(Qt::DisplayRole);
-	m_versionProxy->setFilterKeyColumn(0);
-	m_versionProxy->sort(0, Qt::DescendingOrder);
-	ui->versionsView->setModel(m_versionProxy);
+	m_filterProxy = new QSortFilterProxyModel(this);
+	m_filterProxy->setSortRole(WonkoVersionList::SortRole);
+	m_filterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	m_filterProxy->setFilterRole(Qt::DisplayRole);
+	m_filterProxy->setFilterKeyColumn(0);
+	m_filterProxy->sort(0, Qt::DescendingOrder);
+	ui->versionsView->setModel(m_filterProxy);
+
+	m_versionProxy = new VersionProxyModel(this);
+	m_filterProxy->setSourceModel(m_versionProxy);
 
 	connect(ui->indexView->selectionModel(), &QItemSelectionModel::currentChanged, this, &WonkoPage::updateCurrentVersionList);
 	connect(ui->versionsView->selectionModel(), &QItemSelectionModel::currentChanged, this, &WonkoPage::updateVersion);
-	connect(m_versionProxy, &QSortFilterProxyModel::dataChanged, this, &WonkoPage::versionListDataChanged);
+	connect(m_filterProxy, &QSortFilterProxyModel::dataChanged, this, &WonkoPage::versionListDataChanged);
 
 	updateCurrentVersionList(QModelIndex());
 	updateVersion();
@@ -114,13 +118,13 @@ void WonkoPage::on_versionSearchEdit_textChanged(const QString &search)
 {
 	if (search.isEmpty())
 	{
-		m_versionProxy->setFilterFixedString(QString());
+		m_filterProxy->setFilterFixedString(QString());
 	}
 	else
 	{
 		QStringList parts = search.split(' ');
 		std::transform(parts.begin(), parts.end(), parts.begin(), &QRegularExpression::escape);
-		m_versionProxy->setFilterRegExp(".*" + parts.join(".*") + ".*");
+		m_filterProxy->setFilterRegExp(".*" + parts.join(".*") + ".*");
 	}
 }
 
@@ -174,7 +178,8 @@ void WonkoPage::versionListDataChanged(const QModelIndex &tl, const QModelIndex 
 
 void WonkoPage::updateVersion()
 {
-	WonkoVersionPtr version = ui->versionsView->currentIndex().data(WonkoVersionList::WonkoVersionPtrRole).value<WonkoVersionPtr>();
+	WonkoVersionPtr version = std::dynamic_pointer_cast<WonkoVersion>(
+				ui->versionsView->currentIndex().data(WonkoVersionList::VersionPointerRole).value<BaseVersionPtr>());
 	if (version)
 	{
 		ui->refreshVersionBtn->setEnabled(true);

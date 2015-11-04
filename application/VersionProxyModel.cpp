@@ -12,6 +12,7 @@ public:
 	{
 		m_parent = parent;
 		setSortRole(BaseVersionList::SortRole);
+		sort(0, Qt::DescendingOrder);
 	}
 
 	bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const

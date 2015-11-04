@@ -18,5 +18,5 @@ WonkoVersionListPtr ensureVersionListExists(const QString &uid, QWidget *parent)
 /// Ensures that the given uid exists and is loaded, either from the local cache or remotely. Returns nullptr if it doesn't exist or couldn't be loaded.
 WonkoVersionListPtr ensureVersionListLoaded(const QString &uid, QWidget *parent);
 WonkoVersionPtr ensureVersionExists(const QString &uid, const QString &version, QWidget *parent);
-WonkoVersionPtr ensureVersionLoaded(const QString &uid, const QString &version, QWidget *parent);
+WonkoVersionPtr ensureVersionLoaded(const QString &uid, const QString &version, QWidget *parent, const bool alwaysUpdate = false);
 }

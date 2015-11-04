@@ -86,7 +86,8 @@ BaseWonkoEntity::Ptr WonkoFormatV1::parseVersionInternal(const QJsonObject &obj)
 				ensureIsArrayOf<QString>(obj, "+tweakers").toList(),
 				ensureIsArrayOf<QJsonObject>(obj, "+libraries"),
 				ensureIsArrayOf<QJsonObject>(obj, "+jarMods"),
-				ensureInteger(obj, "order", 99)
+				ensureInteger(obj, "order", 99),
+				ensureIsArrayOf<QString>(obj, "+traits").toList()
 				);
 	return version;
 }
@@ -152,6 +153,11 @@ QJsonObject WonkoFormatV1::serializeVersionInternal(const WonkoVersion *ptr) con
 	obj.insert("+jarMods", vectorToJsArray(ptr->jarMods()));
 	obj.insert("order", ptr->order());
 	obj.insert("id", ptr->version());
+
+	if (!ptr->traits().isEmpty())
+	{
+		obj.insert("+traits", QJsonArray::fromStringList(ptr->traits()));
+	}
 
 	return obj;
 }

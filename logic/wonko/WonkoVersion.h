@@ -45,6 +45,7 @@ public:
 	QVector<QJsonObject> libraries() const { return m_libraries; }
 	QVector<QJsonObject> jarMods() const { return m_jarMods; }
 	int order() const { return m_order; }
+	QStringList traits() const { return m_traits; }
 
 	std::unique_ptr<Task> remoteUpdateTask() override;
 	std::unique_ptr<Task> localUpdateTask() override;
@@ -60,7 +61,7 @@ public: // for usage by format parsers only
 	void setData(const QString &mainClass, const QString &appletClass, const QString &assets,
 				 const QString &minecraftArguments, const QStringList &tweakers,
 				 const QVector<QJsonObject> &libraries, const QVector<QJsonObject> &jarMods,
-				 const int order);
+				 const int order, const QStringList &traits);
 
 signals:
 	void typeChanged();
@@ -83,6 +84,7 @@ private: // actual data fields
 	QVector<QJsonObject> m_libraries;
 	QVector<QJsonObject> m_jarMods;
 	int m_order;
+	QStringList m_traits;
 };
 
 Q_DECLARE_METATYPE(WonkoVersionPtr)
