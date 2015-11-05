@@ -449,4 +449,28 @@ bool createShortCut(QString location, QString dest, QStringList args, QString na
 	return false;
 #endif
 }
+
+void FS::copyFile(const QString &src, const QString &dest)
+{
+	FS::ensureFilePathExists(dest);
+	QFile f(src);
+	if (!f.copy(dest))
+	{
+		throw FileSystemException(QObject::tr("Unable to copy %1 to %2: %3").arg(src, dest, f.errorString()));
+	}
+}
+
+void FS::remove(const QString &fileOrFolder)
+{
+	const QFileInfo info(fileOrFolder);
+	if (!info.exists())
+	{
+		throw FileSystemException(QObject::tr("Unable to remove %1: No such file or directory").arg(info.absoluteFilePath()));
+	}
+
+	QFile f(info.absoluteFilePath());
+	if (!f.remove())
+	{
+		throw FileSystemException(QObject::tr("Unable to remove %1: %2").arg(f.fileName(), f.errorString()));
+	}
 }

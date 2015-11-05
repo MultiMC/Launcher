@@ -38,6 +38,7 @@ public:
 	// queries
 	bool hasUid(const QString &uid) const;
 	WonkoVersionListPtr getList(const QString &uid) const;
+	WonkoVersionListPtr getListGuaranteed(const QString &uid) const;
 
 	QVector<WonkoVersionListPtr> lists() const { return m_lists; }
 

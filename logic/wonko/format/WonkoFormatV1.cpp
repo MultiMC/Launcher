@@ -5,6 +5,7 @@
 #include "wonko/WonkoIndex.h"
 #include "wonko/WonkoVersion.h"
 #include "wonko/WonkoVersionList.h"
+#include "Env.h"
 
 using namespace Json;
 
@@ -127,6 +128,9 @@ QJsonObject WonkoFormatV1::serializeVersionInternal(const WonkoVersion *ptr) con
 	QJsonObject obj = serializeCommonVersion(ptr);
 	obj.insert("formatVersion", 1);
 	obj.insert("uid", ptr->uid());
+	obj.insert("fileId", ptr->uid()); // FIXME: remove
+	// TODO: the name should be looked up in the UI based on the uid
+	obj.insert("name", ENV.wonkoIndex()->getListGuaranteed(ptr->uid())->name());
 	auto insertUnlessNull = [&obj](const QString &key, const QString &value)
 	{
 		if (!value.isNull())
@@ -152,7 +156,12 @@ QJsonObject WonkoFormatV1::serializeVersionInternal(const WonkoVersion *ptr) con
 	obj.insert("+libraries", vectorToJsArray(ptr->libraries()));
 	obj.insert("+jarMods", vectorToJsArray(ptr->jarMods()));
 	obj.insert("order", ptr->order());
-	obj.insert("id", ptr->version());
+
+	// FIXME: Hack hack hack. Remove once the main jar is a normal library in the format
+	if (ptr->uid() == "net.minecraft")
+	{
+		obj.insert("id", ptr->version());
+	}
 
 	if (!ptr->traits().isEmpty())
 	{

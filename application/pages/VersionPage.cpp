@@ -347,7 +347,6 @@ void VersionPage::onGameUpdateError(QString error)
 
 void VersionPage::attemptResourceInstall(const QString &uid, const QString &name)
 {
-	// TODO forge for pre-installer needs to download the jarmod. this is currently not implemented yet.
 	if (Wonko::ensureVersionListLoaded(uid, this) == nullptr)
 	{
 		QMessageBox::critical(this, tr("Error"), tr("An internal error occured"));
@@ -361,15 +360,13 @@ void VersionPage::attemptResourceInstall(const QString &uid, const QString &name
 	if (vselect.exec() == QDialog::Accepted && vselect.selectedVersion())
 	{
 		const WonkoVersionPtr wversion = std::dynamic_pointer_cast<WonkoVersion>(vselect.selectedVersion());
-		if (!wversion->isComplete())
+		if (!wversion->isLocalLoaded() && ProgressDialog(this).execWithTask(wversion->localUpdateTask()) == QDialog::Rejected)
 		{
-			if (ProgressDialog(this).execWithTask(wversion->localUpdateTask()) == QDialog::Rejected)
-			{
-				if (ProgressDialog(this).execWithTask(wversion->remoteUpdateTask()) == QDialog::Rejected)
-				{
-					return;
-				}
-			}
+			return;
+		}
+		if (!wversion->isRemoteLoaded() && ProgressDialog(this).execWithTask(wversion->remoteUpdateTask()) == QDialog::Rejected)
+		{
+			return;
 		}
 		m_inst->installWonkoVersion(wversion);
 		preselect(m_version->rowCount(QModelIndex()) - 1);

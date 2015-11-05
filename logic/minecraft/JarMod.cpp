@@ -1,5 +1,6 @@
 #include "JarMod.h"
 #include "Json.h"
+
 using namespace Json;
 
 JarmodPtr Jarmod::fromJson(const QJsonObject &libObj, const QString &filename, const QString &originalName)
@@ -10,8 +11,9 @@ JarmodPtr Jarmod::fromJson(const QJsonObject &libObj, const QString &filename, c
 		throw JSONValidationError(filename +
 								  "contains a jarmod that doesn't have a 'name' field");
 	}
-	out->name = libObj.value("name").toString();
-	out->originalName = libObj.value("originalName").toString();
+	out->name = requireString(libObj, "name");
+	out->originalName = requireString(libObj, "originalName");
+	out->absoluteUrl = ensureString(libObj, "MMC-absoluteUrl");
 	return out;
 }
 
@@ -19,9 +21,7 @@ QJsonObject Jarmod::toJson()
 {
 	QJsonObject out;
 	writeString(out, "name", name);
-	if(!originalName.isEmpty())
-	{
-		writeString(out, "originalName", originalName);
-	}
+	writeString(out, "originalName", originalName);
+	writeString(out, "MMC-absoluteUrl", absoluteUrl);
 	return out;
 }

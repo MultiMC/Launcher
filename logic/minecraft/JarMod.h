@@ -13,4 +13,5 @@ public: /* methods */
 public: /* data */
 	QString name;
 	QString originalName;
+	QString absoluteUrl;
 };

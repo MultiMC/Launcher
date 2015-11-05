@@ -126,4 +126,9 @@ MULTIMC_LOGIC_EXPORT QString getDesktopDir();
 // call it *name* and assign it the icon *icon*
 // return true if operation succeeded
 MULTIMC_LOGIC_EXPORT bool createShortCut(QString location, QString dest, QStringList args, QString name, QString iconLocation);
+
+/// Both src and dest should be paths to files, not folders
+MULTIMC_LOGIC_EXPORT void copyFile(const QString &src, const QString &dest);
+
+MULTIMC_LOGIC_EXPORT void remove(const QString &fileOrFolder);
 }
