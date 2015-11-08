@@ -1,8 +1,4 @@
 #include "minecraft/OneSixProfileStrategy.h"
-#include "minecraft/VersionBuildError.h"
-#include "minecraft/OneSixInstance.h"
-#include "Env.h"
-#include <FileSystem.h>
 
 #include <QDir>
 #include <QUuid>
@@ -11,6 +7,14 @@
 #include <QSaveFile>
 #include <QResource>
 
+#include "minecraft/VersionBuildError.h"
+#include "minecraft/OneSixInstance.h"
+#include "wonko/WonkoIndex.h"
+#include "wonko/WonkoVersionList.h"
+#include "Env.h"
+#include <FileSystem.h>
+
+
 OneSixProfileStrategy::OneSixProfileStrategy(OneSixInstance* instance)
 {
 	m_instance = instance;
@@ -18,9 +22,9 @@ OneSixProfileStrategy::OneSixProfileStrategy(OneSixInstance* instance)
 
 void OneSixProfileStrategy::upgradeDeprecatedFiles()
 {
-	auto versionJsonPath = FS::PathCombine(m_instance->instanceRoot(), "version.json");
-	auto customJsonPath = FS::PathCombine(m_instance->instanceRoot(), "custom.json");
-	auto mcJson = FS::PathCombine(m_instance->instanceRoot(), "patches" , "net.minecraft.json");
+	const QString versionJsonPath = FS::PathCombine(m_instance->instanceRoot(), "version.json");
+	const QString customJsonPath = FS::PathCombine(m_instance->instanceRoot(), "custom.json");
+	const QString mcJson = FS::PathCombine(m_instance->instanceRoot(), "patches" , "net.minecraft.json");
 
 	QString sourceFile;
 	QString renameFile;
@@ -77,65 +81,7 @@ void OneSixProfileStrategy::upgradeDeprecatedFiles()
 	}
 }
 
-void OneSixProfileStrategy::loadDefaultBuiltinPatches()
-{
-	{
-		auto mcJson = FS::PathCombine(m_instance->instanceRoot(), "patches" , "net.minecraft.json");
-		// load up the base minecraft patch
-		ProfilePatchPtr minecraftPatch;
-		if(QFile::exists(mcJson))
-		{
-			auto file = ProfileUtils::parseJsonFile(QFileInfo(mcJson), false);
-			if(file->version.isEmpty())
-			{
-				file->version = m_instance->intendedVersionId();
-			}
-			file->setVanilla(false);
-			file->setRevertible(true);
-			minecraftPatch = std::dynamic_pointer_cast<ProfilePatch>(file);
-		}
-		else
-		{
-			auto mcversion = ENV.getVersion("net.minecraft", m_instance->intendedVersionId());
-			minecraftPatch = std::dynamic_pointer_cast<ProfilePatch>(mcversion);
-		}
-		if (!minecraftPatch)
-		{
-			throw VersionIncomplete("net.minecraft");
-		}
-		minecraftPatch->setOrder(-2);
-		profile->appendPatch(minecraftPatch);
-	}
-
-	{
-		auto lwjglJson = FS::PathCombine(m_instance->instanceRoot(), "patches" , "org.lwjgl.json");
-		ProfilePatchPtr lwjglPatch;
-		if(QFile::exists(lwjglJson))
-		{
-			auto file = ProfileUtils::parseJsonFile(QFileInfo(lwjglJson), false);
-			file->setVanilla(false);
-			file->setRevertible(true);
-			lwjglPatch = std::dynamic_pointer_cast<ProfilePatch>(file);
-		}
-		else
-		{
-			// NOTE: this is obviously fake, is fixed in unstable.
-			QResource LWJGL(":/versions/LWJGL/2.9.1.json");
-			auto lwjgl = ProfileUtils::parseJsonFile(LWJGL.absoluteFilePath(), false);
-			lwjgl->setVanilla(true);
-			lwjgl->setCustomizable(true);
-			lwjglPatch = std::dynamic_pointer_cast<ProfilePatch>(lwjgl);
-		}
-		if (!lwjglPatch)
-		{
-			throw VersionIncomplete("org.lwjgl");
-		}
-		lwjglPatch->setOrder(-1);
-		profile->appendPatch(lwjglPatch);
-	}
-}
-
-void OneSixProfileStrategy::loadUserPatches()
+void OneSixProfileStrategy::loadPatches()
 {
 	// load all patches, put into map for ordering, apply in the right order
 	ProfileUtils::PatchOrder userOrder;
@@ -145,11 +91,6 @@ void OneSixProfileStrategy::loadUserPatches()
 	// first, load things by sort order.
 	for (auto id : userOrder)
 	{
-		// ignore builtins
-		if (id == "net.minecraft")
-			continue;
-		if (id == "org.lwjgl")
-			continue;
 		// parse the file
 		QString filename = patches.absoluteFilePath(id + ".json");
 		QFileInfo finfo(filename);
@@ -177,11 +118,6 @@ void OneSixProfileStrategy::loadUserPatches()
 		// parse the file
 		qDebug() << "Reading" << info.fileName();
 		auto file = ProfileUtils::parseJsonFile(info, true);
-		// ignore builtins
-		if (file->fileId == "net.minecraft")
-			continue;
-		if (file->fileId == "org.lwjgl")
-			continue;
 		// do not load what we already loaded in the first pass
 		if (userOrder.contains(file->fileId))
 			continue;
@@ -208,8 +144,7 @@ void OneSixProfileStrategy::load()
 	profile->clearPatches();
 
 	upgradeDeprecatedFiles();
-	loadDefaultBuiltinPatches();
-	loadUserPatches();
+	loadPatches();
 
 	profile->finalize();
 }

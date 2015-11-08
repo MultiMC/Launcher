@@ -473,6 +473,7 @@ InstanceList::createInstance(InstancePtr &inst, WonkoVersionPtr version, const Q
 	inst->setIntendedVersionId(version->version());
 	inst->init();
 	std::dynamic_pointer_cast<OneSixInstance>(inst)->installWonkoVersion(version);
+	std::dynamic_pointer_cast<OneSixInstance>(inst)->reloadProfile();
 	return InstanceList::NoCreateError;
 }
 

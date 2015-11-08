@@ -360,15 +360,16 @@ void VersionPage::attemptResourceInstall(const QString &uid, const QString &name
 	if (vselect.exec() == QDialog::Accepted && vselect.selectedVersion())
 	{
 		const WonkoVersionPtr wversion = std::dynamic_pointer_cast<WonkoVersion>(vselect.selectedVersion());
-		if (!wversion->isLocalLoaded() && ProgressDialog(this).execWithTask(wversion->localUpdateTask()) == QDialog::Rejected)
+		if (!wversion->isLocalLoaded())
 		{
-			return;
+			ProgressDialog(this).execWithTask(wversion->localUpdateTask());
 		}
 		if (!wversion->isRemoteLoaded() && ProgressDialog(this).execWithTask(wversion->remoteUpdateTask()) == QDialog::Rejected)
 		{
 			return;
 		}
 		m_inst->installWonkoVersion(wversion);
+		m_inst->reloadProfile();
 		preselect(m_version->rowCount(QModelIndex()) - 1);
 	}
 }

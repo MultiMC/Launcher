@@ -427,46 +427,64 @@ void VersionFile::applyTo(MinecraftProfile *version)
 
 			// otherwise apply differences, if allowed
 			auto existingLibrary = version->libraries.at(index);
-			const Version addedVersion(addedLibrary->version());
-			const Version existingVersion(existingLibrary->version());
-			// if the existing version is a hard dependency we can either use it or
-			// fail, but we can't change it
-			if (existingLibrary->dependType == OneSixLibrary::Hard)
+
+			// FIXME: HACK: should be removed at some point, needs somewhat cleaner format
+			// for platform specific natives we keep both
+			if (existingLibrary->m_native_classifiers.isEmpty() || addedLibrary->m_native_classifiers.isEmpty()
+					|| existingLibrary->m_rules == addedLibrary->m_rules)
 			{
-				// we need a higher version, or we're hard to and the versions aren't
-				// equal
-				if (addedVersion > existingVersion ||
-					(addedLibrary->dependType == RawLibrary::Hard && addedVersion != existingVersion))
+				const Version addedVersion(addedLibrary->version());
+				const Version existingVersion(existingLibrary->version());
+				// if the existing version is a hard dependency we can either use it or
+				// fail, but we can't change it
+				if (existingLibrary->dependType == OneSixLibrary::Hard)
 				{
-					throw VersionBuildError(QObject::tr(
-						"Error resolving library dependencies between %1 and %2 in %3.")
-												.arg(existingLibrary->rawName(),
-													 addedLibrary->rawName(), filename));
-				}
-				else
-				{
-					// the library is already existing, so we don't have to do anything
-				}
-			}
-			else if (existingLibrary->dependType == OneSixLibrary::Soft)
-			{
-				// if we are higher it means we should update
-				if (addedVersion > existingVersion)
-				{
-					auto library = OneSixLibrary::fromRawLibrary(addedLibrary);
-					version->libraries.replace(index, library);
-				}
-				else
-				{
-					// our version is smaller than the existing version, but we require
-					// it: fail
-					if (addedLibrary->dependType == RawLibrary::Hard)
+					// we need a higher version, or we're hard to and the versions aren't
+					// equal
+					if (addedVersion > existingVersion ||
+							(addedLibrary->dependType == RawLibrary::Hard && addedVersion != existingVersion))
 					{
 						throw VersionBuildError(QObject::tr(
-							"Error resolving library dependencies between %1 and %2 in %3.")
+													"Error resolving library dependencies between %1 and %2 in %3.")
+												.arg(existingLibrary->rawName(),
+													 addedLibrary->rawName(), filename));
+					}
+					else
+					{
+						// the library is already existing, so we don't have to do anything
+					}
+				}
+				else if (existingLibrary->dependType == OneSixLibrary::Soft)
+				{
+					// if we are higher it means we should update
+					if (addedVersion > existingVersion)
+					{
+						auto library = OneSixLibrary::fromRawLibrary(addedLibrary);
+						version->libraries.replace(index, library);
+					}
+					else
+					{
+						// our version is smaller than the existing version, but we require
+						// it: fail
+						if (addedLibrary->dependType == RawLibrary::Hard)
+						{
+							throw VersionBuildError(QObject::tr(
+														"Error resolving library dependencies between %1 and %2 in %3.")
 													.arg(existingLibrary->rawName(),
 														 addedLibrary->rawName(), filename));
+						}
 					}
+				}
+			}
+			else
+			{
+				if (addedLibrary->insertType == RawLibrary::Append)
+				{
+					version->libraries.append(OneSixLibrary::fromRawLibrary(addedLibrary));
+				}
+				else
+				{
+					version->libraries.prepend(OneSixLibrary::fromRawLibrary(addedLibrary));
 				}
 			}
 			break;

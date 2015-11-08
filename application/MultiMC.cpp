@@ -50,6 +50,7 @@
 #include "handlers/WebResourceHandler.h"
 
 #include "ftb/FTBPlugin.h"
+#include "WonkoGui.h"
 
 #include <Commandline.h>
 #include <FileSystem.h>
@@ -237,10 +238,6 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 	m_accounts->setListFilePath("accounts.json", true);
 	m_accounts->loadList();
 
-	ENV.setWonkoRootUrl(BuildConfig.WONKO_ROOT_URL);
-	// FIXME: move elsewhere
-	ENV.wonkoIndex()->localUpdateTask()->start();
-
 	// init the http meta cache
 	ENV.initHttpMetaCache(rootPath, staticDataPath);
 
@@ -277,6 +274,13 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 	{
 		tool->registerSettings(m_settings);
 	}
+
+	ENV.setWonkoRootUrl(BuildConfig.WONKO_ROOT_URL);
+	// FIXME: move elsewhere, this is so bad that it hurts
+	Wonko::ensureIndexLoaded(nullptr);
+	Wonko::ensureVersionListLoaded("net.minecraft", nullptr);
+	Wonko::ensureVersionListLoaded("org.lwjgl", nullptr);
+	Wonko::ensureVersionLoaded("org.lwjgl", "2.9.1", nullptr);
 
 	connect(this, SIGNAL(aboutToQuit()), SLOT(onExit()));
 	m_status = MultiMC::Initialized;

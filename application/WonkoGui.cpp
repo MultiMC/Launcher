@@ -53,7 +53,7 @@ WonkoVersionPtr Wonko::ensureVersionExists(const QString &uid, const QString &ve
 	{
 		return nullptr;
 	}
-	return list->version(version);
+	return list->getVersion(version);
 }
 WonkoVersionPtr Wonko::ensureVersionLoaded(const QString &uid, const QString &version, QWidget *parent, const UpdateType update)
 {

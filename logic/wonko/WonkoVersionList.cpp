@@ -1,3 +1,18 @@
+/* Copyright 2015 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "WonkoVersionList.h"
 
 #include <QDateTime>
@@ -8,14 +23,65 @@
 #include "format/WonkoFormat.h"
 #include "WonkoReference.h"
 
+class WVLLoadTask : public Task
+{
+	Q_OBJECT
+public:
+	explicit WVLLoadTask(WonkoVersionList *list, QObject *parent = nullptr)
+		: Task(parent), m_list(list)
+	{
+	}
+
+	bool canAbort() const override
+	{
+		return !m_currentTask || m_currentTask->canAbort();
+	}
+	bool abort() override
+	{
+		return m_currentTask->abort();
+	}
+
+private:
+	void executeTask() override
+	{
+		if (!m_list->isLocalLoaded())
+		{
+			m_currentTask = m_list->localUpdateTask();
+			connect(m_currentTask.get(), &Task::succeeded, this, &WVLLoadTask::next);
+		}
+		else
+		{
+			m_currentTask = m_list->remoteUpdateTask();
+			connect(m_currentTask.get(), &Task::succeeded, this, &WVLLoadTask::emitSucceeded);
+		}
+		connect(m_currentTask.get(), &Task::status, this, &WVLLoadTask::setStatus);
+		connect(m_currentTask.get(), &Task::progress, this, &WVLLoadTask::setProgress);
+		connect(m_currentTask.get(), &Task::failed, this, &WVLLoadTask::emitFailed);
+		m_currentTask->start();
+	}
+
+	void next()
+	{
+		m_currentTask = m_list->remoteUpdateTask();
+		connect(m_currentTask.get(), &Task::status, this, &WVLLoadTask::setStatus);
+		connect(m_currentTask.get(), &Task::progress, this, &WVLLoadTask::setProgress);
+		connect(m_currentTask.get(), &Task::succeeded, this, &WVLLoadTask::emitSucceeded);
+		m_currentTask->start();
+	}
+
+	WonkoVersionList *m_list;
+	std::unique_ptr<Task> m_currentTask;
+};
+
 WonkoVersionList::WonkoVersionList(const QString &uid, QObject *parent)
 	: BaseVersionList(parent), m_uid(uid)
 {
+	setObjectName("Wonko version list: " + uid);
 }
 
 Task *WonkoVersionList::getLoadTask()
 {
-	return remoteUpdateTask().release();
+	return new WVLLoadTask(this);
 }
 
 bool WonkoVersionList::isLoaded()
@@ -34,10 +100,12 @@ int WonkoVersionList::count() const
 
 void WonkoVersionList::sortVersions()
 {
+	beginResetModel();
 	std::sort(m_versions.begin(), m_versions.end(), [](const WonkoVersionPtr &a, const WonkoVersionPtr &b)
 	{
 		return *a.get() < *b.get();
 	});
+	endResetModel();
 }
 
 QVariant WonkoVersionList::data(const QModelIndex &index, int role) const
@@ -57,9 +125,10 @@ QVariant WonkoVersionList::data(const QModelIndex &index, int role) const
 		return version->version();
 	case ParentGameVersionRole:
 	{
-		const auto it = std::find_if(version->requires().begin(), version->requires().end(),
+		const auto end = version->requires().end();
+		const auto it = std::find_if(version->requires().begin(), end,
 									 [](const WonkoReference &ref) { return ref.uid() == "net.minecraft"; });
-		if (it != version->requires().end())
+		if (it != end)
 		{
 			return (*it).version();
 		}
@@ -122,7 +191,7 @@ bool WonkoVersionList::hasVersion(const QString &version) const
 {
 	return m_lookup.contains(version);
 }
-WonkoVersionPtr WonkoVersionList::version(const QString &version) const
+WonkoVersionPtr WonkoVersionList::getVersion(const QString &version) const
 {
 	return m_lookup.value(version);
 }
@@ -206,8 +275,9 @@ BaseVersionPtr WonkoVersionList::getLatestStable() const
 {
 	return m_latest;
 }
-
 BaseVersionPtr WonkoVersionList::getRecommended() const
 {
 	return m_recommended;
 }
+
+#include "WonkoVersionList.moc"

@@ -485,7 +485,6 @@ void OneSixInstance::installWonkoVersion(const WonkoVersionPtr &version)
 	FS::ensureFolderPathExists(QDir(instanceRoot()).absoluteFilePath("patches"));
 	Q_ASSERT(QFile::copy(Wonko::localWonkoDir().absoluteFilePath(version->localFilename()),
 				 QDir(instanceRoot()).absoluteFilePath("patches/%1.json").arg(version->uid())));
-	reloadProfile();
 }
 
 QDir OneSixInstance::librariesPath() const

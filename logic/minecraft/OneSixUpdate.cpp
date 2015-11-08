@@ -69,43 +69,67 @@ void OneSixUpdate::executeTask()
 		return;
 	}
 
-	// step 1: load the index
-	if (!ENV.wonkoIndex()->isLocalLoaded())
+	// this is here for backwards compatibility, old instances don't have the minecraft/lwjgl patches
+	// included normally, so we need to add them if they aren't already there.
+	// it should be possible to just remove the next two lines and the following if after a year or two,
+	// and instead have an error message telling people to do something
+	const bool hasMinecraft = !!m_inst->getMinecraftProfile()->versionPatch("net.minecraft");
+	const bool hasLwjgl = !!m_inst->getMinecraftProfile()->versionPatch("org.lwjgl");
+	if (!hasMinecraft || !hasLwjgl)
 	{
-		run(ENV.wonkoIndex()->localUpdateTask());
-	}
-	if (!ENV.wonkoIndex()->hasUid("net.minecraft") && !ENV.wonkoIndex()->isRemoteLoaded())
-	{
-		run(ENV.wonkoIndex()->remoteUpdateTask());
-	}
-
-	// step 2: load the list
-	WonkoVersionListPtr list = ENV.wonkoIndex()->getList("net.minecraft");
-	if (!list->isLocalLoaded())
-	{
-		if (!run(list->localUpdateTask()) && !run(list->remoteUpdateTask()))
+		if (!ENV.wonkoIndex()->isLocalLoaded())
 		{
-			emitFailed(tr("Unable to load versions list for minecraft"));
-			return;
+			run(ENV.wonkoIndex()->localUpdateTask());
 		}
-	}
-
-	// step 3: load the version
-	targetVersion = list->version(m_inst->intendedVersionId());
-	if (targetVersion == nullptr)
-	{
-		// don't do anything if it was invalid
-		emitFailed(tr("The specified Minecraft version is invalid (%1). Choose a different one.").arg(m_inst->intendedVersionId()));
-		return;
-	}
-
-	if (!targetVersion->isLocalLoaded())
-	{
-		if (!run(targetVersion->localUpdateTask()) && !run(targetVersion->remoteUpdateTask()))
+		if ((!ENV.wonkoIndex()->hasUid("net.minecraft") || !ENV.wonkoIndex()->hasUid("org.lwjgl")) && !ENV.wonkoIndex()->isRemoteLoaded())
 		{
-			emitFailed(tr("Unable to load minecraft version %1").arg(m_inst->intendedVersionId()));
-			return;
+			run(ENV.wonkoIndex()->remoteUpdateTask());
 		}
+
+		if (!hasMinecraft)
+		{
+			WonkoVersionListPtr mcList = ENV.wonkoIndex()->getList("net.minecraft");
+			if (!mcList->isLocalLoaded())
+			{
+				if (!run(mcList->localUpdateTask()) && !run(mcList->remoteUpdateTask()))
+				{
+					emitFailed(tr("Unable to load versions list for Minecraft"));
+					return;
+				}
+			}
+			WonkoVersionPtr version = mcList->getVersion(m_inst->intendedVersionId());
+			if (!version->isLocalLoaded())
+			{
+				if (!run(version->localUpdateTask()) && !run(version->remoteUpdateTask()))
+				{
+					emitFailed(tr("Unable to load the wanted version of Minecraft"));
+				}
+			}
+			m_inst->installWonkoVersion(version);
+		}
+		if (!hasLwjgl)
+		{
+			WonkoVersionListPtr lwjglList = ENV.wonkoIndex()->getList("org.lwjgl");
+			if (!lwjglList->isLocalLoaded())
+			{
+				if (!run(lwjglList->localUpdateTask()) && !run(lwjglList->remoteUpdateTask()))
+				{
+					emitFailed(tr("Unable to load versions list for LWJGL"));
+					return;
+				}
+			}
+			WonkoVersionPtr version = lwjglList->getVersion("2.9.1");
+			if (!version->isLocalLoaded())
+			{
+				if (!run(version->localUpdateTask()) && !run(version->remoteUpdateTask()))
+				{
+					emitFailed(tr("Unable to load the default version of LWJGL"));
+				}
+			}
+			m_inst->installWonkoVersion(version);
+		}
+
+		m_inst->reloadProfile();
 	}
 
 	// step 4: start the actual update process
