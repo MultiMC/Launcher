@@ -450,7 +450,7 @@ bool createShortCut(QString location, QString dest, QStringList args, QString na
 #endif
 }
 
-void FS::copyFile(const QString &src, const QString &dest)
+void copyFile(const QString &src, const QString &dest)
 {
 	FS::ensureFilePathExists(dest);
 	QFile f(src);
@@ -460,7 +460,7 @@ void FS::copyFile(const QString &src, const QString &dest)
 	}
 }
 
-void FS::remove(const QString &fileOrFolder)
+void remove(const QString &fileOrFolder)
 {
 	const QFileInfo info(fileOrFolder);
 	if (!info.exists())
@@ -473,4 +473,6 @@ void FS::remove(const QString &fileOrFolder)
 	{
 		throw FileSystemException(QObject::tr("Unable to remove %1: %2").arg(f.fileName(), f.errorString()));
 	}
+}
+
 }
