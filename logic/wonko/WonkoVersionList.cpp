@@ -151,7 +151,7 @@ BaseVersionList::RoleList WonkoVersionList::providesRoles() const
 {
 	return {VersionPointerRole, VersionRole, VersionIdRole, ParentGameVersionRole,
 				TypeRole, UidRole, TimeRole, RequiresRole, SortRole,
-				RecommendedRole, LatestRole};
+				RecommendedRole, LatestRole, WonkoVersionPtrRole};
 }
 
 QHash<int, QByteArray> WonkoVersionList::roleNames() const

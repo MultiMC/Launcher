@@ -69,17 +69,17 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 
 	auto readString = [root](const QString &key, QString &variable)
 	{
-		if (root.contains(key))
+		if (root.contains(key) && !root.value(key).isNull())
 		{
-			variable = requireString(root.value(key));
+			variable = requireString(root, key);
 		}
 	};
 
 	auto readStringRet = [root](const QString &key) -> QString
 	{
-		if (root.contains(key))
+		if (root.contains(key) && !root.value(key).isNull())
 		{
-			return requireString(root.value(key));
+			return requireString(root, key);
 		}
 		return QString();
 	};
@@ -89,7 +89,14 @@ VersionFilePtr VersionFile::fromJson(const QJsonDocument &doc, const QString &fi
 	readString("mainClass", out->mainClass);
 	readString("appletClass", out->appletClass);
 	readString("processArguments", out->processArguments);
-	readString("minecraftArguments", out->overwriteMinecraftArguments);
+	if (root.value("minecraftArguments").isArray())
+	{
+		out->overwriteMinecraftArguments = QStringList(requireIsArrayOf<QString>(root, "minecraftArguments").toList()).join(' ');
+	}
+	else
+	{
+		readString("minecraftArguments", out->overwriteMinecraftArguments);
+	}
 	readString("+minecraftArguments", out->addMinecraftArguments);
 	readString("-minecraftArguments", out->removeMinecraftArguments);
 	readString("type", out->type);

@@ -129,7 +129,15 @@ void OneSixUpdate::executeTask()
 			m_inst->installWonkoVersion(version);
 		}
 
-		m_inst->reloadProfile();
+		try
+		{
+			m_inst->reloadProfile();
+		}
+		catch (Exception &e)
+		{
+			emitFailed(e.cause());
+			return;
+		}
 	}
 
 	// step 4: start the actual update process

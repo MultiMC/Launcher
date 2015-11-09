@@ -49,7 +49,7 @@ static WonkoVersionPtr parseCommonVersion(const QString &uid, const QJsonObject 
 	version->setRequires(requires);
 	return version;
 }
-static QJsonObject serializeCommonVersion(const WonkoVersion *version)
+static void serializeCommonVersion(const WonkoVersion *version, QJsonObject &obj)
 {
 	QJsonArray requires;
 	for (const WonkoReference &ref : version->requires())
@@ -67,13 +67,10 @@ static QJsonObject serializeCommonVersion(const WonkoVersion *version)
 		}
 	}
 
-	const QJsonObject obj = {
-		{"version", version->version()},
-		{"type", version->type()},
-		{"time", version->time().toString(Qt::ISODate)},
-		{"requires", requires}
-	};
-	return obj;
+	obj.insert("version", version->version());
+	obj.insert("type", version->type());
+	obj.insert("time", version->time().toString(Qt::ISODate));
+	obj.insert("requires", requires);
 }
 
 BaseWonkoEntity::Ptr WonkoFormatV1::parseIndexInternal(const QJsonObject &obj) const
@@ -92,19 +89,9 @@ BaseWonkoEntity::Ptr WonkoFormatV1::parseIndexInternal(const QJsonObject &obj) c
 BaseWonkoEntity::Ptr WonkoFormatV1::parseVersionInternal(const QJsonObject &obj) const
 {
 	WonkoVersionPtr version = parseCommonVersion(requireString(obj, "uid"), obj);
-	version->setData(
-				ensureString(obj, "mainClass"),
-				ensureString(obj, "appletClass"),
-				ensureString(obj, "assets"),
-				obj.value("minecraftArguments").isString() ?
-					ensureString(obj, "minecraftArguments")
-				  : QStringList(ensureIsArrayOf<QString>(obj, "minecraftArguments").toList()).join(' '),
-				ensureIsArrayOf<QString>(obj, "+tweakers").toList(),
-				ensureIsArrayOf<QJsonObject>(obj, "+libraries"),
-				ensureIsArrayOf<QJsonObject>(obj, "+jarMods"),
-				ensureInteger(obj, "order", 99),
-				ensureIsArrayOf<QString>(obj, "+traits").toList()
-				);
+	version->setData(VersionFile::fromJson(QJsonDocument(obj),
+										   QString("%1/%2.json").arg(version->uid(), version->version()),
+										   obj.contains("order")));
 	return version;
 }
 BaseWonkoEntity::Ptr WonkoFormatV1::parseVersionListInternal(const QJsonObject &obj) const
@@ -140,48 +127,12 @@ QJsonObject WonkoFormatV1::serializeIndexInternal(const WonkoIndex *ptr) const
 }
 QJsonObject WonkoFormatV1::serializeVersionInternal(const WonkoVersion *ptr) const
 {
-	QJsonObject obj = serializeCommonVersion(ptr);
+	QJsonObject obj = ptr->data()->toJson(true).object();
+	serializeCommonVersion(ptr, obj);
 	obj.insert("formatVersion", 1);
 	obj.insert("uid", ptr->uid());
-	obj.insert("fileId", ptr->uid()); // FIXME: remove
 	// TODO: the name should be looked up in the UI based on the uid
 	obj.insert("name", ENV.wonkoIndex()->getListGuaranteed(ptr->uid())->name());
-	auto insertUnlessNull = [&obj](const QString &key, const QString &value)
-	{
-		if (!value.isNull())
-		{
-			obj.insert(key, value);
-		}
-	};
-	auto vectorToJsArray = [](const QVector<QJsonObject> &vector)
-	{
-		QJsonArray array;
-		for (const QJsonObject &o : vector)
-		{
-			array.append(o);
-		}
-		return array;
-	};
-
-	insertUnlessNull("mainClass", ptr->mainClass());
-	insertUnlessNull("appletClass", ptr->appletClass());
-	insertUnlessNull("assets", ptr->assets());
-	insertUnlessNull("minecraftArguments", ptr->minecraftArguments());
-	obj.insert("+tweakers", QJsonArray::fromStringList(ptr->tweakers()));
-	obj.insert("+libraries", vectorToJsArray(ptr->libraries()));
-	obj.insert("+jarMods", vectorToJsArray(ptr->jarMods()));
-	obj.insert("order", ptr->order());
-
-	// FIXME: Hack hack hack. Remove once the main jar is a normal library in the format
-	if (ptr->uid() == "net.minecraft")
-	{
-		obj.insert("id", ptr->version());
-	}
-
-	if (!ptr->traits().isEmpty())
-	{
-		obj.insert("+traits", QJsonArray::fromStringList(ptr->traits()));
-	}
 
 	return obj;
 }
@@ -190,7 +141,9 @@ QJsonObject WonkoFormatV1::serializeVersionListInternal(const WonkoVersionList *
 	QJsonArray versions;
 	for (const WonkoVersionPtr &version : ptr->versions())
 	{
-		versions.append(serializeCommonVersion(version.get()));
+		QJsonObject obj;
+		serializeCommonVersion(version.get(), obj);
+		versions.append(obj);
 	}
 	return QJsonObject({
 						   {"formatVersion", 10},
