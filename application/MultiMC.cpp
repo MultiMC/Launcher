@@ -172,8 +172,7 @@ MultiMC::MultiMC(int &argc, char **argv, bool test_mode) : QApplication(argc, ar
 
 // static data paths... mostly just for translations
 #ifdef Q_OS_LINUX
-	QDir foo(FS::PathCombine(binPath, ".."));
-	staticDataPath = foo.absolutePath();
+	staticDataPath = dataPath;
 #elif defined(Q_OS_WIN32)
 	staticDataPath = binPath;
 #elif defined(Q_OS_MAC)
