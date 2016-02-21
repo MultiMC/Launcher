@@ -35,7 +35,5 @@ Suspected cause:
 Logs/Screenshots:
 ---
 
-
 Additional Info:
 ---
-
