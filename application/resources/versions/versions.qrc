@@ -2,6 +2,6 @@
 <RCC version="1.0">
     <qresource prefix="/versions">
 		<!-- LWJGL -->
-		<file>LWJGL/2.9.1.json</file>
+		<file>LWJGL/2.9.4-nightly-20150209</file>
     </qresource>
 </RCC>
