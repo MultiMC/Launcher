@@ -120,7 +120,7 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
     - If you do this you'll need to add that directory (the default being `C:\OpenSSL-Win32\bin`) to your PATH system variable (Google how to do this, or use this guide for Java: http://www.java.com/en/download/help/path.xml).
 
 ### Installing CMake
-1. Run the CMake installer,
+1. Run the CMake installer
 2. It's easiest if you choose to add CMake to the PATH for all users,
     - If you don't choose to do this, remember where you installed CMake.
 
@@ -141,7 +141,13 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
     - Test OpenSSL by making an instance and trying to log in. If Qt Creator couldn't find OpenSSL during the CMake stage, login will fail and you'll get an error.
 
 **These build instructions worked for me (Drayshak) on a fresh Windows 8 x64 Professional install. If they don't work for you, let us know on IRC ([Esper/#MultiMC](http://webchat.esper.net/?nick=&channels=MultiMC))!**
-
+### Compile from command line on Windows
+1. If you installed Qt with the web installer, there should be a shortcut called `Qt 5.4 for Desktop (MinGW 4.9 32-bit)` in the Start menu on Windows 7 and 10. Best way to find it is to search for it.
+2. Once that is open, change into your user directory, and clone MultiMC by doing `git clone --recursive https://github.com/MultiMC/MultiMC5.git`, and change directory to the folder you cloned to.
+3. Make a build directory, and change directory to the directory and do `cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=C:\Path\that\makes\sense\for\you`. By default, it will install to C:\Program Files (x86), which you might not want, if you want a local installation. If you want to install it to that directory, make sure to run the command window as Administrator.
+3. Do `mingw32-make -jX`, where X is the number of cores your CPU has.
+4. Now to wait for it to compile. This could take some time. Hopefully it compiles properly.
+4. Run the command `mingw32-make install`, and it should install MultiMC.
 # OS X
 
 ### Install prerequisites:
