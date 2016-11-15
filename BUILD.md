@@ -120,7 +120,7 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
     - If you do this you'll need to add that directory (the default being `C:\OpenSSL-Win32\bin`) to your PATH system variable (Google how to do this, or use this guide for Java: http://www.java.com/en/download/help/path.xml).
 
 ### Installing CMake
-1. Run the CMake installer
+1. Run the CMake installer,
 2. It's easiest if you choose to add CMake to the PATH for all users,
     - If you don't choose to do this, remember where you installed CMake.
 
