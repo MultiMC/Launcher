@@ -149,6 +149,7 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
 4. Now to wait for it to compile. This could take some time. Hopefully it compiles properly.
 5. Run the command `mingw32-make install`, and it should install MultiMC.
 6. In most cases, whenever compiling, the OpenSSL dll's aren't put into the directory to where MultiMC installs, meaning you cannot log in. The best way to fix this is just to do `copy C:\OpenSSL-Win32\*.dll C:\Where\you\installed\MultiMC\to`. This should copy the required OpenSSL dll's to log in.
+
 # OS X
 
 ### Install prerequisites:
