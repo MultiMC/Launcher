@@ -49,16 +49,25 @@ void LauncherPartLaunch::executeTask()
 	QString wrapperCommand = instance->getWrapperCommand();
 	if(!wrapperCommand.isEmpty())
 	{
-		auto realWrapperCommand = QStandardPaths::findExecutable(wrapperCommand);
+		auto realWrapperCommand = QStandardPaths::findExecutable(wrapperCommand.left(wrapperCommand.indexOf(" ")));
 		if (realWrapperCommand.isEmpty())
 		{
-			QString reason = tr("The wrapper command \"%1\" couldn't be found.").arg(wrapperCommand);
+			QString reason = tr("The wrapper command \"%1\" couldn't be found.").arg(wrapperCommand.left(wrapperCommand.indexOf(" ")));
 			emit logLine(reason, MessageLevel::Fatal);
 			emitFailed(reason);
 			return;
 		}
 		emit logLine("Wrapper command is:\n" + wrapperCommand + "\n\n", MessageLevel::MultiMC);
 		args.prepend(javaPath);
+		if(wrapperCommand.contains(" "))
+		{
+			QStringList wrapperList = wrapperCommand.split(" ");
+			QString command = wrapperList.first();
+			wrapperList.removeFirst();
+			wrapperList << args;
+			m_process.start(command, wrapperList);
+			return;
+		}
 		m_process.start(wrapperCommand, args);
 	}
 	else
