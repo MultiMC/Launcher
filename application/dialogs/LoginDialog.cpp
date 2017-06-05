@@ -79,6 +79,7 @@ void LoginDialog::onTaskFailed(const QString &reason)
 	// Re-enable user-interaction
 	setUserInputsEnabled(true);
 	ui->progressBar->setVisible(false);
+	QDialog::accept();
 }
 
 void LoginDialog::onTaskSucceeded()
