@@ -30,6 +30,7 @@
 #include "onesix/OneSixVersionFormat.h"
 #include "MojangVersionFormat.h"
 #include <FileSystem.h>
+#include <Version.h>
 
 static const char * localVersionCache = "versions/versions.dat";
 
@@ -289,18 +290,18 @@ void MinecraftVersionList::loadMojangList(QJsonDocument jsonDoc, VersionSource s
 		// OneSix or Legacy. use filter to determine type
 		if (versionTypeStr == "release")
 		{
-			if(versionID.startsWith("1.13"))
+			if(Version(versionID) >= Version("1.13"))
 			{
-				qCritical() << "Ignoring" << versionID
+				qCritical() << "Ignoring release" << versionID
 						 << "because it is too new and not compatible.";
 				continue;
 			}
 		}
 		else if (versionTypeStr == "snapshot") // It's a snapshot... yay
 		{
-			if(mcVersion->m_releaseTime.currentSecsSinceEpoch() >= 1508942630)
+			if(mcVersion->m_releaseTime >= timeFromS3Time("2017-10-25T14:43:50+00:00"))
 			{
-				qCritical() << "Ignoring" << versionID
+				qCritical() << "Ignoring snapshot" << versionID
 						 << "because it is too new and not compatible.";
 				continue;
 			}
@@ -320,8 +321,6 @@ void MinecraftVersionList::loadMojangList(QJsonDocument jsonDoc, VersionSource s
 		mcVersion->m_type = versionTypeStr;
 		qDebug() << "Loaded version" << versionID << "from"
 					<< ((source == VersionSource::Remote) ? "remote" : "local") << "version list.";
-		qDebug() << "Loaded version timestamp: " << mcVersion->m_releaseTime;
-		tempList.append(mcVersion);
 	}
 	updateListData(tempList);
 	if(source == VersionSource::Remote)
