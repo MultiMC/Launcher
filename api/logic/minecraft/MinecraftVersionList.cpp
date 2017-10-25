@@ -289,9 +289,21 @@ void MinecraftVersionList::loadMojangList(QJsonDocument jsonDoc, VersionSource s
 		// OneSix or Legacy. use filter to determine type
 		if (versionTypeStr == "release")
 		{
+			if(versionID.startsWith("1.13"))
+			{
+				qCritical() << "Ignoring" << versionID
+						 << "because it is too new and not compatible.";
+				continue;
+			}
 		}
 		else if (versionTypeStr == "snapshot") // It's a snapshot... yay
 		{
+			if(mcVersion->m_releaseTime.currentSecsSinceEpoch() >= 1508942630)
+			{
+				qCritical() << "Ignoring" << versionID
+						 << "because it is too new and not compatible.";
+				continue;
+			}
 		}
 		else if (versionTypeStr == "old_alpha")
 		{
@@ -308,6 +320,7 @@ void MinecraftVersionList::loadMojangList(QJsonDocument jsonDoc, VersionSource s
 		mcVersion->m_type = versionTypeStr;
 		qDebug() << "Loaded version" << versionID << "from"
 					<< ((source == VersionSource::Remote) ? "remote" : "local") << "version list.";
+		qDebug() << "Loaded version timestamp: " << mcVersion->m_releaseTime;
 		tempList.append(mcVersion);
 	}
 	updateListData(tempList);

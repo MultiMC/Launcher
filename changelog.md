@@ -1,6 +1,18 @@
-# MultiMC 0.5.1
+# MultiMC 0.5.2
 
-## Improvements
+## Internals
+
+- GH-2026: New Minecraft snapshots are not compatible.
+
+  The temporary solution is blocking of new Minecraft snapshots and versions.
+
+  A future release will add full compatibility.
+
+# Previous releases
+
+## MultiMC 0.5.1
+
+### Improvements
 
 - Log uploads now use HTTPS because the [paste.ee](https://paste.ee) site is switching to HTTPS only.
 
@@ -43,7 +55,6 @@
 
   The instance type of the copy was not set, causing it to not be usable.
 
-# Previous releases
 
 ## MultiMC 0.5.0
 
