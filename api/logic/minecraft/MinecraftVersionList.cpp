@@ -321,6 +321,7 @@ void MinecraftVersionList::loadMojangList(QJsonDocument jsonDoc, VersionSource s
 		mcVersion->m_type = versionTypeStr;
 		qDebug() << "Loaded version" << versionID << "from"
 					<< ((source == VersionSource::Remote) ? "remote" : "local") << "version list.";
+		tempList.append(mcVersion);
 	}
 	updateListData(tempList);
 	if(source == VersionSource::Remote)
