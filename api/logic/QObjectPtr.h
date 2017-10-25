@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <QObject>
+#include <functional>
 
 namespace details
 {

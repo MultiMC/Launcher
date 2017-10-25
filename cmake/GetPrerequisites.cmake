@@ -174,9 +174,14 @@ function(is_file_executable file result_var)
 
     if(file_cmd)
       execute_process(COMMAND "${file_cmd}" "${file_full}"
+        RESULT_VARIABLE file_rv
         OUTPUT_VARIABLE file_ov
+        ERROR_VARIABLE file_ev
         OUTPUT_STRIP_TRAILING_WHITESPACE
         )
+      if(NOT file_rv STREQUAL "0")
+        message(FATAL_ERROR "${file_cmd} failed: ${file_rv}\n${file_ev}")
+      endif()
 
       # Replace the name of the file in the output with a placeholder token
       # (the string " _file_full_ ") so that just in case the path name of
@@ -201,6 +206,13 @@ function(is_file_executable file result_var)
       # Also detect position independent executables on Linux,
       # where "file" gives "shared object ... (uses shared libraries)"
       if("${file_ov}" MATCHES "shared object.*\(uses shared libs\)")
+        set(${result_var} 1 PARENT_SCOPE)
+        return()
+      endif()
+
+      # "file" version 5.22 does not print "(used shared libraries)"
+      # but uses "interpreter"
+      if("${file_ov}" MATCHES "shared object.*interpreter")
         set(${result_var} 1 PARENT_SCOPE)
         return()
       endif()
