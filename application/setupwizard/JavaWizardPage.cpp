@@ -45,7 +45,13 @@ void JavaWizardPage::refresh()
 
 void JavaWizardPage::initializePage()
 {
-    m_java_widget->initialize();
+    auto s = MMC->settings();
+    m_java_widget->initialize(
+        s->get("JavaPath").toString(),
+        s->get("MinMemAlloc").toInt(),
+        s->get("MaxMemAlloc").toInt(),
+        s->get("PermGen").toInt()
+    );
 }
 
 bool JavaWizardPage::wantsRefreshButton()

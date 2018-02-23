@@ -46,7 +46,7 @@ public:
     };
 
     void refresh();
-    void initialize();
+    void initialize(const QString& currentJavaPath, int minHeap, int maxHeap, int permGen);
     ValidationStatus validate();
     void retranslate();
 

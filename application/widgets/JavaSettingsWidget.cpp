@@ -113,15 +113,15 @@ void JavaSettingsWidget::setupUi()
     retranslate();
 }
 
-void JavaSettingsWidget::initialize()
+void JavaSettingsWidget::initialize(const QString& currentJavaPath, int minHeap, int maxHeap, int permGen)
 {
     m_versionWidget->initialize(MMC->javalist().get());
     m_versionWidget->setResizeOn(2);
-    auto s = MMC->settings();
     // Memory
-    observedMinMemory = s->get("MinMemAlloc").toInt();
-    observedMaxMemory = s->get("MaxMemAlloc").toInt();
-    observedPermGenMemory = s->get("PermGen").toInt();
+    observedMinMemory = minHeap;
+    observedMaxMemory = maxHeap;
+    observedPermGenMemory = permGen;
+    m_javaPathTextBox->setText(currentJavaPath);
     m_minMemSpinBox->setValue(observedMinMemory);
     m_maxMemSpinBox->setValue(observedMaxMemory);
     m_permGenSpinBox->setValue(observedPermGenMemory);
