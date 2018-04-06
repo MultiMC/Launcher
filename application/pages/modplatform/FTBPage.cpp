@@ -162,6 +162,7 @@ void FTBPage::onVersionSelectionItemChanged(QString data)
 	}
 
 	selectedVersion = data;
+	suggestCurrent();
 }
 
 FtbModpack FTBPage::getSelectedModpack()
