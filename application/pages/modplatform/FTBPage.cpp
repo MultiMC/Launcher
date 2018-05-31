@@ -1,6 +1,8 @@
 #include "FTBPage.h"
 #include "ui_FTBPage.h"
 
+#include <QInputDialog>
+
 #include "MultiMC.h"
 #include "FolderInstanceProvider.h"
 #include "dialogs/CustomMessageBox.h"
@@ -8,14 +10,15 @@
 #include "modplatform/ftb/FtbPackFetchTask.h"
 #include "modplatform/ftb/FtbPackInstallTask.h"
 #include "FtbListModel.h"
+#include "FtbPrivatePackListModel.h"
+#include <modplatform/ftb/FtbPrivatePackManager.h>
 
 FTBPage::FTBPage(NewInstanceDialog* dialog, QWidget *parent)
-	: QWidget(parent), dialog(dialog), ui(new Ui::FTBPage)
+    : QWidget(parent), dialog(dialog), ui(new Ui::FTBPage)
 {
 	ftbFetchTask = new FtbPackFetchTask();
 
 	ui->setupUi(this);
-	ui->tabWidget->tabBar()->hide();
 
 	{
 		publicFilterModel = new FtbFilterModel(this);
@@ -50,21 +53,39 @@ FTBPage::FTBPage(NewInstanceDialog* dialog, QWidget *parent)
 		thirdPartyFilterModel->setSorting(publicFilterModel->getCurrentSorting());
 	}
 
-	ui->packVersionSelection->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-	ui->packVersionSelection->view()->parentWidget()->setMaximumHeight(300);
+	{
+		privateFilterModel = new FtbPrivatePackFilterModel(this);
+		privateListModel = new FtbPrivatePackListModel(this);
+		privateFilterModel->setSourceModel(privateListModel);
+
+		ui->privatePackList->setModel(privateFilterModel);
+		ui->privatePackList->setSortingEnabled(true);
+		ui->privatePackList->header()->hide();
+		ui->privatePackList->setIndentation(0);
+		ui->privatePackList->setIconSize(QSize(42, 42));
+
+		privateFilterModel->setSorting(publicFilterModel->getCurrentSorting());
+	}
+
+	ui->versionSelectionBox->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	ui->versionSelectionBox->view()->parentWidget()->setMaximumHeight(300);
 
 	connect(ui->sortByBox, &QComboBox::currentTextChanged, this, &FTBPage::onSortingSelectionChanged);
-	connect(ui->packVersionSelection, &QComboBox::currentTextChanged, this, &FTBPage::onVersionSelectionItemChanged);
+	connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &FTBPage::onVersionSelectionItemChanged);
 
 	connect(ui->publicPackList->selectionModel(), &QItemSelectionModel::currentChanged, this, &FTBPage::onPublicPackSelectionChanged);
 	connect(ui->thirdPartyPackList->selectionModel(), &QItemSelectionModel::currentChanged, this, &FTBPage::onThirdPartyPackSelectionChanged);
+	connect(ui->privatePackList->selectionModel(), &QItemSelectionModel::currentChanged, this, &FTBPage::onPrivatePackSelectionChanged);
 
-	connect(ui->ftbTabWidget, &QTabWidget::currentChanged, this, &FTBPage::onTabChanged);
+	connect(ui->tabWidget, &QTabWidget::currentChanged, this, &FTBPage::onTabChanged);
 
-	ui->modpackInfo->setOpenExternalLinks(true);
+	// ui->modpackInfo->setOpenExternalLinks(true);
 
 	ui->publicPackList->selectionModel()->reset();
 	ui->thirdPartyPackList->selectionModel()->reset();
+	ui->privatePackList->selectionModel()->reset();
+
+	onTabChanged(ui->tabWidget->currentIndex());
 }
 
 FTBPage::~FTBPage()
@@ -86,7 +107,12 @@ void FTBPage::openedImpl()
 	{
 		connect(ftbFetchTask, &FtbPackFetchTask::finished, this, &FTBPage::ftbPackDataDownloadSuccessfully);
 		connect(ftbFetchTask, &FtbPackFetchTask::failed, this, &FTBPage::ftbPackDataDownloadFailed);
+
+		connect(ftbFetchTask, &FtbPackFetchTask::privateFileDownloadFinished, this, &FTBPage::ftbPrivatePackDataDownloadSuccessfully);
+		connect(ftbFetchTask, &FtbPackFetchTask::privateFileDownloadFailed, this, &FTBPage::ftbPrivatePackDataDownloadFailed);
+
 		ftbFetchTask->fetch();
+		ftbFetchTask->fetchPrivate();
 		initialized = true;
 	}
 	suggestCurrent();
@@ -99,13 +125,26 @@ void FTBPage::suggestCurrent()
 		if(!selected.broken)
 		{
 			dialog->setSuggestedPack(selected.name, new FtbPackInstallTask(selected, selectedVersion));
+			QString editedLogoName;
+			if(selected.logo.toLower().startsWith("ftb")) {
+				editedLogoName = selected.logo;
+			} else {
+				editedLogoName = "ftb_" + selected.logo;
+			}
+
+			editedLogoName = editedLogoName.left(editedLogoName.lastIndexOf(".png"));
+
 			if(selected.type == FtbPackType::Public) {
-				publicListModel->getLogo(selected.logo, [this](QString logo){
-					dialog->setSuggestedIconFromFile(logo, "ftb_" + selected.name);
+				publicListModel->getLogo(selected.logo, [this, editedLogoName](QString logo){
+					dialog->setSuggestedIconFromFile(logo, editedLogoName);
 				});
 			} else if (selected.type == FtbPackType::ThirdParty) {
-				thirdPartyModel->getLogo(selected.logo, [this](QString logo){
-					dialog->setSuggestedIconFromFile(logo, "ftb_" + selected.name);
+				thirdPartyModel->getLogo(selected.logo, [this, editedLogoName](QString logo){
+					dialog->setSuggestedIconFromFile(logo, editedLogoName);
+				});
+			} else if (selected.type == FtbPackType::Private) {
+				privateListModel->getLogo(selected.logo, [this, editedLogoName](QString logo){
+					dialog->setSuggestedIconFromFile(logo, editedLogoName);
 				});
 			}
 		}
@@ -125,6 +164,17 @@ void FTBPage::ftbPackDataDownloadSuccessfully(FtbModpackList publicPacks, FtbMod
 void FTBPage::ftbPackDataDownloadFailed(QString reason)
 {
 	//TODO: Display the error
+}
+
+void FTBPage::ftbPrivatePackDataDownloadSuccessfully(FtbModpack pack)
+{
+	privateListModel->addPack(pack);
+}
+
+void FTBPage::ftbPrivatePackDataDownloadFailed(QString reason, QString packCode)
+{
+	QMessageBox::critical(this, "FTB private packs", QString("Failed to download pack information for code %1.\n"
+	                                                         "The code is being removed now because it is invalid! ").arg(packCode));
 }
 
 void FTBPage::onPublicPackSelectionChanged(QModelIndex now, QModelIndex prev)
@@ -149,13 +199,39 @@ void FTBPage::onThirdPartyPackSelectionChanged(QModelIndex now, QModelIndex prev
 	onPackSelectionChanged(&selectedPack);
 }
 
+void FTBPage::onPrivatePackSelectionChanged(QModelIndex now, QModelIndex prev)
+{
+	if(!now.isValid())
+	{
+		onPackSelectionChanged();
+		return;
+	}
+
+	if(privateListModel->isAddIndex(now)) {
+		ui->privatePackList->selectionModel()->reset();
+
+		bool ok = false;
+		QString newCode = QInputDialog::getText(this, tr("Add pack"), tr("Enter new pack code:"), QLineEdit::Normal, "", &ok, Qt::Tool);
+		if(ok && !newCode.isEmpty()) {
+			FtbPrivatePackManager::addCode(newCode.trimmed());
+			privateListModel->clear();
+			ftbFetchTask->fetchPrivate();
+		}
+		return;
+	}
+
+	FtbModpack selectedPack = privateFilterModel->data(now, Qt::UserRole).value<FtbModpack>();
+	onPackSelectionChanged(&selectedPack);
+}
+
 void FTBPage::onPackSelectionChanged(FtbModpack* pack)
 {
-	ui->packVersionSelection->clear();
+	ui->versionSelectionBox->clear();
 	if(pack)
 	{
-		ui->modpackInfo->setHtml("Pack by <b>" + pack->author + "</b>" + "<br>Minecraft " + pack->mcVersion + "<br>"
-			"<br>" + pack->description + "<ul><li>" + pack->mods.replace(";", "</li><li>") + "</li></ul>");
+		currentModpackInfo->setHtml("Pack by <b>" + pack->author + "</b>" +
+		                            "<br>Minecraft " + pack->mcVersion + "<br>" + "<br>" + pack->description + "<ul><li>" + pack->mods.replace(";", "</li><li>")
+		                            + "</li></ul>");
 		bool currentAdded = false;
 
 		for(int i = 0; i < pack->oldVersions.size(); i++)
@@ -164,12 +240,12 @@ void FTBPage::onPackSelectionChanged(FtbModpack* pack)
 			{
 				currentAdded = true;
 			}
-			ui->packVersionSelection->addItem(pack->oldVersions.at(i));
+			ui->versionSelectionBox->addItem(pack->oldVersions.at(i));
 		}
 
 		if(!currentAdded)
 		{
-			ui->packVersionSelection->addItem(pack->currentVersion);
+			ui->versionSelectionBox->addItem(pack->currentVersion);
 		}
 		selected = *pack;
 	}
@@ -197,18 +273,25 @@ void FTBPage::onSortingSelectionChanged(QString data)
 
 void FTBPage::onTabChanged(int tab)
 {
-	FtbFilterModel* currentModel = nullptr;
-	QTreeView* currentList = nullptr;
-	if (tab == 0)
-	{
-		currentModel = publicFilterModel;
-		currentList = ui->publicPackList;
-	}
-	else
+	if(tab == 1)
 	{
 		currentModel = thirdPartyFilterModel;
 		currentList = ui->thirdPartyPackList;
+		currentModpackInfo = ui->thirdPartyPackDescription;
 	}
+	else if(tab == 2)
+	{
+		currentModel = privateFilterModel;
+		currentList = ui->privatePackList;
+		currentModpackInfo = ui->privatePackDescription;
+	}
+	else
+	{
+		currentModel = publicFilterModel;
+		currentList = ui->publicPackList;
+		currentModpackInfo = ui->publicPackDescription;
+	}
+
 	QModelIndex idx = currentList->currentIndex();
 	if(idx.isValid())
 	{

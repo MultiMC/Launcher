@@ -37,6 +37,7 @@
 #include "dialogs/CustomMessageBox.h"
 #include "InstanceList.h"
 #include "FolderInstanceProvider.h"
+#include "modplatform/ftb/FtbPrivatePackManager.h"
 
 #include <minecraft/auth/MojangAccountList.h>
 #include "icons/IconList.h"
@@ -659,7 +660,11 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 			logFile->flush();
 			logFile->close();
 		}
+
+		FtbPrivatePackManager::save();
 	});
+
+	FtbPrivatePackManager::refresh();
 
 	{
 		setIconTheme(settings()->get("IconTheme").toString());

@@ -134,7 +134,9 @@ SET(MULTIMC_SOURCES
 	pages/modplatform/FTBPage.h
 	pages/modplatform/FtbListModel.h
 	pages/modplatform/FtbListModel.cpp
-	pages/modplatform/TwitchPage.cpp
+        pages/modplatform/FtbPrivatePackListModel.h
+        pages/modplatform/FtbPrivatePackListModel.cpp
+        pages/modplatform/TwitchPage.cpp
 	pages/modplatform/TwitchPage.h
 	pages/modplatform/TechnicPage.cpp
 	pages/modplatform/TechnicPage.h

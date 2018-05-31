@@ -77,9 +77,9 @@ QString FtbListModel::translatePackType(FtbPackType type) const
 	} else if(type == FtbPackType::ThirdParty) {
 		return tr("Third Party Modpack");
 	} else if(type == FtbPackType::Private) {
-		return tr("Private Modpack");
+		return ("Private Modpack");
 	} else {
-		return tr("Unknown Type");
+		return ("Unknown Type");
 	}
 }
 
@@ -102,7 +102,7 @@ QVariant FtbListModel::data(const QModelIndex &index, int role) const
 
 	FtbModpack pack = modpacks.at(pos);
 	if(role == Qt::DisplayRole) {
-		return pack.name + "\n" + translatePackType(pack.type);
+		return pack.name;
 	} else if (role == Qt::ToolTipRole) {
 		if(pack.description.length() > 100) {
 			//some magic to prevent to long tooltips and replace html linebreaks

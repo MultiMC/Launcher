@@ -7,6 +7,7 @@
 #include <QSortFilterProxyModel>
 #include <QThreadPool>
 #include <QIcon>
+#include <QStyledItemDelegate>
 
 #include <functional>
 
@@ -39,7 +40,8 @@ private:
 class FtbListModel : public QAbstractListModel
 {
 	Q_OBJECT
-private:
+
+protected:
 	FtbModpackList modpacks;
 	QStringList m_failedLogos;
 	QStringList m_loadingLogos;
@@ -48,7 +50,6 @@ private:
 
 	void requestLogo(QString file);
 	QString translatePackType(FtbPackType type) const;
-
 
 private slots:
 	void logoFailed(QString logo);
