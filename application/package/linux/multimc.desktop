@@ -5,6 +5,6 @@ GenericName=MultiMC
 Comment=Free, open source launcher and instance manager for Minecraft.
 Type=Application
 Terminal=false
-Exec=multimc
+Exec=MultiMC
 Icon=multimc
 Categories=Game
