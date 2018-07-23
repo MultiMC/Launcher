@@ -9,9 +9,8 @@
 #include "dialogs/NewInstanceDialog.h"
 #include "modplatform/ftb/FtbPackFetchTask.h"
 #include "modplatform/ftb/FtbPackInstallTask.h"
+#include "modplatform/ftb/FtbPrivatePackManager.h"
 #include "FtbListModel.h"
-#include "FtbPrivatePackListModel.h"
-#include <modplatform/ftb/FtbPrivatePackManager.h>
 
 FTBPage::FTBPage(NewInstanceDialog* dialog, QWidget *parent)
     : QWidget(parent), dialog(dialog), ui(new Ui::FTBPage)
@@ -54,8 +53,8 @@ FTBPage::FTBPage(NewInstanceDialog* dialog, QWidget *parent)
 	}
 
 	{
-		privateFilterModel = new FtbPrivatePackFilterModel(this);
-		privateListModel = new FtbPrivatePackListModel(this);
+		privateFilterModel = new FtbFilterModel(this);
+		privateListModel = new FtbListModel(this);
 		privateFilterModel->setSourceModel(privateListModel);
 
 		ui->privatePackList->setModel(privateFilterModel);
@@ -76,6 +75,9 @@ FTBPage::FTBPage(NewInstanceDialog* dialog, QWidget *parent)
 	connect(ui->publicPackList->selectionModel(), &QItemSelectionModel::currentChanged, this, &FTBPage::onPublicPackSelectionChanged);
 	connect(ui->thirdPartyPackList->selectionModel(), &QItemSelectionModel::currentChanged, this, &FTBPage::onThirdPartyPackSelectionChanged);
 	connect(ui->privatePackList->selectionModel(), &QItemSelectionModel::currentChanged, this, &FTBPage::onPrivatePackSelectionChanged);
+
+	connect(ui->addPackBtn, &QPushButton::pressed, this, &FTBPage::onAddPackClicked);
+	connect(ui->removePackBtn, &QPushButton::pressed, this, &FTBPage::onRemovePackClicked);
 
 	connect(ui->tabWidget, &QTabWidget::currentChanged, this, &FTBPage::onTabChanged);
 
@@ -173,8 +175,12 @@ void FTBPage::ftbPrivatePackDataDownloadSuccessfully(FtbModpack pack)
 
 void FTBPage::ftbPrivatePackDataDownloadFailed(QString reason, QString packCode)
 {
-	QMessageBox::critical(this, "FTB private packs", QString("Failed to download pack information for code %1.\n"
-	                                                         "The code is being removed now because it is invalid! ").arg(packCode));
+	auto reply = QMessageBox::question(this, "FTB private packs", QString("Failed to download pack information for code %1.\n"
+	                                                         "Should it be removed now?").arg(packCode));
+	if(reply == QMessageBox::Yes)
+	{
+		FtbPrivatePackManager::removeCode(packCode);
+	}
 }
 
 void FTBPage::onPublicPackSelectionChanged(QModelIndex now, QModelIndex prev)
@@ -206,20 +212,6 @@ void FTBPage::onPrivatePackSelectionChanged(QModelIndex now, QModelIndex prev)
 		onPackSelectionChanged();
 		return;
 	}
-
-	if(privateListModel->isAddIndex(now)) {
-		ui->privatePackList->selectionModel()->reset();
-
-		bool ok = false;
-		QString newCode = QInputDialog::getText(this, tr("Add pack"), tr("Enter new pack code:"), QLineEdit::Normal, "", &ok, Qt::Tool);
-		if(ok && !newCode.isEmpty()) {
-			FtbPrivatePackManager::addCode(newCode.trimmed());
-			privateListModel->clear();
-			ftbFetchTask->fetchPrivate();
-		}
-		return;
-	}
-
 	FtbModpack selectedPack = privateFilterModel->data(now, Qt::UserRole).value<FtbModpack>();
 	onPackSelectionChanged(&selectedPack);
 }
@@ -249,6 +241,16 @@ void FTBPage::onPackSelectionChanged(FtbModpack* pack)
 		}
 		selected = *pack;
 	}
+	else
+	{
+		currentModpackInfo->setHtml("");
+		ui->versionSelectionBox->clear();
+		if(isOpened)
+		{
+			dialog->setSuggestedPack();
+		}
+		return;
+	}
 	suggestCurrent();
 }
 
@@ -269,6 +271,7 @@ void FTBPage::onSortingSelectionChanged(QString data)
 	FtbFilterModel::Sorting toSet = publicFilterModel->getAvailableSortings().value(data);
 	publicFilterModel->setSorting(toSet);
 	thirdPartyFilterModel->setSorting(toSet);
+	privateFilterModel->setSorting(toSet);
 }
 
 void FTBPage::onTabChanged(int tab)
@@ -292,6 +295,7 @@ void FTBPage::onTabChanged(int tab)
 		currentModpackInfo = ui->publicPackDescription;
 	}
 
+	currentList->selectionModel()->reset();
 	QModelIndex idx = currentList->currentIndex();
 	if(idx.isValid())
 	{
@@ -301,5 +305,32 @@ void FTBPage::onTabChanged(int tab)
 	else
 	{
 		onPackSelectionChanged();
+	}
+}
+
+void FTBPage::onAddPackClicked()
+{
+	bool ok;
+	QString text = QInputDialog::getText(this, tr("Add FTB pack"), tr("Enter pack code:"), QLineEdit::Normal, QString(), &ok);
+	if(ok && !text.isEmpty())
+	{
+		FtbPrivatePackManager::addCode(text);
+		privateListModel->clear();
+		ftbFetchTask->fetchPrivate();
+	}
+}
+
+void FTBPage::onRemovePackClicked()
+{
+	if(ui->privatePackList->currentIndex().isValid()){
+		FtbModpack pack = privateListModel->at(ui->privatePackList->currentIndex().row());
+		if(QMessageBox::question(this, tr("Remove pack"), tr("Are you sure you want to remove pack %1?").arg(pack.name),
+		                         QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+		{
+			FtbPrivatePackManager::removeCode(pack.packCode);
+			privateListModel->clear();
+			ftbFetchTask->fetchPrivate();
+			onPackSelectionChanged();
+		}
 	}
 }

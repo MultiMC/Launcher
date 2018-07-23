@@ -33,10 +33,6 @@ void FtbPackFetchTask::fetch()
 
 void FtbPackFetchTask::fetchPrivate()
 {
-	if(FtbPrivatePackManager::getCurrentPackCodes().size() < 1) {
-		return;
-	}
-
 	if(FtbPrivatePackManager::getCurrentPackCodes().size() > 0) {
 		QString privatePackBaseUrl = QString("https://ftb.cursecdn.com/FTB2/static/%1.xml");
 
@@ -45,10 +41,11 @@ void FtbPackFetchTask::fetchPrivate()
 			NetJob *job = new NetJob("Fetching private pack");
 			job->addNetAction(Net::Download::makeByteArray(privatePackBaseUrl.arg(packCode), data));
 
-			QObject::connect(job, &NetJob::succeeded, this, [this, job, data]{
+			QObject::connect(job, &NetJob::succeeded, this, [this, job, data, packCode]{
 				FtbModpackList packs = FtbModpackList();
 				parseAndAddPacks(*data, FtbPackType::Private, packs);
-				foreach(const FtbModpack &currentPack, packs) {
+				foreach(FtbModpack currentPack, packs) {
+					currentPack.packCode = packCode;
 					emit privateFileDownloadFinished(currentPack);
 				}
 
@@ -87,7 +84,7 @@ void FtbPackFetchTask::fileDownloadFinished()
 	}
 
 	if(failedLists.size() > 0) {
-		emit failed(QString("Failed to download some pack lists:%1").arg(failedLists.join("\n- ")));
+		emit failed(tr("Failed to download some pack lists: %1").arg(failedLists.join("\n- ")));
 	} else {
 		emit finished(publicPacks, thirdPartyPacks);
 	}

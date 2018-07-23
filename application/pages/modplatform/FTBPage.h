@@ -82,6 +82,9 @@ private slots:
 
 	void onTabChanged(int tab);
 
+	void onAddPackClicked();
+	void onRemovePackClicked();
+
 private:
 	FtbFilterModel* currentModel = nullptr;
 	QTreeView* currentList = nullptr;
@@ -97,8 +100,8 @@ private:
 	FtbListModel *thirdPartyModel = nullptr;
 	FtbFilterModel *thirdPartyFilterModel = nullptr;
 
-	FtbPrivatePackListModel *privateListModel = nullptr;
-	FtbPrivatePackFilterModel *privateFilterModel = nullptr;
+	FtbListModel *privateListModel = nullptr;
+	FtbFilterModel *privateFilterModel = nullptr;
 
 	FtbPackFetchTask *ftbFetchTask = nullptr;
 	NewInstanceDialog* dialog = nullptr;

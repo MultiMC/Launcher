@@ -27,14 +27,15 @@ void FtbPrivatePackManager::refresh()
 				removeBuffer.append(current);
 				continue;
 			}
-			qDebug() << "Got pack code" << current;
+			// If someone uploads a MultiMC log this could be bad :D
+			// qDebug() << "Got pack code" << current;
 		}
 
 		foreach (const QString& toRemove, removeBuffer) {
 			currentPacks.removeAll(toRemove);
 		}
 	} else {
-		qWarning() << "Failed to open ThirdPartySaveFile " + saveFile.fileName() + "!";
+		qWarning() << "Failed to open ThirdPartySaveFile " + saveFile.fileName() + " for writing!";
 	}
 }
 
