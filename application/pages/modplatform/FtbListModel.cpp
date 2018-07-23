@@ -146,16 +146,16 @@ void FtbListModel::fill(FtbModpackList modpacks)
 
 void FtbListModel::addPack(FtbModpack modpack)
 {
-	beginResetModel();
-	this->modpacks.append(modpack);
-	endResetModel();
+    beginResetModel();
+    this->modpacks.append(modpack);
+    endResetModel();
 }
 
 void FtbListModel::clear()
 {
-	beginResetModel();
-	modpacks.clear();
-	endResetModel();
+    beginResetModel();
+    modpacks.clear();
+    endResetModel();
 }
 
 FtbModpack FtbListModel::at(int row)
@@ -214,5 +214,5 @@ void FtbListModel::getLogo(const QString &logo, LogoCallback callback)
 
 Qt::ItemFlags FtbListModel::flags(const QModelIndex &index) const
 {
-	return QAbstractListModel::flags(index);
+    return QAbstractListModel::flags(index);
 }

@@ -234,31 +234,31 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     if (!FS::ensureFolderPathExists(dataPath))
     {
         showFatalErrorMessage(
-            "MultiMC data folder could not be created.",
-            "MultiMC data folder could not be created.\n"
-            "\n"
-#if defined(Q_OS_MAC)
-            MACOS_HINT
-#endif
-            "Make sure you have the right permissions to the MultiMC data folder and any folder needed to access it.\n"
-            "\n"
-            "MultiMC cannot continue until you fix this problem."
-        );
+                    "MultiMC data folder could not be created.",
+                    "MultiMC data folder could not be created.\n"
+                    "\n"
+            #if defined(Q_OS_MAC)
+                    MACOS_HINT
+            #endif
+                    "Make sure you have the right permissions to the MultiMC data folder and any folder needed to access it.\n"
+                    "\n"
+                    "MultiMC cannot continue until you fix this problem."
+                    );
         return;
     }
     if (!QDir::setCurrent(dataPath))
     {
         showFatalErrorMessage(
-            "MultiMC data folder could not be opened.",
-            "MultiMC data folder could not be opened.\n"
-            "\n"
-#if defined(Q_OS_MAC)
-            MACOS_HINT
-#endif
-            "Make sure you have the right permissions to the MultiMC data folder.\n"
-            "\n"
-            "MultiMC cannot continue until you fix this problem."
-        );
+                    "MultiMC data folder could not be opened.",
+                    "MultiMC data folder could not be opened.\n"
+                    "\n"
+            #if defined(Q_OS_MAC)
+                    MACOS_HINT
+            #endif
+                    "Make sure you have the right permissions to the MultiMC data folder.\n"
+                    "\n"
+                    "MultiMC cannot continue until you fix this problem."
+                    );
         return;
     }
 
@@ -306,16 +306,16 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         if(!logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
         {
             showFatalErrorMessage(
-                "MultiMC data folder is not writable!",
-                "MultiMC couldn't create a log file - the MultiMC data folder is not writable.\n"
-                "\n"
-    #if defined(Q_OS_MAC)
-                MACOS_HINT
-    #endif
-                "Make sure you have write permissions to the MultiMC data folder.\n"
-                "\n"
-                "MultiMC cannot continue until you fix this problem."
-            );
+                        "MultiMC data folder is not writable!",
+                        "MultiMC couldn't create a log file - the MultiMC data folder is not writable.\n"
+                        "\n"
+            #if defined(Q_OS_MAC)
+                        MACOS_HINT
+            #endif
+                        "Make sure you have write permissions to the MultiMC data folder.\n"
+                        "\n"
+                        "MultiMC cannot continue until you fix this problem."
+                        );
             return;
         }
         qInstallMessageHandler(appDebugOutput);
@@ -412,310 +412,310 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 #else
         defaultMonospace = "Monospace";
 #endif
-		// resolve the font so the default actually matches
-		QFont consoleFont;
-		consoleFont.setFamily(defaultMonospace);
-		consoleFont.setStyleHint(QFont::Monospace);
-		consoleFont.setFixedPitch(true);
-		QFontInfo consoleFontInfo(consoleFont);
-		QString resolvedDefaultMonospace = consoleFontInfo.family();
-		QFont resolvedFont(resolvedDefaultMonospace);
-		qDebug() << "Detected default console font:" << resolvedDefaultMonospace
-			<< ", substitutions:" << resolvedFont.substitutions().join(',');
+        // resolve the font so the default actually matches
+        QFont consoleFont;
+        consoleFont.setFamily(defaultMonospace);
+        consoleFont.setStyleHint(QFont::Monospace);
+        consoleFont.setFixedPitch(true);
+        QFontInfo consoleFontInfo(consoleFont);
+        QString resolvedDefaultMonospace = consoleFontInfo.family();
+        QFont resolvedFont(resolvedDefaultMonospace);
+        qDebug() << "Detected default console font:" << resolvedDefaultMonospace
+                 << ", substitutions:" << resolvedFont.substitutions().join(',');
 
-		m_settings->registerSetting("ConsoleFont", resolvedDefaultMonospace);
-		m_settings->registerSetting("ConsoleFontSize", defaultSize);
-		m_settings->registerSetting("ConsoleMaxLines", 100000);
-		m_settings->registerSetting("ConsoleOverflowStop", true);
+        m_settings->registerSetting("ConsoleFont", resolvedDefaultMonospace);
+        m_settings->registerSetting("ConsoleFontSize", defaultSize);
+        m_settings->registerSetting("ConsoleMaxLines", 100000);
+        m_settings->registerSetting("ConsoleOverflowStop", true);
 
-		// Folders
-		m_settings->registerSetting("InstanceDir", "instances");
-		m_settings->registerSetting({"CentralModsDir", "ModsDir"}, "mods");
-		m_settings->registerSetting("IconsDir", "icons");
+        // Folders
+        m_settings->registerSetting("InstanceDir", "instances");
+        m_settings->registerSetting({"CentralModsDir", "ModsDir"}, "mods");
+        m_settings->registerSetting("IconsDir", "icons");
 
-		// Editors
-		m_settings->registerSetting("JsonEditor", QString());
+        // Editors
+        m_settings->registerSetting("JsonEditor", QString());
 
-		// Language
-		m_settings->registerSetting("Language", QString());
+        // Language
+        m_settings->registerSetting("Language", QString());
 
-		// Console
-		m_settings->registerSetting("ShowConsole", false);
-		m_settings->registerSetting("AutoCloseConsole", false);
-		m_settings->registerSetting("ShowConsoleOnError", true);
-		m_settings->registerSetting("LogPrePostOutput", true);
+        // Console
+        m_settings->registerSetting("ShowConsole", false);
+        m_settings->registerSetting("AutoCloseConsole", false);
+        m_settings->registerSetting("ShowConsoleOnError", true);
+        m_settings->registerSetting("LogPrePostOutput", true);
 
-		// Window Size
-		m_settings->registerSetting({"LaunchMaximized", "MCWindowMaximize"}, false);
-		m_settings->registerSetting({"MinecraftWinWidth", "MCWindowWidth"}, 854);
-		m_settings->registerSetting({"MinecraftWinHeight", "MCWindowHeight"}, 480);
+        // Window Size
+        m_settings->registerSetting({"LaunchMaximized", "MCWindowMaximize"}, false);
+        m_settings->registerSetting({"MinecraftWinWidth", "MCWindowWidth"}, 854);
+        m_settings->registerSetting({"MinecraftWinHeight", "MCWindowHeight"}, 480);
 
-		// Proxy Settings
-		m_settings->registerSetting("ProxyType", "None");
-		m_settings->registerSetting({"ProxyAddr", "ProxyHostName"}, "127.0.0.1");
-		m_settings->registerSetting("ProxyPort", 8080);
-		m_settings->registerSetting({"ProxyUser", "ProxyUsername"}, "");
-		m_settings->registerSetting({"ProxyPass", "ProxyPassword"}, "");
+        // Proxy Settings
+        m_settings->registerSetting("ProxyType", "None");
+        m_settings->registerSetting({"ProxyAddr", "ProxyHostName"}, "127.0.0.1");
+        m_settings->registerSetting("ProxyPort", 8080);
+        m_settings->registerSetting({"ProxyUser", "ProxyUsername"}, "");
+        m_settings->registerSetting({"ProxyPass", "ProxyPassword"}, "");
 
-		// Memory
-		m_settings->registerSetting({"MinMemAlloc", "MinMemoryAlloc"}, 512);
-		m_settings->registerSetting({"MaxMemAlloc", "MaxMemoryAlloc"}, 1024);
-		m_settings->registerSetting("PermGen", 128);
+        // Memory
+        m_settings->registerSetting({"MinMemAlloc", "MinMemoryAlloc"}, 512);
+        m_settings->registerSetting({"MaxMemAlloc", "MaxMemoryAlloc"}, 1024);
+        m_settings->registerSetting("PermGen", 128);
 
-		// Java Settings
-		m_settings->registerSetting("JavaPath", "");
-		m_settings->registerSetting("JavaTimestamp", 0);
-		m_settings->registerSetting("JavaArchitecture", "");
-		m_settings->registerSetting("JavaVersion", "");
-		m_settings->registerSetting("LastHostname", "");
-		m_settings->registerSetting("JvmArgs", "");
+        // Java Settings
+        m_settings->registerSetting("JavaPath", "");
+        m_settings->registerSetting("JavaTimestamp", 0);
+        m_settings->registerSetting("JavaArchitecture", "");
+        m_settings->registerSetting("JavaVersion", "");
+        m_settings->registerSetting("LastHostname", "");
+        m_settings->registerSetting("JvmArgs", "");
 
-		// Minecraft launch method
-		m_settings->registerSetting("MCLaunchMethod", "LauncherPart");
+        // Minecraft launch method
+        m_settings->registerSetting("MCLaunchMethod", "LauncherPart");
 
-		// Wrapper command for launch
-		m_settings->registerSetting("WrapperCommand", "");
+        // Wrapper command for launch
+        m_settings->registerSetting("WrapperCommand", "");
 
-		// Custom Commands
-		m_settings->registerSetting({"PreLaunchCommand", "PreLaunchCmd"}, "");
-		m_settings->registerSetting({"PostExitCommand", "PostExitCmd"}, "");
+        // Custom Commands
+        m_settings->registerSetting({"PreLaunchCommand", "PreLaunchCmd"}, "");
+        m_settings->registerSetting({"PostExitCommand", "PostExitCmd"}, "");
 
-		// The cat
-		m_settings->registerSetting("TheCat", false);
+        // The cat
+        m_settings->registerSetting("TheCat", false);
 
-		m_settings->registerSetting("InstSortMode", "Name");
-		m_settings->registerSetting("SelectedInstance", QString());
+        m_settings->registerSetting("InstSortMode", "Name");
+        m_settings->registerSetting("SelectedInstance", QString());
 
-		// Window state and geometry
-		m_settings->registerSetting("MainWindowState", "");
-		m_settings->registerSetting("MainWindowGeometry", "");
+        // Window state and geometry
+        m_settings->registerSetting("MainWindowState", "");
+        m_settings->registerSetting("MainWindowGeometry", "");
 
-		m_settings->registerSetting("ConsoleWindowState", "");
-		m_settings->registerSetting("ConsoleWindowGeometry", "");
+        m_settings->registerSetting("ConsoleWindowState", "");
+        m_settings->registerSetting("ConsoleWindowGeometry", "");
 
-		m_settings->registerSetting("SettingsGeometry", "");
+        m_settings->registerSetting("SettingsGeometry", "");
 
-		m_settings->registerSetting("PagedGeometry", "");
+        m_settings->registerSetting("PagedGeometry", "");
 
-		m_settings->registerSetting("NewInstanceGeometry", "");
+        m_settings->registerSetting("NewInstanceGeometry", "");
 
-		m_settings->registerSetting("UpdateDialogGeometry", "");
+        m_settings->registerSetting("UpdateDialogGeometry", "");
 
-		// paste.ee API key
-		m_settings->registerSetting("PasteEEAPIKey", "multimc");
+        // paste.ee API key
+        m_settings->registerSetting("PasteEEAPIKey", "multimc");
 
-		if(!BuildConfig.ANALYTICS_ID.isEmpty())
-		{
-			// Analytics
-			m_settings->registerSetting("Analytics", true);
-			m_settings->registerSetting("AnalyticsSeen", 0);
-			m_settings->registerSetting("AnalyticsClientID", QString());
-		}
+        if(!BuildConfig.ANALYTICS_ID.isEmpty())
+        {
+            // Analytics
+            m_settings->registerSetting("Analytics", true);
+            m_settings->registerSetting("AnalyticsSeen", 0);
+            m_settings->registerSetting("AnalyticsClientID", QString());
+        }
 
-		// Init page provider
-		{
-			m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
-			m_globalSettingsProvider->addPage<MultiMCPage>();
-			m_globalSettingsProvider->addPage<MinecraftPage>();
-			m_globalSettingsProvider->addPage<JavaPage>();
-			m_globalSettingsProvider->addPage<CustomCommandsPage>();
-			m_globalSettingsProvider->addPage<ProxyPage>();
-			// m_globalSettingsProvider->addPage<PackagesPage>();
-			m_globalSettingsProvider->addPage<ExternalToolsPage>();
-			m_globalSettingsProvider->addPage<AccountListPage>();
-			m_globalSettingsProvider->addPage<PasteEEPage>();
-		}
-		qDebug() << "<> Settings loaded.";
-	}
+        // Init page provider
+        {
+            m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
+            m_globalSettingsProvider->addPage<MultiMCPage>();
+            m_globalSettingsProvider->addPage<MinecraftPage>();
+            m_globalSettingsProvider->addPage<JavaPage>();
+            m_globalSettingsProvider->addPage<CustomCommandsPage>();
+            m_globalSettingsProvider->addPage<ProxyPage>();
+            // m_globalSettingsProvider->addPage<PackagesPage>();
+            m_globalSettingsProvider->addPage<ExternalToolsPage>();
+            m_globalSettingsProvider->addPage<AccountListPage>();
+            m_globalSettingsProvider->addPage<PasteEEPage>();
+        }
+        qDebug() << "<> Settings loaded.";
+    }
 
-	// load translations
-	{
-		m_translations.reset(new TranslationsModel("translations"));
-		auto bcp47Name = m_settings->get("Language").toString();
-		m_translations->selectLanguage(bcp47Name);
-		qDebug() << "Your language is" << bcp47Name;
-		qDebug() << "<> Translations loaded.";
-	}
+    // load translations
+    {
+        m_translations.reset(new TranslationsModel("translations"));
+        auto bcp47Name = m_settings->get("Language").toString();
+        m_translations->selectLanguage(bcp47Name);
+        qDebug() << "Your language is" << bcp47Name;
+        qDebug() << "<> Translations loaded.";
+    }
 
-	// initialize the updater
-	if(BuildConfig.UPDATER_ENABLED)
-	{
-		m_updateChecker.reset(new UpdateChecker(BuildConfig.CHANLIST_URL, BuildConfig.VERSION_CHANNEL, BuildConfig.VERSION_BUILD));
-		qDebug() << "<> Updater started.";
-	}
+    // initialize the updater
+    if(BuildConfig.UPDATER_ENABLED)
+    {
+        m_updateChecker.reset(new UpdateChecker(BuildConfig.CHANLIST_URL, BuildConfig.VERSION_CHANNEL, BuildConfig.VERSION_BUILD));
+        qDebug() << "<> Updater started.";
+    }
 
-	// Instance icons
-	{
-		auto setting = MMC->settings()->getSetting("IconsDir");
-		QStringList instFolders =
-		{
-			":/icons/multimc/32x32/instances/",
-			":/icons/multimc/50x50/instances/",
-			":/icons/multimc/128x128/instances/"
-		};
-		m_icons.reset(new IconList(instFolders, setting->get().toString()));
-		connect(setting.get(), &Setting::SettingChanged,[&](const Setting &, QVariant value)
-		{
-			m_icons->directoryChanged(value.toString());
-		});
-		ENV.registerIconList(m_icons);
-		qDebug() << "<> Instance icons intialized.";
-	}
+    // Instance icons
+    {
+        auto setting = MMC->settings()->getSetting("IconsDir");
+        QStringList instFolders =
+        {
+            ":/icons/multimc/32x32/instances/",
+            ":/icons/multimc/50x50/instances/",
+            ":/icons/multimc/128x128/instances/"
+        };
+        m_icons.reset(new IconList(instFolders, setting->get().toString()));
+        connect(setting.get(), &Setting::SettingChanged,[&](const Setting &, QVariant value)
+        {
+            m_icons->directoryChanged(value.toString());
+        });
+        ENV.registerIconList(m_icons);
+        qDebug() << "<> Instance icons intialized.";
+    }
 
-	// Icon themes
-	{
-		// TODO: icon themes and instance icons do not mesh well together. Rearrange and fix discrepancies!
-		// set icon theme search path!
-		auto searchPaths = QIcon::themeSearchPaths();
-		searchPaths.append("iconthemes");
-		QIcon::setThemeSearchPaths(searchPaths);
-		qDebug() << "<> Icon themes initialized.";
-	}
+    // Icon themes
+    {
+        // TODO: icon themes and instance icons do not mesh well together. Rearrange and fix discrepancies!
+        // set icon theme search path!
+        auto searchPaths = QIcon::themeSearchPaths();
+        searchPaths.append("iconthemes");
+        QIcon::setThemeSearchPaths(searchPaths);
+        qDebug() << "<> Icon themes initialized.";
+    }
 
-	// Initialize widget themes
-	{
-		auto insertTheme = [this](ITheme * theme)
-		{
-			m_themes.insert(std::make_pair(theme->id(), std::unique_ptr<ITheme>(theme)));
-		};
-		auto darkTheme = new DarkTheme();
-		insertTheme(new SystemTheme());
-		insertTheme(darkTheme);
-		insertTheme(new BrightTheme());
-		insertTheme(new CustomTheme(darkTheme, "custom"));
-		qDebug() << "<> Widget themes initialized.";
-	}
+    // Initialize widget themes
+    {
+        auto insertTheme = [this](ITheme * theme)
+        {
+            m_themes.insert(std::make_pair(theme->id(), std::unique_ptr<ITheme>(theme)));
+        };
+        auto darkTheme = new DarkTheme();
+        insertTheme(new SystemTheme());
+        insertTheme(darkTheme);
+        insertTheme(new BrightTheme());
+        insertTheme(new CustomTheme(darkTheme, "custom"));
+        qDebug() << "<> Widget themes initialized.";
+    }
 
-	// initialize and load all instances
-	{
-		auto InstDirSetting = m_settings->getSetting("InstanceDir");
-		// instance path: check for problems with '!' in instance path and warn the user in the log
-		// and rememer that we have to show him a dialog when the gui starts (if it does so)
-		QString instDir = InstDirSetting->get().toString();
-		qDebug() << "Instance path              : " << instDir;
-		if (FS::checkProblemticPathJava(QDir(instDir)))
-		{
-			qWarning() << "Your instance path contains \'!\' and this is known to cause java problems";
-		}
-		m_instances.reset(new InstanceList(this));
-		m_instanceFolder = new FolderInstanceProvider(m_settings, instDir);
-		connect(InstDirSetting.get(), &Setting::SettingChanged, m_instanceFolder, &FolderInstanceProvider::on_InstFolderChanged);
-		m_instances->addInstanceProvider(m_instanceFolder);
-		qDebug() << "Loading Instances...";
-		m_instances->loadList(true);
-		qDebug() << "<> Instances loaded.";
-	}
+    // initialize and load all instances
+    {
+        auto InstDirSetting = m_settings->getSetting("InstanceDir");
+        // instance path: check for problems with '!' in instance path and warn the user in the log
+        // and rememer that we have to show him a dialog when the gui starts (if it does so)
+        QString instDir = InstDirSetting->get().toString();
+        qDebug() << "Instance path              : " << instDir;
+        if (FS::checkProblemticPathJava(QDir(instDir)))
+        {
+            qWarning() << "Your instance path contains \'!\' and this is known to cause java problems";
+        }
+        m_instances.reset(new InstanceList(this));
+        m_instanceFolder = new FolderInstanceProvider(m_settings, instDir);
+        connect(InstDirSetting.get(), &Setting::SettingChanged, m_instanceFolder, &FolderInstanceProvider::on_InstFolderChanged);
+        m_instances->addInstanceProvider(m_instanceFolder);
+        qDebug() << "Loading Instances...";
+        m_instances->loadList(true);
+        qDebug() << "<> Instances loaded.";
+    }
 
-	// and accounts
-	{
-		m_accounts.reset(new MojangAccountList(this));
-		qDebug() << "Loading accounts...";
-		m_accounts->setListFilePath("accounts.json", true);
-		m_accounts->loadList();
-		qDebug() << "<> Accounts loaded.";
-	}
+    // and accounts
+    {
+        m_accounts.reset(new MojangAccountList(this));
+        qDebug() << "Loading accounts...";
+        m_accounts->setListFilePath("accounts.json", true);
+        m_accounts->loadList();
+        qDebug() << "<> Accounts loaded.";
+    }
 
-	// init the http meta cache
-	{
-		ENV.initHttpMetaCache();
-		qDebug() << "<> Cache initialized.";
-	}
+    // init the http meta cache
+    {
+        ENV.initHttpMetaCache();
+        qDebug() << "<> Cache initialized.";
+    }
 
-	// init proxy settings
-	{
-		QString proxyTypeStr = settings()->get("ProxyType").toString();
-		QString addr = settings()->get("ProxyAddr").toString();
-		int port = settings()->get("ProxyPort").value<qint16>();
-		QString user = settings()->get("ProxyUser").toString();
-		QString pass = settings()->get("ProxyPass").toString();
-		ENV.updateProxySettings(proxyTypeStr, addr, port, user, pass);
-		qDebug() << "<> Proxy settings done.";
-	}
+    // init proxy settings
+    {
+        QString proxyTypeStr = settings()->get("ProxyType").toString();
+        QString addr = settings()->get("ProxyAddr").toString();
+        int port = settings()->get("ProxyPort").value<qint16>();
+        QString user = settings()->get("ProxyUser").toString();
+        QString pass = settings()->get("ProxyPass").toString();
+        ENV.updateProxySettings(proxyTypeStr, addr, port, user, pass);
+        qDebug() << "<> Proxy settings done.";
+    }
 
-	// now we have network, download translation updates
-	m_translations->downloadIndex();
+    // now we have network, download translation updates
+    m_translations->downloadIndex();
 
-	//FIXME: what to do with these?
-	m_profilers.insert("jprofiler", std::shared_ptr<BaseProfilerFactory>(new JProfilerFactory()));
-	m_profilers.insert("jvisualvm", std::shared_ptr<BaseProfilerFactory>(new JVisualVMFactory()));
-	for (auto profiler : m_profilers.values())
-	{
-		profiler->registerSettings(m_settings);
-	}
+    //FIXME: what to do with these?
+    m_profilers.insert("jprofiler", std::shared_ptr<BaseProfilerFactory>(new JProfilerFactory()));
+    m_profilers.insert("jvisualvm", std::shared_ptr<BaseProfilerFactory>(new JVisualVMFactory()));
+    for (auto profiler : m_profilers.values())
+    {
+        profiler->registerSettings(m_settings);
+    }
 
-	// Create the MCEdit thing... why is this here?
-	{
-		m_mcedit.reset(new MCEditTool(m_settings));
-	}
+    // Create the MCEdit thing... why is this here?
+    {
+        m_mcedit.reset(new MCEditTool(m_settings));
+    }
 
-	connect(this, &MultiMC::aboutToQuit, [this](){
-		if(m_instances)
-		{
-			// save any remaining instance state
-			m_instances->saveNow();
-		}
-		if(logFile)
-		{
-			logFile->flush();
-			logFile->close();
-		}
+    connect(this, &MultiMC::aboutToQuit, [this](){
+        if(m_instances)
+        {
+            // save any remaining instance state
+            m_instances->saveNow();
+        }
+        if(logFile)
+        {
+            logFile->flush();
+            logFile->close();
+        }
 
-		FtbPrivatePackManager::save();
-	});
+        FtbPrivatePackManager::save();
+    });
 
-	FtbPrivatePackManager::refresh();
+    FtbPrivatePackManager::refresh();
 
-	{
-		setIconTheme(settings()->get("IconTheme").toString());
-		qDebug() << "<> Icon theme set.";
-		setApplicationTheme(settings()->get("ApplicationTheme").toString(), true);
-		qDebug() << "<> Application theme set.";
-	}
+    {
+        setIconTheme(settings()->get("IconTheme").toString());
+        qDebug() << "<> Icon theme set.";
+        setApplicationTheme(settings()->get("ApplicationTheme").toString(), true);
+        qDebug() << "<> Application theme set.";
+    }
 
-	// Initialize analytics
-	[this]()
-	{
-		const int analyticsVersion = 2;
-		if(BuildConfig.ANALYTICS_ID.isEmpty())
-		{
-			return;
-		}
+    // Initialize analytics
+    [this]()
+    {
+        const int analyticsVersion = 2;
+        if(BuildConfig.ANALYTICS_ID.isEmpty())
+        {
+            return;
+        }
 
-		auto analyticsSetting = m_settings->getSetting("Analytics");
-		connect(analyticsSetting.get(), &Setting::SettingChanged, this, &MultiMC::analyticsSettingChanged);
-		QString clientID = m_settings->get("AnalyticsClientID").toString();
-		if(clientID.isEmpty())
-		{
-			clientID = QUuid::createUuid().toString();
-			clientID.remove(QLatin1Char('{'));
-			clientID.remove(QLatin1Char('}'));
-			m_settings->set("AnalyticsClientID", clientID);
-		}
-		m_analytics = new GAnalytics(BuildConfig.ANALYTICS_ID, clientID, analyticsVersion, this);
-		m_analytics->setLogLevel(GAnalytics::Debug);
-		m_analytics->setAnonymizeIPs(true);
-		m_analytics->setNetworkAccessManager(&ENV.qnam());
+        auto analyticsSetting = m_settings->getSetting("Analytics");
+        connect(analyticsSetting.get(), &Setting::SettingChanged, this, &MultiMC::analyticsSettingChanged);
+        QString clientID = m_settings->get("AnalyticsClientID").toString();
+        if(clientID.isEmpty())
+        {
+            clientID = QUuid::createUuid().toString();
+            clientID.remove(QLatin1Char('{'));
+            clientID.remove(QLatin1Char('}'));
+            m_settings->set("AnalyticsClientID", clientID);
+        }
+        m_analytics = new GAnalytics(BuildConfig.ANALYTICS_ID, clientID, analyticsVersion, this);
+        m_analytics->setLogLevel(GAnalytics::Debug);
+        m_analytics->setAnonymizeIPs(true);
+        m_analytics->setNetworkAccessManager(&ENV.qnam());
 
-		if(m_settings->get("AnalyticsSeen").toInt() < m_analytics->version())
-		{
-			qDebug() << "Analytics info not seen by user yet (or old version).";
-			return;
-		}
-		if(!m_settings->get("Analytics").toBool())
-		{
-			qDebug() << "Analytics disabled by user.";
-			return;
-		}
+        if(m_settings->get("AnalyticsSeen").toInt() < m_analytics->version())
+        {
+            qDebug() << "Analytics info not seen by user yet (or old version).";
+            return;
+        }
+        if(!m_settings->get("Analytics").toBool())
+        {
+            qDebug() << "Analytics disabled by user.";
+            return;
+        }
 
-		m_analytics->enable();
-		qDebug() << "<> Initialized analytics with tid" << BuildConfig.ANALYTICS_ID;
-	}();
+        m_analytics->enable();
+        qDebug() << "<> Initialized analytics with tid" << BuildConfig.ANALYTICS_ID;
+    }();
 
-	if(createSetupWizard())
-	{
-		return;
-	}
-	performMainStartupAction();
+    if(createSetupWizard())
+    {
+        return;
+    }
+    performMainStartupAction();
 }
 
 bool MultiMC::createSetupWizard()

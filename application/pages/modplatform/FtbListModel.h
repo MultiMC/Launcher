@@ -55,16 +55,16 @@ private slots:
     void logoLoaded(QString logo, QIcon out);
 
 public:
-	FtbListModel(QObject *parent);
-	~FtbListModel();
-	int rowCount(const QModelIndex &parent) const override;
-	int columnCount(const QModelIndex &parent) const override;
-	QVariant data(const QModelIndex &index, int role) const override;
-	Qt::ItemFlags flags(const QModelIndex &index) const override;
+    FtbListModel(QObject *parent);
+    ~FtbListModel();
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-	void fill(FtbModpackList modpacks);
-	void addPack(FtbModpack modpack);
-	void clear();
+    void fill(FtbModpackList modpacks);
+    void addPack(FtbModpack modpack);
+    void clear();
 
     FtbModpack at(int row);
     void getLogo(const QString &logo, LogoCallback callback);

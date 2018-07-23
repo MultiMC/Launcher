@@ -431,7 +431,7 @@ set(FTB_SOURCES
     modplatform/ftb/FtbPrivatePackManager.h
     modplatform/ftb/FtbPrivatePackManager.cpp
 
-	modplatform/ftb/PackHelpers.h
+    modplatform/ftb/PackHelpers.h
 )
 
 set(FLAME_SOURCES

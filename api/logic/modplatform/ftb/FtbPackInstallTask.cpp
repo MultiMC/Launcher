@@ -28,16 +28,16 @@ void FtbPackInstallTask::downloadPack()
     auto entry = ENV.metacache()->resolveEntry("FTBPacks", packoffset);
     NetJob *job = new NetJob("Download FTB Pack");
 
-	entry->setStale(true);
-	QString url;
-	if(m_pack.type == FtbPackType::Private)
-	{
-		url = QString("http://ftb.cursecdn.com/FTB2/privatepacks/%1").arg(packoffset);
-	} else {
-		url = QString("http://ftb.cursecdn.com/FTB2/modpacks/%1").arg(packoffset);
-	}
-	job->addNetAction(Net::Download::makeCached(url, entry));
-	archivePath = entry->getFullPath();
+    entry->setStale(true);
+    QString url;
+    if(m_pack.type == FtbPackType::Private)
+    {
+        url = QString("http://ftb.cursecdn.com/FTB2/privatepacks/%1").arg(packoffset);
+    } else {
+        url = QString("http://ftb.cursecdn.com/FTB2/modpacks/%1").arg(packoffset);
+    }
+    job->addNetAction(Net::Download::makeCached(url, entry));
+    archivePath = entry->getFullPath();
 
     netJobContainer.reset(job);
     connect(job, &NetJob::succeeded, this, &FtbPackInstallTask::onDownloadSucceeded);

@@ -70,29 +70,29 @@ private slots:
     void ftbPackDataDownloadSuccessfully(FtbModpackList publicPacks, FtbModpackList thirdPartyPacks);
     void ftbPackDataDownloadFailed(QString reason);
 
-	void ftbPrivatePackDataDownloadSuccessfully(FtbModpack pack);
-	void ftbPrivatePackDataDownloadFailed(QString reason, QString packCode);
+    void ftbPrivatePackDataDownloadSuccessfully(FtbModpack pack);
+    void ftbPrivatePackDataDownloadFailed(QString reason, QString packCode);
 
-	void onSortingSelectionChanged(QString data);
-	void onVersionSelectionItemChanged(QString data);
+    void onSortingSelectionChanged(QString data);
+    void onVersionSelectionItemChanged(QString data);
 
-	void onPublicPackSelectionChanged(QModelIndex first, QModelIndex second);
-	void onThirdPartyPackSelectionChanged(QModelIndex first, QModelIndex second);
-	void onPrivatePackSelectionChanged(QModelIndex first, QModelIndex second);
+    void onPublicPackSelectionChanged(QModelIndex first, QModelIndex second);
+    void onThirdPartyPackSelectionChanged(QModelIndex first, QModelIndex second);
+    void onPrivatePackSelectionChanged(QModelIndex first, QModelIndex second);
 
     void onTabChanged(int tab);
 
-	void onAddPackClicked();
-	void onRemovePackClicked();
+    void onAddPackClicked();
+    void onRemovePackClicked();
 
 private:
-	FtbFilterModel* currentModel = nullptr;
-	QTreeView* currentList = nullptr;
-	QTextBrowser* currentModpackInfo = nullptr;
+    FtbFilterModel* currentModel = nullptr;
+    QTreeView* currentList = nullptr;
+    QTextBrowser* currentModpackInfo = nullptr;
 
-	bool initialized = false;
-	FtbModpack selected;
-	QString selectedVersion;
+    bool initialized = false;
+    FtbModpack selected;
+    QString selectedVersion;
 
     FtbListModel* publicListModel = nullptr;
     FtbFilterModel* publicFilterModel = nullptr;
@@ -100,11 +100,11 @@ private:
     FtbListModel *thirdPartyModel = nullptr;
     FtbFilterModel *thirdPartyFilterModel = nullptr;
 
-	FtbListModel *privateListModel = nullptr;
-	FtbFilterModel *privateFilterModel = nullptr;
+    FtbListModel *privateListModel = nullptr;
+    FtbFilterModel *privateFilterModel = nullptr;
 
-	FtbPackFetchTask *ftbFetchTask = nullptr;
-	NewInstanceDialog* dialog = nullptr;
+    FtbPackFetchTask *ftbFetchTask = nullptr;
+    NewInstanceDialog* dialog = nullptr;
 
     Ui::FTBPage *ui = nullptr;
 };

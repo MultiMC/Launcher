@@ -111,10 +111,10 @@ QList<BasePage *> NewInstanceDialog::getPages()
     return
     {
         new VanillaPage(this),
-        new FTBPage(this),
-        importPage,
-        new TwitchPage(this),
-        new TechnicPage(this)
+                new FTBPage(this),
+                importPage,
+                new TwitchPage(this),
+                new TechnicPage(this)
     };
 }
 
@@ -133,14 +133,14 @@ void NewInstanceDialog::setSuggestedPack(const QString& name, InstanceTask* task
     creationTask.reset(task);
     ui->instNameTextBox->setPlaceholderText(name);
 
-	if(!task)
-	{
-		ui->iconButton->setIcon(MMC->icons()->getIcon("default"));
-		importIcon = false;
-	}
+    if(!task)
+    {
+        ui->iconButton->setIcon(MMC->icons()->getIcon("default"));
+        importIcon = false;
+    }
 
-	auto allowOK = task && !instName().isEmpty();
-	m_buttons->button(QDialogButtonBox::Ok)->setEnabled(allowOK);
+    auto allowOK = task && !instName().isEmpty();
+    m_buttons->button(QDialogButtonBox::Ok)->setEnabled(allowOK);
 }
 
 void NewInstanceDialog::setSuggestedIconFromFile(const QString &path, const QString &name)

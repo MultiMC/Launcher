@@ -14,13 +14,13 @@ public:
     FtbPackFetchTask();
     virtual ~FtbPackFetchTask();
 
-	void fetch();
-	void fetchPrivate();
+    void fetch();
+    void fetchPrivate();
 
 private:
-	NetJobPtr jobPtr;
-	QByteArray publicModpacksXmlFileData;
-	QByteArray thirdPartyModpacksXmlFileData;
+    NetJobPtr jobPtr;
+    QByteArray publicModpacksXmlFileData;
+    QByteArray thirdPartyModpacksXmlFileData;
 
     bool parseAndAddPacks(QByteArray &data, FtbPackType packType, FtbModpackList &list);
     FtbModpackList publicPacks;
@@ -34,6 +34,6 @@ signals:
     void finished(FtbModpackList publicPacks, FtbModpackList thirdPartyPacks);
     void failed(QString reason);
 
-	void privateFileDownloadFinished(FtbModpack modpack);
-	void privateFileDownloadFailed(QString reason, QString packCode);
+    void privateFileDownloadFinished(FtbModpack modpack);
+    void privateFileDownloadFailed(QString reason, QString packCode);
 };
