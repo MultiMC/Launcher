@@ -17,18 +17,19 @@ void FtbPackFetchTask::fetch()
 
 	NetJob *netJob = new NetJob("FtbModpackFetch");
 
-	QUrl publicPacksUrl = QUrl("https://ftb.cursecdn.com/FTB2/static/modpacks.xml");
-	qDebug() << "Downloading public version info from" << publicPacksUrl.toString();
-	netJob->addNetAction(Net::Download::makeByteArray(publicPacksUrl, &publicModpacksXmlFileData));
+    QUrl publicPacksUrl = QUrl("https://ftb.cursecdn.com/FTB2/static/modpacks.xml");
+    qDebug() << "Downloading public version info from" << publicPacksUrl.toString();
+    netJob->addNetAction(Net::Download::makeByteArray(publicPacksUrl, &publicModpacksXmlFileData));
 
-	QUrl thirdPartyUrl = QUrl("https://ftb.cursecdn.com/FTB2/static/thirdparty.xml");
-	qDebug() << "Downloading thirdparty version info from" << thirdPartyUrl.toString();
-	netJob->addNetAction(Net::Download::makeByteArray(thirdPartyUrl, &thirdPartyModpacksXmlFileData));
+    QUrl thirdPartyUrl = QUrl("https://ftb.cursecdn.com/FTB2/static/thirdparty.xml");
+    qDebug() << "Downloading thirdparty version info from" << thirdPartyUrl.toString();
+    netJob->addNetAction(Net::Download::makeByteArray(thirdPartyUrl, &thirdPartyModpacksXmlFileData));
 
-	QObject::connect(netJob, &NetJob::succeeded, this, &FtbPackFetchTask::fileDownloadFinished);
-	QObject::connect(netJob, &NetJob::failed, this, &FtbPackFetchTask::fileDownloadFailed);
+    QObject::connect(netJob, &NetJob::succeeded, this, &FtbPackFetchTask::fileDownloadFinished);
+    QObject::connect(netJob, &NetJob::failed, this, &FtbPackFetchTask::fileDownloadFailed);
 
-	netJob->start();
+    jobPtr.reset(netJob);
+    netJob->start();
 }
 
 void FtbPackFetchTask::fetchPrivate()
@@ -71,17 +72,17 @@ void FtbPackFetchTask::fetchPrivate()
 
 void FtbPackFetchTask::fileDownloadFinished()
 {
-	jobPtr.reset();
+    jobPtr.reset();
 
-	QStringList failedLists;
+    QStringList failedLists;
 
-	if(!parseAndAddPacks(publicModpacksXmlFileData, FtbPackType::Public, publicPacks)) {
-		failedLists.append(tr("Public Packs"));
-	}
+    if(!parseAndAddPacks(publicModpacksXmlFileData, FtbPackType::Public, publicPacks)) {
+        failedLists.append(tr("Public Packs"));
+    }
 
-	if(!parseAndAddPacks(thirdPartyModpacksXmlFileData, FtbPackType::ThirdParty, thirdPartyPacks)) {
-		failedLists.append(tr("Third Party Packs"));
-	}
+    if(!parseAndAddPacks(thirdPartyModpacksXmlFileData, FtbPackType::ThirdParty, thirdPartyPacks)) {
+        failedLists.append(tr("Third Party Packs"));
+    }
 
 	if(failedLists.size() > 0) {
 		emit failed(tr("Failed to download some pack lists: %1").arg(failedLists.join("\n- ")));

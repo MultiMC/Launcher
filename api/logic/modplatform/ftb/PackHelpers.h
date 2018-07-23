@@ -7,9 +7,9 @@
 
 //Header for structs etc...
 enum FtbPackType {
-	Public,
-	ThirdParty,
-	Private
+    Public,
+    ThirdParty,
+    Private
 };
 
 struct FtbModpack {

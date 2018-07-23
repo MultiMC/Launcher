@@ -8,11 +8,11 @@
 
 class MULTIMC_LOGIC_EXPORT FtbPackFetchTask : public QObject {
 
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	FtbPackFetchTask();
-	virtual ~FtbPackFetchTask();
+    FtbPackFetchTask();
+    virtual ~FtbPackFetchTask();
 
 	void fetch();
 	void fetchPrivate();
@@ -22,17 +22,17 @@ private:
 	QByteArray publicModpacksXmlFileData;
 	QByteArray thirdPartyModpacksXmlFileData;
 
-	bool parseAndAddPacks(QByteArray &data, FtbPackType packType, FtbModpackList &list);
-	FtbModpackList publicPacks;
-	FtbModpackList thirdPartyPacks;
+    bool parseAndAddPacks(QByteArray &data, FtbPackType packType, FtbModpackList &list);
+    FtbModpackList publicPacks;
+    FtbModpackList thirdPartyPacks;
 
 protected slots:
-	void fileDownloadFinished();
-	void fileDownloadFailed(QString reason);
+    void fileDownloadFinished();
+    void fileDownloadFailed(QString reason);
 
 signals:
-	void finished(FtbModpackList publicPacks, FtbModpackList thirdPartyPacks);
-	void failed(QString reason);
+    void finished(FtbModpackList publicPacks, FtbModpackList thirdPartyPacks);
+    void failed(QString reason);
 
 	void privateFileDownloadFinished(FtbModpack modpack);
 	void privateFileDownloadFailed(QString reason, QString packCode);

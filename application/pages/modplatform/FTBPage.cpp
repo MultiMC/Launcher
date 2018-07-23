@@ -15,42 +15,42 @@
 FTBPage::FTBPage(NewInstanceDialog* dialog, QWidget *parent)
     : QWidget(parent), dialog(dialog), ui(new Ui::FTBPage)
 {
-	ftbFetchTask = new FtbPackFetchTask();
+    ftbFetchTask = new FtbPackFetchTask();
 
 	ui->setupUi(this);
 
-	{
-		publicFilterModel = new FtbFilterModel(this);
-		publicListModel = new FtbListModel(this);
-		publicFilterModel->setSourceModel(publicListModel);
+    {
+        publicFilterModel = new FtbFilterModel(this);
+        publicListModel = new FtbListModel(this);
+        publicFilterModel->setSourceModel(publicListModel);
 
-		ui->publicPackList->setModel(publicFilterModel);
-		ui->publicPackList->setSortingEnabled(true);
-		ui->publicPackList->header()->hide();
-		ui->publicPackList->setIndentation(0);
-		ui->publicPackList->setIconSize(QSize(42, 42));
+        ui->publicPackList->setModel(publicFilterModel);
+        ui->publicPackList->setSortingEnabled(true);
+        ui->publicPackList->header()->hide();
+        ui->publicPackList->setIndentation(0);
+        ui->publicPackList->setIconSize(QSize(42, 42));
 
-		for(int i = 0; i < publicFilterModel->getAvailableSortings().size(); i++)
-		{
-			ui->sortByBox->addItem(publicFilterModel->getAvailableSortings().keys().at(i));
-		}
+        for(int i = 0; i < publicFilterModel->getAvailableSortings().size(); i++)
+        {
+            ui->sortByBox->addItem(publicFilterModel->getAvailableSortings().keys().at(i));
+        }
 
-		ui->sortByBox->setCurrentText(publicFilterModel->translateCurrentSorting());
-	}
+        ui->sortByBox->setCurrentText(publicFilterModel->translateCurrentSorting());
+    }
 
-	{
-		thirdPartyFilterModel = new FtbFilterModel(this);
-		thirdPartyModel = new FtbListModel(this);
-		thirdPartyFilterModel->setSourceModel(thirdPartyModel);
+    {
+        thirdPartyFilterModel = new FtbFilterModel(this);
+        thirdPartyModel = new FtbListModel(this);
+        thirdPartyFilterModel->setSourceModel(thirdPartyModel);
 
-		ui->thirdPartyPackList->setModel(thirdPartyFilterModel);
-		ui->thirdPartyPackList->setSortingEnabled(true);
-		ui->thirdPartyPackList->header()->hide();
-		ui->thirdPartyPackList->setIndentation(0);
-		ui->thirdPartyPackList->setIconSize(QSize(42, 42));
+        ui->thirdPartyPackList->setModel(thirdPartyFilterModel);
+        ui->thirdPartyPackList->setSortingEnabled(true);
+        ui->thirdPartyPackList->header()->hide();
+        ui->thirdPartyPackList->setIndentation(0);
+        ui->thirdPartyPackList->setIconSize(QSize(42, 42));
 
-		thirdPartyFilterModel->setSorting(publicFilterModel->getCurrentSorting());
-	}
+        thirdPartyFilterModel->setSorting(publicFilterModel->getCurrentSorting());
+    }
 
 	{
 		privateFilterModel = new FtbFilterModel(this);
@@ -92,15 +92,15 @@ FTBPage::FTBPage(NewInstanceDialog* dialog, QWidget *parent)
 
 FTBPage::~FTBPage()
 {
-	delete ui;
-	if(ftbFetchTask) {
-		ftbFetchTask->deleteLater();
-	}
+    delete ui;
+    if(ftbFetchTask) {
+        ftbFetchTask->deleteLater();
+    }
 }
 
 bool FTBPage::shouldDisplay() const
 {
-	return true;
+    return true;
 }
 
 void FTBPage::openedImpl()
@@ -159,13 +159,13 @@ void FTBPage::suggestCurrent()
 
 void FTBPage::ftbPackDataDownloadSuccessfully(FtbModpackList publicPacks, FtbModpackList thirdPartyPacks)
 {
-	publicListModel->fill(publicPacks);
-	thirdPartyModel->fill(thirdPartyPacks);
+    publicListModel->fill(publicPacks);
+    thirdPartyModel->fill(thirdPartyPacks);
 }
 
 void FTBPage::ftbPackDataDownloadFailed(QString reason)
 {
-	//TODO: Display the error
+    //TODO: Display the error
 }
 
 void FTBPage::ftbPrivatePackDataDownloadSuccessfully(FtbModpack pack)
@@ -185,24 +185,24 @@ void FTBPage::ftbPrivatePackDataDownloadFailed(QString reason, QString packCode)
 
 void FTBPage::onPublicPackSelectionChanged(QModelIndex now, QModelIndex prev)
 {
-	if(!now.isValid())
-	{
-		onPackSelectionChanged();
-		return;
-	}
-	FtbModpack selectedPack = publicFilterModel->data(now, Qt::UserRole).value<FtbModpack>();
-	onPackSelectionChanged(&selectedPack);
+    if(!now.isValid())
+    {
+        onPackSelectionChanged();
+        return;
+    }
+    FtbModpack selectedPack = publicFilterModel->data(now, Qt::UserRole).value<FtbModpack>();
+    onPackSelectionChanged(&selectedPack);
 }
 
 void FTBPage::onThirdPartyPackSelectionChanged(QModelIndex now, QModelIndex prev)
 {
-	if(!now.isValid())
-	{
-		onPackSelectionChanged();
-		return;
-	}
-	FtbModpack selectedPack = thirdPartyFilterModel->data(now, Qt::UserRole).value<FtbModpack>();
-	onPackSelectionChanged(&selectedPack);
+    if(!now.isValid())
+    {
+        onPackSelectionChanged();
+        return;
+    }
+    FtbModpack selectedPack = thirdPartyFilterModel->data(now, Qt::UserRole).value<FtbModpack>();
+    onPackSelectionChanged(&selectedPack);
 }
 
 void FTBPage::onPrivatePackSelectionChanged(QModelIndex now, QModelIndex prev)
@@ -256,14 +256,14 @@ void FTBPage::onPackSelectionChanged(FtbModpack* pack)
 
 void FTBPage::onVersionSelectionItemChanged(QString data)
 {
-	if(data.isNull() || data.isEmpty())
-	{
-		selectedVersion = "";
-		return;
-	}
+    if(data.isNull() || data.isEmpty())
+    {
+        selectedVersion = "";
+        return;
+    }
 
-	selectedVersion = data;
-	suggestCurrent();
+    selectedVersion = data;
+    suggestCurrent();
 }
 
 void FTBPage::onSortingSelectionChanged(QString data)

@@ -38,37 +38,37 @@ class FtbPrivatePackFilterModel;
 
 class FTBPage : public QWidget, public BasePage
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	explicit FTBPage(NewInstanceDialog * dialog, QWidget *parent = 0);
-	virtual ~FTBPage();
-	QString displayName() const override
-	{
-		return tr("FTB Legacy");
-	}
-	QIcon icon() const override
-	{
-		return MMC->getThemedIcon("ftb_logo");
-	}
-	QString id() const override
-	{
-		return "ftb";
-	}
-	QString helpPage() const override
-	{
-		return "FTB-platform";
-	}
-	bool shouldDisplay() const override;
-	void openedImpl() override;
+    explicit FTBPage(NewInstanceDialog * dialog, QWidget *parent = 0);
+    virtual ~FTBPage();
+    QString displayName() const override
+    {
+        return tr("FTB Legacy");
+    }
+    QIcon icon() const override
+    {
+        return MMC->getThemedIcon("ftb_logo");
+    }
+    QString id() const override
+    {
+        return "ftb";
+    }
+    QString helpPage() const override
+    {
+        return "FTB-platform";
+    }
+    bool shouldDisplay() const override;
+    void openedImpl() override;
 
 private:
-	void suggestCurrent();
-	void onPackSelectionChanged(FtbModpack *pack = nullptr);
+    void suggestCurrent();
+    void onPackSelectionChanged(FtbModpack *pack = nullptr);
 
 private slots:
-	void ftbPackDataDownloadSuccessfully(FtbModpackList publicPacks, FtbModpackList thirdPartyPacks);
-	void ftbPackDataDownloadFailed(QString reason);
+    void ftbPackDataDownloadSuccessfully(FtbModpackList publicPacks, FtbModpackList thirdPartyPacks);
+    void ftbPackDataDownloadFailed(QString reason);
 
 	void ftbPrivatePackDataDownloadSuccessfully(FtbModpack pack);
 	void ftbPrivatePackDataDownloadFailed(QString reason, QString packCode);
@@ -80,7 +80,7 @@ private slots:
 	void onThirdPartyPackSelectionChanged(QModelIndex first, QModelIndex second);
 	void onPrivatePackSelectionChanged(QModelIndex first, QModelIndex second);
 
-	void onTabChanged(int tab);
+    void onTabChanged(int tab);
 
 	void onAddPackClicked();
 	void onRemovePackClicked();
@@ -94,11 +94,11 @@ private:
 	FtbModpack selected;
 	QString selectedVersion;
 
-	FtbListModel* publicListModel = nullptr;
-	FtbFilterModel* publicFilterModel = nullptr;
+    FtbListModel* publicListModel = nullptr;
+    FtbFilterModel* publicFilterModel = nullptr;
 
-	FtbListModel *thirdPartyModel = nullptr;
-	FtbFilterModel *thirdPartyFilterModel = nullptr;
+    FtbListModel *thirdPartyModel = nullptr;
+    FtbFilterModel *thirdPartyFilterModel = nullptr;
 
 	FtbListModel *privateListModel = nullptr;
 	FtbFilterModel *privateFilterModel = nullptr;
@@ -106,5 +106,5 @@ private:
 	FtbPackFetchTask *ftbFetchTask = nullptr;
 	NewInstanceDialog* dialog = nullptr;
 
-	Ui::FTBPage *ui = nullptr;
+    Ui::FTBPage *ui = nullptr;
 };
