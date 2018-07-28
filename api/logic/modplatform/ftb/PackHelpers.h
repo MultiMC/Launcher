@@ -30,6 +30,7 @@ struct FtbModpack {
     bool broken = false;
 
     FtbPackType type;
+    QString packCode;
 };
 
 //We need it for the proxy model

@@ -1,5 +1,6 @@
 #include "FtbPackFetchTask.h"
 #include <QDomDocument>
+#include "FtbPrivatePackManager.h"
 
 FtbPackFetchTask::FtbPackFetchTask()
 {
@@ -11,6 +12,9 @@ FtbPackFetchTask::~FtbPackFetchTask()
 
 void FtbPackFetchTask::fetch()
 {
+    publicPacks.clear();
+    thirdPartyPacks.clear();
+
     NetJob *netJob = new NetJob("FtbModpackFetch");
 
     QUrl publicPacksUrl = QUrl("https://ftb.cursecdn.com/FTB2/static/modpacks.xml");
@@ -28,6 +32,44 @@ void FtbPackFetchTask::fetch()
     netJob->start();
 }
 
+void FtbPackFetchTask::fetchPrivate()
+{
+    if(FtbPrivatePackManager::getCurrentPackCodes().size() > 0) {
+        QString privatePackBaseUrl = QString("https://ftb.cursecdn.com/FTB2/static/%1.xml");
+
+        foreach (const QString &packCode, FtbPrivatePackManager::getCurrentPackCodes()) {
+            QByteArray *data = new QByteArray();
+            NetJob *job = new NetJob("Fetching private pack");
+            job->addNetAction(Net::Download::makeByteArray(privatePackBaseUrl.arg(packCode), data));
+
+            QObject::connect(job, &NetJob::succeeded, this, [this, job, data, packCode]{
+                FtbModpackList packs = FtbModpackList();
+                parseAndAddPacks(*data, FtbPackType::Private, packs);
+                foreach(FtbModpack currentPack, packs) {
+                    currentPack.packCode = packCode;
+                    emit privateFileDownloadFinished(currentPack);
+                }
+
+                job->deleteLater();
+
+                data->clear();
+                delete data;
+            });
+
+            QObject::connect(job, &NetJob::failed, this, [this, job, packCode, data](QString reason){
+                emit privateFileDownloadFailed(reason, packCode);
+                job->deleteLater();
+
+                data->clear();
+                delete data;
+            });
+
+            job->start();
+        }
+    }
+
+}
+
 void FtbPackFetchTask::fileDownloadFinished()
 {
     jobPtr.reset();
@@ -43,7 +85,7 @@ void FtbPackFetchTask::fileDownloadFinished()
     }
 
     if(failedLists.size() > 0) {
-        emit failed(QString("Failed to download some pack lists:%1").arg(failedLists.join("\n- ")));
+        emit failed(tr("Failed to download some pack lists: %1").arg(failedLists.join("\n- ")));
     } else {
         emit finished(publicPacks, thirdPartyPacks);
     }
@@ -58,7 +100,7 @@ bool FtbPackFetchTask::parseAndAddPacks(QByteArray &data, FtbPackType packType, 
     int errorCol = -1;
 
     if(!doc.setContent(data, false, &errorMsg, &errorLine, &errorCol)){
-        auto fullErrMsg = QString("Failed to fetch modpack data: %s %d:%d!").arg(errorMsg, errorLine, errorCol);
+        auto fullErrMsg = QString("Failed to fetch modpack data: %1 %2:3d!").arg(errorMsg, errorLine, errorCol);
         qWarning() << fullErrMsg;
         data.clear();
         return false;
@@ -112,6 +154,6 @@ bool FtbPackFetchTask::parseAndAddPacks(QByteArray &data, FtbPackType packType, 
 }
 
 void FtbPackFetchTask::fileDownloadFailed(QString reason){
-    qWarning() << "Fetching FtbPacks failed: " << reason;
+    qWarning() << "Fetching FtbPacks failed:" << reason;
     emit failed(reason);
 }

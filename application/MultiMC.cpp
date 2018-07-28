@@ -37,6 +37,7 @@
 #include "dialogs/CustomMessageBox.h"
 #include "InstanceList.h"
 #include "FolderInstanceProvider.h"
+#include "modplatform/ftb/FtbPrivatePackManager.h"
 
 #include <minecraft/auth/MojangAccountList.h>
 #include "icons/IconList.h"
@@ -233,31 +234,31 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     if (!FS::ensureFolderPathExists(dataPath))
     {
         showFatalErrorMessage(
-            "MultiMC data folder could not be created.",
-            "MultiMC data folder could not be created.\n"
-            "\n"
-#if defined(Q_OS_MAC)
-            MACOS_HINT
-#endif
-            "Make sure you have the right permissions to the MultiMC data folder and any folder needed to access it.\n"
-            "\n"
-            "MultiMC cannot continue until you fix this problem."
-        );
+                    "MultiMC data folder could not be created.",
+                    "MultiMC data folder could not be created.\n"
+                    "\n"
+            #if defined(Q_OS_MAC)
+                    MACOS_HINT
+            #endif
+                    "Make sure you have the right permissions to the MultiMC data folder and any folder needed to access it.\n"
+                    "\n"
+                    "MultiMC cannot continue until you fix this problem."
+                    );
         return;
     }
     if (!QDir::setCurrent(dataPath))
     {
         showFatalErrorMessage(
-            "MultiMC data folder could not be opened.",
-            "MultiMC data folder could not be opened.\n"
-            "\n"
-#if defined(Q_OS_MAC)
-            MACOS_HINT
-#endif
-            "Make sure you have the right permissions to the MultiMC data folder.\n"
-            "\n"
-            "MultiMC cannot continue until you fix this problem."
-        );
+                    "MultiMC data folder could not be opened.",
+                    "MultiMC data folder could not be opened.\n"
+                    "\n"
+            #if defined(Q_OS_MAC)
+                    MACOS_HINT
+            #endif
+                    "Make sure you have the right permissions to the MultiMC data folder.\n"
+                    "\n"
+                    "MultiMC cannot continue until you fix this problem."
+                    );
         return;
     }
 
@@ -305,16 +306,16 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         if(!logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
         {
             showFatalErrorMessage(
-                "MultiMC data folder is not writable!",
-                "MultiMC couldn't create a log file - the MultiMC data folder is not writable.\n"
-                "\n"
-    #if defined(Q_OS_MAC)
-                MACOS_HINT
-    #endif
-                "Make sure you have write permissions to the MultiMC data folder.\n"
-                "\n"
-                "MultiMC cannot continue until you fix this problem."
-            );
+                        "MultiMC data folder is not writable!",
+                        "MultiMC couldn't create a log file - the MultiMC data folder is not writable.\n"
+                        "\n"
+            #if defined(Q_OS_MAC)
+                        MACOS_HINT
+            #endif
+                        "Make sure you have write permissions to the MultiMC data folder.\n"
+                        "\n"
+                        "MultiMC cannot continue until you fix this problem."
+                        );
             return;
         }
         qInstallMessageHandler(appDebugOutput);
@@ -411,7 +412,6 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 #else
         defaultMonospace = "Monospace";
 #endif
-
         // resolve the font so the default actually matches
         QFont consoleFont;
         consoleFont.setFamily(defaultMonospace);
@@ -421,7 +421,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         QString resolvedDefaultMonospace = consoleFontInfo.family();
         QFont resolvedFont(resolvedDefaultMonospace);
         qDebug() << "Detected default console font:" << resolvedDefaultMonospace
-            << ", substitutions:" << resolvedFont.substitutions().join(',');
+                 << ", substitutions:" << resolvedFont.substitutions().join(',');
 
         m_settings->registerSetting("ConsoleFont", resolvedDefaultMonospace);
         m_settings->registerSetting("ConsoleFontSize", defaultSize);
@@ -659,7 +659,11 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
             logFile->flush();
             logFile->close();
         }
+
+        FtbPrivatePackManager::save();
     });
+
+    FtbPrivatePackManager::refresh();
 
     {
         setIconTheme(settings()->get("IconTheme").toString());

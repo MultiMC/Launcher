@@ -428,6 +428,9 @@ set(FTB_SOURCES
     modplatform/ftb/FtbPackInstallTask.h
     modplatform/ftb/FtbPackInstallTask.cpp
 
+    modplatform/ftb/FtbPrivatePackManager.h
+    modplatform/ftb/FtbPrivatePackManager.cpp
+
     modplatform/ftb/PackHelpers.h
 )
 

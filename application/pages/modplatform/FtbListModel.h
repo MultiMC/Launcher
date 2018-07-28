@@ -7,6 +7,7 @@
 #include <QSortFilterProxyModel>
 #include <QThreadPool>
 #include <QIcon>
+#include <QStyledItemDelegate>
 
 #include <functional>
 
@@ -49,7 +50,6 @@ private:
     void requestLogo(QString file);
     QString translatePackType(FtbPackType type) const;
 
-
 private slots:
     void logoFailed(QString logo);
     void logoLoaded(QString logo, QIcon out);
@@ -60,8 +60,11 @@ public:
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void fill(FtbModpackList modpacks);
+    void addPack(FtbModpack modpack);
+    void clear();
 
     FtbModpack at(int row);
     void getLogo(const QString &logo, LogoCallback callback);
