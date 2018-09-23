@@ -58,6 +58,7 @@ public:
     {
         return "Getting-Started#adding-an-account";
     }
+    bool apply() override;
 
 public
 slots:
@@ -82,6 +83,10 @@ protected:
 protected
 slots:
     void addAccount(const QString& errMsg="");
+
+private:
+    void applySettings();
+    void loadSettings();
 
 private:
     Ui::AccountListPage *ui;

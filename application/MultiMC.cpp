@@ -488,6 +488,9 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("InstSortMode", "Name");
         m_settings->registerSetting("SelectedInstance", QString());
 
+        // Offline mode stuff
+        m_settings->registerSetting("OfflineModeNameMode", "UseAccountName");
+
         // Window state and geometry
         m_settings->registerSetting("MainWindowState", "");
         m_settings->registerSetting("MainWindowGeometry", "");

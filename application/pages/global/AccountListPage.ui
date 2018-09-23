@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>694</width>
-    <height>609</height>
+    <width>333</width>
+    <height>302</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -28,9 +28,9 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="onlineTab">
       <attribute name="title">
-       <string notr="true">Tab 1</string>
+       <string>Online</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -113,10 +113,89 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="offlineTab">
+      <attribute name="title">
+       <string>Offline</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout22">
+       <item>
+        <widget class="QGroupBox" name="offlineBox">
+         <property name="title">
+          <string>Offline mode name</string>
+         </property>
+         <layout class="QGridLayout" name="foldersBoxLayout_2">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="useSelectedNameBtn">
+            <property name="text">
+             <string>&amp;Use selected account name</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">offlineButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QRadioButton" name="useFixedNameBtn">
+            <property name="text">
+             <string>Always use &amp;this offline name:</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">offlineButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLineEdit" name="mainOfflineNameEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="rememberNamesForAccountsBtn">
+            <property name="text">
+             <string>Remember offline &amp;names per account</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">offlineButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="rememberNamesForInstancesBtn">
+            <property name="text">
+             <string>Remember offline &amp;names per instance</string>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">offlineButtonGroup</string>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="offlineButtonGroup"/>
+ </buttongroups>
 </ui>

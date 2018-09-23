@@ -33,11 +33,18 @@
 
 #include "MultiMC.h"
 
+enum class OfflineModeNameMode
+{
+    UseAccountName = 1,
+    RememberPerAccount = 2,
+    RememberPerInstance = 3,
+    UseFixedName = 4
+};
+
 AccountListPage::AccountListPage(QWidget *parent)
     : QWidget(parent), ui(new Ui::AccountListPage)
 {
     ui->setupUi(this);
-    ui->tabWidget->tabBar()->hide();
 
     m_accounts = MMC->accounts();
 
@@ -56,7 +63,13 @@ AccountListPage::AccountListPage(QWidget *parent)
     connect(m_accounts.get(), SIGNAL(listChanged()), SLOT(listChanged()));
     connect(m_accounts.get(), SIGNAL(activeAccountChanged()), SLOT(listChanged()));
 
+    ui->offlineButtonGroup->setId(ui->useSelectedNameBtn, int(OfflineModeNameMode::UseAccountName));
+    ui->offlineButtonGroup->setId(ui->rememberNamesForAccountsBtn, int(OfflineModeNameMode::RememberPerAccount));
+    ui->offlineButtonGroup->setId(ui->rememberNamesForInstancesBtn, int(OfflineModeNameMode::RememberPerInstance));
+    ui->offlineButtonGroup->setId(ui->useFixedNameBtn, int(OfflineModeNameMode::UseFixedName));
+
     updateButtonStates();
+    loadSettings();
 }
 
 AccountListPage::~AccountListPage()
@@ -149,5 +162,55 @@ void AccountListPage::on_uploadSkinBtn_clicked()
         MojangAccountPtr account = selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
         SkinUploadDialog dialog(account, this);
         dialog.exec();
+    }
+}
+
+bool AccountListPage::apply()
+{
+    applySettings();
+    return true;
+}
+
+void AccountListPage::applySettings()
+{
+    auto s = MMC->settings();
+    auto sortMode = (OfflineModeNameMode)ui->offlineButtonGroup->checkedId();
+    switch (sortMode)
+    {
+    default:
+    case OfflineModeNameMode::UseAccountName:
+        s->set("OfflineModeNameMode", "UseAccountName");
+        break;
+    case OfflineModeNameMode::RememberPerAccount:
+        s->set("OfflineModeNameMode", "RememberPerAccount");
+        break;
+    case OfflineModeNameMode::RememberPerInstance:
+        s->set("OfflineModeNameMode", "RememberPerInstance");
+        break;
+    case OfflineModeNameMode::UseFixedName:
+        s->set("OfflineModeNameMode", "UseFixedName");
+        break;
+    }
+}
+
+void AccountListPage::loadSettings()
+{
+    auto s = MMC->settings();
+    auto value = s->get("OfflineModeNameMode").toString();
+    if(value == "UseAccountName")
+    {
+        ui->useSelectedNameBtn->setChecked(true);
+    }
+    else if(value == "RememberPerAccount")
+    {
+        ui->rememberNamesForAccountsBtn->setChecked(true);
+    }
+    else if(value == "RememberPerInstance")
+    {
+        ui->rememberNamesForInstancesBtn->setChecked(true);
+    }
+    else if(value == "UseFixedName")
+    {
+        ui->useFixedNameBtn->setChecked(true);
     }
 }
