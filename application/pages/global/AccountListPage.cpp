@@ -68,6 +68,8 @@ AccountListPage::AccountListPage(QWidget *parent)
     ui->offlineButtonGroup->setId(ui->rememberNamesForInstancesBtn, int(OfflineModeNameMode::RememberPerInstance));
     ui->offlineButtonGroup->setId(ui->useFixedNameBtn, int(OfflineModeNameMode::UseFixedName));
 
+    connect(ui->offlineButtonGroup, SIGNAL(buttonToggled(int,bool)), this, SLOT(groupSelectionChanged(int,bool)));
+
     updateButtonStates();
     loadSettings();
 }
@@ -191,6 +193,7 @@ void AccountListPage::applySettings()
         s->set("OfflineModeNameMode", "UseFixedName");
         break;
     }
+    s->set("OfflineModeName", ui->mainOfflineNameEdit->text());
 }
 
 void AccountListPage::loadSettings()
@@ -212,5 +215,19 @@ void AccountListPage::loadSettings()
     else if(value == "UseFixedName")
     {
         ui->useFixedNameBtn->setChecked(true);
+    }
+    ui->mainOfflineNameEdit->setText(s->get("OfflineModeName").toString());
+}
+
+void AccountListPage::groupSelectionChanged(int, bool)
+{
+    auto sortMode = (OfflineModeNameMode)ui->offlineButtonGroup->checkedId();
+    if(sortMode == OfflineModeNameMode::UseFixedName)
+    {
+        ui->mainOfflineNameEdit->setEnabled(true);
+    }
+    else
+    {
+        ui->mainOfflineNameEdit->setEnabled(false);
     }
 }

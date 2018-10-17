@@ -74,6 +74,8 @@ slots:
 
     void listChanged();
 
+    void groupSelectionChanged(int, bool);
+
     //! Updates the states of the dialog's buttons.
     void updateButtonStates();
 

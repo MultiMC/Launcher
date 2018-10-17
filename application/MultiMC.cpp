@@ -490,6 +490,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 
         // Offline mode stuff
         m_settings->registerSetting("OfflineModeNameMode", "UseAccountName");
+        m_settings->registerSetting("OfflineModeName", "Player");
 
         // Window state and geometry
         m_settings->registerSetting("MainWindowState", "");
