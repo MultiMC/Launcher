@@ -89,6 +89,56 @@ void runGlxinfo(QStringList & log)
 }
 #endif
 
+#ifdef Q_OS_WIN32
+#include <windows.h>
+
+namespace {
+void printDisplayFlags(QStringList & log, const DWORD flags, const char * spacing)
+{
+    QStringList flagStrings;
+    if(flags & DISPLAY_DEVICE_ACTIVE)
+    {
+        flags << "Active";
+    }
+    if(flags & DISPLAY_DEVICE_PRIMARY_DEVICE)
+    {
+        flags << "Primary";
+    }
+    if(flags & DISPLAY_DEVICE_MIRRORING_DRIVER)
+    {
+        flags << "Mirroring";
+    }
+    if(flagStrings.size())
+    {
+        log << QString("%1%2").arg(spacing, flagStrings.join(','));
+    }
+}
+
+void probeWinAPIForDevices(QStringList & log)
+{
+    DISPLAY_DEVICEW dd;
+    memset(&dd, 0, sizeof(DISPLAY_DEVICEW));
+    int i = 0;
+
+    // enumerate devices
+    while(EnumDisplayDevicesW(NULL, i, &dd, 0))
+    {
+        log << "Display devices:";
+        log << QString("Device Name: %1 | Device String: %2").arg(QString::fromWCharArray(dd.DeviceName), QString::fromWCharArray(dd.DeviceString));
+        printDisplayFlags(log, dd.StateFlags, "    ");
+
+        // enumerate monitors
+        if(EnumDisplayDevicesW(dd.DeviceName, 0, &dd, 0))
+        {
+            log << QString("    Monitor Name: %1 | Monitor String: %2").arg(QString::fromWCharArray(dd.DeviceName), QString::fromWCharArray(dd.DeviceString));
+            printDisplayFlags(log, dd.StateFlags, "        ");
+        }
+        i++;
+    }
+}
+}
+#endif
+
 void PrintInstanceInfo::executeTask()
 {
     auto instance = m_parent->instance();
@@ -98,6 +148,10 @@ void PrintInstanceInfo::executeTask()
     ::probeProcCpuinfo(log);
     ::runLspci(log);
     ::runGlxinfo(log);
+#endif
+
+#ifdef Q_OS_WIN32
+    ::probeWinAPIForDevices(log);
 #endif
 
     logLines(log, MessageLevel::MultiMC);
