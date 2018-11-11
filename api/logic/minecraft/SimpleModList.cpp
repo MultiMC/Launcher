@@ -21,6 +21,7 @@
 #include <QString>
 #include <QFileSystemWatcher>
 #include <QDebug>
+#include <QtWidgets/QMessageBox>
 
 SimpleModList::SimpleModList(const QString &dir) : QAbstractListModel(), m_dir(dir)
 {
@@ -147,9 +148,35 @@ bool SimpleModList::installMod(const QString &filename)
     {
         QString newpath = FS::PathCombine(m_dir.path(), fileinfo.fileName());
         if(QFile::exists(newpath))
-            QFile::remove(newpath);
-        if (!QFile::copy(fileinfo.filePath(), newpath))
+        {
+            QMessageBox box;
+            box.setWindowTitle(tr("File exists"));
+            box.setInformativeText(tr("The file %1 already exists! Replace?").arg(newpath));
+            QAbstractButton *replaceButton = reinterpret_cast<QAbstractButton *>(box.addButton(tr("Replace"), QMessageBox::YesRole));
+            QAbstractButton *renameButton = reinterpret_cast<QAbstractButton *>(box.addButton(tr("Add with different name"), QMessageBox::AcceptRole));
+            box.addButton(tr("Cancel"), QMessageBox::NoRole);
+            box.setIcon(QMessageBox::Warning);
+            box.exec();
+
+            if(box.clickedButton() == replaceButton)
+            {
+                QFile::remove(newpath);
+            }
+            else if(box.clickedButton() == renameButton)
+            {
+                QFileInfo info(newpath);
+                newpath = info.absoluteDir().absolutePath() + "/" + info.baseName() + "-new-" + info.completeSuffix();
+            }
+            else
+            {
+                return false;
+            }
+        }
+        if (!QFile::copy(fileinfo.absoluteFilePath(), newpath))
+        {
+            QMessageBox::warning(nullptr, tr("Install mod"), tr("Failed to copy mod file to %1").arg(newpath));
             return false;
+        }
         FS::updateTimestamp(newpath);
         m.repath(newpath);
         update();
