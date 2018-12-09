@@ -62,5 +62,5 @@ void LanguageWizardPage::languageRowChanged(const QModelIndex &current, const QM
     auto translations = MMC->translations();
     QString key = translations->data(current, Qt::UserRole).toString();
     translations->selectLanguage(key);
-    translations->updateLanguage(key);
+    // translations->updateLanguage(key);
 }

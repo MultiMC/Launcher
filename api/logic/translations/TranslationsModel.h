@@ -32,7 +32,6 @@ public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     bool selectLanguage(QString key);
-    void updateLanguage(QString key);
     QModelIndex selectedIndex();
     QString selectedLanguage();
 
@@ -43,6 +42,7 @@ private:
     void loadLocalIndex();
     void downloadTranslation(QString key);
     void downloadNext();
+    void updateLanguage(QString key);
 
     // hide copy constructor
     TranslationsModel(const TranslationsModel &) = delete;

@@ -1,7 +1,6 @@
 #include "TranslationsModel.h"
 
 #include <QCoreApplication>
-#include <QTranslator>
 #include <QLocale>
 #include <QDir>
 #include <QLibraryInfo>
@@ -10,6 +9,8 @@
 #include <net/NetJob.h>
 #include <Env.h>
 #include <net/URLConstants.h>
+
+#include "MMCTranslator.h"
 
 const static QLatin1Literal defaultLangCode("en");
 
@@ -27,8 +28,8 @@ struct TranslationsModel::Private
     // initial state is just english
     QVector<Language> m_languages = {{defaultLangCode, QLocale(defaultLangCode), false}};
     QString m_selectedLanguage = defaultLangCode;
-    std::unique_ptr<QTranslator> m_qt_translator;
-    std::unique_ptr<QTranslator> m_app_translator;
+    std::unique_ptr<MMCTranslator> m_qt_translator;
+    std::unique_ptr<MMCTranslator> m_app_translator;
 
     std::shared_ptr<Net::Download> m_index_task;
     QString m_downloadingTranslation;
@@ -134,7 +135,7 @@ bool TranslationsModel::selectLanguage(QString key)
     // otherwise install new translations
     bool successful = false;
     // FIXME: this is likely never present. FIX IT.
-    d->m_qt_translator.reset(new QTranslator());
+    d->m_qt_translator.reset(new MMCTranslator());
     if (d->m_qt_translator->load("qt_" + langCode, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
     {
         qDebug() << "Loading Qt Language File for" << langCode.toLocal8Bit().constData() << "...";
@@ -153,7 +154,7 @@ bool TranslationsModel::selectLanguage(QString key)
         d->m_qt_translator.reset();
     }
 
-    d->m_app_translator.reset(new QTranslator());
+    d->m_app_translator.reset(new MMCTranslator());
     if (d->m_app_translator->load("mmc_" + langCode, d->m_dir.path()))
     {
         qDebug() << "Loading Application Language File for" << langCode.toLocal8Bit().constData() << "...";

@@ -157,7 +157,7 @@ void MultiMCPage::languageIndexChanged(int index)
     }
     auto translations = MMC->translations();
     translations->selectLanguage(languageCode);
-    translations->updateLanguage(languageCode);
+    // translations->updateLanguage(languageCode);
 }
 
 void MultiMCPage::refreshUpdateChannelList()
