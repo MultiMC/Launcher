@@ -4,11 +4,45 @@
 #include <QString>
 #include <QAbstractListModel>
 
+struct RawGameOptions
+{
+    void clear()
+    {
+        version = 0;
+        mapping.clear();
+    }
+    std::map<QString, QString> mapping;
+    int version = 0;
+};
+
 struct GameOptionItem
 {
+    QString id;
+    enum ValueType
+    {
+        INT,
+        FLOAT,
+        BOOL,
+        FOV_MADNESS,
+        FPS_MADNESS
+    } value_type;
+    enum VisualType
+    {
+
+    } visual_type;
+    QVariant null_value;
+    QVariant default_value;
+    QVariant min_value;
+    QVariant max_value;
     QString key;
-    QString value;
 };
+
+struct CookedGameOptions
+{
+    std::vector<GameOptionItem> items;
+};
+
+
 
 class GameOptions : public QAbstractListModel
 {
@@ -27,7 +61,8 @@ public:
     bool save();
 
 private:
-    std::vector<GameOptionItem> contents;
+    RawGameOptions rawOptions;
+    CookedGameOptions cookedOptions;
     bool loaded = false;
     QString path;
     int version = 0;
