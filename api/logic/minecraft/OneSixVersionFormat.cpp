@@ -21,6 +21,14 @@ LibraryPtr OneSixVersionFormat::libraryFromJson(const QJsonObject &libObj, const
     readString(libObj, "MMC-absoluteUrl", out->m_absoluteURL);
     readString(libObj, "MMC-filename", out->m_filename);
     readString(libObj, "MMC-displayname", out->m_displayname);
+    if (libObj.contains("presenceOnly"))
+    {
+        out->presenceOnly = requireBoolean(libObj, "presenceOnly");
+    }
+    if (libObj.contains("localBuild"))
+    {
+        out->localBuild = requireBoolean(libObj, "localBuild");
+    }
     return out;
 }
 
@@ -35,6 +43,10 @@ QJsonObject OneSixVersionFormat::libraryToJson(Library *library)
         libRoot.insert("MMC-filename", library->m_filename);
     if (library->m_displayname.size())
         libRoot.insert("MMC-displayname", library->m_displayname);
+    if (library->presenceOnly)
+        libRoot.insert("presenceOnly", true);
+    if (library->localBuild)
+        libRoot.insert("localBuild", true);
     return libRoot;
 }
 

@@ -31,7 +31,7 @@ static void readDownloadInfo(MojangDownloadInfo::Ptr out, const QJsonObject &obj
     readString(obj, "path", out->path);
     // required!
     out->sha1 = requireString(obj, "sha1");
-    out->url = requireString(obj, "url");
+    out->url = ensureString(obj, "url", QString());
     out->size = requireInteger(obj, "size");
 }
 

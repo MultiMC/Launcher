@@ -49,6 +49,8 @@ public:
         newlib->m_storagePrefix = base->m_storagePrefix;
         newlib->m_mojangDownloads = base->m_mojangDownloads;
         newlib->m_filename = base->m_filename;
+        newlib->presenceOnly = base->presenceOnly;
+        newlib->localBuild = base->localBuild;
         return newlib;
     }
 
@@ -146,7 +148,15 @@ public: /* methods */
     bool isActive() const;
 
     /// Returns true if the library is contained in an instance and false if it is shared
-    bool isLocal() const;
+    bool isInstanceLocal() const;
+
+    /// Returns true if the library cannot be downloaded (was built locally somehow)
+    bool isLocalBuilt() const;
+
+    bool isLocal() const
+    {
+        return isInstanceLocal() || isLocalBuilt();
+    }
 
     /// Returns true if the library is to always be checked for updates
     bool isAlwaysStale() const;
@@ -211,6 +221,12 @@ protected: /* data */
 
     /// true if the library had a rules section (even empty)
     bool applyRules = false;
+
+    // MultiMC-specific: the artifact must be present, but is not part of the classpath
+    bool presenceOnly = false;
+
+    // MultiMC-specific: the artifact must be present, but cannot be downloaded, because it was created by some other mechanism
+    bool localBuild = false;
 
     /// rules associated with the library
     QList<std::shared_ptr<Rule>> m_rules;

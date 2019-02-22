@@ -11,7 +11,7 @@
 void Library::getApplicableFiles(OpSys system, QStringList& jar, QStringList& native, QStringList& native32,
                                  QStringList& native64, const QString &overridePath) const
 {
-    bool local = isLocal();
+    bool local = isInstanceLocal();
     auto actualPath = [&](QString relPath)
     {
         QFileInfo out(FS::PathCombine(storagePrefix(), relPath));
@@ -39,7 +39,7 @@ void Library::getApplicableFiles(OpSys system, QStringList& jar, QStringList& na
             native += actualPath(raw_storage);
         }
     }
-    else
+    else if (!presenceOnly)
     {
         jar += actualPath(raw_storage);
     }
@@ -54,9 +54,10 @@ QList< std::shared_ptr< NetAction > > Library::getDownloads(
 {
     QList<NetActionPtr> out;
     bool stale = isAlwaysStale();
-    bool local = isLocal();
+    bool instanceLocal = isInstanceLocal();
+    bool launcherLocal = isLocalBuilt();
 
-    auto check_local_file = [&](QString storage)
+    auto check_instance_local_file = [&](QString storage)
     {
         QFileInfo fileinfo(storage);
         QString fileName = fileinfo.fileName();
@@ -70,11 +71,26 @@ QList< std::shared_ptr< NetAction > > Library::getDownloads(
         return true;
     };
 
+    auto check_launcher_local_file = [&](QString storage)
+    {
+        QFileInfo localFileInfo("libraries/" + storage);
+        if(!localFileInfo.exists())
+        {
+            failedLocalFiles.append(localFileInfo.filePath());
+            return false;
+        }
+        return true;
+    };
+
     auto add_download = [&](QString storage, QString url, QString sha1)
     {
-        if(local)
+        if(instanceLocal)
         {
-            return check_local_file(storage);
+            return check_instance_local_file(storage);
+        }
+        else if(launcherLocal)
+        {
+            return check_launcher_local_file(storage);
         }
         auto entry = cache->resolveEntry("libraries", storage);
         if(stale)
@@ -233,9 +249,14 @@ bool Library::isActive() const
     return result;
 }
 
-bool Library::isLocal() const
+bool Library::isInstanceLocal() const
 {
     return m_hint == "local";
+}
+
+bool Library::isLocalBuilt() const
+{
+    return localBuild;
 }
 
 bool Library::isAlwaysStale() const

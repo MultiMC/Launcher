@@ -36,7 +36,7 @@ struct MojangLibraryDownloadInfo
         {
             return artifact.get();
         }
-        
+
         return classifiers[classifier].get();
     }
 
