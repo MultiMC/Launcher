@@ -187,8 +187,16 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument &doc
     // if we have mainJar, just use it
     if(root.contains("mainJar"))
     {
-        QJsonObject libObj = requireObject(root, "mainJar");
-        out->mainJar = libraryFromJson(libObj, filename);
+        auto val = root.value("mainJar");
+        if(val.isNull())
+        {
+            out->removeMainJar = true;
+        }
+        else
+        {
+            QJsonObject libObj = requireObject(root, "mainJar");
+            out->mainJar = libraryFromJson(libObj, filename);
+        }
     }
     // else reconstruct it from downloads and id ... if that's available
     else if(!out->minecraftVersion.isEmpty())
@@ -275,6 +283,10 @@ QJsonDocument OneSixVersionFormat::versionFileToJson(const VersionFilePtr &patch
     if(patch->mainJar)
     {
         root.insert("mainJar", libraryToJson(patch->mainJar.get()));
+    }
+    else if(patch->removeMainJar)
+    {
+        root.insert("mainJar", QJsonValue());
     }
     writeString(root, "appletClass", patch->appletClass);
     writeStringList(root, "+tweakers", patch->addTweakers);

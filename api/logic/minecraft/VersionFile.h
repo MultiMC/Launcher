@@ -77,6 +77,7 @@ public: /* data */
 
     /// The main jar (Minecraft version library, normally)
     LibraryPtr mainJar;
+    bool removeMainJar = false;
 
     /// MultiMC: list of attached traits of this version file - used to enable features
     QSet<QString> traits;

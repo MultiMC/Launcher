@@ -162,11 +162,19 @@ const LibraryPtr LaunchProfile::getMainJar() const
     return m_mainJar;
 }
 
-void LaunchProfile::applyMainJar(LibraryPtr jar)
+void LaunchProfile::applyMainJar(LibraryPtr jar, bool removeMainJar)
 {
-    if(jar)
+    if(removeMainJar)
+    {
+        m_mainJar.reset();
+    }
+    else if(jar)
     {
         m_mainJar = jar;
+    }
+    else
+    {
+        // mainJar was not specified, NOOP
     }
 }
 

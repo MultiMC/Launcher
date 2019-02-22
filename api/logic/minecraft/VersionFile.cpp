@@ -28,7 +28,7 @@ void VersionFile::applyTo(LaunchProfile *profile)
         profile->applyMinecraftAssets(mojangAssetIndex);
     }
 
-    profile->applyMainJar(mainJar);
+    profile->applyMainJar(mainJar, removeMainJar);
     profile->applyMainClass(mainClass);
     profile->applyAppletClass(appletClass);
     profile->applyMinecraftArguments(minecraftArguments);

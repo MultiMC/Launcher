@@ -20,7 +20,7 @@ public: /* application of profile variables from patches */
     void applyJarMods(const QList<LibraryPtr> &jarMods);
     void applyMods(const QList<LibraryPtr> &jarMods);
     void applyLibrary(LibraryPtr library);
-    void applyMainJar(LibraryPtr jar);
+    void applyMainJar(LibraryPtr jar, bool removeMainJar);
     void applyProblemSeverity(ProblemSeverity severity);
     /// clear the profile
     void clear();

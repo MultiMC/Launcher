@@ -45,7 +45,11 @@ void LibrariesTask::executeTask()
     QList<LibraryPtr> libArtifactPool;
     libArtifactPool.append(profile->getLibraries());
     libArtifactPool.append(profile->getNativeLibraries());
-    libArtifactPool.append(profile->getMainJar());
+    auto mainJar = profile->getMainJar();
+    if(mainJar)
+    {
+        libArtifactPool.append(mainJar);
+    }
     processArtifactPool(libArtifactPool, failedLocalLibraries, inst->getLocalLibraryPath());
 
     QStringList failedLocalJarMods;
