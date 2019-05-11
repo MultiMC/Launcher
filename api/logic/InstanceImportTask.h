@@ -27,8 +27,8 @@ protected:
 
 private:
     void processZipPack();
-    void processMultiMC();
-    void processFlame();
+    void processMultiMC(bool hybrid);
+    void processFlame(bool hybrid);
 
 private slots:
     void downloadSucceeded();
@@ -49,6 +49,7 @@ private: /* data */
     enum class ModpackType{
         Unknown,
         MultiMC,
-        Flame
+        Flame,
+        Hybrid
     } m_modpackType = ModpackType::Unknown;
 };

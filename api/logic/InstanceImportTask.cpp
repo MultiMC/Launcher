@@ -83,7 +83,14 @@ void InstanceImportTask::processZipPack()
     QString mmcFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "instance.cfg");
     QString flameFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "manifest.json");
     QString root;
-    if(!mmcFound.isNull())
+    if(!mmcFound.isNull() && !flameFound.isNull())
+    {
+        // process as MultiMC instance with Flame mods
+        qDebug() << "MultiMC:" << mmcFound << ", Flame:" << flameFound;
+        root = mmcFound;
+        m_modpackType = ModpackType::Hybrid;
+    }
+    else if(!mmcFound.isNull())
     {
         // process as MultiMC instance/pack
         qDebug() << "MultiMC:" << mmcFound;
@@ -155,10 +162,14 @@ void InstanceImportTask::extractFinished()
     switch(m_modpackType)
     {
         case ModpackType::Flame:
-            processFlame();
+            processFlame(false);
             return;
         case ModpackType::MultiMC:
-            processMultiMC();
+            processMultiMC(false);
+            return;
+        case ModpackType::Hybrid:
+            processMultiMC(true);
+            processFlame(true);
             return;
         case ModpackType::Unknown:
             emitFailed(tr("Archive does not contain a recognized modpack type."));
@@ -172,7 +183,7 @@ void InstanceImportTask::extractAborted()
     return;
 }
 
-void InstanceImportTask::processFlame()
+void InstanceImportTask::processFlame(bool hybrid)
 {
     const static QMap<QString,QString> forgemap = {
         {"1.2.5", "3.4.9.171"},
@@ -236,8 +247,15 @@ void InstanceImportTask::processFlame()
         logWarning(tr("Mysterious trailing dots removed from Minecraft version while importing pack."));
     }
     auto components = instance.getComponentList();
-    components->buildingFromScratch();
-    components->setComponentVersion("net.minecraft", mcVersion, true);
+    if(!hybrid)
+    {
+        components->buildingFromScratch();
+        components->setComponentVersion("net.minecraft", mcVersion, true);
+    }
+    else
+    {
+        components->reload(Net::Mode::Offline);
+    }
     if(!forgeVersion.isEmpty())
     {
         // FIXME: dirty, nasty, hack. Proper solution requires dependency resolution and knowledge of the metadata.
@@ -268,7 +286,8 @@ void InstanceImportTask::processFlame()
         {
             instance.setIconKey("ftb_logo");
         }
-        else
+        // Checking for default in case instance was generated in processMultiMC first
+        else if(instance.iconKey() == "default")
         {
             // default to something other than the MultiMC default to distinguish these
             instance.setIconKey("flame");
@@ -370,7 +389,7 @@ void InstanceImportTask::processFlame()
     m_modIdResolver->start();
 }
 
-void InstanceImportTask::processMultiMC()
+void InstanceImportTask::processMultiMC(bool hybrid)
 {
     // FIXME: copy from FolderInstanceProvider!!! FIX IT!!!
     QString configPath = FS::PathCombine(m_stagingPath, "instance.cfg");
@@ -405,5 +424,8 @@ void InstanceImportTask::processMultiMC()
             iconList->installIcons({importIconPath});
         }
     }
-    emitSucceeded();
+    if (!hybrid)
+    {
+        emitSucceeded();
+    }
 }
