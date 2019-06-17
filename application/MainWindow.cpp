@@ -1836,6 +1836,7 @@ void MainWindow::instanceChanged(const QModelIndex &current, const QModelIndex &
         ui->actionLaunchInstanceOffline->setEnabled(m_selectedInstance->canLaunch());
         ui->actionExportInstance->setEnabled(m_selectedInstance->canExport());
         ui->renameButton->setText(m_selectedInstance->name());
+        ui->actionRenameInstance->setDisabled(m_selectedInstance->isRunning());
         m_statusLeft->setText(m_selectedInstance->getStatusbarDescription());
         updateInstanceToolIcon(m_selectedInstance->iconKey());
 
