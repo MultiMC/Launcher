@@ -232,14 +232,20 @@ QString BaseInstance::iconKey() const
 
 void BaseInstance::setName(QString val, bool requestDirChange)
 {
-    if(m_settings->get("name") == val) {
+    if(m_settings->get("name") == val)
+    {
         return;
     }
 
     m_settings->set("name", val);
     emit propertiesChanged(this);
-    if(requestDirChange) {
+    if(requestDirChange && !isRunning())
+    {
         emit instanceDirChangeRequest(this);
+    }
+    else if(requestDirChange && isRunning())
+    {
+        qWarning() << "Tried to rename running instance with folder";
     }
 }
 
