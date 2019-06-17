@@ -23,7 +23,7 @@ void InstanceCreationTask::executeTask()
         auto components = inst.getComponentList();
         components->buildingFromScratch();
         components->setComponentVersion("net.minecraft", m_version->descriptor(), true);
-        inst.setName(m_instName);
+        inst.setName(m_instName, false);
         inst.setIconKey(m_instIcon);
         instanceSettings->resumeSave();
     }

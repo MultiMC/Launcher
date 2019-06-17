@@ -849,7 +849,7 @@ void MainWindow::showInstanceContextMenu(const QPoint &pos)
     actionSep->setSeparator(true);
 
     bool onInstance = view->indexAt(pos).isValid();
-    if (onInstance)
+    if (onInstance && m_selectedInstance)
     {
         actions = ui->instanceToolBar->actions();
 

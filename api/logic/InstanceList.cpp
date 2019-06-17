@@ -135,7 +135,7 @@ bool InstanceList::setData(const QModelIndex& index, const QVariant& value, int 
     {
         return true;
     }
-    pdata->setName(newName);
+    pdata->setName(newName, true);
     return true;
 }
 
@@ -396,6 +396,7 @@ void InstanceList::add(const QList<InstancePtr> &t)
     for(auto & ptr : t)
     {
         connect(ptr.get(), &BaseInstance::propertiesChanged, this, &InstanceList::propertiesChanged);
+        connect(ptr.get(), &BaseInstance::instanceDirChangeRequest, this, &InstanceList::instanceDirUpdateRequested);
     }
     endInsertRows();
 }
@@ -467,6 +468,28 @@ void InstanceList::propertiesChanged(BaseInstance *inst)
     {
         emit dataChanged(index(i), index(i));
     }
+}
+
+void InstanceList::instanceDirUpdateRequested(BaseInstance *inst)
+{
+    if(m_groupMap.remove(inst->id()))
+    {
+        saveGroupList();
+    }
+
+    QString oldRoot = inst->instanceRoot();
+    QString instID = FS::DirNameFromString(inst->name(), m_instDir);
+    QString instanceDirName = getInstanceDirName(instID);
+
+    QString destination = FS::PathCombine(m_instDir, instanceDirName);
+    if(!QDir().rename(oldRoot, destination))
+    {
+        qWarning() << "Failed to move" << inst->instanceRoot() << "to" << destination;
+    }
+
+    FS::deletePath(oldRoot);
+
+    loadList();
 }
 
 InstancePtr InstanceList::loadInstance(const InstanceId& id)
@@ -806,13 +829,8 @@ QString InstanceList::getStagedInstancePath()
 bool InstanceList::commitStagedInstance(const QString& path, const QString& instanceName, const QString& groupName)
 {
     QString instID = FS::DirNameFromString(instanceName, m_instDir);
-    QString instanceDirName = instID;
-    if(instanceDirName.length() > 180)
-    {
-        instanceDirName.truncate(176);
-        instanceDirName += instID.at(instID.length() - 4); // In case the last 4 chars were changed
-                                                           // to prevent double folder names
-    }
+    QString instanceDirName = getInstanceDirName(instID);
+
     {
         WatchLock lock(m_watcher, m_instDir);
         QString destination = FS::PathCombine(m_instDir, instanceDirName);
@@ -834,6 +852,18 @@ bool InstanceList::commitStagedInstance(const QString& path, const QString& inst
 bool InstanceList::destroyStagingPath(const QString& keyPath)
 {
     return FS::deletePath(keyPath);
+}
+
+QString InstanceList::getInstanceDirName(QString instID)
+{
+    if(instID.length() > 180)
+    {
+        instID.truncate(176);
+        instID += instID.at(instID.length() - 4); // In case the last 4 chars were changed
+                                                  // to prevent double folder names
+    }
+
+    return instID;
 }
 
 #include "InstanceList.moc"

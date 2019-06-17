@@ -137,6 +137,7 @@ public slots:
 
 private slots:
     void propertiesChanged(BaseInstance *inst);
+    void instanceDirUpdateRequested(BaseInstance *inst);
     void providerUpdated();
     void instanceDirContentsChanged(const QString &path);
 
@@ -149,6 +150,7 @@ private:
     void saveGroupList();
     QList<InstanceId> discoverInstances();
     InstancePtr loadInstance(const InstanceId& id);
+    QString getInstanceDirName(QString instID);
 
 private:
     int m_watchLevel = 0;

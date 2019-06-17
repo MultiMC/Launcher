@@ -66,7 +66,7 @@ void LegacyUpgradeTask::copyFinished()
     // NOTE: this scope ensures the instance is fully saved before we emitSucceeded
     {
         MinecraftInstance inst(m_globalSettings, instanceSettings, m_stagingPath);
-        inst.setName(m_instName);
+        inst.setName(m_instName, false);
 
         QString preferredVersionNumber = decideVersion(legacyInst->currentVersionId(), legacyInst->intendedVersionId());
         if(preferredVersionNumber.isNull())

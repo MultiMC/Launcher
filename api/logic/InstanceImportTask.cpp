@@ -293,7 +293,7 @@ void InstanceImportTask::processFlame()
         // nuke the original files
         FS::deletePath(jarmodsPath);
     }
-    instance.setName(m_instName);
+    instance.setName(m_instName, false);
     m_modIdResolver.reset(new Flame::FileResolvingTask(pack));
     connect(m_modIdResolver.get(), &Flame::FileResolvingTask::succeeded, [&]()
     {
@@ -384,7 +384,7 @@ void InstanceImportTask::processMultiMC()
     instance.resetTimePlayed();
 
     // set a new nice name
-    instance.setName(m_instName);
+    instance.setName(m_instName, false);
 
     // if the icon was specified by user, use that. otherwise pull icon from the pack
     if (m_instIcon != "default")

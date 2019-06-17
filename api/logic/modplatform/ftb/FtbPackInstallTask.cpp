@@ -186,7 +186,7 @@ void FtbPackInstallTask::install()
 
     progress(4, 4);
 
-    instance.setName(m_instName);
+    instance.setName(m_instName, false);
     if(m_instIcon == "default")
     {
         m_instIcon = "ftb_logo";
