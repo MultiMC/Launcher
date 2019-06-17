@@ -805,12 +805,13 @@ QString InstanceList::getStagedInstancePath()
 
 bool InstanceList::commitStagedInstance(const QString& path, const QString& instanceName, const QString& groupName)
 {
-    QDir dir;
     QString instID = FS::DirNameFromString(instanceName, m_instDir);
+    QString instanceDirName = instID;
+    instanceDirName.truncate(180);
     {
         WatchLock lock(m_watcher, m_instDir);
-        QString destination = FS::PathCombine(m_instDir, instID);
-        if(!dir.rename(path, destination))
+        QString destination = FS::PathCombine(m_instDir, instanceDirName);
+        if(!QDir().rename(path, destination))
         {
             qWarning() << "Failed to move" << path << "to" << destination;
             return false;
