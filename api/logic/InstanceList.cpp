@@ -807,7 +807,12 @@ bool InstanceList::commitStagedInstance(const QString& path, const QString& inst
 {
     QString instID = FS::DirNameFromString(instanceName, m_instDir);
     QString instanceDirName = instID;
-    instanceDirName.truncate(180);
+    if(instanceDirName.length() > 180)
+    {
+        instanceDirName.truncate(176);
+        instanceDirName += instID.at(instID.length() - 4); // In case the last 4 chars were changed
+                                                           // to prevent double folder names
+    }
     {
         WatchLock lock(m_watcher, m_instDir);
         QString destination = FS::PathCombine(m_instDir, instanceDirName);
