@@ -661,6 +661,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // Create the instance list widget
     {
         view = new GroupView(ui->centralWidget);
+        view->setTextElideMode(Qt::TextElideMode::ElideRight);
 
         view->setSelectionMode(QAbstractItemView::SingleSelection);
         // FIXME: leaks ListViewDelegate
