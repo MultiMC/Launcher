@@ -31,6 +31,7 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
@@ -74,6 +75,7 @@
 #include "groupview/InstanceDelegate.h"
 #include "widgets/LabeledToolButton.h"
 #include "widgets/ServerStatus.h"
+#include "dialogs/CheckableInputDialog.h"
 #include "dialogs/NewInstanceDialog.h"
 #include "dialogs/ProgressDialog.h"
 #include "dialogs/AboutDialog.h"
@@ -1369,6 +1371,7 @@ void MainWindow::finalizeInstance(InstancePtr inst)
         if(update)
         {
             loadDialog.setSkipButton(true, tr("Abort"));
+            loadDialog.setSkipButton(true, tr("Abort"));
             loadDialog.execWithTask(update.get());
         }
     }
@@ -1696,7 +1699,15 @@ void MainWindow::on_actionRenameInstance_triggered()
 {
     if (m_selectedInstance)
     {
-        view->edit(view->currentIndex());
+        CheckableInputDialog dialog(this);
+        dialog.setWindowTitle(tr("Rename"));
+        dialog.setText(tr("Enter new name for the instance:"));
+        dialog.setCheckboxText(tr("Rename instance folder"));
+        dialog.setExtraText(tr("WARNING: Renaming the instance folder may break shortcuts and automation you made!"));
+        if(dialog.exec() == QDialog::Accepted && !dialog.getInput().isEmpty())
+        {
+            m_selectedInstance->setName(dialog.getInput(), dialog.checkboxChecked());
+        }
     }
 }
 
