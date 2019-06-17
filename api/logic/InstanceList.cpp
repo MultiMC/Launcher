@@ -135,7 +135,7 @@ bool InstanceList::setData(const QModelIndex& index, const QVariant& value, int 
     {
         return true;
     }
-    pdata->setName(newName);
+    pdata->setName(newName, true);
     return true;
 }
 
@@ -396,6 +396,7 @@ void InstanceList::add(const QList<InstancePtr> &t)
     for(auto & ptr : t)
     {
         connect(ptr.get(), &BaseInstance::propertiesChanged, this, &InstanceList::propertiesChanged);
+        connect(ptr.get(), &BaseInstance::instanceDirChangeRequest, this, &InstanceList::instanceDirUpdateRequested);
     }
     endInsertRows();
 }
@@ -467,6 +468,27 @@ void InstanceList::propertiesChanged(BaseInstance *inst)
     {
         emit dataChanged(index(i), index(i));
     }
+}
+
+void InstanceList::instanceDirUpdateRequested(BaseInstance *inst)
+{
+    if(m_groupMap.remove(inst->id()))
+    {
+        saveGroupList();
+    }
+
+    QString oldRoot = inst->instanceRoot();
+    QString instID = FS::DirNameFromString(inst->name(), m_instDir);
+
+    QString destination = FS::PathCombine(m_instDir, instID);
+    if(!QDir().rename(oldRoot, destination))
+    {
+        qWarning() << "Failed to move" << inst->instanceRoot() << "to" << destination;
+    }
+
+    FS::deletePath(oldRoot);
+
+    loadList();
 }
 
 InstancePtr InstanceList::loadInstance(const InstanceId& id)

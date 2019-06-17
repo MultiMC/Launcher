@@ -44,7 +44,7 @@ void InstanceCopyTask::copyFinished()
     instanceSettings->registerSetting("InstanceType", "Legacy");
 
     InstancePtr inst(new NullInstance(m_globalSettings, instanceSettings, m_stagingPath));
-    inst->setName(m_instName);
+    inst->setName(m_instName, false);
     inst->setIconKey(m_instIcon);
     emitSucceeded();
 }

@@ -93,6 +93,8 @@ public:
     /// Path to the instance's root directory.
     QString instanceRoot() const;
 
+    void setInstanceRoot(QString newRoot);
+
     /// Path to the instance's game root directory.
     virtual QString gameRoot() const
     {
@@ -100,7 +102,7 @@ public:
     }
 
     QString name() const;
-    void setName(QString val);
+    void setName(QString val, bool requestDirChange);
 
     /// Value used for instance window titles
     QString windowTitle() const;
@@ -244,6 +246,8 @@ signals:
     void runningStatusChanged(bool running);
 
     void statusChanged(Status from, Status to);
+
+    void instanceDirChangeRequest(BaseInstance *inst);
 
 protected slots:
     void iconUpdated(QString key);

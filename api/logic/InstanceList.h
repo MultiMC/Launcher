@@ -136,6 +136,7 @@ public slots:
 
 private slots:
     void propertiesChanged(BaseInstance *inst);
+    void instanceDirUpdateRequested(BaseInstance *inst);
     void providerUpdated();
     void instanceDirContentsChanged(const QString &path);
 
