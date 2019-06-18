@@ -304,6 +304,10 @@ QString RemoveInvalidFilenameChars(QString string, QChar replaceWith)
         {
             string[i] = replaceWith;
         }
+        else if(string[i] > 127) // non ASCII
+        {
+            string[i] = replaceWith;
+        }
     }
     return string;
 }
