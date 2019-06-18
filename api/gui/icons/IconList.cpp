@@ -254,17 +254,7 @@ void IconList::installIcons(const QStringList &iconFiles)
 {
     for (QString file : iconFiles)
     {
-        QFileInfo fileinfo(file);
-        if (!fileinfo.isReadable() || !fileinfo.isFile())
-            continue;
-        QString target = FS::PathCombine(m_dir.dirName(), fileinfo.fileName());
-
-        QString suffix = fileinfo.suffix();
-        if (suffix != "jpeg" && suffix != "png" && suffix != "jpg" && suffix != "ico" && suffix != "svg" && suffix != "gif")
-            continue;
-
-        if (!QFile::copy(file, target))
-            continue;
+        installIcon(file, QFileInfo(file).fileName());
     }
 }
 
@@ -272,11 +262,24 @@ void IconList::installIcon(const QString &file, const QString &name)
 {
     QFileInfo fileinfo(file);
     if(!fileinfo.isReadable() || !fileinfo.isFile())
+    {
+        qWarning() << "Failed to install icon" << fileinfo.absoluteFilePath();
         return;
+    }
 
     QString target = FS::PathCombine(m_dir.dirName(), name);
 
-    QFile::copy(file, target);
+    QPixmap icon(fileinfo.absoluteFilePath());
+    if(icon.isNull())
+    {
+        qWarning() << "Icon " << fileinfo.absoluteFilePath() << "is null";
+        return;
+    }
+
+    auto currentSize = icon.size();
+    auto targetedWidth = qMin(currentSize.width(), 512);
+    auto targetedHeight = qMin(currentSize.height(), 512);
+    icon.scaled(targetedWidth, targetedHeight).save(target);
 }
 
 bool IconList::iconFileExists(const QString &key) const
