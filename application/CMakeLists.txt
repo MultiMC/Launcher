@@ -274,10 +274,12 @@ SET(MULTIMC_UIS
     dialogs/UpdateDialog.ui
     dialogs/NotificationDialog.ui
     dialogs/SkinUploadDialog.ui
+    dialogs/VersionSelectDialog.ui
 
     # Widgets/other
     widgets/CustomCommands.ui
     widgets/MCModInfoFrame.ui
+    widgets/VersionSelectWidget.ui
 )
 
 set(MULTIMC_QRCS

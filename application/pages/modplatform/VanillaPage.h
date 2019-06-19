@@ -59,11 +59,7 @@ public:
 public slots:
     void setSelectedVersion(BaseVersionPtr version);
 
-private slots:
-    void filterChanged();
-
 private:
-    void refresh();
     void suggestCurrent();
 
 private:
