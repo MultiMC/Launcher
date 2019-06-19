@@ -25,6 +25,11 @@ class QVBoxLayout;
 class QProgressBar;
 class Filter;
 
+namespace Ui
+{
+    class VersionSelectWidget;
+}
+
 class VersionSelectWidget: public QWidget
 {
     Q_OBJECT
@@ -50,6 +55,7 @@ public:
     void setEmptyString(QString emptyString);
     void setEmptyErrorString(QString emptyErrorString);
     void setResizeOn(int column);
+    void setFilterBoxVisible(bool visible);
 
 signals:
     void selectedVersionChanged(BaseVersionPtr version);
@@ -62,6 +68,7 @@ private slots:
     void onTaskFailed(const QString &reason);
     void changeProgress(qint64 current, qint64 total);
     void currentRowChanged(const QModelIndex &current, const QModelIndex &);
+    void filterChanged();
 
 private:
     void preselect();
@@ -74,8 +81,5 @@ private:
     Task * loadTask;
     bool preselectedAlready = false;
 
-private:
-    QVBoxLayout *verticalLayout = nullptr;
-    VersionListView *listView = nullptr;
-    QProgressBar *sneakyProgressBar = nullptr;
+    Ui::VersionSelectWidget *ui;
 };

@@ -317,15 +317,18 @@ void VersionPage::on_changeVersionBtn_clicked()
         on_liteloaderBtn_clicked();
         return;
     }
-    VersionSelectDialog vselect(list.get(), tr("Change %1 version").arg(name), this);
     if (uid == "net.fabricmc.intermediary")
     {
-        vselect.setEmptyString(tr("No Fabric Loader versions are currently available."));
-        vselect.setEmptyErrorString(tr("Couldn't load or download the Fabric Loader version lists!"));
-        vselect.setExactFilter(BaseVersionList::ParentVersionRole, m_profile->getComponentVersion("net.minecraft"));
+        on_fabricBtn_clicked();
+        return;
     }
+
+    VersionSelectDialog vselect(list.get(), tr("Change %1 version").arg(name), this);
+    vselect.setEmptyString(tr("No %1 versions are currently available.").arg(name));
+    vselect.setEmptyErrorString(tr("Couldn't load or download the %1 version lists!").arg(name));
+
     auto currentVersion = patch->getVersion();
-    if(!currentVersion.isEmpty())
+    if(!currentVersion.isEmpty() && !currentVersion.isNull())
     {
         vselect.setCurrentVersion(currentVersion);
     }
@@ -376,6 +379,7 @@ void VersionPage::on_forgeBtn_clicked()
         return;
     }
     VersionSelectDialog vselect(vlist.get(), tr("Select Forge version"), this);
+    vselect.setFilterBoxVisible(false);
     vselect.setExactFilter(BaseVersionList::ParentVersionRole, m_profile->getComponentVersion("net.minecraft"));
     vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft ") + m_profile->getComponentVersion("net.minecraft"));
     vselect.setEmptyErrorString(tr("Couldn't load or download the Forge version lists!"));

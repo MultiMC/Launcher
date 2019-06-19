@@ -105,6 +105,7 @@ void JavaPage::on_javaDetectBtn_clicked()
     JavaInstallPtr java;
 
     VersionSelectDialog vselect(MMC->javalist().get(), tr("Select a Java version"), this, true);
+    vselect.setFilterBoxVisible(false);
     vselect.setResizeOn(2);
     vselect.exec();
 

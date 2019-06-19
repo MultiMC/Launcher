@@ -40,7 +40,7 @@ class VersionSelectDialog : public QDialog
 
 public:
     explicit VersionSelectDialog(BaseVersionList *vlist, QString title, QWidget *parent = 0, bool cancelable = true);
-    virtual ~VersionSelectDialog() {};
+    virtual ~VersionSelectDialog();
 
     int exec() override;
 
@@ -53,23 +53,12 @@ public:
     void setEmptyErrorString(QString emptyErrorString);
     void setResizeOn(int column);
 
-private slots:
-    void on_refreshButton_clicked();
+    void setFilterBoxVisible(bool visible);
 
 private:
-    void retranslate();
-    void selectRecommended();
-
-private:
-    QString m_currentVersion;
-    VersionSelectWidget *m_versionWidget = nullptr;
-    QVBoxLayout *m_verticalLayout = nullptr;
-    QHBoxLayout *m_horizontalLayout = nullptr;
-    QPushButton *m_refreshButton = nullptr;
-    QDialogButtonBox *m_buttonBox = nullptr;
+    Ui::VersionSelectDialog *ui;
 
     BaseVersionList *m_vlist = nullptr;
-
     VersionProxyModel *m_proxyModel = nullptr;
 
     int resizeOnColumn = -1;
