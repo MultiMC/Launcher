@@ -13,6 +13,8 @@ class CheckableInputDialog : public QDialog
 
 public:
     CheckableInputDialog(QWidget *parent);
+    ~CheckableInputDialog();
+
     void setText(QString text);
     void setExtraText(QString text);
     void setCheckboxText(QString checkboxText);

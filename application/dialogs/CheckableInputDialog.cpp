@@ -14,6 +14,11 @@ CheckableInputDialog::CheckableInputDialog(QWidget *parent) : QDialog(parent), u
             &QDialog::reject);
 }
 
+CheckableInputDialog::~CheckableInputDialog()
+{
+    delete ui;
+}
+
 void CheckableInputDialog::setText(QString text)
 {
     ui->label->setText(text);
