@@ -35,8 +35,10 @@ ModListView::ModListView ( QWidget* parent )
     setHorizontalScrollBarPolicy ( Qt::ScrollBarAsNeeded );
     setDropIndicatorShown(true);
     setDragEnabled(true);
-    setDragDropMode(QAbstractItemView::DropOnly);
+    setDragDropMode(QAbstractItemView::DragDrop);
     viewport()->setAcceptDrops(true);
+    setAcceptDrops(true);
+    setDefaultDropAction(Qt::CopyAction);
 }
 
 void ModListView::setModel ( QAbstractItemModel* model )
@@ -63,4 +65,19 @@ void ModListView::setModel ( QAbstractItemModel* model )
         for(int i = 1; i < head->count(); i++)
             head->setSectionResizeMode(i, QHeaderView::ResizeToContents);
     }
+}
+
+void ModListView::dragEnterEvent(QDragEnterEvent *event)
+{
+    event->accept();
+}
+
+void ModListView::dragMoveEvent(QDragMoveEvent *event)
+{
+    event->accept();
+}
+
+void ModListView::dropEvent(QDropEvent *event)
+{
+    QAbstractItemView::dropEvent(event);
 }

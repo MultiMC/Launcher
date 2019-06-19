@@ -22,6 +22,10 @@ class ModListView: public QTreeView
 {
     Q_OBJECT
 public:
-    explicit ModListView ( QWidget* parent = 0 );
-    virtual void setModel ( QAbstractItemModel* model );
+    explicit ModListView ( QWidget* parent = nullptr );
+    void setModel ( QAbstractItemModel* model ) override;
+
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 };

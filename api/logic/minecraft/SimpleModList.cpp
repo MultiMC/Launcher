@@ -21,6 +21,7 @@
 #include <QString>
 #include <QFileSystemWatcher>
 #include <QDebug>
+#include <QtCore/QDataStream>
 
 SimpleModList::SimpleModList(const QString &dir) : QAbstractListModel(), m_dir(dir)
 {
@@ -313,8 +314,7 @@ Qt::ItemFlags SimpleModList::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractListModel::flags(index);
     if (index.isValid())
-        return Qt::ItemIsUserCheckable | Qt::ItemIsDropEnabled |
-               defaultFlags;
+        return Qt::ItemIsUserCheckable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled | defaultFlags;
     else
         return Qt::ItemIsDropEnabled | defaultFlags;
 }
@@ -325,12 +325,18 @@ Qt::DropActions SimpleModList::supportedDropActions() const
     return Qt::CopyAction | Qt::MoveAction;
 }
 
+Qt::DropActions SimpleModList::supportedDragActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
 QStringList SimpleModList::mimeTypes() const
 {
     QStringList types;
     types << "text/uri-list";
     return types;
 }
+
 
 bool SimpleModList::dropMimeData(const QMimeData* data, Qt::DropAction action, int, int, const QModelIndex&)
 {
@@ -362,4 +368,23 @@ bool SimpleModList::dropMimeData(const QMimeData* data, Qt::DropAction action, i
         return true;
     }
     return false;
+}
+
+QMimeData *SimpleModList::mimeData(const QModelIndexList &indexes) const
+{
+    auto *mimeData = new QMimeData();
+    QByteArray encodedData;
+
+    QDataStream stream(&encodedData, QIODevice::WriteOnly);
+    for(const auto &index : indexes)
+    {
+        if(index.isValid())
+        {
+            auto mod = mods[index.row()];
+            stream << "file://" <<  mod.filename().absoluteFilePath() << "\n";
+        }
+    }
+
+    mimeData->setData("text/uri-list", encodedData);
+    return mimeData;
 }
