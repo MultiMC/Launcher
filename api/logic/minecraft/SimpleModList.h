@@ -83,7 +83,7 @@ public:
     /**
      * Adds the given mod to the list at the given index - if the list supports custom ordering
      */
-    bool installMod(const QString& filename);
+    bool installMod(const QString& filename, bool move);
 
     /// Deletes all the selected mods
     virtual bool deleteMods(const QModelIndexList &indexes);

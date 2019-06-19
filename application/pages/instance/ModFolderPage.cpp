@@ -163,7 +163,7 @@ void ModFolderPage::on_addModBtn_clicked()
     {
         for (auto filename : list)
         {
-            m_mods->installMod(filename);
+            m_mods->installMod(filename, false);
         }
     }
 }

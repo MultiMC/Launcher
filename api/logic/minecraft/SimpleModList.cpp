@@ -97,7 +97,7 @@ bool SimpleModList::isValid()
 }
 
 // FIXME: this does not take disabled mod (with extra .disable extension) into account...
-bool SimpleModList::installMod(const QString &filename)
+bool SimpleModList::installMod(const QString &filename, bool move)
 {
     // NOTE: fix for GH-1178: remove trailing slash to avoid issues with using the empty result of QFileInfo::fileName
     auto originalPath = FS::NormalizePath(filename);
@@ -143,7 +143,7 @@ bool SimpleModList::installMod(const QString &filename)
             }
             qDebug() << newpath << "has been deleted.";
         }
-        if (!QFile::copy(fileinfo.filePath(), newpath))
+        if (move ? !QFile::rename(fileinfo.filePath(), newpath) : !QFile::copy(fileinfo.filePath(), newpath))
         {
             qWarning() << "Copy from" << originalPath << "to" << newpath << "has failed.";
             // FIXME: report error in a user-visible way
@@ -163,7 +163,7 @@ bool SimpleModList::installMod(const QString &filename)
             return false;
         }
 
-        if (!FS::copy(from, newpath)())
+        if (move ? !QDir().rename(from, newpath) : !FS::copy(from, newpath)())
         {
             qWarning() << "Copy of folder from" << originalPath << "to" << newpath << "has (potentially partially) failed.";
             return false;
@@ -307,7 +307,6 @@ QVariant SimpleModList::headerData(int section, Qt::Orientation orientation, int
     default:
         return QVariant();
     }
-    return QVariant();
 }
 
 Qt::ItemFlags SimpleModList::flags(const QModelIndex &index) const
@@ -357,9 +356,8 @@ bool SimpleModList::dropMimeData(const QMimeData* data, Qt::DropAction action, i
             {
                 continue;
             }
-            // TODO: implement not only copy, but also move
             // FIXME: handle errors here
-            installMod(url.toLocalFile());
+            installMod(url.toLocalFile(), action == Qt::DropAction::MoveAction);
         }
         return true;
     }
