@@ -341,5 +341,3 @@ QSize ListViewDelegate::sizeHint(const QStyleOptionViewItem &option,
     QSize sz(100, height);
     return sz;
 }
-
-#include "InstanceDelegate.moc"
