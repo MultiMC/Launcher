@@ -807,9 +807,11 @@ bool InstanceList::commitStagedInstance(const QString& path, const QString& inst
 {
     QString instID = FS::DirNameFromString(instanceName, m_instDir);
     QString instanceDirName = instID;
-    if(instanceDirName.length() > 180)
+    // The limit turned out to be 248 on Windows and 255 on Linux normally, so lets use that with a bit of buffer
+    // for filesystem types which need more space
+    if(instanceDirName.length() > 240)
     {
-        instanceDirName.truncate(176);
+        instanceDirName.truncate(236);
         instanceDirName += instID.at(instID.length() - 4); // In case the last 4 chars were changed
                                                            // to prevent double folder names
     }
