@@ -126,6 +126,8 @@ public:
      */
     bool destroyStagingPath(const QString & keyPath);
 
+    int getTotalPlayTime();
+
 signals:
     void dataIsInvalid();
     void instancesChanged();
@@ -142,6 +144,7 @@ private slots:
 
 private:
     int getInstIndex(BaseInstance *inst) const;
+    void updateTotalPlayTime();
     void suspendWatch();
     void resumeWatch();
     void add(const QList<InstancePtr> &list);
@@ -152,6 +155,7 @@ private:
 
 private:
     int m_watchLevel = 0;
+    int totalPlayTime = 0;
     bool m_dirty = false;
     QList<InstancePtr> m_instances;
     QSet<QString> m_groups;

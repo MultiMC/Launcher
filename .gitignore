@@ -17,6 +17,7 @@ CMakeLists.txt.user.*
 /.settings
 /.idea
 cmake-build-*/
+Debug
 
 # Build dirs
 build
