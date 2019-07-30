@@ -289,6 +289,7 @@ public:
         foldersMenuButton->setPopupMode(QToolButton::InstantPopup);
         foldersMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         foldersMenuButton->setIcon(MMC->getThemedIcon("viewfolder"));
+        foldersMenuButton->setFocusPolicy(Qt::NoFocus);
         all_toolbuttons.append(&foldersMenuButton);
         QWidgetAction* foldersButtonAction = new QWidgetAction(MainWindow);
         foldersButtonAction->setDefaultWidget(foldersMenuButton);
@@ -346,6 +347,7 @@ public:
         helpMenuButton->setPopupMode(QToolButton::InstantPopup);
         helpMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         helpMenuButton->setIcon(MMC->getThemedIcon("help"));
+        helpMenuButton->setFocusPolicy(Qt::NoFocus);
         all_toolbuttons.append(&helpMenuButton);
         QWidgetAction* helpButtonAction = new QWidgetAction(MainWindow);
         helpButtonAction->setDefaultWidget(helpMenuButton);
@@ -653,6 +655,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         newsLabel->setIcon(MMC->getThemedIcon("news"));
         newsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         newsLabel->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        newsLabel->setFocusPolicy(Qt::NoFocus);
         ui->newsToolBar->insertWidget(ui->actionMoreNews, newsLabel);
         QObject::connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
         QObject::connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
@@ -829,6 +832,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
 MainWindow::~MainWindow()
 {
+}
+
+QMenu * MainWindow::createPopupMenu()
+{
+    QMenu* filteredMenu = QMainWindow::createPopupMenu();
+    filteredMenu->removeAction( ui->mainToolBar->toggleViewAction() );
+    return filteredMenu;
 }
 
 void MainWindow::konamiTriggered()
@@ -1655,13 +1665,6 @@ void MainWindow::on_actionAbout_triggered()
 {
     AboutDialog dialog(this);
     dialog.exec();
-}
-
-void MainWindow::on_mainToolBar_visibilityChanged(bool)
-{
-    // Don't allow hiding the main toolbar.
-    // This is the only way I could find to prevent it... :/
-    ui->mainToolBar->setVisible(true);
 }
 
 void MainWindow::on_actionDeleteInstance_triggered()

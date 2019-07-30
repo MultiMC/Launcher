@@ -13,6 +13,7 @@
 #include <QPainter>
 #include <QClipboard>
 #include <QKeyEvent>
+#include <QMenu>
 
 #include <MultiMC.h>
 
@@ -209,7 +210,7 @@ public:
 };
 
 ScreenshotsPage::ScreenshotsPage(QString path, QWidget *parent)
-    : QWidget(parent), ui(new Ui::ScreenshotsPage)
+    : QMainWindow(parent), ui(new Ui::ScreenshotsPage)
 {
     m_model.reset(new QFileSystemModel());
     m_filterModel.reset(new FilterModel());
@@ -222,7 +223,8 @@ ScreenshotsPage::ScreenshotsPage(QString path, QWidget *parent)
     m_valid = FS::ensureFolderPathExists(m_folder);
 
     ui->setupUi(this);
-    ui->tabWidget->tabBar()->hide();
+    ui->toolBar->insertSpacer(ui->actionView_Folder);
+
     ui->listView->setIconSize(QSize(128, 128));
     ui->listView->setGridSize(QSize(192, 160));
     ui->listView->setSpacing(9);
@@ -233,6 +235,8 @@ ScreenshotsPage::ScreenshotsPage(QString path, QWidget *parent)
     ui->listView->installEventFilter(this);
     ui->listView->setEditTriggers(0);
     ui->listView->setItemDelegate(new CenteredEditingDelegate(this));
+    ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->listView, &QListView::customContextMenuRequested, this, &ScreenshotsPage::ShowContextMenu);
     connect(ui->listView, SIGNAL(activated(QModelIndex)), SLOT(onItemActivated(QModelIndex)));
 }
 
@@ -248,10 +252,10 @@ bool ScreenshotsPage::eventFilter(QObject *obj, QEvent *evt)
     switch (keyEvent->key())
     {
     case Qt::Key_Delete:
-        on_deleteBtn_clicked();
+        on_actionDelete_triggered();
         return true;
     case Qt::Key_F2:
-        on_renameBtn_clicked();
+        on_actionRename_triggered();
         return true;
     default:
         break;
@@ -264,6 +268,20 @@ ScreenshotsPage::~ScreenshotsPage()
     delete ui;
 }
 
+void ScreenshotsPage::ShowContextMenu(const QPoint& pos)
+{
+    auto menu = ui->toolBar->createContextMenu(this, tr("Context menu"));
+    menu->exec(ui->listView->mapToGlobal(pos));
+    delete menu;
+}
+
+QMenu * ScreenshotsPage::createPopupMenu()
+{
+    QMenu* filteredMenu = QMainWindow::createPopupMenu();
+    filteredMenu->removeAction( ui->toolBar->toggleViewAction() );
+    return filteredMenu;
+}
+
 void ScreenshotsPage::onItemActivated(QModelIndex index)
 {
     if (!index.isValid())
@@ -273,12 +291,12 @@ void ScreenshotsPage::onItemActivated(QModelIndex index)
     DesktopServices::openFile(info.absoluteFilePath());
 }
 
-void ScreenshotsPage::on_viewFolderBtn_clicked()
+void ScreenshotsPage::on_actionView_Folder_triggered()
 {
     DesktopServices::openDirectory(m_folder, true);
 }
 
-void ScreenshotsPage::on_uploadBtn_clicked()
+void ScreenshotsPage::on_actionUpload_triggered()
 {
     auto selection = ui->listView->selectionModel()->selectedRows();
     if (selection.isEmpty())
@@ -353,7 +371,7 @@ void ScreenshotsPage::on_uploadBtn_clicked()
     m_uploadActive = false;
 }
 
-void ScreenshotsPage::on_deleteBtn_clicked()
+void ScreenshotsPage::on_actionDelete_triggered()
 {
     auto mbox = CustomMessageBox::selectable(
         this, tr("Are you sure?"), tr("This will delete all selected screenshots."),
@@ -370,7 +388,7 @@ void ScreenshotsPage::on_deleteBtn_clicked()
     }
 }
 
-void ScreenshotsPage::on_renameBtn_clicked()
+void ScreenshotsPage::on_actionRename_triggered()
 {
     auto selection = ui->listView->selectionModel()->selectedIndexes();
     if (selection.isEmpty())

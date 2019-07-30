@@ -104,6 +104,9 @@ public:
     /// if there is a save scheduled, do it now.
     void saveNow();
 
+signals:
+    void minecraftChanged();
+
 public:
     /// get the profile component by id
     Component * getComponent(const QString &id);
@@ -131,6 +134,7 @@ private slots:
     void updateSucceeded();
     void updateFailed(const QString & error);
     void componentDataChanged();
+    void disableInteraction(bool disable);
 
 private:
     bool load();

@@ -16,8 +16,10 @@
 #include "MultiMC.h"
 
 #include <QMessageBox>
+#include <QLabel>
 #include <QEvent>
 #include <QKeyEvent>
+#include <QMenu>
 
 #include "VersionPage.h"
 #include "ui_VersionPage.h"
@@ -41,8 +43,7 @@
 #include "minecraft/Mod.h"
 #include "icons/IconList.h"
 #include "Exception.h"
-
-#include "MultiMC.h"
+#include "Version.h"
 
 #include <meta/Index.h>
 #include <meta/VersionList.h>
@@ -96,43 +97,56 @@ QIcon VersionPage::icon() const
 }
 bool VersionPage::shouldDisplay() const
 {
-    return !m_inst->isRunning();
+    return true;
+}
+
+QMenu * VersionPage::createPopupMenu()
+{
+    QMenu* filteredMenu = QMainWindow::createPopupMenu();
+    filteredMenu->removeAction( ui->toolBar->toggleViewAction() );
+    return filteredMenu;
 }
 
 VersionPage::VersionPage(MinecraftInstance *inst, QWidget *parent)
-    : QWidget(parent), ui(new Ui::VersionPage), m_inst(inst)
+    : QMainWindow(parent), ui(new Ui::VersionPage), m_inst(inst)
 {
     ui->setupUi(this);
-    ui->tabWidget->tabBar()->hide();
+
+    ui->toolBar->insertSpacer(ui->actionReload);
+
     m_profile = m_inst->getComponentList();
 
     reloadComponentList();
 
-    if (m_profile)
-    {
-        auto proxy = new IconProxy(ui->packageView);
-        proxy->setSourceModel(m_profile.get());
-        ui->packageView->setModel(proxy);
-        ui->packageView->installEventFilter(this);
-        ui->packageView->setSelectionMode(QAbstractItemView::SingleSelection);
-        connect(ui->packageView->selectionModel(), &QItemSelectionModel::currentChanged, this, &VersionPage::versionCurrent);
-        auto smodel = ui->packageView->selectionModel();
-        connect(smodel, &QItemSelectionModel::currentChanged, this, &VersionPage::packageCurrent);
-        updateVersionControls();
-        // select first item.
-        preselect(0);
-    }
-    else
-    {
-        disableVersionControls();
-    }
-    connect(m_inst, &MinecraftInstance::versionReloaded, this,
-            &VersionPage::updateVersionControls);
+    auto proxy = new IconProxy(ui->packageView);
+    proxy->setSourceModel(m_profile.get());
+    ui->packageView->setModel(proxy);
+    ui->packageView->installEventFilter(this);
+    ui->packageView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->packageView->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(ui->packageView->selectionModel(), &QItemSelectionModel::currentChanged, this, &VersionPage::versionCurrent);
+    auto smodel = ui->packageView->selectionModel();
+    connect(smodel, &QItemSelectionModel::currentChanged, this, &VersionPage::packageCurrent);
+
+    connect(m_profile.get(), &ComponentList::minecraftChanged, this, &VersionPage::updateVersionControls);
+    controlsEnabled = !m_inst->isRunning();
+    updateVersionControls();
+    preselect(0);
+    connect(m_inst, &BaseInstance::runningStatusChanged, this, &VersionPage::updateRunningStatus);
+    connect(ui->packageView, &ModListView::customContextMenuRequested, this, &VersionPage::ShowContextMenu);
 }
 
 VersionPage::~VersionPage()
 {
     delete ui;
+}
+
+void VersionPage::ShowContextMenu(const QPoint& pos)
+{
+    auto menu = ui->toolBar->createContextMenu(this, tr("Context menu"));
+    menu->exec(ui->packageView->mapToGlobal(pos));
+    delete menu;
 }
 
 void VersionPage::packageCurrent(const QModelIndex &current, const QModelIndex &previous)
@@ -177,22 +191,45 @@ void VersionPage::packageCurrent(const QModelIndex &current, const QModelIndex &
     ui->frame->setModDescription(problemOut);
 }
 
+void VersionPage::updateRunningStatus(bool running)
+{
+    if(controlsEnabled == running) {
+        controlsEnabled = !running;
+        updateVersionControls();
+    }
+}
 
 void VersionPage::updateVersionControls()
 {
-    ui->fabricBtn->setEnabled(true);
-    ui->forgeBtn->setEnabled(true);
-    ui->liteloaderBtn->setEnabled(true);
+    // FIXME: this is a dirty hack
+    auto minecraftVersion = Version(m_profile->getComponentVersion("net.minecraft"));
+    bool newCraft = controlsEnabled && (minecraftVersion >= Version("1.14"));
+    bool oldCraft = controlsEnabled && (minecraftVersion <= Version("1.12.2"));
+    ui->actionInstall_Fabric->setEnabled(newCraft);
+    ui->actionInstall_Forge->setEnabled(oldCraft);
+    ui->actionInstall_LiteLoader->setEnabled(oldCraft);
+    ui->actionReload->setEnabled(true);
     updateButtons();
 }
 
-void VersionPage::disableVersionControls()
+void VersionPage::updateButtons(int row)
 {
-    ui->fabricBtn->setEnabled(false);
-    ui->forgeBtn->setEnabled(false);
-    ui->liteloaderBtn->setEnabled(false);
-    ui->reloadBtn->setEnabled(false);
-    updateButtons();
+    if(row == -1)
+        row = currentRow();
+    auto patch = m_profile->getComponent(row);
+    ui->actionRemove->setEnabled(controlsEnabled && patch && patch->isRemovable());
+    ui->actionMove_down->setEnabled(controlsEnabled && patch && patch->isMoveable());
+    ui->actionMove_up->setEnabled(controlsEnabled && patch && patch->isMoveable());
+    ui->actionChange_version->setEnabled(controlsEnabled && patch && patch->isVersionChangeable());
+    ui->actionEdit->setEnabled(controlsEnabled && patch && patch->isCustom());
+    ui->actionCustomize->setEnabled(controlsEnabled && patch && patch->isCustomizable());
+    ui->actionRevert->setEnabled(controlsEnabled && patch && patch->isRevertible());
+    ui->actionDownload_All->setEnabled(controlsEnabled);
+    ui->actionAdd_Empty->setEnabled(controlsEnabled);
+    ui->actionReload->setEnabled(controlsEnabled);
+    ui->actionInstall_mods->setEnabled(controlsEnabled);
+    ui->actionReplace_Minecraft_jar->setEnabled(controlsEnabled);
+    ui->actionAdd_to_Minecraft_jar->setEnabled(controlsEnabled);
 }
 
 bool VersionPage::reloadComponentList()
@@ -216,13 +253,13 @@ bool VersionPage::reloadComponentList()
     }
 }
 
-void VersionPage::on_reloadBtn_clicked()
+void VersionPage::on_actionReload_triggered()
 {
     reloadComponentList();
     m_container->refreshContainer();
 }
 
-void VersionPage::on_removeBtn_clicked()
+void VersionPage::on_actionRemove_triggered()
 {
     if (ui->packageView->currentIndex().isValid())
     {
@@ -237,7 +274,7 @@ void VersionPage::on_removeBtn_clicked()
     m_container->refreshContainer();
 }
 
-void VersionPage::on_modBtn_clicked()
+void VersionPage::on_actionInstall_mods_triggered()
 {
     if(m_container)
     {
@@ -245,7 +282,7 @@ void VersionPage::on_modBtn_clicked()
     }
 }
 
-void VersionPage::on_jarmodBtn_clicked()
+void VersionPage::on_actionAdd_to_Minecraft_jar_triggered()
 {
     auto list = GuiUtil::BrowseForFiles("jarmod", tr("Select jar mods"), tr("Minecraft.jar mods (*.zip *.jar)"), MMC->settings()->get("CentralModsDir").toString(), this->parentWidget());
     if(!list.empty())
@@ -255,7 +292,7 @@ void VersionPage::on_jarmodBtn_clicked()
     updateButtons();
 }
 
-void VersionPage::on_jarBtn_clicked()
+void VersionPage::on_actionReplace_Minecraft_jar_triggered()
 {
     auto jarPath = GuiUtil::BrowseForFile("jar", tr("Select jar"), tr("Minecraft.jar replacement (*.jar)"), MMC->settings()->get("CentralModsDir").toString(), this->parentWidget());
     if(!jarPath.isEmpty())
@@ -265,7 +302,7 @@ void VersionPage::on_jarBtn_clicked()
     updateButtons();
 }
 
-void VersionPage::on_moveUpBtn_clicked()
+void VersionPage::on_actionMove_up_triggered()
 {
     try
     {
@@ -278,7 +315,7 @@ void VersionPage::on_moveUpBtn_clicked()
     updateButtons();
 }
 
-void VersionPage::on_moveDownBtn_clicked()
+void VersionPage::on_actionMove_down_triggered()
 {
     try
     {
@@ -291,7 +328,7 @@ void VersionPage::on_moveDownBtn_clicked()
     updateButtons();
 }
 
-void VersionPage::on_changeVersionBtn_clicked()
+void VersionPage::on_actionChange_version_triggered()
 {
     auto versionRow = currentRow();
     if(versionRow == -1)
@@ -309,12 +346,12 @@ void VersionPage::on_changeVersionBtn_clicked()
     // FIXME: this is a horrible HACK. Get version filtering information from the actual metadata...
     if(uid == "net.minecraftforge")
     {
-        on_forgeBtn_clicked();
+        on_actionInstall_Forge_triggered();
         return;
     }
     else if (uid == "com.mumfrey.liteloader")
     {
-        on_liteloaderBtn_clicked();
+        on_actionInstall_LiteLoader_triggered();
         return;
     }
     VersionSelectDialog vselect(list.get(), tr("Change %1 version").arg(name), this);
@@ -343,7 +380,7 @@ void VersionPage::on_changeVersionBtn_clicked()
     m_container->refreshContainer();
 }
 
-void VersionPage::on_downloadBtn_clicked()
+void VersionPage::on_actionDownload_triggered()
 {
     if (!MMC->accounts()->anyAccountIsValid())
     {
@@ -368,7 +405,7 @@ void VersionPage::on_downloadBtn_clicked()
     m_container->refreshContainer();
 }
 
-void VersionPage::on_forgeBtn_clicked()
+void VersionPage::on_actionInstall_Forge_triggered()
 {
     auto vlist = ENV.metadataIndex()->get("net.minecraftforge");
     if(!vlist)
@@ -397,7 +434,7 @@ void VersionPage::on_forgeBtn_clicked()
     }
 }
 
-void VersionPage::on_fabricBtn_clicked()
+void VersionPage::on_actionInstall_Fabric_triggered()
 {
     auto vlist = ENV.metadataIndex()->get("net.fabricmc.fabric-loader");
     if(!vlist)
@@ -424,7 +461,7 @@ void VersionPage::on_fabricBtn_clicked()
     }
 }
 
-void VersionPage::on_addEmptyBtn_clicked()
+void VersionPage::on_actionAdd_Empty_triggered()
 {
     NewComponentDialog compdialog(QString(), QString(), this);
     QStringList blacklist;
@@ -442,7 +479,7 @@ void VersionPage::on_addEmptyBtn_clicked()
     }
 }
 
-void VersionPage::on_liteloaderBtn_clicked()
+void VersionPage::on_actionInstall_LiteLoader_triggered()
 {
     auto vlist = ENV.metadataIndex()->get("com.mumfrey.liteloader");
     if(!vlist)
@@ -496,37 +533,9 @@ void VersionPage::preselect(int row)
     updateButtons(row);
 }
 
-void VersionPage::updateButtons(int row)
-{
-    if(row == -1)
-        row = currentRow();
-    auto patch = m_profile->getComponent(row);
-    if (!patch)
-    {
-        ui->removeBtn->setDisabled(true);
-        ui->moveDownBtn->setDisabled(true);
-        ui->moveUpBtn->setDisabled(true);
-        ui->changeVersionBtn->setDisabled(true);
-        ui->editBtn->setDisabled(true);
-        ui->customizeBtn->setDisabled(true);
-        ui->revertBtn->setDisabled(true);
-    }
-    else
-    {
-        ui->removeBtn->setEnabled(patch->isRemovable());
-        ui->moveDownBtn->setEnabled(patch->isMoveable());
-        ui->moveUpBtn->setEnabled(patch->isMoveable());
-        ui->changeVersionBtn->setEnabled(patch->isVersionChangeable());
-        ui->editBtn->setEnabled(patch->isCustom());
-        ui->customizeBtn->setEnabled(patch->isCustomizable());
-        ui->revertBtn->setEnabled(patch->isRevertible());
-    }
-}
-
 void VersionPage::onGameUpdateError(QString error)
 {
-    CustomMessageBox::selectable(this, tr("Error updating instance"), error,
-                                 QMessageBox::Warning)->show();
+    CustomMessageBox::selectable(this, tr("Error updating instance"), error, QMessageBox::Warning)->show();
 }
 
 Component * VersionPage::current()
@@ -548,7 +557,7 @@ int VersionPage::currentRow()
     return ui->packageView->selectionModel()->selectedRows().first().row();
 }
 
-void VersionPage::on_customizeBtn_clicked()
+void VersionPage::on_actionCustomize_triggered()
 {
     auto version = currentRow();
     if(version == -1)
@@ -569,7 +578,7 @@ void VersionPage::on_customizeBtn_clicked()
     preselect(currentIdx);
 }
 
-void VersionPage::on_editBtn_clicked()
+void VersionPage::on_actionEdit_triggered()
 {
     auto version = current();
     if(!version)
@@ -585,7 +594,7 @@ void VersionPage::on_editBtn_clicked()
     MMC->openJsonEditor(filename);
 }
 
-void VersionPage::on_revertBtn_clicked()
+void VersionPage::on_actionRevert_triggered()
 {
     auto version = currentRow();
     if(version == -1)
