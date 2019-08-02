@@ -53,6 +53,7 @@ CopyInstanceDialog::CopyInstanceDialog(InstancePtr original, QWidget *parent)
     ui->groupBox->setCurrentIndex(index);
     ui->groupBox->lineEdit()->setPlaceholderText(tr("No group"));
     ui->copySavesCheckbox->setChecked(m_copySaves);
+    ui->copyPlaytimeCheckbox->setChecked(m_copyPlaytime);
 }
 
 CopyInstanceDialog::~CopyInstanceDialog()
@@ -121,5 +122,22 @@ void CopyInstanceDialog::on_copySavesCheckbox_stateChanged(int state)
     else if(state == Qt::Checked)
     {
         m_copySaves = true;
+    }
+}
+
+bool CopyInstanceDialog::shouldCopyPlaytime() const
+{
+    return m_copyPlaytime;
+}
+
+void CopyInstanceDialog::on_copyPlaytimeCheckbox_stateChanged(int state)
+{
+    if(state == Qt::Unchecked)
+    {
+        m_copyPlaytime = false;
+    }
+    else if(state == Qt::Checked)
+    {
+        m_copyPlaytime = true;
     }
 }
