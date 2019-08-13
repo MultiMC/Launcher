@@ -8,13 +8,19 @@
 #include <FileSystem.h>
 
 
-void Library::getApplicableFiles(OpSys system, QStringList& jar, QStringList& native, QStringList& native32,
-                                 QStringList& native64, const QString &overridePath) const
+void Library::getApplicableFiles(
+    OpSys system,
+    QStringList& jar,
+    QStringList& native,
+    QStringList& native32,
+    QStringList& native64,
+    const QString &overridePath
+) const
 {
     bool local = isInstanceLocal();
     auto actualPath = [&](QString relPath)
     {
-        QFileInfo out(FS::PathCombine(storagePrefix(), relPath));
+        QFileInfo out(FS::PathCombine("libraries", relPath));
         if(local && !overridePath.isEmpty())
         {
             QString fileName = out.fileName();
@@ -98,7 +104,9 @@ QList< std::shared_ptr< NetAction > > Library::getDownloads(
             entry->setStale(true);
         }
         if (!entry->isStale())
+        {
             return true;
+        }
         Net::Download::Options options;
         if(stale)
         {
@@ -267,25 +275,6 @@ bool Library::isAlwaysStale() const
 bool Library::isForge() const
 {
     return m_hint == "forge-pack-xz";
-}
-
-void Library::setStoragePrefix(QString prefix)
-{
-    m_storagePrefix = prefix;
-}
-
-QString Library::defaultStoragePrefix()
-{
-    return "libraries/";
-}
-
-QString Library::storagePrefix() const
-{
-    if(m_storagePrefix.isEmpty())
-    {
-        return defaultStoragePrefix();
-    }
-    return m_storagePrefix;
 }
 
 QString Library::filename(OpSys system) const

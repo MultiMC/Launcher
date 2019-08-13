@@ -46,7 +46,6 @@ public:
         newlib->m_extractExcludes = base->m_extractExcludes;
         newlib->m_nativeClassifiers = base->m_nativeClassifiers;
         newlib->m_rules = base->m_rules;
-        newlib->m_storagePrefix = base->m_storagePrefix;
         newlib->m_mojangDownloads = base->m_mojangDownloads;
         newlib->m_filename = base->m_filename;
         newlib->presenceOnly = base->presenceOnly;
@@ -94,8 +93,6 @@ public: /* methods */
     {
         return m_nativeClassifiers.size() != 0;
     }
-
-    void setStoragePrefix(QString prefix = QString());
 
     /// Set the url base for downloads
     void setRepositoryURL(const QString &base_url)
@@ -169,11 +166,6 @@ public: /* methods */
                                      QStringList & failedLocalFiles, const QString & overridePath) const;
 
 private: /* methods */
-    /// the default storage prefix used by MultiMC
-    static QString defaultStoragePrefix();
-
-    /// Get the prefix - root of the storage to be used
-    QString storagePrefix() const;
 
     /// Get the relative file path where the library should be saved
     QString storageSuffix(OpSys system) const;
