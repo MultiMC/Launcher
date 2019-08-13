@@ -48,8 +48,6 @@ public:
         newlib->m_rules = base->m_rules;
         newlib->m_mojangDownloads = base->m_mojangDownloads;
         newlib->m_filename = base->m_filename;
-        newlib->presenceOnly = base->presenceOnly;
-        newlib->localBuild = base->localBuild;
         return newlib;
     }
 
@@ -213,12 +211,6 @@ protected: /* data */
 
     /// true if the library had a rules section (even empty)
     bool applyRules = false;
-
-    // MultiMC-specific: the artifact must be present, but is not part of the classpath
-    bool presenceOnly = false;
-
-    // MultiMC-specific: the artifact must be present, but cannot be downloaded, because it was created by some other mechanism
-    bool localBuild = false;
 
     /// rules associated with the library
     QList<std::shared_ptr<Rule>> m_rules;

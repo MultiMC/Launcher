@@ -45,10 +45,6 @@ void Library::getApplicableFiles(
             native += actualPath(raw_storage);
         }
     }
-    else if (!presenceOnly)
-    {
-        jar += actualPath(raw_storage);
-    }
 }
 
 QList< std::shared_ptr< NetAction > > Library::getDownloads(
@@ -61,7 +57,6 @@ QList< std::shared_ptr< NetAction > > Library::getDownloads(
     QList<NetActionPtr> out;
     bool stale = isAlwaysStale();
     bool instanceLocal = isInstanceLocal();
-    bool launcherLocal = isLocalBuilt();
 
     auto check_instance_local_file = [&](QString storage)
     {
@@ -77,26 +72,11 @@ QList< std::shared_ptr< NetAction > > Library::getDownloads(
         return true;
     };
 
-    auto check_launcher_local_file = [&](QString storage)
-    {
-        QFileInfo localFileInfo("libraries/" + storage);
-        if(!localFileInfo.exists())
-        {
-            failedLocalFiles.append(localFileInfo.filePath());
-            return false;
-        }
-        return true;
-    };
-
     auto add_download = [&](QString storage, QString url, QString sha1)
     {
         if(instanceLocal)
         {
             return check_instance_local_file(storage);
-        }
-        else if(launcherLocal)
-        {
-            return check_launcher_local_file(storage);
         }
         auto entry = cache->resolveEntry("libraries", storage);
         if(stale)
@@ -260,11 +240,6 @@ bool Library::isActive() const
 bool Library::isInstanceLocal() const
 {
     return m_hint == "local";
-}
-
-bool Library::isLocalBuilt() const
-{
-    return localBuild;
 }
 
 bool Library::isAlwaysStale() const
