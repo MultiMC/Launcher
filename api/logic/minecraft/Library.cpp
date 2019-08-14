@@ -45,6 +45,10 @@ void Library::getApplicableFiles(
             native += actualPath(raw_storage);
         }
     }
+    else
+    {
+        jar += actualPath(raw_storage);
+    }
 }
 
 QList< std::shared_ptr< NetAction > > Library::getDownloads(

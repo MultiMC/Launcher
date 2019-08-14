@@ -1,7 +1,6 @@
 #include <QTest>
 #include "TestUtil.h"
 
-#include "minecraft/MojangVersionFormat.h"
 #include "minecraft/OneSixVersionFormat.h"
 #include "minecraft/Library.h"
 #include "net/HttpMetaCache.h"
@@ -18,7 +17,7 @@ private:
         jsonFile.open(QIODevice::ReadOnly);
         auto data = jsonFile.readAll();
         jsonFile.close();
-        return MojangVersionFormat::libraryFromJson(QJsonDocument::fromJson(data).object(), file);
+        return OneSixVersionFormat::libraryFromJson(QJsonDocument::fromJson(data).object(), file);
     }
     // get absolute path to expected storage, assuming default cache prefix
     QStringList getStorage(QString relative)

@@ -5,7 +5,7 @@
 #include <minecraft/Library.h>
 #include <QJsonDocument>
 
-class OneSixVersionFormat
+class MULTIMC_LOGIC_EXPORT OneSixVersionFormat
 {
 public:
     // version files / profile patches

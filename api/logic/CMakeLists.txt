@@ -267,8 +267,6 @@ set(MINECRAFT_SOURCES
     minecraft/MinecraftLoadAndCheck.cpp
     minecraft/MinecraftUpdate.h
     minecraft/MinecraftUpdate.cpp
-    minecraft/MojangVersionFormat.cpp
-    minecraft/MojangVersionFormat.h
     minecraft/Rule.cpp
     minecraft/Rule.h
     minecraft/OneSixVersionFormat.cpp
@@ -317,12 +315,6 @@ set(MINECRAFT_SOURCES
 add_unit_test(GradleSpecifier
     SOURCES minecraft/GradleSpecifier_test.cpp
     LIBS MultiMC_logic
-    )
-
-add_unit_test(MojangVersionFormat
-    SOURCES minecraft/MojangVersionFormat_test.cpp
-    LIBS MultiMC_logic
-    DATA minecraft/testdata
     )
 
 add_unit_test(Library
