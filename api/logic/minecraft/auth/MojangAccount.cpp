@@ -56,13 +56,12 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
         QJsonObject profileObject = profileVal.toObject();
         QString id = profileObject.value("id").toString("");
         QString name = profileObject.value("name").toString("");
-        bool legacy = profileObject.value("legacy").toBool(false);
         if (id.isEmpty() || name.isEmpty())
         {
             qWarning() << "Unable to load a profile because it was missing an ID or a name.";
             continue;
         }
-        profiles.append({id, name, legacy});
+        profiles.append({id, name});
     }
 
     MojangAccountPtr account(new MojangAccount());
@@ -116,7 +115,6 @@ QJsonObject MojangAccount::saveToJson() const
         QJsonObject profileObj;
         profileObj.insert("id", profile.id);
         profileObj.insert("name", profile.name);
-        profileObj.insert("legacy", profile.legacy);
         profileArray.append(profileObj);
     }
     json.insert("profiles", profileArray);
