@@ -103,7 +103,7 @@ void AccountListPage::listChanged()
 
 void AccountListPage::on_actionAdd_triggered()
 {
-    addAccount(tr("Please enter your Mojang or Minecraft account username and password to add "
+    addAccount(tr("Please enter your Mojang or Minecraft account email address and password to add "
                   "your account."));
 }
 
