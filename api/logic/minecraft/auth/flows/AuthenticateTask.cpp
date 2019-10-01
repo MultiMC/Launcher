@@ -40,8 +40,8 @@ QJsonObject AuthenticateTask::getRequestContent() const
      *   "version": 1                            // This number might be increased
      *                                             // by the vanilla client in the future
      *   },
-     *   "username": "mojang account name",        // Can be an email address
-                                                
+     *   "username": "mojang account name",        // Can be an email address or player name for
+                                                // unmigrated accounts
      *  "password": "mojang account password",
      *  "clientToken": "client identifier"        // optional
      *  "requestUser": true/false               // request the user structure
@@ -125,6 +125,7 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
         // Profiles are easy, we just need their ID and name.
         QString id = profile.value("id").toString("");
         QString name = profile.value("name").toString("");
+        bool legacy = profile.value("legacy").toBool(false);
 
         if (id.isEmpty() || name.isEmpty())
         {
@@ -136,7 +137,7 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
         }
 
         // Now, add a new AccountProfile entry to the list.
-        loadedProfiles.append({id, name});
+        loadedProfiles.append({id, name, legacy});
     }
     // Put the list of profiles we loaded into the MojangAccount object.
     m_account->m_profiles = loadedProfiles;
