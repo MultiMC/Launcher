@@ -46,7 +46,6 @@ struct AccountProfile
 {
     QString id;
     QString name;
-    bool legacy;
 };
 
 enum AccountStatus
