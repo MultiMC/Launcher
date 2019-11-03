@@ -8,6 +8,9 @@ URL:            https://multimc.org/
 Source0:        https://github.com/MultiMC/MultiMC5/releases/download/%{version}/mmc-stable-lin64.tar.gz
 
 Requires:       bash
+Requires:       java-1.8.0-openjdk
+Requires:       java-1.8.0-openjdk-devel
+Requires:       qt5
 
 %description
 Free, open source launcher and instance manager for Minecraft
