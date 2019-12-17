@@ -50,6 +50,7 @@ struct VisualGroup
     QString text;
     bool collapsed = false;
     QVector<VisualRow> rows;
+    QMap<QModelIndex, QPair<int, int>> m_itemLookup;
     int firstItemIndex = 0;
     int m_verticalPosition = 0;
 

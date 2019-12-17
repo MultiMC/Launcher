@@ -115,7 +115,7 @@ QVariant InstanceList::data(const QModelIndex &index, int role) const
     // HACK: see GroupView.h in gui!
     case GroupRole:
     {
-        return getInstanceGroup(pdata->id());
+        return getInstanceGroup(pdata);
     }
     default:
         break;
@@ -153,6 +153,16 @@ Qt::ItemFlags InstanceList::flags(const QModelIndex &index) const
     return f;
 }
 
+GroupId InstanceList::getInstanceGroup(BaseInstance * inst) const
+{
+    auto iter = m_instanceGroupIndex.find(inst->id());
+    if(iter != m_instanceGroupIndex.end())
+    {
+        return *iter;
+    }
+    return GroupId();
+}
+
 GroupId InstanceList::getInstanceGroup(const InstanceId& id) const
 {
     auto inst = getInstanceById(id);
@@ -160,12 +170,7 @@ GroupId InstanceList::getInstanceGroup(const InstanceId& id) const
     {
         return GroupId();
     }
-    auto iter = m_instanceGroupIndex.find(inst->id());
-    if(iter != m_instanceGroupIndex.end())
-    {
-        return *iter;
-    }
-    return GroupId();
+    return getInstanceGroup(inst.get());
 }
 
 void InstanceList::setInstanceGroup(const InstanceId& id, const GroupId& name)

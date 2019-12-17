@@ -36,6 +36,7 @@ void VisualGroup::update()
 {
     auto temp_items = items();
     auto itemsPerRow = view->itemsPerRow();
+    m_itemLookup.clear();
 
     int numRows = qMax(1, qCeil((qreal)temp_items.size() / (qreal)itemsPerRow));
     rows = QVector<VisualRow>(numRows);
@@ -61,6 +62,7 @@ void VisualGroup::update()
             maxRowHeight = itemHeight;
         }
         rows[currentRow].items.append(item);
+        m_itemLookup[item] = QPair<int, int>(positionInRow, currentRow);
         positionInRow++;
     }
     rows[currentRow].height = maxRowHeight;
@@ -69,20 +71,12 @@ void VisualGroup::update()
 
 QPair<int, int> VisualGroup::positionOf(const QModelIndex &index) const
 {
-    int y = 0;
-    for (auto & row: rows)
-    {
-        for(auto x = 0; x < row.items.size(); x++)
-        {
-            if(row.items[x] == index)
-            {
-                return qMakePair(x,y);
-            }
-        }
-        y++;
+    auto iter = m_itemLookup.find(index);
+    if(iter == m_itemLookup.end()) {
+        qWarning() << "Item" << index.row() << index.data(Qt::DisplayRole).toString() << "not found in visual group" << text;
+        return qMakePair(0, 0);
     }
-    qWarning() << "Item" << index.row() << index.data(Qt::DisplayRole).toString() << "not found in visual group" << text;
-    return qMakePair(0, 0);
+    return *iter;
 }
 
 int VisualGroup::rowTopOf(const QModelIndex &index) const

@@ -32,10 +32,17 @@ BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr s
     m_settings = settings;
     m_rootDir = rootDir;
 
+    m_id = QFileInfo(instanceRoot()).fileName();
+
     m_settings->registerSetting("name", "Unnamed Instance");
+    m_name = m_settings->get("name").toString();
+
     m_settings->registerSetting("iconKey", "default");
     m_settings->registerSetting("notes", "");
+
     m_settings->registerSetting("lastLaunchTime", 0);
+    m_lastlaunch = m_settings->get("lastLaunchTime").value<qint64>();
+
     m_settings->registerSetting("totalTimePlayed", 0);
 
     // Custom Commands
@@ -117,9 +124,9 @@ BaseInstance::Status BaseInstance::currentStatus() const
     return m_status;
 }
 
-QString BaseInstance::id() const
+const QString &BaseInstance::id() const
 {
-    return QFileInfo(instanceRoot()).fileName();
+    return m_id;
 }
 
 bool BaseInstance::isRunning() const
@@ -192,13 +199,19 @@ bool BaseInstance::reloadSettings()
 
 qint64 BaseInstance::lastLaunch() const
 {
-    return m_settings->get("lastLaunchTime").value<qint64>();
+    return m_lastlaunch;
 }
 
 void BaseInstance::setLastLaunch(qint64 val)
 {
-    //FIXME: if no change, do not set. setting involves saving a file.
+    if(m_lastlaunch == val) {
+        return;
+    }
+
+    // FIXME: there is no single source of truth.
+    m_lastlaunch = val;
     m_settings->set("lastLaunchTime", val);
+
     emit propertiesChanged(this);
 }
 
@@ -227,14 +240,20 @@ QString BaseInstance::iconKey() const
 
 void BaseInstance::setName(QString val)
 {
-    //FIXME: if no change, do not set. setting involves saving a file.
+    if(m_name == val) {
+        return;
+    }
+
+    // FIXME: there is no single source of truth.
+    m_name = val;
     m_settings->set("name", val);
+
     emit propertiesChanged(this);
 }
 
 QString BaseInstance::name() const
 {
-    return m_settings->get("name").toString();
+    return m_name;
 }
 
 QString BaseInstance::windowTitle() const

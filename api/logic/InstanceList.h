@@ -144,6 +144,7 @@ private slots:
     void instanceDirContentsChanged(const QString &path);
 
 private:
+    GroupId getInstanceGroup(BaseInstance * inst) const;
     int getInstIndex(BaseInstance *inst) const;
     void suspendWatch();
     void resumeWatch();

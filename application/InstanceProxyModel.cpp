@@ -17,8 +17,7 @@ QVariant InstanceProxyModel::data(const QModelIndex & index, int role) const
     return data;
 }
 
-bool InstanceProxyModel::subSortLessThan(const QModelIndex &left,
-                                         const QModelIndex &right) const
+bool InstanceProxyModel::subSortLessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     BaseInstance *pdataLeft = static_cast<BaseInstance *>(left.internalPointer());
     BaseInstance *pdataRight = static_cast<BaseInstance *>(right.internalPointer());

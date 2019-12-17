@@ -679,6 +679,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
         proxymodel = new InstanceProxyModel(this);
         proxymodel->setSourceModel(MMC->instances().get());
+        auto sortMode = MMC->settings()->getSetting("InstSortMode");
+        connect(sortMode.get(), &Setting::SettingChanged, [](const Setting &setting, QVariant value){
+            auto StrValue = value.toString();
+
+        });
         proxymodel->sort(0);
         connect(proxymodel, &InstanceProxyModel::dataChanged, this, &MainWindow::instanceDataChanged);
 
@@ -1370,15 +1375,17 @@ void MainWindow::finalizeInstance(InstancePtr inst)
 {
     view->updateGeometries();
     setSelectedInstanceById(inst->id());
-    if (MMC->accounts()->anyAccountIsValid())
-    {
+    if (MMC->accounts()->anyAccountIsValid()) {
         ProgressDialog loadDialog(this);
         auto update = inst->createUpdateTask(Net::Mode::Online);
-        connect(update.get(), &Task::failed, [this](QString reason)
-                {
-                    QString error = QString("Instance load failed: %1").arg(reason);
-                    CustomMessageBox::selectable(this, tr("Error"), error, QMessageBox::Warning)->show();
-                });
+        connect(
+            update.get(),
+            &Task::failed,
+            [this](QString reason) {
+                QString error = QString("Instance load failed: %1").arg(reason);
+                CustomMessageBox::selectable(this, tr("Error"), error, QMessageBox::Warning)->show();
+            }
+        );
         if(update)
         {
             loadDialog.setSkipButton(true, tr("Abort"));
@@ -1387,10 +1394,12 @@ void MainWindow::finalizeInstance(InstancePtr inst)
     }
     else
     {
-        CustomMessageBox::selectable(this, tr("Error"), tr("MultiMC cannot download Minecraft or update instances unless you have at least "
-                                                           "one account added.\nPlease add your Mojang or Minecraft account."),
-                                     QMessageBox::Warning)
-            ->show();
+        CustomMessageBox::selectable(
+            this,
+            tr("Error"),
+            tr("MultiMC cannot download Minecraft or update instances unless you have at least one account added.\nPlease add your Mojang or Minecraft account."),
+            QMessageBox::Warning
+        )->show();
     }
 }
 

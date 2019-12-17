@@ -80,7 +80,7 @@ public:
 
     /// The instance's ID. The ID SHALL be determined by MMC internally. The ID IS guaranteed to
     /// be unique.
-    virtual QString id() const;
+    const QString &id() const;
 
     void setRunning(bool running);
     bool isRunning() const;
@@ -250,6 +250,10 @@ protected slots:
 
 protected: /* data */
     QString m_rootDir;
+    QString m_id;
+    QString m_name;
+    qint64 m_lastlaunch = 0;
+
     SettingsObjectPtr m_settings;
     // InstanceFlags m_flags;
     bool m_isRunning = false;
