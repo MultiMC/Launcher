@@ -24,6 +24,7 @@ bool InstanceProxyModel::subSortLessThan(const QModelIndex &left, const QModelIn
     switch(currentSortMode) {
         case SortMode::ByLastPlayed:
             return pdataLeft->lastLaunch() > pdataRight->lastLaunch();
+        default:
         case SortMode::ByName:
             return QString::localeAwareCompare(pdataLeft->name(), pdataRight->name()) < 0;
     }
