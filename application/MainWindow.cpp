@@ -680,11 +680,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         proxymodel = new InstanceProxyModel(this);
         proxymodel->setSourceModel(MMC->instances().get());
         auto sortMode = MMC->settings()->getSetting("InstSortMode");
-        connect(sortMode.get(), &Setting::SettingChanged, [](const Setting &setting, QVariant value){
+        auto applySortMode = [this](QVariant value) {
             auto StrValue = value.toString();
-
+            if (StrValue == "LastLaunch")
+            {
+                proxymodel->setSortMode(InstanceProxyModel::SortMode::ByLastPlayed);
+            }
+            else // Name
+            {
+                proxymodel->setSortMode(InstanceProxyModel::SortMode::ByName);
+            }
+            proxymodel->sort(0);
+        };
+        applySortMode(sortMode->get());
+        connect(sortMode.get(), &Setting::SettingChanged, [applySortMode](const Setting &setting, QVariant value){
+            applySortMode(value);
         });
-        proxymodel->sort(0);
         connect(proxymodel, &InstanceProxyModel::dataChanged, this, &MainWindow::instanceDataChanged);
 
         view->setModel(proxymodel);
