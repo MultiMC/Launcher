@@ -218,11 +218,20 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     else
     {
 #ifdef MULTIMC_LINUX_DATADIR
-        QString xdgDataHome = QFile::decodeName(qgetenv("XDG_DATA_HOME"));
-        if (xdgDataHome.isEmpty())
-            xdgDataHome = QDir::homePath() + QLatin1String("/.local/share");
-        dataPath = xdgDataHome + "/multimc";
-        adjustedBy += "XDG standard " + dataPath;
+        QString envMultimcHome = QFile::decodeName(qgetenv("MULTIMC_HOME"));
+        if (!envMultimcHome.isEmpty())
+        {
+            dataPath = envMultimcHome;
+            adjustedBy = "Environment variable " + dataPath;
+        }
+        else
+        {
+            QString xdgDataHome = QFile::decodeName(qgetenv("XDG_DATA_HOME"));
+            if (xdgDataHome.isEmpty())
+                xdgDataHome = QDir::homePath() + QLatin1String("/.local/share");
+            dataPath = xdgDataHome + "/multimc";
+            adjustedBy += "XDG standard " + dataPath;
+        }
 #else
         dataPath = applicationDirPath();
         adjustedBy += "Fallback to binary path " + dataPath;
