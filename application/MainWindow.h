@@ -20,6 +20,7 @@
 #include <QMainWindow>
 #include <QProcess>
 #include <QTimer>
+#include <QtMultimedia/QSoundEffect>
 
 #include "BaseInstance.h"
 #include "minecraft/auth/MojangAccount.h"
@@ -189,7 +190,7 @@ private slots:
 private:
     void addInstance(QString url = QString());
     void activateInstance(InstancePtr instance);
-    void setCatBackground(bool enabled);
+    void setCatBackground(bool enabled, bool initial = true);
     void updateInstanceToolIcon(QString new_icon);
     void setSelectedInstanceById(const QString &id);
 
@@ -199,6 +200,8 @@ private:
 
 private:
     std::unique_ptr<Ui> ui;
+
+    QSoundEffect meow;
 
     // these are managed by Qt's memory management model!
     GroupView *view = nullptr;

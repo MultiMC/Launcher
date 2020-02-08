@@ -1285,7 +1285,7 @@ void MainWindow::downloadUpdates(GoUpdate::Status status)
 
 void MainWindow::onCatToggled(bool state)
 {
-    setCatBackground(state);
+    setCatBackground(state, false);
     MMC->settings()->set("TheCat", state);
 }
 
@@ -1299,8 +1299,9 @@ T non_stupid_abs(T in)
 }
 }
 
-void MainWindow::setCatBackground(bool enabled)
+void MainWindow::setCatBackground(bool enabled, bool initial)
 {
+    static int currentMeow = 0;
     if (enabled)
     {
         QDateTime now = QDateTime::currentDateTime();
@@ -1317,9 +1318,28 @@ GroupView
     background-repeat: none;
     background-color:palette(base);
 })").arg(cat));
+        if(!initial) {
+            const char * sounds[] = {
+                "/home/peterix/meows/Fiona52fixed.wav",
+                "/home/peterix/meows/Fiona72.wav",
+                "/home/peterix/meows/Fiona76.wav",
+                "/home/peterix/meows/Fiona81.wav",
+                "/home/peterix/meows/Fiona85.wav"
+            };
+            qDebug() << "PLAY MEOW" << currentMeow;
+            meow.setSource(QUrl::fromLocalFile(sounds[currentMeow]));
+            meow.setLoopCount(1);
+            meow.play();
+            int newMeow = qrand() % 4;
+            if(newMeow == currentMeow) {
+                newMeow++;
+            }
+            currentMeow = newMeow;
+        }
     }
     else
     {
+        meow.stop();
         view->setStyleSheet(QString());
     }
 }
