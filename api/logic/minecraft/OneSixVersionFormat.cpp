@@ -151,10 +151,6 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument &doc
             QJsonObject libObj = requireObject(libVal);
             // parse the library
             auto lib = libraryFromJson(libObj, filename);
-            if(lib->rawName().artifactId() == "ForgeWrapper") {
-                out->mainClass.clear();
-                out->addProblem(ProblemSeverity::Error, QObject::tr("Forge workarounds have no place in MultiMC."));
-            }
             out->libraries.append(lib);
         }
     };
