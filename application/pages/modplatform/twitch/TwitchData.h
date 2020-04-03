@@ -5,12 +5,12 @@
 
 namespace Twitch {
 
-struct ModpackAuthor {
+struct Author {
     QString name;
     QString url;
 };
 
-struct ModpackFile {
+struct File {
     int addonId;
     int fileId;
     QString version;
@@ -18,21 +18,29 @@ struct ModpackFile {
     QString downloadUrl;
 };
 
-struct Modpack
+struct Addon
 {
     bool broken = true;
     int addonId = 0;
 
     QString name;
     QString description;
-    QList<ModpackAuthor> authors;
+    QList<Author> authors;
     QString mcVersion;
     QString logoName;
     QString logoUrl;
     QString websiteUrl;
 
-    ModpackFile latestFile;
+    File latestFile;
+
+    QList<File> files;
+};
+
+enum SearchType
+{
+    Modpack = 4471,
+    Mod = 6,
 };
 }
 
-Q_DECLARE_METATYPE(Twitch::Modpack)
+Q_DECLARE_METATYPE(Twitch::Addon)

@@ -14,7 +14,9 @@
 
 namespace Twitch {
 
-ListModel::ListModel(QObject *parent) : QAbstractListModel(parent)
+ListModel::ListModel(QObject *parent, SearchType type) : 
+    QAbstractListModel(parent),
+    searchType(type)
 {
 }
 
@@ -40,7 +42,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         return QString("INVALID INDEX %1").arg(pos);
     }
 
-    Modpack pack = modpacks.at(pos);
+    Addon pack = modpacks.at(pos);
     if(role == Qt::DisplayRole)
     {
         return pack.name;
@@ -169,9 +171,9 @@ void ListModel::performPaginatedSearch()
         "index=%1&"
         "pageSize=25&"
         "searchFilter=%2&"
-        "sectionId=4471&"
+        "sectionId=%3&"
         "sort=0"
-    ).arg(nextSearchOffset).arg(currentSearchTerm);
+    ).arg(nextSearchOffset).arg(currentSearchTerm).arg(searchType);
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
     jobPtr = netJob;
     jobPtr->start();
@@ -212,10 +214,10 @@ void Twitch::ListModel::searchRequestFinished()
         return;
     }
 
-    QList<Modpack> newList;
+    QList<Addon> newList;
     auto objs = doc.array();
     for(auto projectIter: objs) {
-        Modpack pack;
+        Addon pack;
         auto project = projectIter.toObject();
         pack.addonId = project.value("id").toInt(0);
         if (pack.addonId == 0) {
@@ -244,7 +246,7 @@ void Twitch::ListModel::searchRequestFinished()
         auto authors = project.value("authors").toArray();
         for(auto authorIter: authors) {
             auto author = authorIter.toObject();
-            ModpackAuthor packAuthor;
+            Author packAuthor;
             packAuthor.name = author.value("name").toString();
             packAuthor.url = author.value("url").toString();
             pack.authors.append(packAuthor);
@@ -259,22 +261,28 @@ void Twitch::ListModel::searchRequestFinished()
         for(auto fileIter: files) {
             auto file = fileIter.toObject();
             int id = file.value("id").toInt(0);
-            // NOTE: for now, ignore everything that's not the default...
-            if(id != defaultFileId) {
-                continue;
-            }
-            pack.latestFile.addonId = pack.addonId;
-            pack.latestFile.fileId = id;
+
+            File tempFile;
+
+            tempFile.addonId = pack.addonId;
+            tempFile.fileId = id;
             // FIXME: what to do when there's more than one, or there's no version?
             auto versionArray = file.value("gameVersion").toArray();
             if(versionArray.size() != 1) {
                 continue;
             }
-            pack.latestFile.mcVersion = versionArray[0].toString();
-            pack.latestFile.version = file.value("displayName").toString();
-            pack.latestFile.downloadUrl = file.value("downloadUrl").toString();
-            found = true;
-            break;
+            tempFile.mcVersion = versionArray[0].toString();
+            
+            tempFile.version = file.value("displayName").toString();
+            tempFile.downloadUrl = file.value("downloadUrl").toString();
+
+            if(id == defaultFileId) {
+                pack.latestFile = tempFile;
+                found = true;
+            }
+
+            pack.files.append(tempFile);
+
         }
         if(!found) {
             qWarning() << "Pack with no good file, skipping: " << pack.name;

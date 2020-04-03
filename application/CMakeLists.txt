@@ -174,6 +174,8 @@ SET(MULTIMC_SOURCES
     dialogs/VersionSelectDialog.h
     dialogs/SkinUploadDialog.cpp
     dialogs/SkinUploadDialog.h
+    dialogs/AddModCurseDialog.cpp
+    dialogs/AddModCurseDialog.h
 
 
     # GUI - widgets
@@ -273,6 +275,7 @@ SET(MULTIMC_UIS
     dialogs/UpdateDialog.ui
     dialogs/NotificationDialog.ui
     dialogs/SkinUploadDialog.ui
+    dialogs/AddModCurseDialog.ui
 
     # Widgets/other
     widgets/CustomCommands.ui

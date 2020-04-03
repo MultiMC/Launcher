@@ -29,7 +29,7 @@ class ListModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    ListModel(QObject *parent);
+    ListModel(QObject *parent, SearchType type);
     virtual ~ListModel();
 
     int rowCount(const QModelIndex &parent) const override;
@@ -55,7 +55,7 @@ private:
     void requestLogo(QString file, QString url);
 
 private:
-    QList<Modpack> modpacks;
+    QList<Addon> modpacks;
     QStringList m_failedLogos;
     QStringList m_loadingLogos;
     LogoMap m_logoMap;
@@ -69,6 +69,9 @@ private:
         ResetRequested,
         Finished
     } searchState = None;
+
+    SearchType searchType = Modpack;
+
     NetJobPtr jobPtr;
     QByteArray response;
 };

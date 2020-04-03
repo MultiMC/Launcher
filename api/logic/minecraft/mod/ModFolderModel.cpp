@@ -303,6 +303,36 @@ bool ModFolderModel::installMod(const QString &filename)
     return false;
 }
 
+bool ModFolderModel::DownloadInstallMod(const QString& URI)
+{
+    NetJob *netJob = new NetJob("Mod::Download");
+
+    QString filename = URI.split("/").last();
+
+    auto newpath = FS::NormalizePath(FS::PathCombine(m_dir.path(), filename));
+
+    netJob->addNetAction(Net::Download::makeFile(QUrl(URI.simplified()), newpath));
+
+    jobPtr = netJob;
+
+    jobPtr->start();
+    QObject::connect(netJob, &NetJob::succeeded, this, &ModFolderModel::downloadSucess);
+    QObject::connect(netJob, &NetJob::failed, this, &ModFolderModel::downloadFail);
+
+    return true;
+}
+
+void ModFolderModel::downloadSucess()
+{
+    jobPtr.reset();
+    update();
+}
+
+void ModFolderModel::downloadFail()
+{
+    jobPtr.reset();
+}
+
 bool ModFolderModel::setModStatus(const QModelIndexList& indexes, ModStatusAction enable)
 {
     if(interaction_disabled) {

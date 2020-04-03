@@ -13,7 +13,7 @@ TwitchPage::TwitchPage(NewInstanceDialog* dialog, QWidget *parent)
     ui->setupUi(this);
     connect(ui->searchButton, &QPushButton::clicked, this, &TwitchPage::triggerSearch);
     ui->searchEdit->installEventFilter(this);
-    model = new Twitch::ListModel(this);
+    model = new Twitch::ListModel(this, Twitch::Modpack);
     ui->packView->setModel(model);
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &TwitchPage::onSelectionChanged);
 }
@@ -61,7 +61,7 @@ void TwitchPage::onSelectionChanged(QModelIndex first, QModelIndex second)
         }
         return;
     }
-    current = model->data(first, Qt::UserRole).value<Twitch::Modpack>();
+    current = model->data(first, Qt::UserRole).value<Twitch::Addon>();
     suggestCurrent();
 }
 

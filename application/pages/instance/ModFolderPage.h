@@ -98,6 +98,7 @@ slots:
     void on_filterTextChanged(const QString & newContents);
     void on_RunningState_changed(bool running);
     void on_actionAdd_triggered();
+    void on_actionAddCurse_triggered();
     void on_actionRemove_triggered();
     void on_actionEnable_triggered();
     void on_actionDisable_triggered();

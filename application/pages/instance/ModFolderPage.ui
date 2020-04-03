@@ -99,6 +99,14 @@
     <string>Add mods</string>
    </property>
   </action>
+  <action name="actionAddCurse">
+   <property name="text">
+    <string>&amp;Add Curse</string>
+   </property>
+   <property name="toolTip">
+    <string>Add mods from CurseForge</string>
+   </property>
+  </action>
   <action name="actionRemove">
    <property name="text">
     <string>&amp;Remove</string>

@@ -21,6 +21,8 @@
 #include <QString>
 #include <QDir>
 #include <QAbstractListModel>
+#include <net/NetJob.h>
+#include <Env.h>
 
 #include "Mod.h"
 
@@ -97,6 +99,7 @@ public:
      * Adds the given mod to the list at the given index - if the list supports custom ordering
      */
     bool installMod(const QString& filename);
+    bool DownloadInstallMod(const QString& URI);
 
     /// Deletes all the selected mods
     bool deleteMods(const QModelIndexList &indexes);
@@ -135,6 +138,9 @@ private:
     void resolveMod(Mod& m);
     bool setModStatus(int index, ModStatusAction action);
 
+    void downloadSucess();
+    void downloadFail();
+
 protected:
     QFileSystemWatcher *m_watcher;
     bool is_watching = false;
@@ -146,4 +152,5 @@ protected:
     QMap<int, LocalModParseTask::ResultPtr> activeTickets;
     int nextResolutionTicket = 0;
     QList<Mod> mods;
+    NetJobPtr jobPtr;
 };

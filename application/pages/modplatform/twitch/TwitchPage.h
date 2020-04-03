@@ -73,5 +73,5 @@ private:
     Ui::TwitchPage *ui = nullptr;
     NewInstanceDialog* dialog = nullptr;
     Twitch::ListModel* model = nullptr;
-    Twitch::Modpack current;
+    Twitch::Addon current;
 };

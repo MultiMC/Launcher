@@ -30,6 +30,7 @@
 #include "minecraft/VersionFilterData.h"
 #include "minecraft/ComponentList.h"
 #include <DesktopServices.h>
+#include "dialogs/AddModCurseDialog.h"
 
 #include <QSortFilterProxyModel>
 #include "Version.h"
@@ -309,6 +310,24 @@ void ModFolderPage::on_actionAdd_triggered()
         {
             m_mods->installMod(filename);
         }
+    }
+}
+
+void ModFolderPage::on_actionAddCurse_triggered()
+{
+    if(!m_controlsEnabled) {
+        return;
+    }
+    auto list = QStringList();
+
+    std::unique_ptr<AddModCurseDialog> searchMods(new AddModCurseDialog());
+    if(!searchMods->exec())
+        return;
+
+    auto searchResult = searchMods->getResult();
+    if(!searchResult.broken && searchMods->result())
+    {
+        m_mods->DownloadInstallMod(searchResult.latestFile.downloadUrl);
     }
 }
 
