@@ -31,6 +31,9 @@
 #include "minecraft/ComponentList.h"
 #include <DesktopServices.h>
 #include "dialogs/AddModCurseDialog.h"
+#include "dialogs/VersionSelectDialog.h"
+#include "twitch/TwitchData.h"
+#include "twitch/TwitchVersionList.h"
 
 #include <QSortFilterProxyModel>
 #include "Version.h"
@@ -327,7 +330,14 @@ void ModFolderPage::on_actionAddCurse_triggered()
     auto searchResult = searchMods->getResult();
     if(!searchResult.broken && searchMods->result())
     {
-        m_mods->DownloadInstallMod(searchResult.latestFile.downloadUrl);
+        TwitchVersionList *versionList(new TwitchVersionList(searchResult));
+        std::unique_ptr<VersionSelectDialog> selectVersion(new VersionSelectDialog(versionList, searchResult.name));
+
+        selectVersion->exec();
+
+        auto version = std::dynamic_pointer_cast<TwitchVersion>(selectVersion->selectedVersion());
+
+        m_mods->DownloadInstallMod(version->getURL());
     }
 }
 

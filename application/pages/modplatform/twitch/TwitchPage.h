@@ -20,7 +20,7 @@
 #include "pages/BasePage.h"
 #include <MultiMC.h>
 #include "tasks/Task.h"
-#include "TwitchData.h"
+#include "twitch/TwitchData.h"
 
 namespace Ui
 {

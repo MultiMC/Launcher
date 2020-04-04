@@ -16,7 +16,7 @@
 #include <functional>
 #include <net/NetJob.h>
 
-#include "TwitchData.h"
+#include "twitch/TwitchData.h"
 
 namespace Twitch {
 

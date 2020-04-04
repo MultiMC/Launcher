@@ -133,7 +133,6 @@ SET(MULTIMC_SOURCES
     pages/modplatform/legacy_ftb/Page.h
     pages/modplatform/legacy_ftb/ListModel.h
     pages/modplatform/legacy_ftb/ListModel.cpp
-    pages/modplatform/twitch/TwitchData.h
     pages/modplatform/twitch/TwitchModel.cpp
     pages/modplatform/twitch/TwitchModel.h
     pages/modplatform/twitch/TwitchPage.cpp

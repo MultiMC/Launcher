@@ -20,7 +20,7 @@ class AddModCurseDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddModCurseDialog(QWidget *parent = (QWidget*)nullptr);
+    explicit AddModCurseDialog(QWidget *parent = nullptr);
     ~AddModCurseDialog();
 
     bool eventFilter(QObject * watched, QEvent * event) override;

@@ -262,7 +262,7 @@ void Twitch::ListModel::searchRequestFinished()
             auto file = fileIter.toObject();
             int id = file.value("id").toInt(0);
 
-            File tempFile;
+            AddonFile tempFile;
 
             tempFile.addonId = pack.addonId;
             tempFile.fileId = id;

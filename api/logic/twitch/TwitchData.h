@@ -10,7 +10,7 @@ struct Author {
     QString url;
 };
 
-struct File {
+struct AddonFile {
     int addonId;
     int fileId;
     QString version;
@@ -31,9 +31,9 @@ struct Addon
     QString logoUrl;
     QString websiteUrl;
 
-    File latestFile;
+    AddonFile latestFile;
 
-    QList<File> files;
+    QList<AddonFile> files;
 };
 
 enum SearchType
