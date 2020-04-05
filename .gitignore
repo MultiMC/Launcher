@@ -29,3 +29,6 @@ tags
 
 #OSX Stuff
 .DS_Store
+
+# Vscode stuff
+.vscode/
