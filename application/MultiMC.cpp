@@ -235,6 +235,10 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
             xdgDataHome = QDir::homePath() + QLatin1String("/.local/share");
         dataPath = xdgDataHome + "/multimc";
         adjustedBy += "XDG standard " + dataPath;
+#elif defined(Q_OS_MAC)
+        QDir foo(FS::PathCombine(applicationDirPath(), "../../Data"));
+        dataPath = foo.absolutePath();
+        adjustedBy += "Fallback to special Mac location " + dataPath;
 #else
         dataPath = applicationDirPath();
         adjustedBy += "Fallback to binary path " + dataPath;
