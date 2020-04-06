@@ -315,25 +315,36 @@ QString RemoveInvalidFilenameChars(QString string, QChar replaceWith)
 
 QString DirNameFromString(QString string, QString inDir)
 {
-    int num = 0;
     QString baseName = RemoveInvalidFilenameChars(string, '-');
-    QString dirName;
-    do
-    {
-        if(num == 0)
-        {
-            dirName = baseName;
-        }
-        else
-        {
-            dirName = baseName + QString::number(num);
-        }
+    QString dirName = baseName;
+    QFileInfo combined(PathCombine(inDir, dirName));
+
+    uint num = 0;
+    while(combined.exists() || combined.absoluteFilePath().length() > 240) {
+        dirName = baseName + QString::number(num);
 
         // If it's over 9000
         if (num > 9000)
             return "";
         num++;
-    } while (QFileInfo(PathCombine(inDir, dirName)).exists());
+
+        combined = QFileInfo(PathCombine(inDir, dirName));
+        // The path limits are not very well defined, but 240
+        // seems to fit for Windows (where it actually is 250) and Linux
+        // (where it is actually 248). We leave room for extra things in case
+        // some file systems have even shorter limits
+        if(combined.absoluteFilePath().length() > 240) {
+            qWarning() << "Truncating way too long path " + combined.absoluteFilePath();
+            int diff = combined.absoluteFilePath().length() - 240;
+
+            if(baseName.length() <= diff) {
+                // Well, in that case we are somehow screwed
+                return "";
+            } else {
+                baseName = baseName.left(baseName.length() - diff);
+            }
+        }
+    }
     return dirName;
 }
 

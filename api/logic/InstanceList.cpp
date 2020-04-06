@@ -824,18 +824,9 @@ QString InstanceList::getStagedInstancePath()
 bool InstanceList::commitStagedInstance(const QString& path, const QString& instanceName, const QString& groupName)
 {
     QString instID = FS::DirNameFromString(instanceName, m_instDir);
-    QString instanceDirName = instID;
-    // The limit turned out to be 248 on Windows and 255 on Linux normally, so lets use that with a bit of buffer
-    // for filesystem types which need more space
-    if(instanceDirName.length() > 240)
-    {
-        instanceDirName.truncate(236);
-        instanceDirName += instID.at(instID.length() - 4); // In case the last 4 chars were changed
-                                                           // to prevent double folder names
-    }
     {
         WatchLock lock(m_watcher, m_instDir);
-        QString destination = FS::PathCombine(m_instDir, instanceDirName);
+        QString destination = FS::PathCombine(m_instDir, instID);
         if(!QDir().rename(path, destination))
         {
             qWarning() << "Failed to move" << path << "to" << destination;
