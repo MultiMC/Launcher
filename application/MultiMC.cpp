@@ -276,6 +276,43 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         return;
     }
 
+#if defined(Q_OS_MAC)
+    // move user data to new location if on macOS and it still exists in Contents/MacOS
+    QDir fi(applicationDirPath());
+    QString originalData = fi.absolutePath();
+    // if the config file exists in Contents/MacOS, then user data is still there and needs to moved
+    if (QFileInfo::exists(FS::PathCombine(originalData, "multimc.cfg")))
+    {
+        qDebug() << "On macOS and found config file in old location, moving user data...";
+        QDir dir;
+        QStringList dataFiles {
+            "*.log", // MultiMC-@.log
+            "accounts.json",
+            "accounts",
+            "assets",
+            "cache",
+            "icons",
+            "instances",
+            "libraries",
+            "meta",
+            "metacache",
+            "mods",
+            "multimc.cfg",
+            "themes",
+            "translations"
+        };
+        QDirIterator files(originalData, dataFiles);
+        while (files.hasNext()) {
+            QString filePath(files.next());
+            QString fileName(files.fileName());
+            if (!dir.rename(filePath, FS::PathCombine(dataPath, fileName)))
+            {
+                qWarning() << "Failed to move " << fileName;
+            }
+        }
+    }
+#endif
+
     /*
      * Establish the mechanism for communication with an already running MultiMC that uses the same data path.
      * If there is one, tell it what the user actually wanted to do and exit.
