@@ -57,8 +57,13 @@ public:
     void checkInstancePathForProblems();
 
     void updatesAllowedChanged(bool allowed);
+
+    void droppedURLs(QList<QUrl> urls);
 signals:
     void isClosing();
+
+protected:
+    QMenu * createPopupMenu() override;
 
 private slots:
     void onCatToggled(bool);
@@ -109,8 +114,6 @@ private slots:
 
     void newsButtonClicked();
 
-    void on_mainToolBar_visibilityChanged(bool);
-
     void on_actionLaunchInstance_triggered();
 
     void on_actionLaunchInstanceOffline_triggered();
@@ -152,6 +155,8 @@ private slots:
 
     void instanceChanged(const QModelIndex &current, const QModelIndex &previous);
 
+    void instanceSelectRequest(QString id);
+
     void instanceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     void selectionBad();
@@ -176,8 +181,6 @@ private slots:
      * Runs the DownloadTask and installs updates.
      */
     void downloadUpdates(GoUpdate::Status status);
-
-    void droppedURLs(QList<QUrl> urls);
 
     void konamiTriggered();
 

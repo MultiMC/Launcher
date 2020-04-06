@@ -19,20 +19,13 @@
 #include <QString>
 #include <QDir>
 
-#include "minecraft/Mod.h"
-
 #include "multimc_logic_export.h"
 
-class LegacyInstance;
-class BaseInstance;
-
-/**
- * A legacy mod list.
- * Backed by a folder.
- */
 class MULTIMC_LOGIC_EXPORT LegacyModList
 {
 public:
+
+    using Mod = QFileInfo;
 
     LegacyModList(const QString &dir, const QString &list_file = QString());
 

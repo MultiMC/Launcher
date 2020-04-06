@@ -1,4 +1,199 @@
-# MultiMC 0.6.5
+# MultiMC 0.6.11
+
+This adds Forge 1.13+ support using [ForgeWrapper](https://github.com/ZekerZhayard/ForgeWrapper) by ZekerZhayard.
+
+### New or changed features
+
+- GH-2988: You can now import instances and curse modpacks from the command line with the `--import` option followed by either an URL or a local file path.
+
+- GH-2544: MultiMC now supports downloading library files without including them on the Java classpath.
+
+  This is done by adding them to the `mavenFiles` list instead of the `libraries` list.
+
+  Such downloads are not deduplicated or version upgraded like libraries are.
+
+  This enables ForgeWrapper to work - MultiMC downloads all the files, and ForgeWrapper runs the Forge installer during instance start when needed.
+
+# Previous releases
+
+## MultiMC 0.6.8
+
+This is mostly about removal of the 'curse URL' related features, because they were of low quality and generally unreliable.
+
+There are some bug fixes included.
+
+MultiMC also migrated to a new continuous deployment system, which makes everything that much smoother.
+
+### New or changed features
+
+- GH-852: Instance group expansion status now saves/loads as expected.
+
+- The bees have invaded the launcher. We now have a bee icon.
+
+- Translations have been overhauled, yet again...
+
+    - We now have a [crowdin site](https://translate.multimc.org/) for all the translation work.
+
+    - Translations are made based on the development version, and for the development version.
+
+    - Many strings have been tweaked to make translating the application easier.
+
+    - When selecting languages, European Portuguese is now displaying properly.
+
+- Accessibility has been further improved - the main window reads as `MultiMC`, not a long string of nonsensical version numbers, when announced by a screen reader.
+
+- Removed the unimplemented Technic page from instance creation dialog.
+
+- GH-2859: Broken twitch URL import method was removed.
+
+- GH-2819: Filter bar in mod lists now also works with descriptions and author lists.
+
+- GH-2832: Version page now has buttons for opening the Minecraft and internal libraries folders of the instance.
+
+- GH-2769: When copying an instance, there's now an option to keep or remove the total play time from the copy.
+
+### Bugfixes
+
+- GH-2880: Clicking the service status indicators now opens a valid site again, instead of going nowhere.
+
+- GH-2853: When collapsing groups in instance view, the action no longer becomes 'sticky' and doesn't apply to items clicked afterwards.
+
+- GH-2787: "Download All" button works again.
+
+- When a component is customized, the launcher will not try to update it in an infinite loop when something else requires a different version.
+
+
+## MultiMC 0.6.7
+
+The previous release introduced some extra buttons that made the instance window way too big for some displays. This release is aimed at fixing that, along with other UI and performance improvements.
+
+There are some accessibility fixes thrown in too.
+
+### New or changed features
+
+- Mod lists are now asynchronous and heavily threaded.
+
+  Basically, both faster and more responsive.
+
+  The changes necessary for this also pave the way for having other sources of mod metadata, and for adding more mod-related features support in general.
+
+- Mod list printed in log has been improved.
+
+  It now also shows disabled mods, and has prefix and suffix that shows if the mod is enabled, and if it is a folder.
+
+- You can now enable and disable mods with the keyboard.
+
+  Toggle with enter.
+
+- Enabling and disabling mods no longer makes the list forget what was selected.
+
+- GH-358: Switched all the dialog pages from using buttons in layouts to toolbars.
+
+  Toolbar buttons are smaller, and the toolbars can overflow buttons into an overflow space. This allows requiring a lot less space for the windows.
+
+  All of the relevant pages now also have context menus to offset the issues toolbars create when using screen readers.
+
+- Main window instance list is now compatible with screen readers.
+
+  If you have poor or no eyesight, this makes MultiMC usable.
+
+- More instance pages are now visible when the instance is running.
+
+  Mods, version and the like should now be visible, but most of the controls are disabled until the game closes.
+
+- GH-2550, GH-2722, GH-2762: Mod list sorting is much improved.
+
+  You can now sort mods by enabled status.
+
+  Sorting by version actually looks at the versions as versions, not words.
+
+  Sorting by name ignores 'The' prefixes in mod names. For example, 'The Betweenlands' will be sorted as 'Betweenlands'.
+
+  Sorting cascades from 'Enabled' to 'Name' and then 'Version'. This means that if you sort 'Enabled', the enabled and disabled mods are still sorted
+  by name and mods with the same name will be also sorted by version.
+
+## MultiMC 0.6.6
+
+This release is mostly the smaller things that have accumulated over time, along with a big change in linux packaging.
+
+No 1.13+ Forge news yet. That's going to be a major overhaul of many of the internals of MultiMC.
+
+### **IMPORTANT**
+
+On linux, MultiMC no longer bundles the Qt libraries. This fixes many issues, but it might not run after the update unless you have the required libraries installed.
+
+Make sure you have the following packages before you update:
+
+- Arch: `qt5-base`
+- Debian/Ubuntu: `qt5-default`
+- CentOS/RHEL/Fedora: `qt5-qtbase-gui`
+- Suse: `libqt5-qtbase`
+
+MultiMC on linux is built with Qt 5.4 and older versions of Qt will not work.
+
+This should be a massive improvement to system integration on linux and resolves GH-1784, GH-2605, GH-1979, GH-2271, GH-1992, GH-1816 and their many duplicates.
+
+### New or changed features
+
+- GH-2487: No is now the default button when deleting instances.
+
+- It is now possible to launch with profilers in offline mode.
+
+- Massively improved support for icon formats when importing and exporting instances.
+
+  All of the formats MultiMC supports are now supported in exported instances too, instead of just PNG.
+
+- Added the pocket fox icon.
+
+  We still have the big one under the staircase. It's cute. Just hide your chickens.
+
+- Global settings can be opened from instance settings where appropriate.
+
+  Many people use the instance overrides where using the global settings would be more appropriate. Hopefully this makes it clearer that the instance settings are overrides for the global settings.
+
+- Added direct Fabric loader support.
+
+  Much overdue. It's good. Fabric mod metadata is also supported in the mod pages.
+
+- MultiMC now recognizes the new `experimental` Minecraft versions.
+
+  Go mess with the combat experiment. It's interesting.
+
+- Added Twitch URL as an option to the Add Instance dialog.
+
+  You can now drag the purple download buttons from CurseForge into MultiMC and get a modpack out of it. Much easier!
+
+### Bugfixes
+
+- Translation folder is now created sooner, making first launch translation fetch work again.
+
+- GH-2716: MultiMC will no longer try to censor values shorter than 4 characters in logs.
+
+  It was actually leaking information and destroying the logs instead of helping.
+
+- GH-2551: Trim server name and IP before saving them.
+
+- GH-2591: Fix multiple potential memory leaks and crashes related to destroying objects with Qt memory lifecycle model.
+
+- `run.sh` on linux now passes all arguments to MultiMC.
+
+- Adding a disabled mod duplicate now replaces the existing mod.
+
+- GH-2592: Newly created instances are now selected again. This was a very old regression.
+
+- GH-689: MultiMC no longer creates an imgur album for single screenshot uploads.
+
+- GH-1813: `#` is now saved properly when used in instance notes.
+
+- GH-2515: Deleting an instance externally while the delete dialog is open no longer leads to some other instance being deleted when you click OK.
+
+- GH-2499: Proxy settings are applied immediately and no longer need an application restart.
+
+- GH-1701: When downloading updates, the text now reflects the number of downloaded files better.
+
+- Icon scaling issues on macOS should now be fixed.
+
+## MultiMC 0.6.5
 
 Finalizing the translation workflow improvements and adding fixes for sounds missing in old game versions.
 
@@ -12,7 +207,6 @@ Finalizing the translation workflow improvements and adding fixes for sounds mis
 
   Also, a minor issue with the reconstruction being done twice per launch has been fixed.
 
-# Previous releases
 
 ## MultiMC 0.6.4
 

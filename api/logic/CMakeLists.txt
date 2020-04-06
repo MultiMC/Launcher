@@ -213,8 +213,10 @@ set(MINECRAFT_SOURCES
     minecraft/auth/flows/RefreshTask.cpp
     minecraft/auth/flows/ValidateTask.h
     minecraft/auth/flows/ValidateTask.cpp
+
     minecraft/gameoptions/GameOptions.h
     minecraft/gameoptions/GameOptions.cpp
+
     minecraft/update/AssetUpdateTask.h
     minecraft/update/AssetUpdateTask.cpp
     minecraft/update/FMLLibrariesTask.cpp
@@ -223,6 +225,7 @@ set(MINECRAFT_SOURCES
     minecraft/update/FoldersTask.h
     minecraft/update/LibrariesTask.cpp
     minecraft/update/LibrariesTask.h
+
     minecraft/launch/ClaimAccount.cpp
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateServerResourcePacksFolder.cpp
@@ -239,12 +242,16 @@ set(MINECRAFT_SOURCES
     minecraft/launch/PrintInstanceInfo.h
     minecraft/launch/ReconstructAssets.cpp
     minecraft/launch/ReconstructAssets.h
+    minecraft/launch/ScanModFolders.cpp
+    minecraft/launch/ScanModFolders.h
+
     minecraft/legacy/LegacyModList.h
     minecraft/legacy/LegacyModList.cpp
     minecraft/legacy/LegacyInstance.h
     minecraft/legacy/LegacyInstance.cpp
     minecraft/legacy/LegacyUpgradeTask.h
     minecraft/legacy/LegacyUpgradeTask.cpp
+
     minecraft/GradleSpecifier.h
     minecraft/MinecraftInstance.cpp
     minecraft/MinecraftInstance.h
@@ -279,14 +286,20 @@ set(MINECRAFT_SOURCES
     minecraft/VersionFile.h
     minecraft/VersionFilterData.h
     minecraft/VersionFilterData.cpp
-    minecraft/Mod.h
-    minecraft/Mod.cpp
-    minecraft/SimpleModList.h
-    minecraft/SimpleModList.cpp
     minecraft/World.h
     minecraft/World.cpp
     minecraft/WorldList.h
     minecraft/WorldList.cpp
+
+    minecraft/mod/Mod.h
+    minecraft/mod/Mod.cpp
+    minecraft/mod/ModDetails.h
+    minecraft/mod/ModFolderModel.h
+    minecraft/mod/ModFolderModel.cpp
+    minecraft/mod/ModFolderLoadTask.h
+    minecraft/mod/ModFolderLoadTask.cpp
+    minecraft/mod/LocalModParseTask.h
+    minecraft/mod/LocalModParseTask.cpp
 
     # Assets
     minecraft/AssetsUtils.h
@@ -318,8 +331,8 @@ add_unit_test(Library
     )
 
 # FIXME: shares data with FileSystem test
-add_unit_test(SimpleModList
-    SOURCES minecraft/SimpleModList_test.cpp
+add_unit_test(ModFolderModel
+    SOURCES minecraft/mod/ModFolderModel_test.cpp
     DATA testdata
     LIBS MultiMC_logic
     )
@@ -426,15 +439,14 @@ set(META_SOURCES
 )
 
 set(FTB_SOURCES
-    modplatform/ftb/FtbPackFetchTask.h
-    modplatform/ftb/FtbPackFetchTask.cpp
-    modplatform/ftb/FtbPackInstallTask.h
-    modplatform/ftb/FtbPackInstallTask.cpp
+    modplatform/legacy_ftb/PackFetchTask.h
+    modplatform/legacy_ftb/PackFetchTask.cpp
+    modplatform/legacy_ftb/PackInstallTask.h
+    modplatform/legacy_ftb/PackInstallTask.cpp
+    modplatform/legacy_ftb/PrivatePackManager.h
+    modplatform/legacy_ftb/PrivatePackManager.cpp
 
-    modplatform/ftb/FtbPrivatePackManager.h
-    modplatform/ftb/FtbPrivatePackManager.cpp
-
-    modplatform/ftb/PackHelpers.h
+    modplatform/legacy_ftb/PackHelpers.h
 )
 
 set(FLAME_SOURCES
@@ -476,8 +488,6 @@ set(LOGIC_SOURCES
     ${FTB_SOURCES}
     ${FLAME_SOURCES}
 )
-
-message(STATUS "FOO! ${LOGIC_SOURCES}")
 
 add_library(MultiMC_logic SHARED ${LOGIC_SOURCES})
 set_target_properties(MultiMC_logic PROPERTIES CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN 1)

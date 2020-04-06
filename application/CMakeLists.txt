@@ -125,20 +125,19 @@ SET(MULTIMC_SOURCES
     pages/global/ProxyPage.h
     pages/global/PasteEEPage.cpp
     pages/global/PasteEEPage.h
-    pages/global/PackagesPage.cpp
-    pages/global/PackagesPage.h
 
     # GUI - platform pages
     pages/modplatform/VanillaPage.cpp
     pages/modplatform/VanillaPage.h
-    pages/modplatform/FTBPage.cpp
-    pages/modplatform/FTBPage.h
-    pages/modplatform/FtbListModel.h
-    pages/modplatform/FtbListModel.cpp
-    pages/modplatform/TwitchPage.cpp
-    pages/modplatform/TwitchPage.h
-    pages/modplatform/TechnicPage.cpp
-    pages/modplatform/TechnicPage.h
+    pages/modplatform/legacy_ftb/Page.cpp
+    pages/modplatform/legacy_ftb/Page.h
+    pages/modplatform/legacy_ftb/ListModel.h
+    pages/modplatform/legacy_ftb/ListModel.cpp
+    pages/modplatform/twitch/TwitchData.h
+    pages/modplatform/twitch/TwitchModel.cpp
+    pages/modplatform/twitch/TwitchModel.h
+    pages/modplatform/twitch/TwitchPage.cpp
+    pages/modplatform/twitch/TwitchPage.h
     pages/modplatform/ImportPage.cpp
     pages/modplatform/ImportPage.h
 
@@ -159,8 +158,6 @@ SET(MULTIMC_SOURCES
     dialogs/IconPickerDialog.h
     dialogs/LoginDialog.cpp
     dialogs/LoginDialog.h
-    dialogs/ModEditDialogCommon.cpp
-    dialogs/ModEditDialogCommon.h
     dialogs/NewComponentDialog.cpp
     dialogs/NewComponentDialog.h
     dialogs/NewInstanceDialog.cpp
@@ -184,6 +181,8 @@ SET(MULTIMC_SOURCES
     widgets/Common.h
     widgets/CustomCommands.cpp
     widgets/CustomCommands.h
+    widgets/DropLabel.cpp
+    widgets/DropLabel.h
     widgets/FocusLineEdit.cpp
     widgets/FocusLineEdit.h
     widgets/IconLabel.cpp
@@ -213,10 +212,15 @@ SET(MULTIMC_SOURCES
     widgets/VersionSelectWidget.h
     widgets/ProgressWidget.h
     widgets/ProgressWidget.cpp
+    widgets/WideBar.h
+    widgets/WideBar.cpp
 
     # GUI - instance group view
     groupview/GroupedProxyModel.cpp
     groupview/GroupedProxyModel.h
+    groupview/AccessibleGroupView.cpp
+    groupview/AccessibleGroupView.h
+    groupview/AccessibleGroupView_p.h
     groupview/GroupView.cpp
     groupview/GroupView.h
     groupview/InstanceDelegate.cpp
@@ -248,13 +252,11 @@ SET(MULTIMC_UIS
     pages/global/MultiMCPage.ui
     pages/global/ProxyPage.ui
     pages/global/PasteEEPage.ui
-    pages/global/PackagesPage.ui
 
     # Platform pages
     pages/modplatform/VanillaPage.ui
-    pages/modplatform/FTBPage.ui
-    pages/modplatform/TwitchPage.ui
-    pages/modplatform/TechnicPage.ui
+    pages/modplatform/legacy_ftb/Page.ui
+    pages/modplatform/twitch/TwitchPage.ui
     pages/modplatform/ImportPage.ui
 
     # Dialogs
@@ -278,7 +280,6 @@ SET(MULTIMC_UIS
 )
 
 set(MULTIMC_QRCS
-    resources/assets/assets.qrc
     resources/backgrounds/backgrounds.qrc
     resources/multimc/multimc.qrc
     resources/pe_dark/pe_dark.qrc

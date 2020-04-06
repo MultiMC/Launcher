@@ -34,10 +34,10 @@
 
 #include "widgets/PageContainer.h"
 #include <pages/modplatform/VanillaPage.h>
-#include <pages/modplatform/FTBPage.h>
-#include <pages/modplatform/TwitchPage.h>
+#include <pages/modplatform/legacy_ftb/Page.h>
+#include <pages/modplatform/twitch/TwitchPage.h>
 #include <pages/modplatform/ImportPage.h>
-#include <pages/modplatform/TechnicPage.h>
+
 
 NewInstanceDialog::NewInstanceDialog(const QString & initialGroup, const QString & url, QWidget *parent)
     : QDialog(parent), ui(new Ui::NewInstanceDialog)
@@ -94,6 +94,7 @@ NewInstanceDialog::NewInstanceDialog(const QString & initialGroup, const QString
 
     if(!url.isEmpty())
     {
+        QUrl actualUrl(url);
         m_container->selectPage("import");
         importPage->setUrl(url);
     }
@@ -119,13 +120,13 @@ void NewInstanceDialog::accept()
 QList<BasePage *> NewInstanceDialog::getPages()
 {
     importPage = new ImportPage(this);
+    twitchPage = new TwitchPage(this);
     return
     {
         new VanillaPage(this),
-        new FTBPage(this),
         importPage,
-        new TwitchPage(this),
-        new TechnicPage(this)
+        new LegacyFTB::Page(this),
+        twitchPage
     };
 }
 

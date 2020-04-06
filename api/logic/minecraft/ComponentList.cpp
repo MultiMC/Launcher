@@ -43,6 +43,8 @@ ComponentList::ComponentList(MinecraftInstance * instance)
     d->m_instance = instance;
     d->m_saveTimer.setSingleShot(true);
     d->m_saveTimer.setInterval(5000);
+    d->interactionDisabled = instance->isRunning();
+    connect(d->m_instance, &BaseInstance::runningStatusChanged, this, &ComponentList::disableInteraction);
     connect(&d->m_saveTimer, &QTimer::timeout, this, &ComponentList::save_internal);
 }
 
@@ -635,6 +637,9 @@ void ComponentList::componentDataChanged()
         qWarning() << "ComponentList got dataChenged signal from a non-Component!";
         return;
     }
+    if(objPtr->getID() == "net.minecraft") {
+        emit minecraftChanged();
+    }
     // figure out which one is it... in a seriously dumb way.
     int index = 0;
     for (auto component: d->components)
@@ -762,8 +767,9 @@ QVariant ComponentList::data(const QModelIndex &index, int role) const
     {
         switch (column)
         {
-            case NameColumn:
-                return d->components.at(row)->isEnabled() ? Qt::Checked : Qt::Unchecked;
+            case NameColumn: {
+                return patch->isEnabled() ? Qt::Checked : Qt::Unchecked;
+            }
             default:
                 return QVariant();
         }
@@ -773,7 +779,7 @@ QVariant ComponentList::data(const QModelIndex &index, int role) const
         switch (column)
         {
         case NameColumn:
-            return d->components.at(row)->getName();
+            return patch->getName();
         case VersionColumn:
         {
             if(patch->isCustom())
@@ -853,21 +859,25 @@ QVariant ComponentList::headerData(int section, Qt::Orientation orientation, int
     }
     return QVariant();
 }
+
+// FIXME: zero precision mess
 Qt::ItemFlags ComponentList::flags(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return Qt::NoItemFlags;
+    }
 
     Qt::ItemFlags outFlags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 
     int row = index.row();
 
-    if (row < 0 || row >= d->components.size())
+    if (row < 0 || row >= d->components.size()) {
         return Qt::NoItemFlags;
+    }
 
     auto patch = d->components.at(row);
     // TODO: this will need fine-tuning later...
-    if(patch->canBeDisabled())
+    if(patch->canBeDisabled() && !d->interactionDisabled)
     {
         outFlags |= Qt::ItemIsUserCheckable;
     }
@@ -1201,4 +1211,15 @@ QString ComponentList::getComponentVersion(const QString& uid) const
         return (*iter)->getVersion();
     }
     return QString();
+}
+
+void ComponentList::disableInteraction(bool disable)
+{
+    if(d->interactionDisabled != disable) {
+        d->interactionDisabled = disable;
+        auto size = d->components.size();
+        if(size) {
+            emit dataChanged(index(0), index(size - 1));
+        }
+    }
 }

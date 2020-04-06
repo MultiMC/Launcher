@@ -21,12 +21,13 @@
 #include "minecraft/launch/ModMinecraftJar.h"
 #include "minecraft/launch/ClaimAccount.h"
 #include "minecraft/launch/ReconstructAssets.h"
+#include "minecraft/launch/ScanModFolders.h"
 #include "java/launch/CheckJava.h"
 #include "java/JavaUtils.h"
 #include "meta/Index.h"
 #include "meta/VersionList.h"
 
-#include "SimpleModList.h"
+#include "mod/ModFolderModel.h"
 #include "WorldList.h"
 
 #include "icons/IIconList.h"
@@ -550,37 +551,38 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session)
         out << "";
     }
 
-    if(loaderModList()->size())
-    {
-        out << "Mods:";
-        for(auto & mod: loaderModList()->allMods())
+    auto printModList = [&](const QString & label, ModFolderModel & model) {
+        if(model.size())
         {
-            if(!mod.enabled())
-                continue;
-            if(mod.type() == Mod::MOD_FOLDER)
-                continue;
-            // TODO: proper implementation would need to descend into folders.
+            out << QString("%1:").arg(label);
+            auto modList = model.allMods();
+            std::sort(modList.begin(), modList.end(), [](Mod &a, Mod &b) {
+                auto aName = a.filename().completeBaseName();
+                auto bName = b.filename().completeBaseName();
+                return aName.localeAwareCompare(bName) < 0;
+            });
+            for(auto & mod: modList)
+            {
+                if(mod.type() == Mod::MOD_FOLDER)
+                {
+                    out << u8"  [📁] " + mod.filename().completeBaseName() + " (folder)";
+                    continue;
+                }
 
-            out << "  " + mod.filename().completeBaseName();
+                if(mod.enabled()) {
+                    out << u8"  [✔️] " + mod.filename().completeBaseName();
+                }
+                else {
+                    out << u8"  [❌] " + mod.filename().completeBaseName() + " (disabled)";
+                }
+
+            }
+            out << "";
         }
-        out << "";
-    }
+    };
 
-    if(coreModList()->size())
-    {
-        out << "Core Mods:";
-        for(auto & coremod: coreModList()->allMods())
-        {
-            if(!coremod.enabled())
-                continue;
-            if(coremod.type() == Mod::MOD_FOLDER)
-                continue;
-            // TODO: proper implementation would need to descend into folders.
-
-            out << "  " + coremod.filename().completeBaseName();
-        }
-        out << "";
-    }
+    printModList("Mods", *(loaderModList().get()));
+    printModList("Core Mods", *(coreModList().get()));
 
     auto & jarMods = profile->getJarMods();
     if(jarMods.size())
@@ -648,8 +650,7 @@ QMap<QString, QString> MinecraftInstance::createCensorFilterFromSession(AuthSess
     auto i = sessionRef.u.properties.begin();
     while (i != sessionRef.u.properties.end())
     {
-        if(i.key() == "preferredLanguage")
-        {
+        if(i.value().length() <= 3) {
             ++i;
             continue;
         }
@@ -828,6 +829,11 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         process->appendStep(new ModMinecraftJar(pptr));
     }
 
+    // if there are any jar mods
+    {
+        process->appendStep(new ScanModFolders(pptr));
+    }
+
     // print some instance info here...
     {
         process->appendStep(new PrintInstanceInfo(pptr, session));
@@ -893,43 +899,47 @@ JavaVersion MinecraftInstance::getJavaVersion() const
     return JavaVersion(settings()->get("JavaVersion").toString());
 }
 
-std::shared_ptr<SimpleModList> MinecraftInstance::loaderModList() const
+std::shared_ptr<ModFolderModel> MinecraftInstance::loaderModList() const
 {
     if (!m_loader_mod_list)
     {
-        m_loader_mod_list.reset(new SimpleModList(loaderModsDir()));
+        m_loader_mod_list.reset(new ModFolderModel(loaderModsDir()));
+        m_loader_mod_list->disableInteraction(isRunning());
+        connect(this, &BaseInstance::runningStatusChanged, m_loader_mod_list.get(), &ModFolderModel::disableInteraction);
     }
-    m_loader_mod_list->update();
     return m_loader_mod_list;
 }
 
-std::shared_ptr<SimpleModList> MinecraftInstance::coreModList() const
+std::shared_ptr<ModFolderModel> MinecraftInstance::coreModList() const
 {
     if (!m_core_mod_list)
     {
-        m_core_mod_list.reset(new SimpleModList(coreModsDir()));
+        m_core_mod_list.reset(new ModFolderModel(coreModsDir()));
+        m_core_mod_list->disableInteraction(isRunning());
+        connect(this, &BaseInstance::runningStatusChanged, m_core_mod_list.get(), &ModFolderModel::disableInteraction);
     }
-    m_core_mod_list->update();
     return m_core_mod_list;
 }
 
-std::shared_ptr<SimpleModList> MinecraftInstance::resourcePackList() const
+std::shared_ptr<ModFolderModel> MinecraftInstance::resourcePackList() const
 {
     if (!m_resource_pack_list)
     {
-        m_resource_pack_list.reset(new SimpleModList(resourcePacksDir()));
+        m_resource_pack_list.reset(new ModFolderModel(resourcePacksDir()));
+        m_resource_pack_list->disableInteraction(isRunning());
+        connect(this, &BaseInstance::runningStatusChanged, m_resource_pack_list.get(), &ModFolderModel::disableInteraction);
     }
-    m_resource_pack_list->update();
     return m_resource_pack_list;
 }
 
-std::shared_ptr<SimpleModList> MinecraftInstance::texturePackList() const
+std::shared_ptr<ModFolderModel> MinecraftInstance::texturePackList() const
 {
     if (!m_texture_pack_list)
     {
-        m_texture_pack_list.reset(new SimpleModList(texturePacksDir()));
+        m_texture_pack_list.reset(new ModFolderModel(texturePacksDir()));
+        m_texture_pack_list->disableInteraction(isRunning());
+        connect(this, &BaseInstance::runningStatusChanged, m_texture_pack_list.get(), &ModFolderModel::disableInteraction);
     }
-    m_texture_pack_list->update();
     return m_texture_pack_list;
 }
 

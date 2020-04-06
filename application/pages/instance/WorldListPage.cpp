@@ -17,8 +17,8 @@
 #include "ui_WorldListPage.h"
 #include "minecraft/WorldList.h"
 #include <DesktopServices.h>
-#include "dialogs/ModEditDialogCommon.h"
 #include <QEvent>
+#include <QMenu>
 #include <QKeyEvent>
 #include <QClipboard>
 #include <QMessageBox>
@@ -31,27 +31,27 @@
 #include <QProcess>
 #include <FileSystem.h>
 
-WorldListPage::WorldListPage(BaseInstance *inst, std::shared_ptr<WorldList> worlds, QString id,
-                             QString iconName, QString displayName, QString helpPage,
-                             QWidget *parent)
-    : QWidget(parent), m_inst(inst), ui(new Ui::WorldListPage), m_worlds(worlds), m_iconName(iconName), m_id(id), m_displayName(displayName), m_helpName(helpPage)
+WorldListPage::WorldListPage(BaseInstance *inst, std::shared_ptr<WorldList> worlds, QWidget *parent)
+    : QMainWindow(parent), m_inst(inst), ui(new Ui::WorldListPage), m_worlds(worlds)
 {
     ui->setupUi(this);
-    ui->tabWidget->tabBar()->hide();
+
+    ui->toolBar->insertSpacer(ui->actionRefresh);
+
     QSortFilterProxyModel * proxy = new QSortFilterProxyModel(this);
     proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
     proxy->setSourceModel(m_worlds.get());
     ui->worldTreeView->setSortingEnabled(true);
     ui->worldTreeView->setModel(proxy);
     ui->worldTreeView->installEventFilter(this);
+    ui->worldTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->worldTreeView, &QTreeView::customContextMenuRequested, this, &WorldListPage::ShowContextMenu);
 
     auto head = ui->worldTreeView->header();
-
     head->setSectionResizeMode(0, QHeaderView::Stretch);
     head->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    connect(ui->worldTreeView->selectionModel(),
-            SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this,
-            SLOT(worldChanged(const QModelIndex &, const QModelIndex &)));
+
+    connect(ui->worldTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &WorldListPage::worldChanged);
     worldChanged(QModelIndex(), QModelIndex());
 }
 
@@ -71,6 +71,20 @@ WorldListPage::~WorldListPage()
     delete ui;
 }
 
+void WorldListPage::ShowContextMenu(const QPoint& pos)
+{
+    auto menu = ui->toolBar->createContextMenu(this, tr("Context menu"));
+    menu->exec(ui->worldTreeView->mapToGlobal(pos));
+    delete menu;
+}
+
+QMenu * WorldListPage::createPopupMenu()
+{
+    QMenu* filteredMenu = QMainWindow::createPopupMenu();
+    filteredMenu->removeAction( ui->toolBar->toggleViewAction() );
+    return filteredMenu;
+}
+
 bool WorldListPage::shouldDisplay() const
 {
     return true;
@@ -81,7 +95,7 @@ bool WorldListPage::worldListFilter(QKeyEvent *keyEvent)
     switch (keyEvent->key())
     {
     case Qt::Key_Delete:
-        on_rmWorldBtn_clicked();
+        on_actionRemove_triggered();
         return true;
     default:
         break;
@@ -101,7 +115,7 @@ bool WorldListPage::eventFilter(QObject *obj, QEvent *ev)
     return QWidget::eventFilter(obj, ev);
 }
 
-void WorldListPage::on_rmWorldBtn_clicked()
+void WorldListPage::on_actionRemove_triggered()
 {
     auto proxiedIndex = getSelectedWorld();
 
@@ -123,7 +137,7 @@ void WorldListPage::on_rmWorldBtn_clicked()
     m_worlds->startWatching();
 }
 
-void WorldListPage::on_viewFolderBtn_clicked()
+void WorldListPage::on_actionView_Folder_triggered()
 {
     DesktopServices::openDirectory(m_worlds->dir().absolutePath(), true);
 }
@@ -136,7 +150,7 @@ QModelIndex WorldListPage::getSelectedWorld()
     return proxy->mapToSource(index);
 }
 
-void WorldListPage::on_copySeedBtn_clicked()
+void WorldListPage::on_actionCopy_Seed_triggered()
 {
     QModelIndex index = getSelectedWorld();
 
@@ -148,7 +162,7 @@ void WorldListPage::on_copySeedBtn_clicked()
     MMC->clipboard()->setText(QString::number(seed));
 }
 
-void WorldListPage::on_mcEditBtn_clicked()
+void WorldListPage::on_actionMCEdit_triggered()
 {
     if(m_mceditStarting)
         return;
@@ -236,17 +250,17 @@ void WorldListPage::worldChanged(const QModelIndex &current, const QModelIndex &
 {
     QModelIndex index = getSelectedWorld();
     bool enable = index.isValid();
-    ui->copySeedBtn->setEnabled(enable);
-    ui->mcEditBtn->setEnabled(enable);
-    ui->rmWorldBtn->setEnabled(enable);
-    ui->copyBtn->setEnabled(enable);
-    ui->renameBtn->setEnabled(enable);
+    ui->actionCopy_Seed->setEnabled(enable);
+    ui->actionMCEdit->setEnabled(enable);
+    ui->actionRemove->setEnabled(enable);
+    ui->actionCopy->setEnabled(enable);
+    ui->actionRename->setEnabled(enable);
 }
 
-void WorldListPage::on_addBtn_clicked()
+void WorldListPage::on_actionAdd_triggered()
 {
     auto list = GuiUtil::BrowseForFiles(
-        m_helpName,
+        displayName(),
         tr("Select a Minecraft world zip"),
         tr("Minecraft World Zip File (*.zip)"), QString(), this->parentWidget());
     if (!list.empty())
@@ -279,7 +293,7 @@ bool WorldListPage::worldSafetyNagQuestion()
 }
 
 
-void WorldListPage::on_copyBtn_clicked()
+void WorldListPage::on_actionCopy_triggered()
 {
     QModelIndex index = getSelectedWorld();
     if (!index.isValid())
@@ -301,7 +315,7 @@ void WorldListPage::on_copyBtn_clicked()
     }
 }
 
-void WorldListPage::on_renameBtn_clicked()
+void WorldListPage::on_actionRename_triggered()
 {
     QModelIndex index = getSelectedWorld();
     if (!index.isValid())
@@ -324,7 +338,7 @@ void WorldListPage::on_renameBtn_clicked()
     }
 }
 
-void WorldListPage::on_refreshBtn_clicked()
+void WorldListPage::on_actionRefresh_triggered()
 {
     m_worlds->update();
 }

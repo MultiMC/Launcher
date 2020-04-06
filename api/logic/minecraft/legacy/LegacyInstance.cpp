@@ -21,7 +21,6 @@
 #include "LegacyInstance.h"
 
 #include "minecraft/legacy/LegacyModList.h"
-#include "minecraft/SimpleModList.h"
 #include "minecraft/WorldList.h"
 #include <MMCZip.h>
 #include <FileSystem.h>
@@ -105,11 +104,6 @@ std::shared_ptr<LegacyModList> LegacyInstance::jarModList() const
     }
     jar_mod_list->update();
     return jar_mod_list;
-}
-
-QList<Mod> LegacyInstance::getJarMods() const
-{
-    return jarModList()->allMods();
 }
 
 QString LegacyInstance::gameRoot() const

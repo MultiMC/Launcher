@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <QWidget>
+#include <QMainWindow>
 
 #include "pages/BasePage.h"
 #include <MultiMC.h>
@@ -31,7 +31,7 @@ struct ScreenShot;
 class ScreenshotList;
 class ImgurAlbumCreation;
 
-class ScreenshotsPage : public QWidget, public BasePage
+class ScreenshotsPage : public QMainWindow, public BasePage
 {
     Q_OBJECT
 
@@ -67,12 +67,17 @@ public:
     {
         return !m_uploadActive;
     }
+
+protected:
+    QMenu * createPopupMenu() override;
+
 private slots:
-    void on_uploadBtn_clicked();
-    void on_deleteBtn_clicked();
-    void on_renameBtn_clicked();
-    void on_viewFolderBtn_clicked();
+    void on_actionUpload_triggered();
+    void on_actionDelete_triggered();
+    void on_actionRename_triggered();
+    void on_actionView_Folder_triggered();
     void onItemActivated(QModelIndex);
+    void ShowContextMenu(const QPoint &pos);
 
 private:
     Ui::ScreenshotsPage *ui;

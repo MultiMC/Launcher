@@ -2,6 +2,10 @@
 #include "BuildConfig.h"
 #include "MainWindow.h"
 #include "InstanceWindow.h"
+
+#include "groupview/AccessibleGroupView.h"
+#include <QAccessible>
+
 #include "pages/BasePageProvider.h"
 #include "pages/global/MultiMCPage.h"
 #include "pages/global/MinecraftPage.h"
@@ -11,7 +15,6 @@
 #include "pages/global/ExternalToolsPage.h"
 #include "pages/global/AccountListPage.h"
 #include "pages/global/PasteEEPage.h"
-#include "pages/global/PackagesPage.h"
 #include "pages/global/CustomCommandsPage.h"
 
 #include "themes/ITheme.h"
@@ -31,6 +34,7 @@
 #include <QNetworkAccessManager>
 #include <QTranslator>
 #include <QLibraryInfo>
+#include <QList>
 #include <QStringList>
 #include <QDebug>
 #include <QStyleFactory>
@@ -153,23 +157,27 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         // --help
         parser.addSwitch("help");
         parser.addShortOpt("help", 'h');
-        parser.addDocumentation("help", "display this help and exit.");
+        parser.addDocumentation("help", "Display this help and exit.");
         // --version
         parser.addSwitch("version");
         parser.addShortOpt("version", 'V');
-        parser.addDocumentation("version", "display program version and exit.");
+        parser.addDocumentation("version", "Display program version and exit.");
         // --dir
         parser.addOption("dir");
         parser.addShortOpt("dir", 'd');
-        parser.addDocumentation("dir", "use the supplied folder as MultiMC root instead of "
+        parser.addDocumentation("dir", "Use the supplied folder as MultiMC root instead of "
                                        "the binary location (use '.' for current)");
         // --launch
         parser.addOption("launch");
         parser.addShortOpt("launch", 'l');
-        parser.addDocumentation("launch", "launch the specified instance (by instance ID)");
+        parser.addDocumentation("launch", "Launch the specified instance (by instance ID)");
         // --alive
         parser.addSwitch("alive");
-        parser.addDocumentation("alive", "write a small '" + liveCheckFile + "' file after MultiMC starts");
+        parser.addDocumentation("alive", "Write a small '" + liveCheckFile + "' file after MultiMC starts");
+        // --import
+        parser.addOption("import");
+        parser.addShortOpt("import", 'I');
+        parser.addDocumentation("import", "Import instance from specified zip (local path or URL)");
 
         // parse the arguments
         try
@@ -204,6 +212,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     }
     m_instanceIdToLaunch = args["launch"].toString();
     m_liveCheck = args["alive"].toBool();
+    m_zipToImport = args["import"].toUrl();
 
     QString origcwdPath = QDir::currentPath();
     QString binPath = applicationDirPath();
@@ -275,13 +284,20 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         connect(m_peerInstance, &LocalPeer::messageReceived, this, &MultiMC::messageReceived);
         if(m_peerInstance->isClient())
         {
+            int timeout = 2000;
+
             if(m_instanceIdToLaunch.isEmpty())
             {
-                m_peerInstance->sendMessage("activate", 2000);
+                m_peerInstance->sendMessage("activate", timeout);
+
+                if(!m_zipToImport.isEmpty())
+                {
+                    m_peerInstance->sendMessage("import " + m_zipToImport.toString(), timeout);
+                }
             }
             else
             {
-                m_peerInstance->sendMessage(m_instanceIdToLaunch, 2000);
+                m_peerInstance->sendMessage("launch " + m_instanceIdToLaunch, timeout);
             }
             m_status = MultiMC::Succeeded;
             return;
@@ -378,7 +394,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
             auto payload = appID.toString().toUtf8();
             if(check.write(payload) != payload.size())
             {
-                qWarning() << "Could not write into" << liveCheckFile;
+                qWarning() << "Could not write into" << liveCheckFile << "!";
                 check.remove();
                 break;
             }
@@ -523,13 +539,16 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
             m_globalSettingsProvider->addPage<LanguagePage>();
             m_globalSettingsProvider->addPage<CustomCommandsPage>();
             m_globalSettingsProvider->addPage<ProxyPage>();
-            // m_globalSettingsProvider->addPage<PackagesPage>();
             m_globalSettingsProvider->addPage<ExternalToolsPage>();
             m_globalSettingsProvider->addPage<AccountListPage>();
             m_globalSettingsProvider->addPage<PasteEEPage>();
         }
         qDebug() << "<> Settings loaded.";
     }
+
+#ifndef QT_NO_ACCESSIBILITY
+    QAccessible::installFactory(groupViewAccessibleFactory);
+#endif /* !QT_NO_ACCESSIBILITY */
 
     // load translations
     {
@@ -594,12 +613,12 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     {
         auto InstDirSetting = m_settings->getSetting("InstanceDir");
         // instance path: check for problems with '!' in instance path and warn the user in the log
-        // and rememer that we have to show him a dialog when the gui starts (if it does so)
+        // and remember that we have to show him a dialog when the gui starts (if it does so)
         QString instDir = InstDirSetting->get().toString();
         qDebug() << "Instance path              : " << instDir;
         if (FS::checkProblemticPathJava(QDir(instDir)))
         {
-            qWarning() << "Your instance path contains \'!\' and this is known to cause java problems";
+            qWarning() << "Your instance path contains \'!\' and this is known to cause java problems!";
         }
         m_instances.reset(new InstanceList(m_settings, instDir, this));
         connect(InstDirSetting.get(), &Setting::SettingChanged, m_instances.get(), &InstanceList::on_InstFolderChanged);
@@ -806,6 +825,11 @@ void MultiMC::performMainStartupAction()
         showMainWindow(false);
         qDebug() << "<> Main window shown.";
     }
+    if(!m_zipToImport.isEmpty())
+    {
+        qDebug() << "<> Importing instance from zip:" << m_zipToImport;
+        m_mainWindow->droppedURLs({ m_zipToImport });
+    }
 }
 
 void MultiMC::showFatalErrorMessage(const QString& title, const QString& content)
@@ -842,17 +866,39 @@ void MultiMC::messageReceived(const QString& message)
         qDebug() << "Received message" << message << "while still initializing. It will be ignored.";
         return;
     }
-    if(message == "activate")
+
+    QStringList args = message.split(' ');
+    QString command = args.takeFirst();
+
+    if(command == "activate")
     {
         showMainWindow();
     }
-    else
+    else if(command == "import")
     {
-        auto inst = instances()->getInstanceById(message);
+        if(args.isEmpty())
+        {
+            qWarning() << "Received" << command << "message without a zip path/URL.";
+            return;
+        }
+        m_mainWindow->droppedURLs({ QUrl(args.takeFirst()) });
+    }
+    else if(command == "launch")
+    {
+        if(args.isEmpty())
+        {
+            qWarning() << "Received" << command << "message without an instance ID.";
+            return;
+        }
+        auto inst = instances()->getInstanceById(args.takeFirst());
         if(inst)
         {
             launch(inst, true, nullptr);
         }
+    }
+    else
+    {
+        qWarning() << "Received invalid message" << message;
     }
 }
 
@@ -941,7 +987,7 @@ bool MultiMC::launch(InstancePtr instance, bool online, BaseProfilerFactory *pro
 {
     if(m_updateRunning)
     {
-        qDebug() << "Cannot launch instances while an update is running.";
+        qDebug() << "Cannot launch instances while an update is running. Please try again when updates are completed.";
     }
     else if(instance->canLaunch())
     {
@@ -990,7 +1036,7 @@ bool MultiMC::kill(InstancePtr instance)
 {
     if (!instance->isRunning())
     {
-        qWarning() << "Attempted to kill instance" << instance->id() << "which isn't running.";
+        qWarning() << "Attempted to kill instance" << instance->id() << ", which isn't running.";
         return false;
     }
     auto & extras = m_instanceExtras[instance->id()];

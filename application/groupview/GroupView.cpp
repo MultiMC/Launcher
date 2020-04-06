@@ -25,6 +25,7 @@
 #include <QMimeData>
 #include <QCache>
 #include <QScrollBar>
+#include <QAccessible>
 
 #include "VisualGroup.h"
 #include <QDebug>
@@ -87,6 +88,20 @@ void GroupView::rowsRemoved()
 {
     scheduleDelayedItemsLayout();
 }
+
+void GroupView::currentChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+    QAbstractItemView::currentChanged(current, previous);
+    // TODO: for accessibility support, implement+register a factory, steal QAccessibleTable from Qt and return an instance of it for GroupView.
+#ifndef QT_NO_ACCESSIBILITY
+    if (QAccessible::isActive() && current.isValid()) {
+        QAccessibleEvent event(this, QAccessible::Focus);
+        event.setChild(current.row());
+        QAccessible::updateAccessibility(&event);
+    }
+#endif /* !QT_NO_ACCESSIBILITY */
+}
+
 
 class LocaleString : public QString
 {
@@ -162,6 +177,9 @@ void GroupView::updateGeometries()
             else
             {
                 auto cat = new VisualGroup(groupName, this);
+                if(fVisibility) {
+                    cat->collapsed = fVisibility(groupName);
+                }
                 cats.insert(groupName, cat);
                 cat->update();
             }
@@ -220,6 +238,8 @@ VisualGroup *GroupView::categoryAt(const QPoint &pos, VisualGroup::HitResults & 
 
 QString GroupView::groupNameAt(const QPoint &point)
 {
+    executeDelayedItemsLayout();
+
     VisualGroup::HitResults hitresult;
     auto group = categoryAt(point + offset(), hitresult);
     if(group && (hitresult & (VisualGroup::HeaderHit | VisualGroup::BodyHit)))
@@ -246,7 +266,7 @@ int GroupView::itemWidth() const
 
 void GroupView::mousePressEvent(QMouseEvent *event)
 {
-    // endCategoryEditor();
+    executeDelayedItemsLayout();
 
     QPoint visualPos = event->pos();
     QPoint geometryPos = event->pos() + offset();
@@ -295,6 +315,8 @@ void GroupView::mousePressEvent(QMouseEvent *event)
 
 void GroupView::mouseMoveEvent(QMouseEvent *event)
 {
+    executeDelayedItemsLayout();
+
     QPoint topLeft;
     QPoint visualPos = event->pos();
     QPoint geometryPos = event->pos() + offset();
@@ -351,6 +373,8 @@ void GroupView::mouseMoveEvent(QMouseEvent *event)
 
 void GroupView::mouseReleaseEvent(QMouseEvent *event)
 {
+    executeDelayedItemsLayout();
+
     QPoint visualPos = event->pos();
     QPoint geometryPos = event->pos() + offset();
     QPersistentModelIndex index = indexAt(visualPos);
@@ -365,17 +389,25 @@ void GroupView::mouseReleaseEvent(QMouseEvent *event)
         if (state() == ExpandingState)
         {
             m_pressedCategory->collapsed = false;
+            emit groupStateChanged(m_pressedCategory->text, false);
+
             updateGeometries();
             viewport()->update();
             event->accept();
+            m_pressedCategory = nullptr;
+            setState(NoState);
             return;
         }
         else if (state() == CollapsingState)
         {
             m_pressedCategory->collapsed = true;
+            emit groupStateChanged(m_pressedCategory->text, true);
+
             updateGeometries();
             viewport()->update();
             event->accept();
+            m_pressedCategory = nullptr;
+            setState(NoState);
             return;
         }
     }
@@ -405,6 +437,8 @@ void GroupView::mouseReleaseEvent(QMouseEvent *event)
 
 void GroupView::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    executeDelayedItemsLayout();
+
     QModelIndex index = indexAt(event->pos());
     if (!index.isValid() || !(index.flags() & Qt::ItemIsEnabled) || (m_pressedIndex != index))
     {
@@ -528,6 +562,8 @@ void GroupView::resizeEvent(QResizeEvent *event)
 
 void GroupView::dragEnterEvent(QDragEnterEvent *event)
 {
+    executeDelayedItemsLayout();
+
     if (!isDragEventAccepted(event))
     {
         return;
@@ -539,6 +575,8 @@ void GroupView::dragEnterEvent(QDragEnterEvent *event)
 
 void GroupView::dragMoveEvent(QDragMoveEvent *event)
 {
+    executeDelayedItemsLayout();
+
     if (!isDragEventAccepted(event))
     {
         return;
@@ -550,12 +588,16 @@ void GroupView::dragMoveEvent(QDragMoveEvent *event)
 
 void GroupView::dragLeaveEvent(QDragLeaveEvent *event)
 {
+    executeDelayedItemsLayout();
+
     m_lastDragPosition = QPoint();
     viewport()->update();
 }
 
 void GroupView::dropEvent(QDropEvent *event)
 {
+    executeDelayedItemsLayout();
+
     m_lastDragPosition = QPoint();
 
     stopAutoScroll();
@@ -578,8 +620,7 @@ void GroupView::dropEvent(QDropEvent *event)
             const QString categoryText = category->text;
             if (model()->dropMimeData(event->mimeData(), Qt::MoveAction, row, 0, QModelIndex()))
             {
-                model()->setData(model()->index(row, 0), categoryText,
-                                GroupViewRoles::GroupRole);
+                model()->setData(model()->index(row, 0), categoryText, GroupViewRoles::GroupRole);
                 event->setDropAction(Qt::MoveAction);
                 event->accept();
             }
@@ -606,6 +647,8 @@ void GroupView::dropEvent(QDropEvent *event)
 
 void GroupView::startDrag(Qt::DropActions supportedActions)
 {
+    executeDelayedItemsLayout();
+
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     if(indexes.count() == 0)
         return;
@@ -651,11 +694,15 @@ void GroupView::startDrag(Qt::DropActions supportedActions)
 
 QRect GroupView::visualRect(const QModelIndex &index) const
 {
+    const_cast<GroupView*>(this)->executeDelayedItemsLayout();
+
     return geometryRect(index).translated(-offset());
 }
 
 QRect GroupView::geometryRect(const QModelIndex &index) const
 {
+    const_cast<GroupView*>(this)->executeDelayedItemsLayout();
+
     if (!index.isValid() || isIndexHidden(index) || index.column() > 0)
     {
         return QRect();
@@ -695,9 +742,10 @@ QModelIndex GroupView::indexAt(const QPoint &point) const
     return QModelIndex();
 }
 
-void GroupView::setSelection(const QRect &rect,
-                             const QItemSelectionModel::SelectionFlags commands)
+void GroupView::setSelection(const QRect &rect, const QItemSelectionModel::SelectionFlags commands)
 {
+    executeDelayedItemsLayout();
+
     for (int i = 0; i < model()->rowCount(); ++i)
     {
         QModelIndex index = model()->index(i, 0);
@@ -732,8 +780,7 @@ QPixmap GroupView::renderToPixmap(const QModelIndexList &indices, QRect *r) cons
     return pixmap;
 }
 
-QList<QPair<QRect, QModelIndex>> GroupView::draggablePaintPairs(const QModelIndexList &indices,
-                                                                QRect *r) const
+QList<QPair<QRect, QModelIndex>> GroupView::draggablePaintPairs(const QModelIndexList &indices, QRect *r) const
 {
     Q_ASSERT(r);
     QRect &rect = *r;

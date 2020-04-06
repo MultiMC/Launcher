@@ -16,8 +16,6 @@
 #pragma once
 #include <QTreeView>
 
-class Mod;
-
 class VersionListView : public QTreeView
 {
     Q_OBJECT
@@ -46,8 +44,9 @@ protected slots:
     virtual void rowsInserted(const QModelIndex &parent, int start, int end) override;
 
 private: /* methods */
-    void paintInfoLabel(QPaintEvent *event);
+    void paintInfoLabel(QPaintEvent *event) const;
     void updateEmptyViewPort();
+    QString currentEmptyString() const;
 
 private: /* variables */
     int m_itemCount = 0;

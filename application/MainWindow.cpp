@@ -288,6 +288,7 @@ public:
         foldersMenuButton->setPopupMode(QToolButton::InstantPopup);
         foldersMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         foldersMenuButton->setIcon(MMC->getThemedIcon("viewfolder"));
+        foldersMenuButton->setFocusPolicy(Qt::NoFocus);
         all_toolbuttons.append(&foldersMenuButton);
         QWidgetAction* foldersButtonAction = new QWidgetAction(MainWindow);
         foldersButtonAction->setDefaultWidget(foldersMenuButton);
@@ -345,6 +346,7 @@ public:
         helpMenuButton->setPopupMode(QToolButton::InstantPopup);
         helpMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         helpMenuButton->setIcon(MMC->getThemedIcon("help"));
+        helpMenuButton->setFocusPolicy(Qt::NoFocus);
         all_toolbuttons.append(&helpMenuButton);
         QWidgetAction* helpButtonAction = new QWidgetAction(MainWindow);
         helpButtonAction->setDefaultWidget(helpMenuButton);
@@ -573,9 +575,10 @@ public:
         {
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
         }
-        MainWindow->resize(694, 563);
+        MainWindow->resize(800, 600);
         MainWindow->setWindowIcon(MMC->getThemedIcon("logo"));
         MainWindow->setWindowTitle("MultiMC 5");
+        MainWindow->setAccessibleName("MultiMC");
 
         createMainToolbar(MainWindow);
 
@@ -583,7 +586,6 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayout = new QHBoxLayout(centralWidget);
         horizontalLayout->setSpacing(0);
-        horizontalLayout->setContentsMargins(11, 11, 11, 11);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
         horizontalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -652,6 +654,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         newsLabel->setIcon(MMC->getThemedIcon("news"));
         newsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         newsLabel->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        newsLabel->setFocusPolicy(Qt::NoFocus);
         ui->newsToolBar->insertWidget(ui->actionMoreNews, newsLabel);
         QObject::connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
         QObject::connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
@@ -680,6 +683,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         connect(proxymodel, &InstanceProxyModel::dataChanged, this, &MainWindow::instanceDataChanged);
 
         view->setModel(proxymodel);
+        view->setSourceOfGroupCollapseStatus([](const QString & groupName)->bool {
+            return MMC->instances()->isGroupCollapsed(groupName);
+        });
+        connect(view, &GroupView::groupStateChanged, MMC->instances().get(), &InstanceList::on_GroupStateChanged);
         ui->horizontalLayout->addWidget(view);
     }
     // The cat background
@@ -701,6 +708,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
     // model reset -> selection is invalid. All the instance pointers are wrong.
     connect(MMC->instances().get(), &InstanceList::dataIsInvalid, this, &MainWindow::selectionBad);
+
+    // handle newly added instances
+    connect(MMC->instances().get(), &InstanceList::instanceSelectRequest, this, &MainWindow::instanceSelectRequest);
 
     // When the global settings page closes, we want to know about it and update our state
     connect(MMC, &MultiMC::globalSettingsClosed, this, &MainWindow::globalSettingsClosed);
@@ -823,6 +833,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
 MainWindow::~MainWindow()
 {
+}
+
+QMenu * MainWindow::createPopupMenu()
+{
+    QMenu* filteredMenu = QMainWindow::createPopupMenu();
+    filteredMenu->removeAction( ui->mainToolBar->toggleViewAction() );
+    return filteredMenu;
 }
 
 void MainWindow::konamiTriggered()
@@ -1341,7 +1358,7 @@ void MainWindow::on_actionCopyInstance_triggered()
     if (!copyInstDlg.exec())
         return;
 
-    auto copyTask = new InstanceCopyTask(m_selectedInstance, copyInstDlg.shouldCopySaves());
+    auto copyTask = new InstanceCopyTask(m_selectedInstance, copyInstDlg.shouldCopySaves(), copyInstDlg.shouldKeepPlaytime());
     copyTask->setName(copyInstDlg.instName());
     copyTask->setGroup(copyInstDlg.instGroup());
     copyTask->setIcon(copyInstDlg.iconKey());
@@ -1651,19 +1668,13 @@ void MainWindow::on_actionAbout_triggered()
     dialog.exec();
 }
 
-void MainWindow::on_mainToolBar_visibilityChanged(bool)
-{
-    // Don't allow hiding the main toolbar.
-    // This is the only way I could find to prevent it... :/
-    ui->mainToolBar->setVisible(true);
-}
-
 void MainWindow::on_actionDeleteInstance_triggered()
 {
     if (!m_selectedInstance)
     {
         return;
     }
+    auto id = m_selectedInstance->id();
     auto response = CustomMessageBox::selectable(
         this,
         tr("CAREFUL!"),
@@ -1674,7 +1685,7 @@ void MainWindow::on_actionDeleteInstance_triggered()
     )->exec();
     if (response == QMessageBox::Yes)
     {
-        MMC->instances()->deleteInstance(m_selectedInstance->id());
+        MMC->instances()->deleteInstance(id);
     }
 }
 
@@ -1836,6 +1847,11 @@ void MainWindow::instanceChanged(const QModelIndex &current, const QModelIndex &
     }
 }
 
+void MainWindow::instanceSelectRequest(QString id)
+{
+    setSelectedInstanceById(id);
+}
+
 void MainWindow::instanceDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     auto current = view->selectionModel()->currentIndex();
@@ -1885,7 +1901,7 @@ void MainWindow::checkInstancePathForProblems()
         warning.setDefaultButton(QMessageBox::Ok);
         warning.exec();
     }
-    else if (pathfoldername.contains(QDir::tempPath()))
+    else if (pathfoldername.startsWith(QDir::tempPath()) || pathfoldername.contains("/TempState/"))
     {
         QMessageBox warning(this);
         warning.setText(tr("Your instance folder is in a temporary folder: \'%1\'!").arg(QDir::tempPath()));

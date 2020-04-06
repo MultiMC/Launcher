@@ -32,7 +32,7 @@ set(CMAKE_C_STANDARD_REQUIRED true)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_STANDARD 11)
 include(GenerateExportHeader)
-set(CMAKE_CXX_FLAGS " -Wall -pedantic -Werror -D_GLIBCXX_USE_CXX11_ABI=0 -fstack-protector-strong --param=ssp-buffer-size=4 -O3 -D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS " -Wall -pedantic -Werror -Wno-deprecated-declarations -D_GLIBCXX_USE_CXX11_ABI=0 -fstack-protector-strong --param=ssp-buffer-size=4 -O3 -D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS}")
 if(UNIX AND APPLE)
     set(CMAKE_CXX_FLAGS " -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 endif()
@@ -46,7 +46,7 @@ set(MultiMC_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetc
 ######## Set version numbers ########
 set(MultiMC_VERSION_MAJOR    0)
 set(MultiMC_VERSION_MINOR    6)
-set(MultiMC_VERSION_HOTFIX   5)
+set(MultiMC_VERSION_HOTFIX   12)
 
 # Build number
 set(MultiMC_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
@@ -77,6 +77,7 @@ set(MultiMC_RELEASE_VERSION_NAME "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MIN
 
 #### Custom target to just print the version.
 add_custom_target(version echo "Version: ${MultiMC_RELEASE_VERSION_NAME}")
+add_custom_target(tcversion echo "\\#\\#teamcity[setParameter name=\\'env.MULTIMC_VERSION\\' value=\\'${MultiMC_RELEASE_VERSION_NAME}\\']")
 
 ################################ 3rd Party Libs ################################
 

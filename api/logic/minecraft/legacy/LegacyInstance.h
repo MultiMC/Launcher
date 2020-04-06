@@ -16,12 +16,11 @@
 #pragma once
 
 #include "BaseInstance.h"
-#include "minecraft/Mod.h"
 #include "launch/LaunchTask.h"
 
 #include "multimc_logic_export.h"
 
-class SimpleModList;
+class ModFolderModel;
 class LegacyModList;
 class WorldList;
 class Task;
@@ -78,7 +77,6 @@ public:
     QString customBaseJar() const;
 
     std::shared_ptr<LegacyModList> jarModList() const;
-    QList<Mod> getJarMods() const;
     std::shared_ptr<WorldList> worldList() const;
 
     /*!

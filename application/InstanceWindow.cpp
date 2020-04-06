@@ -50,6 +50,7 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget *parent)
         m_container = new PageContainer(provider.get(), "console", this);
         m_container->setParentContainer(this);
         setCentralWidget(m_container);
+        setContentsMargins(0, 0, 0, 0);
     }
 
     // Add custom buttons to the page container layout.
@@ -149,10 +150,13 @@ void InstanceWindow::on_InstanceLaunchTask_changed(shared_qobject_ptr<LaunchTask
     m_proc = proc;
 }
 
-void InstanceWindow::on_RunningState_changed(bool)
+void InstanceWindow::on_RunningState_changed(bool running)
 {
     updateLaunchButtons();
     m_container->refreshContainer();
+    if(running) {
+        selectPage("log");
+    }
 }
 
 void InstanceWindow::on_closeButton_clicked()

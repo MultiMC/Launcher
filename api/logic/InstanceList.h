@@ -99,6 +99,8 @@ public:
     InstancePtr getInstanceById(QString id) const;
     QModelIndex getInstanceIndexById(const QString &id) const;
     QStringList getGroups();
+    bool isGroupCollapsed(const QString &groupName);
+
     GroupId getInstanceGroup(const InstanceId & id) const;
     void setInstanceGroup(const InstanceId & id, const GroupId& name);
 
@@ -129,10 +131,12 @@ public:
 signals:
     void dataIsInvalid();
     void instancesChanged();
+    void instanceSelectRequest(QString instanceId);
     void groupsChanged(QSet<QString> groups);
 
 public slots:
     void on_InstFolderChanged(const Setting &setting, QVariant value);
+    void on_GroupStateChanged(const QString &group, bool collapsed);
 
 private slots:
     void propertiesChanged(BaseInstance *inst);
@@ -153,12 +157,14 @@ private:
     int m_watchLevel = 0;
     bool m_dirty = false;
     QList<InstancePtr> m_instances;
-    QSet<QString> m_groups;
+    QSet<QString> m_groupNameCache;
 
     SettingsObjectPtr m_globalSettings;
     QString m_instDir;
     QFileSystemWatcher * m_watcher;
-    QMap<InstanceId, GroupId> m_groupMap;
+    // FIXME: this is so inefficient that looking at it is almost painful.
+    QSet<QString> m_collapsedGroups;
+    QMap<InstanceId, GroupId> m_instanceGroupIndex;
     QSet<InstanceId> instanceSet;
     bool m_groupsLoaded = false;
     bool m_instancesProbed = false;
