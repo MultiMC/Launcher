@@ -3,7 +3,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QStringList>
-#include <QCryptographicHash>
 
 QString AuthSession::serializeUserProperties()
 {
@@ -15,6 +14,7 @@ QString AuthSession::serializeUserProperties()
     }
     QJsonDocument value(userAttrs);
     return value.toJson(QJsonDocument::Compact);
+
 }
 
 bool AuthSession::MakeOffline(QString offline_playername)
@@ -23,6 +23,14 @@ bool AuthSession::MakeOffline(QString offline_playername)
     {
         return false;
     }
+    session = "-";
+    player_name = offline_playername;
+    status = PlayableOffline;
+    return true;
+}
+
+bool AuthSession::MakeCracked(QString offline_playername)
+{
     session = "-";
     // Filling session with dummy data
     client_token = "ff64ff64ff64ff64ff64ff64ff64ff64";

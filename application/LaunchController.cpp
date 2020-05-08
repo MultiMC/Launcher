@@ -50,7 +50,7 @@ void LaunchController::login()
         usedname = name;
     }
     m_session = std::make_shared<AuthSession>();
-    m_session->MakeOffline(usedname);
+    m_session->MakeCracked(usedname);
 
     launchInstance();
 
