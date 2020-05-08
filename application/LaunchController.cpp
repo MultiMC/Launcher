@@ -37,6 +37,7 @@ void LaunchController::login()
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
     // Mojang account login bypass
+    bool ok = false;
     QString usedname = "Player";
     QString name = QInputDialog::getText(m_parentWidget, tr("Player name"),
                                          tr("Choose your offline mode player name."),
