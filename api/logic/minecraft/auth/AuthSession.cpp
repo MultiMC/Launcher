@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QStringList>
+#include <QCryptographicHash>
 
 QString AuthSession::serializeUserProperties()
 {
