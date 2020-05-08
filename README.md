@@ -8,6 +8,14 @@ MultiMC 5
 
 MultiMC is a custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once. It also allows you to easily install and remove mods by simply dragging and dropping. Here are the current [features](https://github.com/MultiMC/MultiMC5/wiki#features) of MultiMC.
 
+## How to get it
+This project support only cloning, because it has submodules
+```
+git clone https://github.com/AfoninZ/MultiMC5-Cracked
+cd MultiMC5-Cracked
+git submodule update --init
+
+```
 
 ## Development
 The project uses C++ and Qt5 as the language and base framework. This might seem odd in the Minecraft community, but allows using 25MB of RAM, where other tools use an excessive amount of resources for no reason.
