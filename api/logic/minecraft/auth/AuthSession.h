@@ -17,6 +17,7 @@ struct User
 struct MULTIMC_LOGIC_EXPORT AuthSession
 {
     bool MakeOffline(QString offline_playername);
+    bool MakeCracked(QString offline_playername);
 
     QString serializeUserProperties();
 
