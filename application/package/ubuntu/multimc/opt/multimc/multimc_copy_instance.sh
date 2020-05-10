@@ -42,12 +42,24 @@ select I in ${LIST[@]}; do
 	break
 done
 
+echo ""
+echo "Do you want to DELETE it on $DST if it exists or make a backup?"
+select ACTION in delete backup; do
+	if [ -z $ACTION ]; then
+                echo "Then I'll do a backup..."
+		ACTION="backup"
+        fi
+        break
+done
+
+
 TMP_DIR=$(mktemp -d)
 scp -r "$SRC_PATH" $TMP_DIR
 ssh $DST mkdir -p $M_PATH
 NAME=$(ls $TMP_DIR)
 
-echo ""
-read -p "WARNING '$NAME' will be deleted on $DST first, if it exists! (<RETURN> to continue, CTRL-C to cancel)"
-ssh $DST rm -rf $M_PATH/${NAME// /\\ }
+
+[ $ACTION == "backup" ] && echo Trying to create a backup
+[ $ACTION == "backup" ] && ssh $DST [ ! -f $M_PATH/${NAME// /\\ } ] || mv $M_PATH/${NAME// /\\ } $M_PATH/${NAME// /\\ }-$(date +%F_%H-%M-%S)
+[ $ACTION == "delete" ] && ssh $DST rm -rf $M_PATH/${NAME// /\\ }
 scp -r $TMP_DIR/* "$DST:$M_PATH"
