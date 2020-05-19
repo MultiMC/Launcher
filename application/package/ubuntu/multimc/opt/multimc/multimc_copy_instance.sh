@@ -60,6 +60,6 @@ NAME=$(ls $TMP_DIR)
 
 
 [ $ACTION == "backup" ] && echo Trying to create a backup
-[ $ACTION == "backup" ] && ssh $DST [ ! -f $M_PATH/${NAME// /\\ } ] || mv $M_PATH/${NAME// /\\ } $M_PATH/${NAME// /\\ }-$(date +%F_%H-%M-%S)
+[ $ACTION == "backup" ] && ( ssh $DST [ ! -f $M_PATH/${NAME// /\\ } ] || mv $M_PATH/${NAME// /\\ } $M_PATH/${NAME// /\\ }-$(date +%F_%H-%M-%S) )
 [ $ACTION == "delete" ] && ssh $DST rm -rf $M_PATH/${NAME// /\\ }
 scp -r $TMP_DIR/* "$DST:$M_PATH"
