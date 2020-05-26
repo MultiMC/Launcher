@@ -7,6 +7,14 @@ This software is not related to MultiMC developers and provided without any warr
 
 Details about the original launcher below:
 
+
+
+
+
+
+
+
+
 MultiMC 5
 =========
 
