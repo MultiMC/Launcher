@@ -2,7 +2,15 @@ cmake_minimum_required(VERSION 3.1)
 
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" IS_IN_SOURCE_BUILD)
 if(IS_IN_SOURCE_BUILD)
-    message(AUTHOR_WARNING "You are building MultiMC in-source. This is NOT recommended!")
+    message(FATAL_ERROR "You are building MultiMC in-source. Please separate the build tree from the source tree.")
+endif()
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if(CMAKE_HOST_SYSTEM_VERSION MATCHES ".*[Mm]icrosoft.*" OR
+        CMAKE_HOST_SYSTEM_VERSION MATCHES ".*WSL.*"
+    )
+        message(FATAL_ERROR "Building MultiMC is not supported in Linux-on-Windows distributions.")
+    endif()
 endif()
 
 if(WIN32)
@@ -12,6 +20,7 @@ endif()
 
 project(MultiMC)
 enable_testing()
+
 
 ##################################### Set CMake options #####################################
 set(CMAKE_AUTOMOC ON)
@@ -248,7 +257,6 @@ add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
 add_subdirectory(libraries/xz-embedded) # xz compression
 add_subdirectory(libraries/quazip) # zip manipulation library
-add_subdirectory(libraries/pack200) # java pack200 compression
 add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/iconfix) # fork of Qt's QIcon loader
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
