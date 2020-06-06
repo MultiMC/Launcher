@@ -1,6 +1,6 @@
 ##Init variables
 
-%global packageVer 1.0
+%global packageVer 1.1
 %global _optdir /opt
 
 ## Package info declaration
@@ -13,9 +13,9 @@ Summary:        Free, open source launcher and instance manager for Minecraft
 License:        ASL 2.0
 URL:            https://multimc.org/
 
-##Only allow build on i686 and x86_64 platforms as MultiMC does not have prebuilt ARM binaries available.
-ExcludeArch:     ARMhfp
-ExcludeArch:     AArch64
+##Builds as noarch, does not install on ARM based machines due to a lack of ARM MultiMC prebuilt binaries.
+BuildArch:      noarch
+ExclusiveArch:  %{ix86} x86_64 noarch
 
 Requires:       bash
 Requires:       java-headless
@@ -70,4 +70,3 @@ EOF
 - Updated in-line documentation
 * Mon Jun 1 2019 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
 - Created initial spec file.
-
