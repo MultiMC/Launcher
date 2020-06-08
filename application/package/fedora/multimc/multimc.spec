@@ -1,6 +1,6 @@
 ##Init variables
 
-%global packageVer 1.1
+%global packageVer 1.2
 %global _optdir /opt
 
 ## Package info declaration
@@ -18,7 +18,7 @@ BuildArch:      noarch
 ExclusiveArch:  %{ix86} x86_64 noarch
 
 Requires:       bash
-Requires:       java-headless
+Requires:       java-1.8.0-openjdk
 Requires:       qt5
 Requires:       zenity
 Requires:       zlib
@@ -66,7 +66,9 @@ EOF
 %{_optdir}/MultiMC/run.sh
 
 %changelog
-* Fri Jun 5 2019 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
+* Mon Jun 8 2019 Jack Greiner <jack@emoss.org> - 1.2-1%{?dist}
+- Updated in-line documentation
+* Fri Jun 5 2019 Jack Greiner <jack@emoss.org> - 1.1-1%{?dist}
 - Updated in-line documentation
 * Mon Jun 1 2019 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
 - Created initial spec file.
