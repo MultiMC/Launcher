@@ -452,6 +452,8 @@ set(FLAME_SOURCES
 )
 
 set(MODPACKSCH_SOURCES
+    modplatform/modpacksch/PackInstallTask.h
+    modplatform/modpacksch/PackInstallTask.cpp
     modplatform/modpacksch/PackManifest.h
     modplatform/modpacksch/PackManifest.cpp
 )

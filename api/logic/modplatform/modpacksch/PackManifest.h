@@ -3,6 +3,10 @@
 #include <QString>
 #include <QVector>
 #include <QUrl>
+#include <QJsonObject>
+#include <QMetaType>
+
+#include "multimc_logic_export.h"
 
 namespace ModpacksCH
 {
@@ -115,4 +119,8 @@ struct VersionChangelog
     int64_t updated;
 };
 
+MULTIMC_LOGIC_EXPORT void loadModpack(Modpack & m, QJsonObject & obj);
+
 }
+
+Q_DECLARE_METATYPE(ModpacksCH::Modpack)
