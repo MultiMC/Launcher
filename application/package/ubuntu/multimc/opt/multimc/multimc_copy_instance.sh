@@ -28,6 +28,12 @@ select M_PATH in .local/share/multimc/instances/ .minecraft/saves/; do
         break
 done
 
+escape_chars() {
+	RET=${1// /\\ }
+        RET=${RET//(/\\(}
+        RET=${RET//)/\\)}
+	echo "$RET"
+}
 
 echo "Getting list from $SRC"
 LIST=( "$(ssh $SRC find $M_PATH -maxdepth 1 -mindepth 1 -type d -printf \"$SRC:%p\\n\" |grep -v _MMC_TEMP)" )
@@ -38,7 +44,7 @@ select I in ${LIST[@]}; do
 		echo "ERROR: No selection"
 		exit 1
 	fi
-	SRC_PATH=${I// /\\ }
+	SRC_PATH=$(escape_chars "$I")
 	break
 done
 
@@ -56,10 +62,10 @@ done
 TMP_DIR=$(mktemp -d)
 scp -r "$SRC_PATH" $TMP_DIR
 ssh $DST mkdir -p $M_PATH
-NAME=$(ls $TMP_DIR)
+NAME=$(escape_chars "$(ls $TMP_DIR)")
 
 
 [ $ACTION == "backup" ] && echo Trying to create a backup
-[ $ACTION == "backup" ] && ( ssh $DST [ ! -f $M_PATH/${NAME// /\\ } ] || mv $M_PATH/${NAME// /\\ } $M_PATH/${NAME// /\\ }-$(date +%F_%H-%M-%S) )
-[ $ACTION == "delete" ] && ssh $DST rm -rf $M_PATH/${NAME// /\\ }
+[ $ACTION == "backup" ] && ( ssh $DST [ ! -f $M_PATH/$NAME ] || mv $M_PATH/$NAME $M_PATH/$NAME-$(date +%F_%H-%M-%S) )
+[ $ACTION == "delete" ] && ssh $DST rm -rf $M_PATH/$NAME
 scp -r $TMP_DIR/* "$DST:$M_PATH"
