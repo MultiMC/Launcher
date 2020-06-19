@@ -1,6 +1,6 @@
 ##Init variables
 
-%global packageVer 1.2
+%global packageVer 1.3
 %global _optdir /opt
 
 ## Package info declaration
@@ -12,6 +12,7 @@ Summary:        Free, open source launcher and instance manager for Minecraft
 
 License:        ASL 2.0
 URL:            https://multimc.org/
+Source0:        %{name}-%{packageVer}.tar.gz
 
 ##Builds as noarch, does not install on ARM based machines due to a lack of ARM MultiMC prebuilt binaries.
 BuildArch:      noarch
@@ -28,9 +29,9 @@ Free, open source launcher and instance manager for Minecraft.
 
 %prep
 
-%setup -Tc
-cp %{_sourcedir}/multimc.svg %{_builddir}/multimc-%{packageVer}/multimc.svg
-cp %{_sourcedir}/run.sh %{_builddir}/multimc-%{packageVer}/run.sh
+%setup -q
+cp multimc.svg %{_builddir}/multimc-%{packageVer}/multimc.svg
+cp run.sh %{_builddir}/multimc-%{packageVer}/run.sh
 
 %install
 ##Installs directories
@@ -66,9 +67,11 @@ EOF
 %{_optdir}/MultiMC/run.sh
 
 %changelog
+* Thu Jun 18 2019 Jack Greiner <jack@emoss.org> - 1.3-1%{?dist}
+- Fixed builds in Copr.
 * Mon Jun 8 2019 Jack Greiner <jack@emoss.org> - 1.2-1%{?dist}
 - Updated in-line documentation
-* Fri Jun 5 2019 Jack Greiner <jack@emoss.org> - 1.1-1%{?dist}
+* Fri Jun 5 2019 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
 - Updated in-line documentation
 * Mon Jun 1 2019 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
 - Created initial spec file.
