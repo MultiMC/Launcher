@@ -30,8 +30,6 @@ Free, open source launcher and instance manager for Minecraft.
 %prep
 
 %setup -q
-cp multimc.svg %{_builddir}/multimc-%{packageVer}/multimc.svg
-cp run.sh %{_builddir}/multimc-%{packageVer}/run.sh
 
 %install
 ##Installs directories
