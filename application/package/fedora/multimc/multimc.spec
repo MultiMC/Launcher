@@ -65,11 +65,11 @@ EOF
 %{_optdir}/MultiMC/run.sh
 
 %changelog
-* Thu Jun 18 2019 Jack Greiner <jack@emoss.org> - 1.3-1%{?dist}
+* Thu Jun 18 2020 Jack Greiner <jack@emoss.org> - 1.3-1%{?dist}
 - Fixed builds in Copr.
-* Mon Jun 8 2019 Jack Greiner <jack@emoss.org> - 1.2-1%{?dist}
+* Mon Jun 8 2020 Jack Greiner <jack@emoss.org> - 1.2-1%{?dist}
 - Updated in-line documentation
-* Fri Jun 5 2019 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
+* Fri Jun 5 2020 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
 - Updated in-line documentation
-* Mon Jun 1 2019 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
+* Mon Jun 1 2020 Jack Greiner <jack@emoss.org> - 1.0-1%{?dist}
 - Created initial spec file.
