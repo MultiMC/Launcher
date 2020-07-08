@@ -2,6 +2,9 @@ project(MultiMC_logic)
 
 include (UnitTest)
 
+# Add meta url to meta file
+configure_file("meta/BaseEntity.cpp.in" "meta/BaseEntity.cpp")
+
 set(CORE_SOURCES
     # LOGIC - Base classes and infrastructure
     BaseInstaller.h
