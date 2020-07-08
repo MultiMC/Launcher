@@ -3,7 +3,7 @@ project(MultiMC_logic)
 include (UnitTest)
 
 # Add meta url to meta file
-configure_file("meta/BaseEntity.cpp.in" "meta/BaseEntity.cpp")
+configure_file("${PROJECT_SOURCE_DIR}/meta/BaseEntity.cpp.in" "${PROJECT_BINARY_DIR}/meta/BaseEntity.cpp")
 
 set(CORE_SOURCES
     # LOGIC - Base classes and infrastructure
@@ -427,8 +427,8 @@ set(META_SOURCES
     # Metadata sources
     meta/JsonFormat.cpp
     meta/JsonFormat.h
-    meta/BaseEntity.cpp
     meta/BaseEntity.h
+    ${PROJECT_BINARY_DIR}/meta/BaseEntity.cpp
     meta/VersionList.cpp
     meta/VersionList.h
     meta/Version.cpp
