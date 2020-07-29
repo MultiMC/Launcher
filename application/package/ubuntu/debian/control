@@ -1,0 +1,15 @@
+Source: multimc
+Maintainer: Petr Mrázek <peterix@gmail.com>
+Section: games
+Priority: optional
+Standards-Version: 4.5.0
+Build-Depends: debhelper (>= 12)
+Homepage: http://multimc.org/
+
+Package: multimc
+Architecture: all
+Depends: zenity, desktop-file-utils, qt5-default, wget, ${misc:Depends}
+Recommends: openjdk-8-jre
+Description: local install launcher for MultiMC
+ Provide easy way to get started with Minecraft.
+

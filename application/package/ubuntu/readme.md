@@ -4,9 +4,6 @@ A simple ubuntu package for MultiMC that wraps the contains a script that downlo
 It contains a `.desktop` file, an icon, and a simple script that does the heavy lifting.
 
 # How to build this?
-You need dpkg utils. Rename the `multimc` folder to `multimc_1.3-1` and then run:
-```
-fakeroot dpkg-deb --build multimc_1.3-1
-```
-
-Replace the version with whatever is appropriate.
+You need devscripts. First run 'dch -v <version>' to create a new changelog
+entry.  Replace '<version'> with the appropriate version.  Next, run 'debuild'
+to create the deb.

@@ -1,0 +1,3 @@
+debian/multimc-launcher /usr/bin/
+debian/multimc.desktop /usr/share/applications/
+debian/multimc.svg /usr/share/icons/hicolor/scalable/
