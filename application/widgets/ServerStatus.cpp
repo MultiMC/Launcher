@@ -65,7 +65,7 @@ ServerStatus::ServerStatus(QWidget *parent, Qt::WindowFlags f) : QWidget(parent,
 
     addStatus("authserver.mojang.com", tr("Auth"));
     addLine();
-    addStatus("sessionserver.mojang.com", tr("Session"));
+    addStatus("sessionserver.mojang.com/session/minecraft/profile/4566e69fc90748ee8d71d7ba5aa00d20", tr("Session"));
     addLine();
     addStatus("textures.minecraft.net", tr("Skins"));
     addLine();
