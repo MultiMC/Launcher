@@ -7,9 +7,9 @@
 #include "FileSystem.h"
 #include "settings/INISettingsObject.h"
 #include "minecraft/MinecraftInstance.h"
-#include "minecraft/ComponentList.h"
+#include "minecraft/PackProfile.h"
 #include "minecraft/GradleSpecifier.h"
-#include "net/URLConstants.h"
+#include "BuildConfig.h"
 
 #include <QtConcurrent>
 
@@ -38,11 +38,11 @@ void PackInstallTask::downloadPack()
     QString url;
     if(m_pack.type == PackType::Private)
     {
-        url = QString(URLConstants::LEGACY_FTB_CDN_BASE_URL + "privatepacks/%1").arg(packoffset);
+        url = QString(BuildConfig.LEGACY_FTB_CDN_BASE_URL + "privatepacks/%1").arg(packoffset);
     }
     else
     {
-        url = QString(URLConstants::LEGACY_FTB_CDN_BASE_URL + "modpacks/%1").arg(packoffset);
+        url = QString(BuildConfig.LEGACY_FTB_CDN_BASE_URL + "modpacks/%1").arg(packoffset);
     }
     job->addNetAction(Net::Download::makeCached(url, entry));
     archivePath = entry->getFullPath();
@@ -125,7 +125,7 @@ void PackInstallTask::install()
     instanceSettings->set("InstanceType", "OneSix");
 
     MinecraftInstance instance(m_globalSettings, instanceSettings, m_stagingPath);
-    auto components = instance.getComponentList();
+    auto components = instance.getPackProfile();
     components->buildingFromScratch();
     components->setComponentVersion("net.minecraft", m_pack.mcVersion, true);
 

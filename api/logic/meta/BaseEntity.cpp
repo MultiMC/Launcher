@@ -24,6 +24,8 @@
 #include "Env.h"
 #include "Json.h"
 
+#include "BuildConfig.h"
+
 class ParsingValidator : public Net::Validator
 {
 public: /* con/des */
@@ -53,7 +55,9 @@ public: /* methods */
         auto fname = m_entity->localFilename();
         try
         {
-            m_entity->parse(Json::requireObject(Json::requireDocument(data, fname), fname));
+            auto doc = Json::requireDocument(data, fname);
+            auto obj = Json::requireObject(doc, fname);
+            m_entity->parse(obj);
             return true;
         }
         catch (const Exception &e)
@@ -74,7 +78,7 @@ Meta::BaseEntity::~BaseEntity()
 
 QUrl Meta::BaseEntity::url() const
 {
-    return QUrl("https://meta.multimc.org/v1/").resolved(localFilename());
+    return QUrl(BuildConfig.META_URL).resolved(localFilename());
 }
 
 bool Meta::BaseEntity::loadLocalFile()
@@ -87,7 +91,9 @@ bool Meta::BaseEntity::loadLocalFile()
     // TODO: check if the file has the expected checksum
     try
     {
-        parse(Json::requireObject(Json::requireDocument(fname, fname), fname));
+        auto doc = Json::requireDocument(fname, fname);
+        auto obj = Json::requireObject(doc, fname);
+        parse(obj);
         return true;
     }
     catch (const Exception &e)

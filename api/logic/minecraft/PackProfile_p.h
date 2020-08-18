@@ -9,9 +9,8 @@
 class MinecraftInstance;
 using ComponentContainer = QList<ComponentPtr>;
 using ComponentIndex = QMap<QString, ComponentPtr>;
-using ConnectionList = QList<QMetaObject::Connection>;
 
-struct ComponentListData
+struct PackProfileData
 {
     // the instance this belongs to
     MinecraftInstance *m_instance;

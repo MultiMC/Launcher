@@ -23,9 +23,8 @@
 #include <QDataStream>
 
 #include "BaseInstance.h"
-#include "minecraft/ComponentList.h"
+#include "minecraft/PackProfile.h"
 #include "minecraft/Library.h"
-#include "net/URLConstants.h"
 #include <FileSystem.h>
 
 #include "update/FoldersTask.h"
@@ -50,7 +49,7 @@ void MinecraftUpdate::executeTask()
 
     // add metadata update task if necessary
     {
-        auto components = m_inst->getComponentList();
+        auto components = m_inst->getPackProfile();
         components->reload(Net::Mode::Online);
         auto task = components->getCurrentTask();
         if(task)
