@@ -15,6 +15,8 @@ FtbPage::FtbPage(NewInstanceDialog* dialog, QWidget *parent)
     model = new Ftb::ListModel(this);
     ui->packView->setModel(model);
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &FtbPage::onSelectionChanged);
+
+    connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &FtbPage::onVersionSelectionChanged);
 }
 
 FtbPage::~FtbPage()
@@ -90,5 +92,17 @@ void FtbPage::onSelectionChanged(QModelIndex first, QModelIndex second)
         ui->versionSelectionBox->addItem(selected.versions.at(i).name);
     }
 
+    suggestCurrent();
+}
+
+void FtbPage::onVersionSelectionChanged(QString data)
+{
+    if(data.isNull() || data.isEmpty())
+    {
+        selectedVersion = "";
+        return;
+    }
+
+    selectedVersion = data;
     suggestCurrent();
 }

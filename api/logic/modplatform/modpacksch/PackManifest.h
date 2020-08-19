@@ -121,6 +121,7 @@ struct VersionChangelog
 
 MULTIMC_LOGIC_EXPORT void loadModpack(Modpack & m, QJsonObject & obj);
 
+MULTIMC_LOGIC_EXPORT void loadVersion(Version & m, QJsonObject & obj);
 }
 
 Q_DECLARE_METATYPE(ModpacksCH::Modpack)

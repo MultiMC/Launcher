@@ -93,61 +93,61 @@ void ModpacksCH::loadModpack(ModpacksCH::Modpack & m, QJsonObject & obj)
     m.updated = Json::requireInteger(obj, "updated");
 }
 
-//static void loadVersionTarget(ModpacksCH::VersionTarget & a, QJsonObject & obj)
-//{
-//    a.id = Json::requireInteger(obj, "id");
-//    a.name = Json::requireString(obj, "name");
-//    a.type = Json::requireString(obj, "type");
-//    a.version = Json::requireString(obj, "version");
-//    a.updated = Json::requireInteger(obj, "updated");
-//}
-//
-//static void loadVersionFile(ModpacksCH::VersionFile & a, QJsonObject & obj)
-//{
-//    a.id = Json::requireInteger(obj, "id");
-//    a.type = Json::requireString(obj, "type");
-//    a.path = Json::requireString(obj, "path");
-//    a.name = Json::requireString(obj, "name");
-//    a.version = Json::requireString(obj, "version");
-//    a.url = Json::requireString(obj, "url");
-//    a.sha1 = Json::requireString(obj, "sha1");
-//    a.size = Json::requireInteger(obj, "size");
-//    a.clientOnly = Json::requireBoolean(obj, "clientOnly");
-//    a.serverOnly = Json::requireBoolean(obj, "serverOnly");
-//    a.optional = Json::requireBoolean(obj, "optional");
-//    a.updated = Json::requireInteger(obj, "updated");
-//}
+static void loadVersionTarget(ModpacksCH::VersionTarget & a, QJsonObject & obj)
+{
+    a.id = Json::requireInteger(obj, "id");
+    a.name = Json::requireString(obj, "name");
+    a.type = Json::requireString(obj, "type");
+    a.version = Json::requireString(obj, "version");
+    a.updated = Json::requireInteger(obj, "updated");
+}
 
-//static void loadVersion(ModpacksCH::Version & m, QJsonObject & obj)
-//{
-//    m.id = Json::requireInteger(obj, "id");
-//    m.parent = Json::requireInteger(obj, "parent");
-//    m.name = Json::requireString(obj, "name");
-//    m.type = Json::requireString(obj, "type");
-//    m.installs = Json::requireInteger(obj, "installs");
-//    m.plays = Json::requireInteger(obj, "plays");
-//    m.updated = Json::requireInteger(obj, "updated");
-//    m.refreshed = Json::requireInteger(obj, "refreshed");
-//    auto specs = Json::requireObject(obj, "specs");
-//    loadSpecs(m.specs, specs);
-//    auto targetArr = Json::requireArray(obj, "targets");
-//    for (const auto & targetRaw : targetArr)
-//    {
-//        auto versionObj = Json::requireObject(targetRaw);
-//        ModpacksCH::VersionTarget target;
-//        loadVersionTarget(target, versionObj);
-//        m.targets.append(target);
-//    }
-//    auto fileArr = Json::requireArray(obj, "files");
-//    for (const auto & fileRaw : fileArr)
-//    {
-//        auto fileObj = Json::requireObject(fileRaw);
-//        ModpacksCH::VersionFile file;
-//        loadVersionFile(file, fileObj);
-//        m.files.append(file);
-//    }
-//}
-//
+static void loadVersionFile(ModpacksCH::VersionFile & a, QJsonObject & obj)
+{
+    a.id = Json::requireInteger(obj, "id");
+    a.type = Json::requireString(obj, "type");
+    a.path = Json::requireString(obj, "path");
+    a.name = Json::requireString(obj, "name");
+    a.version = Json::requireString(obj, "version");
+    a.url = Json::requireString(obj, "url");
+    a.sha1 = Json::requireString(obj, "sha1");
+    a.size = Json::requireInteger(obj, "size");
+    a.clientOnly = Json::requireBoolean(obj, "clientonly");
+    a.serverOnly = Json::requireBoolean(obj, "serveronly");
+    a.optional = Json::requireBoolean(obj, "optional");
+    a.updated = Json::requireInteger(obj, "updated");
+}
+
+void ModpacksCH::loadVersion(ModpacksCH::Version & m, QJsonObject & obj)
+{
+    m.id = Json::requireInteger(obj, "id");
+    m.parent = Json::requireInteger(obj, "parent");
+    m.name = Json::requireString(obj, "name");
+    m.type = Json::requireString(obj, "type");
+    m.installs = Json::requireInteger(obj, "installs");
+    m.plays = Json::requireInteger(obj, "plays");
+    m.updated = Json::requireInteger(obj, "updated");
+    m.refreshed = Json::requireInteger(obj, "refreshed");
+    auto specs = Json::requireObject(obj, "specs");
+    loadSpecs(m.specs, specs);
+    auto targetArr = Json::requireArray(obj, "targets");
+    for (const auto & targetRaw : targetArr)
+    {
+        auto versionObj = Json::requireObject(targetRaw);
+        ModpacksCH::VersionTarget target;
+        loadVersionTarget(target, versionObj);
+        m.targets.append(target);
+    }
+    auto fileArr = Json::requireArray(obj, "files");
+    for (const auto & fileRaw : fileArr)
+    {
+        auto fileObj = Json::requireObject(fileRaw);
+        ModpacksCH::VersionFile file;
+        loadVersionFile(file, fileObj);
+        m.files.append(file);
+    }
+}
+
 //static void loadVersionChangelog(ModpacksCH::VersionChangelog & m, QJsonObject & obj)
 //{
 //    m.content = Json::requireString(obj, "content");
