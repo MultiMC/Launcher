@@ -1,4 +1,5 @@
 #include <BuildConfig.h>
+#include <Json.h>
 #include "PackInstallTask.h"
 
 #include "FileSystem.h"
@@ -41,7 +42,6 @@ void PackInstallTask::executeTask()
     auto *netJob = new NetJob("ModpacksCH::VersionFetch");
     auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1/%2")
             .arg(m_pack.id).arg(version.id);
-    qWarning() << searchUrl;
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
     jobPtr = netJob;
     jobPtr->start();
@@ -65,7 +65,15 @@ void PackInstallTask::onDownloadSucceeded()
     auto obj = doc.object();
 
     ModpacksCH::Version version;
-    ModpacksCH::loadVersion(version, obj);
+    try
+    {
+        ModpacksCH::loadVersion(version, obj);
+    }
+    catch (const JSONValidationError &e)
+    {
+        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
+        return;
+    }
     m_version = version;
 
     install();
@@ -106,6 +114,8 @@ void PackInstallTask::install()
 
     jobPtr.reset(new NetJob(tr("Mod download")));
     for(auto file : m_version.files) {
+        if(file.serverOnly) continue;
+
         auto relpath = FS::PathCombine("minecraft", file.path, file.name);
         auto path = FS::PathCombine(m_stagingPath , relpath);
 

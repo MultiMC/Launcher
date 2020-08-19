@@ -1,3 +1,4 @@
+#include <Json.h>
 #include "FtbModel.h"
 #include "MultiMC.h"
 
@@ -181,7 +182,15 @@ void ListModel::packRequestFinished()
     auto obj = doc.object();
 
     ModpacksCH::Modpack pack;
-    ModpacksCH::loadModpack(pack, obj);
+    try
+    {
+        ModpacksCH::loadModpack(pack, obj);
+    }
+    catch (const JSONValidationError &e)
+    {
+        qWarning() << "Error while reading pack manifest from FTB: " << e.cause();
+        return;
+    }
 
     beginInsertRows(QModelIndex(), modpacks.size(), modpacks.size());
     modpacks.append(pack);
