@@ -1,9 +1,9 @@
-#include <Json.h>
 #include "FtbModel.h"
-#include "MultiMC.h"
 
 #include "BuildConfig.h"
 #include "Env.h"
+#include "MultiMC.h"
+#include "Json.h"
 
 namespace Ftb {
 
@@ -68,7 +68,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void ListModel::performPaginatedSearch()
+void ListModel::performSearch()
 {
     auto *netJob = new NetJob("Ftb::Search");
     auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/search/25?term=%1")
@@ -109,7 +109,7 @@ void ListModel::searchWithTerm(const QString &term)
         endResetModel();
         searchState = None;
     }
-    performPaginatedSearch();
+    performSearch();
 }
 
 void ListModel::searchRequestFinished()
@@ -147,7 +147,7 @@ void ListModel::searchRequestFailed(QString reason)
         modpacks.clear();
         endResetModel();
 
-        performPaginatedSearch();
+        performSearch();
     } else {
         searchState = Finished;
     }

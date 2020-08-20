@@ -2,8 +2,8 @@
 
 #include <QAbstractListModel>
 
-#include "net/NetJob.h"
 #include "modplatform/modpacksch/PackManifest.h"
+#include "net/NetJob.h"
 
 namespace Ftb {
 
@@ -26,7 +26,7 @@ public:
     void searchWithTerm(const QString & term);
 
 private slots:
-    void performPaginatedSearch();
+    void performSearch();
     void searchRequestFinished();
     void searchRequestFailed(QString reason);
 

@@ -1,4 +1,5 @@
 #include "PackManifest.h"
+
 #include "Json.h"
 
 static void loadSpecs(ModpacksCH::Specs & s, QJsonObject & obj)

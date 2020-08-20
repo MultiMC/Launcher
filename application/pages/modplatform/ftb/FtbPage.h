@@ -15,12 +15,13 @@
 
 #pragma once
 
+#include "FtbModel.h"
+
 #include <QWidget>
 
+#include "MultiMC.h"
 #include "pages/BasePage.h"
-#include <MultiMC.h>
 #include "tasks/Task.h"
-#include "FtbModel.h"
 
 namespace Ui
 {
