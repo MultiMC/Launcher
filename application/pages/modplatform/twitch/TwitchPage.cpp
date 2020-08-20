@@ -101,7 +101,10 @@ void TwitchPage::suggestCurrent()
         dialog->setSuggestedPack();
     }
 
-    dialog->setSuggestedPack(current.name, new InstanceImportTask(current.latestFile.downloadUrl));
+    dialog->setSuggestedPack(
+        current.name,
+        new InstanceImportTask(current.latestFile.downloadUrl)
+    );
     QString editedLogoName;
     editedLogoName = "twitch_" + current.logoName.section(".", 0, 0);
     model->getLogo(current.logoName, current.logoUrl, [this, editedLogoName](QString logo)

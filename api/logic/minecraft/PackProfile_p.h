@@ -5,10 +5,16 @@
 #include <QTimer>
 #include <QList>
 #include <QMap>
+#include "ModpackInfo.h"
 
 class MinecraftInstance;
 using ComponentContainer = QList<ComponentPtr>;
 using ComponentIndex = QMap<QString, ComponentPtr>;
+
+struct PersistentPackProfileData {
+    ComponentContainer components;
+    PackProfileModpackInfo modpackInfo;
+};
 
 struct PackProfileData
 {
@@ -30,8 +36,9 @@ struct PackProfileData
         return QString();
     }
 
-    // persistent list of components and related machinery
-    ComponentContainer components;
+    PersistentPackProfileData persitentData;
+
+    // temporary runtime machinery
     ComponentIndex componentIndex;
     bool dirty = false;
     QTimer m_saveTimer;
@@ -39,4 +46,3 @@ struct PackProfileData
     bool loaded = false;
     bool interactionDisabled = true;
 };
-

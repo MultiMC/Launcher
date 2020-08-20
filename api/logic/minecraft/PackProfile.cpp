@@ -120,16 +120,42 @@ static ComponentPtr componentFromJsonV1(PackProfile * parent, const QString & co
 }
 
 // Save the given component container data to a file
-static bool savePackProfile(const QString & filename, const ComponentContainer & container)
+static bool savePackProfile(const QString & filename, const PersistentPackProfileData & container)
 {
     QJsonObject obj;
     obj.insert("formatVersion", currentComponentsFileVersion);
     QJsonArray orderArray;
-    for(auto component: container)
+    for(auto component: container.components)
     {
         orderArray.append(componentToJsonV1(component));
     }
     obj.insert("components", orderArray);
+
+    if(container.modpackInfo)
+    {
+        const auto & info = container.modpackInfo;
+        QJsonObject out;
+        out["platform"] = info.platform;
+        if(!info.repository.isNull()) {
+            out["repository"] = info.repository;
+        }
+        if(!info.coordinate.isNull()) {
+            out["coordinate"] = info.coordinate;
+        }
+        if(!info.recommendedArgs.isNull()) {
+            out["recommendedArgs"] = info.recommendedArgs;
+        }
+        if(info.minHeap) {
+            out["minHeap"] = *info.minHeap;
+        }
+        if(info.maxHeap) {
+            out["maxHeap"] = *info.maxHeap;
+        }
+        if(info.optimalHeap) {
+            out["optimalHeap"] = *info.optimalHeap;
+        }
+        obj.insert("modpackInfo", out);
+    }
     QSaveFile outFile(filename);
     if (!outFile.open(QFile::WriteOnly))
     {
@@ -153,7 +179,7 @@ static bool savePackProfile(const QString & filename, const ComponentContainer &
 }
 
 // Read the given file into component containers
-static bool loadPackProfile(PackProfile * parent, const QString & filename, const QString & componentJsonPattern, ComponentContainer & container)
+static bool loadPackProfile(PackProfile * parent, const QString & filename, const QString & componentJsonPattern, PersistentPackProfileData & container)
 {
     QFile componentsFile(filename);
     if (!componentsFile.exists())
@@ -194,13 +220,34 @@ static bool loadPackProfile(PackProfile * parent, const QString & filename, cons
         for(auto item: orderArray)
         {
             auto obj = Json::requireObject(item, "Component must be an object.");
-            container.append(componentFromJsonV1(parent, componentJsonPattern, obj));
+            container.components.append(componentFromJsonV1(parent, componentJsonPattern, obj));
+        }
+        try
+        {
+            PackProfileModpackInfo result;
+            auto modpackInfoObj = Json::ensureObject(obj, "modpackInfo", {});
+            if(!modpackInfoObj.isEmpty()) {
+                result.hasValue = true;
+                result.platform = Json::requireString(modpackInfoObj, "platform");
+                result.repository = Json::ensureString(modpackInfoObj, "repository", QString());
+                result.coordinate = Json::ensureString(modpackInfoObj, "coordinate", QString());
+                result.maxHeap = Json::ensureInteger(modpackInfoObj, "maxHeap", -1);
+                result.minHeap = Json::ensureInteger(modpackInfoObj, "minHeap", -1);
+                result.optimalHeap = Json::ensureInteger(modpackInfoObj, "optimalHeap", -1);
+                result.recommendedArgs = Json::ensureString(modpackInfoObj, "recommendedArgs", QString());
+            }
+        }
+        catch (const JSONValidationError &err)
+        {
+            qCritical() << "Couldn't parse modpack info in " << componentsFile.fileName() << ": bad file format";
+            container.modpackInfo = {};
         }
     }
     catch (const JSONValidationError &err)
     {
         qCritical() << "Couldn't parse" << componentsFile.fileName() << ": bad file format";
-        container.clear();
+        container.components.clear();
+
         return false;
     }
     return true;
@@ -264,7 +311,7 @@ void PackProfile::save_internal()
 {
     qDebug() << "Component list save performed now for" << d->m_instance->name();
     auto filename = componentsFilePath();
-    savePackProfile(filename, d->components);
+    savePackProfile(filename, d->persitentData);
     d->dirty = false;
 }
 
@@ -285,38 +332,37 @@ bool PackProfile::load()
     }
 
     // load the new component list and swap it with the current one...
-    ComponentContainer newComponents;
-    if(!loadPackProfile(this, filename, patchesPattern(), newComponents))
+    PersistentPackProfileData newData;
+    if(!loadPackProfile(this, filename, patchesPattern(), newData))
     {
         qCritical() << "Failed to load the component config for instance" << d->m_instance->name();
         return false;
     }
-    else
+
+    // FIXME: actually use fine-grained updates, not this...
+    beginResetModel();
+    // disconnect all the old components
+    for(auto component: d->persitentData.components)
     {
-        // FIXME: actually use fine-grained updates, not this...
-        beginResetModel();
-        // disconnect all the old components
-        for(auto component: d->components)
-        {
-            disconnect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
-        }
-        d->components.clear();
-        d->componentIndex.clear();
-        for(auto component: newComponents)
-        {
-            if(d->componentIndex.contains(component->m_uid))
-            {
-                qWarning() << "Ignoring duplicate component entry" << component->m_uid;
-                continue;
-            }
-            connect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
-            d->components.append(component);
-            d->componentIndex[component->m_uid] = component;
-        }
-        endResetModel();
-        d->loaded = true;
-        return true;
+        disconnect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
     }
+    d->persitentData.components.clear();
+    d->componentIndex.clear();
+    for(auto component: newData.components)
+    {
+        if(d->componentIndex.contains(component->m_uid))
+        {
+            qWarning() << "Ignoring duplicate component entry" << component->m_uid;
+            continue;
+        }
+        connect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
+        d->persitentData.components.append(component);
+        d->componentIndex[component->m_uid] = component;
+    }
+    d->persitentData.modpackInfo = newData.modpackInfo;
+    endResetModel();
+    d->loaded = true;
+    return true;
 }
 
 void PackProfile::reload(Net::Mode netmode)
@@ -436,7 +482,8 @@ bool PackProfile::migratePreComponentConfig()
     // upgrade the very old files from the beginnings of MultiMC 5
     upgradeDeprecatedFiles(d->m_instance->instanceRoot(), d->m_instance->name());
 
-    QList<ComponentPtr> components;
+    PersistentPackProfileData data;
+    auto & components = data.components;
     QSet<QString> loaded;
 
     auto addBuiltinPatch = [&](const QString &uid, bool asDependency, const QString & emptyVersion, const Meta::Require & req, const Meta::Require & conflict)
@@ -598,14 +645,14 @@ bool PackProfile::migratePreComponentConfig()
         }
     }
     // new we have a complete list of components...
-    return savePackProfile(componentsFilePath(), components);
+    return savePackProfile(componentsFilePath(), data);
 }
 
 // END: save/load
 
 void PackProfile::appendComponent(ComponentPtr component)
 {
-    insertComponent(d->components.size(), component);
+    insertComponent(d->persitentData.components.size(), component);
 }
 
 void PackProfile::insertComponent(size_t index, ComponentPtr component)
@@ -622,7 +669,7 @@ void PackProfile::insertComponent(size_t index, ComponentPtr component)
         return;
     }
     beginInsertRows(QModelIndex(), index, index);
-    d->components.insert(index, component);
+    d->persitentData.components.insert(index, component);
     d->componentIndex[id] = component;
     endInsertRows();
     connect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
@@ -642,7 +689,7 @@ void PackProfile::componentDataChanged()
     }
     // figure out which one is it... in a seriously dumb way.
     int index = 0;
-    for (auto component: d->components)
+    for (auto component: d->persitentData.components)
     {
         if(component.get() == objPtr)
         {
@@ -671,7 +718,7 @@ bool PackProfile::remove(const int index)
     }
 
     beginRemoveRows(QModelIndex(), index, index);
-    d->components.removeAt(index);
+    d->persitentData.components.removeAt(index);
     d->componentIndex.remove(patch->getID());
     endRemoveRows();
     invalidateLaunchProfile();
@@ -682,7 +729,7 @@ bool PackProfile::remove(const int index)
 bool PackProfile::remove(const QString id)
 {
     int i = 0;
-    for (auto patch : d->components)
+    for (auto patch : d->persitentData.components)
     {
         if (patch->getID() == id)
         {
@@ -741,11 +788,11 @@ Component * PackProfile::getComponent(const QString &id)
 
 Component * PackProfile::getComponent(int index)
 {
-    if(index < 0 || index >= d->components.size())
+    if(index < 0 || index >= d->persitentData.components.size())
     {
         return nullptr;
     }
-    return d->components[index].get();
+    return d->persitentData.components[index].get();
 }
 
 QVariant PackProfile::data(const QModelIndex &index, int role) const
@@ -756,10 +803,10 @@ QVariant PackProfile::data(const QModelIndex &index, int role) const
     int row = index.row();
     int column = index.column();
 
-    if (row < 0 || row >= d->components.size())
+    if (row < 0 || row >= d->persitentData.components.size())
         return QVariant();
 
-    auto patch = d->components.at(row);
+    auto patch = d->persitentData.components.at(row);
 
     switch (role)
     {
@@ -831,7 +878,7 @@ bool PackProfile::setData(const QModelIndex& index, const QVariant& value, int r
 
     if (role == Qt::CheckStateRole)
     {
-        auto component = d->components[index.row()];
+        auto component = d->persitentData.components[index.row()];
         if (component->setEnabled(!component->isEnabled()))
         {
             return true;
@@ -871,11 +918,11 @@ Qt::ItemFlags PackProfile::flags(const QModelIndex &index) const
 
     int row = index.row();
 
-    if (row < 0 || row >= d->components.size()) {
+    if (row < 0 || row >= d->persitentData.components.size()) {
         return Qt::NoItemFlags;
     }
 
-    auto patch = d->components.at(row);
+    auto patch = d->persitentData.components.at(row);
     // TODO: this will need fine-tuning later...
     if(patch->canBeDisabled() && !d->interactionDisabled)
     {
@@ -886,7 +933,7 @@ Qt::ItemFlags PackProfile::flags(const QModelIndex &index) const
 
 int PackProfile::rowCount(const QModelIndex &parent) const
 {
-    return d->components.size();
+    return d->persitentData.components.size();
 }
 
 int PackProfile::columnCount(const QModelIndex &parent) const
@@ -906,7 +953,7 @@ void PackProfile::move(const int index, const MoveDirection direction)
         theirIndex = index + 1;
     }
 
-    if (index < 0 || index >= d->components.size())
+    if (index < 0 || index >= d->persitentData.components.size())
         return;
     if (theirIndex >= rowCount())
         theirIndex = rowCount() - 1;
@@ -924,7 +971,7 @@ void PackProfile::move(const int index, const MoveDirection direction)
         return;
     }
     beginMoveRows(QModelIndex(), index, index, QModelIndex(), togap);
-    d->components.swap(index, theirIndex);
+    d->persitentData.components.swap(index, theirIndex);
     endMoveRows();
     invalidateLaunchProfile();
     scheduleSave();
@@ -1153,7 +1200,7 @@ std::shared_ptr<LaunchProfile> PackProfile::getProfile() const
         try
         {
             auto profile = std::make_shared<LaunchProfile>();
-            for(auto file: d->components)
+            for(auto file: d->persitentData.components)
             {
                 qDebug() << "Applying" << file->getID() << (file->getProblemSeverity() == ProblemSeverity::Error ? "ERROR" : "GOOD");
                 file->applyTo(profile.get());
@@ -1217,7 +1264,7 @@ void PackProfile::disableInteraction(bool disable)
 {
     if(d->interactionDisabled != disable) {
         d->interactionDisabled = disable;
-        auto size = d->components.size();
+        auto size = d->persitentData.components.size();
         if(size) {
             emit dataChanged(index(0), index(size - 1));
         }

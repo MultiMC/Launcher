@@ -200,7 +200,7 @@ void ComponentUpdateTask::loadComponents()
         }
     }
     // load all the components OR their lists...
-    for (auto component: d->m_list->d->components)
+    for (auto component: d->m_list->d->persitentData.components)
     {
         shared_qobject_ptr<Task> loadTask;
         LoadResult singleResult;
@@ -511,7 +511,7 @@ void ComponentUpdateTask::resolveDependencies(bool checkOnly)
      *
      * NOTE: this is a placeholder and should eventually be replaced with something 'serious'
      */
-    auto & components = d->m_list->d->components;
+    auto & components = d->m_list->d->persitentData.components;
     auto & componentIndex = d->m_list->d->componentIndex;
 
     RequireExSet allRequires;

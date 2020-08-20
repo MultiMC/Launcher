@@ -84,6 +84,8 @@ SET(MULTIMC_SOURCES
     pages/instance/ResourcePackPage.h
     pages/instance/ModFolderPage.cpp
     pages/instance/ModFolderPage.h
+    pages/instance/ModpackPage.cpp
+    pages/instance/ModpackPage.h
     pages/instance/NotesPage.cpp
     pages/instance/NotesPage.h
     pages/instance/LogPage.cpp
@@ -238,6 +240,7 @@ SET(MULTIMC_UIS
     pages/instance/GameOptionsPage.ui
     pages/instance/VersionPage.ui
     pages/instance/ModFolderPage.ui
+    pages/instance/ModpackPage.ui
     pages/instance/LogPage.ui
     pages/instance/InstanceSettingsPage.ui
     pages/instance/NotesPage.ui
