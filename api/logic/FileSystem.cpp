@@ -27,7 +27,7 @@
 
 namespace FS {
 
-void ensureExists(const QDir &dir)
+static void ensureExists(const QDir &dir)
 {
     if (!QDir().mkpath(dir.absolutePath()))
     {

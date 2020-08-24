@@ -20,7 +20,7 @@ LoggedProcess::~LoggedProcess()
     }
 }
 
-QStringList reprocess(const QByteArray & data, QString & leftover)
+static QStringList reprocess(const QByteArray & data, QString & leftover)
 {
     QString str = leftover + QString::fromLocal8Bit(data);
 

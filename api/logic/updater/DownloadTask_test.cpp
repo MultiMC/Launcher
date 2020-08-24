@@ -10,7 +10,7 @@
 
 using namespace GoUpdate;
 
-FileSourceList encodeBaseFile(const char *suffix)
+static FileSourceList encodeBaseFile(const char *suffix)
 {
     auto base = QDir::currentPath();
     QUrl localFile = QUrl::fromLocalFile(base + suffix);
@@ -22,21 +22,7 @@ FileSourceList encodeBaseFile(const char *suffix)
 Q_DECLARE_METATYPE(VersionFileList)
 Q_DECLARE_METATYPE(Operation)
 
-QDebug operator<<(QDebug dbg, const FileSource &f)
-{
-    dbg.nospace() << "FileSource(type=" << f.type << " url=" << f.url
-                  << " comp=" << f.compressionType << ")";
-    return dbg.maybeSpace();
-}
-
-QDebug operator<<(QDebug dbg, const VersionFileEntry &v)
-{
-    dbg.nospace() << "VersionFileEntry(path=" << v.path << " mode=" << v.mode
-                  << " md5=" << v.md5 << " sources=" << v.sources << ")";
-    return dbg.maybeSpace();
-}
-
-QDebug operator<<(QDebug dbg, const Operation::Type &t)
+static QDebug operator<<(QDebug dbg, const Operation::Type &t)
 {
     switch (t)
     {
@@ -50,7 +36,7 @@ QDebug operator<<(QDebug dbg, const Operation::Type &t)
     return dbg.maybeSpace();
 }
 
-QDebug operator<<(QDebug dbg, const Operation &u)
+static QDebug operator<<(QDebug dbg, const Operation &u)
 {
     dbg.nospace() << "Operation(type=" << u.type << " file=" << u.source
                   << " dest=" << u.destination << " mode=" << u.destinationMode << ")";

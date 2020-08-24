@@ -46,13 +46,12 @@ QString shortPathName(const QString & file)
     QString ret = QString::fromStdWString(output);
     return ret;
 }
-#endif
-
 // if the string survives roundtrip through local 8bit encoding...
-bool fitsInLocal8bit(const QString & string)
+static bool fitsInLocal8bit(const QString & string)
 {
     return string == QString::fromLocal8Bit(string.toLocal8Bit());
 }
+#endif
 
 void LauncherPartLaunch::executeTask()
 {

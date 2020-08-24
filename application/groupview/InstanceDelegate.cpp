@@ -54,7 +54,7 @@ ListViewDelegate::ListViewDelegate(QObject *parent) : QStyledItemDelegate(parent
 {
 }
 
-void drawSelectionRect(QPainter *painter, const QStyleOptionViewItem &option,
+static void drawSelectionRect(QPainter *painter, const QStyleOptionViewItem &option,
                        const QRect &rect)
 {
     if ((option.state & QStyle::State_Selected))
@@ -67,7 +67,8 @@ void drawSelectionRect(QPainter *painter, const QStyleOptionViewItem &option,
     }
 }
 
-void drawFocusRect(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect)
+/* FIXME: unused
+static void drawFocusRect(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect)
 {
     if (!(option.state & QStyle::State_HasFocus))
         return;
@@ -89,9 +90,10 @@ void drawFocusRect(QPainter *painter, const QStyleOptionViewItem &option, const 
 
     painter->setRenderHint(QPainter::Antialiasing);
 }
+*/
 
 // TODO this can be made a lot prettier
-void drawProgressOverlay(QPainter *painter, const QStyleOptionViewItem &option,
+static void drawProgressOverlay(QPainter *painter, const QStyleOptionViewItem &option,
                          const int value, const int maximum)
 {
     if (maximum == 0 || value == maximum)
@@ -111,7 +113,7 @@ void drawProgressOverlay(QPainter *painter, const QStyleOptionViewItem &option,
     painter->restore();
 }
 
-void drawBadges(QPainter *painter, const QStyleOptionViewItem &option, BaseInstance *instance, QIcon::Mode mode, QIcon::State state)
+static void drawBadges(QPainter *painter, const QStyleOptionViewItem &option, BaseInstance *instance, QIcon::Mode mode, QIcon::State state)
 {
     QList<QString> pixmaps;
     if (instance->isRunning())

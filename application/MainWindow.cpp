@@ -996,7 +996,7 @@ void MainWindow::updateToolsMenu()
     ui->actionLaunchInstanceOffline->setMenu(launchOfflineMenu);
 }
 
-QString profileInUseFilter(const QString & profile, bool used)
+static QString profileInUseFilter(const QString & profile, bool used)
 {
     if(used)
     {
@@ -1213,7 +1213,7 @@ void MainWindow::updateNotAvailable()
     dlg.exec();
 }
 
-QList<int> stringToIntList(const QString &string)
+static QList<int> stringToIntList(const QString &string)
 {
     QStringList split = string.split(',', QString::SkipEmptyParts);
     QList<int> out;
@@ -1223,7 +1223,7 @@ QList<int> stringToIntList(const QString &string)
     }
     return out;
 }
-QString intListToString(const QList<int> &list)
+static QString intListToString(const QList<int> &list)
 {
     QStringList slist;
     for (int i = 0; i < list.size(); ++i)

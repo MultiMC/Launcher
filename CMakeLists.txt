@@ -267,6 +267,12 @@ add_subdirectory(libraries/classparser) # google analytics library
 
 ############################### Built Artifacts ###############################
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-prototypes")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmissing-declarations")
+endif()
+
 add_subdirectory(buildconfig)
 add_subdirectory(api/logic)
 add_subdirectory(api/gui)

@@ -6,7 +6,7 @@
 
 Q_DECLARE_METATYPE(UpdateChecker::ChannelListEntry)
 
-bool operator==(const UpdateChecker::ChannelListEntry &e1, const UpdateChecker::ChannelListEntry &e2)
+static bool operator==(const UpdateChecker::ChannelListEntry &e1, const UpdateChecker::ChannelListEntry &e2)
 {
     qDebug() << e1.url << "vs" << e2.url;
     return e1.id == e2.id &&
@@ -15,13 +15,7 @@ bool operator==(const UpdateChecker::ChannelListEntry &e1, const UpdateChecker::
             e1.url == e2.url;
 }
 
-QDebug operator<<(QDebug dbg, const UpdateChecker::ChannelListEntry &c)
-{
-    dbg.nospace() << "ChannelListEntry(id=" << c.id << " name=" << c.name << " description=" << c.description << " url=" << c.url << ")";
-    return dbg.maybeSpace();
-}
-
-QString findTestDataUrl(const char *file)
+static QString findTestDataUrl(const char *file)
 {
     return QUrl::fromLocalFile(QFINDTESTDATA(file)).toString();
 }

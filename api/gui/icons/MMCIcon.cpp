@@ -17,7 +17,7 @@
 #include <QFileInfo>
 #include <xdgicon.h>
 
-IconType operator--(IconType &t, int)
+static IconType operator--(IconType &t, int)
 {
     IconType temp = t;
     switch (t)

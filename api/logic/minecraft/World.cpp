@@ -50,7 +50,7 @@ QString gameTypeToString(GameType type)
     return QObject::tr("Unknown");
 }
 
-std::unique_ptr <nbt::tag_compound> parseLevelDat(QByteArray data)
+static std::unique_ptr <nbt::tag_compound> parseLevelDat(QByteArray data)
 {
     QByteArray output;
     if(!GZip::unzip(data, output))
@@ -69,7 +69,7 @@ std::unique_ptr <nbt::tag_compound> parseLevelDat(QByteArray data)
     return std::move(pair.second);
 }
 
-QByteArray serializeLevelDat(nbt::tag_compound * levelInfo)
+static QByteArray serializeLevelDat(nbt::tag_compound * levelInfo)
 {
     std::ostringstream s;
     nbt::io::write_tag("", *levelInfo, s);
@@ -77,7 +77,7 @@ QByteArray serializeLevelDat(nbt::tag_compound * levelInfo)
     return val;
 }
 
-QString getLevelDatFromFS(const QFileInfo &file)
+static QString getLevelDatFromFS(const QFileInfo &file)
 {
     QDir worldDir(file.filePath());
     if(!file.isDir() || !worldDir.exists("level.dat"))
@@ -87,7 +87,7 @@ QString getLevelDatFromFS(const QFileInfo &file)
     return worldDir.absoluteFilePath("level.dat");
 }
 
-QByteArray getLevelDatDataFromFS(const QFileInfo &file)
+static QByteArray getLevelDatDataFromFS(const QFileInfo &file)
 {
     auto fullFilePath = getLevelDatFromFS(file);
     if(fullFilePath.isNull())
@@ -102,7 +102,7 @@ QByteArray getLevelDatDataFromFS(const QFileInfo &file)
     return f.readAll();
 }
 
-bool putLevelDatDataToFS(const QFileInfo &file, QByteArray & data)
+static bool putLevelDatDataToFS(const QFileInfo &file, QByteArray & data)
 {
     auto fullFilePath =  getLevelDatFromFS(file);
     if(fullFilePath.isNull())

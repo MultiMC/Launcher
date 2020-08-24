@@ -338,7 +338,7 @@ ExportInstanceDialog::~ExportInstanceDialog()
 }
 
 /// Save icon to instance's folder is needed
-void SaveIcon(InstancePtr m_instance)
+static void SaveIcon(InstancePtr m_instance)
 {
     auto iconKey = m_instance->iconKey();
     auto iconList = MMC->icons();

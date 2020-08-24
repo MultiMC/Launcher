@@ -101,7 +101,7 @@ void NotificationChecker::downloadSucceeded(int)
     emit notificationCheckFinished();
 }
 
-bool versionLessThan(const QString &v1, const QString &v2)
+static bool versionLessThan(const QString &v1, const QString &v2)
 {
     QStringList l1 = v1.split('.');
     QStringList l2 = v2.split('.');

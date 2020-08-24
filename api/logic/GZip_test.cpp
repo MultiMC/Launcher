@@ -4,7 +4,7 @@
 #include "GZip.h"
 #include <random>
 
-void fib(int &prev, int &cur)
+static void fib(int &prev, int &cur)
 {
     auto ret = prev + cur;
     prev = cur;

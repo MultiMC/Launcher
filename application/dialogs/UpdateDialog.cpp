@@ -52,7 +52,7 @@ void UpdateDialog::loadChangelog()
     dljob->start();
 }
 
-QString reprocessMarkdown(QByteArray markdown)
+static QString reprocessMarkdown(QByteArray markdown)
 {
     HoeDown hoedown;
     QString output = hoedown.process(markdown);
@@ -63,7 +63,7 @@ QString reprocessMarkdown(QByteArray markdown)
     return output;
 }
 
-QString reprocessCommits(QByteArray json)
+static QString reprocessCommits(QByteArray json)
 {
     auto channel = MMC->settings()->get("UpdateChannel").toString();
     try

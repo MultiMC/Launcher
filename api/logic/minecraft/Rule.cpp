@@ -18,7 +18,7 @@
 
 #include "Rule.h"
 
-RuleAction RuleAction_fromString(QString name)
+static RuleAction RuleAction_fromString(QString name)
 {
     if (name == "allow")
         return Allow;

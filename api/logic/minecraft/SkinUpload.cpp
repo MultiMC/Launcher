@@ -3,7 +3,7 @@
 #include <QHttpMultiPart>
 #include <Env.h>
 
-QByteArray getModelString(SkinUpload::Model model) {
+static QByteArray getModelString(SkinUpload::Model model) {
     switch (model) {
         case SkinUpload::STEVE:
             return "";
