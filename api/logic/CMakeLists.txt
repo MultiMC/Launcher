@@ -458,6 +458,15 @@ set(MODPACKSCH_SOURCES
     modplatform/modpacksch/FTBPackManifest.cpp
 )
 
+set(ATLAUNCHER_SOURCES
+    modplatform/atlauncher/ATLPackIndex.cpp
+    modplatform/atlauncher/ATLPackIndex.h
+    modplatform/atlauncher/ATLPackInstallTask.cpp
+    modplatform/atlauncher/ATLPackInstallTask.h
+    modplatform/atlauncher/ATLPackManifest.cpp
+    modplatform/atlauncher/ATLPackManifest.h
+)
+
 add_unit_test(Index
     SOURCES meta/Index_test.cpp
     LIBS MultiMC_logic
@@ -489,6 +498,7 @@ set(LOGIC_SOURCES
     ${FTB_SOURCES}
     ${FLAME_SOURCES}
     ${MODPACKSCH_SOURCES}
+    ${ATLAUNCHER_SOURCES}
 )
 
 add_library(MultiMC_logic SHARED ${LOGIC_SOURCES})

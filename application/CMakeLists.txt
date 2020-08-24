@@ -124,6 +124,11 @@ SET(MULTIMC_SOURCES
     # GUI - platform pages
     pages/modplatform/VanillaPage.cpp
     pages/modplatform/VanillaPage.h
+    pages/modplatform/atlauncher/AtlModel.cpp
+    pages/modplatform/atlauncher/AtlModel.h
+    pages/modplatform/atlauncher/AtlPage.cpp
+    pages/modplatform/atlauncher/AtlPage.h
+    pages/modplatform/atlauncher/AtlPage.h
     pages/modplatform/ftb/FtbModel.cpp
     pages/modplatform/ftb/FtbModel.h
     pages/modplatform/ftb/FtbPage.cpp
@@ -254,6 +259,7 @@ SET(MULTIMC_UIS
 
     # Platform pages
     pages/modplatform/VanillaPage.ui
+    pages/modplatform/atlauncher/AtlPage.ui
     pages/modplatform/ftb/FtbPage.ui
     pages/modplatform/legacy_ftb/Page.ui
     pages/modplatform/twitch/TwitchPage.ui

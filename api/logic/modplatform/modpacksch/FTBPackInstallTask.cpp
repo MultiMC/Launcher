@@ -117,18 +117,18 @@ void PackInstallTask::install()
         if(file.serverOnly) continue;
 
         auto relpath = FS::PathCombine("minecraft", file.path, file.name);
-        auto path = FS::PathCombine(m_stagingPath , relpath);
+        auto path = FS::PathCombine(m_stagingPath, relpath);
 
         qDebug() << "Will download" << file.url << "to" << path;
         auto dl = Net::Download::makeFile(file.url, path);
         jobPtr->addNetAction(dl);
     }
+
     connect(jobPtr.get(), &NetJob::succeeded, this, [&]()
     {
         jobPtr.reset();
         emitSucceeded();
     });
-
     connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
     {
         jobPtr.reset();
