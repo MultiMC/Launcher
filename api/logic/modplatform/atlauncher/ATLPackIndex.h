@@ -24,6 +24,7 @@ struct IndexedPack
     QString name;
     PackType type;
     QVector<IndexedVersion> versions;
+    bool system;
     QString description;
 
     QString safeName;

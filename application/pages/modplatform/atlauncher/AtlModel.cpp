@@ -105,6 +105,8 @@ void ListModel::requestFinished()
         if(pack.versions.length() == 0) continue;
         // only display public packs (for now)
         if(pack.type != ATLauncher::PackType::Public) continue;
+        // ignore "system" packs (Vanilla, Vanilla with Forge, etc)
+        if(pack.system) continue;
 
         newList.append(pack);
     }
