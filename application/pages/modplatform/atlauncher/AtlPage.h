@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "AtlFilterModel.h"
 #include "AtlModel.h"
 
 #include <QWidget>
@@ -61,13 +62,16 @@ private:
     void suggestCurrent();
 
 private slots:
+    void onSortingSelectionChanged(QString data);
+
     void onSelectionChanged(QModelIndex first, QModelIndex second);
     void onVersionSelectionChanged(QString data);
 
 private:
     Ui::AtlPage *ui = nullptr;
     NewInstanceDialog* dialog = nullptr;
-    Atl::ListModel* model = nullptr;
+    Atl::ListModel* listModel = nullptr;
+    Atl::FilterModel* filterModel = nullptr;
 
     ATLauncher::IndexedPack selected;
     QString selectedVersion;

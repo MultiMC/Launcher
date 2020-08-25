@@ -1,16 +1,30 @@
-#include <modplatform/atlauncher/ATLPackInstallTask.h>
 #include "AtlPage.h"
 #include "ui_AtlPage.h"
 
 #include "dialogs/NewInstanceDialog.h"
+#include <modplatform/atlauncher/ATLPackInstallTask.h>
 
 AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget *parent)
         : QWidget(parent), ui(new Ui::AtlPage), dialog(dialog)
 {
     ui->setupUi(this);
-    model = new Atl::ListModel(this);
-    ui->packView->setModel(model);
 
+    filterModel = new Atl::FilterModel(this);
+    listModel = new Atl::ListModel(this);
+    filterModel->setSourceModel(listModel);
+    ui->packView->setModel(filterModel);
+    ui->packView->setSortingEnabled(true);
+
+    ui->packView->header()->hide();
+    ui->packView->setIndentation(0);
+
+    for(int i = 0; i < filterModel->getAvailableSortings().size(); i++)
+    {
+        ui->sortByBox->addItem(filterModel->getAvailableSortings().keys().at(i));
+    }
+    ui->sortByBox->setCurrentText(filterModel->translateCurrentSorting());
+
+    connect(ui->sortByBox, &QComboBox::currentTextChanged, this, &AtlPage::onSortingSelectionChanged);
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &AtlPage::onSelectionChanged);
     connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &AtlPage::onVersionSelectionChanged);
 }
@@ -27,7 +41,7 @@ bool AtlPage::shouldDisplay() const
 
 void AtlPage::openedImpl()
 {
-    model->request();
+    listModel->request();
 }
 
 void AtlPage::suggestCurrent()
@@ -35,6 +49,12 @@ void AtlPage::suggestCurrent()
     if(isOpened) {
         dialog->setSuggestedPack(selected.name, new ATLauncher::PackInstallTask(selected.safeName, selectedVersion));
     }
+}
+
+void AtlPage::onSortingSelectionChanged(QString data)
+{
+    auto toSet = filterModel->getAvailableSortings().value(data);
+    filterModel->setSorting(toSet);
 }
 
 void AtlPage::onSelectionChanged(QModelIndex first, QModelIndex second)
@@ -50,7 +70,7 @@ void AtlPage::onSelectionChanged(QModelIndex first, QModelIndex second)
         return;
     }
 
-    selected = model->data(first, Qt::UserRole).value<ATLauncher::IndexedPack>();
+    selected = filterModel->data(first, Qt::UserRole).value<ATLauncher::IndexedPack>();
 
     for(const auto& version : selected.versions) {
         ui->versionSelectionBox->addItem(version.version);

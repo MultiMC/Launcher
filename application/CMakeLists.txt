@@ -124,6 +124,8 @@ SET(MULTIMC_SOURCES
     # GUI - platform pages
     pages/modplatform/VanillaPage.cpp
     pages/modplatform/VanillaPage.h
+    pages/modplatform/atlauncher/AtlFilterModel.cpp
+    pages/modplatform/atlauncher/AtlFilterModel.h
     pages/modplatform/atlauncher/AtlModel.cpp
     pages/modplatform/atlauncher/AtlModel.h
     pages/modplatform/atlauncher/AtlPage.cpp
