@@ -44,7 +44,7 @@ public:
     }
     virtual QIcon icon() const override
     {
-        return MMC->getThemedIcon("atl_logo");
+        return MMC->getThemedIcon("atlauncher");
     }
     virtual QString id() const override
     {

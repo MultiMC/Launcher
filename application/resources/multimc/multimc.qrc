@@ -17,6 +17,9 @@
         <!-- technic logo icon -->
         <file>scalable/technic.svg</file>
 
+        <!-- ATLauncher logo icon -->
+        <file>scalable/atlauncher.svg</file>
+
         <!-- A proxy icon. Our own. SSSsss -->
         <file>scalable/proxy.svg</file>
 

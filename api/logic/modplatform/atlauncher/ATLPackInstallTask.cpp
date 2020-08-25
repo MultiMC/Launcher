@@ -90,7 +90,7 @@ void PackInstallTask::install()
     {
         components->setComponentVersion("net.fabricmc.fabric-loader", m_version.loader.version, true);
     }
-    else
+    else if(m_version.loader.type != QString())
     {
         emitFailed(tr("Unknown loader type: ") + m_version.loader.type);
         return;
@@ -98,17 +98,53 @@ void PackInstallTask::install()
     components->saveNow();
 
     jobPtr.reset(new NetJob(tr("Mod download")));
+    QStringList jarmods;
     for(const auto& mod : m_version.mods) {
         QString relpath;
         switch(mod.type) {
+            case ModType::Forge:
+                // todo: detect Forge version and install through a proper component
+            case ModType::Jar:
+                jarmods.push_back(mod.file);
+                relpath = "jarmods";
+                break;
             case ModType::Mods:
-                relpath = "mods";
+                relpath = FS::PathCombine("minecraft", "mods");
+                break;
+            case ModType::Flan:
+                relpath = FS::PathCombine("minecraft", "Flan");
+                break;
+            case ModType::Dependency:
+                relpath = FS::PathCombine("minecraft", "mods", m_version.pack.minecraft);
+                break;
+            case ModType::Ic2Lib:
+                relpath = FS::PathCombine("minecraft", "mods", "ic2");
+                break;
+            case ModType::DenLib:
+                relpath = FS::PathCombine("minecraft", "mods", "denlib");
+                break;
+            case ModType::Coremods:
+                relpath = FS::PathCombine("minecraft", "coremods");
+                break;
+            case ModType::MCPC:
+                // we can safely ignore MCPC server jar
+                break;
+            case ModType::Plugins:
+                relpath = FS::PathCombine("minecraft", "plugins");
+                break;
+            case ModType::Extract:
+            case ModType::Decomp:
+                // todo(merged): fail hard
+                qWarning() << "Unsupported mod type: " + mod.type_raw;
+                continue;
+            case ModType::ResourcePack:
+                relpath = FS::PathCombine("minecraft", "resourcepacks");
                 break;
             case ModType::Unknown:
                 emitFailed(tr("Unknown mod type: ") + mod.type_raw);
                 return;
         }
-        auto path = FS::PathCombine(m_stagingPath, "minecraft", relpath, mod.file);
+        auto path = FS::PathCombine(m_stagingPath, relpath, mod.file);
 
         QString url;
         switch(mod.download) {
@@ -130,6 +166,7 @@ void PackInstallTask::install()
         auto dl = Net::Download::makeFile(url, path);
         jobPtr->addNetAction(dl);
     }
+    components->installJarMods(jarmods);
 
     connect(jobPtr.get(), &NetJob::succeeded, this, [&]()
     {

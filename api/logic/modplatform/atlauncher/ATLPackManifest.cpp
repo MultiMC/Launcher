@@ -12,6 +12,8 @@ static void loadVersionPack(ATLauncher::VersionPack & p, const QDomElement& ele)
 static void loadVersionLoader(ATLauncher::VersionLoader & p, const QDomElement& ele) {
     p.type = ele.attribute("type");
     p.version = ele.attribute("version");
+    p.latest = ele.attribute("latest") == QString("true");
+    p.recommended = ele.attribute("recommended") == QString("true");
 }
 
 static void loadVersionMod(ATLauncher::VersionMod & p, const QDomElement& ele) {
@@ -35,9 +37,46 @@ static void loadVersionMod(ATLauncher::VersionMod & p, const QDomElement& ele) {
         p.download = ATLauncher::DownloadType::Unknown;
     }
 
+    // See https://wiki.atlauncher.com/mod_types
     p.type_raw = ele.attribute("type");
-    if(p.type_raw == QString("mods")) {
+    if(p.type_raw == QString("forge")) {
+        p.type = ATLauncher::ModType::Forge;
+    }
+    else if(p.type_raw == QString("jar")) {
+        p.type = ATLauncher::ModType::Jar;
+    }
+    else if(p.type_raw == QString("mods")) {
         p.type = ATLauncher::ModType::Mods;
+    }
+    else if(p.type_raw == QString("flan")) {
+        p.type = ATLauncher::ModType::Flan;
+    }
+    else if(p.type_raw == QString("dependency")) {
+        p.type = ATLauncher::ModType::Dependency;
+    }
+    else if(p.type_raw == QString("ic2lib")) {
+        p.type = ATLauncher::ModType::Ic2Lib;
+    }
+    else if(p.type_raw == QString("denlib")) {
+        p.type = ATLauncher::ModType::DenLib;
+    }
+    else if(p.type_raw == QString("coremods")) {
+        p.type = ATLauncher::ModType::Coremods;
+    }
+    else if(p.type_raw == QString("mcpc")) {
+        p.type = ATLauncher::ModType::MCPC;
+    }
+    else if(p.type_raw == QString("plugins")) {
+        p.type = ATLauncher::ModType::Plugins;
+    }
+    else if(p.type_raw == QString("extract")) {
+        p.type = ATLauncher::ModType::Extract;
+    }
+    else if(p.type_raw == QString("decomp")) {
+        p.type = ATLauncher::ModType::Decomp;
+    }
+    else if(p.type_raw == QString("resourcepack")) {
+        p.type = ATLauncher::ModType::ResourcePack;
     }
     else {
         p.type = ATLauncher::ModType::Unknown;

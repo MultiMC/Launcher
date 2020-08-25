@@ -16,7 +16,19 @@ enum class PackType
 
 enum class ModType
 {
+    Forge,
+    Jar,
     Mods,
+    Flan,
+    Dependency,
+    Ic2Lib,
+    DenLib,
+    Coremods,
+    MCPC,
+    Plugins,
+    Extract,
+    Decomp,
+    ResourcePack,
     Unknown
 };
 
@@ -38,6 +50,8 @@ struct VersionLoader
 {
     QString type;
     QString version;
+    bool latest;
+    bool recommended;
 };
 
 struct VersionMod
