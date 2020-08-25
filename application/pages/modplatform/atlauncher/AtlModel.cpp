@@ -2,6 +2,7 @@
 
 #include <BuildConfig.h>
 #include <MultiMC.h>
+#include <Env.h>
 
 namespace Atl {
 
@@ -42,7 +43,16 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::DecorationRole)
     {
-        return MMC->getThemedIcon("screenshot-placeholder");
+        if(m_logoMap.contains(pack.safeName))
+        {
+            return (m_logoMap.value(pack.safeName));
+        }
+        auto icon = MMC->getThemedIcon("screenshot-placeholder");
+
+        auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "launcher/images/%1.png").arg(pack.safeName.toLower());
+        ((ListModel *)this)->requestLogo(pack.safeName, url);
+
+        return icon;
     }
     else if(role == Qt::UserRole)
     {
@@ -56,6 +66,10 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
 void ListModel::request()
 {
+    beginResetModel();
+    modpacks.clear();
+    endResetModel();
+
     auto *netJob = new NetJob("Atl::Request");
     auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "launcher/json/packsnew.json");
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(url), &response));
@@ -103,6 +117,67 @@ void ListModel::requestFinished()
 void ListModel::requestFailed(QString reason)
 {
     jobPtr.reset();
+}
+
+void ListModel::getLogo(const QString &logo, const QString &logoUrl, LogoCallback callback)
+{
+    if(m_logoMap.contains(logo))
+    {
+        callback(ENV.metacache()->resolveEntry("ATLauncherPacks", QString("logos/%1").arg(logo.section(".", 0, 0)))->getFullPath());
+    }
+    else
+    {
+        requestLogo(logo, logoUrl);
+    }
+}
+
+void ListModel::logoFailed(QString logo)
+{
+    m_failedLogos.append(logo);
+    m_loadingLogos.removeAll(logo);
+}
+
+void ListModel::logoLoaded(QString logo, QIcon out)
+{
+    m_loadingLogos.removeAll(logo);
+    m_logoMap.insert(logo, out);
+
+    for(int i = 0; i < modpacks.size(); i++) {
+        if(modpacks[i].safeName == logo) {
+            emit dataChanged(createIndex(i, 0), createIndex(i, 0), {Qt::DecorationRole});
+        }
+    }
+}
+
+void ListModel::requestLogo(QString file, QString url)
+{
+    if(m_loadingLogos.contains(file) || m_failedLogos.contains(file))
+    {
+        return;
+    }
+
+    MetaEntryPtr entry = ENV.metacache()->resolveEntry("ATLauncherPacks", QString("logos/%1").arg(file.section(".", 0, 0)));
+    NetJob *job = new NetJob(QString("ATLauncher Icon Download %1").arg(file));
+    job->addNetAction(Net::Download::makeCached(QUrl(url), entry));
+
+    auto fullPath = entry->getFullPath();
+    QObject::connect(job, &NetJob::finished, this, [this, file, fullPath]
+    {
+        emit logoLoaded(file, QIcon(fullPath));
+        if(waitingCallbacks.contains(file))
+        {
+            waitingCallbacks.value(file)(fullPath);
+        }
+    });
+
+    QObject::connect(job, &NetJob::failed, this, [this, file]
+    {
+        emit logoFailed(file);
+    });
+
+    job->start();
+
+    m_loadingLogos.append(file);
 }
 
 }

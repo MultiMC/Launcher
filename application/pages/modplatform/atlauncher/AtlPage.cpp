@@ -3,6 +3,7 @@
 
 #include "dialogs/NewInstanceDialog.h"
 #include <modplatform/atlauncher/ATLPackInstallTask.h>
+#include <BuildConfig.h>
 
 AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget *parent)
         : QWidget(parent), ui(new Ui::AtlPage), dialog(dialog)
@@ -49,6 +50,13 @@ void AtlPage::suggestCurrent()
     if(isOpened) {
         dialog->setSuggestedPack(selected.name, new ATLauncher::PackInstallTask(selected.safeName, selectedVersion));
     }
+
+    auto editedLogoName = selected.safeName;
+    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "launcher/images/%1.png").arg(selected.safeName.toLower());
+    listModel->getLogo(selected.safeName, url, [this, editedLogoName](QString logo)
+    {
+        dialog->setSuggestedIconFromFile(logo, editedLogoName);
+    });
 }
 
 void AtlPage::onSortingSelectionChanged(QString data)
