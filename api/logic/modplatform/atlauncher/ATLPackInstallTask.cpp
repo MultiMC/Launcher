@@ -1,4 +1,8 @@
 #include <QtXml/QDomDocument>
+#include <Env.h>
+#include <quazip.h>
+#include <QtConcurrent/QtConcurrent>
+#include <MMCZip.h>
 #include "ATLPackInstallTask.h"
 
 #include "BuildConfig.h"
@@ -56,13 +60,163 @@ void PackInstallTask::onDownloadSucceeded()
     ATLauncher::loadVersion(version, doc);
     m_version = version;
 
-    install();
+    installConfigs();
 }
 
 void PackInstallTask::onDownloadFailed(QString reason)
 {
     jobPtr.reset();
     emitFailed(reason);
+}
+
+QString PackInstallTask::getDirForModType(ModType type, QString raw) {
+    switch (type) {
+        case ModType::Forge:
+            // todo: detect Forge version and install through a proper component
+        case ModType::Jar:
+            return "jarmods";
+        case ModType::Mods:
+            return "mods";
+        case ModType::Flan:
+            return "Flan";
+        case ModType::Dependency:
+            return FS::PathCombine("mods", m_version.pack.minecraft);
+        case ModType::Ic2Lib:
+            return FS::PathCombine("mods", "ic2");
+        case ModType::DenLib:
+            return FS::PathCombine("mods", "denlib");
+        case ModType::Coremods:
+            return "coremods";
+        case ModType::MCPC:
+            // we can safely ignore MCPC server jar
+            return Q_NULLPTR;
+        case ModType::Plugins:
+            return "plugins";
+        case ModType::Extract:
+        case ModType::Decomp:
+            qWarning() << "Unsupported mod type: " + raw;
+            return Q_NULLPTR;
+        case ModType::ResourcePack:
+            return "resourcepacks";
+        case ModType::Unknown:
+            emitFailed(tr("Unknown mod type: ") + raw);
+            return Q_NULLPTR;
+    }
+
+    return Q_NULLPTR;
+}
+
+void PackInstallTask::installConfigs()
+{
+    setStatus(tr("Downloading configs..."));
+    jobPtr.reset(new NetJob(tr("Config download")));
+
+    auto path = QString("%1/%2").arg(m_pack).arg(m_version_name);
+    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "packs/%1/versions/%2/Configs.zip")
+            .arg(m_pack).arg(m_version_name);
+    auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", path);
+    entry->setStale(true);
+
+    jobPtr->addNetAction(Net::Download::makeCached(url, entry));
+    archivePath = entry->getFullPath();
+
+    connect(jobPtr.get(), &NetJob::succeeded, this, [&]()
+    {
+        jobPtr.reset();
+        extractConfigs();
+    });
+    connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
+    {
+        jobPtr.reset();
+        emitFailed(reason);
+    });
+    connect(jobPtr.get(), &NetJob::progress, [&](qint64 current, qint64 total)
+    {
+        setProgress(current, total);
+    });
+
+    jobPtr->start();
+}
+
+void PackInstallTask::extractConfigs()
+{
+    setStatus(tr("Extracting configs..."));
+
+    QDir extractDir(m_stagingPath);
+
+    QuaZip packZip(archivePath);
+    if(!packZip.open(QuaZip::mdUnzip))
+    {
+        emitFailed(tr("Failed to open pack configs %1!").arg(archivePath));
+        return;
+    }
+
+    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractDir, archivePath, extractDir.absolutePath() + "/minecraft");
+    connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, [&]()
+    {
+        installMods();
+    });
+    connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, [&]()
+    {
+        emitAborted();
+    });
+    m_extractFutureWatcher.setFuture(m_extractFuture);
+}
+
+void PackInstallTask::installMods()
+{
+    setStatus(tr("Downloading mods..."));
+
+    jarmods.clear();
+    jobPtr.reset(new NetJob(tr("Mod download")));
+    for(const auto& mod : m_version.mods) {
+        auto relpath = getDirForModType(mod.type, mod.type_raw);
+        if(relpath == Q_NULLPTR) continue;
+
+        auto path = FS::PathCombine(m_stagingPath, "minecraft", relpath, mod.file);
+
+        QString url;
+        switch(mod.download) {
+            case DownloadType::Server:
+                url = BuildConfig.ATL_DOWNLOAD_SERVER + mod.url;
+                break;
+            case DownloadType::Browser:
+                emitFailed(tr("Unsupported download type: ") + mod.download_raw);
+                return;
+            case DownloadType::Direct:
+                url = mod.url;
+                break;
+            case DownloadType::Unknown:
+                emitFailed(tr("Unknown download type: ") + mod.download_raw);
+                return;
+        }
+
+        qDebug() << "Will download" << url << "to" << path;
+        auto dl = Net::Download::makeFile(url, path);
+        jobPtr->addNetAction(dl);
+
+        if(mod.type == ModType::Jar || mod.type == ModType::Forge) {
+            qDebug() << "Jarmod: " + path;
+            jarmods.push_back(path);
+        }
+    }
+
+    connect(jobPtr.get(), &NetJob::succeeded, this, [&]()
+    {
+        jobPtr.reset();
+        install();
+    });
+    connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
+    {
+        jobPtr.reset();
+        emitFailed(reason);
+    });
+    connect(jobPtr.get(), &NetJob::progress, [&](qint64 current, qint64 total)
+    {
+        setProgress(current, total);
+    });
+
+    jobPtr->start();
 }
 
 void PackInstallTask::install()
@@ -95,100 +249,16 @@ void PackInstallTask::install()
         emitFailed(tr("Unknown loader type: ") + m_version.loader.type);
         return;
     }
-    components->saveNow();
 
-    jobPtr.reset(new NetJob(tr("Mod download")));
-    QStringList jarmods;
-    for(const auto& mod : m_version.mods) {
-        QString relpath;
-        switch(mod.type) {
-            case ModType::Forge:
-                // todo: detect Forge version and install through a proper component
-            case ModType::Jar:
-                jarmods.push_back(mod.file);
-                relpath = "jarmods";
-                break;
-            case ModType::Mods:
-                relpath = FS::PathCombine("minecraft", "mods");
-                break;
-            case ModType::Flan:
-                relpath = FS::PathCombine("minecraft", "Flan");
-                break;
-            case ModType::Dependency:
-                relpath = FS::PathCombine("minecraft", "mods", m_version.pack.minecraft);
-                break;
-            case ModType::Ic2Lib:
-                relpath = FS::PathCombine("minecraft", "mods", "ic2");
-                break;
-            case ModType::DenLib:
-                relpath = FS::PathCombine("minecraft", "mods", "denlib");
-                break;
-            case ModType::Coremods:
-                relpath = FS::PathCombine("minecraft", "coremods");
-                break;
-            case ModType::MCPC:
-                // we can safely ignore MCPC server jar
-                break;
-            case ModType::Plugins:
-                relpath = FS::PathCombine("minecraft", "plugins");
-                break;
-            case ModType::Extract:
-            case ModType::Decomp:
-                // todo(merged): fail hard
-                qWarning() << "Unsupported mod type: " + mod.type_raw;
-                continue;
-            case ModType::ResourcePack:
-                relpath = FS::PathCombine("minecraft", "resourcepacks");
-                break;
-            case ModType::Unknown:
-                emitFailed(tr("Unknown mod type: ") + mod.type_raw);
-                return;
-        }
-        auto path = FS::PathCombine(m_stagingPath, relpath, mod.file);
-
-        QString url;
-        switch(mod.download) {
-            case DownloadType::Server:
-                url = BuildConfig.ATL_DOWNLOAD_SERVER + mod.url;
-                break;
-            case DownloadType::Browser:
-                emitFailed(tr("Unsupported download type: ") + mod.download_raw);
-                return;
-            case DownloadType::Direct:
-                url = mod.url;
-                break;
-            case DownloadType::Unknown:
-                emitFailed(tr("Unknown download type: ") + mod.download_raw);
-                return;
-        }
-
-        qDebug() << "Will download" << url << "to" << path;
-        auto dl = Net::Download::makeFile(url, path);
-        jobPtr->addNetAction(dl);
-    }
     components->installJarMods(jarmods);
-
-    connect(jobPtr.get(), &NetJob::succeeded, this, [&]()
-    {
-        jobPtr.reset();
-        emitSucceeded();
-    });
-    connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
-    {
-        jobPtr.reset();
-        emitFailed(reason);
-    });
-    connect(jobPtr.get(), &NetJob::progress, [&](qint64 current, qint64 total)
-    {
-        setProgress(current, total);
-    });
-
-    setStatus(tr("Downloading mods..."));
-    jobPtr->start();
+    components->saveNow();
 
     instance.setName(m_instName);
     instance.setIconKey(m_instIcon);
     instanceSettings->resumeSave();
+
+    jarmods.clear();
+    emitSucceeded();
 }
 
 }

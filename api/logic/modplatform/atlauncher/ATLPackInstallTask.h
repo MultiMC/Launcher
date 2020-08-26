@@ -5,6 +5,9 @@
 #include "InstanceTask.h"
 #include "multimc_logic_export.h"
 #include "net/NetJob.h"
+#include "settings/INISettingsObject.h"
+#include "minecraft/MinecraftInstance.h"
+#include "minecraft/PackProfile.h"
 
 namespace ATLauncher {
 
@@ -26,6 +29,11 @@ private slots:
     void onDownloadFailed(QString reason);
 
 private:
+    QString getDirForModType(ModType type, QString raw);
+
+    void installConfigs();
+    void extractConfigs();
+    void installMods();
     void install();
 
 private:
@@ -35,6 +43,12 @@ private:
     QString m_pack;
     QString m_version_name;
     Version m_version;
+
+    QString archivePath;
+    QStringList jarmods;
+
+    QFuture<QStringList> m_extractFuture;
+    QFutureWatcher<QStringList> m_extractFutureWatcher;
 
 };
 
