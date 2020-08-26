@@ -20,7 +20,10 @@ static ATLauncher::DownloadType parseDownloadType(QString rawType) {
 
 static ATLauncher::ModType parseModType(QString rawType) {
     // See https://wiki.atlauncher.com/mod_types
-    if(rawType == QString("forge")) {
+    if(rawType == QString("root")) {
+        return ATLauncher::ModType::Root;
+    }
+    else if(rawType == QString("forge")) {
         return ATLauncher::ModType::Forge;
     }
     else if(rawType == QString("jar")) {
@@ -100,6 +103,8 @@ static void loadVersionMod(ATLauncher::VersionMod & p, const QDomElement& ele) {
 
     p.type_raw = ele.attribute("type");
     p.type = parseModType(p.type_raw);
+    p.extractTo_raw = ele.attribute("extractto");
+    p.extractTo = parseModType(p.extractTo_raw);
 }
 
 void ATLauncher::loadVersion(Version & v, QDomDocument & doc)

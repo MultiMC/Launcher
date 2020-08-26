@@ -36,6 +36,7 @@ private:
     void installConfigs();
     void extractConfigs();
     void installMods();
+    void extractMods();
     void install();
 
 private:
@@ -45,6 +46,8 @@ private:
     QString m_pack;
     QString m_version_name;
     Version m_version;
+
+    QMap<QString, QString> modsToExtract;
 
     QString archivePath;
     QStringList jarmods;

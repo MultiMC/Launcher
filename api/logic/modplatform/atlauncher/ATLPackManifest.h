@@ -16,6 +16,7 @@ enum class PackType
 
 enum class ModType
 {
+    Root,
     Forge,
     Jar,
     Mods,
@@ -79,6 +80,8 @@ struct VersionMod
     QString download_raw;
     ModType type;
     QString type_raw;
+    ModType extractTo;
+    QString extractTo_raw;
 };
 
 struct Version

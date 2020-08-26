@@ -80,6 +80,13 @@ void PackInstallTask::onDownloadFailed(QString reason)
 QString PackInstallTask::getDirForModType(ModType type, QString raw)
 {
     switch (type) {
+        case ModType::Root:
+        case ModType::Extract:
+            // Handled elsewhere
+            return Q_NULLPTR;
+        case ModType::MCPC:
+            // we can safely ignore MCPC server jar
+            return Q_NULLPTR;
         case ModType::Forge:
             // todo: detect Forge version and install through a proper component
         case ModType::Jar:
@@ -96,12 +103,8 @@ QString PackInstallTask::getDirForModType(ModType type, QString raw)
             return FS::PathCombine("mods", "denlib");
         case ModType::Coremods:
             return "coremods";
-        case ModType::MCPC:
-            // we can safely ignore MCPC server jar
-            return Q_NULLPTR;
         case ModType::Plugins:
             return "plugins";
-        case ModType::Extract:
         case ModType::Decomp:
             qWarning() << "Unsupported mod type: " + raw;
             return Q_NULLPTR;
@@ -265,11 +268,6 @@ void PackInstallTask::installMods()
     jarmods.clear();
     jobPtr.reset(new NetJob(tr("Mod download")));
     for(const auto& mod : m_version.mods) {
-        auto relpath = getDirForModType(mod.type, mod.type_raw);
-        if(relpath == Q_NULLPTR) continue;
-
-        auto path = FS::PathCombine(m_stagingPath, "minecraft", relpath, mod.file);
-
         QString url;
         switch(mod.download) {
             case DownloadType::Server:
@@ -286,20 +284,37 @@ void PackInstallTask::installMods()
                 return;
         }
 
-        qDebug() << "Will download" << url << "to" << path;
-        auto dl = Net::Download::makeFile(url, path);
-        jobPtr->addNetAction(dl);
+        if (mod.type == ModType::Extract) {
+            auto extractToDir = getDirForModType(mod.extractTo, mod.extractTo_raw);
+            qWarning() << "Extracting " + mod.file + " to " + extractToDir;
 
-        if(mod.type == ModType::Jar || mod.type == ModType::Forge) {
-            qDebug() << "Jarmod: " + path;
-            jarmods.push_back(path);
+            auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", mod.url);
+            entry->setStale(true);
+            modsToExtract.insert(entry->getFullPath(), extractToDir);
+
+            auto dl = Net::Download::makeCached(url, entry);
+            jobPtr->addNetAction(dl);
+        }
+        else {
+            auto relpath = getDirForModType(mod.type, mod.type_raw);
+            if(relpath == Q_NULLPTR) continue;
+            auto path = FS::PathCombine(m_stagingPath, "minecraft", relpath, mod.file);
+
+            qDebug() << "Will download" << url << "to" << path;
+            auto dl = Net::Download::makeFile(url, path);
+            jobPtr->addNetAction(dl);
+
+            if(mod.type == ModType::Jar || mod.type == ModType::Forge) {
+                qDebug() << "Jarmod: " + path;
+                jarmods.push_back(path);
+            }
         }
     }
 
     connect(jobPtr.get(), &NetJob::succeeded, this, [&]()
     {
         jobPtr.reset();
-        install();
+        extractMods();
     });
     connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
     {
@@ -312,6 +327,35 @@ void PackInstallTask::installMods()
     });
 
     jobPtr->start();
+}
+
+void PackInstallTask::extractMods()
+{
+    setStatus(tr("Extracting mods..."));
+
+    if(modsToExtract.isEmpty()) {
+        install();
+        return;
+    }
+
+    auto mod = modsToExtract.firstKey();
+    auto dir = modsToExtract.value(mod);
+
+    QDir extractDir(m_stagingPath);
+    auto extractToPath = FS::PathCombine(extractDir.absolutePath(), "minecraft", dir);
+
+    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractDir, archivePath, extractToPath);
+    connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, [&]()
+    {
+        extractMods();
+    });
+    connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, [&]()
+    {
+        emitAborted();
+    });
+    m_extractFutureWatcher.setFuture(m_extractFuture);
+
+    modsToExtract.remove(mod);
 }
 
 void PackInstallTask::install()
