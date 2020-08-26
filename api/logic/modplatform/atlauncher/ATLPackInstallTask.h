@@ -30,8 +30,8 @@ private slots:
 
 private:
     QString getDirForModType(ModType type, QString raw);
-
     QString getVersionForLoader(QString uid);
+    bool createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile);
 
     void installConfigs();
     void extractConfigs();

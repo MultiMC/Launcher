@@ -67,6 +67,8 @@ static void loadVersionPack(ATLauncher::VersionPack & p, const QDomElement& ele)
     p.version = ele.firstChildElement("version").text();
     p.minecraft = ele.firstChildElement("minecraft").text();
     p.noConfigs = ele.firstChildElement("noconfigs").text() == QString("true");
+    p.mainClass = ele.firstChildElement("mainclass").text();
+    p.extraArguments = ele.firstChildElement("extraarguments").text();
 }
 
 static void loadVersionLoader(ATLauncher::VersionLoader & p, const QDomElement& ele) {
@@ -80,6 +82,7 @@ static void loadVersionLoader(ATLauncher::VersionLoader & p, const QDomElement& 
 static void loadVersionLibrary(ATLauncher::VersionLibrary & p, const QDomElement& ele) {
     p.url = ele.attribute("url");
     p.file = ele.attribute("file");
+    p.md5 = ele.attribute("md5");
 
     p.download_raw = ele.attribute("download");
     p.download = parseDownloadType(p.download_raw);
@@ -106,8 +109,8 @@ void ATLauncher::loadVersion(Version & v, QDomDocument & doc)
     loadVersionPack(v.pack, root.firstChildElement("pack"));
     loadVersionLoader(v.loader, root.firstChildElement("loader"));
 
-    auto libraries = root.firstChildElement("mods");
-    auto libraryList = libraries.elementsByTagName("mod");
+    auto libraries = root.firstChildElement("libraries");
+    auto libraryList = libraries.elementsByTagName("library");
     for(int i = 0; i < libraryList.length(); i++)
     {
         auto libraryRaw = libraryList.at(i);

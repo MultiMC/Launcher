@@ -45,6 +45,9 @@ struct VersionPack
     QString version;
     QString minecraft;
     bool noConfigs;
+
+    QString mainClass;
+    QString extraArguments;
 };
 
 struct VersionLoader
@@ -60,6 +63,7 @@ struct VersionLibrary
 {
     QString url;
     QString file;
+    QString md5;
     DownloadType download;
     QString download_raw;
 };

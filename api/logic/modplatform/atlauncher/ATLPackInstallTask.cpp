@@ -3,6 +3,7 @@
 #include <quazip.h>
 #include <QtConcurrent/QtConcurrent>
 #include <MMCZip.h>
+#include <minecraft/OneSixVersionFormat.h>
 #include "ATLPackInstallTask.h"
 
 #include "BuildConfig.h"
@@ -138,6 +139,66 @@ QString PackInstallTask::getVersionForLoader(QString uid)
     }
 
     return m_version.loader.version;
+}
+
+bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
+{
+    auto uuid = QUuid::createUuid();
+    auto id = uuid.toString().remove('{').remove('}');
+    auto target_id = "org.multimc.atlauncher." + id;
+
+    auto patchDir = FS::PathCombine(instanceRoot, "patches");
+    if(!FS::ensureFolderPathExists(patchDir))
+    {
+        return false;
+    }
+    auto patchFileName = FS::PathCombine(patchDir, target_id + ".json");
+
+    auto f = std::make_shared<VersionFile>();
+    f->name = m_pack + " " + m_version_name;
+    f->mainClass = m_version.pack.mainClass;
+
+    // Parse out tweakers
+    auto args = m_version.pack.extraArguments.split(" ");
+    for(auto arg : args) {
+        if(arg.startsWith("--tweakClass=")) {
+            auto tweakClass = arg.remove("--tweakClass=");
+            f->addTweakers.append(tweakClass);
+        }
+    }
+
+    for(auto lib : m_version.libraries) {
+        auto library = std::make_shared<Library>();
+        library->setRawName("org.multimc.atlauncher:" + lib.md5 + ":1");
+
+        switch(lib.download) {
+            case DownloadType::Server:
+                library->setAbsoluteUrl(BuildConfig.ATL_DOWNLOAD_SERVER + lib.url);
+                break;
+            case DownloadType::Direct:
+                library->setAbsoluteUrl(lib.url);
+                break;
+            case DownloadType::Browser:
+            case DownloadType::Unknown:
+                emitFailed(tr("Unknown or unsupported download type: ") + lib.download_raw);
+                return false;
+        }
+
+        f->libraries.append(library);
+    }
+
+    QFile file(patchFileName);
+    if (!file.open(QFile::WriteOnly))
+    {
+        qCritical() << "Error opening" << file.fileName()
+                    << "for reading:" << file.errorString();
+        return false;
+    }
+    file.write(OneSixVersionFormat::versionFileToJson(f).toJson());
+    file.close();
+
+    profile->appendComponent(new Component(profile.get(), target_id, f));
+    return true;
 }
 
 void PackInstallTask::installConfigs()
@@ -291,6 +352,13 @@ void PackInstallTask::install()
     }
 
     components->installJarMods(jarmods);
+
+    // Use a component to fill in the rest of the data
+    // todo: use more detection
+    if(!createPackComponent(instance.instanceRoot(), components)) {
+        return;
+    }
+
     components->saveNow();
 
     instance.setName(m_instName);
