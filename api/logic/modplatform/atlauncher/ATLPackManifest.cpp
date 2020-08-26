@@ -4,9 +4,69 @@
 #include <QtXml/QDomDocument>
 #include <Version.h>
 
+static ATLauncher::DownloadType parseDownloadType(QString rawType) {
+    if(rawType == QString("server")) {
+        return ATLauncher::DownloadType::Server;
+    }
+    else if(rawType == QString("browser")) {
+        return ATLauncher::DownloadType::Browser;
+    }
+    else if(rawType == QString("direct")) {
+        return ATLauncher::DownloadType::Direct;
+    }
+
+    return ATLauncher::DownloadType::Unknown;
+}
+
+static ATLauncher::ModType parseModType(QString rawType) {
+    // See https://wiki.atlauncher.com/mod_types
+    if(rawType == QString("forge")) {
+        return ATLauncher::ModType::Forge;
+    }
+    else if(rawType == QString("jar")) {
+        return ATLauncher::ModType::Jar;
+    }
+    else if(rawType == QString("mods")) {
+        return ATLauncher::ModType::Mods;
+    }
+    else if(rawType == QString("flan")) {
+        return ATLauncher::ModType::Flan;
+    }
+    else if(rawType == QString("dependency")) {
+        return ATLauncher::ModType::Dependency;
+    }
+    else if(rawType == QString("ic2lib")) {
+        return ATLauncher::ModType::Ic2Lib;
+    }
+    else if(rawType == QString("denlib")) {
+        return ATLauncher::ModType::DenLib;
+    }
+    else if(rawType == QString("coremods")) {
+        return ATLauncher::ModType::Coremods;
+    }
+    else if(rawType == QString("mcpc")) {
+        return ATLauncher::ModType::MCPC;
+    }
+    else if(rawType == QString("plugins")) {
+        return ATLauncher::ModType::Plugins;
+    }
+    else if(rawType == QString("extract")) {
+        return ATLauncher::ModType::Extract;
+    }
+    else if(rawType == QString("decomp")) {
+        return ATLauncher::ModType::Decomp;
+    }
+    else if(rawType == QString("resourcepack")) {
+        return ATLauncher::ModType::ResourcePack;
+    }
+
+    return ATLauncher::ModType::Unknown;
+}
+
 static void loadVersionPack(ATLauncher::VersionPack & p, const QDomElement& ele) {
     p.version = ele.firstChildElement("version").text();
     p.minecraft = ele.firstChildElement("minecraft").text();
+    p.noConfigs = ele.firstChildElement("noconfigs").text() == QString("true");
 }
 
 static void loadVersionLoader(ATLauncher::VersionLoader & p, const QDomElement& ele) {
@@ -14,6 +74,15 @@ static void loadVersionLoader(ATLauncher::VersionLoader & p, const QDomElement& 
     p.version = ele.attribute("version");
     p.latest = ele.attribute("latest") == QString("true");
     p.recommended = ele.attribute("recommended") == QString("true");
+    p.choose = ele.attribute("choose") == QString("true");
+}
+
+static void loadVersionLibrary(ATLauncher::VersionLibrary & p, const QDomElement& ele) {
+    p.url = ele.attribute("url");
+    p.file = ele.attribute("file");
+
+    p.download_raw = ele.attribute("download");
+    p.download = parseDownloadType(p.download_raw);
 }
 
 static void loadVersionMod(ATLauncher::VersionMod & p, const QDomElement& ele) {
@@ -24,73 +93,30 @@ static void loadVersionMod(ATLauncher::VersionMod & p, const QDomElement& ele) {
     p.md5 = ele.attribute("md5");
 
     p.download_raw = ele.attribute("download");
-    if(p.download_raw == QString("server")) {
-        p.download = ATLauncher::DownloadType::Server;
-    }
-    else if(p.download_raw == QString("browser")) {
-        p.download = ATLauncher::DownloadType::Browser;
-    }
-    else if(p.download_raw == QString("direct")) {
-        p.download = ATLauncher::DownloadType::Direct;
-    }
-    else {
-        p.download = ATLauncher::DownloadType::Unknown;
-    }
+    p.download = parseDownloadType(p.download_raw);
 
-    // See https://wiki.atlauncher.com/mod_types
     p.type_raw = ele.attribute("type");
-    if(p.type_raw == QString("forge")) {
-        p.type = ATLauncher::ModType::Forge;
-    }
-    else if(p.type_raw == QString("jar")) {
-        p.type = ATLauncher::ModType::Jar;
-    }
-    else if(p.type_raw == QString("mods")) {
-        p.type = ATLauncher::ModType::Mods;
-    }
-    else if(p.type_raw == QString("flan")) {
-        p.type = ATLauncher::ModType::Flan;
-    }
-    else if(p.type_raw == QString("dependency")) {
-        p.type = ATLauncher::ModType::Dependency;
-    }
-    else if(p.type_raw == QString("ic2lib")) {
-        p.type = ATLauncher::ModType::Ic2Lib;
-    }
-    else if(p.type_raw == QString("denlib")) {
-        p.type = ATLauncher::ModType::DenLib;
-    }
-    else if(p.type_raw == QString("coremods")) {
-        p.type = ATLauncher::ModType::Coremods;
-    }
-    else if(p.type_raw == QString("mcpc")) {
-        p.type = ATLauncher::ModType::MCPC;
-    }
-    else if(p.type_raw == QString("plugins")) {
-        p.type = ATLauncher::ModType::Plugins;
-    }
-    else if(p.type_raw == QString("extract")) {
-        p.type = ATLauncher::ModType::Extract;
-    }
-    else if(p.type_raw == QString("decomp")) {
-        p.type = ATLauncher::ModType::Decomp;
-    }
-    else if(p.type_raw == QString("resourcepack")) {
-        p.type = ATLauncher::ModType::ResourcePack;
-    }
-    else {
-        p.type = ATLauncher::ModType::Unknown;
-    }
+    p.type = parseModType(p.type_raw);
 }
 
 void ATLauncher::loadVersion(Version & v, QDomDocument & doc)
 {
-    auto ver = doc.firstChildElement("version");
+    auto root = doc.firstChildElement("version");
 
-    loadVersionPack(v.pack, ver.firstChildElement("pack"));
-    loadVersionLoader(v.loader, ver.firstChildElement("loader"));
+    loadVersionPack(v.pack, root.firstChildElement("pack"));
+    loadVersionLoader(v.loader, root.firstChildElement("loader"));
 
-    auto mods = ver.firstChildElement("mods");
+    auto libraries = root.firstChildElement("mods");
+    auto libraryList = libraries.elementsByTagName("mod");
+    for(int i = 0; i < libraryList.length(); i++)
+    {
+        auto libraryRaw = libraryList.at(i);
+        VersionLibrary library;
+        loadVersionLibrary(library, libraryRaw.toElement());
+        v.libraries.append(library);
+    }
+
+    auto mods = root.firstChildElement("mods");
     auto modList = mods.elementsByTagName("mod");
     for(int i = 0; i < modList.length(); i++)
     {

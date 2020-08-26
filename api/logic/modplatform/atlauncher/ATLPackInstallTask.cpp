@@ -11,6 +11,8 @@
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 #include "settings/INISettingsObject.h"
+#include "meta/Index.h"
+#include "meta/VersionList.h"
 
 namespace ATLauncher {
 
@@ -60,7 +62,12 @@ void PackInstallTask::onDownloadSucceeded()
     ATLauncher::loadVersion(version, doc);
     m_version = version;
 
-    installConfigs();
+    if(m_version.pack.noConfigs) {
+        installMods();
+    }
+    else {
+        installConfigs();
+    }
 }
 
 void PackInstallTask::onDownloadFailed(QString reason)
@@ -69,7 +76,8 @@ void PackInstallTask::onDownloadFailed(QString reason)
     emitFailed(reason);
 }
 
-QString PackInstallTask::getDirForModType(ModType type, QString raw) {
+QString PackInstallTask::getDirForModType(ModType type, QString raw)
+{
     switch (type) {
         case ModType::Forge:
             // todo: detect Forge version and install through a proper component
@@ -104,6 +112,32 @@ QString PackInstallTask::getDirForModType(ModType type, QString raw) {
     }
 
     return Q_NULLPTR;
+}
+
+QString PackInstallTask::getVersionForLoader(QString uid)
+{
+    if(m_version.loader.recommended || m_version.loader.latest || m_version.loader.choose) {
+        auto vlist = ENV.metadataIndex()->get(uid);
+        if(!vlist)
+        {
+            emitFailed(tr("Failed to get local metadata index for ") + uid);
+            return Q_NULLPTR;
+        }
+
+        // todo: filter by Minecraft version
+
+        if(m_version.loader.recommended) {
+            return vlist.get()->getRecommended().get()->descriptor();
+        }
+        else if(m_version.loader.latest) {
+            return vlist.get()->at(0)->descriptor();
+        }
+        else if(m_version.loader.choose) {
+            // todo: implement
+        }
+    }
+
+    return m_version.loader.version;
 }
 
 void PackInstallTask::installConfigs()
@@ -238,11 +272,17 @@ void PackInstallTask::install()
     // Loader
     if(m_version.loader.type == QString("forge"))
     {
-        components->setComponentVersion("net.minecraftforge", m_version.loader.version, true);
+        auto version = getVersionForLoader("net.minecraftforge");
+        if(version == Q_NULLPTR) return;
+
+        components->setComponentVersion("net.minecraftforge", version, true);
     }
     else if(m_version.loader.type == QString("fabric"))
     {
-        components->setComponentVersion("net.fabricmc.fabric-loader", m_version.loader.version, true);
+        auto version = getVersionForLoader("net.fabricmc.fabric-loader");
+        if(version == Q_NULLPTR) return;
+
+        components->setComponentVersion("net.fabricmc.fabric-loader", version, true);
     }
     else if(m_version.loader.type != QString())
     {

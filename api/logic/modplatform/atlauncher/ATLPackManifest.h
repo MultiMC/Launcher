@@ -44,6 +44,7 @@ struct VersionPack
 {
     QString version;
     QString minecraft;
+    bool noConfigs;
 };
 
 struct VersionLoader
@@ -52,6 +53,15 @@ struct VersionLoader
     QString version;
     bool latest;
     bool recommended;
+    bool choose;
+};
+
+struct VersionLibrary
+{
+    QString url;
+    QString file;
+    DownloadType download;
+    QString download_raw;
 };
 
 struct VersionMod
@@ -71,6 +81,7 @@ struct Version
 {
     VersionPack pack;
     VersionLoader loader;
+    QVector<VersionLibrary> libraries;
     QVector<VersionMod> mods;
 };
 

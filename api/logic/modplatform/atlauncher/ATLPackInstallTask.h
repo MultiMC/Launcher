@@ -31,6 +31,8 @@ private slots:
 private:
     QString getDirForModType(ModType type, QString raw);
 
+    QString getVersionForLoader(QString uid);
+
     void installConfigs();
     void extractConfigs();
     void installMods();
