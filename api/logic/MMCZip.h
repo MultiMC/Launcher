@@ -68,4 +68,14 @@ namespace MMCZip
      */
     QStringList MULTIMC_LOGIC_EXPORT extractDir(QString fileCompressed, QString dir);
 
+    /**
+     * Extract a subdirectory from an archive
+     *
+     * \param fileCompressed The name of the archive.
+     * \param subdir The directory within the archive to extract
+     * \param dir The directory to extract to, the current directory if left empty.
+     * \return The list of the full paths of the files extracted, empty on failure.
+     */
+    QStringList MULTIMC_LOGIC_EXPORT extractDir(QString fileCompressed, QString subdir, QString dir);
+
 }

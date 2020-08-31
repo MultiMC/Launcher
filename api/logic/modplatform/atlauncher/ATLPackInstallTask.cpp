@@ -249,7 +249,7 @@ void PackInstallTask::installConfigs()
     setStatus(tr("Downloading configs..."));
     jobPtr.reset(new NetJob(tr("Config download")));
 
-    auto path = QString("%1/%2").arg(m_pack).arg(m_version_name);
+    auto path = QString("Configs/%1/%2").arg(m_pack).arg(m_version_name);
     auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "packs/%1/versions/%2/Configs.zip")
             .arg(m_pack).arg(m_version_name);
     auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", path);
@@ -328,12 +328,9 @@ void PackInstallTask::installMods()
         }
 
         if (mod.type == ModType::Extract) {
-            auto extractToDir = getDirForModType(mod.extractTo, mod.extractTo_raw);
-            qWarning() << "Extracting " + mod.file + " to " + extractToDir;
-
             auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", mod.url);
             entry->setStale(true);
-            modsToExtract.insert(entry->getFullPath(), extractToDir);
+            modsToExtract.insert(entry->getFullPath(), mod);
 
             auto dl = Net::Download::makeCached(url, entry);
             jobPtr->addNetAction(dl);
@@ -381,13 +378,16 @@ void PackInstallTask::extractMods()
         return;
     }
 
-    auto mod = modsToExtract.firstKey();
-    auto dir = modsToExtract.value(mod);
+    auto modPath = modsToExtract.firstKey();
+    auto mod = modsToExtract.value(modPath);
+
+    auto extractToDir = getDirForModType(mod.extractTo, mod.extractTo_raw);
+    qDebug() << "Extracting " + mod.file + " to " + extractToDir;
 
     QDir extractDir(m_stagingPath);
-    auto extractToPath = FS::PathCombine(extractDir.absolutePath(), "minecraft", dir);
+    auto extractToPath = FS::PathCombine(extractDir.absolutePath(), "minecraft", extractToDir);
 
-    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractDir, archivePath, extractToPath);
+    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractDir, modPath, mod.extractFolder, extractToPath);
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, [&]()
     {
         extractMods();
@@ -398,7 +398,7 @@ void PackInstallTask::extractMods()
     });
     m_extractFutureWatcher.setFuture(m_extractFuture);
 
-    modsToExtract.remove(mod);
+    modsToExtract.remove(modPath);
 }
 
 void PackInstallTask::install()

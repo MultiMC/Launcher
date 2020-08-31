@@ -80,8 +80,11 @@ struct VersionMod
     QString download_raw;
     ModType type;
     QString type_raw;
+
     ModType extractTo;
     QString extractTo_raw;
+    QString extractFolder;
+
     bool optional;
 };
 

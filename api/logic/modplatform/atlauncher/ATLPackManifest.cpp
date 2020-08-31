@@ -103,8 +103,11 @@ static void loadVersionMod(ATLauncher::VersionMod & p, const QDomElement& ele) {
 
     p.type_raw = ele.attribute("type");
     p.type = parseModType(p.type_raw);
+
     p.extractTo_raw = ele.attribute("extractto");
     p.extractTo = parseModType(p.extractTo_raw);
+    p.extractFolder = ele.attribute("extractfolder").replace("%s%", "/");
+
     p.optional = ele.attribute("optional") == QString("yes");
 }
 

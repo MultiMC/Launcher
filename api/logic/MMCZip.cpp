@@ -253,3 +253,13 @@ QStringList MMCZip::extractDir(QString fileCompressed, QString dir)
     }
     return MMCZip::extractSubDir(&zip, "", dir);
 }
+
+QStringList MMCZip::extractDir(QString fileCompressed, QString subdir, QString dir)
+{
+    QuaZip zip(fileCompressed);
+    if (!zip.open(QuaZip::mdUnzip))
+    {
+        return {};
+    }
+    return MMCZip::extractSubDir(&zip, subdir, dir);
+}

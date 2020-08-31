@@ -49,7 +49,7 @@ private:
     QString m_version_name;
     Version m_version;
 
-    QMap<QString, QString> modsToExtract;
+    QMap<QString, VersionMod> modsToExtract;
 
     QString archivePath;
     QStringList jarmods;
