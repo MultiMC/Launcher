@@ -57,6 +57,7 @@ struct VersionLibrary
 {
     QString url;
     QString file;
+    QString server;
     QString md5;
     DownloadType download;
     QString download_raw;

@@ -151,6 +151,41 @@ QString PackInstallTask::getVersionForLoader(QString uid)
     return m_version.loader.version;
 }
 
+static QString getLibraryRawName(VersionLibrary library)
+{
+    // Try to detect what the library is
+    if (!library.server.isEmpty() && library.server.split("/").length() >= 3) {
+        auto lastSlash = library.server.lastIndexOf("/");
+        auto locationAndVersion = library.server.mid(0, lastSlash);
+        auto fileName = library.server.mid(lastSlash + 1);
+
+        lastSlash = locationAndVersion.lastIndexOf("/");
+        auto location = locationAndVersion.mid(0, lastSlash);
+        auto version = locationAndVersion.mid(lastSlash + 1);
+
+        lastSlash = location.lastIndexOf("/");
+        auto group = location.mid(0, lastSlash).replace("/", ".");
+        auto artefact = location.mid(lastSlash + 1);
+
+        return group + ":" + artefact + ":" + version;
+    }
+
+    if(library.file.contains("-")) {
+        auto lastSlash = library.file.lastIndexOf("-");
+        auto name = library.file.mid(0, lastSlash);
+        auto version = library.file.mid(lastSlash + 1).remove(".jar");
+
+        if(name == QString("guava")) {
+            return "com.google.guava:guava:" + version;
+        }
+        else if(name == QString("commons-lang3")) {
+            return "org.apache.commons:commons-lang3:" + version;
+        }
+    }
+
+    return "org.multimc.atlauncher:" + library.md5 + ":1";
+}
+
 bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
 {
     if(m_version.libraries.isEmpty()) {
@@ -173,7 +208,9 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
 
     for(auto lib : m_version.libraries) {
         auto library = std::make_shared<Library>();
-        library->setRawName("org.multimc.atlauncher:" + lib.md5 + ":1");
+
+        auto libName = getLibraryRawName(lib);
+        library->setRawName(libName);
 
         switch(lib.download) {
             case DownloadType::Server:

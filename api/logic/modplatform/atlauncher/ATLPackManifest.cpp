@@ -87,6 +87,8 @@ static void loadVersionLibrary(ATLauncher::VersionLibrary & p, QJsonObject & obj
 
     p.download_raw = Json::requireString(obj, "download");
     p.download = parseDownloadType(p.download_raw);
+
+    p.server = Json::ensureString(obj, "server", "");
 }
 
 static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
