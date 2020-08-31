@@ -1,4 +1,3 @@
-#include <QtXml/QDomDocument>
 #include <Env.h>
 #include <quazip.h>
 #include <QtConcurrent/QtConcurrent>
@@ -31,7 +30,7 @@ bool PackInstallTask::abort()
 void PackInstallTask::executeTask()
 {
     auto *netJob = new NetJob("ATLauncher::VersionFetch");
-    auto searchUrl = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "packs/%1/versions/%2/Configs.xml")
+    auto searchUrl = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "packs/%1/versions/%2/Configs.json")
             .arg(m_pack).arg(m_version_name);
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
     jobPtr = netJob;
@@ -45,25 +44,29 @@ void PackInstallTask::onDownloadSucceeded()
 {
     jobPtr.reset();
 
-    QDomDocument doc;
-
-    QString errorMsg = "Unknown error.";
-    int errorLine = -1;
-    int errorCol = -1;
-
-    if(!doc.setContent(response, false, &errorMsg, &errorLine, &errorCol))
-    {
-        auto fullErrMsg = QString("Failed to fetch modpack data: %1 %2:3d!").arg(errorMsg, errorLine, errorCol);
-        qWarning() << fullErrMsg;
-        response.clear();
+    QJsonParseError parse_error;
+    QJsonDocument doc = QJsonDocument::fromJson(response, &parse_error);
+    if(parse_error.error != QJsonParseError::NoError) {
+        qWarning() << "Error while parsing JSON response from FTB at " << parse_error.offset << " reason: " << parse_error.errorString();
+        qWarning() << response;
         return;
     }
 
+    auto obj = doc.object();
+
     ATLauncher::Version version;
-    ATLauncher::loadVersion(version, doc);
+    try
+    {
+        ATLauncher::loadVersion(version, obj);
+    }
+    catch (const JSONValidationError &e)
+    {
+        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
+        return;
+    }
     m_version = version;
 
-    if(m_version.pack.noConfigs) {
+    if(m_version.noConfigs) {
         installMods();
     }
     else {
@@ -96,7 +99,7 @@ QString PackInstallTask::getDirForModType(ModType type, QString raw)
         case ModType::Flan:
             return "Flan";
         case ModType::Dependency:
-            return FS::PathCombine("mods", m_version.pack.minecraft);
+            return FS::PathCombine("mods", m_version.minecraft);
         case ModType::Ic2Lib:
             return FS::PathCombine("mods", "ic2");
         case ModType::DenLib:
@@ -109,7 +112,7 @@ QString PackInstallTask::getDirForModType(ModType type, QString raw)
             qWarning() << "Unsupported mod type: " + raw;
             return Q_NULLPTR;
         case ModType::TexturePack:
-            return "texturepackss";
+            return "texturepacks";
         case ModType::ResourcePack:
             return "resourcepacks";
         case ModType::ShaderPack:
@@ -204,7 +207,7 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
 
 bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
 {
-    if(!(m_version.pack.mainClass != QString() || m_version.pack.extraArguments != QString())) {
+    if(m_version.mainClass == QString() && m_version.extraArguments == QString()) {
         return true;
     }
 
@@ -221,10 +224,10 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
 
     auto f = std::make_shared<VersionFile>();
     f->name = m_pack + " " + m_version_name;
-    f->mainClass = m_version.pack.mainClass;
+    f->mainClass = m_version.mainClass;
 
     // Parse out tweakers
-    auto args = m_version.pack.extraArguments.split(" ");
+    auto args = m_version.extraArguments.split(" ");
     QString previous;
     for(auto arg : args) {
         if(arg.startsWith("--tweakClass=") || previous == "--tweakClass") {
@@ -424,7 +427,7 @@ void PackInstallTask::install()
     }
 
     // Minecraft
-    components->setComponentVersion("net.minecraft", m_version.pack.minecraft, true);
+    components->setComponentVersion("net.minecraft", m_version.minecraft, true);
 
     // Loader
     if(m_version.loader.type == QString("forge"))

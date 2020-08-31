@@ -1,8 +1,6 @@
 #include "ATLPackManifest.h"
 
-#include <QDebug>
-#include <QtXml/QDomDocument>
-#include <Version.h>
+#include "Json.h"
 
 static ATLauncher::DownloadType parseDownloadType(QString rawType) {
     if(rawType == QString("server")) {
@@ -72,75 +70,85 @@ static ATLauncher::ModType parseModType(QString rawType) {
     return ATLauncher::ModType::Unknown;
 }
 
-static void loadVersionPack(ATLauncher::VersionPack & p, const QDomElement& ele) {
-    p.version = ele.firstChildElement("version").text();
-    p.minecraft = ele.firstChildElement("minecraft").text();
-    p.noConfigs = ele.firstChildElement("noconfigs").text() == QString("true");
-    p.mainClass = ele.firstChildElement("mainclass").text();
-    p.extraArguments = ele.firstChildElement("extraarguments").text();
+static void loadVersionLoader(ATLauncher::VersionLoader & p, QJsonObject & obj) {
+    p.type = Json::requireString(obj, "type");
+    p.latest = Json::ensureBoolean(obj, "latest", false);
+    p.choose = Json::ensureBoolean(obj, "choose", false);
+    p.recommended = Json::ensureBoolean(obj, "recommended", false);
+
+    auto metadata = Json::requireObject(obj, "metadata");
+    p.version = Json::requireString(metadata, "version");
 }
 
-static void loadVersionLoader(ATLauncher::VersionLoader & p, const QDomElement& ele) {
-    p.type = ele.attribute("type");
-    p.version = ele.attribute("version");
-    p.latest = ele.attribute("latest") == QString("true");
-    p.recommended = ele.attribute("recommended") == QString("true");
-    p.choose = ele.attribute("choose") == QString("true");
-}
+static void loadVersionLibrary(ATLauncher::VersionLibrary & p, QJsonObject & obj) {
+    p.url = Json::requireString(obj, "url");
+    p.file = Json::requireString(obj, "file");
+    p.md5 = Json::requireString(obj, "md5");
 
-static void loadVersionLibrary(ATLauncher::VersionLibrary & p, const QDomElement& ele) {
-    p.url = ele.attribute("url");
-    p.file = ele.attribute("file");
-    p.md5 = ele.attribute("md5");
-
-    p.download_raw = ele.attribute("download");
+    p.download_raw = Json::requireString(obj, "download");
     p.download = parseDownloadType(p.download_raw);
 }
 
-static void loadVersionMod(ATLauncher::VersionMod & p, const QDomElement& ele) {
-    p.name = ele.attribute("name");
-    p.version = ele.attribute("version");
-    p.url = ele.attribute("url");
-    p.file = ele.attribute("file");
-    p.md5 = ele.attribute("md5");
+static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
+    p.name = Json::requireString(obj, "name");
+    p.version = Json::requireString(obj, "version");
+    p.url = Json::requireString(obj, "url");
+    p.file = Json::requireString(obj, "file");
+    p.md5 = Json::requireString(obj, "md5");
 
-    p.download_raw = ele.attribute("download");
+    p.download_raw = Json::requireString(obj, "download");
     p.download = parseDownloadType(p.download_raw);
 
-    p.type_raw = ele.attribute("type");
+    p.type_raw = Json::requireString(obj, "type");
     p.type = parseModType(p.type_raw);
 
-    p.extractTo_raw = ele.attribute("extractto");
-    p.extractTo = parseModType(p.extractTo_raw);
-    p.extractFolder = ele.attribute("extractfolder").replace("%s%", "/");
-
-    p.optional = ele.attribute("optional") == QString("yes");
-}
-
-void ATLauncher::loadVersion(Version & v, QDomDocument & doc)
-{
-    auto root = doc.firstChildElement("version");
-
-    loadVersionPack(v.pack, root.firstChildElement("pack"));
-    loadVersionLoader(v.loader, root.firstChildElement("loader"));
-
-    auto libraries = root.firstChildElement("libraries");
-    auto libraryList = libraries.elementsByTagName("library");
-    for(int i = 0; i < libraryList.length(); i++)
-    {
-        auto libraryRaw = libraryList.at(i);
-        VersionLibrary library;
-        loadVersionLibrary(library, libraryRaw.toElement());
-        v.libraries.append(library);
+    if(obj.contains("extractTo")) {
+        p.extractTo_raw = Json::requireString(obj, "extractTo");
+        p.extractTo = parseModType(p.extractTo_raw);
+        p.extractFolder = Json::ensureString(obj, "extractFolder", "").replace("%s%", "/");
     }
 
-    auto mods = root.firstChildElement("mods");
-    auto modList = mods.elementsByTagName("mod");
-    for(int i = 0; i < modList.length(); i++)
+    p.optional = Json::ensureBoolean(obj, "optional", false);
+}
+
+void ATLauncher::loadVersion(Version & v, QJsonObject & obj)
+{
+    v.version = Json::requireString(obj, "version");
+    v.minecraft = Json::requireString(obj, "minecraft");
+    v.noConfigs = Json::ensureBoolean(obj, "noConfigs", false);
+
+    if(obj.contains("mainClass")) {
+        auto main = Json::requireObject(obj, "mainClass");
+        v.mainClass = Json::ensureString(main, "mainClass", "");
+    }
+
+    if(obj.contains("extraArguments")) {
+        auto arguments = Json::requireObject(obj, "extraArguments");
+        v.extraArguments = Json::ensureString(arguments, "arguments", "");
+    }
+
+    if(obj.contains("loader")) {
+        auto loader = Json::requireObject(obj, "loader");
+        loadVersionLoader(v.loader, loader);
+    }
+
+    if(obj.contains("libraries")) {
+        auto libraries = Json::requireArray(obj, "libraries");
+        for (const auto libraryRaw : libraries)
+        {
+            auto libraryObj = Json::requireObject(libraryRaw);
+            ATLauncher::VersionLibrary target;
+            loadVersionLibrary(target, libraryObj);
+            v.libraries.append(target);
+        }
+    }
+
+    auto mods = Json::requireArray(obj, "mods");
+    for (const auto modRaw : mods)
     {
-        auto modRaw = modList.at(i);
-        VersionMod mod;
-        loadVersionMod(mod, modRaw.toElement());
+        auto modObj = Json::requireObject(modRaw);
+        ATLauncher::VersionMod mod;
+        loadVersionMod(mod, modObj);
         v.mods.append(mod);
     }
 }

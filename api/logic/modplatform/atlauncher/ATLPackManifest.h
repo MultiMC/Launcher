@@ -2,7 +2,7 @@
 
 #include <QString>
 #include <QVector>
-#include <QtXml/QDomDocument>
+#include <QJsonObject>
 #include <multimc_logic_export.h>
 
 namespace ATLauncher
@@ -43,23 +43,14 @@ enum class DownloadType
     Unknown
 };
 
-struct VersionPack
-{
-    QString version;
-    QString minecraft;
-    bool noConfigs;
-
-    QString mainClass;
-    QString extraArguments;
-};
-
 struct VersionLoader
 {
     QString type;
-    QString version;
     bool latest;
     bool recommended;
     bool choose;
+
+    QString version;
 };
 
 struct VersionLibrary
@@ -92,12 +83,17 @@ struct VersionMod
 
 struct Version
 {
-    VersionPack pack;
+    QString version;
+    QString minecraft;
+    bool noConfigs;
+    QString mainClass;
+    QString extraArguments;
+
     VersionLoader loader;
     QVector<VersionLibrary> libraries;
     QVector<VersionMod> mods;
 };
 
-MULTIMC_LOGIC_EXPORT void loadVersion(Version & v, QDomDocument & doc);
+MULTIMC_LOGIC_EXPORT void loadVersion(Version & v, QJsonObject & obj);
 
 }
