@@ -79,8 +79,7 @@ public:
 
     QString LEGACY_FTB_CDN_BASE_URL = "https://dist.creeper.host/FTB2/";
 
-    QString ATL_DOWNLOAD_SERVER = "https://download.nodecdn.net/containers/atl/";
-    QString ATL_DOWNLOAD_HOST = "https://download.nodecdn.net/";
+    QString ATL_DOWNLOAD_SERVER_URL = "https://download.nodecdn.net/containers/atl/";
 
     /**
      * \brief Converts the Version to a string.

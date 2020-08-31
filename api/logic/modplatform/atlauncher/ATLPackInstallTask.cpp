@@ -31,7 +31,7 @@ bool PackInstallTask::abort()
 void PackInstallTask::executeTask()
 {
     auto *netJob = new NetJob("ATLauncher::VersionFetch");
-    auto searchUrl = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "packs/%1/versions/%2/Configs.xml")
+    auto searchUrl = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "packs/%1/versions/%2/Configs.xml")
             .arg(m_pack).arg(m_version_name);
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
     jobPtr = netJob;
@@ -108,8 +108,12 @@ QString PackInstallTask::getDirForModType(ModType type, QString raw)
         case ModType::Decomp:
             qWarning() << "Unsupported mod type: " + raw;
             return Q_NULLPTR;
+        case ModType::TexturePack:
+            return "texturepackss";
         case ModType::ResourcePack:
             return "resourcepacks";
+        case ModType::ShaderPack:
+            return "shaderpacks";
         case ModType::Unknown:
             emitFailed(tr("Unknown mod type: ") + raw);
             return Q_NULLPTR;
@@ -170,7 +174,7 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
 
         switch(lib.download) {
             case DownloadType::Server:
-                library->setAbsoluteUrl(BuildConfig.ATL_DOWNLOAD_SERVER + lib.url);
+                library->setAbsoluteUrl(BuildConfig.ATL_DOWNLOAD_SERVER_URL + lib.url);
                 break;
             case DownloadType::Direct:
                 library->setAbsoluteUrl(lib.url);
@@ -250,7 +254,7 @@ void PackInstallTask::installConfigs()
     jobPtr.reset(new NetJob(tr("Config download")));
 
     auto path = QString("Configs/%1/%2").arg(m_pack).arg(m_version_name);
-    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "packs/%1/versions/%2/Configs.zip")
+    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "packs/%1/versions/%2/Configs.zip")
             .arg(m_pack).arg(m_version_name);
     auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", path);
     entry->setStale(true);
@@ -314,7 +318,7 @@ void PackInstallTask::installMods()
         QString url;
         switch(mod.download) {
             case DownloadType::Server:
-                url = BuildConfig.ATL_DOWNLOAD_SERVER + mod.url;
+                url = BuildConfig.ATL_DOWNLOAD_SERVER_URL + mod.url;
                 break;
             case DownloadType::Browser:
                 emitFailed(tr("Unsupported download type: ") + mod.download_raw);

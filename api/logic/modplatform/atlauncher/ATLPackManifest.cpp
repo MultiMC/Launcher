@@ -35,7 +35,7 @@ static ATLauncher::ModType parseModType(QString rawType) {
     else if(rawType == QString("flan")) {
         return ATLauncher::ModType::Flan;
     }
-    else if(rawType == QString("dependency")) {
+    else if(rawType == QString("dependency") || rawType == QString("depandency")) {
         return ATLauncher::ModType::Dependency;
     }
     else if(rawType == QString("ic2lib")) {
@@ -59,8 +59,14 @@ static ATLauncher::ModType parseModType(QString rawType) {
     else if(rawType == QString("decomp")) {
         return ATLauncher::ModType::Decomp;
     }
+    else if(rawType == QString("texturepack")) {
+        return ATLauncher::ModType::TexturePack;
+    }
     else if(rawType == QString("resourcepack")) {
         return ATLauncher::ModType::ResourcePack;
+    }
+    else if(rawType == QString("shaderpack")) {
+        return ATLauncher::ModType::ShaderPack;
     }
 
     return ATLauncher::ModType::Unknown;

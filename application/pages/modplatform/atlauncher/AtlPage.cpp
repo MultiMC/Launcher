@@ -52,7 +52,7 @@ void AtlPage::suggestCurrent()
     }
 
     auto editedLogoName = selected.safeName;
-    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "launcher/images/%1.png").arg(selected.safeName.toLower());
+    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "launcher/images/%1.png").arg(selected.safeName.toLower());
     listModel->getLogo(selected.safeName, url, [this, editedLogoName](QString logo)
     {
         dialog->setSuggestedIconFromFile(logo, editedLogoName);

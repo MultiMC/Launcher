@@ -47,9 +47,9 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         {
             return (m_logoMap.value(pack.safeName));
         }
-        auto icon = MMC->getThemedIcon("screenshot-placeholder");
+        auto icon = MMC->getThemedIcon("atlauncher-placeholder");
 
-        auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "launcher/images/%1.png").arg(pack.safeName.toLower());
+        auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "launcher/images/%1.png").arg(pack.safeName.toLower());
         ((ListModel *)this)->requestLogo(pack.safeName, url);
 
         return icon;
@@ -71,7 +71,7 @@ void ListModel::request()
     endResetModel();
 
     auto *netJob = new NetJob("Atl::Request");
-    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER + "launcher/json/packsnew.json");
+    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "launcher/json/packsnew.json");
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(url), &response));
     jobPtr = netJob;
     jobPtr->start();
@@ -106,8 +106,7 @@ void ListModel::requestFinished()
         // only display public packs (for now)
         if(pack.type != ATLauncher::PackType::Public) continue;
         // ignore "system" packs (Vanilla, Vanilla with Forge, etc)
-        // todo(merged): uncomment
-//        if(pack.system) continue;
+        if(pack.system) continue;
 
         newList.append(pack);
     }
@@ -164,7 +163,7 @@ void ListModel::requestLogo(QString file, QString url)
     job->addNetAction(Net::Download::makeCached(QUrl(url), entry));
 
     auto fullPath = entry->getFullPath();
-    QObject::connect(job, &NetJob::finished, this, [this, file, fullPath]
+    QObject::connect(job, &NetJob::succeeded, this, [this, file, fullPath]
     {
         emit logoLoaded(file, QIcon(fullPath));
         if(waitingCallbacks.contains(file))

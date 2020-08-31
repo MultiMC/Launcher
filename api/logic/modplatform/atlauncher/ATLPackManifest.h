@@ -29,7 +29,9 @@ enum class ModType
     Plugins,
     Extract,
     Decomp,
+    TexturePack,
     ResourcePack,
+    ShaderPack,
     Unknown
 };
 
