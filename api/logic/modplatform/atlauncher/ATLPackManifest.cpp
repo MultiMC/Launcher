@@ -113,7 +113,7 @@ static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
     p.optional = Json::ensureBoolean(obj, "optional", false);
 }
 
-void ATLauncher::loadVersion(Version & v, QJsonObject & obj)
+void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
 {
     v.version = Json::requireString(obj, "version");
     v.minecraft = Json::requireString(obj, "minecraft");

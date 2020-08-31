@@ -82,7 +82,7 @@ struct VersionMod
     bool optional;
 };
 
-struct Version
+struct PackVersion
 {
     QString version;
     QString minecraft;
@@ -95,6 +95,6 @@ struct Version
     QVector<VersionMod> mods;
 };
 
-MULTIMC_LOGIC_EXPORT void loadVersion(Version & v, QJsonObject & obj);
+MULTIMC_LOGIC_EXPORT void loadVersion(PackVersion & v, QJsonObject & obj);
 
 }

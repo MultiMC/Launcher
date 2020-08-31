@@ -8,6 +8,7 @@
 #include "settings/INISettingsObject.h"
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
+#include "meta/Version.h"
 
 namespace ATLauncher {
 
@@ -47,12 +48,14 @@ private:
 
     QString m_pack;
     QString m_version_name;
-    Version m_version;
+    PackVersion m_version;
 
     QMap<QString, VersionMod> modsToExtract;
 
     QString archivePath;
     QStringList jarmods;
+    Meta::VersionPtr minecraftVersion;
+    QMap<QString, Meta::VersionPtr> componentsToInstall;
 
     QFuture<QStringList> m_extractFuture;
     QFutureWatcher<QStringList> m_extractFutureWatcher;

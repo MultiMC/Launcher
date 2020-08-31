@@ -3,6 +3,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <MMCZip.h>
 #include <minecraft/OneSixVersionFormat.h>
+#include <Version.h>
 #include "ATLPackInstallTask.h"
 
 #include "BuildConfig.h"
@@ -12,6 +13,7 @@
 #include "minecraft/PackProfile.h"
 #include "settings/INISettingsObject.h"
 #include "meta/Index.h"
+#include "meta/Version.h"
 #include "meta/VersionList.h"
 
 namespace ATLauncher {
@@ -54,7 +56,7 @@ void PackInstallTask::onDownloadSucceeded()
 
     auto obj = doc.object();
 
-    ATLauncher::Version version;
+    ATLauncher::PackVersion version;
     try
     {
         ATLauncher::loadVersion(version, obj);
@@ -65,6 +67,21 @@ void PackInstallTask::onDownloadSucceeded()
         return;
     }
     m_version = version;
+
+    auto vlist = ENV.metadataIndex()->get("net.minecraft");
+    if(!vlist)
+    {
+        emitFailed(tr("Failed to get local metadata index for ") + "net.minecraft");
+        return;
+    }
+
+    auto ver = vlist->getVersion(m_version.minecraft);
+    if (!ver) {
+        emitFailed(tr("Failed to get local metadata index for ") + "net.minecraft" + " " + m_version.minecraft);
+        return;
+    }
+    ver->load(Net::Mode::Online);
+    minecraftVersion = ver;
 
     if(m_version.noConfigs) {
         installMods();
@@ -192,6 +209,23 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
         return true;
     }
 
+    QList<GradleSpecifier> exempt;
+    for(const auto & componentUid : componentsToInstall.keys()) {
+        auto componentVersion = componentsToInstall.value(componentUid);
+
+        for(const auto & library : componentVersion->data()->libraries) {
+            GradleSpecifier lib(library->rawName());
+            exempt.append(lib);
+        }
+    }
+
+    {
+        for(const auto & library : minecraftVersion->data()->libraries) {
+            GradleSpecifier lib(library->rawName());
+            exempt.append(lib);
+        }
+    }
+
     auto uuid = QUuid::createUuid();
     auto id = uuid.toString().remove('{').remove('}');
     auto target_id = "org.multimc.atlauncher." + id;
@@ -206,10 +240,20 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
     auto f = std::make_shared<VersionFile>();
     f->name = m_pack + " " + m_version_name + " (libraries)";
 
-    for(auto lib : m_version.libraries) {
-        auto library = std::make_shared<Library>();
-
+    for(const auto & lib : m_version.libraries) {
         auto libName = getLibraryRawName(lib);
+        GradleSpecifier libSpecifier(libName);
+
+        bool libExempt = false;
+        for(const auto & existingLib : exempt) {
+            if(libSpecifier.matchName(existingLib)) {
+                // If the pack specifies a newer version of the lib, use that!
+                libExempt = Version(libSpecifier.version()) >= Version(existingLib.version());
+            }
+        }
+        if(libExempt) continue;
+
+        auto library = std::make_shared<Library>();
         library->setRawName(libName);
 
         switch(lib.download) {
@@ -226,6 +270,10 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
         }
 
         f->libraries.append(library);
+    }
+
+    if(f->libraries.isEmpty()) {
+        return true;
     }
 
     QFile file(patchFileName);
@@ -259,9 +307,22 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
     }
     auto patchFileName = FS::PathCombine(patchDir, target_id + ".json");
 
+    QStringList mainClasses;
+    QStringList tweakers;
+    for(const auto & componentUid : componentsToInstall.keys()) {
+        auto componentVersion = componentsToInstall.value(componentUid);
+
+        if(componentVersion->data()->mainClass != QString("")) {
+            mainClasses.append(componentVersion->data()->mainClass);
+        }
+        tweakers.append(componentVersion->data()->addTweakers);
+    }
+
     auto f = std::make_shared<VersionFile>();
     f->name = m_pack + " " + m_version_name;
-    f->mainClass = m_version.mainClass;
+    if(m_version.mainClass != QString() && !mainClasses.contains(m_version.mainClass)) {
+        f->mainClass = m_version.mainClass;
+    }
 
     // Parse out tweakers
     auto args = m_version.extraArguments.split(" ");
@@ -269,9 +330,15 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
     for(auto arg : args) {
         if(arg.startsWith("--tweakClass=") || previous == "--tweakClass") {
             auto tweakClass = arg.remove("--tweakClass=");
+            if(tweakers.contains(tweakClass)) continue;
+
             f->addTweakers.append(tweakClass);
         }
         previous = arg;
+    }
+
+    if(f->mainClass == QString() && f->addTweakers.isEmpty()) {
+        return true;
     }
 
     QFile file(patchFileName);
@@ -388,7 +455,23 @@ void PackInstallTask::installMods()
             auto dl = Net::Download::makeFile(url, path);
             jobPtr->addNetAction(dl);
 
-            if(mod.type == ModType::Jar || mod.type == ModType::Forge) {
+            if(mod.type == ModType::Forge) {
+                auto vlist = ENV.metadataIndex()->get("net.minecraftforge");
+                if(vlist)
+                {
+                    auto ver = vlist->getVersion(mod.version);
+                    if(ver) {
+                        ver->load(Net::Mode::Online);
+                        componentsToInstall.insert("net.minecraftforge", ver);
+                        continue;
+                    }
+                }
+
+                qDebug() << "Jarmod: " + path;
+                jarmods.push_back(path);
+            }
+
+            if(mod.type == ModType::Jar) {
                 qDebug() << "Jarmod: " + path;
                 jarmods.push_back(path);
             }
@@ -485,6 +568,11 @@ void PackInstallTask::install()
     {
         emitFailed(tr("Unknown loader type: ") + m_version.loader.type);
         return;
+    }
+
+    for(const auto & componentUid : componentsToInstall.keys()) {
+        auto version = componentsToInstall.value(componentUid);
+        components->setComponentVersion(componentUid, version->version());
     }
 
     components->installJarMods(jarmods);
