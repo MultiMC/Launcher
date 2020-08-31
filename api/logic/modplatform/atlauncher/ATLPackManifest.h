@@ -82,6 +82,7 @@ struct VersionMod
     QString type_raw;
     ModType extractTo;
     QString extractTo_raw;
+    bool optional;
 };
 
 struct Version

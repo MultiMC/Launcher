@@ -105,6 +105,7 @@ static void loadVersionMod(ATLauncher::VersionMod & p, const QDomElement& ele) {
     p.type = parseModType(p.type_raw);
     p.extractTo_raw = ele.attribute("extractto");
     p.extractTo = parseModType(p.extractTo_raw);
+    p.optional = ele.attribute("optional") == QString("yes");
 }
 
 void ATLauncher::loadVersion(Version & v, QDomDocument & doc)

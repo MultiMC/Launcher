@@ -144,8 +144,12 @@ QString PackInstallTask::getVersionForLoader(QString uid)
     return m_version.loader.version;
 }
 
-bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
+bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
 {
+    if(m_version.libraries.isEmpty()) {
+        return true;
+    }
+
     auto uuid = QUuid::createUuid();
     auto id = uuid.toString().remove('{').remove('}');
     auto target_id = "org.multimc.atlauncher." + id;
@@ -158,17 +162,7 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
     auto patchFileName = FS::PathCombine(patchDir, target_id + ".json");
 
     auto f = std::make_shared<VersionFile>();
-    f->name = m_pack + " " + m_version_name;
-    f->mainClass = m_version.pack.mainClass;
-
-    // Parse out tweakers
-    auto args = m_version.pack.extraArguments.split(" ");
-    for(auto arg : args) {
-        if(arg.startsWith("--tweakClass=")) {
-            auto tweakClass = arg.remove("--tweakClass=");
-            f->addTweakers.append(tweakClass);
-        }
-    }
+    f->name = m_pack + " " + m_version_name + " (libraries)";
 
     for(auto lib : m_version.libraries) {
         auto library = std::make_shared<Library>();
@@ -188,6 +182,52 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
         }
 
         f->libraries.append(library);
+    }
+
+    QFile file(patchFileName);
+    if (!file.open(QFile::WriteOnly))
+    {
+        qCritical() << "Error opening" << file.fileName()
+                    << "for reading:" << file.errorString();
+        return false;
+    }
+    file.write(OneSixVersionFormat::versionFileToJson(f).toJson());
+    file.close();
+
+    profile->appendComponent(new Component(profile.get(), target_id, f));
+    return true;
+}
+
+bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
+{
+    if(!(m_version.pack.mainClass != QString() || m_version.pack.extraArguments != QString())) {
+        return true;
+    }
+
+    auto uuid = QUuid::createUuid();
+    auto id = uuid.toString().remove('{').remove('}');
+    auto target_id = "org.multimc.atlauncher." + id;
+
+    auto patchDir = FS::PathCombine(instanceRoot, "patches");
+    if(!FS::ensureFolderPathExists(patchDir))
+    {
+        return false;
+    }
+    auto patchFileName = FS::PathCombine(patchDir, target_id + ".json");
+
+    auto f = std::make_shared<VersionFile>();
+    f->name = m_pack + " " + m_version_name;
+    f->mainClass = m_version.pack.mainClass;
+
+    // Parse out tweakers
+    auto args = m_version.pack.extraArguments.split(" ");
+    QString previous;
+    for(auto arg : args) {
+        if(arg.startsWith("--tweakClass=") || previous == "--tweakClass") {
+            auto tweakClass = arg.remove("--tweakClass=");
+            f->addTweakers.append(tweakClass);
+        }
+        previous = arg;
     }
 
     QFile file(patchFileName);
@@ -268,6 +308,9 @@ void PackInstallTask::installMods()
     jarmods.clear();
     jobPtr.reset(new NetJob(tr("Mod download")));
     for(const auto& mod : m_version.mods) {
+        // skip optional mods for now
+        if(mod.optional) continue;
+
         QString url;
         switch(mod.download) {
             case DownloadType::Server:
@@ -370,6 +413,11 @@ void PackInstallTask::install()
     MinecraftInstance instance(m_globalSettings, instanceSettings, m_stagingPath);
     auto components = instance.getPackProfile();
     components->buildingFromScratch();
+
+    // Use a component to add libraries BEFORE Minecraft
+    if(!createLibrariesComponent(instance.instanceRoot(), components)) {
+        return;
+    }
 
     // Minecraft
     components->setComponentVersion("net.minecraft", m_version.pack.minecraft, true);
