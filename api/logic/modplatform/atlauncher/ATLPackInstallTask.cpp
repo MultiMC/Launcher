@@ -100,15 +100,17 @@ void PackInstallTask::onDownloadFailed(QString reason)
 QString PackInstallTask::getDirForModType(ModType type, QString raw)
 {
     switch (type) {
+        // Mod types that can either be ignored at this stage, or ignored
+        // completely.
         case ModType::Root:
         case ModType::Extract:
-            // Handled elsewhere
-            return Q_NULLPTR;
+        case ModType::TexturePackExtract:
+        case ModType::ResourcePackExtract:
         case ModType::MCPC:
-            // we can safely ignore MCPC server jar
             return Q_NULLPTR;
         case ModType::Forge:
-            // todo: detect Forge version and install through a proper component
+            // Forge detection happens later on, if it cannot be detected it will
+            // install a jarmod component.
         case ModType::Jar:
             return "jarmods";
         case ModType::Mods:
@@ -134,6 +136,9 @@ QString PackInstallTask::getDirForModType(ModType type, QString raw)
             return "resourcepacks";
         case ModType::ShaderPack:
             return "shaderpacks";
+        case ModType::Millenaire:
+            qWarning() << "Unsupported mod type: " + raw;
+            return Q_NULLPTR;
         case ModType::Unknown:
             emitFailed(tr("Unknown mod type: ") + raw);
             return Q_NULLPTR;
@@ -438,7 +443,7 @@ void PackInstallTask::installMods()
                 return;
         }
 
-        if (mod.type == ModType::Extract) {
+        if (mod.type == ModType::Extract || mod.type == ModType::TexturePackExtract || mod.type == ModType::ResourcePackExtract) {
             auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", mod.url);
             entry->setStale(true);
             modsToExtract.insert(entry->getFullPath(), mod);
@@ -508,13 +513,28 @@ void PackInstallTask::extractMods()
     auto modPath = modsToExtract.firstKey();
     auto mod = modsToExtract.value(modPath);
 
-    auto extractToDir = getDirForModType(mod.extractTo, mod.extractTo_raw);
+    QString extractToDir;
+    if(mod.type == ModType::Extract) {
+        extractToDir = getDirForModType(mod.extractTo, mod.extractTo_raw);
+    }
+    else if(mod.type == ModType::TexturePackExtract) {
+        extractToDir = FS::PathCombine("texturepacks", "extracted");
+    }
+    else if(mod.type == ModType::ResourcePackExtract) {
+        extractToDir = FS::PathCombine("resourcepacks", "extracted");
+    }
+
     qDebug() << "Extracting " + mod.file + " to " + extractToDir;
 
     QDir extractDir(m_stagingPath);
     auto extractToPath = FS::PathCombine(extractDir.absolutePath(), "minecraft", extractToDir);
 
-    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractDir, modPath, mod.extractFolder, extractToPath);
+    QString folderToExtract = "";
+    if(mod.type == ModType::Extract) {
+        folderToExtract = mod.extractFolder;
+    }
+
+    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractDir, modPath, folderToExtract, extractToPath);
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, [&]()
     {
         extractMods();

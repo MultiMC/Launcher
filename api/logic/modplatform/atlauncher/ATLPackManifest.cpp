@@ -66,6 +66,15 @@ static ATLauncher::ModType parseModType(QString rawType) {
     else if(rawType == QString("shaderpack")) {
         return ATLauncher::ModType::ShaderPack;
     }
+    else if(rawType == QString("texturepackextract")) {
+        return ATLauncher::ModType::TexturePackExtract;
+    }
+    else if(rawType == QString("resourcepackextract")) {
+        return ATLauncher::ModType::ResourcePackExtract;
+    }
+    else if(rawType == QString("millenaire")) {
+        return ATLauncher::ModType::Millenaire;
+    }
 
     return ATLauncher::ModType::Unknown;
 }
@@ -96,7 +105,7 @@ static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
     p.version = Json::requireString(obj, "version");
     p.url = Json::requireString(obj, "url");
     p.file = Json::requireString(obj, "file");
-    p.md5 = Json::requireString(obj, "md5");
+    p.md5 = Json::ensureString(obj, "md5", "");
 
     p.download_raw = Json::requireString(obj, "download");
     p.download = parseDownloadType(p.download_raw);

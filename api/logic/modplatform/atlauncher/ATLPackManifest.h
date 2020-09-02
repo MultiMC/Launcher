@@ -32,6 +32,9 @@ enum class ModType
     TexturePack,
     ResourcePack,
     ShaderPack,
+    TexturePackExtract,
+    ResourcePackExtract,
+    Millenaire,
     Unknown
 };
 
