@@ -55,16 +55,14 @@ public:
     virtual bool shouldDisplay() const override;
 
 private slots:
-    void on_javaDetectBtn_clicked();
-    void on_javaTestBtn_clicked();
-    void on_javaBrowseBtn_clicked();
-
     void applySettings();
     void loadSettings();
 
     void activateUIClicked(bool checked);
+    void updateState();
 
 private:
     Ui::ModpackPage *ui;
     BaseInstance *m_instance;
+    bool uiActivated = false;
 };

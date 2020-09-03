@@ -5,6 +5,7 @@
 #include "pages/BasePage.h"
 #include "pages/BasePageProvider.h"
 #include "pages/instance/LogPage.h"
+#include "pages/instance/ModpackPage.h"
 #include "pages/instance/VersionPage.h"
 #include "pages/instance/ModFolderPage.h"
 #include "pages/instance/ResourcePackPage.h"
@@ -50,6 +51,7 @@ public:
             // values.append(new GameOptionsPage(onesix.get()));
             values.append(new ScreenshotsPage(FS::PathCombine(onesix->gameRoot(), "screenshots")));
             values.append(new InstanceSettingsPage(onesix.get()));
+            values.append(new ModpackPage(onesix.get()));
         }
         std::shared_ptr<LegacyInstance> legacy = std::dynamic_pointer_cast<LegacyInstance>(inst);
         if(legacy)

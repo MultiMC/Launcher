@@ -104,7 +104,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
-           <widget class="QCheckBox" name="mimMemCheck">
+           <widget class="QCheckBox" name="minMemCheck">
             <property name="text">
              <string>Minimum memory allocation:</string>
             </property>
@@ -239,7 +239,7 @@
   <tabstop>repositoryEdit</tabstop>
   <tabstop>coordinateCheck</tabstop>
   <tabstop>coordinateEdit</tabstop>
-  <tabstop>mimMemCheck</tabstop>
+  <tabstop>minMemCheck</tabstop>
   <tabstop>minMemSpinBox</tabstop>
   <tabstop>maxMemCheck</tabstop>
   <tabstop>maxMemSpinBox</tabstop>
