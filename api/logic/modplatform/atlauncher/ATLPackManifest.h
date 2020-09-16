@@ -82,6 +82,10 @@ struct VersionMod
     QString extractTo_raw;
     QString extractFolder;
 
+    ModType decompType;
+    QString decompType_raw;
+    QString decompFile;
+
     bool optional;
 };
 

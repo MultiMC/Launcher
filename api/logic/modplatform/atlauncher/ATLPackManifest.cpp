@@ -128,6 +128,12 @@ static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
         p.extractFolder = Json::ensureString(obj, "extractFolder", "").replace("%s%", "/");
     }
 
+    if(obj.contains("decompType")) {
+        p.decompType_raw = Json::requireString(obj, "decompType");
+        p.decompType = parseModType(p.decompType_raw);
+        p.decompFile = Json::requireString(obj, "decompFile");
+    }
+
     p.optional = Json::ensureBoolean(obj, "optional", false);
 }
 

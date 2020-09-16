@@ -104,6 +104,7 @@ QString PackInstallTask::getDirForModType(ModType type, QString raw)
         // completely.
         case ModType::Root:
         case ModType::Extract:
+        case ModType::Decomp:
         case ModType::TexturePackExtract:
         case ModType::ResourcePackExtract:
         case ModType::MCPC:
@@ -127,9 +128,6 @@ QString PackInstallTask::getDirForModType(ModType type, QString raw)
             return "coremods";
         case ModType::Plugins:
             return "plugins";
-        case ModType::Decomp:
-            qWarning() << "Unsupported mod type: " + raw;
-            return Q_NULLPTR;
         case ModType::TexturePack:
             return "texturepacks";
         case ModType::ResourcePack:
@@ -173,7 +171,7 @@ QString PackInstallTask::getVersionForLoader(QString uid)
     return m_version.loader.version;
 }
 
-static QString getLibraryRawName(VersionLibrary library)
+QString PackInstallTask::detectLibrary(VersionLibrary library)
 {
     // Try to detect what the library is
     if (!library.server.isEmpty() && library.server.split("/").length() >= 3) {
@@ -246,7 +244,7 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
     f->name = m_pack + " " + m_version_name + " (libraries)";
 
     for(const auto & lib : m_version.libraries) {
-        auto libName = getLibraryRawName(lib);
+        auto libName = detectLibrary(lib);
         GradleSpecifier libSpecifier(libName);
 
         bool libExempt = false;
@@ -451,6 +449,14 @@ void PackInstallTask::installMods()
             auto dl = Net::Download::makeCached(url, entry);
             jobPtr->addNetAction(dl);
         }
+        else if(mod.type == ModType::Decomp) {
+            auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", mod.url);
+            entry->setStale(true);
+            modsToDecomp.insert(entry->getFullPath(), mod);
+
+            auto dl = Net::Download::makeCached(url, entry);
+            jobPtr->addNetAction(dl);
+        }
         else {
             auto relpath = getDirForModType(mod.type, mod.type_raw);
             if(relpath == Q_NULLPTR) continue;
@@ -506,7 +512,7 @@ void PackInstallTask::extractMods()
     setStatus(tr("Extracting mods..."));
 
     if(modsToExtract.isEmpty()) {
-        install();
+        decompMods();
         return;
     }
 
@@ -546,6 +552,23 @@ void PackInstallTask::extractMods()
     m_extractFutureWatcher.setFuture(m_extractFuture);
 
     modsToExtract.remove(modPath);
+}
+
+void PackInstallTask::decompMods()
+{
+    setStatus(tr("Extracting 'decomp' mods..."));
+
+    if(modsToDecomp.isEmpty()) {
+        install();
+        return;
+    }
+
+    auto modPath = modsToExtract.firstKey();
+    auto mod = modsToExtract.value(modPath);
+
+    // todo: implement
+
+    modsToDecomp.remove(modPath);
 }
 
 void PackInstallTask::install()

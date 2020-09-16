@@ -1,5 +1,6 @@
 #pragma once
 
+#include <meta/VersionList.h>
 #include "ATLPackManifest.h"
 
 #include "InstanceTask.h"
@@ -32,6 +33,7 @@ private slots:
 private:
     QString getDirForModType(ModType type, QString raw);
     QString getVersionForLoader(QString uid);
+    QString detectLibrary(VersionLibrary library);
 
     bool createLibrariesComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile);
     bool createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile);
@@ -40,6 +42,7 @@ private:
     void extractConfigs();
     void installMods();
     void extractMods();
+    void decompMods();
     void install();
 
 private:
@@ -51,6 +54,7 @@ private:
     PackVersion m_version;
 
     QMap<QString, VersionMod> modsToExtract;
+    QMap<QString, VersionMod> modsToDecomp;
 
     QString archivePath;
     QStringList jarmods;
