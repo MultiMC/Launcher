@@ -563,10 +563,26 @@ void PackInstallTask::decompMods()
         return;
     }
 
-    auto modPath = modsToExtract.firstKey();
-    auto mod = modsToExtract.value(modPath);
+    auto modPath = modsToDecomp.firstKey();
+    auto mod = modsToDecomp.value(modPath);
 
-    // todo: implement
+    auto extractToDir = getDirForModType(mod.decompType, mod.decompType_raw);
+
+    QDir extractDir(m_stagingPath);
+    auto extractToPath = FS::PathCombine(extractDir.absolutePath(), "minecraft", extractToDir, mod.decompFile);
+
+    qWarning() << "Extracting " + mod.decompFile + " to " + extractToDir;
+
+    m_decompFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractFile, modPath, mod.decompFile, extractToPath);
+    connect(&m_decompFutureWatcher, &QFutureWatcher<bool>::finished, this, [&]()
+    {
+        install();
+    });
+    connect(&m_decompFutureWatcher, &QFutureWatcher<bool>::canceled, this, [&]()
+    {
+        emitAborted();
+    });
+    m_decompFutureWatcher.setFuture(m_decompFuture);
 
     modsToDecomp.remove(modPath);
 }

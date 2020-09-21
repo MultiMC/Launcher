@@ -64,6 +64,9 @@ private:
     QFuture<QStringList> m_extractFuture;
     QFutureWatcher<QStringList> m_extractFutureWatcher;
 
+    QFuture<bool> m_decompFuture;
+    QFutureWatcher<bool> m_decompFutureWatcher;
+
 };
 
 }
