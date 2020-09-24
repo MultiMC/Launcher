@@ -175,6 +175,7 @@ public:
     TranslatedAction actionCheckUpdate;
     TranslatedAction actionSettings;
     TranslatedAction actionPatreon;
+    TranslatedAction actionreg;
     TranslatedAction actionMoreNews;
     TranslatedAction actionManageAccounts;
     TranslatedAction actionLaunchInstance;
@@ -382,6 +383,15 @@ public:
         actionCAT->setPriority(QAction::LowPriority);
         all_actions.append(&actionCAT);
         mainToolBar->addAction(actionCAT);
+
+        mainToolBar->addSeparator();
+        actionreg = TranslatedAction(MainWindow);
+        actionreg->setObjectName(QStringLiteral("actionreg"));
+        actionreg->setIcon(MMC->getThemedIcon("registered"));
+        actionreg.setTextId(QT_TRANSLATE_NOOP("MainWindow", "账号注册"));
+        actionreg.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "注册mcpifu账号,可以直接登陆."));
+        all_actions.append(&actionreg);
+        mainToolBar->addAction(actionreg);
 
         // profile menu and its actions
         actionManageAccounts = TranslatedAction(MainWindow);
@@ -1645,7 +1655,10 @@ void MainWindow::on_actionPatreon_triggered()
 {
     DesktopServices::openUrl(QUrl("https://www.patreon.com/multimc"));
 }
-
+void MainWindow::on_actionreg_triggered()
+{
+    DesktopServices::openUrl(QUrl("https://www.mcpifu.top/auth/register"));
+}
 void MainWindow::on_actionMoreNews_triggered()
 {
     DesktopServices::openUrl(QUrl("https://multimc.org/posts.html"));

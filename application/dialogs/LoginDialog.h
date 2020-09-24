@@ -51,6 +51,9 @@ slots:
     void on_userTextBox_textEdited(const QString &newText);
     void on_passTextBox_textEdited(const QString &newText);
 
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::LoginDialog *ui;
     MojangAccountPtr m_account;

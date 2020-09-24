@@ -17,6 +17,7 @@
 #include "ui_LoginDialog.h"
 
 #include "minecraft/auth/YggdrasilTask.h"
+#include <DesktopServices.h>
 
 #include <QtWidgets/QPushButton>
 
@@ -107,4 +108,9 @@ MojangAccountPtr LoginDialog::newAccount(QWidget *parent, QString msg)
         return dlg.m_account;
     }
     return 0;
+}
+
+void LoginDialog::on_pushButton_clicked()
+{
+    DesktopServices::openUrl(QUrl("https://www.mcpifu.top/auth/register"));
 }

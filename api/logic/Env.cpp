@@ -104,6 +104,7 @@ void Env::initHttpMetaCache()
     m_metacache->addBase("translations", QDir("translations").absolutePath());
     m_metacache->addBase("icons", QDir("cache/icons").absolutePath());
     m_metacache->addBase("meta", QDir("meta").absolutePath());
+    m_metacache->addBase("jars", QDir("jars").absolutePath());
     m_metacache->Load();
 }
 

@@ -40,8 +40,8 @@ AccountListPage::AccountListPage(QWidget *parent)
 {
     ui->setupUi(this);
     ui->listView->setEmptyString(tr(
-        "Welcome!\n"
-        "If you're new here, you can click the \"Add\" button to add your Mojang or Minecraft account."
+        "欢迎您！\n"
+        "如果你是第一次使用，你可以点击“添加”按钮来添加你的 Mcpifu 帐号."
     ));
     ui->listView->setEmptyMode(VersionListView::String);
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -104,7 +104,7 @@ void AccountListPage::listChanged()
 
 void AccountListPage::on_actionAdd_triggered()
 {
-    addAccount(tr("Please enter your Minecraft account email and password to add your account."));
+    addAccount(tr("请输入您的 Mcpifu 账号邮箱和密码以添加账号."));
 }
 
 void AccountListPage::on_actionRemove_triggered()

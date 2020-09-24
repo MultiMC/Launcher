@@ -1,5 +1,4 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
+<RCC>
     <qresource prefix="/icons/flat">
         <file>index.theme</file>
         <file>scalable/about.svg</file>
@@ -41,5 +40,6 @@
         <file>scalable/status-yellow.svg</file>
         <file>scalable/viewfolder.svg</file>
         <file>scalable/worlds.svg</file>
+        <file>scalable/registered.svg</file>
     </qresource>
 </RCC>

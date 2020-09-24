@@ -67,8 +67,8 @@ public:
 
     QString RESOURCE_BASE = "https://resources.download.minecraft.net/";
     QString LIBRARY_BASE = "https://libraries.minecraft.net/";
-    QString SKINS_BASE = "https://crafatar.com/skins/";
-    QString AUTH_BASE = "https://authserver.mojang.com/";
+    QString SKINS_BASE = "https://www.mcpifu.top/skins/";
+    QString AUTH_BASE = "https://www.mcpifu.top/api/yggdrasil/authserver/";
     QString MOJANG_STATUS_URL = "https://status.mojang.com/check";
     QString IMGUR_BASE_URL = "https://api.imgur.com/3/";
     QString FMLLIBS_OUR_BASE_URL = "https://files.multimc.org/fmllibs/";
