@@ -1,5 +1,5 @@
-Making Installer
-================
+Making Windows Installer
+========================
 
 # Contents
 * [Note](#note)
