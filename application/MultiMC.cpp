@@ -69,8 +69,9 @@
 #include <ganalytics.h>
 #include <sys.h>
 
-#include "pagedialog/PageDialog.h"
+#include "Json.h"
 
+#include "pagedialog/PageDialog.h"
 
 #if defined Q_OS_WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -509,6 +510,11 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("LastHostname", "");
         m_settings->registerSetting("JvmArgs", "");
 
+        //URL
+        m_settings->registerSetting("AUTHURL","");
+        m_settings->registerSetting("SKINSURL","");
+        m_settings->registerSetting("authv","");
+
         // Native library workarounds
         m_settings->registerSetting("UseNativeOpenAL", false);
         m_settings->registerSetting("UseNativeGLFW", false);
@@ -677,6 +683,29 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         ENV.updateProxySettings(proxyTypeStr, addr, port, user, pass);
         qDebug() << "<> Proxy settings done.";
     }
+    //设置认证服务器
+    {
+        qDebug() << "认证服务器";
+        QString currentAUTHURL = settings()->get("AUTHURL").toString();
+        if(currentAUTHURL=="")
+        {
+               settings()->set("AUTHURL","https://www.mcpifu.top/api/yggdrasil/authserver/");
+        }
+
+        //qDebug() << "currentAUTHURL="<<currentAUTHURL;
+        QString currentSKINSURL = settings()->get("SKINSURL").toString();
+        if (currentSKINSURL == "")
+        {
+           settings()->set("SKINSURL","https://www.mcpifu.top/skins/");
+        }
+        //qDebug() << "SKINSURL="<< currentSKINSURL;
+    }
+    {
+        dljob.reset(new NetJob("authlib-injector"));
+        dljob->addNetAction(Net::Download::makeByteArray(QUrl("https://authlib-injector.yushi.moe/artifact/latest.json"),&authlib));
+        connect(dljob.get(), &NetJob::succeeded, this, &MultiMC::authlibinjector);
+        dljob->start();
+    }
 
     // now we have network, download translation updates
     m_translations->downloadIndex();
@@ -824,6 +853,40 @@ bool MultiMC::createSetupWizard()
         return true;
     }
     return false;
+}
+
+void MultiMC::authlibinjector()
+{
+    auto document = Json::requireDocument(authlib);
+    auto rootobject = Json::requireObject(document);
+    auto version = Json::requireString(rootobject, "version");
+    auto download_url = Json::requireString(rootobject, "download_url");
+//    qDebug()<<"download_url="<<download_url;
+//    qDebug()<<"version="<<version;
+
+    QFileInfo file("./jars/authlib-injector.jar");
+    if(file.exists() == false)
+    {
+       qDebug() << "开始下载authlib-injector....";
+       MetaEntryPtr entry = ENV.metacache()->resolveEntry("jars", "authlib-injector.jar");
+       entry->setStale(true);
+       dljob->addNetAction(Net::Download::makeCached(QUrl(download_url), entry));
+       dljob->start();
+       settings()->set("authv",version);
+    }
+    else
+    {
+        QString authv = settings()->get("authv").toString();
+        if(authv != version)
+        {
+            qDebug() << "更新authlib-injector";
+            MetaEntryPtr entry = ENV.metacache()->resolveEntry("jars", "authlib-injector.jar");
+            entry->setStale(true);
+            dljob->addNetAction(Net::Download::makeCached(QUrl(download_url), entry));
+            dljob->start();
+            settings()->set("authv",version);
+        }
+    }
 }
 
 void MultiMC::setupWizardFinished(int status)

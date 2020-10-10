@@ -170,8 +170,9 @@ void AccountListPage::addAccount(const QString &errMsg)
 
         for (AccountProfile profile : account->profiles())
         {
+            //qDebug()<<"SKINSURL2="<<MMC->settings()->get("SKINSURL").toString();
             auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(BuildConfig.SKINS_BASE + profile.id + ".png"), meta);
+            auto action = Net::Download::makeCached(QUrl(MMC->settings()->get("SKINSURL").toString() + profile.id + ".png"), meta);
             job->addNetAction(action);
             meta->setStale(true);
         }

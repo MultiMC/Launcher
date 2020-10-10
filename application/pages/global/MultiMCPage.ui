@@ -44,8 +44,112 @@
       <attribute name="title">
        <string>Features</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
-       <item>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="foldersBox">
+         <property name="title">
+          <string>Folders</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelModsDir">
+            <property name="text">
+             <string>&amp;Mods:</string>
+            </property>
+            <property name="buddy">
+             <cstring>modsDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="instDirBrowseBtn">
+            <property name="text">
+             <string notr="true">...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="iconsDirTextBox"/>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="iconsDirBrowseBtn">
+            <property name="text">
+             <string notr="true">...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="instDirTextBox"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="modsDirBrowseBtn">
+            <property name="text">
+             <string notr="true">...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="modsDirTextBox"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="labelIconsDir">
+            <property name="text">
+             <string>&amp;Icons:</string>
+            </property>
+            <property name="buddy">
+             <cstring>iconsDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelInstDir">
+            <property name="text">
+             <string>I&amp;nstances:</string>
+            </property>
+            <property name="buddy">
+             <cstring>instDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="AUTHBox">
+         <property name="title">
+          <string>认证服务器</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0">
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelSkinsurl">
+            <property name="text">
+             <string>头像url:</string>
+            </property>
+            <property name="buddy">
+             <cstring>iconsDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="AuthurlDirTextBox"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelAuthurl">
+            <property name="text">
+             <string>Yggdrasil:</string>
+            </property>
+            <property name="buddy">
+             <cstring>modsDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="SkinsurlDirTextBox"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0">
         <widget class="QGroupBox" name="updateSettingsBox">
          <property name="title">
           <string>Update Settings</string>
@@ -88,84 +192,15 @@
          </layout>
         </widget>
        </item>
-       <item>
-        <widget class="QGroupBox" name="foldersBox">
-         <property name="title">
-          <string>Folders</string>
-         </property>
-         <layout class="QGridLayout" name="foldersBoxLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelInstDir">
-            <property name="text">
-             <string>I&amp;nstances:</string>
-            </property>
-            <property name="buddy">
-             <cstring>instDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="instDirTextBox"/>
-          </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="instDirBrowseBtn">
-            <property name="text">
-             <string notr="true">...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="labelModsDir">
-            <property name="text">
-             <string>&amp;Mods:</string>
-            </property>
-            <property name="buddy">
-             <cstring>modsDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="modsDirTextBox"/>
-          </item>
-          <item row="1" column="2">
-           <widget class="QToolButton" name="modsDirBrowseBtn">
-            <property name="text">
-             <string notr="true">...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="iconsDirTextBox"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="labelIconsDir">
-            <property name="text">
-             <string>&amp;Icons:</string>
-            </property>
-            <property name="buddy">
-             <cstring>iconsDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QToolButton" name="iconsDirBrowseBtn">
-            <property name="text">
-             <string notr="true">...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
+       <item row="3" column="0">
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>0</width>
-           <height>0</height>
+           <width>20</width>
+           <height>40</height>
           </size>
          </property>
         </spacer>

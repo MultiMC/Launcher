@@ -287,6 +287,10 @@ void MultiMCPage::applySettings()
     s->set("ConsoleFontSize", ui->fontSizeBox->value());
     s->set("ConsoleMaxLines", ui->lineLimitSpinBox->value());
     s->set("ConsoleOverflowStop", ui->checkStopLogging->checkState() != Qt::Unchecked);
+    //认证设置
+    s->set("AUTHURL",ui->AuthurlDirTextBox->text());
+    s->set("SKINSURL",ui->SkinsurlDirTextBox->text());
+
 
     // Folders
     // TODO: Offer to move instances to new instance folder.
@@ -371,6 +375,9 @@ void MultiMCPage::loadSettings()
             idx++;
         }
     }
+    //加载认证
+    ui->AuthurlDirTextBox->setText(s->get("AUTHURL").toString());
+    ui->SkinsurlDirTextBox->setText(s->get("SKINSURL").toString());
 
     // Console settings
     ui->showConsoleCheck->setChecked(s->get("ShowConsole").toBool());

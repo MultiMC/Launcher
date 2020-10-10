@@ -13,8 +13,8 @@
 #include <BuildConfig.h>
 #include "Json.h"
 #include <QFileInfo>
-
 #include "POTranslator.h"
+
 
 const static QLatin1Literal defaultLangCode("en");
 
@@ -569,17 +569,6 @@ void TranslationsModel::downloadIndex()
     connect(d->m_index_job.get(), &NetJob::succeeded, this, &TranslationsModel::indexReceived);
     d->m_index_job->start();
 
-    QFileInfo file("./jars/authlib-injector.jar");
-    if(file.exists()==false){
-       qDebug() << "authlib-injector文件丢失,下载开始....";
-       MetaEntryPtr entry = ENV.metacache()->resolveEntry("jars", "authlib-injector.jar");
-       entry->setStale(true);
-       d->m_index_task = Net::Download::makeCached(QUrl("https://www.mcpifu.top/authlib-injector.jar"), entry);
-       d->m_index_job->addNetAction(d->m_index_task);
-       d->m_index_job->start();
-    }else {
-        qDebug() << "文件存在";
-}
 }
 
 void TranslationsModel::updateLanguage(QString key)

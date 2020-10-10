@@ -781,8 +781,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         }
         for (auto profile : account->profiles())
         {
+            //qDebug()<<"SKINSURL1="<<MMC->settings()->get("SKINSURL").toString();
             auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(BuildConfig.SKINS_BASE + profile.id + ".png"), meta);
+            auto action = Net::Download::makeCached(QUrl(MMC->settings()->get("SKINSURL").toString() + profile.id + ".png"), meta);
             skin_dls.append(action);
             meta->setStale(true);
         }

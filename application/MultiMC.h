@@ -171,6 +171,7 @@ private:
 private:
     void addRunningInstance();
     void subRunningInstance();
+    void authlibinjector();
     bool shouldExitNow() const;
 
 private:
@@ -192,6 +193,8 @@ private:
 
     QString m_rootPath;
     Status m_status = MultiMC::StartingUp;
+    NetJobPtr dljob;
+    QByteArray authlib;
 
 #if defined Q_OS_WIN32
     // used on Windows to attach the standard IO streams
