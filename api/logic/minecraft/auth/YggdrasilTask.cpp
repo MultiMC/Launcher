@@ -41,12 +41,12 @@ void YggdrasilTask::executeTask()
     QString iniFilePath = "multimc.cfg";
     QSettings settings(iniFilePath,QSettings::IniFormat);
     QString AUTHURL = settings.value("AUTHURL").toString();
-    qDebug() <<"AUTHURL="<< AUTHURL;
+    //qDebug() <<"AUTHURL="<< AUTHURL;
     if(AUTHURL.endsWith("/")==false)
     {
         AUTHURL=AUTHURL+"/";
     }
-    qDebug() <<"AUTHURL="<< AUTHURL;
+    //qDebug() <<"AUTHURL="<< AUTHURL;
     changeState(STATE_SENDING_REQUEST);
 
     // Get the content of the request we're going to send to the server.
