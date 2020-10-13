@@ -48,11 +48,10 @@ void YggdrasilTask::executeTask()
     }
     //qDebug() <<"AUTHURL="<< AUTHURL;
     changeState(STATE_SENDING_REQUEST);
-
     // Get the content of the request we're going to send to the server.
     QJsonDocument doc(getRequestContent());
-
     QUrl reqUrl(AUTHURL+"authserver/" + getEndpoint());
+    //qDebug()<<"reqUrl="<<reqUrl;
     QNetworkRequest netRequest(reqUrl);
     netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 

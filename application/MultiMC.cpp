@@ -689,7 +689,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         QString currentAUTHURL = settings()->get("AUTHURL").toString();
         if(currentAUTHURL=="")
         {
-               settings()->set("AUTHURL","https://www.mcpifu.top/api/yggdrasil/authserver/");
+               settings()->set("AUTHURL","https://www.mcpifu.top/api/yggdrasil/");
         }
 
         //qDebug() << "currentAUTHURL="<<currentAUTHURL;
