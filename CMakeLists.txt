@@ -180,3 +180,9 @@ add_subdirectory(buildconfig)
 
 # NOTE: this must always be last to appease the CMake deity of quirky install command evaluation order.
 add_subdirectory(launcher)
+
+option(BUILD_TOOLS "Build miscellaneous tools" OFF)
+
+if(BUILD_TOOLS)
+    add_subdirectory(tools)
+endif()

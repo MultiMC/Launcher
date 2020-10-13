@@ -200,7 +200,6 @@ class MainWindow::Ui
 {
 public:
     TranslatedAction actionAddInstance;
-    //TranslatedAction actionRefresh;
     TranslatedAction actionCheckUpdate;
     TranslatedAction actionSettings;
     TranslatedAction actionPatreon;
@@ -220,6 +219,7 @@ public:
     TranslatedAction actionDeleteInstance;
     TranslatedAction actionConfig_Folder;
     TranslatedAction actionCAT;
+    TranslatedAction actionJREs;
     TranslatedAction actionCopyInstance;
     TranslatedAction actionLaunchInstanceOffline;
     TranslatedAction actionScreenshots;
@@ -420,6 +420,15 @@ public:
         actionCAT->setPriority(QAction::LowPriority);
         all_actions.append(&actionCAT);
         mainToolBar->addAction(actionCAT);
+
+        actionJREs = TranslatedAction(MainWindow);
+        actionJREs->setObjectName(QStringLiteral("actionJREs"));
+        actionJREs->setIcon(APPLICATION->getThemedIcon("java"));
+        actionJREs.setTextId(QT_TRANSLATE_NOOP("MainWindow", "JREs"));
+        actionJREs.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the Java Runtime manager"));
+        actionJREs->setPriority(QAction::LowPriority);
+        all_actions.append(&actionJREs);
+        mainToolBar->addAction(actionJREs);
 
         // profile menu and its actions
         actionManageAccounts = TranslatedAction(MainWindow);
@@ -1679,6 +1688,11 @@ void MainWindow::checkForUpdates()
 void MainWindow::on_actionSettings_triggered()
 {
     APPLICATION->ShowGlobalSettings(this, "global-settings");
+}
+
+void MainWindow::on_actionJREs_triggered()
+{
+    APPLICATION->ShowJREs(this);
 }
 
 void MainWindow::globalSettingsClosed()

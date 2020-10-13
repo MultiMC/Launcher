@@ -142,6 +142,7 @@ public:
     bool updatesAreAllowed();
 
     void ShowGlobalSettings(class QWidget * parent, QString open_page = QString());
+    void ShowJREs(class QWidget * parent);
 
 signals:
     void updateAllowedChanged(bool status);
@@ -168,6 +169,8 @@ private slots:
     void setupWizardFinished(int status);
 
 private:
+    void initializeSettings();
+    void initializeAnalytics();
     bool createSetupWizard();
     void performMainStartupAction();
 

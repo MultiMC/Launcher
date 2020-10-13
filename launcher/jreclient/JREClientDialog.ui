@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>JREClientDialog</class>
+ <widget class="QDialog" name="JREClientDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1250</width>
+    <height>1269</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Java Runtime Client</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout"/>
+ </widget>
+ <resources>
+  <include location="../resources/multimc/multimc.qrc"/>
+ </resources>
+ <connections/>
+</ui>

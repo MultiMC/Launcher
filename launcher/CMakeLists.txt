@@ -352,8 +352,14 @@ set(MINECRAFT_SOURCES
     minecraft/services/SkinDelete.cpp
     minecraft/services/SkinDelete.h
 
-    mojang/PackageManifest.h
+    mojang/ComponentsManifest.cpp
+    mojang/ComponentsManifest.h
+    mojang/PackageInstallTask.cpp
+    mojang/PackageInstallTask.h
     mojang/PackageManifest.cpp
+    mojang/PackageManifest.h
+    mojang/Path.cpp
+    mojang/Path.h
     )
 
 add_unit_test(GradleSpecifier
@@ -568,10 +574,12 @@ SET(LAUNCHER_SOURCES
     # Application base
     Application.h
     Application.cpp
-    UpdateController.cpp
-    UpdateController.h
     ApplicationMessage.h
     ApplicationMessage.cpp
+    ApplicationSettings.cpp
+    ApplicationSettings.h
+    UpdateController.cpp
+    UpdateController.h
 
     # GUI - general utilities
     DesktopServices.h
@@ -652,6 +660,11 @@ SET(LAUNCHER_SOURCES
     # Common java checking UI
     JavaCommon.h
     JavaCommon.cpp
+
+    jreclient/JREClient.h
+    jreclient/JREClient.cpp
+    jreclient/JREClientDialog.h
+    jreclient/JREClientDialog.cpp
 
     # GUI - paged dialog base
     ui/pages/BasePage.h
@@ -886,6 +899,8 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
     ui/dialogs/ModrinthExportDialog.ui
+
+    jreclient/JREClientDialog.ui
 )
 
 qt_add_resources(LAUNCHER_RESOURCES
@@ -937,6 +952,7 @@ target_link_libraries(Launcher_logic
 )
 
 target_link_libraries(Launcher_logic secrets)
+target_include_directories(Launcher_logic PUBLIC .)
 
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
 target_link_libraries(${Launcher_Name} Launcher_logic)

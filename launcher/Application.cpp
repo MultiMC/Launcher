@@ -77,6 +77,8 @@
 #include <sys.h>
 
 #include <Secrets.h>
+#include "ApplicationSettings.h"
+#include "jreclient/JREClientDialog.h"
 
 
 #define STRINGIFY(x) #x
@@ -562,162 +564,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         }
     } while(false);
 
-    // Initialize application settings
-    {
-        m_settings.reset(new INISettingsObject(BuildConfig.LAUNCHER_CONFIGFILE, this));
-        // Updates
-        m_settings->registerSetting("AutoUpdate", true);
-
-        // Theming
-        m_settings->registerSetting("IconTheme", QString("multimc"));
-        m_settings->registerSetting("ApplicationTheme", QString("system"));
-
-        // Notifications
-        m_settings->registerSetting("ShownNotifications", QString());
-
-        // Remembered state
-        m_settings->registerSetting("LastUsedGroupForNewInstance", QString());
-
-        QString defaultMonospace;
-        int defaultSize = 11;
-#ifdef Q_OS_WIN32
-        defaultMonospace = "Courier";
-        defaultSize = 10;
-#elif defined(Q_OS_MAC)
-        defaultMonospace = "Menlo";
-#else
-        defaultMonospace = "Monospace";
-#endif
-
-        // resolve the font so the default actually matches
-        QFont consoleFont;
-        consoleFont.setFamily(defaultMonospace);
-        consoleFont.setStyleHint(QFont::Monospace);
-        consoleFont.setFixedPitch(true);
-        QFontInfo consoleFontInfo(consoleFont);
-        QString resolvedDefaultMonospace = consoleFontInfo.family();
-        QFont resolvedFont(resolvedDefaultMonospace);
-        qDebug() << "Detected default console font:" << resolvedDefaultMonospace
-            << ", substitutions:" << resolvedFont.substitutions().join(',');
-
-        m_settings->registerSetting("ConsoleFont", resolvedDefaultMonospace);
-        m_settings->registerSetting("ConsoleFontSize", defaultSize);
-        m_settings->registerSetting("ConsoleMaxLines", 100000);
-        m_settings->registerSetting("ConsoleOverflowStop", true);
-
-        // Folders
-        m_settings->registerSetting("InstanceDir", "instances");
-        m_settings->registerSetting({"CentralModsDir", "ModsDir"}, "mods");
-        m_settings->registerSetting("IconsDir", "icons");
-
-        // Editors
-        m_settings->registerSetting("JsonEditor", QString());
-
-        // Language
-        m_settings->registerSetting("Language", QString());
-
-        // Console
-        m_settings->registerSetting("ShowConsole", false);
-        m_settings->registerSetting("AutoCloseConsole", false);
-        m_settings->registerSetting("ShowConsoleOnError", true);
-        m_settings->registerSetting("LogPrePostOutput", true);
-
-        // Window Size
-        m_settings->registerSetting({"LaunchMaximized", "MCWindowMaximize"}, false);
-        m_settings->registerSetting({"MinecraftWinWidth", "MCWindowWidth"}, 854);
-        m_settings->registerSetting({"MinecraftWinHeight", "MCWindowHeight"}, 480);
-
-        // Proxy Settings
-        m_settings->registerSetting("ProxyType", "None");
-        m_settings->registerSetting({"ProxyAddr", "ProxyHostName"}, "127.0.0.1");
-        m_settings->registerSetting("ProxyPort", 8080);
-        m_settings->registerSetting({"ProxyUser", "ProxyUsername"}, "");
-        m_settings->registerSetting({"ProxyPass", "ProxyPassword"}, "");
-
-        // Memory
-        m_settings->registerSetting({"MinMemAlloc", "MinMemoryAlloc"}, 512);
-        m_settings->registerSetting({"MaxMemAlloc", "MaxMemoryAlloc"}, 1024);
-        m_settings->registerSetting("PermGen", 128);
-
-        // Java Settings
-        m_settings->registerSetting("JavaPath", "");
-        m_settings->registerSetting("JavaTimestamp", 0);
-        m_settings->registerSetting("JavaArchitecture", "");
-        m_settings->registerSetting("JavaVersion", "");
-        m_settings->registerSetting("JavaVendor", "");
-        m_settings->registerSetting("LastHostname", "");
-        m_settings->registerSetting("JvmArgs", "");
-
-        // Native library workarounds
-        m_settings->registerSetting("UseNativeOpenAL", false);
-        m_settings->registerSetting("UseNativeGLFW", false);
-
-        // Game time
-        m_settings->registerSetting("ShowGameTime", true);
-        m_settings->registerSetting("ShowGlobalGameTime", true);
-        m_settings->registerSetting("RecordGameTime", true);
-        m_settings->registerSetting("ShowGameTimeHours", false);
-
-        // Minecraft launch method
-        m_settings->registerSetting("MCLaunchMethod", "LauncherPart");
-
-        // Minecraft offline player name
-        m_settings->registerSetting("LastOfflinePlayerName", "");
-
-        // Wrapper command for launch
-        m_settings->registerSetting("WrapperCommand", "");
-
-        // Custom Commands
-        m_settings->registerSetting({"PreLaunchCommand", "PreLaunchCmd"}, "");
-        m_settings->registerSetting({"PostExitCommand", "PostExitCmd"}, "");
-
-        // The cat
-        m_settings->registerSetting("TheCat", false);
-
-        m_settings->registerSetting("InstSortMode", "Name");
-        m_settings->registerSetting("SelectedInstance", QString());
-
-        // Window state and geometry
-        m_settings->registerSetting("MainWindowState", "");
-        m_settings->registerSetting("MainWindowGeometry", "");
-
-        m_settings->registerSetting("ConsoleWindowState", "");
-        m_settings->registerSetting("ConsoleWindowGeometry", "");
-
-        m_settings->registerSetting("SettingsGeometry", "");
-
-        m_settings->registerSetting("PagedGeometry", "");
-
-        m_settings->registerSetting("NewInstanceGeometry", "");
-
-        m_settings->registerSetting("UpdateDialogGeometry", "");
-
-        // paste.ee API key
-        m_settings->registerSetting("PasteEEAPIKey", "multimc");
-
-        if(!BuildConfig.ANALYTICS_ID.isEmpty())
-        {
-            // Analytics
-            m_settings->registerSetting("Analytics", true);
-            m_settings->registerSetting("AnalyticsSeen", 0);
-            m_settings->registerSetting("AnalyticsClientID", QString());
-        }
-
-        // Init page provider
-        {
-            m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
-            m_globalSettingsProvider->addPage<LauncherPage>();
-            m_globalSettingsProvider->addPage<MinecraftPage>();
-            m_globalSettingsProvider->addPage<JavaPage>();
-            m_globalSettingsProvider->addPage<LanguagePage>();
-            m_globalSettingsProvider->addPage<CustomCommandsPage>();
-            m_globalSettingsProvider->addPage<ProxyPage>();
-            m_globalSettingsProvider->addPage<ExternalToolsPage>();
-            m_globalSettingsProvider->addPage<AccountListPage>();
-            m_globalSettingsProvider->addPage<PasteEEPage>();
-        }
-        qDebug() << "<> Settings loaded.";
-    }
+    initializeSettings();
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::installFactory(groupViewAccessibleFactory);
@@ -884,44 +731,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     }
 
     // Initialize analytics
-    [this]()
-    {
-        const int analyticsVersion = 2;
-        if(BuildConfig.ANALYTICS_ID.isEmpty())
-        {
-            return;
-        }
-
-        auto analyticsSetting = m_settings->getSetting("Analytics");
-        connect(analyticsSetting.get(), &Setting::SettingChanged, this, &Application::analyticsSettingChanged);
-        QString clientID = m_settings->get("AnalyticsClientID").toString();
-        if(clientID.isEmpty())
-        {
-            clientID = QUuid::createUuid().toString();
-            clientID.remove(QLatin1Char('{'));
-            clientID.remove(QLatin1Char('}'));
-            m_settings->set("AnalyticsClientID", clientID);
-        }
-        m_analytics = new GAnalytics(BuildConfig.ANALYTICS_ID, clientID, analyticsVersion, this);
-        m_analytics->setLogLevel(GAnalytics::Debug);
-        m_analytics->setAnonymizeIPs(true);
-        // FIXME: the ganalytics library has no idea about our fancy shared pointers...
-        m_analytics->setNetworkAccessManager(network().get());
-
-        if(m_settings->get("AnalyticsSeen").toInt() < m_analytics->version())
-        {
-            qDebug() << "Analytics info not seen by user yet (or old version).";
-            return;
-        }
-        if(!m_settings->get("Analytics").toBool())
-        {
-            qDebug() << "Analytics disabled by user.";
-            return;
-        }
-
-        m_analytics->enable();
-        qDebug() << "<> Initialized analytics with tid" << BuildConfig.ANALYTICS_ID;
-    }();
+    initializeAnalytics();
 
     if(createSetupWizard())
     {
@@ -929,6 +739,68 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     }
     performMainStartupAction();
 }
+
+void Application::initializeAnalytics()
+{
+    const int analyticsVersion = 2;
+    if(BuildConfig.ANALYTICS_ID.isEmpty())
+    {
+        return;
+    }
+
+    auto analyticsSetting = m_settings->getSetting("Analytics");
+    connect(analyticsSetting.get(), &Setting::SettingChanged, this, &Application::analyticsSettingChanged);
+    QString clientID = m_settings->get("AnalyticsClientID").toString();
+    if(clientID.isEmpty())
+    {
+        clientID = QUuid::createUuid().toString();
+        clientID.remove(QLatin1Char('{'));
+        clientID.remove(QLatin1Char('}'));
+        m_settings->set("AnalyticsClientID", clientID);
+    }
+    m_analytics = new GAnalytics(BuildConfig.ANALYTICS_ID, clientID, analyticsVersion, this);
+    m_analytics->setLogLevel(GAnalytics::Debug);
+    m_analytics->setAnonymizeIPs(true);
+    // FIXME: the ganalytics library has no idea about our fancy shared pointers...
+    m_analytics->setNetworkAccessManager(network().get());
+
+    if(m_settings->get("AnalyticsSeen").toInt() < m_analytics->version())
+    {
+        qDebug() << "Analytics info not seen by user yet (or old version).";
+        return;
+    }
+    if(!m_settings->get("Analytics").toBool())
+    {
+        qDebug() << "Analytics disabled by user.";
+        return;
+    }
+
+    m_analytics->enable();
+    qDebug() << "<> Initialized analytics with tid" << BuildConfig.ANALYTICS_ID;
+}
+
+
+void Application::initializeSettings()
+{
+    // Initialize application settings
+    m_settings.reset(new ApplicationSettings(BuildConfig.LAUNCHER_CONFIGFILE, this));
+
+    // Init page provider
+    {
+        m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
+        m_globalSettingsProvider->addPage<LauncherPage>();
+        m_globalSettingsProvider->addPage<MinecraftPage>();
+        m_globalSettingsProvider->addPage<JavaPage>();
+        m_globalSettingsProvider->addPage<LanguagePage>();
+        m_globalSettingsProvider->addPage<CustomCommandsPage>();
+        m_globalSettingsProvider->addPage<ProxyPage>();
+        m_globalSettingsProvider->addPage<ExternalToolsPage>();
+        m_globalSettingsProvider->addPage<AccountListPage>();
+        m_globalSettingsProvider->addPage<PasteEEPage>();
+    }
+    qDebug() << "<> Settings loaded.";
+}
+
 
 bool Application::createSetupWizard()
 {
@@ -1405,6 +1277,13 @@ void Application::ShowGlobalSettings(class QWidget* parent, QString open_page)
     }
     emit globalSettingsClosed();
 }
+
+void Application::ShowJREs(class QWidget* parent)
+{
+    JREClientDialog dlg(parent);
+    dlg.exec();
+}
+
 
 MainWindow* Application::showMainWindow(bool minimized)
 {
