@@ -132,7 +132,11 @@ void PackInstallTask::install()
     connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
     {
         jobPtr.reset();
-        emitFailed(reason);
+
+        // FIXME: Temporarily ignore file download failures (matching FTB's installer),
+        // while FTB's data is fucked.
+        qWarning() << "Failed to download files for modpack: " + reason;
+        emitSucceeded();
     });
     connect(jobPtr.get(), &NetJob::progress, [&](qint64 current, qint64 total)
     {

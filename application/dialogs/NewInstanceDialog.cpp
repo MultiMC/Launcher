@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2020 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@
 #include <pages/modplatform/legacy_ftb/Page.h>
 #include <pages/modplatform/twitch/TwitchPage.h>
 #include <pages/modplatform/ImportPage.h>
+#include <pages/modplatform/technic/TechnicPage.h>
+
 
 
 NewInstanceDialog::NewInstanceDialog(const QString & initialGroup, const QString & url, QWidget *parent)
@@ -123,6 +125,7 @@ QList<BasePage *> NewInstanceDialog::getPages()
 {
     importPage = new ImportPage(this);
     twitchPage = new TwitchPage(this);
+    auto technicPage = new TechnicPage(this);
     return
     {
         new VanillaPage(this),
@@ -130,6 +133,7 @@ QList<BasePage *> NewInstanceDialog::getPages()
         new AtlPage(this),
         new FtbPage(this),
         new LegacyFTB::Page(this),
+        technicPage,
         twitchPage
     };
 }
