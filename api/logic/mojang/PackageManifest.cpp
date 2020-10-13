@@ -67,8 +67,8 @@ void Package::addLink(const Path& path, const Path& target) {
     symlinks[path] = target;
 }
 
-void Package::addSource(const FileSource& source) {
-    sources[source.hash] = source;
+void Package::addSource(const Hash & rawHash, const FileSource& source) {
+    sources[rawHash] = source;
 }
 
 
@@ -124,6 +124,8 @@ void fromJson(QJsonDocument & doc, Package & out) {
                 }
                 else if (compression == "lzma") {
                     source.compression = Compression::Lzma;
+                    // FIXME: remove this line when we implement LZMA filter for downloads again
+                    continue;
                 }
                 else {
                     continue;
@@ -134,11 +136,10 @@ void fromJson(QJsonDocument & doc, Package & out) {
                 throw JSONValidationError("No valid compression method for file " + iter.key());
             }
             out.addFile(objectPath, file);
-            out.addSource(bestSource);
+            out.addSource(file.hash, bestSource);
         }
         else if(type == "link") {
             auto target = Json::requireString(fileObject, "target");
-            out.symlinks[objectPath] = target;
             out.addLink(objectPath, target);
         }
         else {
@@ -238,7 +239,8 @@ Package Package::fromInspectedFolder(const QString& folderPath)
         iterator.next();
 
         auto fileInfo = iterator.fileInfo();
-        auto relPath = root.relativeFilePath(fileInfo.filePath());
+        auto itemPath = fileInfo.absoluteFilePath();
+        auto relPath = root.relativeFilePath(itemPath);
         // FIXME: this is probably completely busted on Windows anyway, so just disable it.
         // Qt makes shit up and doesn't understand the platform details
         // TODO: Actually use a filesystem library that isn't terrible and has decen license.
@@ -246,7 +248,7 @@ Package Package::fromInspectedFolder(const QString& folderPath)
 #ifndef Q_OS_WIN32
         if(fileInfo.isSymLink()) {
             Path targetPath;
-            if(!actually_read_symlink_target(fileInfo.filePath(), targetPath)) {
+            if(!actually_read_symlink_target(fileInfo.absoluteFilePath(), targetPath)) {
                 qCritical() << "Folder inspection: Unknown filesystem object:" << fileInfo.absoluteFilePath();
                 out.valid = false;
             }
@@ -364,12 +366,21 @@ UpdateOperations UpdateOperations::resolve(const Package& from, const Package& t
         }
     }
     for(auto iter = to.files.begin(); iter != to.files.end(); iter++) {
-        auto path = iter->first;
+        auto & path = iter->first;
+        auto & file = iter->second;
+        auto & fileHash = file.hash;
+        auto executable = file.executable;
+        if(!to.sources.count(fileHash)) {
+            out.valid = false;
+            return out;
+        }
+        auto & source = to.sources.at(fileHash);
+        // it wasn't there before, it is there now... therefore we fill it in
         if(!from.files.count(path)) {
             out.downloads.emplace(
                 std::pair<Path, FileDownload>{
                     path,
-                    FileDownload(to.sources.at(iter->second.hash), iter->second.executable)
+                    FileDownload(source, executable)
                 }
             );
         }
@@ -411,13 +422,14 @@ UpdateOperations UpdateOperations::resolve(const Package& from, const Package& t
         const auto &new_target = iter2->second;
         if (current_target != new_target) {
             out.deletes.push_back(path);
-            out.mklinks[path] = iter2->second;
+            out.mklinks[path] = new_target;
         }
     }
     for(auto iter = to.symlinks.begin(); iter != to.symlinks.end(); iter++) {
         auto path = iter->first;
+        const auto &new_target = iter->second;
         if(!from.symlinks.count(path)) {
-            out.mklinks[path] = iter->second;
+            out.mklinks[path] = new_target;
         }
     }
     out.valid = true;

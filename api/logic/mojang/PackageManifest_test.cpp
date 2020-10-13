@@ -86,6 +86,7 @@ void PackageManifestTest::test_parse_file() {
     auto path = QFINDTESTDATA("testdata/1.8.0_202-x64.json");
     auto manifest = Package::fromManifestFile(path);
     QVERIFY(manifest.valid == true);
+    QVERIFY(manifest.sources.count("c725183c757011e7ba96c83c1e86ee7e8b516a2b") == 1);
 }
 
 
