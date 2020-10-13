@@ -29,8 +29,8 @@ public:
             if(part == "..") {
                 if(parts.size()) {
                     parts.pop_back();
+                    continue;
                 }
-                continue;
             }
             parts.push_back(part);
         }
@@ -141,7 +141,7 @@ struct MULTIMC_LOGIC_EXPORT Package {
     void addFolder(Path folder);
     void addFile(const Path & path, const File & file);
     void addLink(const Path & path, const Path & target);
-    void addSource(const FileSource & source);
+    void addSource(const Hash & rawHash, const FileSource & source);
 
     std::map<Hash, FileSource> sources;
     bool valid = true;
@@ -168,6 +168,19 @@ struct MULTIMC_LOGIC_EXPORT UpdateOperations {
     std::map<Path, FileDownload> downloads;
     std::map<Path, Path> mklinks;
     std::map<Path, bool> executable_fixes;
+
+    bool empty() const {
+        if(!valid) {
+            return true;
+        }
+        return
+            deletes.empty() &&
+            rmdirs.empty() &&
+            mkdirs.empty() &&
+            downloads.empty() &&
+            mklinks.empty() &&
+            executable_fixes.empty();
+    }
 };
 
 }

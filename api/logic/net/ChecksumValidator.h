@@ -34,7 +34,7 @@ public: /* methods */
     {
         if(m_expected.size() && m_expected != hash())
         {
-            qWarning() << "Checksum mismatch, download is bad.";
+            qWarning() << "Checksum mismatch. expected:" << m_expected << "got:" << hash();
             return false;
         }
         return true;

@@ -6,7 +6,7 @@ namespace Net {
 class FileSink : public Sink
 {
 public: /* con/des */
-    FileSink(QString filename);
+    FileSink(QString filename, bool setExecutable = false);
     virtual ~FileSink();
 
 public: /* methods */
@@ -24,5 +24,6 @@ protected: /* data */
     QString m_filename;
     bool wroteAnyData = false;
     std::unique_ptr<QSaveFile> m_output_file;
+    bool setExecutable = false;
 };
 }

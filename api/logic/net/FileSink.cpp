@@ -6,8 +6,8 @@
 
 namespace Net {
 
-FileSink::FileSink(QString filename)
-    :m_filename(filename)
+FileSink::FileSink(QString filename, bool setExecutable)
+    :m_filename(filename), setExecutable(setExecutable)
 {
     // nil
 }
@@ -94,6 +94,10 @@ JobStatus FileSink::finalize(QNetworkReply& reply)
             qCritical() << "Failed to commit changes to " << m_filename;
             m_output_file->cancelWriting();
             return Job_Failed;
+        }
+        if(setExecutable) {
+            auto permissions = QFile::permissions(m_filename);
+            QFile::setPermissions(m_filename, permissions | QFileDevice::ExeUser | QFileDevice::ExeGroup | QFileDevice::ExeOther);
         }
     }
     // then get rid of the save file

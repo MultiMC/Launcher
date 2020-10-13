@@ -57,7 +57,7 @@ Download::Ptr Download::makeFile(QUrl url, QString path, Options options)
     Download * dl = new Download();
     dl->m_url = url;
     dl->m_options = options;
-    dl->m_sink.reset(new FileSink(path));
+    dl->m_sink.reset(new FileSink(path, options & Option::SetExecutable));
     return std::shared_ptr<Download>(dl);
 }
 
