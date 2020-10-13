@@ -343,8 +343,26 @@ set(MINECRAFT_SOURCES
     minecraft/AssetsUtils.h
     minecraft/AssetsUtils.cpp
 
+    mojang/Path.h
+    mojang/Path.cpp
     mojang/PackageManifest.h
     mojang/PackageManifest.cpp
+    mojang/PackageInstallTask.h
+    mojang/PackageInstallTask.cpp
+    mojang/ComponentsManifest.h
+    mojang/ComponentsManifest.cpp
+    )
+
+add_unit_test(PackageManifest
+    SOURCES mojang/PackageManifest_test.cpp
+    LIBS Launcher_logic
+    DATA mojang/testdata
+    )
+
+add_unit_test(ComponentsManifest
+    SOURCES mojang/ComponentsManifest_test.cpp
+    LIBS Launcher_logic
+    DATA mojang/testdata
     )
 
 add_unit_test(GradleSpecifier
@@ -352,21 +370,21 @@ add_unit_test(GradleSpecifier
     LIBS Launcher_logic
     )
 
-add_executable(PackageManifest
-    mojang/PackageManifest_test.cpp
-)
-target_link_libraries(PackageManifest
-    Launcher_logic
-    Qt5::Test
-)
-target_include_directories(PackageManifest
-    PRIVATE ../cmake/UnitTest/
-)
-add_test(
-    NAME PackageManifest
-    COMMAND PackageManifest
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+# add_executable(PackageManifest
+#     mojang/PackageManifest_test.cpp
+# )
+# target_link_libraries(PackageManifest
+#     Launcher_logic
+#     Qt5::Test
+# )
+# target_include_directories(PackageManifest
+#     PRIVATE ../cmake/UnitTest/
+# )
+# add_test(
+#     NAME PackageManifest
+#     COMMAND PackageManifest
+#     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+# )
 
 add_unit_test(MojangVersionFormat
     SOURCES minecraft/MojangVersionFormat_test.cpp
@@ -896,6 +914,7 @@ endif()
 
 # Add executable
 add_library(Launcher_logic STATIC ${LOGIC_SOURCES} ${LAUNCHER_SOURCES} ${LAUNCHER_UI} ${LAUNCHER_RESOURCES})
+target_include_directories(Launcher_logic PUBLIC .)
 target_link_libraries(Launcher_logic
     systeminfo
     Launcher_quazip

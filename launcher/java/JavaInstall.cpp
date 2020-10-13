@@ -24,7 +24,7 @@ bool JavaInstall::operator<(const JavaInstall &rhs)
 
 bool JavaInstall::operator==(const JavaInstall &rhs)
 {
-    return arch == rhs.arch && id == rhs.id && path == rhs.path;
+    return arch == rhs.arch && id == rhs.id && path == rhs.path && remote == rhs.remote;
 }
 
 bool JavaInstall::operator>(const JavaInstall &rhs)

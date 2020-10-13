@@ -34,6 +34,10 @@ struct JavaInstall : public BaseVersion
     Sys::Architecture arch;
     QString path;
     bool recommended = false;
+
+    bool remote = false;
+    QString url;
+    QString installRoot;
 };
 
 typedef std::shared_ptr<JavaInstall> JavaInstallPtr;
