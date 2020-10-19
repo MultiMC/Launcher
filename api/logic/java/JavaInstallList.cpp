@@ -24,6 +24,7 @@
 #include "java/JavaUtils.h"
 #include "MMCStrings.h"
 #include "minecraft/VersionFilterData.h"
+#include "sys.h"
 
 JavaInstallList::JavaInstallList(QObject *parent) : BaseVersionList(parent)
 {
@@ -191,16 +192,72 @@ void JavaListLoadTask::javaCheckerFinished()
         }
     }
 
+    auto kernelInfo = Sys::getKernelInfo();
+
+    // FIXME: data-drive
+    // FIXME: architecture being '32' or '64' is dumb
+    // FIXME: limited.
+    JavaInstallPtr remoteJava;
+    if(kernelInfo.kernelName == "Windows") {
+        remoteJava.reset(new JavaInstall());
+        remoteJava->id = "1.8.0_51";
+        if(Sys::isSystem64bit()) {
+            remoteJava->arch = "64";
+            remoteJava->url = "https://launchermeta.mojang.com/v1/packages/ddc568a50326d2cf85765abb61e752aab191c366/manifest.json";
+        }
+        else {
+            remoteJava->arch = "32";
+            remoteJava->url = "https://launchermeta.mojang.com/v1/packages/baa62193c2785f54d877d871d9859c67d65f08ba/manifest.json";
+        }
+    }
+
+    if(kernelInfo.kernelName == "Linux") {
+        remoteJava.reset(new JavaInstall());
+        remoteJava->id = "1.8.0_202";
+        if(Sys::isSystem64bit()) {
+            remoteJava->arch = "64";
+            remoteJava->url = "https://launchermeta.mojang.com/v1/packages/a1c15cc788f8893fba7e988eb27404772f699a84/manifest.json";
+        }
+        else {
+            remoteJava->arch = "32";
+            remoteJava->url = "https://launchermeta.mojang.com/v1/packages/64c6a0b8e3427c6c3f3ce82729aada8b2634a955/manifest.json";
+        }
+    }
+
+    if(kernelInfo.kernelName == "Darwin") {
+        if(Sys::isSystem64bit()) {
+            remoteJava.reset(new JavaInstall());
+            remoteJava->id = "1.8.0_74";
+            remoteJava->arch = "64";
+            remoteJava->url = "https://launchermeta.mojang.com/v1/packages/341663b48a0d4e1c448dc789463fced6ba0962e1/manifest.json";
+        }
+    }
+
+    if(remoteJava) {
+        remoteJava->remote = true;
+        remoteJava->recommended = true;
+
+        // Example: "runtimes/Windows/64/1.8.0_51"
+        auto rootPath = QString("runtimes/%1/%2/%3").arg(kernelInfo.kernelName, remoteJava->arch, remoteJava->id.toString());
+        remoteJava->installRoot = rootPath;
+
+        if(kernelInfo.kernelName == "Windows") {
+            remoteJava->path = rootPath + "/data/bin/javaw.exe";
+        }
+        else if (kernelInfo.kernelName == "Darwin") {
+            remoteJava->path = rootPath + "/data/jre.bundle/Contents/Home/bin/java";
+        }
+        else if (kernelInfo.kernelName == "Linux") {
+            remoteJava->path = rootPath + "/data/bin/java";
+        }
+        candidates.append(remoteJava);
+    }
+
+
     QList<BaseVersionPtr> javas_bvp;
     for (auto java : candidates)
     {
-        //qDebug() << java->id << java->arch << " at " << java->path;
-        BaseVersionPtr bp_java = std::dynamic_pointer_cast<BaseVersion>(java);
-
-        if (bp_java)
-        {
-            javas_bvp.append(java);
-        }
+        javas_bvp.append(java);
     }
 
     m_list->updateListData(javas_bvp);
