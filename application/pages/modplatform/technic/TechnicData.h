@@ -34,6 +34,9 @@ struct Modpack {
     QString minecraftVersion;
 
     bool metadataLoaded = false;
+    QString websiteUrl;
+    QString author;
+    QString description;
 };
 }
 
