@@ -306,12 +306,31 @@ set(MINECRAFT_SOURCES
     # Skin upload utilities
     minecraft/SkinUpload.cpp
     minecraft/SkinUpload.h
+
+    mojang/PackageManifest.h
+    mojang/PackageManifest.cpp
     )
 
 add_unit_test(GradleSpecifier
     SOURCES minecraft/GradleSpecifier_test.cpp
     LIBS MultiMC_logic
     )
+
+add_executable(PackageManifest
+    mojang/PackageManifest_test.cpp
+)
+target_link_libraries(PackageManifest
+    MultiMC_logic
+    Qt5::Test
+)
+target_include_directories(PackageManifest
+    PRIVATE ../../cmake/UnitTest/
+)
+add_test(
+    NAME PackageManifest
+    COMMAND PackageManifest
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 add_unit_test(MojangVersionFormat
     SOURCES minecraft/MojangVersionFormat_test.cpp
@@ -458,6 +477,15 @@ set(MODPACKSCH_SOURCES
     modplatform/modpacksch/FTBPackManifest.cpp
 )
 
+set(TECHNIC_SOURCES
+    modplatform/technic/SingleZipPackInstallTask.h
+    modplatform/technic/SingleZipPackInstallTask.cpp
+    modplatform/technic/SolderPackInstallTask.h
+    modplatform/technic/SolderPackInstallTask.cpp
+    modplatform/technic/TechnicPackProcessor.h
+    modplatform/technic/TechnicPackProcessor.cpp
+)
+
 add_unit_test(Index
     SOURCES meta/Index_test.cpp
     LIBS MultiMC_logic
@@ -489,6 +517,7 @@ set(LOGIC_SOURCES
     ${FTB_SOURCES}
     ${FLAME_SOURCES}
     ${MODPACKSCH_SOURCES}
+    ${TECHNIC_SOURCES}
 )
 
 add_library(MultiMC_logic SHARED ${LOGIC_SOURCES})
