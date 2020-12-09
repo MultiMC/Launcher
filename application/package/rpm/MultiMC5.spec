@@ -46,10 +46,10 @@ EOF
 install -dm 755 %{buildroot}/usr/{bin,share/{applications,multimc,icons/hicolor/scalable/apps}}
 install -dm 755 %{buildroot}/opt/MultiMC
 
-install -m 0644 multimc.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/multimc.svg
-install -m 0755 run.sh %{buildroot}%{_datadir}/multimc/run.sh
+install -m 0644 %{_builddir}/multimc.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/multimc.svg
+install -m 0755 %{_builddir}/run.sh %{buildroot}%{_datadir}/multimc/run.sh
 
-install -m 0644 multimc.desktop %{buildroot}%{_datadir}/applications/multimc.desktop
+install -m 0644 %{_builddir}/multimc.desktop %{buildroot}%{_datadir}/applications/multimc.desktop
 
 %files
 %{_datadir}/applications/multimc.desktop
