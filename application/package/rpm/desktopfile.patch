@@ -1,0 +1,13 @@
+diff -ruN MultiMC5-develop-orig/application/package/linux/multimc.desktop MultiMC5-develop/application/package/linux/multimc.desktop
+--- MultiMC5-develop-orig/application/package/linux/multimc.desktop	2020-12-09 10:54:53.847819895 -0500
++++ MultiMC5-develop/application/package/linux/multimc.desktop	2020-12-09 10:56:31.468139958 -0500
+@@ -5,7 +5,7 @@
+ Comment=Free, open source launcher and instance manager for Minecraft.
+ Type=Application
+ Terminal=false
+-Exec=multimc
++Exec=/usr/share/multimc/run.sh
+-Icon=multimc
++Icon=MultiMC5
+ Categories=Game
+ Keywords=game;minecraft;
