@@ -30,7 +30,7 @@ cat > %{_builddir}/multimc.desktop << EOF
 ## Desktop File
 
 [Desktop Entry]
-Version=%{Version}%{Release}
+Version=%{version}-%{release}
 Name=MultiMC
 GenericName=MultiMC Launcher
 Comment=Free, open source launcher and instance manager for Minecraft.
