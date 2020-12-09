@@ -1,17 +1,24 @@
+## Global variables
+%global packageVer 1.5
+
 Name:           MultiMC5
-Version:        1.4
+Version:        %{packageVer}
 Release:        1%{?dist}
-Summary:        A local install wrapper for MultiMC
+Summary:        Free, open source launcher and instance manager for Minecraft
 
 License:        ASL 2.0
 URL:            https://multimc.org
-BuildArch:      x86_64
+ExclusiveArch:  %{ix86} x86_64
 
+%undefine _disable_source_fetch
+Source0:        https://github.com/MultiMC/MultiMC5/archive/develop.tar.gz
+
+BuildRequires:  fedora-packager fedora-review
 Requires:       zenity qt5-qtbase wget
 Provides:       multimc MultiMC multimc5
 
 %description
-A local install wrapper for MultiMC
+Free, open source launcher and instance manager for Minecraft
 
 %prep
 
