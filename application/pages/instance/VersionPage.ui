@@ -158,20 +158,20 @@
     <string>Revert the selected package to default.</string>
    </property>
   </action>
-  <action name="actionInstall_Forge">
-   <property name="text">
-    <string>Install Forge</string>
-   </property>
-   <property name="toolTip">
-    <string>Install the Minecraft Forge package.</string>
-   </property>
-  </action>
   <action name="actionInstall_Fabric">
    <property name="text">
     <string>Install Fabric</string>
    </property>
    <property name="toolTip">
     <string>Install the Fabric Loader package.</string>
+   </property>
+  </action>
+  <action name="actionInstall_Forge">
+   <property name="text">
+    <string>Install Forge</string>
+   </property>
+   <property name="toolTip">
+    <string>Install the Minecraft Forge package.</string>
    </property>
   </action>
   <action name="actionInstall_LiteLoader">
