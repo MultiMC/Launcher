@@ -1,4 +1,4 @@
-#include "FtbModel.h"
+#include "FtbListModel.h"
 
 #include "BuildConfig.h"
 #include "Env.h"
@@ -79,7 +79,7 @@ void ListModel::performSearch()
     auto *netJob = new NetJob("Ftb::Search");
     QString searchUrl;
     if(currentSearchTerm.isEmpty()) {
-        searchUrl = BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/popular/plays/100";
+        searchUrl = BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/all";
     }
     else {
         searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/search/25?term=%1")
@@ -206,9 +206,18 @@ void ListModel::packRequestFinished()
         return;
     }
 
-    beginInsertRows(QModelIndex(), modpacks.size(), modpacks.size());
-    modpacks.append(pack);
-    endInsertRows();
+    // Since there is no guarantee that packs have a version, this will just
+    // ignore those "dud" packs.
+    if (pack.versions.empty())
+    {
+        qWarning() << "FTB Pack " << pack.id << " ignored. reason: lacking any versions";
+    }
+    else
+    {
+        beginInsertRows(QModelIndex(), modpacks.size(), modpacks.size());
+        modpacks.append(pack);
+        endInsertRows();
+    }
 
     if(!remainingPacks.isEmpty()) {
         currentPack = remainingPacks.at(0);

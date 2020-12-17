@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2020 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,66 +15,64 @@
 
 #pragma once
 
-#include "FtbFilterModel.h"
-#include "FtbListModel.h"
-
 #include <QWidget>
 
-#include "MultiMC.h"
 #include "pages/BasePage.h"
+#include <MultiMC.h>
 #include "tasks/Task.h"
+#include "TechnicData.h"
 
 namespace Ui
 {
-    class FtbPage;
+class TechnicPage;
 }
 
 class NewInstanceDialog;
 
-class FtbPage : public QWidget, public BasePage
+namespace Technic {
+    class ListModel;
+}
+
+class TechnicPage : public QWidget, public BasePage
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    explicit FtbPage(NewInstanceDialog* dialog, QWidget *parent = 0);
-    virtual ~FtbPage();
+    explicit TechnicPage(NewInstanceDialog* dialog, QWidget *parent = 0);
+    virtual ~TechnicPage();
     virtual QString displayName() const override
     {
-        return tr("FTB");
+        return tr("Technic");
     }
     virtual QIcon icon() const override
     {
-        return MMC->getThemedIcon("ftb_logo");
+        return MMC->getThemedIcon("technic");
     }
     virtual QString id() const override
     {
-        return "ftb";
+        return "technic";
     }
     virtual QString helpPage() const override
     {
-        return "FTB-platform";
+        return "Technic-platform";
     }
     virtual bool shouldDisplay() const override;
 
     void openedImpl() override;
 
-    bool eventFilter(QObject * watched, QEvent * event) override;
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
     void suggestCurrent();
+    void metadataLoaded();
 
 private slots:
     void triggerSearch();
-    void onSortingSelectionChanged(QString data);
     void onSelectionChanged(QModelIndex first, QModelIndex second);
-    void onVersionSelectionChanged(QString data);
 
 private:
-    Ui::FtbPage *ui = nullptr;
+    Ui::TechnicPage *ui = nullptr;
     NewInstanceDialog* dialog = nullptr;
-    Ftb::ListModel* listModel = nullptr;
-    Ftb::FilterModel* filterModel = nullptr;
-
-    ModpacksCH::Modpack selected;
-    QString selectedVersion;
+    Technic::ListModel* model = nullptr;
+    Technic::Modpack current;
 };
