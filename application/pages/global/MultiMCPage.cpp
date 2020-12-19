@@ -288,8 +288,18 @@ void MultiMCPage::applySettings()
     s->set("ConsoleMaxLines", ui->lineLimitSpinBox->value());
     s->set("ConsoleOverflowStop", ui->checkStopLogging->checkState() != Qt::Unchecked);
     //认证设置
-    s->set("AUTHURL",ui->AuthurlDirTextBox->text());
-    s->set("SKINSURL",ui->SkinsurlDirTextBox->text());
+    s->set("Rzlb",ui->RzboBox->currentIndex());
+    if(ui->RzboBox->currentIndex() == 0){
+        s->set("AUTHURL","https://authserver.mojang.com/");
+        s->set("SKINSURL","https://crafatar.com/skins/");
+    }else if (ui->RzboBox->currentIndex() == 1) {
+        s->set("AUTHURL",ui->AuthurlDirTextBox->text());
+        s->set("SKINSURL",ui->SkinsurlDirTextBox->text());
+    }else if (ui->RzboBox->currentIndex() == 2) {
+        s->set("AUTHURL","https://auth2.nide8.com:233/"+ui->TydllDirTextBox->text());
+        s->set("Serverid",ui->TydllDirTextBox->text());
+        s->set("SKINSURL",ui->SkinsurlDirTextBox->text());
+    }
 
 
     // Folders
@@ -376,8 +386,26 @@ void MultiMCPage::loadSettings()
         }
     }
     //加载认证
-    ui->AuthurlDirTextBox->setText(s->get("AUTHURL").toString());
-    ui->SkinsurlDirTextBox->setText(s->get("SKINSURL").toString());
+    int Rzlbs=s->get("Rzlb").toInt();
+    ui->RzboBox->setCurrentIndex(Rzlbs);
+    if(Rzlbs == 0){
+        ui->Authur->setHidden(true);
+        ui->Skinsur->setHidden(true);
+        ui->Tydl->setHidden(true);
+    }else if(Rzlbs == 1){
+        ui->Authur->setHidden(false);
+        ui->Skinsur->setHidden(false);
+        ui->Tydl->setHidden(true);
+        ui->AuthurlDirTextBox->setText(s->get("AUTHURL").toString());
+        ui->SkinsurlDirTextBox->setText(s->get("SKINSURL").toString());
+    }else if(Rzlbs == 2){
+        ui->Authur->setHidden(true);
+        ui->Skinsur->setHidden(false);
+        ui->Tydl->setHidden(false);
+        QString Serverid= s->get("AUTHURL").toString();
+        ui->TydllDirTextBox->setText(Serverid.right(32));
+        ui->SkinsurlDirTextBox->setText(s->get("SKINSURL").toString());
+    }
 
     // Console settings
     ui->showConsoleCheck->setChecked(s->get("ShowConsole").toBool());
@@ -453,5 +481,22 @@ void MultiMCPage::refreshFontPreview()
         workCursor.movePosition(QTextCursor::End);
         workCursor.insertText(tr("[Something/WARN] A not so spooky warning."), format);
         workCursor.insertBlock();
+    }
+}
+
+void MultiMCPage::on_RzboBox_activated(int index)
+{
+    if(index == 0){
+        ui->Authur->setHidden(true);
+        ui->Skinsur->setHidden(true);
+        ui->Tydl->setHidden(true);
+    }else if(index == 1){
+        ui->Authur->setHidden(false);
+        ui->Skinsur->setHidden(false);
+        ui->Tydl->setHidden(true);
+    }else if(index == 2){
+        ui->Authur->setHidden(true);
+        ui->Skinsur->setHidden(false);
+        ui->Tydl->setHidden(false);
     }
 }

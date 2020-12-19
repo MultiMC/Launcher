@@ -85,6 +85,8 @@ slots:
 
     void updateChannelSelectionChanged(int index);
 
+    void on_RzboBox_activated(int index);
+
 private:
     Ui::MultiMCPage *ui;
 

@@ -114,41 +114,6 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QGroupBox" name="AUTHBox">
-         <property name="title">
-          <string>认证服务器</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0">
-          <item row="1" column="0">
-           <widget class="QLabel" name="labelSkinsurl">
-            <property name="text">
-             <string>头像url:</string>
-            </property>
-            <property name="buddy">
-             <cstring>iconsDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="AuthurlDirTextBox"/>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelAuthurl">
-            <property name="text">
-             <string>Yggdrasil:</string>
-            </property>
-            <property name="buddy">
-             <cstring>modsDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="SkinsurlDirTextBox"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QGroupBox" name="updateSettingsBox">
          <property name="title">
@@ -187,6 +152,130 @@
             <property name="wordWrap">
              <bool>true</bool>
             </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="AUTHBox">
+         <property name="title">
+          <string>认证服务器</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QComboBox" name="RzboBox">
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>正版登陆</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>第三方登陆:authlib-injector</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>第三方登陆:统一通行证</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="Authur" native="true">
+            <layout class="QHBoxLayout" name="AuthurLayout">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="Authurllabel">
+               <property name="text">
+                <string>Yggdrasil:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="AuthurlDirTextBox"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="Tydl" native="true">
+            <layout class="QHBoxLayout" name="TydlLayout">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="Tydllabel">
+               <property name="text">
+                <string>服务器 ID:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="TydllDirTextBox"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="Skinsur" native="true">
+            <layout class="QHBoxLayout" name="SkinsurLayout">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="Skinsurllabel">
+               <property name="text">
+                <string>头 像 url:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="SkinsurlDirTextBox"/>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>

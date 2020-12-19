@@ -514,6 +514,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("AUTHURL","");
         m_settings->registerSetting("SKINSURL","");
         m_settings->registerSetting("authv","");
+        m_settings->registerSetting("Rzlb","");
 
         // Native library workarounds
         m_settings->registerSetting("UseNativeOpenAL", false);
@@ -699,6 +700,21 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
            settings()->set("SKINSURL","https://www.mcpifu.top/skins/");
         }
         //qDebug() << "SKINSURL="<< currentSKINSURL;
+        QString currentRzlb = settings()->get("Rzlb").toString();
+        if (currentRzlb == "")
+        {
+           settings()->set("Rzlb","1");
+        }
+        QString currentJvmArgs = settings()->get("JvmArgs").toString();
+        if (currentJvmArgs == "")
+        {
+            if(settings()->get("Rzlb").toInt()!=0){
+                settings()->set("JvmArgs","-javaagent:../../../jars/authlib-injector.jar=https://www.mcpifu.top/api/yggdrasil");
+            }
+
+        }
+
+
     }
     {
         dljob.reset(new NetJob("authlib-injector"));
@@ -798,7 +814,6 @@ bool MultiMC::createSetupWizard()
         if (currentHostName != oldHostName)
         {
             settings()->set("LastHostname", currentHostName);
-            settings()->set("JvmArgs","-javaagent:../../../jars/authlib-injector.jar=https://www.mcpifu.top/api/yggdrasil");
             return true;
         }
         QString currentJavaPath = settings()->get("JavaPath").toString();

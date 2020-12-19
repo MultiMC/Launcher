@@ -41,16 +41,21 @@ void YggdrasilTask::executeTask()
     QString iniFilePath = "multimc.cfg";
     QSettings settings(iniFilePath,QSettings::IniFormat);
     QString AUTHURL = settings.value("AUTHURL").toString();
+    int rzdz= settings.value("Rzlb").toInt();
     //qDebug() <<"AUTHURL="<< AUTHURL;
     if(AUTHURL.endsWith("/")==false)
     {
         AUTHURL=AUTHURL+"/";
     }
+    if(rzdz != 0){
+        AUTHURL =AUTHURL+"authserver/";
+
+    }
     //qDebug() <<"AUTHURL="<< AUTHURL;
     changeState(STATE_SENDING_REQUEST);
     // Get the content of the request we're going to send to the server.
     QJsonDocument doc(getRequestContent());
-    QUrl reqUrl(AUTHURL+"authserver/" + getEndpoint());
+    QUrl reqUrl(AUTHURL+ getEndpoint());
     //qDebug()<<"reqUrl="<<reqUrl;
     QNetworkRequest netRequest(reqUrl);
     netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
