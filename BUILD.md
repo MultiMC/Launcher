@@ -178,30 +178,34 @@ zlib1.dll
 * install homebrew
 * then:
 
-```
+```sh
+brew install openjdk@8
 brew install qt5
-brew tap homebrew/versions
-brew install gcc48
 brew install cmake
+
+# libc++abi
+git clone https://github.com/llvm/llvm-project.git
+cd llvm-project
+mkdir build-libcxxabi && cd build-libcxxabi
+cmake ../libcxxabi
+make && make install
 ```
 
 ### Build
 
 Pick an installation path - this is where the final `.app` will be constructed when you run `make install`. Supply it as the `CMAKE_INSTALL_PREFIX` argument during CMake configuration.
 
-```
+```sh
 git clone https://github.com/MultiMC/MultiMC5.git
 cd MultiMC5
 git submodule init
 git submodule update
-mkdir build
-cd build
+mkdir build && cd build
+export PATH="/usr/local/opt/openjdk@8/bin:$PATH"
 export CMAKE_PREFIX_PATH=/usr/local/opt/qt5
-export CC=/usr/local/bin/gcc-4.8
-export CXX=/usr/local/bin/g++-4.8
+export CXXFLAGS="-Wno-range-loop-analysis ${CXXFLAGS}"
 cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/Users/YOU/some/path/that/makes/sense/
-make
-make install
+make && make install
 ```
   
 **These build instructions were taken and adapted from https://gist.github.com/number5/7250865 If they don't work for you, let us know on IRC ([Esper/#MultiMC](http://webchat.esper.net/?nick=&channels=MultiMC))!**
