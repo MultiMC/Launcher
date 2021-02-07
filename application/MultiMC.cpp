@@ -207,8 +207,9 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         catch (const ParsingError &e)
         {
             std::cerr << "CommandLineError: " << e.what() << std::endl;
-            std::cerr << "Try '%1 -h' to get help on MultiMC's command line parameters."
-                      << std::endl;
+            if(argc > 0)
+                std::cerr << "Try '" << argv[0] << " -h' to get help on MultiMC's command line parameters."
+                          << std::endl;
             m_status = MultiMC::Failed;
             return;
         }
@@ -378,7 +379,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         ENV.setJarsPath( TOSTRING(MULTIMC_JARS_LOCATION) );
 #endif
 
-        qDebug() << "MultiMC 5, (c) 2013-2019 MultiMC Contributors";
+        qDebug() << "MultiMC 5, (c) 2013-2021 MultiMC Contributors";
         qDebug() << "Version                    : " << BuildConfig.printableVersionString();
         qDebug() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
         qDebug() << "Git refspec                : " << BuildConfig.GIT_REFSPEC;
