@@ -19,6 +19,7 @@
 #include "AtlModel.h"
 
 #include <QWidget>
+#include <QKeyEvent>
 
 #include "MultiMC.h"
 #include "pages/BasePage.h"
@@ -58,10 +59,14 @@ public:
 
     void openedImpl() override;
 
+    bool eventFilter(QObject * watched, QEvent * event) override;
+
 private:
     void suggestCurrent();
 
 private slots:
+    void triggerSearch();
+
     void onSortingSelectionChanged(QString data);
 
     void onSelectionChanged(QModelIndex first, QModelIndex second);

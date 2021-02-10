@@ -26,10 +26,17 @@ public:
     void request();
 
     void getLogo(const QString &logo, const QString &logoUrl, LogoCallback callback);
+    void searchWithTerm(const QString & term);
 
 private slots:
+    void performSearch();
+    void searchRequestFinished();
+    void searchRequestFailed(QString reason);
+
     void requestFinished();
     void requestFailed(QString reason);
+
+    void requestPacks();
 
     void logoFailed(QString logo);
     void logoLoaded(QString logo, QIcon out);
@@ -39,6 +46,18 @@ private:
 
 private:
     QList<ATLauncher::IndexedPack> modpacks;
+    QList<ATLauncher::IndexedPack> cachedpacks;
+
+    QString currentSearchTerm;
+
+    enum SearchState {
+        None,
+        CanPossiblyFetchMore,
+        ResetRequested,
+        Finished
+    } searchState = None;
+
+    QList<int> remainingPacks;
 
     QStringList m_failedLogos;
     QStringList m_loadingLogos;

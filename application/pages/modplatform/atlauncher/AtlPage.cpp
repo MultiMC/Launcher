@@ -19,12 +19,15 @@ AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget *parent)
     ui->packView->header()->hide();
     ui->packView->setIndentation(0);
 
+    ui->searchEdit->installEventFilter(this);
+
     for(int i = 0; i < filterModel->getAvailableSortings().size(); i++)
     {
         ui->sortByBox->addItem(filterModel->getAvailableSortings().keys().at(i));
     }
     ui->sortByBox->setCurrentText(filterModel->translateCurrentSorting());
 
+    connect(ui->searchButton, &QPushButton::clicked, this, &AtlPage::triggerSearch);
     connect(ui->sortByBox, &QComboBox::currentTextChanged, this, &AtlPage::onSortingSelectionChanged);
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &AtlPage::onSelectionChanged);
     connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &AtlPage::onVersionSelectionChanged);
@@ -97,4 +100,22 @@ void AtlPage::onVersionSelectionChanged(QString data)
 
     selectedVersion = data;
     suggestCurrent();
+}
+
+void AtlPage::triggerSearch()
+{
+    listModel->searchWithTerm(ui->searchEdit->text());
+}
+
+bool AtlPage::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == ui->searchEdit && event->type() == QEvent::KeyPress) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Return) {
+            triggerSearch();
+            keyEvent->accept();
+            return true;
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 }

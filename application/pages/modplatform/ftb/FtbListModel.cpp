@@ -167,7 +167,7 @@ void ListModel::searchRequestFailed(QString reason)
 
 void ListModel::requestPack()
 {
-    auto *netJob = new NetJob("Ftb::Search");
+    auto *netJob = new NetJob("Ftb::Request");
     auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1")
             .arg(currentPack);
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
