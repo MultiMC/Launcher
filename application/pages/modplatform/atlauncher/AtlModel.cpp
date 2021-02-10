@@ -66,7 +66,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
 
 void ListModel::request()
 {
-    beginResetModel();
+	beginResetModel();
     modpacks.clear();
     endResetModel();
 
@@ -92,28 +92,45 @@ void ListModel::requestFinished()
         return;
     }
 
-    QList<ATLauncher::IndexedPack> newList;
+	QList<ATLauncher::IndexedPack> cachedpacks;
 
     auto packs = doc.array();
-    for(auto packRaw : packs) {
-        auto packObj = packRaw.toObject();
+    for(auto packRaw : packs)
+	{
+		if(requestRemaining && remainingPacks.isEmpty()) continue;
 
-        ATLauncher::IndexedPack pack;
-        ATLauncher::loadIndexedPack(pack, packObj);
+		auto packObj = packRaw.toObject();
+		ATLauncher::IndexedPack pack;
+		ATLauncher::loadIndexedPack(pack, packObj);
+		auto packId = pack.id;
+		bool validPack = !requestRemaining;
 
-        // ignore packs without a published version
-        if(pack.versions.length() == 0) continue;
-        // only display public packs (for now)
-        if(pack.type != ATLauncher::PackType::Public) continue;
-        // ignore "system" packs (Vanilla, Vanilla with Forge, etc)
-        if(pack.system) continue;
+		if(requestRemaining)
+		{
+			for(auto currentPack : remainingPacks)
+			{
+				if(currentPack == packId)
+				{
+					remainingPacks.removeOne(currentPack);
+					validPack = true;
+				}
+			}
+		}
 
-        newList.append(pack);
+		// ignore packs without a published version
+		if(pack.versions.length() == 0) continue;
+		// only display public packs (for now)
+		if(pack.type != ATLauncher::PackType::Public) continue;
+		// ignore "system" packs (Vanilla, Vanilla with Forge, etc)
+		if(pack.system) continue;
+
+		if(validPack) cachedpacks.append(pack);
     }
 
-    beginInsertRows(QModelIndex(), modpacks.size(), modpacks.size() + newList.size() - 1);
-    modpacks.append(newList);
-    endInsertRows();
+	beginInsertRows(QModelIndex(), modpacks.size(), modpacks.size() + cachedpacks.size() - 1);
+	modpacks.append(cachedpacks);
+	endInsertRows();
+	requestRemaining = false;
 }
 
 void ListModel::requestFailed(QString reason)
@@ -180,6 +197,88 @@ void ListModel::requestLogo(QString file, QString url)
     job->start();
 
     m_loadingLogos.append(file);
+}
+
+void ListModel::performSearch()
+{
+    auto *netJob = new NetJob("Atl::Search");
+    QString searchUrl;
+    auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "launcher/json/packsnew.json");
+    netJob->addNetAction(Net::Download::makeByteArray(QUrl(url), &response));
+    jobPtr = netJob;
+    jobPtr->start();
+
+    QObject::connect(netJob, &NetJob::succeeded, this, &ListModel::searchRequestFinished);
+    QObject::connect(netJob, &NetJob::failed, this, &ListModel::searchRequestFailed);
+}
+
+void ListModel::searchRequestFinished()
+{
+	jobPtr.reset();
+	remainingPacks.clear();
+
+    QJsonParseError parse_error;
+    QJsonDocument doc = QJsonDocument::fromJson(response, &parse_error);
+    if(parse_error.error != QJsonParseError::NoError) {
+        qWarning() << "Error while parsing JSON response from ATL at " << parse_error.offset << " reason: " << parse_error.errorString();
+        qWarning() << response;
+        return;
+    }
+
+	QString sanitizedSearchTerm = currentSearchTerm.replace(QRegularExpression("[^A-Za-z0-9]"), "");
+	auto packs = doc.array();
+    for(auto packRaw : packs) {
+		auto packObj = packRaw.toObject();
+
+        ATLauncher::IndexedPack pack;
+        ATLauncher::loadIndexedPack(pack, packObj);
+
+		if(pack.safeName.contains(sanitizedSearchTerm, Qt::CaseInsensitive))
+		{
+			auto packId = pack.id;
+			remainingPacks.append(packId);
+		}
+    }
+
+	requestRemaining = !remainingPacks.isEmpty();
+	if(requestRemaining) request();
+}
+
+void ListModel::searchRequestFailed(QString reason)
+{
+    jobPtr.reset();
+    remainingPacks.clear();
+
+    if(searchState == ResetRequested) {
+        beginResetModel();
+        modpacks.clear();
+        endResetModel();
+
+        performSearch();
+    } else {
+        searchState = Finished;
+    }
+	requestRemaining = false;
+}
+
+void ListModel::searchWithTerm(const QString &term)
+{
+    if(currentSearchTerm == term && currentSearchTerm.isNull() == term.isNull()) {
+        return;
+    }
+    currentSearchTerm = term;
+    if(jobPtr) {
+        jobPtr->abort();
+        searchState = ResetRequested;
+        return;
+    }
+    else {
+        beginResetModel();
+        modpacks.clear();
+        endResetModel();
+        searchState = None;
+    }
+    performSearch();
 }
 
 }
