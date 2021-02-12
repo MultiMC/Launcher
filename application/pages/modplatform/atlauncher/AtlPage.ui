@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FtbPage</class>
- <widget class="QWidget" name="FtbPage">
+ <class>AtlPage</class>
+ <widget class="QWidget" name="AtlPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -35,9 +35,9 @@
     <widget class="QLineEdit" name="searchEdit"/>
    </item>
    <item row="0" column="1">
-    <widget class="QPushButton" name="searchButton">
+    <widget class="QPushButton" name="resetButton">
      <property name="text">
-      <string>Search</string>
+      <string>Reset</string>
      </property>
     </widget>
    </item>
@@ -47,7 +47,7 @@
       <widget class="QTreeView" name="packView">
        <property name="iconSize">
         <size>
-         <width>48</width>
+         <width>96</width>
          <height>48</height>
         </size>
        </property>
@@ -69,7 +69,7 @@
  </widget>
  <tabstops>
   <tabstop>searchEdit</tabstop>
-  <tabstop>searchButton</tabstop>
+  <tabstop>resetButton</tabstop>
   <tabstop>versionSelectionBox</tabstop>
  </tabstops>
  <resources/>
