@@ -2,9 +2,9 @@
 
 #include "BaseProfiler.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT JProfilerFactory : public BaseProfilerFactory
+class LAUNCHER_LOGIC_EXPORT JProfilerFactory : public BaseProfilerFactory
 {
 public:
     QString name() const override { return "JProfiler"; }

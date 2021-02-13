@@ -26,7 +26,7 @@
 #include "AuthSession.h"
 #include "Usable.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class Task;
 class YggdrasilTask;
@@ -39,7 +39,7 @@ Q_DECLARE_METATYPE(MojangAccountPtr)
  * A profile within someone's Mojang account.
  *
  * Currently, the profile system has not been implemented by Mojang yet,
- * but we might as well add some things for it in MultiMC right now so
+ * but we might as well add some things for it in the Launcher right now so
  * we don't have to rip the code to pieces to add it later.
  */
 struct AccountProfile
@@ -61,7 +61,7 @@ enum AccountStatus
  * Said information may include things such as that account's username, client token, and access
  * token if the user chose to stay logged in.
  */
-class MULTIMC_LOGIC_EXPORT MojangAccount :
+class LAUNCHER_LOGIC_EXPORT MojangAccount :
     public QObject,
     public Usable,
     public std::enable_shared_from_this<MojangAccount>

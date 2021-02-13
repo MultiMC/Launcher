@@ -34,13 +34,13 @@ JavaUtils::JavaUtils()
 #ifdef Q_OS_LINUX
 static QString processLD_LIBRARY_PATH(const QString & LD_LIBRARY_PATH)
 {
-    QDir mmcBin(QCoreApplication::applicationDirPath());
+    QDir launcherBin(QCoreApplication::applicationDirPath());
     auto items = LD_LIBRARY_PATH.split(':');
     QStringList final;
     for(auto & item: items)
     {
         QDir test(item);
-        if(test == mmcBin)
+        if(test == launcherBin)
         {
             qDebug() << "Env:LD_LIBRARY_PATH ignoring path" << item;
             continue;
@@ -77,14 +77,14 @@ QProcessEnvironment CleanEnviroment()
             qDebug() << "Env: ignoring" << key << value;
             continue;
         }
-        // filter MultiMC-related things
+        // filter Launcher-related things
         if(key.startsWith("QT_"))
         {
             qDebug() << "Env: ignoring" << key << value;
             continue;
         }
 #ifdef Q_OS_LINUX
-        // Do not pass LD_* variables to java. They were intended for MultiMC
+        // Do not pass LD_* variables to java. They were intended for the Launcher
         if(key.startsWith("LD_"))
         {
             qDebug() << "Env: ignoring" << key << value;
@@ -328,7 +328,7 @@ QList<QString> JavaUtils::FindJavaPaths()
     // general locations used by distro packaging
     scanJavaDir("/usr/lib/jvm");
     scanJavaDir("/usr/lib32/jvm");
-    // javas stored in MultiMC's folder
+    // javas stored in the Launcher's folder
     scanJavaDir("java");
     return javas;
 }

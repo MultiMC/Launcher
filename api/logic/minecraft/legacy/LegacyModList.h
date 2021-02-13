@@ -19,9 +19,9 @@
 #include <QString>
 #include <QDir>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT LegacyModList
+class LAUNCHER_LOGIC_EXPORT LegacyModList
 {
 public:
 

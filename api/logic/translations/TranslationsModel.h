@@ -17,11 +17,11 @@
 
 #include <QAbstractListModel>
 #include <memory>
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 struct Language;
 
-class MULTIMC_LOGIC_EXPORT TranslationsModel : public QAbstractListModel
+class LAUNCHER_LOGIC_EXPORT TranslationsModel : public QAbstractListModel
 {
     Q_OBJECT
 public:

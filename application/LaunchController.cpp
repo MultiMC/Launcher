@@ -1,7 +1,7 @@
 #include "LaunchController.h"
 #include "MainWindow.h"
 #include <minecraft/auth/MojangAccountList.h>
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "dialogs/CustomMessageBox.h"
 #include "dialogs/ProfileSelectDialog.h"
 #include "dialogs/ProgressDialog.h"
@@ -37,7 +37,7 @@ void LaunchController::login()
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
     // Find an account to use.
-    std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
+    std::shared_ptr<MojangAccountList> accounts = LauncherPtr->accounts();
     MojangAccountPtr account = accounts->activeAccount();
     if (accounts->count() <= 0)
     {
@@ -45,14 +45,14 @@ void LaunchController::login()
         auto reply = CustomMessageBox::selectable(
             m_parentWidget, tr("No Accounts"),
             tr("In order to play Minecraft, you must have at least one Mojang or Minecraft "
-               "account logged in to MultiMC."
-               "Would you like to open the account manager to add an account now?"),
+               "account logged in to %1."
+               "Would you like to open the account manager to add an account now?").arg(LAUNCHER_BUILD_NAME),
             QMessageBox::Information, QMessageBox::Yes | QMessageBox::No)->exec();
 
         if (reply == QMessageBox::Yes)
         {
             // Open the account manager.
-            MMC->ShowGlobalSettings(m_parentWidget, "accounts");
+            LauncherPtr->ShowGlobalSettings(m_parentWidget, "accounts");
         }
     }
     else if (account.get() == nullptr)
@@ -208,7 +208,7 @@ void LaunchController::launchInstance()
     auto showConsole = m_instance->settings()->get("ShowConsole").toBool();
     if(!console && showConsole)
     {
-        MMC->showInstanceWindow(m_instance);
+        LauncherPtr->showInstanceWindow(m_instance);
     }
     connect(m_launcher.get(), &LaunchTask::readyForLaunch, this, &LaunchController::readyForLaunch);
     connect(m_launcher.get(), &LaunchTask::succeeded, this, &LaunchController::onSucceeded);
@@ -216,7 +216,7 @@ void LaunchController::launchInstance()
     connect(m_launcher.get(), &LaunchTask::requestProgress, this, &LaunchController::onProgressRequested);
 
 
-    m_launcher->prependStep(new TextPrint(m_launcher.get(), "MultiMC version: " + BuildConfig.printableVersionString() + "\n\n", MessageLevel::MultiMC));
+    m_launcher->prependStep(new TextPrint(m_launcher.get(), LAUNCHER_BUILD_NAME + " version: " + BuildConfig.printableVersionString() + "\n\n", MessageLevel::Launcher));
     m_launcher->start();
 }
 
@@ -275,7 +275,7 @@ void LaunchController::onFailed(QString reason)
 {
     if(m_instance->settings()->get("ShowConsoleOnError").toBool())
     {
-        MMC->showInstanceWindow(m_instance, "console");
+        LauncherPtr->showInstanceWindow(m_instance, "console");
     }
     emitFailed(reason);
 }

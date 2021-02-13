@@ -38,6 +38,8 @@
 #include "ExponentialSeries.h"
 #include "WatchLock.h"
 
+#include <BuildConfig.h>
+
 const static int GROUP_FILE_FORMAT_VERSION = 1;
 
 InstanceList::InstanceList(SettingsObjectPtr settings, const QString & instDir, QObject *parent)
@@ -259,7 +261,7 @@ void InstanceList::deleteInstance(const InstanceId& id)
         return;
     }
 
-    qDebug() << "Instance" << id << "has been deleted by MultiMC.";
+    qDebug() << "Instance" << id << "has been deleted by" << LAUNCHER_BUILD_NAME << ".";
 }
 
 static QMap<InstanceId, InstanceLocator> getIdMapping(const QList<InstancePtr> &list)
@@ -788,7 +790,7 @@ private slots:
 private:
     /*
      * WHY: the whole reason why this uses an exponential backoff retry scheme is antivirus on Windows.
-     * Basically, it starts messing things up while MultiMC is extracting/creating instances
+     * Basically, it starts messing things up while the Launcher is extracting/creating instances
      * and causes that horrible failure that is NTFS to lock files in place because they are open.
      */
     ExponentialSeries backoff;
@@ -811,7 +813,7 @@ Task * InstanceList::wrapInstanceTask(InstanceTask * task)
 QString InstanceList::getStagedInstancePath()
 {
     QString key = QUuid::createUuid().toString();
-    QString relPath = FS::PathCombine("_MMC_TEMP/" , key);
+    QString relPath = FS::PathCombine("_" + LAUNCHER_BUILD_NAME_SHORT + "_TEMP/" , key);
     QDir rootPath(m_instDir);
     auto path = FS::PathCombine(m_instDir, relPath);
     if(!rootPath.mkpath(relPath))

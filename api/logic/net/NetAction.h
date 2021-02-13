@@ -21,7 +21,7 @@
 #include <QNetworkReply>
 #include <QObjectPtr.h>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 enum JobStatus
 {
@@ -38,7 +38,7 @@ enum JobStatus
 };
 
 typedef std::shared_ptr<class NetAction> NetActionPtr;
-class MULTIMC_LOGIC_EXPORT NetAction : public QObject
+class LAUNCHER_LOGIC_EXPORT NetAction : public QObject
 {
     Q_OBJECT
 protected:

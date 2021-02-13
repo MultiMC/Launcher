@@ -27,14 +27,14 @@
 #include "ProfileUtils.h"
 #include "BaseVersion.h"
 #include "MojangDownloadInfo.h"
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 #include "net/Mode.h"
 
 class MinecraftInstance;
 struct PackProfileData;
 class ComponentUpdateTask;
 
-class MULTIMC_LOGIC_EXPORT PackProfile : public QAbstractListModel
+class LAUNCHER_LOGIC_EXPORT PackProfile : public QAbstractListModel
 {
     Q_OBJECT
     friend ComponentUpdateTask;

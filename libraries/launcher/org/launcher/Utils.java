@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.multimc;
+package org.launcher;
 
 import java.io.*;
 import java.io.File;
@@ -94,7 +94,7 @@ public class Utils
     }
 
     /**
-     * Log to the MultiMC console
+     * Log to the Launcher console
      *
      * @param message A String containing the message
      * @param level   A String containing the level name. See MinecraftLauncher::getLevel()
@@ -108,7 +108,7 @@ public class Utils
 
     public static void log(String message)
     {
-        log(message, "MultiMC");
+        log(message, "Launcher");
     }
 
     public static void log()

@@ -1,4 +1,4 @@
-#include "MMCStrings.h"
+#include "LauncherStrings.h"
 
 /// TAKEN FROM Qt, because it doesn't expose it intelligently
 static inline QChar getNextChar(const QString &s, int location)

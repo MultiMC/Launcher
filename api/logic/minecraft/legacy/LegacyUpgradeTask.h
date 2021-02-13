@@ -1,7 +1,7 @@
 #pragma once
 
 #include "InstanceTask.h"
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 #include "net/NetJob.h"
 #include <QUrl>
 #include <QFuture>
@@ -11,7 +11,7 @@
 #include "BaseInstance.h"
 
 
-class MULTIMC_LOGIC_EXPORT LegacyUpgradeTask : public InstanceTask
+class LAUNCHER_LOGIC_EXPORT LegacyUpgradeTask : public InstanceTask
 {
     Q_OBJECT
 public:

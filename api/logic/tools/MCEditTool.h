@@ -2,9 +2,9 @@
 
 #include <QString>
 #include "settings/SettingsObject.h"
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT MCEditTool
+class LAUNCHER_LOGIC_EXPORT MCEditTool
 {
 public:
     MCEditTool(SettingsObjectPtr settings);

@@ -1,9 +1,11 @@
 #include "MessageLevel.h"
 
+#include <BuildConfig.h>
+
 MessageLevel::Enum MessageLevel::getLevel(const QString& levelName)
 {
-    if (levelName == "MultiMC")
-        return MessageLevel::MultiMC;
+    if (levelName == LAUNCHER_BUILD_NAME)
+        return MessageLevel::Launcher;
     else if (levelName == "Debug")
         return MessageLevel::Debug;
     else if (levelName == "Info")

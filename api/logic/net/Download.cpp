@@ -24,6 +24,8 @@
 #include "MetaCacheSink.h"
 #include "ByteArraySink.h"
 
+#include <BuildConfig.h>
+
 namespace Net {
 
 Download::Download():NetAction()
@@ -94,7 +96,7 @@ void Download::start()
             return;
     }
 
-    request.setHeader(QNetworkRequest::UserAgentHeader, "MultiMC/5.0");
+    request.setHeader(QNetworkRequest::UserAgentHeader, LAUNCHER_BUILD_NAME + "/5.0");
 
     QNetworkReply *rep =  ENV.qnam().get(request);
 

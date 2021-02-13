@@ -21,7 +21,7 @@
 #include "pages/BasePage.h"
 
 #include "minecraft/auth/MojangAccountList.h"
-#include "MultiMC.h"
+#include "Launcher.h"
 
 namespace Ui
 {
@@ -43,10 +43,10 @@ public:
     }
     QIcon icon() const override
     {
-        auto icon = MMC->getThemedIcon("accounts");
+        auto icon = LauncherPtr->getThemedIcon("accounts");
         if(icon.isNull())
         {
-            icon = MMC->getThemedIcon("noaccount");
+            icon = LauncherPtr->getThemedIcon("noaccount");
         }
         return icon;
     }

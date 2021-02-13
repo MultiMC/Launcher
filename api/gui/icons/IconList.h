@@ -21,16 +21,16 @@
 #include <QDir>
 #include <QtGui/QIcon>
 #include <memory>
-#include "MMCIcon.h"
+#include "LauncherIcon.h"
 #include "settings/Setting.h"
 #include "Env.h" // there is a global icon list inside Env.
 #include <icons/IIconList.h>
 
-#include "multimc_gui_export.h"
+#include "launcher_gui_export.h"
 
 class QFileSystemWatcher;
 
-class MULTIMC_GUI_EXPORT IconList : public QAbstractListModel, public IIconList
+class LAUNCHER_GUI_EXPORT IconList : public QAbstractListModel, public IIconList
 {
     Q_OBJECT
 public:
@@ -58,7 +58,7 @@ public:
     void installIcons(const QStringList &iconFiles) override;
     void installIcon(const QString &file, const QString &name) override;
 
-    const MMCIcon * icon(const QString &key) const;
+    const LauncherIcon * icon(const QString &key) const;
 
     void startWatching();
     void stopWatching();
@@ -83,6 +83,6 @@ private:
     shared_qobject_ptr<QFileSystemWatcher> m_watcher;
     bool is_watching;
     QMap<QString, int> name_index;
-    QVector<MMCIcon> icons;
+    QVector<LauncherIcon> icons;
     QDir m_dir;
 };

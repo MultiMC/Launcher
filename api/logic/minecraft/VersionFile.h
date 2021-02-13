@@ -27,19 +27,19 @@ public: /* methods */
     void applyTo(LaunchProfile* profile);
 
 public: /* data */
-    /// MultiMC: order hint for this version file if no explicit order is set
+    /// Launcher: order hint for this version file if no explicit order is set
     int order = 0;
 
-    /// MultiMC: human readable name of this package
+    /// Launcher: human readable name of this package
     QString name;
 
-    /// MultiMC: package ID of this package
+    /// Launcher: package ID of this package
     QString uid;
 
-    /// MultiMC: version of this package
+    /// Launcher: version of this package
     QString version;
 
-    /// MultiMC: DEPRECATED dependency on a Minecraft version
+    /// Launcher: DEPRECATED dependency on a Minecraft version
     QString dependsOnMinecraftVersion;
 
     /// Mojang: DEPRECATED used to version the Mojang version format
@@ -51,7 +51,7 @@ public: /* data */
     /// Mojang: class to launch Minecraft with
     QString mainClass;
 
-    /// MultiMC: class to launch legacy Minecraft with (embed in a custom window)
+    /// Launcher: class to launch legacy Minecraft with (embed in a custom window)
     QString appletClass;
 
     /// Mojang: Minecraft launch arguments (may contain placeholders for variable substitution)
@@ -69,35 +69,35 @@ public: /* data */
     /// Mojang: DEPRECATED asset group to be used with Minecraft
     QString assets;
 
-    /// MultiMC: list of tweaker mod arguments for launchwrapper
+    /// Launcher: list of tweaker mod arguments for launchwrapper
     QStringList addTweakers;
 
     /// Mojang: list of libraries to add to the version
     QList<LibraryPtr> libraries;
 
-    /// MultiMC: list of maven files to put in the libraries folder, but not in classpath
+    /// Launcher: list of maven files to put in the libraries folder, but not in classpath
     QList<LibraryPtr> mavenFiles;
 
     /// The main jar (Minecraft version library, normally)
     LibraryPtr mainJar;
 
-    /// MultiMC: list of attached traits of this version file - used to enable features
+    /// Launcher: list of attached traits of this version file - used to enable features
     QSet<QString> traits;
 
-    /// MultiMC: list of jar mods added to this version
+    /// Launcher: list of jar mods added to this version
     QList<LibraryPtr> jarMods;
 
-    /// MultiMC: list of mods added to this version
+    /// Launcher: list of mods added to this version
     QList<LibraryPtr> mods;
 
     /**
-     * MultiMC: set of packages this depends on
+     * Launcher: set of packages this depends on
      * NOTE: this is shared with the meta format!!!
      */
     Meta::RequireSet requires;
 
     /**
-     * MultiMC: set of packages this conflicts with
+     * Launcher: set of packages this conflicts with
      * NOTE: this is shared with the meta format!!!
      */
     Meta::RequireSet conflicts;

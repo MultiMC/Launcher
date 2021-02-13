@@ -18,9 +18,9 @@
 #include "net/NetJob.h"
 #include "GoUpdate.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT UpdateChecker : public QObject
+class LAUNCHER_LOGIC_EXPORT UpdateChecker : public QObject
 {
     Q_OBJECT
 

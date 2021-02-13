@@ -20,7 +20,7 @@
 
 #include "BaseEntity.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class Task;
 
@@ -29,7 +29,7 @@ namespace Meta
 using VersionListPtr = std::shared_ptr<class VersionList>;
 using VersionPtr = std::shared_ptr<class Version>;
 
-class MULTIMC_LOGIC_EXPORT Index : public QAbstractListModel, public BaseEntity
+class LAUNCHER_LOGIC_EXPORT Index : public QAbstractListModel, public BaseEntity
 {
     Q_OBJECT
 public:

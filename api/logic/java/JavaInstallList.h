@@ -26,11 +26,11 @@
 
 #include "QObjectPtr.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class JavaListLoadTask;
 
-class MULTIMC_LOGIC_EXPORT JavaInstallList : public BaseVersionList
+class LAUNCHER_LOGIC_EXPORT JavaInstallList : public BaseVersionList
 {
     Q_OBJECT
     enum class Status

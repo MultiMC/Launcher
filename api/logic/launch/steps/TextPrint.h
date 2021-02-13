@@ -19,13 +19,13 @@
 #include <LoggedProcess.h>
 #include <java/JavaChecker.h>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 /*
  * FIXME: maybe do not export
  */
 
-class MULTIMC_LOGIC_EXPORT TextPrint: public LaunchStep
+class LAUNCHER_LOGIC_EXPORT TextPrint: public LaunchStep
 {
     Q_OBJECT
 public:

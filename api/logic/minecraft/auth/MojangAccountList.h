@@ -22,18 +22,18 @@
 #include <QAbstractListModel>
 #include <QSharedPointer>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 /*!
  * \brief List of available Mojang accounts.
- * This should be loaded in the background by MultiMC on startup.
+ * This should be loaded in the background by the Launcher on startup.
  *
  * This class also inherits from QAbstractListModel. Methods from that
  * class determine how this list shows up in a list view. Said methods
  * all have a default implementation, but they can be overridden by subclasses to
  * change the behavior of the list.
  */
-class MULTIMC_LOGIC_EXPORT MojangAccountList : public QAbstractListModel
+class LAUNCHER_LOGIC_EXPORT MojangAccountList : public QAbstractListModel
 {
     Q_OBJECT
 public:

@@ -16,7 +16,7 @@
 #include "ExportInstanceDialog.h"
 #include "ui_ExportInstanceDialog.h"
 #include <BaseInstance.h>
-#include <MMCZip.h>
+#include <LauncherZip.h>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <qfilesystemmodel.h>
@@ -25,9 +25,9 @@
 #include <QDebug>
 #include <qstack.h>
 #include <QSaveFile>
-#include "MMCStrings.h"
+#include "LauncherStrings.h"
 #include "SeparatorPrefixTree.h"
-#include "MultiMC.h"
+#include "Launcher.h"
 #include <icons/IconList.h>
 #include <FileSystem.h>
 
@@ -341,18 +341,18 @@ ExportInstanceDialog::~ExportInstanceDialog()
 void SaveIcon(InstancePtr m_instance)
 {
     auto iconKey = m_instance->iconKey();
-    auto iconList = MMC->icons();
-    auto mmcIcon = iconList->icon(iconKey);
-    if(!mmcIcon || mmcIcon->isBuiltIn()) {
+    auto iconList = LauncherPtr->icons();
+    auto launcherIcon = iconList->icon(iconKey);
+    if(!launcherIcon || launcherIcon->isBuiltIn()) {
         return;
     }
-    auto path = mmcIcon->getFilePath();
+    auto path = launcherIcon->getFilePath();
     if(!path.isNull()) {
         QFileInfo inInfo (path);
         FS::copy(path, FS::PathCombine(m_instance->instanceRoot(), inInfo.fileName())) ();
         return;
     }
-    auto & image = mmcIcon->m_images[mmcIcon->type()];
+    auto & image = launcherIcon->m_images[launcherIcon->type()];
     auto & icon = image.icon;
     auto sizes = icon.availableSizes();
     if(sizes.size() == 0)

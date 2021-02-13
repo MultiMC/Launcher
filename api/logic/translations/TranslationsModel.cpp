@@ -187,7 +187,7 @@ void readIndex(const QString & path, QMap<QString, Language>& languages)
         auto toplevel_doc = Json::requireDocument(data);
         auto doc = Json::requireObject(toplevel_doc);
         auto file_type = Json::requireString(doc, "file_type");
-        if(file_type != "MMC-TRANSLATION-INDEX")
+        if(file_type != QString("%1-TRANSLATION-INDEX").arg(LAUNCHER_BUILD_NAME_SHORT))
         {
             qCritical() << "Translations Download Failed: index file is of unknown file type" << file_type;
             return;
@@ -229,7 +229,7 @@ void TranslationsModel::reloadLocalFiles()
     QMap<QString, Language> languages = {{defaultLangCode, Language(defaultLangCode)}};
 
     readIndex(d->m_dir.absoluteFilePath("index_v2.json"), languages);
-    auto entries = d->m_dir.entryInfoList({"mmc_*.qm", "*.po"}, QDir::Files | QDir::NoDotAndDotDot);
+    auto entries = d->m_dir.entryInfoList({LAUNCHER_NAME_SHORT.toLower() + "_*.qm", "*.po"}, QDir::Files | QDir::NoDotAndDotDot);
     for(auto & entry: entries)
     {
         auto completeSuffix = entry.completeSuffix();
@@ -510,7 +510,7 @@ bool TranslationsModel::selectLanguage(QString key)
     else if(langPtr->localFileType == FileType::QM)
     {
         d->m_app_translator.reset(new QTranslator());
-        if (d->m_app_translator->load("mmc_" + langCode, d->m_dir.path()))
+        if (d->m_app_translator->load(LAUNCHER_NAME_SHORT.toLower() + "_" + langCode, d->m_dir.path()))
         {
             qDebug() << "Loading Application Language File for" << langCode.toLocal8Bit().constData() << "...";
             if (!QCoreApplication::installTranslator(d->m_app_translator.get()))
@@ -562,7 +562,7 @@ void TranslationsModel::downloadIndex()
     d->m_index_job.reset(new NetJob("Translations Index"));
     MetaEntryPtr entry = ENV.metacache()->resolveEntry("translations", "index_v2.json");
     entry->setStale(true);
-    d->m_index_task = Net::Download::makeCached(QUrl("https://files.multimc.org/translations/index_v2.json"), entry);
+    d->m_index_task = Net::Download::makeCached(QUrl(TRANSLATIONS_BASE_URL << "/index_v2.json"), entry);
     d->m_index_job->addNetAction(d->m_index_task);
     connect(d->m_index_job.get(), &NetJob::failed, this, &TranslationsModel::indexFailed);
     connect(d->m_index_job.get(), &NetJob::succeeded, this, &TranslationsModel::indexReceived);
@@ -603,7 +603,7 @@ void TranslationsModel::downloadTranslation(QString key)
     }
 
     d->m_downloadingTranslation = key;
-    MetaEntryPtr entry = ENV.metacache()->resolveEntry("translations", "mmc_" + key + ".qm");
+    MetaEntryPtr entry = ENV.metacache()->resolveEntry("translations", LAUNCHER_NAME_SHORT_LOWER + "_" + key + ".qm");
     entry->setStale(true);
 
     auto dl = Net::Download::makeCached(QUrl(BuildConfig.TRANSLATIONS_BASE_URL + lang->file_name), entry);

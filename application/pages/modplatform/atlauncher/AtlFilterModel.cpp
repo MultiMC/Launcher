@@ -4,7 +4,7 @@
 
 #include <modplatform/atlauncher/ATLPackIndex.h>
 #include <Version.h>
-#include <MMCStrings.h>
+#include <LauncherStrings.h>
 
 namespace Atl {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.multimc;
+package org.launcher;
 
 import java.util.ArrayList;
 import java.util.HashMap;

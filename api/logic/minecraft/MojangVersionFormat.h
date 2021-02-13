@@ -4,9 +4,9 @@
 #include <minecraft/Library.h>
 #include <QJsonDocument>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT MojangVersionFormat
+class LAUNCHER_LOGIC_EXPORT MojangVersionFormat
 {
 friend class OneSixVersionFormat;
 protected:

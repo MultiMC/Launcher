@@ -19,13 +19,13 @@
 #include <QObject>
 #include "QObjectPtr.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 #include "net/Mode.h"
 
 class Task;
 namespace Meta
 {
-class MULTIMC_LOGIC_EXPORT BaseEntity
+class LAUNCHER_LOGIC_EXPORT BaseEntity
 {
 public: /* types */
     using Ptr = std::shared_ptr<BaseEntity>;

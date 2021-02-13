@@ -19,9 +19,9 @@
 #include <QIcon>
 #include <icons/IIconList.h>
 
-#include "multimc_gui_export.h"
+#include "launcher_gui_export.h"
 
-struct MULTIMC_GUI_EXPORT MMCImage
+struct LAUNCHER_GUI_EXPORT LauncherImage
 {
     QIcon icon;
     QString key;
@@ -32,11 +32,11 @@ struct MULTIMC_GUI_EXPORT MMCImage
     }
 };
 
-struct MULTIMC_GUI_EXPORT MMCIcon
+struct LAUNCHER_GUI_EXPORT LauncherIcon
 {
     QString m_key;
     QString m_name;
-    MMCImage m_images[ICONS_TOTAL];
+    LauncherImage m_images[ICONS_TOTAL];
     IconType m_current_type = ToBeDeleted;
 
     IconType type() const;

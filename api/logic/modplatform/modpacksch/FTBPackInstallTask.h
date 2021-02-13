@@ -3,12 +3,12 @@
 #include "FTBPackManifest.h"
 
 #include "InstanceTask.h"
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 #include "net/NetJob.h"
 
 namespace ModpacksCH {
 
-class MULTIMC_LOGIC_EXPORT PackInstallTask : public InstanceTask
+class LAUNCHER_LOGIC_EXPORT PackInstallTask : public InstanceTask
 {
     Q_OBJECT
 

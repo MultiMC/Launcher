@@ -2,7 +2,7 @@
 #include <QByteArray>
 #include <net/NetJob.h>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 namespace GoUpdate
 {
@@ -10,7 +10,7 @@ namespace GoUpdate
 /**
  * A temporary object exchanged between updated checker and the actual update task
  */
-struct MULTIMC_LOGIC_EXPORT Status
+struct LAUNCHER_LOGIC_EXPORT Status
 {
     bool updateAvailable = false;
 
@@ -27,7 +27,7 @@ struct MULTIMC_LOGIC_EXPORT Status
 /**
  * Struct that describes an entry in a VersionFileEntry's `Sources` list.
  */
-struct MULTIMC_LOGIC_EXPORT FileSource
+struct LAUNCHER_LOGIC_EXPORT FileSource
 {
     FileSource(QString type, QString url, QString compression="")
     {
@@ -50,7 +50,7 @@ typedef QList<FileSource> FileSourceList;
 /**
  * Structure that describes an entry in a GoUpdate version's `Files` list.
  */
-struct MULTIMC_LOGIC_EXPORT VersionFileEntry
+struct LAUNCHER_LOGIC_EXPORT VersionFileEntry
 {
     QString path;
     int mode;
@@ -66,7 +66,7 @@ typedef QList<VersionFileEntry> VersionFileList;
 /**
  * Structure that describes an operation to perform when installing updates.
  */
-struct MULTIMC_LOGIC_EXPORT Operation
+struct LAUNCHER_LOGIC_EXPORT Operation
 {
     static Operation CopyOp(QString from, QString to, int fmode=0644)
     {
@@ -107,13 +107,13 @@ typedef QList<Operation> OperationList;
 /**
  * Loads the file list from the given version info JSON object into the given list.
  */
-bool MULTIMC_LOGIC_EXPORT parseVersionInfo(const QByteArray &data, VersionFileList& list, QString &error);
+bool LAUNCHER_LOGIC_EXPORT parseVersionInfo(const QByteArray &data, VersionFileList& list, QString &error);
 
 /*!
  * Takes a list of file entries for the current version's files and the new version's files
  * and populates the downloadList and operationList with information about how to download and install the update.
  */
-bool MULTIMC_LOGIC_EXPORT processFileLists
+bool LAUNCHER_LOGIC_EXPORT processFileLists
 (
     const VersionFileList &currentVersion,
     const VersionFileList &newVersion,

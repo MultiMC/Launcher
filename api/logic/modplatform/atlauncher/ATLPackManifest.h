@@ -3,7 +3,7 @@
 #include <QString>
 #include <QVector>
 #include <QJsonObject>
-#include <multimc_logic_export.h>
+#include <launcher_logic_export.h>
 
 namespace ATLauncher
 {
@@ -102,6 +102,6 @@ struct PackVersion
     QVector<VersionMod> mods;
 };
 
-MULTIMC_LOGIC_EXPORT void loadVersion(PackVersion & v, QJsonObject & obj);
+LAUNCHER_LOGIC_EXPORT void loadVersion(PackVersion & v, QJsonObject & obj);
 
 }

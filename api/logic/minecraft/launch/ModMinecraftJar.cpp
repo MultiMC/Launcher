@@ -15,7 +15,7 @@
 
 #include "ModMinecraftJar.h"
 #include "launch/LaunchTask.h"
-#include "MMCZip.h"
+#include "LauncherZip.h"
 #include "minecraft/OpSys.h"
 #include "FileSystem.h"
 #include "minecraft/MinecraftInstance.h"
@@ -52,7 +52,7 @@ void ModMinecraftJar::executeTask()
         QStringList jars, temp1, temp2, temp3, temp4;
         mainJar->getApplicableFiles(currentSystem, jars, temp1, temp2, temp3, m_inst->getLocalLibraryPath());
         auto sourceJarPath = jars[0];
-        if(!MMCZip::createModdedJar(sourceJarPath, finalJarPath, jarMods))
+        if(!LauncherZip::createModdedJar(sourceJarPath, finalJarPath, jarMods))
         {
             emitFailed(tr("Failed to create the custom Minecraft jar file."));
             return;

@@ -3,18 +3,18 @@ project(launcher Java)
 find_package(Java 1.6 REQUIRED COMPONENTS Development)
 
 include(UseJava)
-set(CMAKE_JAVA_JAR_ENTRY_POINT org.multimc.EntryPoint)
+set(CMAKE_JAVA_JAR_ENTRY_POINT org.launcher.EntryPoint)
 set(CMAKE_JAVA_COMPILE_FLAGS -target 1.6 -source 1.6 -Xlint:deprecation -Xlint:unchecked)
 
 set(SRC
-    org/multimc/EntryPoint.java
-    org/multimc/Launcher.java
-    org/multimc/LegacyFrame.java
-    org/multimc/NotFoundException.java
-    org/multimc/ParamBucket.java
-    org/multimc/ParseException.java
-    org/multimc/Utils.java
-    org/multimc/onesix/OneSixLauncher.java
+    org/launcher/EntryPoint.java
+    org/launcher/Launcher.java
+    org/launcher/LegacyFrame.java
+    org/launcher/NotFoundException.java
+    org/launcher/ParamBucket.java
+    org/launcher/ParseException.java
+    org/launcher/Utils.java
+    org/launcher/onesix/OneSixLauncher.java
     net/minecraft/Launcher.java
 )
 add_jar(NewLaunch ${SRC})

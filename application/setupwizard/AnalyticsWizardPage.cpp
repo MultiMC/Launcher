@@ -1,5 +1,5 @@
 #include "AnalyticsWizardPage.h"
-#include <MultiMC.h>
+#include <Launcher.h>
 
 #include <QVBoxLayout>
 #include <QTextBrowser>
@@ -33,8 +33,8 @@ AnalyticsWizardPage::~AnalyticsWizardPage()
 
 bool AnalyticsWizardPage::validatePage()
 {
-    auto settings = MMC->settings();
-    auto analytics = MMC->analytics();
+    auto settings = LauncherPtr->settings();
+    auto analytics = LauncherPtr->analytics();
     auto status = checkBox->isChecked();
     settings->set("AnalyticsSeen", analytics->version());
     settings->set("Analytics", status);
@@ -47,17 +47,17 @@ void AnalyticsWizardPage::retranslate()
     setSubTitle(tr("We track some anonymous statistics about users."));
     textBrowser->setHtml(tr(
         "<html><body>"
-        "<p>MultiMC sends anonymous usage statistics on every start of the application. This helps us decide what platforms and issues to focus on.</p>"
+        "<p>%1 sends anonymous usage statistics on every start of the application. This helps us decide what platforms and issues to focus on.</p>"
         "<p>The data is processed by Google Analytics, see their <a href=\"https://support.google.com/analytics/answer/6004245?hl=en\">article on the "
         "matter</a>.</p>"
         "<p>The following data is collected:</p>"
-        "<ul><li>A random unique ID of the MultiMC installation.<br />It is stored in the application settings (multimc.cfg).</li>"
+        "<ul><li>A random unique ID of the %1 installation.<br />It is stored in the application settings (launcher.cfg).</li>"
         "<li>Anonymized (partial) IP address.</li>"
-        "<li>MultiMC version.</li>"
+        "<li>%1 version.</li>"
         "<li>Operating system name, version and architecture.</li>"
         "<li>CPU architecture (kernel architecture on linux).</li>"
         "<li>Size of system memory.</li>"
         "<li>Java version, architecture and memory settings.</li></ul>"
-        "<p>If we change the tracked information, you will see this page again.</p></body></html>"));
+        "<p>If we change the tracked information, you will see this page again.</p></body></html>").arg(LAUNCHER_BUILD_NAME);
     checkBox->setText(tr("Enable Analytics"));
 }

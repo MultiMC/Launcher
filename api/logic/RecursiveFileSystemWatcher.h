@@ -4,9 +4,9 @@
 #include <QDir>
 #include "pathmatcher/IPathMatcher.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT RecursiveFileSystemWatcher : public QObject
+class LAUNCHER_LOGIC_EXPORT RecursiveFileSystemWatcher : public QObject
 {
     Q_OBJECT
 public:

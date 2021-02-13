@@ -3,11 +3,11 @@ project(application)
 ################################ FILES ################################
 
 ######## Sources and headers ########
-SET(MULTIMC_SOURCES
+SET(LAUNCHER_SOURCES
     # Application base
     main.cpp
-    MultiMC.h
-    MultiMC.cpp
+    Launcher.h
+    Launcher.cpp
     UpdateController.cpp
     UpdateController.h
 
@@ -114,8 +114,8 @@ SET(MULTIMC_SOURCES
     pages/global/LanguagePage.h
     pages/global/MinecraftPage.cpp
     pages/global/MinecraftPage.h
-    pages/global/MultiMCPage.cpp
-    pages/global/MultiMCPage.h
+    pages/global/LauncherPage.cpp
+    pages/global/LauncherPage.h
     pages/global/ProxyPage.cpp
     pages/global/ProxyPage.h
     pages/global/PasteEEPage.cpp
@@ -248,7 +248,7 @@ SET(MULTIMC_SOURCES
     )
 
 ######## UIs ########
-SET(MULTIMC_UIS
+SET(LAUNCHER_UIS
     # Instance pages
     pages/instance/GameOptionsPage.ui
     pages/instance/VersionPage.ui
@@ -267,7 +267,7 @@ SET(MULTIMC_UIS
     pages/global/ExternalToolsPage.ui
     pages/global/JavaPage.ui
     pages/global/MinecraftPage.ui
-    pages/global/MultiMCPage.ui
+    pages/global/LauncherPage.ui
     pages/global/ProxyPage.ui
     pages/global/PasteEEPage.ui
 
@@ -300,9 +300,9 @@ SET(MULTIMC_UIS
     widgets/MCModInfoFrame.ui
 )
 
-set(MULTIMC_QRCS
+set(LAUNCHER_QRCS
     resources/backgrounds/backgrounds.qrc
-    resources/multimc/multimc.qrc
+    resources/launcher/launcher.qrc
     resources/pe_dark/pe_dark.qrc
     resources/pe_light/pe_light.qrc
     resources/pe_colored/pe_colored.qrc
@@ -315,33 +315,33 @@ set(MULTIMC_QRCS
 
 ######## Windows resource files ########
 if(WIN32)
-    set(MULTIMC_RCS resources/multimc.rc)
+    set(LAUNCHER_RCS resources/launcher.rc)
 endif()
 
 # Qt 5 stuff
-qt5_wrap_ui(MULTIMC_UI ${MULTIMC_UIS})
-qt5_add_resources(MULTIMC_RESOURCES ${MULTIMC_QRCS})
+qt5_wrap_ui(LAUNCHER_UI ${LAUNCHER_UIS})
+qt5_add_resources(LAUNCHER_RESOURCES ${LAUNCHER_QRCS})
 
 # Add executable
-add_executable(MultiMC MACOSX_BUNDLE WIN32 ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_RESOURCES} ${MULTIMC_RCS})
-target_link_libraries(MultiMC MultiMC_gui ${QUAZIP_LIBRARIES} hoedown MultiMC_rainbow LocalPeer ganalytics)
-if(DEFINED MultiMC_APP_BINARY_NAME)
-    set_target_properties(MultiMC PROPERTIES OUTPUT_NAME "${MultiMC_APP_BINARY_NAME}")
+add_executable(Launcher MACOSX_BUNDLE WIN32 ${LAUNCHER_SOURCES} ${LAUNCHER_UI} ${LAUNCHER_RESOURCES} ${LAUNCHER_RCS})
+target_link_libraries(Launcher Launcher_gui ${QUAZIP_LIBRARIES} hoedown Launcher_rainbow LocalPeer ganalytics)
+if(DEFINED Launcher_APP_BINARY_NAME)
+    set_target_properties(Launcher PROPERTIES OUTPUT_NAME "${Launcher_APP_BINARY_NAME}")
 endif()
-if(DEFINED MultiMC_BINARY_RPATH)
-    SET_TARGET_PROPERTIES(MultiMC PROPERTIES INSTALL_RPATH "${MultiMC_BINARY_RPATH}")
+if(DEFINED Launcher_BINARY_RPATH)
+    SET_TARGET_PROPERTIES(Launcher PROPERTIES INSTALL_RPATH "${Launcher_BINARY_RPATH}")
 endif()
-if(DEFINED MultiMC_APP_BINARY_DEFS)
-    target_compile_definitions(MultiMC PRIVATE ${MultiMC_APP_BINARY_DEFS})
+if(DEFINED Launcher_APP_BINARY_DEFS)
+    target_compile_definitions(Launcher PRIVATE ${Launcher_APP_BINARY_DEFS})
 endif()
 
-install(TARGETS MultiMC
+install(TARGETS Launcher
     BUNDLE DESTINATION ${BUNDLE_DEST_DIR} COMPONENT Runtime
     LIBRARY DESTINATION ${LIBRARY_DEST_DIR} COMPONENT Runtime
     RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
 )
 
-#### The MultiMC bundle mess! ####
+#### The Launcher bundle mess! ####
 # Bundle utilities are used to complete the portable packages - they add all the libraries that would otherwise be missing on the target system.
 # NOTE: it seems that this absolutely has to be here, and nowhere else.
 if(INSTALL_BUNDLE STREQUAL "full")

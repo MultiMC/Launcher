@@ -20,14 +20,14 @@
 #include <QStringList>
 #include <memory>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class SettingsObject;
 
 /*!
  *
  */
-class MULTIMC_LOGIC_EXPORT Setting : public QObject
+class LAUNCHER_LOGIC_EXPORT Setting : public QObject
 {
     Q_OBJECT
 public:
@@ -35,7 +35,7 @@ public:
      * Construct a Setting
      *
      * Synonyms are all the possible names used in the settings object, in order of preference.
-     * First synonym is the ID, which identifies the setting in MultiMC.
+     * First synonym is the ID, which identifies the setting in the Launcher.
      *
      * defVal is the default value that will be returned when the settings object
      * doesn't have any value for this setting.

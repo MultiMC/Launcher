@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "MultiMC.h"
+#include "Launcher.h"
 
 #include <QMessageBox>
 #include <QLabel>
@@ -48,6 +48,8 @@
 #include <meta/Index.h>
 #include <meta/VersionList.h>
 
+#include <BuildConfig.h>
+
 class IconProxy : public QIdentityProxyModel
 {
     Q_OBJECT
@@ -70,14 +72,14 @@ public:
                 auto string = var.toString();
                 if(string == "warning")
                 {
-                    return MMC->getThemedIcon("status-yellow");
+                    return LauncherPtr->getThemedIcon("status-yellow");
                 }
                 else if(string == "error")
                 {
-                    return MMC->getThemedIcon("status-bad");
+                    return LauncherPtr->getThemedIcon("status-bad");
                 }
             }
-            return MMC->getThemedIcon("status-good");
+            return LauncherPtr->getThemedIcon("status-good");
         }
         return var;
     }
@@ -93,7 +95,7 @@ private:
 
 QIcon VersionPage::icon() const
 {
-    return MMC->icons()->getIcon(m_inst->iconKey());
+    return LauncherPtr->icons()->getIcon(m_inst->iconKey());
 }
 bool VersionPage::shouldDisplay() const
 {
@@ -284,7 +286,7 @@ void VersionPage::on_actionInstall_mods_triggered()
 
 void VersionPage::on_actionAdd_to_Minecraft_jar_triggered()
 {
-    auto list = GuiUtil::BrowseForFiles("jarmod", tr("Select jar mods"), tr("Minecraft.jar mods (*.zip *.jar)"), MMC->settings()->get("CentralModsDir").toString(), this->parentWidget());
+    auto list = GuiUtil::BrowseForFiles("jarmod", tr("Select jar mods"), tr("Minecraft.jar mods (*.zip *.jar)"), LauncherPtr->settings()->get("CentralModsDir").toString(), this->parentWidget());
     if(!list.empty())
     {
         m_profile->installJarMods(list);
@@ -294,7 +296,7 @@ void VersionPage::on_actionAdd_to_Minecraft_jar_triggered()
 
 void VersionPage::on_actionReplace_Minecraft_jar_triggered()
 {
-    auto jarPath = GuiUtil::BrowseForFile("jar", tr("Select jar"), tr("Minecraft.jar replacement (*.jar)"), MMC->settings()->get("CentralModsDir").toString(), this->parentWidget());
+    auto jarPath = GuiUtil::BrowseForFile("jar", tr("Select jar"), tr("Minecraft.jar replacement (*.jar)"), LauncherPtr->settings()->get("CentralModsDir").toString(), this->parentWidget());
     if(!jarPath.isEmpty())
     {
         m_profile->installCustomJar(jarPath);
@@ -382,12 +384,12 @@ void VersionPage::on_actionChange_version_triggered()
 
 void VersionPage::on_actionDownload_All_triggered()
 {
-    if (!MMC->accounts()->anyAccountIsValid())
+    if (!LauncherPtr->accounts()->anyAccountIsValid())
     {
         CustomMessageBox::selectable(
             this, tr("Error"),
-            tr("MultiMC cannot download Minecraft or update instances unless you have at least "
-               "one account added.\nPlease add your Mojang or Minecraft account."),
+            tr("%1 cannot download Minecraft or update instances unless you have at least "
+               "one account added.\nPlease add your Mojang or Minecraft account.").arg(LAUNCHER_BUILD_NAME),
             QMessageBox::Warning)->show();
         return;
     }
@@ -601,7 +603,7 @@ void VersionPage::on_actionEdit_triggered()
         qWarning() << "file" << filename << "can't be opened for editing, doesn't exist!";
         return;
     }
-    MMC->openJsonEditor(filename);
+    LauncherPtr->openJsonEditor(filename);
 }
 
 void VersionPage::on_actionRevert_triggered()

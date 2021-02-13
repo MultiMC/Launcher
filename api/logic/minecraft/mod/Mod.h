@@ -19,13 +19,13 @@
 #include <QList>
 #include <memory>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 #include "ModDetails.h"
 
 
 
-class MULTIMC_LOGIC_EXPORT Mod
+class LAUNCHER_LOGIC_EXPORT Mod
 {
 public:
     enum ModType
@@ -44,9 +44,9 @@ public:
     {
         return m_file;
     }
-    QString mmc_id() const
+    QString launcher_id() const
     {
-        return m_mmc_id;
+        return m_launcher_id;
     }
     ModType type() const
     {
@@ -106,7 +106,7 @@ public:
 protected:
     QFileInfo m_file;
     QDateTime m_changedDateTime;
-    QString m_mmc_id;
+    QString m_launcher_id;
     QString m_name;
     bool m_enabled = true;
     bool m_resolving = false;

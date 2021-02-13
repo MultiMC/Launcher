@@ -17,7 +17,7 @@
 #include "BaseInstance.h"
 #include "FileSystem.h"
 #include "Env.h"
-#include "MMCZip.h"
+#include "LauncherZip.h"
 #include "NullInstance.h"
 #include "settings/INISettingsObject.h"
 #include "icons/IIconList.h"
@@ -32,6 +32,8 @@
 #include "Json.h"
 #include <quazipdir.h>
 #include "modplatform/technic/TechnicPackProcessor.h"
+
+#include <BuildConfig.h>
 
 InstanceImportTask::InstanceImportTask(const QUrl sourceUrl)
 {
@@ -96,16 +98,16 @@ void InstanceImportTask::processZipPack()
     }
 
     QStringList blacklist = {"instance.cfg", "manifest.json"};
-    QString mmcFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "instance.cfg");
+    QString launcherFound = LauncherZip::findFolderOfFileInZip(m_packZip.get(), "instance.cfg");
     bool technicFound = QuaZipDir(m_packZip.get()).exists("/bin/modpack.jar") || QuaZipDir(m_packZip.get()).exists("/bin/version.json");
-    QString flameFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "manifest.json");
+    QString flameFound = LauncherZip::findFolderOfFileInZip(m_packZip.get(), "manifest.json");
     QString root;
-    if(!mmcFound.isNull())
+    if(!launcherFound.isNull())
     {
-        // process as MultiMC instance/pack
-        qDebug() << "MultiMC:" << mmcFound;
-        root = mmcFound;
-        m_modpackType = ModpackType::MultiMC;
+        // process as the Launcher instance/pack
+        qDebug() << LAUNCHER_BUILD_NAME << ":" << launcherFound;
+        root = launcherFound;
+        m_modpackType = ModpackType::Launcher;
     }
     else if (technicFound)
     {
@@ -129,7 +131,7 @@ void InstanceImportTask::processZipPack()
     }
 
     // make sure we extract just the pack
-    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractSubDir, m_packZip.get(), root, extractDir.absolutePath());
+    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), LauncherZip::extractSubDir, m_packZip.get(), root, extractDir.absolutePath());
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, &InstanceImportTask::extractFinished);
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, &InstanceImportTask::extractAborted);
     m_extractFutureWatcher.setFuture(m_extractFuture);
@@ -181,8 +183,8 @@ void InstanceImportTask::extractFinished()
         case ModpackType::Flame:
             processFlame();
             return;
-        case ModpackType::MultiMC:
-            processMultiMC();
+        case ModpackType::Launcher:
+            processLauncher();
             return;
         case ModpackType::Technic:
             processTechnic();
@@ -297,7 +299,7 @@ void InstanceImportTask::processFlame()
         }
         else
         {
-            // default to something other than the MultiMC default to distinguish these
+            // default to something other than the Launcher's default to distinguish these
             instance.setIconKey("flame");
         }
     }
@@ -405,7 +407,7 @@ void InstanceImportTask::processTechnic()
     packProcessor->run(m_globalSettings, m_instName, m_instIcon, m_stagingPath);
 }
 
-void InstanceImportTask::processMultiMC()
+void InstanceImportTask::processLauncher()
 {
     // FIXME: copy from FolderInstanceProvider!!! FIX IT!!!
     QString configPath = FS::PathCombine(m_stagingPath, "instance.cfg");

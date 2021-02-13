@@ -23,7 +23,7 @@
 
 namespace Technic
 {
-    class MULTIMC_LOGIC_EXPORT SolderPackInstallTask : public InstanceTask
+    class LAUNCHER_LOGIC_EXPORT SolderPackInstallTask : public InstanceTask
     {
         Q_OBJECT
     public:

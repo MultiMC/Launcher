@@ -5,13 +5,13 @@
 
 #include "QObjectPtr.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 #include "JavaVersion.h"
 
 class JavaChecker;
 
-struct MULTIMC_LOGIC_EXPORT JavaCheckResult
+struct LAUNCHER_LOGIC_EXPORT JavaCheckResult
 {
     QString path;
     QString mojangPlatform;
@@ -32,7 +32,7 @@ struct MULTIMC_LOGIC_EXPORT JavaCheckResult
 
 typedef shared_qobject_ptr<QProcess> QProcessPtr;
 typedef shared_qobject_ptr<JavaChecker> JavaCheckerPtr;
-class MULTIMC_LOGIC_EXPORT JavaChecker : public QObject
+class LAUNCHER_LOGIC_EXPORT JavaChecker : public QObject
 {
     Q_OBJECT
 public:

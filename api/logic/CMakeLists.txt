@@ -1,4 +1,4 @@
-project(MultiMC_logic)
+project(Launcher_logic)
 
 include (UnitTest)
 
@@ -20,10 +20,10 @@ set(CORE_SOURCES
     BaseInstance.h
     BaseInstance.cpp
     NullInstance.h
-    MMCZip.h
-    MMCZip.cpp
-    MMCStrings.h
-    MMCStrings.cpp
+    LauncherZip.h
+    LauncherZip.cpp
+    LauncherStrings.h
+    LauncherStrings.cpp
 
     # Basic instance manipulation tasks (derived from InstanceTask)
     InstanceCreationTask.h
@@ -84,13 +84,13 @@ set(CORE_SOURCES
 
 add_unit_test(FileSystem
     SOURCES FileSystem_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     DATA testdata
     )
 
 add_unit_test(GZip
     SOURCES GZip_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 set(PATHMATCHER_SOURCES
@@ -152,13 +152,13 @@ set(UPDATE_SOURCES
 
 add_unit_test(UpdateChecker
     SOURCES updater/UpdateChecker_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     DATA updater/testdata
     )
 
 add_unit_test(DownloadTask
     SOURCES updater/DownloadTask_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     DATA updater/testdata
     )
 
@@ -315,14 +315,14 @@ set(MINECRAFT_SOURCES
 
 add_unit_test(GradleSpecifier
     SOURCES minecraft/GradleSpecifier_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 add_executable(PackageManifest
     mojang/PackageManifest_test.cpp
 )
 target_link_libraries(PackageManifest
-    MultiMC_logic
+    Launcher_logic
     Qt5::Test
 )
 target_include_directories(PackageManifest
@@ -336,25 +336,25 @@ add_test(
 
 add_unit_test(MojangVersionFormat
     SOURCES minecraft/MojangVersionFormat_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     DATA minecraft/testdata
     )
 
 add_unit_test(Library
     SOURCES minecraft/Library_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 # FIXME: shares data with FileSystem test
 add_unit_test(ModFolderModel
     SOURCES minecraft/mod/ModFolderModel_test.cpp
     DATA testdata
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 add_unit_test(ParseUtils
     SOURCES minecraft/ParseUtils_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 # the screenshots feature
@@ -392,7 +392,7 @@ set(SETTINGS_SOURCES
 
 add_unit_test(INIFile
     SOURCES settings/INIFile_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 set(JAVA_SOURCES
@@ -415,7 +415,7 @@ set(JAVA_SOURCES
 
 add_unit_test(JavaVersion
     SOURCES java/JavaVersion_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 set(TRANSLATIONS_SOURCES
@@ -499,7 +499,7 @@ set(ATLAUNCHER_SOURCES
 
 add_unit_test(Index
     SOURCES meta/Index_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 ################################ COMPILE ################################
@@ -532,21 +532,21 @@ set(LOGIC_SOURCES
     ${ATLAUNCHER_SOURCES}
 )
 
-add_library(MultiMC_logic SHARED ${LOGIC_SOURCES})
-set_target_properties(MultiMC_logic PROPERTIES CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN 1)
+add_library(Launcher_logic SHARED ${LOGIC_SOURCES})
+set_target_properties(Launcher_logic PROPERTIES CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN 1)
 
-generate_export_header(MultiMC_logic)
+generate_export_header(Launcher_logic)
 
 # Link
-target_link_libraries(MultiMC_logic systeminfo MultiMC_quazip MultiMC_classparser ${NBT_NAME} ${ZLIB_LIBRARIES} optional-bare BuildConfig)
-target_link_libraries(MultiMC_logic Qt5::Core Qt5::Xml Qt5::Network Qt5::Concurrent)
+target_link_libraries(Launcher_logic systeminfo Launcher_quazip Launcher_classparser ${NBT_NAME} ${ZLIB_LIBRARIES} optional-bare BuildConfig)
+target_link_libraries(Launcher_logic Qt5::Core Qt5::Xml Qt5::Network Qt5::Concurrent)
 
 # Mark and export headers
-target_include_directories(MultiMC_logic PUBLIC "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" PRIVATE "${ZLIB_INCLUDE_DIRS}")
+target_include_directories(Launcher_logic PUBLIC "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" PRIVATE "${ZLIB_INCLUDE_DIRS}")
 
 # Install it
 install(
-    TARGETS MultiMC_logic
+    TARGETS Launcher_logic
     RUNTIME DESTINATION ${LIBRARY_DEST_DIR}
     LIBRARY DESTINATION ${LIBRARY_DEST_DIR}
 )

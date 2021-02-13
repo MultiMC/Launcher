@@ -2,10 +2,10 @@
 #include "net/NetAction.h"
 #include "Screenshot.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 typedef std::shared_ptr<class ImgurUpload> ImgurUploadPtr;
-class MULTIMC_LOGIC_EXPORT ImgurUpload : public NetAction
+class LAUNCHER_LOGIC_EXPORT ImgurUpload : public NetAction
 {
 public:
     explicit ImgurUpload(ScreenshotPtr shot);

@@ -21,7 +21,7 @@
 
 #include "BaseVersion.h"
 #include "tasks/Task.h"
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 #include "QObjectPtr.h"
 
 /*!
@@ -36,7 +36,7 @@
  * all have a default implementation, but they can be overridden by plugins to
  * change the behavior of the list.
  */
-class MULTIMC_LOGIC_EXPORT BaseVersionList : public QAbstractListModel
+class LAUNCHER_LOGIC_EXPORT BaseVersionList : public QAbstractListModel
 {
     Q_OBJECT
 public:

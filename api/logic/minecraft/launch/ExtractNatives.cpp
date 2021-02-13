@@ -19,7 +19,7 @@
 
 #include <quazip.h>
 #include <quazipdir.h>
-#include "MMCZip.h"
+#include "LauncherZip.h"
 #include "FileSystem.h"
 #include <QDir>
 

@@ -1,4 +1,4 @@
-package org.multimc;/*
+package org.launcher;/*
  * Copyright 2012-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

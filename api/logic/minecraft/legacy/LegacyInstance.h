@@ -18,16 +18,16 @@
 #include "BaseInstance.h"
 #include "launch/LaunchTask.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class ModFolderModel;
 class LegacyModList;
 class WorldList;
 class Task;
 /*
- * WHY: Legacy instances - from MultiMC 3 and 4 - are here only to provide a way to upgrade them to the current format.
+ * WHY: Legacy instances - from MMC 3 and 4 - are here only to provide a way to upgrade them to the current format.
  */
-class MULTIMC_LOGIC_EXPORT LegacyInstance : public BaseInstance
+class LAUNCHER_LOGIC_EXPORT LegacyInstance : public BaseInstance
 {
     Q_OBJECT
 public:

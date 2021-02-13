@@ -4,9 +4,9 @@
 #include <QBuffer>
 #include <memory>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT PasteUpload : public Task
+class LAUNCHER_LOGIC_EXPORT PasteUpload : public Task
 {
     Q_OBJECT
 public:

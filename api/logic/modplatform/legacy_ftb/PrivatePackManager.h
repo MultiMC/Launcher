@@ -3,11 +3,11 @@
 #include <QSet>
 #include <QString>
 #include <QFile>
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 namespace LegacyFTB {
 
-class MULTIMC_LOGIC_EXPORT PrivatePackManager
+class LAUNCHER_LOGIC_EXPORT PrivatePackManager
 {
 public:
     ~PrivatePackManager()

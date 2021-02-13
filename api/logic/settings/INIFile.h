@@ -19,10 +19,10 @@
 #include <QVariant>
 #include <QIODevice>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 // Sectionless INI parser (for instance config files)
-class MULTIMC_LOGIC_EXPORT INIFile : public QMap<QString, QVariant>
+class LAUNCHER_LOGIC_EXPORT INIFile : public QMap<QString, QVariant>
 {
 public:
     explicit INIFile();

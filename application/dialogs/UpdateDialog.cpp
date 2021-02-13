@@ -1,7 +1,7 @@
 #include "UpdateDialog.h"
 #include "ui_UpdateDialog.h"
 #include <QDebug>
-#include "MultiMC.h"
+#include "Launcher.h"
 #include <settings/SettingsObject.h>
 #include <Json.h>
 
@@ -11,7 +11,7 @@
 UpdateDialog::UpdateDialog(bool hasUpdate, QWidget *parent) : QDialog(parent), ui(new Ui::UpdateDialog)
 {
     ui->setupUi(this);
-    auto channel = MMC->settings()->get("UpdateChannel").toString();
+    auto channel = LauncherPtr->settings()->get("UpdateChannel").toString();
     if(hasUpdate)
     {
         ui->label->setText(tr("A new %1 update is available!").arg(channel));
@@ -24,7 +24,7 @@ UpdateDialog::UpdateDialog(bool hasUpdate, QWidget *parent) : QDialog(parent), u
     }
     ui->changelogBrowser->setHtml(tr("<center><h1>Loading changelog...</h1></center>"));
     loadChangelog();
-    restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("UpdateDialogGeometry").toByteArray()));
+    restoreGeometry(QByteArray::fromBase64(LauncherPtr->settings()->get("UpdateDialogGeometry").toByteArray()));
 }
 
 UpdateDialog::~UpdateDialog()
@@ -33,17 +33,17 @@ UpdateDialog::~UpdateDialog()
 
 void UpdateDialog::loadChangelog()
 {
-    auto channel = MMC->settings()->get("UpdateChannel").toString();
+    auto channel = LauncherPtr->settings()->get("UpdateChannel").toString();
     dljob.reset(new NetJob("Changelog"));
     QString url;
     if(channel == "stable")
     {
-        url = QString("https://raw.githubusercontent.com/MultiMC/MultiMC5/%1/changelog.md").arg(channel);
+        url = QString(CHANGELOG_URL).arg(channel);
         m_changelogType = CHANGELOG_MARKDOWN;
     }
     else
     {
-        url = QString("https://api.github.com/repos/MultiMC/MultiMC5/compare/%1...%2").arg(BuildConfig.GIT_COMMIT, channel);
+        url = QString("%1/compare/%2...%3").arg(BuildConfig.GITHUB_REPO_API_URL).arg(BuildConfig.GIT_COMMIT, channel);
         m_changelogType = CHANGELOG_COMMITS;
     }
     dljob->addNetAction(Net::Download::makeByteArray(QUrl(url), &changelogData));
@@ -58,14 +58,14 @@ QString reprocessMarkdown(QByteArray markdown)
     QString output = hoedown.process(markdown);
 
     // HACK: easier than customizing hoedown
-    output.replace(QRegExp("GH-([0-9]+)"), "<a href=\"https://github.com/MultiMC/MultiMC5/issues/\\1\">GH-\\1</a>");
+    output.replace(QRegExp("GH-([0-9]+)"), QString("<a href=\"%1/\\1\">GH-\\1</a>").arg(BuildConfig.ISSUE_URL));
     qDebug() << output;
     return output;
 }
 
 QString reprocessCommits(QByteArray json)
 {
-    auto channel = MMC->settings()->get("UpdateChannel").toString();
+    auto channel = LauncherPtr->settings()->get("UpdateChannel").toString();
     try
     {
         QString result;
@@ -100,7 +100,7 @@ QString reprocessCommits(QByteArray json)
                 result += "<tr><td>";
                 if(issuenr.length())
                 {
-                    result += QString("<a href=\"https://github.com/MultiMC/MultiMC5/issues/%1\">GH-%2</a>").arg(issuenr, issuenr);
+                    result += QString("<a href=\"%1/%2\">GH-%2</a>").arg(BuildConfig.ISSUE_URL).arg(issuenr);
                 }
                 else if(prefix.length())
                 {
@@ -177,6 +177,6 @@ void UpdateDialog::on_btnUpdateNow_clicked()
 
 void UpdateDialog::closeEvent(QCloseEvent* evt)
 {
-    MMC->settings()->set("UpdateDialogGeometry", saveGeometry().toBase64());
+    LauncherPtr->settings()->set("UpdateDialogGeometry", saveGeometry().toBase64());
     QDialog::closeEvent(evt);
 }

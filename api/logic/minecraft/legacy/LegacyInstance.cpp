@@ -22,7 +22,7 @@
 
 #include "minecraft/legacy/LegacyModList.h"
 #include "minecraft/WorldList.h"
-#include <MMCZip.h>
+#include <LauncherZip.h>
 #include <FileSystem.h>
 
 LegacyInstance::LegacyInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString &rootDir)

@@ -1,4 +1,4 @@
-package org.multimc;/*
+package org.launcher;/*
  * Copyright 2012-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@ package org.multimc;/*
  * limitations under the License.
  */
 
-import org.multimc.onesix.OneSixLauncher;
+import org.launcher.onesix.OneSixLauncher;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -135,7 +135,7 @@ public class EntryPoint
         }
         if(isAborted)
         {
-            System.err.println("Launch aborted by MultiMC.");
+            System.err.println("Launch aborted by Launcher.");
             return 1;
         }
         if(m_launcher != null)
@@ -147,5 +147,5 @@ public class EntryPoint
     }
 
     private ParamBucket m_params = new ParamBucket();
-    private org.multimc.Launcher m_launcher;
+    private org.launcher.Launcher m_launcher;
 }

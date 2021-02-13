@@ -16,7 +16,7 @@
 #include "SingleZipPackInstallTask.h"
 
 #include "Env.h"
-#include "MMCZip.h"
+#include "LauncherZip.h"
 #include "TechnicPackProcessor.h"
 
 #include <QtConcurrent>
@@ -58,7 +58,7 @@ void Technic::SingleZipPackInstallTask::downloadSucceeded()
         emitFailed(tr("Unable to open supplied modpack zip file."));
         return;
     }
-    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractSubDir, m_packZip.get(), QString(""), extractDir.absolutePath());
+    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), LauncherZip::extractSubDir, m_packZip.get(), QString(""), extractDir.absolutePath());
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, &Technic::SingleZipPackInstallTask::extractFinished);
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, &Technic::SingleZipPackInstallTask::extractAborted);
     m_extractFutureWatcher.setFuture(m_extractFuture);

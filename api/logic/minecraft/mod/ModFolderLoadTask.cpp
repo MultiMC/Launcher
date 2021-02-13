@@ -12,7 +12,7 @@ void ModFolderLoadTask::run()
     for (auto entry : m_dir.entryInfoList())
     {
         Mod m(entry);
-        m_result->mods[m.mmc_id()] = m;
+        m_result->mods[m.launcher_id()] = m;
     }
     emit succeeded();
 }

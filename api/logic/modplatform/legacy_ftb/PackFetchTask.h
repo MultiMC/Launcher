@@ -8,7 +8,7 @@
 
 namespace LegacyFTB {
 
-class MULTIMC_LOGIC_EXPORT PackFetchTask : public QObject {
+class LAUNCHER_LOGIC_EXPORT PackFetchTask : public QObject {
 
     Q_OBJECT
 

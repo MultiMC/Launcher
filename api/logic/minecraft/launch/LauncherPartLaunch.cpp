@@ -62,7 +62,7 @@ void LauncherPartLaunch::executeTask()
     m_launchScript = minecraftInstance->createLaunchScript(m_session);
     QStringList args = minecraftInstance->javaArguments();
     QString allArgs = args.join(", ");
-    emit logLine("Java Arguments:\n[" + m_parent->censorPrivateInfo(allArgs) + "]\n\n", MessageLevel::MultiMC);
+    emit logLine("Java Arguments:\n[" + m_parent->censorPrivateInfo(allArgs) + "]\n\n", MessageLevel::Launcher);
 
     auto javaPath = FS::ResolveExecutable(instance->settings()->get("JavaPath").toString());
 
@@ -106,7 +106,7 @@ void LauncherPartLaunch::executeTask()
 #else
     args << classPath.join(':');
 #endif
-    args << "org.multimc.EntryPoint";
+    args << "org.launcher.EntryPoint";
 
     qDebug() << args.join(' ');
 
@@ -123,7 +123,7 @@ void LauncherPartLaunch::executeTask()
             emitFailed(reason);
             return;
         }
-        emit logLine("Wrapper command is:\n" + wrapperCommandStr + "\n\n", MessageLevel::MultiMC);
+        emit logLine("Wrapper command is:\n" + wrapperCommandStr + "\n\n", MessageLevel::Launcher);
         args.prepend(javaPath);
         m_process.start(wrapperCommand, wrapperArgs + args);
     }
@@ -170,7 +170,7 @@ void LauncherPartLaunch::on_state(LoggedProcess::State state)
             break;
         }
         case LoggedProcess::Running:
-            emit logLine(tr("Minecraft process ID: %1\n\n").arg(m_process.processId()), MessageLevel::MultiMC);
+            emit logLine(tr("Minecraft process ID: %1\n\n").arg(m_process.processId()), MessageLevel::Launcher);
             m_parent->setPid(m_process.processId());
             m_parent->instance()->setLastLaunch();
             // send the launch script to the launcher part

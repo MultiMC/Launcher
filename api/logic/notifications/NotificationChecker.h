@@ -5,9 +5,9 @@
 #include "net/NetJob.h"
 #include "net/Download.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT NotificationChecker : public QObject
+class LAUNCHER_LOGIC_EXPORT NotificationChecker : public QObject
 {
     Q_OBJECT
 

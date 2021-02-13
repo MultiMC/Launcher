@@ -3,7 +3,7 @@
 #include <QDebug>
 
 #include "modplatform/modpacksch/FTBPackManifest.h"
-#include <MMCStrings.h>
+#include <LauncherStrings.h>
 
 namespace Ftb {
 

@@ -6,7 +6,7 @@
 #include <QStringList>
 #include "tasks/Task.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 namespace mojang_files {
 
@@ -14,7 +14,7 @@ using Hash = QString;
 extern const Hash empty_hash;
 
 // simple-ish path implementation. assumes always relative and does not allow '..' entries
-class MULTIMC_LOGIC_EXPORT Path
+class LAUNCHER_LOGIC_EXPORT Path
 {
 public:
     using parts_type = QStringList;
@@ -106,7 +106,7 @@ enum class Compression {
 };
 
 
-struct MULTIMC_LOGIC_EXPORT FileSource
+struct LAUNCHER_LOGIC_EXPORT FileSource
 {
     Compression compression = Compression::Unknown;
     Hash hash;
@@ -122,14 +122,14 @@ struct MULTIMC_LOGIC_EXPORT FileSource
     }
 };
 
-struct MULTIMC_LOGIC_EXPORT File
+struct LAUNCHER_LOGIC_EXPORT File
 {
     Hash hash;
     bool executable;
     std::uint64_t size = 0;
 };
 
-struct MULTIMC_LOGIC_EXPORT Package {
+struct LAUNCHER_LOGIC_EXPORT Package {
     static Package fromInspectedFolder(const QString &folderPath);
     static Package fromManifestFile(const QString &path);
     static Package fromManifestContents(const QByteArray& contents);
@@ -150,7 +150,7 @@ struct MULTIMC_LOGIC_EXPORT Package {
     std::map<Path, Path> symlinks;
 };
 
-struct MULTIMC_LOGIC_EXPORT FileDownload : FileSource
+struct LAUNCHER_LOGIC_EXPORT FileDownload : FileSource
 {
     FileDownload(const FileSource& source, bool executable) {
         static_cast<FileSource &> (*this) = source;
@@ -159,7 +159,7 @@ struct MULTIMC_LOGIC_EXPORT FileDownload : FileSource
     bool executable = false;
 };
 
-struct MULTIMC_LOGIC_EXPORT UpdateOperations {
+struct LAUNCHER_LOGIC_EXPORT UpdateOperations {
     static UpdateOperations resolve(const Package & from, const Package & to);
     bool valid = false;
     std::vector<Path> deletes;

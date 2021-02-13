@@ -40,7 +40,7 @@ void Mod::repath(const QFileInfo &file)
 
     m_type = Mod::MOD_UNKNOWN;
 
-    m_mmc_id = name_base;
+    m_launcher_id = name_base;
 
     if (m_file.isDir())
     {

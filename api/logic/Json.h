@@ -16,32 +16,32 @@
 
 namespace Json
 {
-class MULTIMC_LOGIC_EXPORT JsonException : public ::Exception
+class LAUNCHER_LOGIC_EXPORT JsonException : public ::Exception
 {
 public:
     JsonException(const QString &message) : Exception(message) {}
 };
 
 /// @throw FileSystemException
-MULTIMC_LOGIC_EXPORT void write(const QJsonDocument &doc, const QString &filename);
+LAUNCHER_LOGIC_EXPORT void write(const QJsonDocument &doc, const QString &filename);
 /// @throw FileSystemException
-MULTIMC_LOGIC_EXPORT void write(const QJsonObject &object, const QString &filename);
+LAUNCHER_LOGIC_EXPORT void write(const QJsonObject &object, const QString &filename);
 /// @throw FileSystemException
-MULTIMC_LOGIC_EXPORT void write(const QJsonArray &array, const QString &filename);
+LAUNCHER_LOGIC_EXPORT void write(const QJsonArray &array, const QString &filename);
 
-MULTIMC_LOGIC_EXPORT QByteArray toBinary(const QJsonObject &obj);
-MULTIMC_LOGIC_EXPORT QByteArray toBinary(const QJsonArray &array);
-MULTIMC_LOGIC_EXPORT QByteArray toText(const QJsonObject &obj);
-MULTIMC_LOGIC_EXPORT QByteArray toText(const QJsonArray &array);
+LAUNCHER_LOGIC_EXPORT QByteArray toBinary(const QJsonObject &obj);
+LAUNCHER_LOGIC_EXPORT QByteArray toBinary(const QJsonArray &array);
+LAUNCHER_LOGIC_EXPORT QByteArray toText(const QJsonObject &obj);
+LAUNCHER_LOGIC_EXPORT QByteArray toText(const QJsonArray &array);
 
 /// @throw JsonException
-MULTIMC_LOGIC_EXPORT QJsonDocument requireDocument(const QByteArray &data, const QString &what = "Document");
+LAUNCHER_LOGIC_EXPORT QJsonDocument requireDocument(const QByteArray &data, const QString &what = "Document");
 /// @throw JsonException
-MULTIMC_LOGIC_EXPORT QJsonDocument requireDocument(const QString &filename, const QString &what = "Document");
+LAUNCHER_LOGIC_EXPORT QJsonDocument requireDocument(const QString &filename, const QString &what = "Document");
 /// @throw JsonException
-MULTIMC_LOGIC_EXPORT QJsonObject requireObject(const QJsonDocument &doc, const QString &what = "Document");
+LAUNCHER_LOGIC_EXPORT QJsonObject requireObject(const QJsonDocument &doc, const QString &what = "Document");
 /// @throw JsonException
-MULTIMC_LOGIC_EXPORT QJsonArray requireArray(const QJsonDocument &doc, const QString &what = "Document");
+LAUNCHER_LOGIC_EXPORT QJsonArray requireArray(const QJsonDocument &doc, const QString &what = "Document");
 
 /////////////////// WRITING ////////////////////
 
@@ -84,31 +84,31 @@ template <typename T>
 T requireIsType(const QJsonValue &value, const QString &what = "Value");
 
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT double requireIsType<double>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT double requireIsType<double>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT bool requireIsType<bool>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT bool requireIsType<bool>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT int requireIsType<int>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT int requireIsType<int>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QJsonObject requireIsType<QJsonObject>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QJsonObject requireIsType<QJsonObject>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QJsonArray requireIsType<QJsonArray>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QJsonArray requireIsType<QJsonArray>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QJsonValue requireIsType<QJsonValue>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QJsonValue requireIsType<QJsonValue>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QByteArray requireIsType<QByteArray>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QByteArray requireIsType<QByteArray>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QDateTime requireIsType<QDateTime>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QDateTime requireIsType<QDateTime>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QVariant requireIsType<QVariant>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QVariant requireIsType<QVariant>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QString requireIsType<QString>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QString requireIsType<QString>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QUuid requireIsType<QUuid>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QUuid requireIsType<QUuid>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QDir requireIsType<QDir>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QDir requireIsType<QDir>(const QJsonValue &value, const QString &what);
 /// @throw JsonException
-template<> MULTIMC_LOGIC_EXPORT QUrl requireIsType<QUrl>(const QJsonValue &value, const QString &what);
+template<> LAUNCHER_LOGIC_EXPORT QUrl requireIsType<QUrl>(const QJsonValue &value, const QString &what);
 
 // the following functions are higher level functions, that make use of the above functions for
 // type conversion

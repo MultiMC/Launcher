@@ -21,7 +21,7 @@
 #include <QVariant>
 #include <memory>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class Setting;
 class SettingsObject;
@@ -40,7 +40,7 @@ typedef std::shared_ptr<SettingsObject> SettingsObjectPtr;
  *
  * \sa Setting
  */
-class MULTIMC_LOGIC_EXPORT SettingsObject : public QObject
+class LAUNCHER_LOGIC_EXPORT SettingsObject : public QObject
 {
     Q_OBJECT
 public:

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-package org.multimc.onesix;
+package org.launcher.onesix;
 
-import org.multimc.*;
+import org.launcher.*;
 
 import java.applet.Applet;
 import java.io.File;

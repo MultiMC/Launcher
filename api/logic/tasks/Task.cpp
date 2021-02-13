@@ -17,6 +17,8 @@
 
 #include <QDebug>
 
+#include <BuildConfig.h>
+
 Task::Task(QObject *parent) : QObject(parent)
 {
 }
@@ -63,7 +65,7 @@ void Task::start()
         }
         case State::Running:
         {
-            qWarning() << "MultiMC tried to start task" << describe() << "while it was already running!";
+            qWarning() << LAUNCHER_BUILD_NAME << " tried to start task" << describe() << "while it was already running!";
             return;
         }
     }

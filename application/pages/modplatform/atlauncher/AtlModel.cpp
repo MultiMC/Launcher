@@ -1,7 +1,7 @@
 #include "AtlModel.h"
 
 #include <BuildConfig.h>
-#include <MultiMC.h>
+#include <Launcher.h>
 #include <Env.h>
 
 namespace Atl {
@@ -47,7 +47,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         {
             return (m_logoMap.value(pack.safeName));
         }
-        auto icon = MMC->getThemedIcon("atlauncher-placeholder");
+        auto icon = LauncherPtr->getThemedIcon("atlauncher-placeholder");
 
         auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "launcher/images/%1.png").arg(pack.safeName.toLower());
         ((ListModel *)this)->requestLogo(pack.safeName, url);

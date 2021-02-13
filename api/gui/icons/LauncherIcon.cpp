@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "MMCIcon.h"
+#include "LauncherIcon.h"
 #include <QFileInfo>
 #include <xdgicon.h>
 
@@ -38,24 +38,24 @@ IconType operator--(IconType &t, int)
     return temp;
 }
 
-IconType MMCIcon::type() const
+IconType LauncherIcon::type() const
 {
     return m_current_type;
 }
 
-QString MMCIcon::name() const
+QString LauncherIcon::name() const
 {
     if (m_name.size())
         return m_name;
     return m_key;
 }
 
-bool MMCIcon::has(IconType _type) const
+bool LauncherIcon::has(IconType _type) const
 {
     return m_images[_type].present();
 }
 
-QIcon MMCIcon::icon() const
+QIcon LauncherIcon::icon() const
 {
     if (m_current_type == IconType::ToBeDeleted)
         return QIcon();
@@ -66,7 +66,7 @@ QIcon MMCIcon::icon() const
     return XdgIcon::fromTheme(m_images[m_current_type].key);
 }
 
-void MMCIcon::remove(IconType rm_type)
+void LauncherIcon::remove(IconType rm_type)
 {
     m_images[rm_type].filename = QString();
     m_images[rm_type].icon = QIcon();
@@ -81,7 +81,7 @@ void MMCIcon::remove(IconType rm_type)
     m_current_type = IconType::ToBeDeleted;
 }
 
-void MMCIcon::replace(IconType new_type, QIcon icon, QString path)
+void LauncherIcon::replace(IconType new_type, QIcon icon, QString path)
 {
     if (new_type > m_current_type || m_current_type == IconType::ToBeDeleted)
     {
@@ -92,7 +92,7 @@ void MMCIcon::replace(IconType new_type, QIcon icon, QString path)
     m_images[new_type].key = QString();
 }
 
-void MMCIcon::replace(IconType new_type, const QString& key)
+void LauncherIcon::replace(IconType new_type, const QString& key)
 {
     if (new_type > m_current_type || m_current_type == IconType::ToBeDeleted)
     {
@@ -103,7 +103,7 @@ void MMCIcon::replace(IconType new_type, const QString& key)
     m_images[new_type].key = key;
 }
 
-QString MMCIcon::getFilePath() const
+QString LauncherIcon::getFilePath() const
 {
     if(m_current_type == IconType::ToBeDeleted){
         return QString();
@@ -112,7 +112,7 @@ QString MMCIcon::getFilePath() const
 }
 
 
-bool MMCIcon::isBuiltIn() const
+bool LauncherIcon::isBuiltIn() const
 {
     return m_current_type == IconType::Builtin;
 }

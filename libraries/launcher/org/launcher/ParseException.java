@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package org.multimc;
+package org.launcher;
 
-public interface Launcher
+public class ParseException extends java.lang.Exception
 {
-    abstract int launch(ParamBucket params);
+    public ParseException() { super(); }
+    public ParseException(String message) {
+        super(message);
+    }
 }

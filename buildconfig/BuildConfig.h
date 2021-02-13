@@ -16,7 +16,12 @@ public:
     int VERSION_HOTFIX;
     /// The build number.
     int VERSION_BUILD;
+	/// The launcher name.
+	QString LAUNCHER_BUILD_NAME = "MultiMC";
+	QString LAUNCHER_BUILD_NAME_SHORT = "MMC";
 
+	// Domain of the Launcher
+	QString WEB_DOMAIN_URL = "https://multimc.org/";
     /**
      * The version channel
      * This is used by the updater to determine what channel the current version came from.
@@ -61,7 +66,7 @@ public:
     QString PASTE_EE_KEY;
 
     /**
-     * MultiMC Metadata repository URL prefix
+     * Launcher Metadata repository URL prefix
      */
     QString META_URL;
 
@@ -80,6 +85,23 @@ public:
     QString LEGACY_FTB_CDN_BASE_URL = "https://dist.creeper.host/FTB2/";
 
     QString ATL_DOWNLOAD_SERVER_URL = "https://download.nodecdn.net/containers/atl/";
+
+	/// Company/Developer/Project/Team Name
+	QString DEVELOPER_NAME = "MultiMC Contributors";
+
+	/// Copyright
+	QString COPYRIGHT_STRING = "(c) 2013-2021";
+
+	/// URLs
+	QString SUBREDDIT_URL = "https://www.reddit.com/r/MultiMC/";
+	QString DISCORD_URL = "https://discord.gg/multimc";
+	QString NEWS_URL = "https://multimc.org/posts.html";
+	QString PATREON_URL = "https://www.patreon.com/multimc";
+	QString ISSUE_URL = "https://github.com/MultiMC/MultiMC5/issues";
+	QString HELP_TRANSLATING_URL = "https://github.com/MultiMC/MultiMC5/wiki/Translating-MultiMC";
+	QString CHANGELOG_URL = "https://raw.githubusercontent.com/MultiMC/MultiMC5/%1/changelog.md";
+	QString GITHUB_REPO_API_URL = "https://api.github.com/repos/MultiMC/MultiMC5";
+	QString PROJECT_WIKI_URL = "https://github.com/MultiMC/MultiMC5/wiki";
 
     /**
      * \brief Converts the Version to a string.

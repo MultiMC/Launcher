@@ -126,8 +126,8 @@ void YggdrasilTask::processReply()
                "your root certificates</a></li>"
                "<li>Some device on your network is interfering with SSL traffic. In that case, "
                "you have bigger worries than Minecraft not starting.</li>"
-               "<li>Possibly something else. Check the MultiMC log file for details</li>"
-               "</ul>"));
+               "<li>Possibly something else. Check the %1 log file for details</li>"
+               "</ul>").arg(LAUNCHER_BUILD_NAME));
         return;
     // used for invalid credentials and similar errors. Fall through.
     case QNetworkReply::ContentAccessDenied:

@@ -5,11 +5,11 @@
 #include <memory>
 #include <minecraft/auth/AuthSession.h>
 #include "tasks/Task.h"
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 typedef std::shared_ptr<class SkinDelete> SkinDeletePtr;
 
-class MULTIMC_LOGIC_EXPORT SkinDelete : public Task
+class LAUNCHER_LOGIC_EXPORT SkinDelete : public Task
 {
     Q_OBJECT
 public:

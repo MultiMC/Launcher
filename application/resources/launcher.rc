@@ -3,8 +3,8 @@
 #endif
 #include <windows.h>
 
-IDI_ICON1               ICON    DISCARDABLE     "MultiMC.ico"
-1 RT_MANIFEST "MultiMC.manifest"
+IDI_ICON1               ICON    DISCARDABLE     "Launcher.ico"
+1 RT_MANIFEST "Launcher.manifest"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     1,0,0,0
@@ -16,9 +16,9 @@ BEGIN
                 BLOCK "000004b0"
                 BEGIN
                         VALUE "CompanyName", "MultiMC Contributors"
-                        VALUE "FileDescription", "MultiMC Launcher"
+                        VALUE "FileDescription", "Launcher"
                         VALUE "FileVersion", "1.0.0.0"
-                        VALUE "ProductName", "MultiMC"
+                        VALUE "ProductName", "Launcher"
                         VALUE "ProductVersion", "5"
                 END
         END

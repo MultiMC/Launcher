@@ -14,14 +14,14 @@
 #include "GradleSpecifier.h"
 #include "MojangDownloadInfo.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class Library;
 class MinecraftInstance;
 
 typedef std::shared_ptr<Library> LibraryPtr;
 
-class MULTIMC_LOGIC_EXPORT Library
+class LAUNCHER_LOGIC_EXPORT Library
 {
     friend class OneSixVersionFormat;
     friend class MojangVersionFormat;
@@ -158,7 +158,7 @@ public: /* methods */
                                      QStringList & failedLocalFiles, const QString & overridePath) const;
 
 private: /* methods */
-    /// the default storage prefix used by MultiMC
+    /// the default storage prefix used by the Launcher
     static QString defaultStoragePrefix();
 
     /// Get the prefix - root of the storage to be used
@@ -179,23 +179,23 @@ protected: /* data */
     /// DEPRECATED URL prefix of the maven repo where the file can be downloaded
     QString m_repositoryURL;
 
-    /// DEPRECATED: MultiMC-specific absolute URL. takes precedence over the implicit maven repo URL, if defined
+    /// DEPRECATED: Launcher-specific absolute URL. takes precedence over the implicit maven repo URL, if defined
     QString m_absoluteURL;
 
-    /// MultiMC extension - filename override
+    /// Launcher extension - filename override
     QString m_filename;
 
-    /// DEPRECATED MultiMC extension - display name
+    /// DEPRECATED Launcher extension - display name
     QString m_displayname;
 
     /**
-     * MultiMC-specific type hint - modifies how the library is treated
+     * Launcher-specific type hint - modifies how the library is treated
      */
     QString m_hint;
 
     /**
-     * storage - by default the local libraries folder in multimc, but could be elsewhere
-     * MultiMC specific, because of FTB.
+     * storage - by default the local libraries folder in launcher, but could be elsewhere
+     * Launcher specific, because of FTB.
      */
     QString m_storagePrefix;
 

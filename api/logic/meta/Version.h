@@ -26,7 +26,7 @@
 
 #include "BaseEntity.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 #include "JsonFormat.h"
 
@@ -34,7 +34,7 @@ namespace Meta
 {
 using VersionPtr = std::shared_ptr<class Version>;
 
-class MULTIMC_LOGIC_EXPORT Version : public QObject, public BaseVersion, public BaseEntity
+class LAUNCHER_LOGIC_EXPORT Version : public QObject, public BaseVersion, public BaseEntity
 {
     Q_OBJECT
 

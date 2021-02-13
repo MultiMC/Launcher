@@ -4,7 +4,7 @@
 #include <QSet>
 #include <QDateTime>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 struct FMLlib
 {
@@ -25,4 +25,4 @@ struct VersionFilterData
     // Libraries that belong to LWJGL
     QSet<QString> lwjglWhitelist;
 };
-extern VersionFilterData MULTIMC_LOGIC_EXPORT g_VersionFilterData;
+extern VersionFilterData LAUNCHER_LOGIC_EXPORT g_VersionFilterData;

@@ -21,9 +21,9 @@
 
 #include <net/NetJob.h>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-class MULTIMC_LOGIC_EXPORT StatusChecker : public QObject
+class LAUNCHER_LOGIC_EXPORT StatusChecker : public QObject
 {
     Q_OBJECT
 public: /* con/des */

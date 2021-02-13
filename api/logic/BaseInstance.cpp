@@ -239,7 +239,7 @@ QString BaseInstance::name() const
 
 QString BaseInstance::windowTitle() const
 {
-    return "MultiMC: " + name().replace(QRegExp("[ \n\r\t]+"), " ");
+    return LAUNCHER_BUILD_NAME + ": " + name().replace(QRegExp("[ \n\r\t]+"), " ");
 }
 
 // FIXME: why is this here? move it to MinecraftInstance!!!

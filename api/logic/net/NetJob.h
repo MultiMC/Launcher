@@ -21,12 +21,12 @@
 #include "tasks/Task.h"
 #include "QObjectPtr.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class NetJob;
 typedef shared_qobject_ptr<NetJob> NetJobPtr;
 
-class MULTIMC_LOGIC_EXPORT NetJob : public Task
+class LAUNCHER_LOGIC_EXPORT NetJob : public Task
 {
     Q_OBJECT
 public:

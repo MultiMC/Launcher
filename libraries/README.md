@@ -47,11 +47,11 @@ mainClass net.minecraft.launchwrapper.Launch
 param --username
 param CENSORED
 param --version
-param MultiMC5
+param Launcher
 param --gameDir
 param /home/peterix/minecraft/FTB/17ForgeTest/minecraft
 param --assetsDir
-param /home/peterix/minecraft/mmc5/assets
+param /home/peterix/minecraft/launcher/assets
 param --assetIndex
 param 1.7.10
 param --uuid
@@ -64,7 +64,7 @@ param --userType
 param mojang
 param --tweakClass
 param cpw.mods.fml.common.launcher.FMLTweaker
-windowTitle MultiMC: 172ForgeTest
+windowTitle Launcher: 172ForgeTest
 windowParams 854x480
 userName CENSORED
 sessionId token:CENSORED:CENSORED

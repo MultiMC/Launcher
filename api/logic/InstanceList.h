@@ -22,7 +22,7 @@
 
 #include "BaseInstance.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 #include "QObjectPtr.h"
 
@@ -49,7 +49,7 @@ enum class GroupsState
 };
 
 
-class MULTIMC_LOGIC_EXPORT InstanceList : public QAbstractListModel
+class LAUNCHER_LOGIC_EXPORT InstanceList : public QAbstractListModel
 {
     Q_OBJECT
 

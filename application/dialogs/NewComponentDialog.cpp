@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "NewComponentDialog.h"
 #include "ui_NewComponentDialog.h"
 
@@ -46,7 +46,7 @@ NewComponentDialog::NewComponentDialog(const QString & initialName, const QStrin
     connect(ui->nameTextBox, &QLineEdit::textChanged, this, &NewComponentDialog::updateDialogState);
     connect(ui->uidTextBox, &QLineEdit::textChanged, this, &NewComponentDialog::updateDialogState);
 
-    auto groups = MMC->instances()->getGroups().toSet();
+    auto groups = LauncherPtr->instances()->getGroups().toSet();
     ui->nameTextBox->setFocus();
 
     originalPlaceholderText = ui->uidTextBox->placeholderText();
@@ -68,7 +68,7 @@ void NewComponentDialog::updateDialogState()
     }
     else
     {
-        QString suggestedUid = "org.multimc.custom." + protoUid;
+        QString suggestedUid = "org.launcher.custom." + protoUid;
         ui->uidTextBox->setPlaceholderText(suggestedUid);
     }
     bool allowOK = !name().isEmpty() && !uid().isEmpty() && !uidBlacklist.contains(uid());

@@ -4,9 +4,9 @@
 #include <QString>
 #include "MessageLevel.h"
 
-#include <multimc_logic_export.h>
+#include <launcher_logic_export.h>
 
-class MULTIMC_LOGIC_EXPORT LogModel : public QAbstractListModel
+class LAUNCHER_LOGIC_EXPORT LogModel : public QAbstractListModel
 {
     Q_OBJECT
 public:

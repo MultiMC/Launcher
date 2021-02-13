@@ -17,7 +17,7 @@
 
 #include <memory>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class MinecraftInstance;
 class QDir;
@@ -27,7 +27,7 @@ class Task;
 class BaseVersion;
 typedef std::shared_ptr<BaseVersion> BaseVersionPtr;
 
-class MULTIMC_LOGIC_EXPORT BaseInstaller
+class LAUNCHER_LOGIC_EXPORT BaseInstaller
 {
 public:
     BaseInstaller();

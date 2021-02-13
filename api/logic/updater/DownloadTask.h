@@ -19,7 +19,7 @@
 #include "net/NetJob.h"
 #include "GoUpdate.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 namespace GoUpdate
 {
@@ -27,7 +27,7 @@ namespace GoUpdate
  * The DownloadTask is a task that takes a given version ID and repository URL,
  * downloads that version's files from the repository, and prepares to install them.
  */
-class MULTIMC_LOGIC_EXPORT DownloadTask : public Task
+class LAUNCHER_LOGIC_EXPORT DownloadTask : public Task
 {
     Q_OBJECT
 
@@ -56,7 +56,7 @@ protected:
     /*!
      * Downloads the version info files from the repository.
      * The files for both the current build, and the build that we're updating to need to be downloaded.
-     * If the current version's info file can't be found, MultiMC will not delete files that
+     * If the current version's info file can't be found, the Launcher will not delete files that
      * were removed between versions. It will still replace files that have changed, however.
      * Note that although the repository URL for the current version is not given to the update task,
      * the task will attempt to look it up in the UpdateChecker's channel list.

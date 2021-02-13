@@ -24,11 +24,11 @@
 #include <windows.h>
 #endif
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 QProcessEnvironment CleanEnviroment();
 
-class MULTIMC_LOGIC_EXPORT JavaUtils : public QObject
+class LAUNCHER_LOGIC_EXPORT JavaUtils : public QObject
 {
     Q_OBJECT
 public:

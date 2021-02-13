@@ -6,7 +6,7 @@
 #include <QJsonObject>
 #include <QMetaType>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 namespace ModpacksCH
 {
@@ -119,9 +119,9 @@ struct VersionChangelog
     int64_t updated;
 };
 
-MULTIMC_LOGIC_EXPORT void loadModpack(Modpack & m, QJsonObject & obj);
+LAUNCHER_LOGIC_EXPORT void loadModpack(Modpack & m, QJsonObject & obj);
 
-MULTIMC_LOGIC_EXPORT void loadVersion(Version & m, QJsonObject & obj);
+LAUNCHER_LOGIC_EXPORT void loadVersion(Version & m, QJsonObject & obj);
 }
 
 Q_DECLARE_METATYPE(ModpacksCH::Modpack)

@@ -12,7 +12,7 @@
 
 namespace LegacyFTB {
 
-class MULTIMC_LOGIC_EXPORT PackInstallTask : public InstanceTask
+class LAUNCHER_LOGIC_EXPORT PackInstallTask : public InstanceTask
 {
     Q_OBJECT
 

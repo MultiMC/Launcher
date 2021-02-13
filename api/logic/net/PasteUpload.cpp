@@ -6,6 +6,8 @@
 #include <QJsonDocument>
 #include <QFile>
 
+#include <BuildConfig.h>
+
 PasteUpload::PasteUpload(QWidget *window, QString text, QString key) : m_window(window)
 {
     m_key = key;
@@ -15,7 +17,7 @@ PasteUpload::PasteUpload(QWidget *window, QString text, QString key) : m_window(
     sectionObject.insert("contents", text);
     QJsonArray sectionArray;
     sectionArray.append(sectionObject);
-    topLevelObj.insert("description", "MultiMC Log Upload");
+    topLevelObj.insert("description", LAUNCHER_BUILD_NAME << " Log Upload");
     topLevelObj.insert("sections", sectionArray);
     QJsonDocument docOut;
     docOut.setObject(topLevelObj);
@@ -34,7 +36,7 @@ bool PasteUpload::validateText()
 void PasteUpload::executeTask()
 {
     QNetworkRequest request(QUrl("https://api.paste.ee/v1/pastes"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, "MultiMC/5.0 (Uncached)");
+    request.setHeader(QNetworkRequest::UserAgentHeader, LAUNCHER_BUILD_NAME << "/5.0 (Uncached)");
 
     request.setRawHeader("Content-Type", "application/json");
     request.setRawHeader("Content-Length", QByteArray::number(m_jsonContent.size()));

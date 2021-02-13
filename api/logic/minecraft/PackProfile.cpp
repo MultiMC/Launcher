@@ -36,6 +36,8 @@
 #include "PackProfile_p.h"
 #include "ComponentUpdateTask.h"
 
+#include <BuildConfig.h>
+
 PackProfile::PackProfile(MinecraftInstance * instance)
     : QAbstractListModel()
 {
@@ -247,7 +249,7 @@ void PackProfile::scheduleSave()
 
 QString PackProfile::componentsFilePath() const
 {
-    return FS::PathCombine(d->m_instance->instanceRoot(), "mmc-pack.json");
+    return FS::PathCombine(d->m_instance->instanceRoot(), QString("%1-pack.json").arg(LAUNCHER_BUILD_NAME_SHORT.toLower()));
 }
 
 QString PackProfile::patchesPattern() const
@@ -433,7 +435,7 @@ static void upgradeDeprecatedFiles(QString root, QString instanceName)
  */
 bool PackProfile::migratePreComponentConfig()
 {
-    // upgrade the very old files from the beginnings of MultiMC 5
+    // upgrade the very old files from the beginnings of the Launcher
     upgradeDeprecatedFiles(d->m_instance->instanceRoot(), d->m_instance->name());
 
     QList<ComponentPtr> components;
@@ -1042,7 +1044,7 @@ bool PackProfile::installJarMods_internal(QStringList filepaths)
         auto uuid = QUuid::createUuid();
         QString id = uuid.toString().remove('{').remove('}');
         QString target_filename = id + ".jar";
-        QString target_id = "org.multimc.jarmod." + id;
+        QString target_id = "org.launcher.jarmod." + id;
         QString target_name = sourceInfo.completeBaseName() + " (jar mod)";
         QString finalPath = FS::PathCombine(d->m_instance->jarModsDir(), target_filename);
 
@@ -1059,7 +1061,7 @@ bool PackProfile::installJarMods_internal(QStringList filepaths)
 
         auto f = std::make_shared<VersionFile>();
         auto jarMod = std::make_shared<Library>();
-        jarMod->setRawName(GradleSpecifier("org.multimc.jarmods:" + id + ":1"));
+        jarMod->setRawName(GradleSpecifier("org.launcher.jarmods:" + id + ":1"));
         jarMod->setFilename(target_filename);
         jarMod->setDisplayName(sourceInfo.completeBaseName());
         jarMod->setHint("local");
@@ -1099,7 +1101,7 @@ bool PackProfile::installCustomJar_internal(QString filepath)
         return false;
     }
 
-    auto specifier = GradleSpecifier("org.multimc:customjar:1");
+    auto specifier = GradleSpecifier("org.launcher:customjar:1");
     QFileInfo sourceInfo(filepath);
     QString target_filename = specifier.getFileName();
     QString target_id = specifier.artifactId();

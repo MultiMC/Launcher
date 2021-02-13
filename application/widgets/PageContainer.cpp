@@ -26,12 +26,13 @@
 #include <QDialogButtonBox>
 #include <QGridLayout>
 
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "settings/SettingsObject.h"
 #include "widgets/IconLabel.h"
 #include "PageContainer_p.h"
-#include <MultiMC.h>
 #include <DesktopServices.h>
+
+#include <BuildConfig.h>
 
 class PageEntryFilterModel : public QSortFilterProxyModel
 {
@@ -139,12 +140,12 @@ void PageContainer::createUI()
     m_header->setFont(headerLabelFont);
 
     QHBoxLayout *headerHLayout = new QHBoxLayout;
-    const int leftMargin = MMC->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
+    const int leftMargin = LauncherPtr->style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
     headerHLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
     headerHLayout->addWidget(m_header);
     headerHLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));
     headerHLayout->addWidget(m_iconHeader);
-    const int rightMargin = MMC->style()->pixelMetric(QStyle::PM_LayoutRightMargin);
+    const int rightMargin = LauncherPtr->style()->pixelMetric(QStyle::PM_LayoutRightMargin);
     headerHLayout->addSpacerItem(new QSpacerItem(rightMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
     headerHLayout->setContentsMargins(0, 6, 0, 0);
 
@@ -195,7 +196,7 @@ void PageContainer::showPage(int row)
     {
         m_pageStack->setCurrentIndex(0);
         m_header->setText(QString());
-        m_iconHeader->setIcon(MMC->getThemedIcon("bug"));
+        m_iconHeader->setIcon(LauncherPtr->getThemedIcon("bug"));
     }
 }
 
@@ -206,7 +207,7 @@ void PageContainer::help()
         QString pageId = m_currentPage->helpPage();
         if (pageId.isEmpty())
             return;
-        DesktopServices::openUrl(QUrl("https://github.com/MultiMC/MultiMC5/wiki/" + pageId));
+        DesktopServices::openUrl(QUrl(PROJECT_WIKI_URL + "/" + pageId));
     }
 }
 

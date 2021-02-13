@@ -5,7 +5,7 @@
 #include <QString>
 #include <QMap>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 #include "QObjectPtr.h"
 
@@ -25,9 +25,9 @@ class Index;
 #define ENV (Env::getInstance())
 
 
-class MULTIMC_LOGIC_EXPORT Env
+class LAUNCHER_LOGIC_EXPORT Env
 {
-    friend class MultiMC;
+    friend class Launcher;
 private:
     struct Private;
     Env();

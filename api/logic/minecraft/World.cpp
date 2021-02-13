@@ -20,7 +20,7 @@
 #include "World.h"
 
 #include "GZip.h"
-#include <MMCZip.h>
+#include <LauncherZip.h>
 #include <FileSystem.h>
 #include <sstream>
 #include <io/stream_reader.h>
@@ -243,7 +243,7 @@ void World::readFromZip(const QFileInfo &file)
     {
         return;
     }
-    auto location = MMCZip::findFolderOfFileInZip(&zip, "level.dat");
+    auto location = LauncherZip::findFolderOfFileInZip(&zip, "level.dat");
     is_valid = !location.isEmpty();
     if (!is_valid)
     {
@@ -289,7 +289,7 @@ bool World::install(const QString &to, const QString &name)
         {
             return false;
         }
-        ok = !MMCZip::extractSubDir(&zip, m_containerOffsetPath, finalPath);
+        ok = !LauncherZip::extractSubDir(&zip, m_containerOffsetPath, finalPath);
     }
     else if(m_containerFile.isDir())
     {

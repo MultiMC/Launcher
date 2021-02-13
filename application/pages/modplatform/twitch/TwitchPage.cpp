@@ -1,7 +1,7 @@
 #include "TwitchPage.h"
 #include "ui_TwitchPage.h"
 
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "dialogs/NewInstanceDialog.h"
 #include <InstanceImportTask.h>
 #include "TwitchModel.h"

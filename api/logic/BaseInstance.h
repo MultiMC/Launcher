@@ -32,7 +32,7 @@
 
 #include "net/Mode.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class QDir;
 class Task;
@@ -50,7 +50,7 @@ typedef std::shared_ptr<BaseInstance> InstancePtr;
  * To create a new instance type, create a new class inheriting from this class
  * and implement the pure virtual functions.
  */
-class MULTIMC_LOGIC_EXPORT BaseInstance : public QObject, public std::enable_shared_from_this<BaseInstance>
+class LAUNCHER_LOGIC_EXPORT BaseInstance : public QObject, public std::enable_shared_from_this<BaseInstance>
 {
     Q_OBJECT
 protected:
@@ -71,14 +71,14 @@ public:
     virtual void saveNow() = 0;
 
     /***
-     * the instance has been invalidated - it is no longer tracked by MultiMC for some reason,
+     * the instance has been invalidated - it is no longer tracked by the Launcher for some reason,
      * but it has not necessarily been deleted.
      *
      * Happens when the instance folder changes to some other location, or the instance is removed by external means.
      */
     void invalidate();
 
-    /// The instance's ID. The ID SHALL be determined by MMC internally. The ID IS guaranteed to
+    /// The instance's ID. The ID SHALL be determined by the Launcher internally. The ID IS guaranteed to
     /// be unique.
     virtual QString id() const;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 #include <QString>
 
 // NOTE: apparently the GNU C library pollutes the global namespace with these... undef them.
@@ -11,7 +11,7 @@
     #undef minor
 #endif
 
-class MULTIMC_LOGIC_EXPORT JavaVersion
+class LAUNCHER_LOGIC_EXPORT JavaVersion
 {
     friend class JavaVersionTest;
 public:

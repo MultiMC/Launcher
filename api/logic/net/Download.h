@@ -20,9 +20,9 @@
 #include "Validator.h"
 #include "Sink.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 namespace Net {
-class MULTIMC_LOGIC_EXPORT Download : public NetAction
+class LAUNCHER_LOGIC_EXPORT Download : public NetAction
 {
     Q_OBJECT
 

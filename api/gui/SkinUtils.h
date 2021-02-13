@@ -17,9 +17,9 @@
 
 #include <QPixmap>
 
-#include "multimc_gui_export.h"
+#include "launcher_gui_export.h"
 
 namespace SkinUtils
 {
-QPixmap MULTIMC_GUI_EXPORT getFaceFromCache(QString id, int height = 64, int width = 64);
+QPixmap LAUNCHER_GUI_EXPORT getFaceFromCache(QString id, int height = 64, int width = 64);
 }

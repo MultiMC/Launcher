@@ -1,7 +1,7 @@
 [Icon Theme]
 Name=iOS
 Comment=iOS theme by pexner
-Inherits=multimc
+Inherits=launcher
 Directories=scalable
 
 [scalable]

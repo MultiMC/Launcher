@@ -4,7 +4,7 @@
 #include "minecraft/mod/Mod.h"
 #include <QProcess>
 #include <QDir>
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class ModFolderModel;
 class WorldList;
@@ -12,7 +12,7 @@ class GameOptions;
 class LaunchStep;
 class PackProfile;
 
-class MULTIMC_LOGIC_EXPORT MinecraftInstance: public BaseInstance
+class LAUNCHER_LOGIC_EXPORT MinecraftInstance: public BaseInstance
 {
     Q_OBJECT
 public:

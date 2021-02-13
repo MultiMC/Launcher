@@ -16,11 +16,11 @@ static void readString(const QJsonObject &root, const QString &key, QString &var
 LibraryPtr OneSixVersionFormat::libraryFromJson(const QJsonObject &libObj, const QString &filename)
 {
     LibraryPtr out = MojangVersionFormat::libraryFromJson(libObj, filename);
-    readString(libObj, "MMC-hint", out->m_hint);
-    readString(libObj, "MMC-absulute_url", out->m_absoluteURL);
-    readString(libObj, "MMC-absoluteUrl", out->m_absoluteURL);
-    readString(libObj, "MMC-filename", out->m_filename);
-    readString(libObj, "MMC-displayname", out->m_displayname);
+    readString(libObj, LAUNCHER_BUILD_NAME_SHORT + "-hint", out->m_hint);
+    readString(libObj, LAUNCHER_BUILD_NAME_SHORT + "-absulute_url", out->m_absoluteURL);
+    readString(libObj, LAUNCHER_BUILD_NAME_SHORT + "-absoluteUrl", out->m_absoluteURL);
+    readString(libObj, LAUNCHER_BUILD_NAME_SHORT + "-filename", out->m_filename);
+    readString(libObj, LAUNCHER_BUILD_NAME_SHORT + "-displayname", out->m_displayname);
     return out;
 }
 
@@ -28,13 +28,13 @@ QJsonObject OneSixVersionFormat::libraryToJson(Library *library)
 {
     QJsonObject libRoot = MojangVersionFormat::libraryToJson(library);
     if (library->m_absoluteURL.size())
-        libRoot.insert("MMC-absoluteUrl", library->m_absoluteURL);
+        libRoot.insert(LAUNCHER_BUILD_NAME_SHORT + "-absoluteUrl", library->m_absoluteURL);
     if (library->m_hint.size())
-        libRoot.insert("MMC-hint", library->m_hint);
+        libRoot.insert(LAUNCHER_BUILD_NAME_SHORT + "-hint", library->m_hint);
     if (library->m_filename.size())
-        libRoot.insert("MMC-filename", library->m_filename);
+        libRoot.insert(LAUNCHER_BUILD_NAME_SHORT + "-filename", library->m_filename);
     if (library->m_displayname.size())
-        libRoot.insert("MMC-displayname", library->m_displayname);
+        libRoot.insert(LAUNCHER_BUILD_NAME_SHORT + "-displayname", library->m_displayname);
     return libRoot;
 }
 
@@ -342,7 +342,7 @@ LibraryPtr OneSixVersionFormat::plusJarModFromJson(const QJsonObject &libObj, co
     // just make up something unique on the spot for the library name.
     auto uuid = QUuid::createUuid();
     QString id = uuid.toString().remove('{').remove('}');
-    out->setRawName(GradleSpecifier("org.multimc.jarmods:" + id + ":1"));
+    out->setRawName(GradleSpecifier("org.launcher.jarmods:" + id + ":1"));
 
     // filename override is the old name
     out->setFilename(libObj.value("name").toString());

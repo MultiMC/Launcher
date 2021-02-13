@@ -324,7 +324,7 @@ public:
                         if(px.loadFromData(bytes))
                             return QIcon(px);
                     }
-                    return MMC->getThemedIcon("unknown_server");
+                    return LauncherPtr->getThemedIcon("unknown_server");
                 }
                 case Qt::DisplayRole:
                     return m_servers[row].m_name;

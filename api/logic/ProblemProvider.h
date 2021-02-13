@@ -1,6 +1,6 @@
 #pragma once
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 enum class ProblemSeverity
 {
@@ -15,7 +15,7 @@ struct PatchProblem
     QString m_description;
 };
 
-class MULTIMC_LOGIC_EXPORT ProblemProvider
+class LAUNCHER_LOGIC_EXPORT ProblemProvider
 {
 public:
     virtual ~ProblemProvider() {};
@@ -23,7 +23,7 @@ public:
     virtual ProblemSeverity getProblemSeverity() const = 0;
 };
 
-class MULTIMC_LOGIC_EXPORT ProblemContainer : public ProblemProvider
+class LAUNCHER_LOGIC_EXPORT ProblemContainer : public ProblemProvider
 {
 public:
     const QList<PatchProblem> getProblems() const override

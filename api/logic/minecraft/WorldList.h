@@ -22,11 +22,11 @@
 #include <QMimeData>
 #include "minecraft/World.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 class QFileSystemWatcher;
 
-class MULTIMC_LOGIC_EXPORT WorldList : public QAbstractListModel
+class LAUNCHER_LOGIC_EXPORT WorldList : public QAbstractListModel
 {
     Q_OBJECT
 public:

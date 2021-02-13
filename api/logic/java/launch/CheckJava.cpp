@@ -20,6 +20,8 @@
 #include <QFileInfo>
 #include <sys.h>
 
+#include <BuildConfig.h>
+
 void CheckJava::executeTask()
 {
     auto instance = m_parent->instance();
@@ -48,7 +50,7 @@ void CheckJava::executeTask()
     }
     else
     {
-        emit logLine("Java path is:\n" + m_javaPath + "\n\n", MessageLevel::MultiMC);
+        emit logLine("Java path is:\n" + m_javaPath + "\n\n", MessageLevel::Launcher);
     }
 
     QFileInfo javaInfo(realJavaPath);
@@ -62,7 +64,7 @@ void CheckJava::executeTask()
     if (javaUnixTime != storedUnixTime || storedVersion.size() == 0 || storedArchitecture.size() == 0 || storedVendor.size() == 0)
     {
         m_JavaChecker = new JavaChecker();
-        emit logLine(QString("Checking Java version..."), MessageLevel::MultiMC);
+        emit logLine(QString("Checking Java version..."), MessageLevel::Launcher);
         connect(m_JavaChecker.get(), &JavaChecker::checkFinished, this, &CheckJava::checkJavaFinished);
         m_JavaChecker->m_path = realJavaPath;
         m_JavaChecker->performCheck();
@@ -87,16 +89,16 @@ void CheckJava::checkJavaFinished(JavaCheckResult result)
             // Error message displayed if java can't start
             emit logLine(QString("Could not start java:"), MessageLevel::Error);
             emit logLines(result.errorLog.split('\n'), MessageLevel::Error);
-            emit logLine("\nCheck your MultiMC Java settings.", MessageLevel::MultiMC);
+            emit logLine("\nCheck your " + LAUNCHER_BUILD_NAME + " Java settings.", MessageLevel::Launcher);
             printSystemInfo(false, false);
             emitFailed(QString("Could not start java!"));
             return;
         }
         case JavaCheckResult::Validity::ReturnedInvalidData:
         {
-            emit logLine(QString("Java checker returned some invalid data MultiMC doesn't understand:"), MessageLevel::Error);
+            emit logLine(QString("Java checker returned some invalid data " + LAUNCHER_BUILD_NAME + " doesn't understand:"), MessageLevel::Error);
             emit logLines(result.outLog.split('\n'), MessageLevel::Warning);
-            emit logLine("\nMinecraft might not start properly.", MessageLevel::MultiMC);
+            emit logLine("\nMinecraft might not start properly.", MessageLevel::Launcher);
             printSystemInfo(false, false);
             emitSucceeded();
             return;
@@ -117,7 +119,7 @@ void CheckJava::checkJavaFinished(JavaCheckResult result)
 
 void CheckJava::printJavaInfo(const QString& version, const QString& architecture, const QString & vendor)
 {
-    emit logLine(QString("Java is version %1, using %2-bit architecture, from %3.\n\n").arg(version, architecture, vendor), MessageLevel::MultiMC);
+    emit logLine(QString("Java is version %1, using %2-bit architecture, from %3.\n\n").arg(version, architecture, vendor), MessageLevel::Launcher);
     printSystemInfo(true, architecture == "64");
 }
 

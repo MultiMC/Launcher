@@ -16,7 +16,7 @@
 #pragma once
 
 #include "InstanceTask.h"
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 #include "net/NetJob.h"
 #include <QUrl>
 #include <QFuture>
@@ -32,7 +32,7 @@ namespace Flame
     class FileResolvingTask;
 }
 
-class MULTIMC_LOGIC_EXPORT InstanceImportTask : public InstanceTask
+class LAUNCHER_LOGIC_EXPORT InstanceImportTask : public InstanceTask
 {
     Q_OBJECT
 public:
@@ -44,7 +44,7 @@ protected:
 
 private:
     void processZipPack();
-    void processMultiMC();
+    void processLauncher();
     void processFlame();
     void processTechnic();
 
@@ -66,7 +66,7 @@ private: /* data */
     QFutureWatcher<nonstd::optional<QStringList>> m_extractFutureWatcher;
     enum class ModpackType{
         Unknown,
-        MultiMC,
+        Launcher,
         Flame,
         Technic
     } m_modpackType = ModpackType::Unknown;

@@ -17,7 +17,7 @@
 
 #include "InstanceTask.h"
 #include "net/NetJob.h"
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 #include "quazip.h"
 
@@ -29,7 +29,7 @@
 
 namespace Technic {
 
-class MULTIMC_LOGIC_EXPORT SingleZipPackInstallTask : public InstanceTask
+class LAUNCHER_LOGIC_EXPORT SingleZipPackInstallTask : public InstanceTask
 {
     Q_OBJECT
 

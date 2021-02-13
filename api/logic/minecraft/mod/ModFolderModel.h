@@ -24,7 +24,7 @@
 
 #include "Mod.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 #include "ModFolderLoadTask.h"
 #include "LocalModParseTask.h"
 
@@ -36,7 +36,7 @@ class QFileSystemWatcher;
  * A legacy mod list.
  * Backed by a folder.
  */
-class MULTIMC_LOGIC_EXPORT ModFolderModel : public QAbstractListModel
+class LAUNCHER_LOGIC_EXPORT ModFolderModel : public QAbstractListModel
 {
     Q_OBJECT
 public:

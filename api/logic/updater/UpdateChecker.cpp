@@ -20,6 +20,8 @@
 #include <QJsonValue>
 #include <QDebug>
 
+#include <BuildConfig.h>
+
 #define API_VERSION 0
 #define CHANLIST_FORMAT 0
 
@@ -177,7 +179,7 @@ void UpdateChecker::updateChanList(bool notifyNoUpdate)
     if (m_channelListUrl.isEmpty())
     {
         qCritical() << "Failed to update channel list. No channel list URL set."
-                    << "If you'd like to use MultiMC's update system, please pass the channel "
+                    << "If you'd like to use" << LAUNCHER_BUILD_NAME << "'s update system, please pass the channel "
                         "list URL to CMake at compile time.";
         return;
     }

@@ -1,5 +1,5 @@
 #include "JavaSettingsWidget.h"
-#include <MultiMC.h>
+#include <Launcher.h>
 
 #include <java/JavaInstall.h>
 #include <dialogs/CustomMessageBox.h>
@@ -17,13 +17,15 @@
 #include <FileSystem.h>
 #include <QFileDialog>
 
+#include <BuildConfig.h>
+
 JavaSettingsWidget::JavaSettingsWidget(QWidget* parent) : QWidget(parent)
 {
     m_availableMemory = Sys::getSystemRam() / Sys::megabyte;
 
-    goodIcon = MMC->getThemedIcon("status-good");
-    yellowIcon = MMC->getThemedIcon("status-yellow");
-    badIcon = MMC->getThemedIcon("status-bad");
+    goodIcon = LauncherPtr->getThemedIcon("status-good");
+    yellowIcon = LauncherPtr->getThemedIcon("status-yellow");
+    badIcon = LauncherPtr->getThemedIcon("status-bad");
     setupUi();
 
     connect(m_minMemSpinBox, SIGNAL(valueChanged(int)), this, SLOT(memoryValueChanged(int)));
@@ -115,9 +117,9 @@ void JavaSettingsWidget::setupUi()
 
 void JavaSettingsWidget::initialize()
 {
-    m_versionWidget->initialize(MMC->javalist().get());
+    m_versionWidget->initialize(LauncherPtr->javalist().get());
     m_versionWidget->setResizeOn(2);
-    auto s = MMC->settings();
+    auto s = LauncherPtr->settings();
     // Memory
     observedMinMemory = s->get("MinMemAlloc").toInt();
     observedMaxMemory = s->get("MaxMemAlloc").toInt();
@@ -146,11 +148,11 @@ JavaSettingsWidget::ValidationStatus JavaSettingsWidget::validate()
                 this,
                 tr("No Java version selected"),
                 tr("You didn't select a Java version or selected something that doesn't work.\n"
-                    "MultiMC will not be able to start Minecraft.\n"
+                    "%1 will not be able to start Minecraft.\n"
                     "Do you wish to proceed without any Java?"
                     "\n\n"
                     "You can change the Java version in the settings later.\n"
-                ),
+                ).arg(LAUNCHER_BUILD_NAME),
                 QMessageBox::Warning,
                 QMessageBox::Yes | QMessageBox::No,
                 QMessageBox::NoButton

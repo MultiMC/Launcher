@@ -4,8 +4,10 @@
 #include <QTreeView>
 #include <QHeaderView>
 #include <QLabel>
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "translations/TranslationsModel.h"
+
+#include <BuildConfig.h>
 
 LanguageSelectionWidget::LanguageSelectionWidget(QWidget *parent) :
     QWidget(parent)
@@ -29,7 +31,7 @@ LanguageSelectionWidget::LanguageSelectionWidget(QWidget *parent) :
     helpUsLabel->setWordWrap(true);
     verticalLayout->addWidget(helpUsLabel);
 
-    auto translations = MMC->translations();
+    auto translations = LauncherPtr->translations();
     auto index = translations->selectedIndex();
     languageView->setModel(translations.get());
     languageView->setCurrentIndex(index);
@@ -41,14 +43,14 @@ LanguageSelectionWidget::LanguageSelectionWidget(QWidget *parent) :
 
 QString LanguageSelectionWidget::getSelectedLanguageKey() const
 {
-    auto translations = MMC->translations();
+    auto translations = LauncherPtr->translations();
     return translations->data(languageView->currentIndex(), Qt::UserRole).toString();
 }
 
 void LanguageSelectionWidget::retranslate()
 {
     QString text = tr("Don't see your language or the quality is poor?<br/><a href=\"%1\">Help us with translations!</a>")
-        .arg("https://github.com/MultiMC/MultiMC5/wiki/Translating-MultiMC");
+        .arg(HELP_TRANSLATING_URL);
     helpUsLabel->setText(text);
 
 }
@@ -59,7 +61,7 @@ void LanguageSelectionWidget::languageRowChanged(const QModelIndex& current, con
     {
         return;
     }
-    auto translations = MMC->translations();
+    auto translations = LauncherPtr->translations();
     QString key = translations->data(current, Qt::UserRole).toString();
     translations->selectLanguage(key);
     translations->updateLanguage(key);

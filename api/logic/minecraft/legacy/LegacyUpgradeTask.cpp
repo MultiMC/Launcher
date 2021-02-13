@@ -10,6 +10,8 @@
 #include "LegacyModList.h"
 #include "classparser.h"
 
+#include <BuildConfig.h>
+
 LegacyUpgradeTask::LegacyUpgradeTask(InstancePtr origInstance)
 {
     m_origInstance = origInstance;
@@ -123,7 +125,7 @@ void LegacyUpgradeTask::copyFinished()
             }
         };
         QStringList rootRemovables = {"modlist", "version", "instMods"};
-        QStringList mcRemovables = {"bin", "MultiMCLauncher.jar", "icon.png"};
+        QStringList mcRemovables = {"bin", LAUNCHER_BUILD_NAME << "Launcher.jar", "icon.png"};
         removeAll(inst.instanceRoot(), rootRemovables);
         removeAll(inst.gameRoot(), mcRemovables);
     }

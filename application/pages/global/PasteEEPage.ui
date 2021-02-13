@@ -40,9 +40,9 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_10">
           <item>
-           <widget class="QRadioButton" name="multimcButton">
+           <widget class="QRadioButton" name="launcherButton">
             <property name="text">
-             <string>MultiMC key - 12MB &amp;upload limit</string>
+             <string>Launcher key - 12MB &amp;upload limit</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">pasteButtonGroup</string>
@@ -79,7 +79,7 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://paste.ee&quot;&gt;paste.ee&lt;/a&gt; is used by MultiMC for log uploads. If you have a &lt;a href=&quot;https://paste.ee&quot;&gt;paste.ee&lt;/a&gt; account, you can add your API key here and have your uploaded logs paired with your account.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://paste.ee&quot;&gt;paste.ee&lt;/a&gt; is used by the Launcher for log uploads. If you have a &lt;a href=&quot;https://paste.ee&quot;&gt;paste.ee&lt;/a&gt; account, you can add your API key here and have your uploaded logs paired with your account.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
@@ -116,7 +116,7 @@
  </widget>
  <tabstops>
   <tabstop>tabWidget</tabstop>
-  <tabstop>multimcButton</tabstop>
+  <tabstop>launcherButton</tabstop>
   <tabstop>customButton</tabstop>
   <tabstop>customAPIkeyEdit</tabstop>
  </tabstops>

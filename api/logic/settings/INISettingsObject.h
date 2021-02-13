@@ -21,12 +21,12 @@
 
 #include "settings/SettingsObject.h"
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 /*!
  * \brief A settings object that stores its settings in an INIFile.
  */
-class MULTIMC_LOGIC_EXPORT INISettingsObject : public SettingsObject
+class LAUNCHER_LOGIC_EXPORT INISettingsObject : public SettingsObject
 {
     Q_OBJECT
 public:

@@ -21,31 +21,31 @@
 #include "minecraft/mod/Mod.h"
 #include <functional>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
 #include <JlCompress.h>
 #include <nonstd/optional>
 
-namespace MMCZip
+namespace LauncherZip
 {
 
     /**
      * Merge two zip files, using a filter function
      */
-    bool MULTIMC_LOGIC_EXPORT mergeZipFiles(QuaZip *into, QFileInfo from, QSet<QString> &contained,
+    bool LAUNCHER_LOGIC_EXPORT mergeZipFiles(QuaZip *into, QFileInfo from, QSet<QString> &contained,
                                             const JlCompress::FilterFunction filter = nullptr);
 
     /**
      * take a source jar, add mods to it, resulting in target jar
      */
-    bool MULTIMC_LOGIC_EXPORT createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<Mod>& mods);
+    bool LAUNCHER_LOGIC_EXPORT createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<Mod>& mods);
 
     /**
      * Find a single file in archive by file name (not path)
      *
      * \return the path prefix where the file is
      */
-    QString MULTIMC_LOGIC_EXPORT findFolderOfFileInZip(QuaZip * zip, const QString & what, const QString &root = QString(""));
+    QString LAUNCHER_LOGIC_EXPORT findFolderOfFileInZip(QuaZip * zip, const QString & what, const QString &root = QString(""));
 
     /**
      * Find a multiple files of the same name in archive by file name
@@ -53,14 +53,14 @@ namespace MMCZip
      *
      * \return true if anything was found
      */
-    bool MULTIMC_LOGIC_EXPORT findFilesInZip(QuaZip * zip, const QString & what, QStringList & result, const QString &root = QString());
+    bool LAUNCHER_LOGIC_EXPORT findFilesInZip(QuaZip * zip, const QString & what, QStringList & result, const QString &root = QString());
 
     /**
      * Extract a subdirectory from an archive
      */
-    nonstd::optional<QStringList> MULTIMC_LOGIC_EXPORT extractSubDir(QuaZip *zip, const QString & subdir, const QString &target);
+    nonstd::optional<QStringList> LAUNCHER_LOGIC_EXPORT extractSubDir(QuaZip *zip, const QString & subdir, const QString &target);
 
-    bool MULTIMC_LOGIC_EXPORT extractRelFile(QuaZip *zip, const QString & file, const QString &target);
+    bool LAUNCHER_LOGIC_EXPORT extractRelFile(QuaZip *zip, const QString & file, const QString &target);
 
     /**
      * Extract a whole archive.
@@ -69,7 +69,7 @@ namespace MMCZip
      * \param dir The directory to extract to, the current directory if left empty.
      * \return The list of the full paths of the files extracted, empty on failure.
      */
-    nonstd::optional<QStringList> MULTIMC_LOGIC_EXPORT extractDir(QString fileCompressed, QString dir);
+    nonstd::optional<QStringList> LAUNCHER_LOGIC_EXPORT extractDir(QString fileCompressed, QString dir);
 
     /**
      * Extract a subdirectory from an archive
@@ -79,7 +79,7 @@ namespace MMCZip
      * \param dir The directory to extract to, the current directory if left empty.
      * \return The list of the full paths of the files extracted, empty on failure.
      */
-    nonstd::optional<QStringList> MULTIMC_LOGIC_EXPORT extractDir(QString fileCompressed, QString subdir, QString dir);
+    nonstd::optional<QStringList> LAUNCHER_LOGIC_EXPORT extractDir(QString fileCompressed, QString subdir, QString dir);
 
     /**
      * Extract a single file from an archive into a directory
@@ -89,6 +89,6 @@ namespace MMCZip
      * \param dir The directory to extract to, the current directory if left empty.
      * \return true for success or false for failure
      */
-    bool MULTIMC_LOGIC_EXPORT extractFile(QString fileCompressed, QString file, QString dir);
+    bool LAUNCHER_LOGIC_EXPORT extractFile(QString fileCompressed, QString file, QString dir);
 
 }

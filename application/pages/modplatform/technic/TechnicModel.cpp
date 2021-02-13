@@ -15,7 +15,7 @@
 
 #include "TechnicModel.h"
 #include "Env.h"
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "Json.h"
 
 #include <QIcon>
@@ -47,7 +47,7 @@ QVariant Technic::ListModel::data(const QModelIndex& index, int role) const
         {
             return (m_logoMap.value(pack.logoName));
         }
-        QIcon icon = MMC->getThemedIcon("screenshot-placeholder");
+        QIcon icon = LauncherPtr->getThemedIcon("screenshot-placeholder");
         ((ListModel *)this)->requestLogo(pack.logoName, pack.logoUrl);
         return icon;
     }
@@ -94,8 +94,8 @@ void Technic::ListModel::performSearch()
 {
     NetJob *netJob = new NetJob("Technic::Search");
     auto searchUrl = QString(
-        "https://api.technicpack.net/search?build=multimc&q=%1"
-    ).arg(currentSearchTerm);
+        "https://api.technicpack.net/search?build=%1&q=%2"
+    ).arg(LAUNCHER_BUILD_NAME.toLower()).arg(currentSearchTerm);
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
     jobPtr = netJob;
     jobPtr->start();

@@ -18,9 +18,9 @@
 #include <QDateTime>
 #include <nonstd/optional>
 
-#include "multimc_logic_export.h"
+#include "launcher_logic_export.h"
 
-struct MULTIMC_LOGIC_EXPORT GameType {
+struct LAUNCHER_LOGIC_EXPORT GameType {
     GameType() = default;
     GameType (nonstd::optional<int> original);
 
@@ -38,7 +38,7 @@ struct MULTIMC_LOGIC_EXPORT GameType {
     nonstd::optional<int> original;
 };
 
-class MULTIMC_LOGIC_EXPORT World
+class LAUNCHER_LOGIC_EXPORT World
 {
 public:
     World(const QFileInfo &file);
