@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,35 +59,26 @@ public:
         return "Getting-Started#adding-an-account";
     }
 
-private:
-    void changeEvent(QEvent * event) override;
-    QMenu * createPopupMenu() override;
-
-public
-slots:
+public slots:
     void on_actionAdd_triggered();
-
     void on_actionRemove_triggered();
-
     void on_actionSetDefault_triggered();
-
     void on_actionNoDefault_triggered();
-
     void on_actionUploadSkin_triggered();
+    void on_actionDeleteSkin_triggered();
 
     void listChanged();
 
     //! Updates the states of the dialog's buttons.
     void updateButtonStates();
 
-protected:
-    std::shared_ptr<MojangAccountList> m_accounts;
-
-protected
-slots:
+protected slots:
     void ShowContextMenu(const QPoint &pos);
     void addAccount(const QString& errMsg="");
 
 private:
+    void changeEvent(QEvent * event) override;
+    QMenu * createPopupMenu() override;
+    std::shared_ptr<MojangAccountList> m_accounts;
     Ui::AccountListPage *ui;
 };

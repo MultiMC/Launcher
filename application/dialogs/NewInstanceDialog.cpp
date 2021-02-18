@@ -1,4 +1,4 @@
-/* Copyright 2013-2020 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@
 
 #include "widgets/PageContainer.h"
 #include <pages/modplatform/VanillaPage.h>
+#include <pages/modplatform/atlauncher/AtlPage.h>
 #include <pages/modplatform/ftb/FtbPage.h>
 #include <pages/modplatform/legacy_ftb/Page.h>
 #include <pages/modplatform/twitch/TwitchPage.h>
@@ -129,6 +130,7 @@ QList<BasePage *> NewInstanceDialog::getPages()
     {
         new VanillaPage(this),
         importPage,
+        new AtlPage(this),
         new FtbPage(this),
         new LegacyFTB::Page(this),
         technicPage,

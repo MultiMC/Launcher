@@ -1,4 +1,4 @@
-/* Copyright 2015-2019 MultiMC Contributors
+/* Copyright 2015-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@ QVariant WorldList::data(const QModelIndex &index, int role) const
             return world.name();
 
         case GameModeColumn:
-            return gameTypeToString(world.gameType());
+            return world.gameType().toTranslatedString();
 
         case LastPlayedColumn:
             return world.lastPlayed();

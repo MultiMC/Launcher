@@ -1,4 +1,4 @@
-/* Copyright 2013-2020 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ void Technic::SolderPackInstallTask::downloadSucceeded()
         while (m_modCount > i)
         {
             auto path = FS::PathCombine(m_outputDir.path(), QString("%1").arg(i));
-            if (MMCZip::extractDir(path, extractDir).isEmpty())
+            if (!MMCZip::extractDir(path, extractDir))
             {
                 return false;
             }

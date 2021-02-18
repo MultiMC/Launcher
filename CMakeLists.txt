@@ -154,7 +154,7 @@ if(MultiMC_LAYOUT_REAL STREQUAL "mac-bundle")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_HOTFIX}.${MultiMC_VERSION_BUILD}")
     set(MACOSX_BUNDLE_LONG_VERSION_STRING "${MultiMC_VERSION_MAJOR}.${MultiMC_VERSION_MINOR}.${MultiMC_VERSION_HOTFIX}.${MultiMC_VERSION_BUILD}")
     set(MACOSX_BUNDLE_ICON_FILE MultiMC.icns)
-    set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2019 MultiMC Contributors")
+    set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2021 MultiMC Contributors")
 
     # directories to look for dependencies
     set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -264,6 +264,7 @@ add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/iconfix) # fork of Qt's QIcon loader
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
 add_subdirectory(libraries/classparser) # google analytics library
+add_subdirectory(libraries/optional-bare)
 
 ############################### Built Artifacts ###############################
 
