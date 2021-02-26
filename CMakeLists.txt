@@ -73,7 +73,7 @@ set(MultiMC_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications
 set(MultiMC_META_URL "https://meta.multimc.org/v1/" CACHE STRING "URL to fetch MultiMC's meta files from.")
 
 # paste.ee API key
-set(MultiMC_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ" CACHE STRING "API key you can get from paste.ee when you register an account")
+set(MultiMC_PASTE_EE_API_KEY "ajtc1fWcjZqLl0jWJ9orxvAs0em2VyeTYr8eX2NrA" CACHE STRING "API key you can get from paste.ee when you register an account")
 
 # Google analytics ID
 set(MultiMC_ANALYTICS_ID "UA-179508337-1" CACHE STRING "ID you can get from Google analytics")
