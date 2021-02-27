@@ -38,12 +38,12 @@ void UpdateDialog::loadChangelog()
     QString url;
     if(channel == "stable")
     {
-        url = QString("https://raw.githubusercontent.com/MultiMC/MultiMC5/%1/changelog.md").arg(channel);
+        url = QString("https://raw.githubusercontent.com/graytoowolf/MultiMC5/%1/changelog.md").arg(channel);
         m_changelogType = CHANGELOG_MARKDOWN;
     }
     else
     {
-        url = QString("https://api.github.com/repos/MultiMC/MultiMC5/compare/%1...%2").arg(BuildConfig.GIT_COMMIT, channel);
+        url = QString("https://api.github.com/repos/graytoowolf/MultiMC5/compare/%1...%2").arg(BuildConfig.GIT_COMMIT, channel);
         m_changelogType = CHANGELOG_COMMITS;
     }
     dljob->addNetAction(Net::Download::makeByteArray(QUrl(url), &changelogData));
