@@ -4,6 +4,7 @@ This software is not related to MultiMC developers and provided without any warr
 ## Pre-built binaries (experimental as for now):
 - Windows x64: https://drive.google.com/file/d/1n88DfyqU7XvM0tbrnE2Ie1t8wnjDnjp_/view?usp=sharing
 - Linux x64  : https://drive.google.com/file/d/1pXnyeenFutulT7Xe66I4C8LfsICk-UCD/view?usp=sharing
+- Mac OS X   : https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
 
 Details about the original launcher below:
 
