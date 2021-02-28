@@ -1,4 +1,4 @@
-/* Copyright 2013-2020 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@
 #include <QFutureWatcher>
 #include <QStringList>
 #include <QUrl>
+
+#include <nonstd/optional>
 
 namespace Technic {
 
@@ -51,8 +53,8 @@ private:
     QString m_archivePath;
     NetJobPtr m_filesNetJob;
     std::unique_ptr<QuaZip> m_packZip;
-    QFuture<QStringList> m_extractFuture;
-    QFutureWatcher<QStringList> m_extractFutureWatcher;
+    QFuture<nonstd::optional<QStringList>> m_extractFuture;
+    QFutureWatcher<nonstd::optional<QStringList>> m_extractFutureWatcher;
 };
 
 } // namespace Technic

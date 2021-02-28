@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,6 +135,7 @@ void MCModInfoFrame::setModDescription(QString text)
         ui->label_ModDescription->setOpenExternalLinks(false);
         ui->label_ModDescription->setTextFormat(Qt::TextFormat::RichText);
         desc = text;
+        // This allows injecting HTML here.
         labeltext.append("<html><body>" + finaltext.left(287) + "<a href=\"#mod_desc\">...</a></body></html>");
         QObject::connect(ui->label_ModDescription, &QLabel::linkActivated, this, &MCModInfoFrame::modDescEllipsisHandler);
     }

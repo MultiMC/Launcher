@@ -7,7 +7,7 @@ Build Instructions
 * [Getting the source](#source)
 * [Linux](#linux)
 * [Windows](#windows)
-* [OS X](#os-x)
+* [macOS](#macos)
 
 # Note
 
@@ -92,14 +92,19 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
 
 ## Dependencies
 * [Qt 5.6+ Development tools](http://qt-project.org/downloads) -- Qt Online Installer for Windows
-* [OpenSSL](http://slproweb.com/products/Win32OpenSSL.html) -- Newest Win32 OpenSSL Light
+    - http://download.qt.io/new_archive/qt/5.6/5.6.0/qt-opensource-windows-x86-mingw492-5.6.0.exe
+    - Download the MinGW version (MSVC version does not work).
+* [OpenSSL](https://indy.fulgan.com/SSL/Archive/) -- Win32 OpenSSL, version 1.0.2g (from 2016)
+    - https://indy.fulgan.com/SSL/Archive/openssl-1.0.2g-i386-win32.zip
+    - the usual OpenSSL for Windows (http://slproweb.com/products/Win32OpenSSL.html) only provides the newest version of OpenSSL, and we need the 1.0.2g version
+    - **Download the 32-bit version, not 64-bit.**
     - Microsoft Visual C++ 2008 Redist is required for this, there's a link on the OpenSSL download page above next to the main download.
     - We use a custom build of OpenSSL that doesn't have this dependency. For normal development, the custom build is not necessary though.
 * [zlib 1.2+](http://gnuwin32.sourceforge.net/packages/zlib.htm) - the Setup is fine
 * [Java JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * [CMake](http://www.cmake.org/cmake/resources/software.html) -- Windows (Win32 Installer)
 
-  Put it somewhere on the `PATH`, so that it is accessible from the console.
+Ensure that OpenSSL, zlib, Java and CMake are on `PATH`.
 
 ## Getting set up
 
@@ -115,9 +120,8 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
     - Installation can take a very long time, go grab a cup of tea or something and let it work.
 
 ### Installing OpenSSL
-1. Run the OpenSSL installer,
-2. It's best to choose the option to copy OpenSSL DLLs to the `/bin` directory
-    - If you do this you'll need to add that directory (the default being `C:\OpenSSL-Win32\bin`) to your PATH system variable (Google how to do this, or use this guide for Java: http://www.java.com/en/download/help/path.xml).
+1. Download .zip file from the link above.
+2. Unzip and add the directory to PATH, so CMake can find it.
 
 ### Installing CMake
 1. Run the CMake installer,
@@ -140,6 +144,24 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
     - If the project builds successfully it will run and the MultiMC5 window will pop up,
     - Test OpenSSL by making an instance and trying to log in. If Qt Creator couldn't find OpenSSL during the CMake stage, login will fail and you'll get an error.
 
+The following .dlls are needed for the app to run (copy them to build directory if you want to be able to move the build to another pc):
+```
+platforms/qwindows.dll
+libeay32.dll
+libgcc_s_dw2-1.dll
+libssp-0.dll
+libstdc++-6.dll
+libwinpthread-1.dll
+Qt5Core.dll
+Qt5Gui.dll
+Qt5Network.dll
+Qt5Svg.dll
+Qt5Widgets.dll
+Qt5Xml.dll
+ssleay32.dll
+zlib1.dll
+```
+
 **These build instructions worked for me (Drayshak) on a fresh Windows 8 x64 Professional install. If they don't work for you, let us know on IRC ([Esper/#MultiMC](http://webchat.esper.net/?nick=&channels=MultiMC))!**
 ### Compile from command line on Windows
 1. If you installed Qt with the web installer, there should be a shortcut called `Qt 5.4 for Desktop (MinGW 4.9 32-bit)` in the Start menu on Windows 7 and 10. Best way to find it is to search for it. Do note you cannot just use cmd.exe, you have to use the shortcut, otherwise the proper MinGW software will not be on the PATH.
@@ -150,36 +172,32 @@ Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt 
 5. Run the command `mingw32-make install`, and it should install MultiMC, to whatever the `-DCMAKE_INSTALL_PREFIX` was.
 6. In most cases, whenever compiling, the OpenSSL dll's aren't put into the directory to where MultiMC installs, meaning you cannot log in. The best way to fix this is just to do `copy C:\OpenSSL-Win32\*.dll C:\Where\you\installed\MultiMC\to`. This should copy the required OpenSSL dll's to log in.
 
-# OS X
+# macOS
 
 ### Install prerequisites:
-* install homebrew
-* then:
-
-```
-brew install qt5
-brew tap homebrew/versions
-brew install gcc48
-brew install cmake
-```
+- Install XCode and set it up to the point where you can build things from a terminal
+- Install the official build of CMake (https://cmake.org/download/)
+- Install JDK 8 (https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html)
+- Get Qt 5.6 and install it (https://download.qt.io/new_archive/qt/5.6/5.6.3/)
 
 ### Build
 
 Pick an installation path - this is where the final `.app` will be constructed when you run `make install`. Supply it as the `CMAKE_INSTALL_PREFIX` argument during CMake configuration.
 
 ```
-git clone https://github.com/MultiMC/MultiMC5.git
+git clone --recursive https://github.com/MultiMC/MultiMC5.git
 cd MultiMC5
-git submodule init
-git submodule update
 mkdir build
 cd build
-export CMAKE_PREFIX_PATH=/usr/local/opt/qt5
-export CC=/usr/local/bin/gcc-4.8
-export CXX=/usr/local/bin/g++-4.8
-cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/Users/YOU/some/path/that/makes/sense/
-make
+cmake \
+ -DCMAKE_C_COMPILER=/usr/bin/clang \
+ -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+ -DCMAKE_BUILD_TYPE=Release \
+ -DCMAKE_INSTALL_PREFIX:PATH="../dist/" \
+ -DCMAKE_PREFIX_PATH="/path/to/Qt5.6/" \
+ -DQt5_DIR="/path/to/Qt5.6/" \
+ -DMultiMC_LAYOUT=mac-bundle \
+ -DCMAKE_OSX_DEPLOYMENT_TARGET=10.7 \
+ ..
 make install
 ```
-  
-**These build instructions were taken and adapted from https://gist.github.com/number5/7250865 If they don't work for you, let us know on IRC ([Esper/#MultiMC](http://webchat.esper.net/?nick=&channels=MultiMC))!**

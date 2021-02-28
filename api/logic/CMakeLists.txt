@@ -303,9 +303,11 @@ set(MINECRAFT_SOURCES
     minecraft/AssetsUtils.h
     minecraft/AssetsUtils.cpp
 
-    # Skin upload utilities
-    minecraft/SkinUpload.cpp
-    minecraft/SkinUpload.h
+    # Minecraft services
+    minecraft/services/SkinUpload.cpp
+    minecraft/services/SkinUpload.h
+    minecraft/services/SkinDelete.cpp
+    minecraft/services/SkinDelete.h
 
     mojang/PackageManifest.h
     mojang/PackageManifest.cpp
@@ -486,6 +488,15 @@ set(TECHNIC_SOURCES
     modplatform/technic/TechnicPackProcessor.cpp
 )
 
+set(ATLAUNCHER_SOURCES
+    modplatform/atlauncher/ATLPackIndex.cpp
+    modplatform/atlauncher/ATLPackIndex.h
+    modplatform/atlauncher/ATLPackInstallTask.cpp
+    modplatform/atlauncher/ATLPackInstallTask.h
+    modplatform/atlauncher/ATLPackManifest.cpp
+    modplatform/atlauncher/ATLPackManifest.h
+)
+
 add_unit_test(Index
     SOURCES meta/Index_test.cpp
     LIBS MultiMC_logic
@@ -518,6 +529,7 @@ set(LOGIC_SOURCES
     ${FLAME_SOURCES}
     ${MODPACKSCH_SOURCES}
     ${TECHNIC_SOURCES}
+    ${ATLAUNCHER_SOURCES}
 )
 
 add_library(MultiMC_logic SHARED ${LOGIC_SOURCES})
@@ -526,7 +538,7 @@ set_target_properties(MultiMC_logic PROPERTIES CXX_VISIBILITY_PRESET hidden VISI
 generate_export_header(MultiMC_logic)
 
 # Link
-target_link_libraries(MultiMC_logic systeminfo MultiMC_quazip MultiMC_classparser ${NBT_NAME} ${ZLIB_LIBRARIES} BuildConfig)
+target_link_libraries(MultiMC_logic systeminfo MultiMC_quazip MultiMC_classparser ${NBT_NAME} ${ZLIB_LIBRARIES} optional-bare BuildConfig)
 target_link_libraries(MultiMC_logic Qt5::Core Qt5::Xml Qt5::Network Qt5::Concurrent)
 
 # Mark and export headers

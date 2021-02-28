@@ -1,4 +1,4 @@
-/* Copyright 2013-2020 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ void Technic::SingleZipPackInstallTask::downloadProgressChanged(qint64 current, 
 void Technic::SingleZipPackInstallTask::extractFinished()
 {
     m_packZip.reset();
-    if (m_extractFuture.result().isEmpty())
+    if (!m_extractFuture.result())
     {
         emitFailed(tr("Failed to extract modpack"));
         return;

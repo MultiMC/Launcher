@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 MultiMC Contributors
+ * Copyright 2012-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,11 @@ public class Launcher extends Applet implements AppletStub
     public URL getDocumentBase()
     {
         try {
-            return new URL("http", "www.minecraft.net", 80, "/game/", null);
+            // Special case only for Classic versions
+            if (wrappedApplet.getClass().getCanonicalName().startsWith("com.mojang")) {
+                return new URL("http", "www.minecraft.net", 80, "/game/", null);
+            }
+            return new URL("http://www.minecraft.net/game/");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

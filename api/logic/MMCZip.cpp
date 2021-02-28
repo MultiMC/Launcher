@@ -1,4 +1,4 @@
-/* Copyright 2013-2020 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -208,16 +208,27 @@ bool MMCZip::findFilesInZip(QuaZip * zip, const QString & what, QStringList & re
 
 
 // ours
-QStringList MMCZip::extractSubDir(QuaZip *zip, const QString & subdir, const QString &target)
+nonstd::optional<QStringList> MMCZip::extractSubDir(QuaZip *zip, const QString & subdir, const QString &target)
 {
     QDir directory(target);
     QStringList extracted;
+
     qDebug() << "Extracting subdir" << subdir << "from" << zip->getZipName() << "to" << target;
-    if (!zip->goToFirstFile())
+    auto numEntries = zip->getEntriesCount();
+    if(numEntries < 0) {
+        qWarning() << "Failed to enumerate files in archive";
+        return nonstd::nullopt;
+    }
+    else if(numEntries == 0) {
+        qDebug() << "Extracting empty archives seems odd...";
+        return extracted;
+    }
+    else if (!zip->goToFirstFile())
     {
         qWarning() << "Failed to seek to first file in zip";
-        return QStringList();
+        return nonstd::nullopt;
     }
+
     do
     {
         QString name = zip->getCurrentFileName();
@@ -235,7 +246,7 @@ QStringList MMCZip::extractSubDir(QuaZip *zip, const QString & subdir, const QSt
         {
             qWarning() << "Failed to extract file" << name << "to" << absFilePath;
             JlCompress::removeFile(extracted);
-            return QStringList();
+            return nonstd::nullopt;
         }
         extracted.append(absFilePath);
         qDebug() << "Extracted file" << name;
@@ -244,12 +255,58 @@ QStringList MMCZip::extractSubDir(QuaZip *zip, const QString & subdir, const QSt
 }
 
 // ours
-QStringList MMCZip::extractDir(QString fileCompressed, QString dir)
+bool MMCZip::extractRelFile(QuaZip *zip, const QString &file, const QString &target)
+{
+    return JlCompress::extractFile(zip, file, target);
+}
+
+// ours
+nonstd::optional<QStringList> MMCZip::extractDir(QString fileCompressed, QString dir)
 {
     QuaZip zip(fileCompressed);
     if (!zip.open(QuaZip::mdUnzip))
     {
-        return {};
+        // check if this is a minimum size empty zip file...
+        QFileInfo fileInfo(fileCompressed);
+        if(fileInfo.size() == 22) {
+            return QStringList();
+        }
+        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();;
+        return nonstd::nullopt;
     }
     return MMCZip::extractSubDir(&zip, "", dir);
+}
+
+// ours
+nonstd::optional<QStringList> MMCZip::extractDir(QString fileCompressed, QString subdir, QString dir)
+{
+    QuaZip zip(fileCompressed);
+    if (!zip.open(QuaZip::mdUnzip))
+    {
+        // check if this is a minimum size empty zip file...
+        QFileInfo fileInfo(fileCompressed);
+        if(fileInfo.size() == 22) {
+            return QStringList();
+        }
+        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();;
+        return nonstd::nullopt;
+    }
+    return MMCZip::extractSubDir(&zip, subdir, dir);
+}
+
+// ours
+bool MMCZip::extractFile(QString fileCompressed, QString file, QString target)
+{
+    QuaZip zip(fileCompressed);
+    if (!zip.open(QuaZip::mdUnzip))
+    {
+        // check if this is a minimum size empty zip file...
+        QFileInfo fileInfo(fileCompressed);
+        if(fileInfo.size() == 22) {
+            return true;
+        }
+        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();
+        return false;
+    }
+    return MMCZip::extractRelFile(&zip, file, target);
 }

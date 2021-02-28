@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 MultiMC Contributors
+/* Copyright 2013-2021 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
 
 #pragma once
 
-#include "FtbModel.h"
+#include "FtbFilterModel.h"
+#include "FtbListModel.h"
 
 #include <QWidget>
 
@@ -64,13 +65,15 @@ private:
 
 private slots:
     void triggerSearch();
+    void onSortingSelectionChanged(QString data);
     void onSelectionChanged(QModelIndex first, QModelIndex second);
     void onVersionSelectionChanged(QString data);
 
 private:
     Ui::FtbPage *ui = nullptr;
     NewInstanceDialog* dialog = nullptr;
-    Ftb::ListModel* model = nullptr;
+    Ftb::ListModel* listModel = nullptr;
+    Ftb::FilterModel* filterModel = nullptr;
 
     ModpacksCH::Modpack selected;
     QString selectedVersion;
