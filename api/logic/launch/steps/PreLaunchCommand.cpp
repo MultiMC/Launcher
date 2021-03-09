@@ -15,11 +15,18 @@
 
 #include "PreLaunchCommand.h"
 #include <launch/LaunchTask.h>
+#include "FileSystem.h"
 
 PreLaunchCommand::PreLaunchCommand(LaunchTask *parent) : LaunchStep(parent)
 {
     auto instance = m_parent->instance();
     m_command = instance->getPreLaunchCommand();
+    //This checks if the .minecraft folder exists, because without that folder, the pre-launch command will always crash
+    if (QFileInfo(FS::PathCombine(instance->instanceRoot(), "minecraft")).absoluteDir().exists() && !QFileInfo(FS::PathCombine(instance->instanceRoot(), ".minecraft")).absoluteDir().exists()) {
+        FS::ensureFolderPathExists(FS::PathCombine(instance->instanceRoot(), "minecraft"));
+    } else {
+        FS::ensureFolderPathExists(FS::PathCombine(instance->instanceRoot(), ".minecraft"));
+    }
     m_process.setProcessEnvironment(instance->createEnvironment());
     connect(&m_process, &LoggedProcess::log, this, &PreLaunchCommand::logLines);
     connect(&m_process, &LoggedProcess::stateChanged, this, &PreLaunchCommand::on_state);
@@ -27,6 +34,7 @@ PreLaunchCommand::PreLaunchCommand(LaunchTask *parent) : LaunchStep(parent)
 
 void PreLaunchCommand::executeTask()
 {
+
     //FIXME: where to put this?
     QString prelaunch_cmd = m_parent->substituteVariables(m_command);
     emit logLine(tr("Running Pre-Launch command: %1").arg(prelaunch_cmd), MessageLevel::MultiMC);
