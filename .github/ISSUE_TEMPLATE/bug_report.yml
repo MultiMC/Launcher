@@ -35,7 +35,7 @@ body:
   attributes:
     label: Steps to reproduce
     description: A bulleted list, or an exported instance if relevant.
-    placeholder: * Press the cat button
+    placeholder: "* Press the cat button"
   validations:
     required: true
 - type: textarea
