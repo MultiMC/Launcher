@@ -13,7 +13,7 @@ body:
       * Your bug is not caused by Minecraft or any mods you have installed.
       * Your issue has not been reported before, [make sure to use the search function!](https://github.com/MultiMC/MultiMC5/issues)
 
-      Do not forget to give your issue a descriptive title. "Bug in the instance screen" makes it hard to distinguish issues at a glance.
+      **Do not forget to give your issue a descriptive title.** "Bug in the instance screen" makes it hard to distinguish issues at a glance.
 - type: dropdown
   attributes:
     label: Operating System
