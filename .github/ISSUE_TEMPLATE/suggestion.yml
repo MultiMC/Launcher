@@ -34,3 +34,8 @@ body:
     options:
     - label: I have searched the issue tracker and did not find an issue describing my suggestion, especially not one that has been rejected.
       required: true      
+- type: markdown
+  attributes:
+    value: |
+      You may use the editor below to elaborate further.
+# The issue_body: true up there makes the standard WYSIWYG editor for issues show up down here.
