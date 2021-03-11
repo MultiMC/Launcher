@@ -1,6 +1,5 @@
 name: Bug Report
 description: File a bug report
-title: "[Bug]: "
 labels: ["bug", "needs-triage"]
 issue_body: false
 body:
@@ -49,5 +48,4 @@ body:
     label: This issue is unique
     options:
     - label: I have searched the issue tracker and did not find an issue describing my bug.
-    - label: I have not searched the issue tracker.
-      required: true
+      required: true      
