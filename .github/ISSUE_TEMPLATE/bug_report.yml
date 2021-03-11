@@ -22,7 +22,8 @@ body:
     options:
     - Windows
     - macOS
-    - "*nix"
+    - Linux
+    - Other
 - type: textarea
   attributes:
     label: Description of bug
