@@ -6,7 +6,7 @@ body:
 - type: markdown
   attributes:
     value: |
-      Use this form to suggest a feature for MultiMC.
+      ### Use this form to suggest a feature for MultiMC.
 - type: input
   attributes:
     label: Role
@@ -37,5 +37,5 @@ body:
 - type: markdown
   attributes:
     value: |
-      You may use the editor below to elaborate further.
+      ### You may use the editor below to elaborate further.
 # The issue_body: true up there makes the standard WYSIWYG editor for issues show up down here.
