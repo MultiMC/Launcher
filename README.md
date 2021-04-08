@@ -2,9 +2,9 @@
 This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
 
 ## Pre-built binaries (experimental as for now):
-- Windows x64: https://drive.google.com/file/d/1ENazMSvJM0MLh7CnPEX90k1CYYLqV4f4/view?usp=sharing
+- Windows x64: https://drive.google.com/file/d/1erbFNd_BFZ5Wd9qZqp6mU9vl3tbNBiep/view?usp=sharing
 - Linux x64: https://drive.google.com/file/d/1jzcxDxRDliyAgjrohuaBgdmInIs4DnAM/view?usp=sharing
-- Mac OS X: https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
+- MacOS: https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
 
 Details about the original launcher below:
 
