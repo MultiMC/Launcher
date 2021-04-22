@@ -125,12 +125,11 @@ SET(MULTIMC_SOURCES
     pages/modplatform/VanillaPage.cpp
     pages/modplatform/VanillaPage.h
 
-    pages/modplatform/atlauncher/AtlModel.cpp
-    pages/modplatform/atlauncher/AtlModel.h
     pages/modplatform/atlauncher/AtlFilterModel.cpp
     pages/modplatform/atlauncher/AtlFilterModel.h
+    pages/modplatform/atlauncher/AtlListModel.cpp
+    pages/modplatform/atlauncher/AtlListModel.h
     pages/modplatform/atlauncher/AtlPage.cpp
-    pages/modplatform/atlauncher/AtlPage.h
     pages/modplatform/atlauncher/AtlPage.h
 
     pages/modplatform/ftb/FtbFilterModel.cpp
@@ -145,7 +144,6 @@ SET(MULTIMC_SOURCES
     pages/modplatform/legacy_ftb/ListModel.h
     pages/modplatform/legacy_ftb/ListModel.cpp
 
-    pages/modplatform/flame/FlameData.h
     pages/modplatform/flame/FlameModel.cpp
     pages/modplatform/flame/FlameModel.h
     pages/modplatform/flame/FlamePage.cpp
