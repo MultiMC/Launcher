@@ -78,11 +78,13 @@ void LaunchController::login()
             }
             qDebug() << "Wrote " << name << " to \"names.txt\" since it didn't exist before";
         } else {
-            for(int i = 0; i < names.count(); i++){ //TODO: Improve efficiency or find a better way to do this
-                if(names[i] != name){
-                    namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
+            if(name != names[0]){
+                for(int i = 0; i < names.count(); i++){ //TODO: Improve efficiency or find a better way to do this
+                    if(names[i] != name){
+                        namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
+                    }
+                    qDebug() << "Reordered \"names.txt\"";
                 }
-                qDebug() << "Reordered \"names.txt\"";
             }
         }
         namesFile.flush();
