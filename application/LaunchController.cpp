@@ -70,15 +70,15 @@ void LaunchController::login()
 
     if(nameSelector.exec() == QDialog::Accepted){
         name = nameSelector.textValue();
-        namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
-        namesFile.write(name.toStdString().c_str());
-        if(!names.contains(name)){
-            for(int i = 0; i < names.count(); i++){
-                namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
-            }
-            qDebug() << "Wrote " << name << " to \"names.txt\" since it didn't exist before";
-        } else {
-            if(name != names[0]){
+        if(name != names[0]){
+            namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
+            namesFile.write(name.toStdString().c_str());
+            if(!names.contains(name)){
+                for(int i = 0; i < names.count(); i++){
+                    namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
+                }
+                qDebug() << "Wrote " << name << " to \"names.txt\" since it didn't exist before";
+            } else {
                 for(int i = 0; i < names.count(); i++){ //TODO: Improve efficiency or find a better way to do this
                     if(names[i] != name){
                         namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
@@ -86,9 +86,9 @@ void LaunchController::login()
                     qDebug() << "Reordered \"names.txt\"";
                 }
             }
+            namesFile.flush();
+            namesFile.close();
         }
-        namesFile.flush();
-        namesFile.close();
     } else {
         return;
     }
