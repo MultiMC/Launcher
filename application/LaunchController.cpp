@@ -72,16 +72,19 @@ void LaunchController::login()
         name = nameSelector.textValue();
         if(name != names[0]) {
             namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
-            namesFile.write(name.toStdString().c_str());
+            QTextStream writer(&namesFile);
+            writer << name.toUtf8();
             if(!names.contains(name)) {
                 for(int i = 0; i < names.count(); i++) {
-                    namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
+                    writer << "\n" << names[i].toUtf8();
+                    //namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
                 }
                 qDebug() << "Wrote " << name << " to \"names.txt\" since it didn't exist before";
             } else {
                 for(int i = 0; i < names.count(); i++) { //TODO: Improve efficiency or find a better way to do this
                     if(names[i] != name) {
-                        namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
+                        //namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
+                        writer << "\n" << names[i].toUtf8();
                     }
                     qDebug() << "Reordered \"names.txt\"";
                 }
