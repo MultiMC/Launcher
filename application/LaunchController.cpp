@@ -46,7 +46,7 @@ void LaunchController::login()
                                          */
     QFile namesFile;
     namesFile.setFileName("names.txt");
-    if(!namesFile.exists()){
+    if(!namesFile.exists()) {
         namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
         namesFile.write("Player");
         namesFile.close();
@@ -57,7 +57,7 @@ void LaunchController::login()
     QInputDialog nameSelector;
     QStringList names;
 
-    while(!namesFile.atEnd()){
+    while(!namesFile.atEnd()) {
         names += namesFile.readLine().simplified();
     }
     namesFile.close();
@@ -68,19 +68,19 @@ void LaunchController::login()
     nameSelector.setComboBoxEditable(true);
     nameSelector.setWindowTitle("Select Username...");
 
-    if(nameSelector.exec() == QDialog::Accepted){
+    if(nameSelector.exec() == QDialog::Accepted) {
         name = nameSelector.textValue();
-        if(name != names[0]){
+        if(name != names[0]) {
             namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
             namesFile.write(name.toStdString().c_str());
-            if(!names.contains(name)){
-                for(int i = 0; i < names.count(); i++){
+            if(!names.contains(name)) {
+                for(int i = 0; i < names.count(); i++) {
                     namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
                 }
                 qDebug() << "Wrote " << name << " to \"names.txt\" since it didn't exist before";
             } else {
-                for(int i = 0; i < names.count(); i++){ //TODO: Improve efficiency or find a better way to do this
-                    if(names[i] != name){
+                for(int i = 0; i < names.count(); i++) { //TODO: Improve efficiency or find a better way to do this
+                    if(names[i] != name) {
                         namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
                     }
                     qDebug() << "Reordered \"names.txt\"";
