@@ -40,10 +40,6 @@ jobs:
       - name: Echo and PWD test
         shell: cmd
         run: echo "%APPDATA%\\Qt"
-      
-      - name: Download QT Installer
-        run: |
-          curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
           
       - name: Cache
         uses: actions/cache@v2.1.5
