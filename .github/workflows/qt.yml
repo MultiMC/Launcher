@@ -1,0 +1,16 @@
+name: MultiMC5-Release
+
+on:
+  push:
+    branches:
+      - develop
+      - stable
+      - CI
+  pull_request:
+    branches:
+      - master
+      - releases
+
+jobs:
+  build:
+    runs-on:
