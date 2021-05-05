@@ -35,7 +35,7 @@ jobs:
           # Directory to install Qt
           #dir: # optional
           # Version of Qt to install
-          version: 5.6.preview # optional, default is 5.15.2
+          version: 5.6_preview # optional, default is 5.15.2
           # Host platform
           host: windows # optional
           # Target platform for build
