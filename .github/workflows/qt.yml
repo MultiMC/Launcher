@@ -73,3 +73,15 @@ jobs:
         shell: cmd
         run: |
           installer.exe -v --script nonInteractive.qs --silent
+          
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v1.8
+        with:
+          cmake-version: '3.16.x'
+      
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu' # See 'Supported distributions' for available options
+          java-version: '8'
+      
