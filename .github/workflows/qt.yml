@@ -29,6 +29,26 @@ jobs:
         with:
           fetch-depth: 1
       
+      - name: Creates QtAccount File
+        uses: DamianReeves/write-file-action@v1.0
+        with:
+          # The path to the file to write
+          path: "%APPDATA%\\Qt"
+          # The contents of the file
+          contents: ${{ secrets.QTACCOUNT }}
+          
+      - name: File Reader
+        # You may pin to the exact commit or the version.
+        # uses: andstor/file-reader-action@babb053761401147562e75be79d832978cc97325
+        uses: andstor/file-reader-action@v1.0.0
+        with:
+          # The path to the file to be read.
+          path: "%APPDATA%\\Qt"
+          
+      - name: Echo and PWD test
+        shell: cmd
+        run: echo "%APPDATA%\\Qt"
+      
       - name: Install QT
         uses: jurplel/install-qt-action@v2.13.2
         with:
