@@ -36,7 +36,7 @@ jobs:
           path: "%APPDATA%\\Qt"
           # The contents of the file
           contents: ${{ secrets.QTACCOUNT }}
-          
+                    
       - name: Echo and PWD test
         shell: cmd
         run: echo "%APPDATA%\\Qt"
@@ -44,17 +44,11 @@ jobs:
       - name: Download QT Installer
         run: |
           curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
-      
-      - name: Install QT
-        uses: jurplel/install-qt-action@v2.13.2
+          
+      - name: Cache
+        uses: actions/cache@v2.1.5
         with:
-          # Directory to install Qt
-          #dir: # optional
-          # Version of Qt to install
-          version: 5.6_preview # optional, default is 5.15.2
-          # Host platform
-          host: windows # optional
-          # Target platform for build
-          target: desktop # optional, default is desktop
-          # Architecture for Windows/Android
-          arch: win32_mingw49 # optional
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: "installer.exe"
+          # An explicit key for restoring and saving the cache
+          key: ${{ runner.os }}-qt56-installer
