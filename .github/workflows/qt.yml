@@ -60,5 +60,6 @@ jobs:
           curl https://gist.githubusercontent.com/PibePlayer/cf6bd0a9f7e4d51e3e618ceedfba4b94/raw/9298afaca5680765424d10413cb589a0e76382bf/qt-installer-noninteractive.qs --output nonInteractive.qs
         
       - name: Install Qt 5.6.3
+        shell: cmd
         run: |
           installer.exe -v --script nonInteractive.qs --silent
