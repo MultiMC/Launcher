@@ -47,8 +47,14 @@ jobs:
           
       - name: Cache
         uses: actions/cache@v2.1.5
+        id: installer-cached
         with:
           # A list of files, directories, and wildcard patterns to cache and restore
           path: "installer.exe"
           # An explicit key for restoring and saving the cache
           key: ${{ runner.os }}-qt56-installer
+
+      - name: Download QT Installer
+        if: steps.installer-cached.outputs.cache-hit != 'true'
+        run: |
+          curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
