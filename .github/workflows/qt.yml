@@ -55,12 +55,12 @@ jobs:
         id: qt-cached
         with:
           # A list of files, directories, and wildcard patterns to cache and restore
-          path: "C:/Qt"
+          path: "C:/Users/runneradmin/Qt"
           # An explicit key for restoring and saving the cache
           key: ${{ runner.os }}-qt56-installed
 
       - name: Download Qt Installer
-        if: steps.installer-cached.outputs.cache-hit != 'true'
+        if: steps.installer-cached.outputs.cache-hit != 'true' || teps.qt-cached.outputs.cache-hit != 'true'
         run: |
           curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
           
