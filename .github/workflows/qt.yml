@@ -28,29 +28,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
-      
-      - name: Creates QtAccount File
-        uses: DamianReeves/write-file-action@v1.0
-        with:
-          # The path to the file to write
-          path: "%APPDATA%\\Qt"
-          # The contents of the file
-          contents: ${{ secrets.QTACCOUNT }}
-                    
-      - name: Echo and PWD test
-        shell: cmd
-        run: echo "%APPDATA%\\Qt"
-          
-      - name: Cache
-        uses: actions/cache@v2.1.5
-        id: installer-cached
-        with:
-          # A list of files, directories, and wildcard patterns to cache and restore
-          path: "installer.exe"
-          # An explicit key for restoring and saving the cache
-          key: ${{ runner.os }}-qt56-installer
-
-      - name: Cache Qt
+        
+      - name: Cache Qt Installed
         uses: actions/cache@v2.1.5
         id: qt-cached
         with:
@@ -58,6 +37,25 @@ jobs:
           path: "C:/Users/runneradmin/Qt"
           # An explicit key for restoring and saving the cache
           key: ${{ runner.os }}-qt56-installed
+          
+      - name: Cache Qt Installer
+        uses: actions/cache@v2.1.5
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        id: installer-cached
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: "installer.exe"
+          # An explicit key for restoring and saving the cache
+          key: ${{ runner.os }}-qt56-installer
+          
+      - name: Creates QtAccount File
+        uses: DamianReeves/write-file-action@v1.0
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        with:
+          # The path to the file to write
+          path: "%APPDATA%\\Qt"
+          # The contents of the file
+          contents: ${{ secrets.QTACCOUNT }}
 
       - name: Download Qt Installer
         if: steps.installer-cached.outputs.cache-hit != 'true' && steps.qt-cached.outputs.cache-hit != 'true'
@@ -75,13 +73,18 @@ jobs:
           installer.exe -v --script nonInteractive.qs --silent
           
       - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1.8
-        with:
-          cmake-version: '3.16.x'
+        run: |
+          curl https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.msi -o cmake.msi
+          ./cmake.msi /S
       
       - name: Setup JDK
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu' # See 'Supported distributions' for available options
           java-version: '8'
+          architecture: x86
       
+      - name: Setup zlib
+        run: |
+          curl https://razaoinfo.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
+          unzip zlib.zip
