@@ -105,7 +105,7 @@ jobs:
       - name: Setup PATH
         shell: cmd
         run: |
-          set PATH=D:\Qt\Qt5.6.0\5.6\mingw49_32\bin;D:\Qt\Qt5.6.0\Tools\mingw492_32\bin;%PATH%
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
@@ -114,10 +114,10 @@ jobs:
           openssl version
           dir
           ls
-          dir D:\Qt\Qt5.6.0\5.6\mingw49_32\bin
-          ls D:\Qt\Qt5.6.0\5.6\mingw49_32\bin
-          dir D:\Qt\Qt5.6.0\Tools\mingw492_32\bin
-          ls D:\Qt\Qt5.6.0\Tools\mingw492_32\bin
+          dir D:\Qt\5.6.3\mingw49_32\bin
+          ls D:\Qt\5.6.3\mingw49_32\bin
+          dir D:/Qt/Tools/mingw492_32\bin
+          ls D:/Qt/Tools/mingw492_32\bin
           
       - name: build
         shell: cmd
