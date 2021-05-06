@@ -133,7 +133,7 @@ jobs:
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
           cd build
-          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\ && echo . && mingw32-make -j8 && echo . && mingw32-make install
+          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\
           ls
           
       - name: cat CMake Output
