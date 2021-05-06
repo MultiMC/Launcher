@@ -143,8 +143,7 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          cd build
-          mingw32-make
+          cd build && pwd && mingw32-make && dir
           
       - name: install
         shell: cmd
