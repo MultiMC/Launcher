@@ -53,7 +53,7 @@ jobs:
         if: steps.qt-cached.outputs.cache-hit != 'true'
         with:
           # The path to the file to write
-          path: "%APPDATA%\\Qt"
+          path: "%APPDATA%\\Qt\\qtaccount.ini"
           # The contents of the file
           contents: ${{ secrets.QTACCOUNT }}
 
