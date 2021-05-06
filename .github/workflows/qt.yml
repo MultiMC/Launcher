@@ -130,6 +130,7 @@ jobs:
           cp D:/Qt/Tools/mingw492_32\bin\mingw32-make.exe D:/Qt/Tools/mingw492_32\bin\make.exe
           cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\
           ls
+          echo %PATH%
           
       - name: cat CMake Output
         if: ${{ failure() }}
@@ -139,7 +140,7 @@ jobs:
       - name: make
         shell: cmd
         run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;"C:\\Program Files (x86)\\CMake\\bin";C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;"C:\\Program Files\\CMake\\bin\\cmake.exe";C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
           cd build && dir && mingw32-make
           
       - name: install
