@@ -139,11 +139,8 @@ jobs:
       - name: make
         shell: cmd
         run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
-          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
-          set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          cd build && pwd && mingw32-make && dir
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin
+          cd build && pwd && dir && mingw32-make
           
       - name: install
         shell: cmd
