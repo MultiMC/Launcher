@@ -61,6 +61,10 @@ jobs:
         if: steps.installer-cached.outputs.cache-hit != 'true' && steps.qt-cached.outputs.cache-hit != 'true'
         run: |
           curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
+          
+      - name: Download Qt non-Interactive Script
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        run: |
           curl https://gist.githubusercontent.com/PibePlayer/cf6bd0a9f7e4d51e3e618ceedfba4b94/raw/09cb1415952b914f1567ce935d4618c396aec340/qt-installer-noninteractive.qs --output nonInteractive.qs
         
       - name: Install Qt 5.6.3
