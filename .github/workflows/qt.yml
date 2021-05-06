@@ -34,9 +34,9 @@ jobs:
         id: qt-cached
         with:
           # A list of files, directories, and wildcard patterns to cache and restore
-          path: "C:/Users/runneradmin/Qt"
+          path: "D:/Qt"
           # An explicit key for restoring and saving the cache
-          key: ${{ runner.os }}-qt56-installed
+          key: ${{ runner.os }}-qt56-installed-d
           
       - name: Cache Qt Installer
         uses: actions/cache@v2.1.5
@@ -61,7 +61,7 @@ jobs:
         if: steps.installer-cached.outputs.cache-hit != 'true' && steps.qt-cached.outputs.cache-hit != 'true'
         run: |
           curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
-          curl https://gist.githubusercontent.com/PibePlayer/cf6bd0a9f7e4d51e3e618ceedfba4b94/raw/198ecd6e3a090c75a96a03a4582d8a41a0f0be83/qt-installer-noninteractive.qs --output nonInteractive.qs
+          curl https://gist.githubusercontent.com/PibePlayer/cf6bd0a9f7e4d51e3e618ceedfba4b94/raw/09cb1415952b914f1567ce935d4618c396aec340/qt-installer-noninteractive.qs --output nonInteractive.qs
         
       - name: Install Qt 5.6.3
         if: steps.qt-cached.outputs.cache-hit != 'true'
@@ -101,7 +101,7 @@ jobs:
       - name: Setup PATH
         shell: cmd
         run: |
-          set PATH=C:\Users\runneradmin\Qt\Qt5.6.0\5.6\mingw49_32\bin;C:\Users\runneradmin\Qtr\Qt5.6.0\Tools\mingw492_32\bin;%PATH%
+          set PATH=D:\Qt\Qt5.6.0\5.6\mingw49_32\bin;D:\Qt\Qt5.6.0\Tools\mingw492_32\bin;%PATH%
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
@@ -110,13 +110,15 @@ jobs:
           openssl version
           dir
           ls
-          dir C:\Users\runneradmin\Qt\Qt5.6.0\5.6\mingw49_32\bin
-          ls C:\Users\runneradmin\Qt\Qt5.6.0\5.6\mingw49_32\bin
-          dir C:\Users\runneradmin\Qtr\Qt5.6.0\Tools\mingw492_32\bin
-          ls C:\Users\runneradmin\Qtr\Qt5.6.0\Tools\mingw492_32\bin
+          dir D:\Qt\Qt5.6.0\5.6\mingw49_32\bin
+          ls D:\Qt\Qt5.6.0\5.6\mingw49_32\bin
+          dir D:\Qt\Qt5.6.0\Tools\mingw492_32\bin
+          ls D:\Qt\Qt5.6.0\Tools\mingw492_32\bin
           
       - name: build
         shell: cmd
         run: |
-          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=C:
+          mkdir build
+          cd build
+          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC
     
