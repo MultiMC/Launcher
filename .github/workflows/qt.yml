@@ -41,14 +41,14 @@ jobs:
           # The contents of the file
           contents: ${{ secrets.QTACCOUNT }}
         
-      - name: Cache Qt Installed
-        uses: actions/cache@v2.1.5
-        id: qt-cached
-        with:
+      #- name: Cache Qt Installed
+        #uses: actions/cache@v2.1.5
+        #id: qt-cached
+        #with:
           # A list of files, directories, and wildcard patterns to cache and restore
-          path: "D:/Qt"
+          #path: "D:/Qt"
           # An explicit key for restoring and saving the cache
-          key: ${{ runner.os }}-qt56-installed-d
+          #key: ${{ runner.os }}-qt56-installed-d
           
       - name: Cache Qt Installer
         uses: actions/cache@v2.1.5
@@ -129,13 +129,11 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set CC=D:/Qt/Tools/mingw492_32\bin\gcc.exe
-          set CXX=D:/Qt/Tools/mingw492_32\bin\g++.exe
+          set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
+          set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
           cd build
-          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\
-          mingw32-make -j8
-          mingw32-make install
+          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\ && echo . && mingw32-make -j8 && echo . && mingw32-make install
           ls
           
       - name: cat CMake Output
