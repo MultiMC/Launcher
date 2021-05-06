@@ -131,8 +131,6 @@ jobs:
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
           set CC=D:/Qt/Tools/mingw492_32\bin\gcc.exe
           set CXX=D:/Qt/Tools/mingw492_32\bin\g++.exe
-          mkdir build
-          cd build
           cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ../
           
       - name: cat CMake Output
