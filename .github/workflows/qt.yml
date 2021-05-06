@@ -133,6 +133,7 @@ jobs:
           cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ../
           
       - name: cat CMake Output
+        if: ${{ failure() }}
         run: |
           cat D:/a/MultiMC5-Cracked/MultiMC5-Cracked/build/CMakeFiles/CMakeOutput.log
     
