@@ -122,7 +122,11 @@ jobs:
       - name: build
         shell: cmd
         run: |
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
+          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
           mkdir build
           cd build
-          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ../
+          CC=D:/Qt/Tools/mingw492_32\bin\gcc.exe CXX=D:/Qt/Tools/mingw492_32\bin\g++.exe cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ../
     
