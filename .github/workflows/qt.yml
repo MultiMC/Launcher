@@ -44,13 +44,29 @@ jobs:
       
       - name: Setup zlib
         run: |
-          mkdir zlib && curl https://razaoinfo.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip && unzip zlib.zip && cd .. && pwd
+          mkdir zlib
+          cd zlib
+          curl -L https://razaoinfo.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
+          unzip zlib.zip
+          cd ..
+          pwd
+          
+      - name: Setup OpenSSL
+        run: |
+          mkdir OpenSSL
+          cd OpenSSL
+          curl -L https://github.com/IndySockets/OpenSSL-Binaries/raw/master/Archive/openssl-1.0.2g-i386-win32.zip -o OpenSSL.zip
+          unzip OpenSSL.zip
+          cd ..
+          pwd
           
       - name: Setup PATH
         shell: cmd
         run: |
           set PATH=C:\Users\runneradmin\Qt\Qt5.6.0\5.6\mingw49_32\bin;C:\Users\runneradmin\Qtr\Qt5.6.0\Tools\mingw492_32\bin;%PATH%
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          java --version
+          java -version
           cmake --version
+          openssl version
