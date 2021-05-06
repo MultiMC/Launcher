@@ -94,7 +94,9 @@ jobs:
           mkdir zlib
           cd zlib
           curl -L https://razaoinfo.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
+          curl -L https://ufpr.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip -o zliblibs.zip
           unzip zlib.zip
+          unzip zliblibs.zip
           cd ..
           pwd
           
@@ -122,7 +124,7 @@ jobs:
       - name: build
         shell: cmd
         run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%CD%\cmake-3.20.2-windows-i386\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%CD%\cmake-3.20.2-windows-i386\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
           set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
