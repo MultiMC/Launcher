@@ -144,10 +144,11 @@ jobs:
       - name: make
         shell: cmd
         run: |
-          dir
+          cd build
           mingw32-make -j8
           
       - name: install
         shell: cmd
         run: |
+          cd build
           mingw32-make install
