@@ -29,7 +29,45 @@ jobs:
         with:
           fetch-depth: 1
         
+      - name: Cache Qt Installed
+        uses: actions/cache@v2.1.5
+        id: qt-cached
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: "C:/Users/runneradmin/Qt"
+          # An explicit key for restoring and saving the cache
+          key: ${{ runner.os }}-qt56-installed
+          
+      - name: Cache Qt Installer
+        uses: actions/cache@v2.1.5
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        id: installer-cached
+        with:
+          # A list of files, directories, and wildcard patterns to cache and restore
+          path: "installer.exe"
+          # An explicit key for restoring and saving the cache
+          key: ${{ runner.os }}-qt56-installer
+          
+      - name: Creates QtAccount File
+        uses: DamianReeves/write-file-action@v1.0
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        with:
+          # The path to the file to write
+          path: "%APPDATA%\\Qt"
+          # The contents of the file
+          contents: ${{ secrets.QTACCOUNT }}
 
+      - name: Download Qt Installer
+        if: steps.installer-cached.outputs.cache-hit != 'true' && steps.qt-cached.outputs.cache-hit != 'true'
+        run: |
+          curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
+          curl https://gist.githubusercontent.com/PibePlayer/cf6bd0a9f7e4d51e3e618ceedfba4b94/raw/198ecd6e3a090c75a96a03a4582d8a41a0f0be83/qt-installer-noninteractive.qs --output nonInteractive.qs
+        
+      - name: Install Qt 5.6.3
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        shell: cmd
+        run: |
+          installer.exe -v --script nonInteractive.qs --silent
           
       - name: Setup CMake
         run: |
@@ -70,3 +108,9 @@ jobs:
           java -version
           cmake --version
           openssl version
+          
+      - name: build
+        shell: cmd
+        run: |
+          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=C:
+    
