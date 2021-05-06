@@ -131,4 +131,8 @@ jobs:
           mkdir build
           cd build
           cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ../
+          
+      - name: cat CMake Output
+        run: |
+          cat D:/a/MultiMC5-Cracked/MultiMC5-Cracked/build/CMakeFiles/CMakeOutput.log
     
