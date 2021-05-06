@@ -115,12 +115,6 @@ jobs:
           java -version
           cmake --version
           openssl version
-          dir
-          ls
-          dir D:\Qt\5.6.3\mingw49_32\bin
-          ls D:\Qt\5.6.3\mingw49_32\bin
-          dir D:/Qt/Tools/mingw492_32\bin
-          ls D:/Qt/Tools/mingw492_32\bin
           
       - name: build
         shell: cmd
@@ -144,8 +138,14 @@ jobs:
       - name: make
         shell: cmd
         run: |
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
+          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
+          set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
+          set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           cd build
-          mingw32-make -j8
+          mingw32-make
           
       - name: install
         shell: cmd
