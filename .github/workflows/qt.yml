@@ -108,6 +108,12 @@ jobs:
           java -version
           cmake --version
           openssl version
+          dir
+          ls
+          dir C:\Users\runneradmin\Qt\Qt5.6.0\5.6\mingw49_32\bin
+          ls C:\Users\runneradmin\Qt\Qt5.6.0\5.6\mingw49_32\bin
+          dir C:\Users\runneradmin\Qtr\Qt5.6.0\Tools\mingw492_32\bin
+          ls C:\Users\runneradmin\Qtr\Qt5.6.0\Tools\mingw492_32\bin
           
       - name: build
         shell: cmd
