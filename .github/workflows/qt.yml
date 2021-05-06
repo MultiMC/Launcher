@@ -29,6 +29,9 @@ jobs:
         with:
           fetch-depth: 1
           
+      - name: Checkout submodules
+        run: git submodule update --init
+          
       - name: Creates QtAccount File
         uses: DamianReeves/write-file-action@v1.0
         if: steps.qt-cached.outputs.cache-hit != 'true'
