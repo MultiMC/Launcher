@@ -139,4 +139,13 @@ jobs:
         if: ${{ failure() }}
         run: |
           cat D:/a/MultiMC5-Cracked/MultiMC5-Cracked/build/CMakeFiles/CMakeOutput.log
-    
+          
+      - name: make
+        shell: cmd
+        run: |
+          mingw32-make -j8
+          
+      - name: install
+        shell: cmd
+        run: |
+          mingw32-make install
