@@ -78,7 +78,9 @@ jobs:
           
       - name: Setup CMake
         run: |
-          curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.msi -o cmake.msi && ./cmake.msi /quiet
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.zip -o cmake.zip
+          unzip cmake.zip
+          dir cmake-3.20.2-windows-i386/bin
       
       - name: Setup JDK
         uses: actions/setup-java@v2
@@ -111,24 +113,23 @@ jobs:
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          ls "C:\\Program Files (x86)\\CMake\\bin\\"
           java -version
           cmake --version
-          "C:\\Program Files (x86)\\CMake\\bin\\cmake.exe" --version
           openssl version
           
       - name: build
         shell: cmd
         run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;"C:\\Program Files (x86)\\CMake\\bin\\";C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%CD%\cmake-3.20.2-windows-i386\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
           set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
           cd build
-          cp D:/Qt/Tools/mingw492_32\bin\mingw32-make.exe D:/Qt/Tools/mingw492_32\bin\make.exe
+          copy D:/Qt/Tools/mingw492_32\bin\mingw32-make.exe D:/Qt/Tools/mingw492_32\bin\make.exe
           cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\
-          ls
+          dir
           echo %PATH%
           
       - name: cat CMake Output
@@ -139,7 +140,7 @@ jobs:
       - name: make
         shell: cmd
         run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;"C:\\Program Files (x86)\\CMake\\bin\\";C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%CD%\zlib;%CD%\zlib\bin;%CD%\OpenSSL;C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%CD%\cmake-3.20.2-windows-i386\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\
           cd build && dir && mingw32-make
           
       - name: install
