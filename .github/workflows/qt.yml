@@ -74,8 +74,7 @@ jobs:
           
       - name: Setup CMake
         run: |
-          curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.msi -o cmake.msi
-          ./cmake.msi /S
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.msi -o cmake.msi && ./cmake.msi /quiet
       
       - name: Setup JDK
         uses: actions/setup-java@v2
@@ -86,8 +85,4 @@ jobs:
       
       - name: Setup zlib
         run: |
-          mkdir zlib
-          curl https://razaoinfo.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
-          unzip zlib.zip
-          cd ..
-          pwd
+          mkdir zlib && curl https://razaoinfo.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip && unzip zlib.zip && cd .. && pwd
