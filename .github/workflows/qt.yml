@@ -134,6 +134,8 @@ jobs:
           mkdir build
           cd build
           cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\
+          mingw32-make -j8
+          mingw32-make install
           ls
           
       - name: cat CMake Output
