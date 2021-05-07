@@ -3,13 +3,14 @@ name: MultiMC5-Develop
 on:
   push:
     branches:
+      - master
       - develop
       - CI
   pull_request:
     branches:
       - master
       - develop
-      - releases
+      - stable
       - CI
 
 jobs:
