@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - develop
-      - stable
       - CI
   pull_request:
     branches:
       - master
+      - develop
       - releases
       - CI
 
@@ -169,11 +169,17 @@ jobs:
         run: |
           cd build
           mingw32-make install -j4
+      
+      - name: Generate build number
+        id: buildnumber
+        uses: einaregilsson/build-number@v3 
+        with:
+          token: ${{secrets.github_token}}  
           
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.3
         with:
           # Artifact name
-          name: Installed Folder
+          name: MultiMC5-Cracked-Portable-win32-${{ steps.buildnumber.outputs.build_number }}
           # A file, directory or wildcard pattern that describes what to upload
           path: "D:/MultiMC-Cracked"
