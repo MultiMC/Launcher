@@ -1,4 +1,4 @@
-name: MultiMC5-Release
+name: MultiMC5-Develop
 
 on:
   push:
@@ -169,3 +169,11 @@ jobs:
         run: |
           cd build
           mingw32-make install -j4
+          
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          # Artifact name
+          name: Installed Folder
+          # A file, directory or wildcard pattern that describes what to upload
+          path: "D:/MultiMC-Cracked"
