@@ -41,7 +41,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-        - name: Context
+      - name: Context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
