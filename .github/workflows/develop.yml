@@ -126,14 +126,14 @@ jobs:
           cmake --version
           openssl version
           
-      - name: build cache
-        uses: actions/cache@v2.1.5
-        id: build-cached
-        with:
+      #- name: build cache
+      #  uses: actions/cache@v2.1.5
+      #  id: build-cached
+      #  with:
           # A list of files, directories, and wildcard patterns to cache and restore
-          path: "D:/a/MultiMC5-Cracked/MultiMC5-Cracked/build"
+      #    path: "D:/a/MultiMC5-Cracked/MultiMC5-Cracked/build"
           # An explicit key for restoring and saving the cache
-          key: ${{ runner.os }}-MultiMC-build
+      #    key: ${{ runner.os }}-MultiMC-build
           
       - name: build
         shell: cmd
