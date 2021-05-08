@@ -156,8 +156,8 @@ jobs:
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make tcversion
-          mingw32-make test
           mingw32-make -j4
+          mingw32-make test
           cmake -E remove_directory "D:/MultiMC-Cracked"
 
       - name: install
