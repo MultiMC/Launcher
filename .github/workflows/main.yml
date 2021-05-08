@@ -21,7 +21,8 @@ jobs:
           sudo apt install openjdk-8-jdk libgl1-mesa-dev qt5-default
       - name: Clone
         run: |
-          mkdir ~/MultiMC && cd ~/MultiMC
+          mkdir ~/MultiMC
+          cd ~/MultiMC
           mkdir build
           mkdir MultiMC
           git clone --recursive https://github.com/Sebastian-byte/MultiMC5-Cracked.git src
@@ -29,7 +30,17 @@ jobs:
         run: |
           cd ~/MultiMC/build
           cmake -DCMAKE_INSTALL_PREFIX=../MultiMC -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=2064 -DMultiMC_BUILD_PLATFORM=lin64 ../src
-          make install -j$(nproc)
+          make tcversion
+          make -j$(nproc)
+      - name: Test
+        run: |
+          cd ~/MultiMC/build
+          make test
+          cmake -E remove_directory "/home/runner/MultiMC/MultiMC"
+      - name: Install
+        run: |
+          cd ~/MultiMC/build
+          make install
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -41,10 +52,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
@@ -128,7 +135,7 @@ jobs:
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
 
-      - name: build
+      - name: Build
         shell: cmd
         if: steps.build-cached.outputs.cache-hit != 'true'
         run: |
@@ -145,7 +152,7 @@ jobs:
           copy D:/Qt/Tools/mingw492_32\bin\mingw32-make.exe D:/Qt/Tools/mingw492_32\bin\make.exe
           cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked" -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/win32/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=win-bundle -DMultiMC_VERSION_BUILD=2065 -DMultiMC_VERSION_CHANNEL=refs/heads/develop -DMultiMC_BUILD_PLATFORM=win32 -G "MinGW Makefiles" ..
 
-      - name: make
+      - name: Compile
         shell: cmd
         run: |
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
@@ -157,10 +164,15 @@ jobs:
           cd build
           mingw32-make tcversion
           mingw32-make -j4
+
+      - name: Test
+        shell: cmd
+        run: |
+          cd build
           mingw32-make test
           cmake -E remove_directory "D:/MultiMC-Cracked"
 
-      - name: install
+      - name: Install
         shell: cmd
         run: |
           cd build
