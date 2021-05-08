@@ -78,10 +78,14 @@ jobs:
           installer.exe -v --script nonInteractive.qs --silent
           
       - name: Setup CMake
-        run: |
-          curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.zip -o cmake.zip
-          unzip cmake.zip
-          dir cmake-3.20.2-windows-i386/bin
+        uses: jwlawson/actions-setup-cmake@v1.9
+        with:
+          use-32bit: 'true'
+          
+        #run: |
+        #  curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.zip -o cmake.zip
+        #  unzip cmake.zip
+        #  dir cmake-3.20.2-windows-i386/bin
       
       - name: Setup JDK
         uses: actions/setup-java@v2
