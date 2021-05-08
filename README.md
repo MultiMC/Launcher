@@ -2,7 +2,8 @@
 This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
 
 ## Pre-built binaries (experimental as for now):
-- Windows: ![MultiMC5-Cracked Develop](https://github.com/PibePlayer/MultiMC5-Cracked/actions/workflows/develop.yml/badge.svg) https://github.com/PibePlayer/MultiMC5-Cracked/suites/2680820658/artifacts/59107931
+- Windows: ![MultiMC5-Cracked Develop](https://github.com/PibePlayer/MultiMC5-Cracked/actions/workflows/develop.yml/badge.svg) [lastest-build](https://nightly.link/PibePlayer/MultiMC5-Cracked/workflows/develop/develop/MultiMC5-Cracked-Portable-win32-6.zip)
+    
     Old:   https://drive.google.com/file/d/1erbFNd_BFZ5Wd9qZqp6mU9vl3tbNBiep/view?usp=sharing
 - Linux x64: https://drive.google.com/file/d/1jzcxDxRDliyAgjrohuaBgdmInIs4DnAM/view?usp=sharing
 - MacOS: https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
