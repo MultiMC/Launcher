@@ -120,7 +120,7 @@ jobs:
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
+          REM set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
           java -version
           cmake --version
@@ -144,19 +144,13 @@ jobs:
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
           set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
+          echo %PATH%
           set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
           cd build
           copy D:/Qt/Tools/mingw492_32\bin\mingw32-make.exe D:/Qt/Tools/mingw492_32\bin\make.exe
           cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\
-          dir
-          echo %PATH%
-          
-      - name: cat CMake Output
-        if: ${{ failure() }}
-        run: |
-          cat D:/a/MultiMC5-Cracked/MultiMC5-Cracked/build/CMakeFiles/CMakeOutput.log
           
       - name: make
         shell: cmd
