@@ -14,11 +14,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
 
       - name: Install Dependencies
         run: |
           sudo apt update
           sudo apt install openjdk-8-jdk libgl1-mesa-dev qt5-default
+
       - name: Clone
         run: |
           mkdir ~/MultiMC
@@ -26,25 +29,29 @@ jobs:
           mkdir build
           mkdir MultiMC
           git clone --recursive https://github.com/Sebastian-byte/MultiMC5-Cracked.git src
+
       - name: Compile
         run: |
           cd ~/MultiMC/build
           cmake -DCMAKE_INSTALL_PREFIX=../MultiMC -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=2064 -DMultiMC_BUILD_PLATFORM=lin64 ../src
           make tcversion
           make -j$(nproc)
+
       - name: Test
         run: |
           cd ~/MultiMC/build
           make test
           cmake -E remove_directory "/home/runner/MultiMC/MultiMC"
+
       - name: Install
         run: |
           cd ~/MultiMC/build
           make install
-      - name: Archive production artifacts
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: MultiMC
+          name: MultiMC5-Cracked-Linux
           path: /home/runner/MultiMC/MultiMC
 
   build-windows:
@@ -56,10 +63,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Checkout submodules
+      - name: Checkout Submodules
         run: git submodule update --init
 
-      - name: Creates QtAccount File
+      - name: Create QtAccount File
         uses: DamianReeves/write-file-action@v1.0
         if: steps.qt-cached.outputs.cache-hit != 'true'
         with:
@@ -109,7 +116,7 @@ jobs:
           java-version: '8'
           architecture: x86
 
-      - name: Setup zlib
+      - name: Setup Zlib
         run: |
           mkdir zlib
           cd zlib
@@ -163,7 +170,7 @@ jobs:
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make tcversion
-          mingw32-make -j4
+          mingw32-make -j2
 
       - name: Test
         shell: cmd
@@ -176,16 +183,10 @@ jobs:
         shell: cmd
         run: |
           cd build
-          mingw32-make install -j4
-
-      - name: Generate build number
-        id: buildnumber
-        uses: einaregilsson/build-number@v3
-        with:
-          token: ${{secrets.github_token}}
+          mingw32-make install
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.3
         with:
-          name: MultiMC5-Cracked-Portable-win32-${{ steps.buildnumber.outputs.build_number }}
+          name: MultiMC5-Cracked-Windows
           path: "D:/MultiMC-Cracked"
