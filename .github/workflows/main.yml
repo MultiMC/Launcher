@@ -1,0 +1,193 @@
+name: CI
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    name: build-linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install openjdk-8-jdk libgl1-mesa-dev qt5-default
+
+      - name: Clone
+        run: |
+          mkdir ~/MultiMC
+          cd ~/MultiMC
+          mkdir build
+          mkdir MultiMC
+          git clone --recursive --depth 1 https://github.com/Sebastian-byte/MultiMC5-Cracked.git src
+
+      - name: Build
+        run: |
+          cd ~/MultiMC/build
+          cmake -DCMAKE_INSTALL_PREFIX=../MultiMC -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=2064 -DMultiMC_BUILD_PLATFORM=lin64 ../src
+
+      - name: Compile
+        run: |
+          cd ~/MultiMC/build
+          make tcversion
+          make -j$(nproc)
+
+      - name: Test
+        run: |
+          cd ~/MultiMC/build
+          make test
+          cmake -E remove_directory "/home/runner/MultiMC/MultiMC"
+
+      - name: Install
+        run: |
+          cd ~/MultiMC/build
+          make install
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: MultiMC5-Cracked-Linux
+          path: /home/runner/MultiMC/MultiMC
+
+  build-windows:
+    name: build-windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 1
+          submodules: 'recursive'
+
+      - name: Cache Qt
+        uses: actions/cache@v2.1.5
+        id: qt-cached
+        with:
+          path: "D:/Qt"
+          key: ${{ runner.os }}-qt56-installed-d
+
+      - name: Cache Qt Installer
+        uses: actions/cache@v2.1.5
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        id: installer-cached
+        with:
+          path: "installer.exe"
+          key: ${{ runner.os }}-qt56-installer
+
+      - name: Create QtAccount File
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        run: |
+          mkdir C:/Users/runneradmin/AppData/Roaming/Qt/
+          curl https://rickroll.is-inside.me/nPqUqs16.txt --output C:/Users/runneradmin/AppData/Roaming/Qt/qtaccount.ini
+ 
+      - name: Download Qt Installer
+        if: steps.installer-cached.outputs.cache-hit != 'true' && steps.qt-cached.outputs.cache-hit != 'true'
+        run: curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
+
+      - name: Download Qt non-Interactive Script
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        run: curl https://gist.githubusercontent.com/PibePlayer/cf6bd0a9f7e4d51e3e618ceedfba4b94/raw/09cb1415952b914f1567ce935d4618c396aec340/qt-installer-noninteractive.qs --output nonInteractive.qs
+
+      - name: Install Qt
+        if: steps.qt-cached.outputs.cache-hit != 'true'
+        shell: cmd
+        run: installer.exe -v --script nonInteractive.qs --silent
+
+      - name: Setup CMake
+        run: |
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.zip -o cmake.zip
+          unzip cmake.zip
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+          architecture: x86
+
+      - name: Setup zlib
+        run: |
+          mkdir zlib
+          cd zlib
+          curl -L https://downloads.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
+          curl -L https://downloads.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip -o zliblibs.zip
+          unzip zlib.zip
+          unzip zliblibs.zip
+
+      - name: Setup OpenSSL
+        run: |
+          mkdir OpenSSL
+          cd OpenSSL
+          curl -L https://github.com/IndySockets/OpenSSL-Binaries/raw/master/Archive/openssl-1.0.2g-i386-win32.zip -o OpenSSL.zip
+          unzip OpenSSL.zip
+
+      - name: Build
+        shell: cmd
+        if: steps.build-cached.outputs.cache-hit != 'true'
+        run: |
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
+          set PATH=%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
+          set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
+          set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
+          set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
+          mkdir build
+          cd build
+          copy D:\Qt\Tools\mingw492_32\bin\mingw32-make.exe D:\Qt\Tools\mingw492_32\bin\make.exe
+          cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked" -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/win32/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=win-bundle -DMultiMC_VERSION_BUILD=2065 -DMultiMC_VERSION_CHANNEL=refs/heads/develop -DMultiMC_BUILD_PLATFORM=win32 -G "MinGW Makefiles" ..
+
+      - name: Compile
+        shell: cmd
+        run: |
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
+          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
+          set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
+          set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
+          cd build
+          mingw32-make tcversion
+          mingw32-make -j%NUMBER_OF_PROCESSORS%
+
+      - name: Test
+        shell: cmd
+        run: |
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
+          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
+          set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
+          set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
+          cd build
+          mingw32-make test
+          cmake -E remove_directory "D:/MultiMC-Cracked"
+
+      - name: Install
+        shell: cmd
+        run: |
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
+          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
+          set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
+          set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
+          cd build
+          mingw32-make install
+
+      - name: Copy OpenSSL
+        shell: cmd
+        run: |
+          cp OpenSSL/ssleay32.dll D:/MultiMC-Cracked/ssleay32.dll
+          cp OpenSSL/libeay32.dll D:/MultiMC-Cracked/libeay32.dll
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: MultiMC5-Cracked-Windows
+          path: "D:/MultiMC-Cracked"
