@@ -30,10 +30,14 @@ jobs:
           mkdir MultiMC
           git clone --recursive https://github.com/Sebastian-byte/MultiMC5-Cracked.git src
 
-      - name: Compile
+      - name: Build
         run: |
           cd ~/MultiMC/build
           cmake -DCMAKE_INSTALL_PREFIX=../MultiMC -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=2064 -DMultiMC_BUILD_PLATFORM=lin64 ../src
+
+      - name: Compile
+        run: |
+          cd ~/MultiMC/build
           make tcversion
           make -j$(nproc)
 
