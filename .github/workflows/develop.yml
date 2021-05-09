@@ -168,12 +168,21 @@ jobs:
         run: |
           cd build
           mingw32-make install -j4
+          
+      - name: delete x64 dlls
+        shell: cmd
+        run: |
+          del D:/MultiMC-Cracked/api-ms*
+          del D:/MultiMC-Cracked/VCRUNTIME140.dll
+          REM del D:/MultiMC-Cracked/libssp-0.dll
+          del D:/MultiMC-Cracked/zlib1.dll     
       
-      - name: Copy OpenSSL dll to install dir
+      - name: Copy missing dlls to install dir
         shell: cmd
         run: |
           cp OpenSSL/ssleay32.dll D:/MultiMC-Cracked/ssleay32.dll
           cp OpenSSL/libeay32.dll D:/MultiMC-Cracked/libeay32.dll
+          cp zlib/bin/zlib1.dll D:/MultiMC-Cracked/zlib1.dll
       
       - name: Generate build number
         id: buildnumber
