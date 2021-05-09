@@ -52,7 +52,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.3
         with:
-          name: MultiMC5-Cracked-Linux
+          name: MultiMC5-Cracked-Linux-${{ github.run_number }}
           path: /home/runner/MultiMC/MultiMC
 
   build-windows:
@@ -192,5 +192,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.3
         with:
-          name: MultiMC5-Cracked-Windows
+          name: MultiMC5-Cracked-Portable-win32-${{ github.run_number }}
           path: "D:/MultiMC-Cracked"
