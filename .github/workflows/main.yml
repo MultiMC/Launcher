@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 1
 
@@ -49,7 +49,7 @@ jobs:
           make install
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.2.3
         with:
           name: MultiMC5-Cracked-Linux
           path: /home/runner/MultiMC/MultiMC
@@ -59,7 +59,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 1
 
@@ -67,7 +67,7 @@ jobs:
         run: git submodule update --init
 
       - name: Create QtAccount File
-        uses: DamianReeves/write-file-action@v1.0
+        uses: DamianReeves/write-file-action
         if: steps.qt-cached.outputs.cache-hit != 'true'
         with:
           path: "C:\\Users\\runneradmin\\AppData\\Roaming\\Qt\\qtaccount.ini"
@@ -102,9 +102,9 @@ jobs:
         run: installer.exe -v --script nonInteractive.qs --silent
 
       - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1.9
-        with:
-          use-32bit: 'true'
+        run: |
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.zip -o cmake.zip
+          unzip cmake.zip
 
       - name: Setup JDK
         uses: actions/setup-java@v2
@@ -117,10 +117,8 @@ jobs:
         run: |
           mkdir zlib
           cd zlib
-          curl -L https://razaoinfo.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
-          curl -L https://ufpr.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip -o zliblibs.zip
+          curl -L https://downloads.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
           unzip zlib.zip
-          unzip zliblibs.zip
           cd ..
 
       - name: Setup OpenSSL
@@ -181,6 +179,12 @@ jobs:
         run: |
           cd build
           mingw32-make install
+
+      - name: Copy OpenSSL
+        shell: cmd
+        run: |
+          cp OpenSSL/ssleay32.dll D:/MultiMC-Cracked/ssleay32.dll
+          cp OpenSSL/libeay32.dll D:/MultiMC-Cracked/libeay32.dll
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.3
