@@ -78,14 +78,14 @@ jobs:
           installer.exe -v --script nonInteractive.qs --silent
           
       - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1.9
-        with:
-          use-32bit: 'true'
+        #uses: jwlawson/actions-setup-cmake@v1.9
+        #with:
+          #use-32bit: 'true'
           
-        #run: |
-        #  curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.zip -o cmake.zip
-        #  unzip cmake.zip
-        #  dir cmake-3.20.2-windows-i386/bin
+        run: |
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2-windows-i386.zip -o cmake.zip
+          unzip cmake.zip
+          dir cmake-3.20.2-windows-i386/bin
       
       - name: Setup JDK
         uses: actions/setup-java@v2
@@ -117,7 +117,7 @@ jobs:
       - name: Setup PATH
         shell: cmd
         run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           REM set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
@@ -139,7 +139,7 @@ jobs:
         shell: cmd
         if: steps.build-cached.outputs.cache-hit != 'true'
         run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
@@ -155,7 +155,7 @@ jobs:
       - name: make
         shell: cmd
         run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;%PATH%
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
@@ -172,9 +172,8 @@ jobs:
       - name: Copy OpenSSL dll to install dir
         shell: cmd
         run: |
-          cd OpenSSL
-          copy ssleay32.dll D:/MultiMC-Cracked/ssleay32.dll
-          copy libeay32.dll D:/MultiMC-Cracked/libeay32.dll
+          cp OpenSSL/ssleay32.dll D:/MultiMC-Cracked/ssleay32.dll
+          cp OpenSSL/libeay32.dll D:/MultiMC-Cracked/libeay32.dll
       
       - name: Generate build number
         id: buildnumber
