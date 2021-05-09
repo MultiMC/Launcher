@@ -172,7 +172,11 @@ jobs:
       - name: delete x64 dlls
         shell: cmd
         run: |
-          rm D:/MultiMC-Cracked/api-ms*
+          del D:/MultiMC-Cracked/api-ms-win-crt-convert-l1-1-0.dll
+          del D:/MultiMC-Cracked/api-ms-win-crt-heap-l1-1-0.dll
+          del D:/MultiMC-Cracked/api-ms-win-crt-runtime-l1-1-0.dll
+          del D:/MultiMC-Cracked/api-ms-win-crt-stdio-l1-1-0.dll
+          del D:/MultiMC-Cracked/api-ms-win-crt-string-l1-1-0.dll
           del D:/MultiMC-Cracked/VCRUNTIME140.dll
           REM del D:/MultiMC-Cracked/libssp-0.dll
           del D:/MultiMC-Cracked/zlib1.dll     
