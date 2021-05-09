@@ -172,7 +172,7 @@ jobs:
       - name: delete x64 dlls
         shell: cmd
         run: |
-          del D:/MultiMC-Cracked/api-ms*
+          rm D:/MultiMC-Cracked/api-ms*
           del D:/MultiMC-Cracked/VCRUNTIME140.dll
           REM del D:/MultiMC-Cracked/libssp-0.dll
           del D:/MultiMC-Cracked/zlib1.dll     
