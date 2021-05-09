@@ -3,7 +3,9 @@ This software is not related to MultiMC developers and provided without any warr
 
 ## Pre-built binaries (experimental as for now):
 - Windows: ![MultiMC5-Cracked Develop](https://github.com/PibePlayer/MultiMC5-Cracked/actions/workflows/develop.yml/badge.svg) 
+
     [nightly.link lastest-build](https://nightly.link/PibePlayer/MultiMC5-Cracked/workflows/develop/develop/MultiMC5-Cracked-Portable-win32-8.zip)
+  
     [In-House OAuthApp lastest-build](https://pibeplayer.github.io/MultiMC5-Cracked/download-lastest/index.html)
     
     Old:   https://drive.google.com/file/d/1erbFNd_BFZ5Wd9qZqp6mU9vl3tbNBiep/view?usp=sharing
