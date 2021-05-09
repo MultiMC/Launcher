@@ -69,6 +69,7 @@ void LaunchController::login()
                "account logged in to MultiMC."
                "Would you like to open the account manager to add an account now?"),
             QMessageBox::Information, QMessageBox::Yes | QMessageBox::No)->exec();
+
         if (reply == QMessageBox::Yes)
         {
             // Open the account manager.
@@ -80,19 +81,24 @@ void LaunchController::login()
         // If no default account is set, ask the user which one to use.
         ProfileSelectDialog selectDialog(tr("Which profile would you like to use?"),
                                          ProfileSelectDialog::GlobalDefaultCheckbox, m_parentWidget);
+
         selectDialog.exec();
+
         // Launch the instance with the selected account.
         account = selectDialog.selectedAccount();
+
         // If the user said to use the account as default, do that.
         if (selectDialog.useAsGlobalDefault() && account.get() != nullptr)
             accounts->setActiveAccount(account->username());
     }
+
     // if no account is selected, we bail
     if (!account.get())
     {
         emitFailed(tr("No account selected for launch."));
         return;
     }
+
     // we try empty password first :)
     QString password;
     // we loop until the user succeeds in logging in or gives up
@@ -100,6 +106,7 @@ void LaunchController::login()
     // the failure. the default failure.
     const QString needLoginAgain = tr("Your account is currently not logged in. Please enter your password to log in again. <br /> <br /> This could be caused by a password change.");
     QString failReason = needLoginAgain;
+
     while (tryagain)
     {
         m_session = std::make_shared<AuthSession>();
@@ -149,6 +156,7 @@ void LaunchController::login()
                 }
                 return toChop;
             };
+
             if(username.contains('@'))
             {
                 auto parts = username.split('@');
