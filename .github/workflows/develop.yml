@@ -98,8 +98,8 @@ jobs:
         run: |
           mkdir zlib
           cd zlib
-          curl -L https://razaoinfo.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
-          curl -L https://ufpr.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip -o zliblibs.zip
+          curl -L https://downloads.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip -o zlib.zip
+          curl -L https://downloads.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip -o zliblibs.zip
           unzip zlib.zip
           unzip zliblibs.zip
           cd ..
