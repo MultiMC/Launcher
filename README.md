@@ -1,7 +1,7 @@
 **This is a "cracked" version of a popular Minecraft launcher that lets you play the game without a Mojang account.**
 This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
 
-## Pre-built binaries (experimental as for now):
+## Pre-built binaries:
 - Windows: https://drive.google.com/file/d/18r8e5ur_hXmsxhvv-Jj4XWLUrUd6FtnC/view?usp=sharing
 - Linux x64: https://drive.google.com/file/d/1EkW9E4o7BI3YRhFpGV0NQ8KAKqICM2Jn/view?usp=sharing
 - MacOS: https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
