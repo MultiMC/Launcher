@@ -37,71 +37,15 @@ void LaunchController::login()
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
     // Mojang account login bypass
-    //bool ok = false;
-
+    bool ok = false;
     QString usedname = "Player";
-    QString name; /*= QInputDialog::getText(m_parentWidget, tr("Player name"),
+    QString name = QInputDialog::getText(m_parentWidget, tr("Player name"),
                                          tr("Choose your offline mode player name."),
                                          QLineEdit::Normal, "Player", &ok);
-                                         */
-    QFile namesFile;
-    namesFile.setFileName("names.txt");
-    if(!namesFile.exists()) {
-        namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
-        namesFile.write("Player");
-        namesFile.close();
-        qDebug() << "Wrote default \"names.txt\" since it didn't exist";
-    }
-    namesFile.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QInputDialog nameSelector;
-    QStringList names;
-
-    while(!namesFile.atEnd()) {
-        names += namesFile.readLine().simplified();
-    }
-    namesFile.close();
-
-    //names << "Test1" << "Test2" << "New Entry...";
-    //nameSelector.setOption(QInputDialog::UseListViewForComboBoxItems); //In case we want to use a list instead of a combobox
-    nameSelector.setComboBoxItems(names);
-    nameSelector.setComboBoxEditable(true);
-    nameSelector.setWindowTitle("Select Username...");
-
-    if(nameSelector.exec() == QDialog::Accepted) {
-        name = nameSelector.textValue();
-        if(name != names[0]) {
-            namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
-            QTextStream writer(&namesFile);
-            writer << name.toUtf8();
-            if(!names.contains(name)) {
-                for(int i = 0; i < names.count(); i++) {
-                    writer << "\n" << names[i].toUtf8();
-                    //namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
-                }
-                qDebug() << "Wrote " << name << " to \"names.txt\" since it didn't exist before";
-            } else {
-                for(int i = 0; i < names.count(); i++) { //TODO: Improve efficiency or find a better way to do this
-                    if(names[i] != name) {
-                        //namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
-                        writer << "\n" << names[i].toUtf8();
-                    }
-                    qDebug() << "Reordered \"names.txt\"";
-                }
-            }
-            namesFile.flush();
-            namesFile.close();
-        }
-    } else {
-        return;
-    }
-    qDebug() << "Username Selected: " << name;
-
-    /*if (!ok)
+    if (!ok)
     {
         return;
-    }*/
-
+    }
     if (name.length())
     {
         usedname = name;
@@ -125,7 +69,6 @@ void LaunchController::login()
                "account logged in to MultiMC."
                "Would you like to open the account manager to add an account now?"),
             QMessageBox::Information, QMessageBox::Yes | QMessageBox::No)->exec();
-
         if (reply == QMessageBox::Yes)
         {
             // Open the account manager.
@@ -137,24 +80,19 @@ void LaunchController::login()
         // If no default account is set, ask the user which one to use.
         ProfileSelectDialog selectDialog(tr("Which profile would you like to use?"),
                                          ProfileSelectDialog::GlobalDefaultCheckbox, m_parentWidget);
-
         selectDialog.exec();
-
         // Launch the instance with the selected account.
         account = selectDialog.selectedAccount();
-
         // If the user said to use the account as default, do that.
         if (selectDialog.useAsGlobalDefault() && account.get() != nullptr)
             accounts->setActiveAccount(account->username());
     }
-
     // if no account is selected, we bail
     if (!account.get())
     {
         emitFailed(tr("No account selected for launch."));
         return;
     }
-
     // we try empty password first :)
     QString password;
     // we loop until the user succeeds in logging in or gives up
@@ -162,7 +100,6 @@ void LaunchController::login()
     // the failure. the default failure.
     const QString needLoginAgain = tr("Your account is currently not logged in. Please enter your password to log in again. <br /> <br /> This could be caused by a password change.");
     QString failReason = needLoginAgain;
-
     while (tryagain)
     {
         m_session = std::make_shared<AuthSession>();
@@ -212,7 +149,6 @@ void LaunchController::login()
                 }
                 return toChop;
             };
-
             if(username.contains('@'))
             {
                 auto parts = username.split('@');
