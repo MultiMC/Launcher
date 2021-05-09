@@ -169,6 +169,13 @@ jobs:
           cd build
           mingw32-make install -j4
       
+      - name: Copy OpenSSL dll to install dir
+        shell: cmd
+        run: |
+          cd OpenSSL
+          copy ssleay32.dll D:/MultiMC-Cracked/ssleay32.dll
+          copy libeay32.dll D:/MultiMC-Cracked/libeay32.dll
+      
       - name: Generate build number
         id: buildnumber
         uses: einaregilsson/build-number@v3 
