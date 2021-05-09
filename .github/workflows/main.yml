@@ -96,7 +96,7 @@ jobs:
         if: steps.qt-cached.outputs.cache-hit != 'true'
         run: curl https://gist.githubusercontent.com/PibePlayer/cf6bd0a9f7e4d51e3e618ceedfba4b94/raw/09cb1415952b914f1567ce935d4618c396aec340/qt-installer-noninteractive.qs --output nonInteractive.qs
 
-      - name: Install Qt 5.6.3
+      - name: Install Qt
         if: steps.qt-cached.outputs.cache-hit != 'true'
         shell: cmd
         run: installer.exe -v --script nonInteractive.qs --silent
@@ -121,7 +121,6 @@ jobs:
           curl -L https://downloads.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-lib.zip -o zliblibs.zip
           unzip zlib.zip
           unzip zliblibs.zip
-          cd ..
 
       - name: Setup OpenSSL
         run: |
@@ -129,7 +128,6 @@ jobs:
           cd OpenSSL
           curl -L https://github.com/IndySockets/OpenSSL-Binaries/raw/master/Archive/openssl-1.0.2g-i386-win32.zip -o OpenSSL.zip
           unzip OpenSSL.zip
-          cd ..
 
       - name: Build
         shell: cmd
