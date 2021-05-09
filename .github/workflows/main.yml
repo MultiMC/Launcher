@@ -172,6 +172,12 @@ jobs:
       - name: Test
         shell: cmd
         run: |
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;
+          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
+          set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
+          set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make test
           cmake -E remove_directory "D:/MultiMC-Cracked"
@@ -179,6 +185,12 @@ jobs:
       - name: Install
         shell: cmd
         run: |
+          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;
+          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
+          set PATH=%CD%\OpenSSL;%PATH%
+          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
+          set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
+          set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make install
 
