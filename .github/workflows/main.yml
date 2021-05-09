@@ -67,7 +67,7 @@ jobs:
         run: git submodule update --init
 
       - name: Create QtAccount File
-        uses: DamianReeves/write-file-action
+        uses: DamianReeves/write-file-action@v1.0
         if: steps.qt-cached.outputs.cache-hit != 'true'
         with:
           path: "C:\\Users\\runneradmin\\AppData\\Roaming\\Qt\\qtaccount.ini"
