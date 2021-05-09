@@ -29,9 +29,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
+          submodules: 'recursive'
           
-      - name: Checkout submodules
-        run: git submodule update --init
+      #- name: Checkout submodules
+        #run: git submodule update --init
           
       - name: Creates QtAccount File
         uses: DamianReeves/write-file-action@v1.0
@@ -114,18 +115,6 @@ jobs:
           cd ..
           pwd
           
-      - name: Setup PATH
-        shell: cmd
-        run: |
-          set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;
-          set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
-          set PATH=%CD%\OpenSSL;%PATH%
-          REM set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
-          set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          java -version
-          cmake --version
-          openssl version
-          
       #- name: build cache
       #  uses: actions/cache@v2.1.5
       #  id: build-cached
@@ -135,7 +124,7 @@ jobs:
           # An explicit key for restoring and saving the cache
       #    key: ${{ runner.os }}-MultiMC-build
           
-      - name: build
+      - name: Build
         shell: cmd
         if: steps.build-cached.outputs.cache-hit != 'true'
         run: |
@@ -150,9 +139,9 @@ jobs:
           mkdir build
           cd build
           copy D:/Qt/Tools/mingw492_32\bin\mingw32-make.exe D:/Qt/Tools/mingw492_32\bin\make.exe
-          cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\
+          cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=win-bundle -DMultiMC_VERSION_BUILD=2100 -DMultiMC_VERSION_CHANNEL=refs/heads/develop -DMultiMC_BUILD_PLATFORM=win32 -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=D:/MultiMC-Cracked ..\
           
-      - name: make
+      - name: Compile
         shell: cmd
         run: |
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:/Qt/Tools/mingw492_32\bin;
@@ -161,32 +150,39 @@ jobs:
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
           set PATH=%CD%\cmake-3.20.2-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
-          cd build && dir && mingw32-make -j12
+          cd build
+          mingw32-make tcversion
+          mingw32-make -j12
+          
+      - name: Test
+        run: |
+          cd build
+          make test
           
       - name: install
         shell: cmd
         run: |
           cd build
-          mingw32-make install -j4
+          mingw32-make install
           
-      - name: delete x64 dlls
-        shell: cmd
-        run: |
-          rm D:/MultiMC-Cracked/api-ms-win-crt-convert-l1-1-0.dll
-          rm D:/MultiMC-Cracked/api-ms-win-crt-heap-l1-1-0.dll
-          rm D:/MultiMC-Cracked/api-ms-win-crt-runtime-l1-1-0.dll
-          rm D:/MultiMC-Cracked/api-ms-win-crt-stdio-l1-1-0.dll
-          rm D:/MultiMC-Cracked/api-ms-win-crt-string-l1-1-0.dll
-          rm D:/MultiMC-Cracked/VCRUNTIME140.dll
-          REM rm D:/MultiMC-Cracked/libssp-0.dll
-          rm D:/MultiMC-Cracked/zlib1.dll     
+      #- name: delete x64 dlls
+        #shell: cmd
+        #run: |
+        #  rm D:/MultiMC-Cracked/api-ms-win-crt-convert-l1-1-0.dll
+        #  rm D:/MultiMC-Cracked/api-ms-win-crt-heap-l1-1-0.dll
+        #  rm D:/MultiMC-Cracked/api-ms-win-crt-runtime-l1-1-0.dll
+        #  rm D:/MultiMC-Cracked/api-ms-win-crt-stdio-l1-1-0.dll
+        #  rm D:/MultiMC-Cracked/api-ms-win-crt-string-l1-1-0.dll
+        #  rm D:/MultiMC-Cracked/VCRUNTIME140.dll
+        #  REM rm D:/MultiMC-Cracked/libssp-0.dll
+        #  rm D:/MultiMC-Cracked/zlib1.dll     
       
       - name: Copy missing dlls to install dir
         shell: cmd
         run: |
           cp OpenSSL/ssleay32.dll D:/MultiMC-Cracked/ssleay32.dll
           cp OpenSSL/libeay32.dll D:/MultiMC-Cracked/libeay32.dll
-          cp zlib/bin/zlib1.dll D:/MultiMC-Cracked/zlib1.dll
+          REM cp zlib/bin/zlib1.dll D:/MultiMC-Cracked/zlib1.dll
       
       - name: Generate build number
         id: buildnumber
