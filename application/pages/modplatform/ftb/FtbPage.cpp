@@ -7,6 +7,7 @@
 #include "modplatform/modpacksch/FTBPackInstallTask.h"
 
 #include "HoeDown.h"
+#include "FtbFlaggedModsDialog.h"
 
 FtbPage::FtbPage(NewInstanceDialog* dialog, QWidget *parent)
         : QWidget(parent), ui(new Ui::FtbPage), dialog(dialog)
@@ -68,7 +69,7 @@ void FtbPage::suggestCurrent()
 {
     if(isOpened)
     {
-        dialog->setSuggestedPack(selected.name, new ModpacksCH::PackInstallTask(selected, selectedVersion));
+        dialog->setSuggestedPack(selected.name, new ModpacksCH::PackInstallTask(this, selected, selectedVersion));
 
         for(auto art : selected.art) {
             if(art.type == "square") {
@@ -132,4 +133,9 @@ void FtbPage::onVersionSelectionChanged(QString data)
 
     selectedVersion = data;
     suggestCurrent();
+}
+
+void FtbPage::showFlaggedModsDialog(QVector<ModpacksCH::FlaggedMod> mods) {
+    FtbFlaggedModsDialog flagDialog(this, mods);
+    flagDialog.exec();
 }

@@ -19,6 +19,7 @@
 #include "FtbListModel.h"
 
 #include <QWidget>
+#include <modplatform/modpacksch/FTBPackInstallTask.h>
 
 #include "MultiMC.h"
 #include "pages/BasePage.h"
@@ -31,7 +32,7 @@ namespace Ui
 
 class NewInstanceDialog;
 
-class FtbPage : public QWidget, public BasePage
+class FtbPage : public QWidget, public BasePage, public ModpacksCH::UserInteractionSupport
 {
 Q_OBJECT
 
@@ -62,6 +63,8 @@ public:
 
 private:
     void suggestCurrent();
+
+    void showFlaggedModsDialog(QVector<ModpacksCH::FlaggedMod> mods) override;
 
 private slots:
     void triggerSearch();

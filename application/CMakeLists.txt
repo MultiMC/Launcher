@@ -134,6 +134,10 @@ SET(MULTIMC_SOURCES
 
     pages/modplatform/ftb/FtbFilterModel.cpp
     pages/modplatform/ftb/FtbFilterModel.h
+    pages/modplatform/ftb/FtbFlaggedModsDialog.cpp
+    pages/modplatform/ftb/FtbFlaggedModsDialog.h
+    pages/modplatform/ftb/FtbFlaggedModsListModel.cpp
+    pages/modplatform/ftb/FtbFlaggedModsListModel.h
     pages/modplatform/ftb/FtbListModel.cpp
     pages/modplatform/ftb/FtbListModel.h
     pages/modplatform/ftb/FtbPage.cpp
@@ -292,6 +296,9 @@ SET(MULTIMC_UIS
     dialogs/UpdateDialog.ui
     dialogs/NotificationDialog.ui
     dialogs/SkinUploadDialog.ui
+
+    # Platform Dialogs
+    pages/modplatform/ftb/FtbFlaggedModsDialog.ui
 
     # Widgets/other
     widgets/CustomCommands.ui

@@ -9,8 +9,9 @@
 
 namespace ModpacksCH {
 
-PackInstallTask::PackInstallTask(Modpack pack, QString version)
+PackInstallTask::PackInstallTask(UserInteractionSupport *support, Modpack pack, QString version)
 {
+    m_support = support;
     m_pack = pack;
     m_version_name = version;
 }
@@ -173,6 +174,59 @@ void PackInstallTask::install()
     instance.setName(m_instName);
     instance.setIconKey(m_instIcon);
     instanceSettings->resumeSave();
+
+    // flag certain mods
+    QDir modsDir(FS::PathCombine(m_stagingPath, "minecraft", "mods"));
+    if (modsDir.exists()) {
+        QVector<ModpacksCH::FlaggedMod> flaggedMods;
+
+        for (const auto& info : modsDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files)) {
+            // FTB Auxilium
+            if (info.fileName().startsWith("ftbauxilium") && info.fileName().endsWith(".jar")) {
+                flaggedMods.append(ModpacksCH::FlaggedMod {
+                    info.absoluteFilePath(),
+                    "FTB Auxilium",
+                    tr("Sends system information, crash reports, and when you join/quit singleplayer or multiplayer sessions to FTB's servers."),
+                    tr("Tracking")
+                });
+            }
+
+            // MCMC
+            if (info.fileName().startsWith("mcmc") && info.fileName().endsWith(".jar")) {
+                flaggedMods.append(ModpacksCH::FlaggedMod {
+                    info.absoluteFilePath(),
+                    "MCMC",
+                    tr("Sends system information, crash reports, and when you join/quit singleplayer or multiplayer sessions to MCMC's servers."),
+                    tr("Tracking")
+                });
+            }
+
+            // MineTogether
+            if (info.fileName().startsWith("minetogether") && info.fileName().endsWith(".jar")) {
+                flaggedMods.append(ModpacksCH::FlaggedMod {
+                    info.absoluteFilePath(),
+                    "MineTogether",
+                    tr("Provides global game chat, and advertises CreeperHost services in the multiplayer screen."),
+                    tr("Advertising")
+                });
+            }
+
+            // SimpleDiscordRichPresence
+            if (info.fileName().startsWith("SimpleDiscordRichPresence") && info.fileName().endsWith(".jar")) {
+                flaggedMods.append(ModpacksCH::FlaggedMod {
+                    info.absoluteFilePath(),
+                    "SimpleDiscordRichPresence",
+                    tr("Shares game state with Discord, if installed."),
+                    tr("Tracking")
+                });
+            }
+        }
+
+        qInfo() << "Flagged" << flaggedMods.size() << "mods";
+        if (!flaggedMods.isEmpty()) {
+            m_support->showFlaggedModsDialog(flaggedMods);
+        }
+    }
 
     emitSucceeded();
 }

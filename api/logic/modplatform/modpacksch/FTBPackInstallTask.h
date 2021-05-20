@@ -8,12 +8,39 @@
 
 namespace ModpacksCH {
 
+struct MULTIMC_LOGIC_EXPORT FlaggedMod {
+    QString fileName;
+
+    /**
+     * The name of the mod.
+     */
+    QString modName;
+    /**
+     * A description of the mod's purpose, and why a user may want to enable the mod.
+     */
+    QString modDescription;
+
+    /**
+     * The reason the mod was flagged, this should be plain-and-simple.
+     * <p>
+     * Examples may include: 'Tracking' or 'Advertising'
+     */
+    QString flagReason;
+};
+
+class MULTIMC_LOGIC_EXPORT UserInteractionSupport {
+
+public:
+    virtual void showFlaggedModsDialog(QVector<FlaggedMod> mods) = 0;
+
+};
+
 class MULTIMC_LOGIC_EXPORT PackInstallTask : public InstanceTask
 {
     Q_OBJECT
 
 public:
-    explicit PackInstallTask(Modpack pack, QString version);
+    explicit PackInstallTask(UserInteractionSupport *support, Modpack pack, QString version);
     virtual ~PackInstallTask(){}
 
     bool abort() override;
@@ -30,6 +57,8 @@ private:
     void install();
 
 private:
+    UserInteractionSupport *m_support;
+
     NetJobPtr jobPtr;
     QByteArray response;
 
