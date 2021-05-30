@@ -38,6 +38,7 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
         return nullptr;
     }
 
+    QString loginType = object.value("loginType").toString("mojang");
     QString username = object.value("username").toString("");
     QString clientToken = object.value("clientToken").toString("");
     QString accessToken = object.value("accessToken").toString("");
@@ -82,6 +83,7 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
         */
         account->m_user = u;
     }
+    account->m_loginType = loginType;
     account->m_username = username;
     account->m_clientToken = clientToken;
     account->m_accessToken = accessToken;
@@ -106,6 +108,7 @@ MojangAccountPtr MojangAccount::createFromUsername(const QString &username)
 QJsonObject MojangAccount::saveToJson() const
 {
     QJsonObject json;
+    json.insert("loginType", m_loginType);
     json.insert("username", m_username);
     json.insert("clientToken", m_clientToken);
     json.insert("accessToken", m_accessToken);
@@ -173,6 +176,15 @@ AccountStatus MojangAccount::accountStatus() const
 std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QString password)
 {
     Q_ASSERT(m_currentTask.get() == nullptr);
+
+    // Handling alternative account types
+    if (m_loginType == "dummy")
+    {
+        session->status = AuthSession::PlayableOffline;
+        session->auth_server_online = false;
+        fillSession(session);
+        return nullptr;
+    }
 
     // take care of the true offline status
     if (accountStatus() == NotVerified && password.isEmpty())

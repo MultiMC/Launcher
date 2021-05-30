@@ -99,6 +99,11 @@ public: /* manipulation */
     void invalidateClientToken();
 
 public: /* queries */
+    const QString &loginType() const
+    {
+        return m_loginType;
+    }
+
     const QString &username() const
     {
         return m_username;
@@ -139,6 +144,11 @@ signals:
     // TODO: better signalling for the various possible state changes - especially errors
 
 protected: /* variables */
+    // Authentication system used.
+    // Usable values: "mojang", "dummy"
+    QString m_loginType;
+
+    // Username taken by account.
     QString m_username;
 
     // Used to identify the client - the user can have multiple clients for the same account
