@@ -43,14 +43,17 @@ void LoginDialog::accept()
 
     // Setup the login task and start it
     m_account = MojangAccount::createFromUsername(ui->userTextBox->text());
-    m_account->setLoginType("dummy"); // TODO: Add the login type selector
+    if (ui->radioMojang->isChecked())
+        m_account->setLoginType("mojang");
+    else if (ui->radioDummy->isChecked())
+        m_account->setLoginType("dummy");
     m_loginTask = m_account->login(nullptr, ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &LoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this,
             &LoginDialog::onTaskSucceeded);
     connect(m_loginTask.get(), &Task::status, this, &LoginDialog::onTaskStatus);
     connect(m_loginTask.get(), &Task::progress, this, &LoginDialog::onTaskProgress);
-    if (true)
+    if (!m_loginTask)
     {
         onTaskSucceeded();
     } else {
