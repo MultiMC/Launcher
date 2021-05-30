@@ -145,6 +145,17 @@ QJsonObject MojangAccount::saveToJson() const
     return json;
 }
 
+bool MojangAccount::setLoginType(const QString &loginType)
+{
+    // TODO: Implement a cleaner validity check
+    if (loginType == "mojang" or loginType == "dummy")
+    {
+        m_loginType = loginType;
+        return true;
+    }
+    return false;
+}
+
 bool MojangAccount::setCurrentProfile(const QString &profileId)
 {
     for (int i = 0; i < m_profiles.length(); i++)
@@ -180,9 +191,12 @@ std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QStr
     // Handling alternative account types
     if (m_loginType == "dummy")
     {
-        session->status = AuthSession::PlayableOffline;
-        session->auth_server_online = false;
-        fillSession(session);
+        if (session)
+        {
+            session->status = AuthSession::PlayableOnline;
+            session->auth_server_online = false;
+            fillSession(session);
+        }
         return nullptr;
     }
 
@@ -292,7 +306,7 @@ void MojangAccount::fillSession(AuthSessionPtr session)
     }
     else
     {
-        session->player_name = "Player";
+        session->player_name = m_username;
         session->session = "-";
     }
     session->u = user();
