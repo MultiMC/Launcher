@@ -195,6 +195,15 @@ std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QStr
         {
             session->status = AuthSession::PlayableOnline;
             session->auth_server_online = false;
+            if (!currentProfile())
+            {
+                // TODO: Proper profile support (idk how)
+                auto dummyProfile = AccountProfile();
+                dummyProfile.name = m_username;
+                dummyProfile.id = "-";
+                m_profiles.append(dummyProfile);
+                m_currentProfile = 0;
+            }
             fillSession(session);
         }
         return nullptr;
