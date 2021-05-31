@@ -38,6 +38,7 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
         return nullptr;
     }
 
+    QString loginType = object.value("loginType").toString("mojang");
     QString username = object.value("username").toString("");
     QString clientToken = object.value("clientToken").toString("");
     QString accessToken = object.value("accessToken").toString("");
@@ -82,6 +83,7 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
         */
         account->m_user = u;
     }
+    account->m_loginType = loginType;
     account->m_username = username;
     account->m_clientToken = clientToken;
     account->m_accessToken = accessToken;
@@ -106,6 +108,7 @@ MojangAccountPtr MojangAccount::createFromUsername(const QString &username)
 QJsonObject MojangAccount::saveToJson() const
 {
     QJsonObject json;
+    json.insert("loginType", m_loginType);
     json.insert("username", m_username);
     json.insert("clientToken", m_clientToken);
     json.insert("accessToken", m_accessToken);
@@ -142,6 +145,17 @@ QJsonObject MojangAccount::saveToJson() const
     return json;
 }
 
+bool MojangAccount::setLoginType(const QString &loginType)
+{
+    // TODO: Implement a cleaner validity check
+    if (loginType == "mojang" or loginType == "dummy")
+    {
+        m_loginType = loginType;
+        return true;
+    }
+    return false;
+}
+
 bool MojangAccount::setCurrentProfile(const QString &profileId)
 {
     for (int i = 0; i < m_profiles.length(); i++)
@@ -173,6 +187,27 @@ AccountStatus MojangAccount::accountStatus() const
 std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QString password)
 {
     Q_ASSERT(m_currentTask.get() == nullptr);
+
+    // Handling alternative account types
+    if (m_loginType == "dummy")
+    {
+        if (session)
+        {
+            session->status = AuthSession::PlayableOnline;
+            session->auth_server_online = false;
+            fillSession(session);
+        }
+        if (!currentProfile())
+        {
+            // TODO: Proper profile support (idk how)
+            auto dummyProfile = AccountProfile();
+            dummyProfile.name = m_username;
+            dummyProfile.id = "-";
+            m_profiles.append(dummyProfile);
+            m_currentProfile = 0;
+        }
+        return nullptr;
+    }
 
     // take care of the true offline status
     if (accountStatus() == NotVerified && password.isEmpty())
@@ -280,7 +315,7 @@ void MojangAccount::fillSession(AuthSessionPtr session)
     }
     else
     {
-        session->player_name = "Player";
+        session->player_name = m_username;
         session->session = "-";
     }
     session->u = user();

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>162</height>
+    <height>219</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -59,6 +59,30 @@
       <bool>false</bool>
      </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="radioLayout">
+     <item>
+      <widget class="QRadioButton" name="radioMojang">
+       <property name="text">
+        <string>Mojang / Minecraft</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioDummy">
+       <property name="text">
+        <string>Offline (cracked)</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

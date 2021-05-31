@@ -43,13 +43,22 @@ void LoginDialog::accept()
 
     // Setup the login task and start it
     m_account = MojangAccount::createFromUsername(ui->userTextBox->text());
+    if (ui->radioMojang->isChecked())
+        m_account->setLoginType("mojang");
+    else if (ui->radioDummy->isChecked())
+        m_account->setLoginType("dummy");
     m_loginTask = m_account->login(nullptr, ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &LoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this,
             &LoginDialog::onTaskSucceeded);
     connect(m_loginTask.get(), &Task::status, this, &LoginDialog::onTaskStatus);
     connect(m_loginTask.get(), &Task::progress, this, &LoginDialog::onTaskProgress);
-    m_loginTask->start();
+    if (!m_loginTask)
+    {
+        onTaskSucceeded();
+    } else {
+        m_loginTask->start();
+    }
 }
 
 void LoginDialog::setUserInputsEnabled(bool enable)

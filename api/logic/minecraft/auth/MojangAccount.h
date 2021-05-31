@@ -85,6 +85,12 @@ public: /* construction */
 
 public: /* manipulation */
         /**
+     * Overrides the login type on the account.
+     * Accepts "mojang" and "dummy". Returns false if other.
+     */
+    bool setLoginType(const QString &loginType);
+
+    /**
      * Sets the currently selected profile to the profile with the given ID string.
      * If profileId is not in the list of available profiles, the function will simply return
      * false.
@@ -99,6 +105,11 @@ public: /* manipulation */
     void invalidateClientToken();
 
 public: /* queries */
+    const QString &loginType() const
+    {
+        return m_loginType;
+    }
+
     const QString &username() const
     {
         return m_username;
@@ -139,6 +150,11 @@ signals:
     // TODO: better signalling for the various possible state changes - especially errors
 
 protected: /* variables */
+    // Authentication system used.
+    // Usable values: "mojang", "dummy"
+    QString m_loginType;
+
+    // Username taken by account.
     QString m_username;
 
     // Used to identify the client - the user can have multiple clients for the same account
