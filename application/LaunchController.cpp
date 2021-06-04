@@ -215,8 +215,13 @@ void LaunchController::launchInstance()
     connect(m_launcher.get(), &LaunchTask::failed, this,  &LaunchController::onFailed);
     connect(m_launcher.get(), &LaunchTask::requestProgress, this, &LaunchController::onProgressRequested);
 
-
-    m_launcher->prependStep(new TextPrint(m_launcher.get(), "MultiMC version: " + BuildConfig.printableVersionString() + "\n\n", MessageLevel::MultiMC));
+    QString online_mode = "Launching ";
+    if(m_session->wants_online) {
+         online_mode.append("Online");
+    } else {
+        online_mode.append("Offline");
+    }
+    m_launcher->prependStep(new TextPrint(m_launcher.get(), "MultiMC version: " + BuildConfig.printableVersionString() + "\n" + online_mode + "\n\n", MessageLevel::MultiMC));
     m_launcher->start();
 }
 
