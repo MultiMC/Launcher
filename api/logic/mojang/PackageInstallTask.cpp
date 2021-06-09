@@ -16,7 +16,6 @@
 using Package = mojang_files::Package;
 using UpdateOperations = mojang_files::UpdateOperations;
 
-namespace {
 struct PackageInstallTaskData
 {
     QString root;
@@ -35,6 +34,7 @@ struct PackageInstallTaskData
     NetJobPtr mainDownloadJob;
 };
 
+namespace {
 class InspectFolder
 {
 public:

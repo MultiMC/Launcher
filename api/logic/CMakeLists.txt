@@ -315,6 +315,10 @@ set(MINECRAFT_SOURCES
 
     mojang/PackageManifest.h
     mojang/PackageManifest.cpp
+    mojang/ComponentsManifest.h
+    mojang/ComponentsManifest.cpp
+    mojang/Path.h
+    mojang/Path.cpp
     mojang/PackageInstallTask.h
     mojang/PackageInstallTask.cpp
     )
@@ -337,6 +341,23 @@ target_include_directories(PackageManifest
 add_test(
     NAME PackageManifest
     COMMAND PackageManifest
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+
+add_executable(ComponentsManifest
+    mojang/ComponentsManifest_test.cpp
+)
+target_link_libraries(ComponentsManifest
+    MultiMC_logic
+    Qt5::Test
+)
+target_include_directories(ComponentsManifest
+    PRIVATE ../../cmake/UnitTest/
+)
+add_test(
+    NAME ComponentsManifest
+    COMMAND ComponentsManifest
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

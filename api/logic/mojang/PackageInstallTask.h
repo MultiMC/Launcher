@@ -6,9 +6,7 @@
 
 #include <memory>
 
-namespace {
 struct PackageInstallTaskData;
-}
 
 class MULTIMC_LOGIC_EXPORT PackageInstallTask : public Task
 {
@@ -43,7 +41,7 @@ private slots:
     void downloadsFailed(QString reason);
 
 private:
-    std::unique_ptr<::PackageInstallTaskData> d;
+    std::unique_ptr<PackageInstallTaskData> d;
 };
 
 
