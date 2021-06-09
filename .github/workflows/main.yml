@@ -130,7 +130,7 @@ jobs:
         shell: cmd
         if: steps.build-cached.outputs.cache-hit != 'true'
         run: |
-          for /F "tokens=*" %n IN ('curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Windows_Build/builds/status:success/number') DO @(set BUILD_NUM=%n)
+          for /F "tokens=*" %%n IN ('curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Windows_Build/builds/status:success/number') DO @(set BUILD_NUM=%%n)
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
