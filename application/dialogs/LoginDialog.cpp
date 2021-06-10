@@ -47,6 +47,8 @@ void LoginDialog::accept()
         m_account->setLoginType("mojang");
     else if (ui->radioDummy->isChecked())
         m_account->setLoginType("dummy");
+    else if (ui->radioElyby->isChecked())
+        m_account->setLoginType("elyby");
     m_loginTask = m_account->login(nullptr, ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &LoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this,

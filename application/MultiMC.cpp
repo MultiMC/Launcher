@@ -54,6 +54,7 @@
 #include "tools/JProfiler.h"
 #include "tools/JVisualVM.h"
 #include "tools/MCEditTool.h"
+#include "AuthServer.h"
 
 #include <xdgicon.h>
 #include "settings/INISettingsObject.h"
@@ -724,6 +725,11 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         m_mcedit.reset(new MCEditTool(m_settings));
     }
 
+    {
+        m_authserver.reset(new AuthServer(this));
+        qDebug() << "<> Auth server started.";
+    }
+
     connect(this, &MultiMC::aboutToQuit, [this](){
         if(m_instances)
         {
@@ -1102,6 +1108,7 @@ bool MultiMC::launch(
         controller->setOnline(online);
         controller->setProfiler(profiler);
         controller->setServerToJoin(serverToJoin);
+        controller->setAuthserver(m_authserver);
         if(window)
         {
             controller->setParentWidget(window);

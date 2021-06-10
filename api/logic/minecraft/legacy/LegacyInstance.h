@@ -112,7 +112,7 @@ public:
         return false;
     }
     shared_qobject_ptr<LaunchTask> createLaunchTask(
-            AuthSessionPtr account, MinecraftServerTargetPtr serverToJoin) override
+            AuthSessionPtr account, MinecraftServerTargetPtr serverToJoin, quint16 localAuthServerPort) override
     {
         return nullptr;
     }

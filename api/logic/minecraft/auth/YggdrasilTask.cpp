@@ -25,8 +25,6 @@
 
 #include <Env.h>
 
-#include <BuildConfig.h>
-
 #include <QDebug>
 
 YggdrasilTask::YggdrasilTask(MojangAccount *account, QObject *parent)
@@ -42,8 +40,9 @@ void YggdrasilTask::executeTask()
     // Get the content of the request we're going to send to the server.
     QJsonDocument doc(getRequestContent());
 
-    QUrl reqUrl(BuildConfig.AUTH_BASE + getEndpoint());
-    QNetworkRequest netRequest(reqUrl);
+    QUrl reqUrl(m_account->authEndpoint() + getEndpoint());
+    qDebug() << m_account->authEndpoint() + getEndpoint();
+                                                QNetworkRequest netRequest(reqUrl);
     netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QByteArray requestData = doc.toJson();

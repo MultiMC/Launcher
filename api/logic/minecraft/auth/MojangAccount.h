@@ -141,6 +141,8 @@ public: /* queries */
     //! Returns whether the account is NotVerified, Verified or Online
     AccountStatus accountStatus() const;
 
+    QString authEndpoint() const;
+
 signals:
     /**
      * This signal is emitted when the account changes
@@ -151,7 +153,7 @@ signals:
 
 protected: /* variables */
     // Authentication system used.
-    // Usable values: "mojang", "dummy"
+    // Usable values: "mojang", "dummy", "elyby"
     QString m_loginType;
 
     // Username taken by account.

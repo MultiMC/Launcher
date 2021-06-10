@@ -28,6 +28,8 @@
 
 #include <QDebug>
 
+#include <BuildConfig.h>
+
 MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
 {
     // The JSON object must at least have a username for it to be valid.
@@ -148,7 +150,7 @@ QJsonObject MojangAccount::saveToJson() const
 bool MojangAccount::setLoginType(const QString &loginType)
 {
     // TODO: Implement a cleaner validity check
-    if (loginType == "mojang" or loginType == "dummy")
+    if (loginType == "mojang" || loginType == "dummy" || loginType == "elyby")
     {
         m_loginType = loginType;
         return true;
@@ -184,6 +186,14 @@ AccountStatus MojangAccount::accountStatus() const
         return Verified;
 }
 
+QString MojangAccount::authEndpoint() const
+{
+    if(m_loginType == "elyby")
+        return BuildConfig.AUTH_BASE_ELYBY;
+
+    return BuildConfig.AUTH_BASE_MOJANG;
+}
+
 std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QString password)
 {
     Q_ASSERT(m_currentTask.get() == nullptr);
@@ -202,7 +212,7 @@ std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QStr
             // TODO: Proper profile support (idk how)
             auto dummyProfile = AccountProfile();
             dummyProfile.name = m_username;
-            dummyProfile.id = "-";
+            dummyProfile.id = QUuid::createUuid().toString().remove(QRegExp("[{}]"));
             m_profiles.append(dummyProfile);
             m_currentProfile = 0;
         }

@@ -81,6 +81,15 @@
         <bool>false</bool>
        </property>
       </widget>
+     </item><item>
+      <widget class="QRadioButton" name="radioElyby">
+       <property name="text">
+        <string>Ely.by</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
