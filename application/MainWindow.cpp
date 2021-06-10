@@ -771,8 +771,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         }
         for (auto profile : account->profiles())
         {
+            auto skinsBase = BuildConfig.SKINS_BASE_MOJANG;
+            auto skinsArg = profile.id;
+            if (account->loginType() == "elyby")
+            {
+                skinsBase = BuildConfig.SKINS_BASE_ELYBY;
+                skinsArg = profile.name;
+            }
             auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(BuildConfig.SKINS_BASE + profile.id + ".png"), meta);
+            auto action = Net::Download::makeCached(QUrl(skinsBase + skinsArg + ".png"), meta);
             skin_dls.append(action);
             meta->setStale(true);
         }
