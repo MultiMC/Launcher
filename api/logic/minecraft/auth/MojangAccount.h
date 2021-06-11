@@ -141,7 +141,11 @@ public: /* queries */
     //! Returns whether the account is NotVerified, Verified or Online
     AccountStatus accountStatus() const;
 
+    //! Returns endpoint for authentication
     QString authEndpoint() const;
+
+    // ! Returns login type to display in account list or account chooser
+    QString displayLoginType() const;
 
 signals:
     /**

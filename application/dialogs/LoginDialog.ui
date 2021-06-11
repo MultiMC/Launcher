@@ -75,7 +75,7 @@
      <item>
       <widget class="QRadioButton" name="radioDummy">
        <property name="text">
-        <string>Offline (cracked)</string>
+        <string>Local (cracked)</string>
        </property>
        <property name="checked">
         <bool>false</bool>

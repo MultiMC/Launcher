@@ -194,6 +194,9 @@ QVariant MojangAccountList::data(const QModelIndex &index, int role) const
         case NameColumn:
             return account->username();
 
+        case TypeColumn:
+            return account->displayLoginType();
+
         default:
             return QVariant();
         }
@@ -229,6 +232,9 @@ QVariant MojangAccountList::headerData(int section, Qt::Orientation orientation,
         case NameColumn:
             return tr("Name");
 
+        case TypeColumn:
+            return tr("Account type");
+
         default:
             return QVariant();
         }
@@ -256,7 +262,7 @@ int MojangAccountList::rowCount(const QModelIndex &) const
 
 int MojangAccountList::columnCount(const QModelIndex &) const
 {
-    return 2;
+    return 3;
 }
 
 Qt::ItemFlags MojangAccountList::flags(const QModelIndex &index) const

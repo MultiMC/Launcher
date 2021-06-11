@@ -996,16 +996,15 @@ void MainWindow::updateToolsMenu()
     ui->actionLaunchInstanceOffline->setMenu(launchOfflineMenu);
 }
 
-QString profileInUseFilter(const QString & profile, bool used)
+QString formatProfile(const QString & profileName,  const QString & loginType, bool used)
 {
+    QString textInBrackets = loginType;
     if(used)
     {
-        return profile + QObject::tr(" (in use)");
+        textInBrackets += ", in use";
     }
-    else
-    {
-        return profile;
-    }
+    return ((QString)"%1 (%2)").arg(profileName).arg(textInBrackets);
+    
 }
 
 void MainWindow::repopulateAccountsMenu()
@@ -1023,7 +1022,7 @@ void MainWindow::repopulateAccountsMenu()
         // this can be called before accountMenuButton exists
         if (profile != nullptr && accountMenuButton)
         {
-            auto profileLabel = profileInUseFilter(profile->name, active_account->isInUse());
+            auto profileLabel = formatProfile(profile->name, active_account->displayLoginType(), active_account->isInUse());
             accountMenuButton->setText(profileLabel);
         }
     }
@@ -1042,7 +1041,8 @@ void MainWindow::repopulateAccountsMenu()
             MojangAccountPtr account = accounts->at(i);
             for (auto profile : account->profiles())
             {
-                auto profileLabel = profileInUseFilter(profile.name, account->isInUse());
+                auto profileLabel = formatProfile(profile.name, account->displayLoginType(), account->isInUse());
+                qDebug() << "AAA" << profileLabel;
                 QAction *action = new QAction(profileLabel, this);
                 action->setData(account->username());
                 action->setCheckable(true);
@@ -1119,7 +1119,7 @@ void MainWindow::activeAccountChanged()
         const AccountProfile *profile = account->currentProfile();
         if (profile != nullptr)
         {
-            auto profileLabel = profileInUseFilter(profile->name, account->isInUse());
+            auto profileLabel = formatProfile(profile->name, account->displayLoginType(), account->isInUse());
             accountMenuButton->setIcon(SkinUtils::getFaceFromCache(profile->id));
             accountMenuButton->setText(profileLabel);
             return;

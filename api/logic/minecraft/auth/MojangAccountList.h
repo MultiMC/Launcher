@@ -51,6 +51,9 @@ public:
 
         // Second column - Name
         NameColumn,
+
+        // Third column - account type
+        TypeColumn,
     };
 
     explicit MojangAccountList(QObject *parent = 0);

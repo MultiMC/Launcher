@@ -194,6 +194,18 @@ QString MojangAccount::authEndpoint() const
     return BuildConfig.AUTH_BASE_MOJANG;
 }
 
+QString MojangAccount::displayLoginType() const
+{
+    if(m_loginType == "mojang")
+        return "Mojang";
+    if(m_loginType == "dummy")
+        return "Local";
+    if(m_loginType == "elyby")
+        return "Ely.by";
+
+    return "Unknown";
+}
+
 std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QString password)
 {
     Q_ASSERT(m_currentTask.get() == nullptr);
