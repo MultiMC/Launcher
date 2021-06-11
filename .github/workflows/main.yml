@@ -24,7 +24,7 @@ jobs:
           cd ~/MultiMC
           mkdir build
           mkdir MultiMC
-          git clone --recursive --depth 1 https://github.com/Sebastian-byte/MultiMC5-Cracked.git src
+          git clone --recursive --depth 1 https://github.com/AfoninZ/MultiMC5-Cracked.git src
 
       - name: Build
         run: |
