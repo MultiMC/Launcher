@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: 'recursive'
+
       - name: Install Dependencies
         run: |
           sudo apt update
@@ -24,12 +28,11 @@ jobs:
           cd ~/MultiMC
           mkdir build
           mkdir MultiMC
-          git clone --recursive --depth 1 https://github.com/AfoninZ/MultiMC5-Cracked.git src
 
       - name: Build
         run: |
           cd ~/MultiMC/build
-          cmake -DCMAKE_INSTALL_PREFIX=../MultiMC -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) -DMultiMC_BUILD_PLATFORM=lin64 ../src
+          cmake -DCMAKE_INSTALL_PREFIX=../MultiMC -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) -DMultiMC_BUILD_PLATFORM=lin64 $GITHUB_WORKSPACE
 
       - name: Compile
         run: |
@@ -61,7 +64,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
         with:
-          fetch-depth: 1
           submodules: 'recursive'
 
       - name: Cache Qt
