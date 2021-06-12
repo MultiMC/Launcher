@@ -67,7 +67,6 @@ public:
 
     QString RESOURCE_BASE = "https://resources.download.minecraft.net/";
     QString LIBRARY_BASE = "https://libraries.minecraft.net/";
-    QString SKINS_BASE = "https://crafatar.com/skins/";
     QString MOJANG_STATUS_URL = "https://status.mojang.com/check";
     QString IMGUR_BASE_URL = "https://api.imgur.com/3/";
     QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";
@@ -76,6 +75,9 @@ public:
 
     QString AUTH_BASE_MOJANG = "https://authserver.mojang.com/";
     QString AUTH_BASE_ELYBY = "https://authserver.ely.by/auth/";
+
+    QString SKINS_BASE_MOJANG = "https://crafatar.com/skins/";
+    QString SKINS_BASE_ELYBY = "http://skinsystem.ely.by/skins/";
 
     QString MODPACKSCH_API_BASE_URL = "https://api.modpacks.ch/";
 
