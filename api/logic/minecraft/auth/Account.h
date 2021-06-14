@@ -24,16 +24,18 @@
 
 #include <memory>
 #include "AuthSession.h"
+#include "AccountProfile.h"
 #include "Usable.h"
+#include "providers/BaseAuthProvider.h"
 
 #include "multimc_logic_export.h"
 
 class Task;
 class YggdrasilTask;
-class MojangAccount;
+class Account;
 
-typedef std::shared_ptr<MojangAccount> MojangAccountPtr;
-Q_DECLARE_METATYPE(MojangAccountPtr)
+typedef std::shared_ptr<Account> AccountPtr;
+Q_DECLARE_METATYPE(AccountPtr)
 
 /**
  * A profile within someone's Mojang account.
@@ -42,12 +44,6 @@ Q_DECLARE_METATYPE(MojangAccountPtr)
  * but we might as well add some things for it in MultiMC right now so
  * we don't have to rip the code to pieces to add it later.
  */
-struct AccountProfile
-{
-    QString id;
-    QString name;
-    bool legacy;
-};
 
 enum AccountStatus
 {
@@ -61,34 +57,33 @@ enum AccountStatus
  * Said information may include things such as that account's username, client token, and access
  * token if the user chose to stay logged in.
  */
-class MULTIMC_LOGIC_EXPORT MojangAccount :
+class MULTIMC_LOGIC_EXPORT Account :
     public QObject,
     public Usable,
-    public std::enable_shared_from_this<MojangAccount>
+    public std::enable_shared_from_this<Account>
 {
     Q_OBJECT
 public: /* construction */
     //! Do not copy accounts. ever.
-    explicit MojangAccount(const MojangAccount &other, QObject *parent) = delete;
+    explicit Account(const Account &other, QObject *parent) = delete;
 
     //! Default constructor
-    explicit MojangAccount(QObject *parent = 0) : QObject(parent) {};
+    explicit Account(QObject *parent = 0) : QObject(parent) {};
 
     //! Creates an empty account for the specified user name.
-    static MojangAccountPtr createFromUsername(const QString &username);
+    static AccountPtr createFromUsername(const QString &username);
 
-    //! Loads a MojangAccount from the given JSON object.
-    static MojangAccountPtr loadFromJson(const QJsonObject &json);
+    //! Loads a Account from the given JSON object.
+    static AccountPtr loadFromJson(const QJsonObject &json);
 
-    //! Saves a MojangAccount to a JSON object and returns it.
+    //! Saves a Account to a JSON object and returns it.
     QJsonObject saveToJson() const;
 
 public: /* manipulation */
         /**
      * Overrides the login type on the account.
-     * Accepts "mojang" and "dummy". Returns false if other.
      */
-    bool setLoginType(const QString &loginType);
+    bool setProvider(AuthProviderPtr provider);
 
     /**
      * Sets the currently selected profile to the profile with the given ID string.
@@ -105,9 +100,9 @@ public: /* manipulation */
     void invalidateClientToken();
 
 public: /* queries */
-    const QString &loginType() const
+    const AuthProviderPtr provider() const
     {
-        return m_loginType;
+        return m_provider;
     }
 
     const QString &username() const
@@ -141,12 +136,6 @@ public: /* queries */
     //! Returns whether the account is NotVerified, Verified or Online
     AccountStatus accountStatus() const;
 
-    //! Returns endpoint for authentication
-    QString authEndpoint() const;
-
-    // ! Returns login type to display in account list or account chooser
-    QString displayLoginType() const;
-
 signals:
     /**
      * This signal is emitted when the account changes
@@ -158,7 +147,7 @@ signals:
 protected: /* variables */
     // Authentication system used.
     // Usable values: "mojang", "dummy", "elyby"
-    QString m_loginType;
+    AuthProviderPtr m_provider;
 
     // Username taken by account.
     QString m_username;

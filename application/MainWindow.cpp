@@ -54,7 +54,7 @@
 #include <java/JavaUtils.h>
 #include <java/JavaInstallList.h>
 #include <launch/LaunchTask.h>
-#include <minecraft/auth/MojangAccountList.h>
+#include <minecraft/auth/AccountList.h>
 #include <SkinUtils.h>
 #include <BuildConfig.h>
 #include <net/NetJob.h>
@@ -746,11 +746,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // Update the menu when the active account changes.
     // Shouldn't have to use lambdas here like this, but if I don't, the compiler throws a fit.
     // Template hell sucks...
-    connect(MMC->accounts().get(), &MojangAccountList::activeAccountChanged, [this]
+    connect(MMC->accounts().get(), &AccountList::activeAccountChanged, [this]
             {
                 activeAccountChanged();
             });
-    connect(MMC->accounts().get(), &MojangAccountList::listChanged, [this]
+    connect(MMC->accounts().get(), &AccountList::listChanged, [this]
             {
                 repopulateAccountsMenu();
             });
@@ -771,15 +771,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         }
         for (auto profile : account->profiles())
         {
-            auto skinsBase = BuildConfig.SKINS_BASE_MOJANG;
-            auto skinsArg = profile.id;
-            if (account->loginType() == "elyby")
-            {
-                skinsBase = BuildConfig.SKINS_BASE_ELYBY;
-                skinsArg = profile.name;
-            }
             auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(skinsBase + skinsArg + ".png"), meta);
+            auto action = Net::Download::makeCached(account->provider()->resolveSkinUrl(profile), meta);
             skin_dls.append(action);
             meta->setStale(true);
         }
@@ -1003,9 +996,9 @@ void MainWindow::updateToolsMenu()
     ui->actionLaunchInstanceOffline->setMenu(launchOfflineMenu);
 }
 
-QString formatProfile(const QString & profileName,  const QString & loginType, bool used)
+QString formatProfile(const QString & profileName,  const QString & provider, bool used)
 {
-    QString textInBrackets = loginType;
+    QString textInBrackets = provider;
     if(used)
     {
         textInBrackets += ", in use";
@@ -1018,8 +1011,8 @@ void MainWindow::repopulateAccountsMenu()
 {
     accountMenu->clear();
 
-    std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
-    MojangAccountPtr active_account = accounts->activeAccount();
+    std::shared_ptr<AccountList> accounts = MMC->accounts();
+    AccountPtr active_account = accounts->activeAccount();
 
     QString active_username = "";
     if (active_account != nullptr)
@@ -1029,7 +1022,7 @@ void MainWindow::repopulateAccountsMenu()
         // this can be called before accountMenuButton exists
         if (profile != nullptr && accountMenuButton)
         {
-            auto profileLabel = formatProfile(profile->name, active_account->displayLoginType(), active_account->isInUse());
+            auto profileLabel = formatProfile(profile->name, active_account->provider()->displayName(), active_account->isInUse());
             accountMenuButton->setText(profileLabel);
         }
     }
@@ -1045,11 +1038,10 @@ void MainWindow::repopulateAccountsMenu()
         // TODO: Nicer way to iterate?
         for (int i = 0; i < accounts->count(); i++)
         {
-            MojangAccountPtr account = accounts->at(i);
+            AccountPtr account = accounts->at(i);
             for (auto profile : account->profiles())
             {
-                auto profileLabel = formatProfile(profile.name, account->displayLoginType(), account->isInUse());
-                qDebug() << "AAA" << profileLabel;
+                auto profileLabel = formatProfile(profile.name, account->provider()->displayName(), account->isInUse());
                 QAction *action = new QAction(profileLabel, this);
                 action->setData(account->username());
                 action->setCheckable(true);
@@ -1119,14 +1111,14 @@ void MainWindow::activeAccountChanged()
 {
     repopulateAccountsMenu();
 
-    MojangAccountPtr account = MMC->accounts()->activeAccount();
+    AccountPtr account = MMC->accounts()->activeAccount();
 
     if (account != nullptr && account->username() != "")
     {
         const AccountProfile *profile = account->currentProfile();
         if (profile != nullptr)
         {
-            auto profileLabel = formatProfile(profile->name, account->displayLoginType(), account->isInUse());
+            auto profileLabel = formatProfile(profile->name, account->provider()->displayName(), account->isInUse());
             accountMenuButton->setIcon(SkinUtils::getFaceFromCache(profile->id));
             accountMenuButton->setText(profileLabel);
             return;

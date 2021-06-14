@@ -6,7 +6,7 @@
 
 #include "multimc_logic_export.h"
 
-class MojangAccount;
+class Account;
 
 struct User
 {
@@ -48,7 +48,7 @@ struct MULTIMC_LOGIC_EXPORT AuthSession
     bool auth_server_online = false;
     // Did the user request online mode?
     bool wants_online = true;
-    std::shared_ptr<MojangAccount> m_accountPtr;
+    std::shared_ptr<Account> m_accountPtr;
 };
 
 typedef std::shared_ptr<AuthSession> AuthSessionPtr;

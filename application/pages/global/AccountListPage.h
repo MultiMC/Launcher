@@ -20,7 +20,7 @@
 
 #include "pages/BasePage.h"
 
-#include "minecraft/auth/MojangAccountList.h"
+#include "minecraft/auth/AccountList.h"
 #include "MultiMC.h"
 
 namespace Ui
@@ -79,6 +79,6 @@ protected slots:
 private:
     void changeEvent(QEvent * event) override;
     QMenu * createPopupMenu() override;
-    std::shared_ptr<MojangAccountList> m_accounts;
+    std::shared_ptr<AccountList> m_accounts;
     Ui::AccountListPage *ui;
 };

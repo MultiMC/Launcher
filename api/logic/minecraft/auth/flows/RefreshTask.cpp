@@ -14,7 +14,7 @@
  */
 
 #include "RefreshTask.h"
-#include "../MojangAccount.h"
+#include "../Account.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -23,7 +23,7 @@
 
 #include <QDebug>
 
-RefreshTask::RefreshTask(MojangAccount *account) : YggdrasilTask(account)
+RefreshTask::RefreshTask(Account *account) : YggdrasilTask(account)
 {
 }
 

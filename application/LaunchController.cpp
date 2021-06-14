@@ -1,6 +1,6 @@
 #include "LaunchController.h"
 #include "MainWindow.h"
-#include <minecraft/auth/MojangAccountList.h>
+#include <minecraft/auth/AccountList.h>
 #include "MultiMC.h"
 #include "dialogs/CustomMessageBox.h"
 #include "dialogs/ProfileSelectDialog.h"
@@ -37,8 +37,8 @@ void LaunchController::login()
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
     // Find an account to use.
-    std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
-    MojangAccountPtr account = accounts->activeAccount();
+    std::shared_ptr<AccountList> accounts = MMC->accounts();
+    AccountPtr account = accounts->activeAccount();
     if (accounts->count() <= 0)
     {
         // Tell the user they need to log in at least one account in order to play.

@@ -125,8 +125,8 @@ void AccountListPage::on_actionSetDefault_triggered()
     if (selection.size() > 0)
     {
         QModelIndex selected = selection.first();
-        MojangAccountPtr account =
-            selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
+        AccountPtr account =
+            selected.data(AccountList::PointerRole).value<AccountPtr>();
         m_accounts->setActiveAccount(account->username());
     }
 }
@@ -144,7 +144,7 @@ void AccountListPage::updateButtonStates()
     ui->actionRemove->setEnabled(selection.size() > 0);
     ui->actionSetDefault->setEnabled(selection.size() > 0);
 
-    bool enableSkins = selection.size() > 0 && selection.first().data(MojangAccountList::PointerRole).value<MojangAccountPtr>()->loginType() == "mojang";
+    bool enableSkins = selection.size() > 0 && selection.first().data(AccountList::PointerRole).value<AccountPtr>()->provider()->canChangeSkin();
     ui->actionUploadSkin->setEnabled(enableSkins);
     ui->actionDeleteSkin->setEnabled(enableSkins);
     
@@ -162,7 +162,7 @@ void AccountListPage::updateButtonStates()
 void AccountListPage::addAccount(const QString &errMsg)
 {
     // TODO: The login dialog isn't quite done yet
-    MojangAccountPtr account = LoginDialog::newAccount(this, errMsg);
+    AccountPtr account = LoginDialog::newAccount(this, errMsg);
 
     if (account != nullptr)
     {
@@ -175,15 +175,8 @@ void AccountListPage::addAccount(const QString &errMsg)
 
         for (AccountProfile profile : account->profiles())
         {
-            auto skinsBase = BuildConfig.SKINS_BASE_MOJANG;
-            auto skinsArg = profile.id;
-            if (account->loginType() == "elyby")
-            {
-                skinsBase = BuildConfig.SKINS_BASE_ELYBY;
-                skinsArg = profile.name;
-            }
             auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(skinsBase + skinsArg + ".png"), meta);
+            auto action = Net::Download::makeCached(account->provider()->resolveSkinUrl(profile), meta);
             job->addNetAction(action);
             meta->setStale(true);
         }
@@ -198,7 +191,7 @@ void AccountListPage::on_actionUploadSkin_triggered()
     if (selection.size() > 0)
     {
         QModelIndex selected = selection.first();
-        MojangAccountPtr account = selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
+        AccountPtr account = selected.data(AccountList::PointerRole).value<AccountPtr>();
         SkinUploadDialog dialog(account, this);
         dialog.exec();
     }
@@ -212,7 +205,7 @@ void AccountListPage::on_actionDeleteSkin_triggered()
 
     QModelIndex selected = selection.first();
     AuthSessionPtr session = std::make_shared<AuthSession>();
-    MojangAccountPtr account = selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
+    AccountPtr account = selected.data(AccountList::PointerRole).value<AccountPtr>();
     auto login = account->login(session);
     ProgressDialog prog(this);
     if (prog.execWithTask((Task*)login.get()) != QDialog::Accepted) {

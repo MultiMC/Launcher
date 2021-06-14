@@ -15,7 +15,7 @@
  */
 
 #include "AuthenticateTask.h"
-#include "../MojangAccount.h"
+#include "../Account.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -25,7 +25,7 @@
 #include <QDebug>
 #include <QUuid>
 
-AuthenticateTask::AuthenticateTask(MojangAccount * account, const QString &password,
+AuthenticateTask::AuthenticateTask(Account * account, const QString &password,
                                    QObject *parent)
     : YggdrasilTask(account, parent), m_password(password)
 {
@@ -139,7 +139,7 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
         // Now, add a new AccountProfile entry to the list.
         loadedProfiles.append({id, name, legacy});
     }
-    // Put the list of profiles we loaded into the MojangAccount object.
+    // Put the list of profiles we loaded into the Account object.
     m_account->m_profiles = loadedProfiles;
 
     // Finally, we set the current profile to the correct value. This is pretty simple.

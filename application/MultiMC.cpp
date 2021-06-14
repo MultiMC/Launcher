@@ -42,7 +42,8 @@
 #include "dialogs/CustomMessageBox.h"
 #include "InstanceList.h"
 
-#include <minecraft/auth/MojangAccountList.h>
+#include <minecraft/auth/AuthProviders.h>
+#include <minecraft/auth/AccountList.h>
 #include "icons/IconList.h"
 #include "net/HttpMetaCache.h"
 #include "Env.h"
@@ -683,9 +684,14 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         qDebug() << "<> Instances loaded.";
     }
 
+    // load auth providers
+    {
+        AuthProviders::load();
+    }
+
     // and accounts
     {
-        m_accounts.reset(new MojangAccountList(this));
+        m_accounts.reset(new AccountList(this));
         qDebug() << "Loading accounts...";
         m_accounts->setListFilePath("accounts.json", true);
         m_accounts->loadList();

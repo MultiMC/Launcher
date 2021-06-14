@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-#include "MojangAccount.h"
+#include "Account.h"
+#include "AuthProviders.h"
 #include "flows/RefreshTask.h"
 #include "flows/AuthenticateTask.h"
 
@@ -30,7 +31,7 @@
 
 #include <BuildConfig.h>
 
-MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
+AccountPtr Account::loadFromJson(const QJsonObject &object)
 {
     // The JSON object must at least have a username for it to be valid.
     if (!object.value("username").isString())
@@ -40,7 +41,7 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
         return nullptr;
     }
 
-    QString loginType = object.value("loginType").toString("mojang");
+    QString provider = object.value("loginType").toString("dummy");
     QString username = object.value("username").toString("");
     QString clientToken = object.value("clientToken").toString("");
     QString accessToken = object.value("accessToken").toString("");
@@ -68,7 +69,7 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
         profiles.append({id, name, legacy});
     }
 
-    MojangAccountPtr account(new MojangAccount());
+    AccountPtr account(new Account());
     if (object.value("user").isObject())
     {
         User u;
@@ -85,7 +86,7 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
         */
         account->m_user = u;
     }
-    account->m_loginType = loginType;
+    account->m_provider = AuthProviders::lookup(provider);
     account->m_username = username;
     account->m_clientToken = clientToken;
     account->m_accessToken = accessToken;
@@ -99,18 +100,18 @@ MojangAccountPtr MojangAccount::loadFromJson(const QJsonObject &object)
     return account;
 }
 
-MojangAccountPtr MojangAccount::createFromUsername(const QString &username)
+AccountPtr Account::createFromUsername(const QString &username)
 {
-    MojangAccountPtr account(new MojangAccount());
+    AccountPtr account(new Account());
     account->m_clientToken = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     account->m_username = username;
     return account;
 }
 
-QJsonObject MojangAccount::saveToJson() const
+QJsonObject Account::saveToJson() const
 {
     QJsonObject json;
-    json.insert("loginType", m_loginType);
+    json.insert("loginType", m_provider->id());
     json.insert("username", m_username);
     json.insert("clientToken", m_clientToken);
     json.insert("accessToken", m_accessToken);
@@ -147,18 +148,15 @@ QJsonObject MojangAccount::saveToJson() const
     return json;
 }
 
-bool MojangAccount::setLoginType(const QString &loginType)
+bool Account::setProvider(AuthProviderPtr provider)
 {
-    // TODO: Implement a cleaner validity check
-    if (loginType == "mojang" || loginType == "dummy" || loginType == "elyby")
-    {
-        m_loginType = loginType;
-        return true;
-    }
-    return false;
+    if (provider == nullptr)
+        return false;
+    m_provider = provider;
+    return true;
 }
 
-bool MojangAccount::setCurrentProfile(const QString &profileId)
+bool Account::setCurrentProfile(const QString &profileId)
 {
     for (int i = 0; i < m_profiles.length(); i++)
     {
@@ -171,14 +169,14 @@ bool MojangAccount::setCurrentProfile(const QString &profileId)
     return false;
 }
 
-const AccountProfile *MojangAccount::currentProfile() const
+const AccountProfile *Account::currentProfile() const
 {
     if (m_currentProfile == -1)
         return nullptr;
     return &m_profiles[m_currentProfile];
 }
 
-AccountStatus MojangAccount::accountStatus() const
+AccountStatus Account::accountStatus() const
 {
     if (m_accessToken.isEmpty())
         return NotVerified;
@@ -186,32 +184,12 @@ AccountStatus MojangAccount::accountStatus() const
         return Verified;
 }
 
-QString MojangAccount::authEndpoint() const
-{
-    if(m_loginType == "elyby")
-        return BuildConfig.AUTH_BASE_ELYBY;
-
-    return BuildConfig.AUTH_BASE_MOJANG;
-}
-
-QString MojangAccount::displayLoginType() const
-{
-    if(m_loginType == "mojang")
-        return "Mojang";
-    if(m_loginType == "dummy")
-        return "Local";
-    if(m_loginType == "elyby")
-        return "Ely.by";
-
-    return "Unknown";
-}
-
-std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QString password)
+std::shared_ptr<YggdrasilTask> Account::login(AuthSessionPtr session, QString password)
 {
     Q_ASSERT(m_currentTask.get() == nullptr);
 
     // Handling alternative account types
-    if (m_loginType == "dummy")
+    if (m_provider->dummyAuth())
     {
         if (session)
         {
@@ -267,7 +245,7 @@ std::shared_ptr<YggdrasilTask> MojangAccount::login(AuthSessionPtr session, QStr
     return m_currentTask;
 }
 
-void MojangAccount::authSucceeded()
+void Account::authSucceeded()
 {
     auto session = m_currentTask->getAssignedSession();
     if (session)
@@ -281,7 +259,7 @@ void MojangAccount::authSucceeded()
     emit changed();
 }
 
-void MojangAccount::authFailed(QString reason)
+void Account::authFailed(QString reason)
 {
     auto session = m_currentTask->getAssignedSession();
     // This is emitted when the yggdrasil tasks time out or are cancelled.
@@ -310,7 +288,7 @@ void MojangAccount::authFailed(QString reason)
     m_currentTask.reset();
 }
 
-void MojangAccount::fillSession(AuthSessionPtr session)
+void Account::fillSession(AuthSessionPtr session)
 {
     // the user name. you have to have an user name
     session->username = m_username;
@@ -344,7 +322,7 @@ void MojangAccount::fillSession(AuthSessionPtr session)
     session->m_accountPtr = shared_from_this();
 }
 
-void MojangAccount::decrementUses()
+void Account::decrementUses()
 {
     Usable::decrementUses();
     if(!isInUse())
@@ -354,7 +332,7 @@ void MojangAccount::decrementUses()
     }
 }
 
-void MojangAccount::incrementUses()
+void Account::incrementUses()
 {
     bool wasInUse = isInUse();
     Usable::incrementUses();
@@ -365,7 +343,7 @@ void MojangAccount::incrementUses()
     }
 }
 
-void MojangAccount::invalidateClientToken()
+void Account::invalidateClientToken()
 {
     m_clientToken = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     emit changed();

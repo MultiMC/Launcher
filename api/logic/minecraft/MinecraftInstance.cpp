@@ -918,13 +918,10 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     }
 
     // authlib patch
-    if (session->m_accountPtr->loginType() != "mojang")
+    if (session->m_accountPtr->provider()->injectorEndpoint() != "")
     {
         auto step = new InjectAuthlib(pptr, &m_injector);
-        if(session->m_accountPtr->loginType() == "dummy")
-            step->setAuthServer(((QString)"http://localhost:%1").arg(localAuthServerPort));
-        else if(session->m_accountPtr->loginType() == "elyby")
-            step->setAuthServer(((QString) "ely.by").arg(localAuthServerPort));
+        step->setAuthServer(session->m_accountPtr->provider()->injectorEndpoint().arg(localAuthServerPort));
         process->appendStep(step);
     }
 

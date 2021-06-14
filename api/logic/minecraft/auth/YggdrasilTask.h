@@ -22,7 +22,7 @@
 #include <QTimer>
 #include <qsslerror.h>
 
-#include "MojangAccount.h"
+#include "Account.h"
 
 class QNetworkReply;
 
@@ -33,7 +33,7 @@ class YggdrasilTask : public Task
 {
     Q_OBJECT
 public:
-    explicit YggdrasilTask(MojangAccount * account, QObject *parent = 0);
+    explicit YggdrasilTask(Account * account, QObject *parent = 0);
     virtual ~YggdrasilTask() {};
 
     /**
@@ -137,7 +137,7 @@ slots:
     State state();
 protected:
     // FIXME: segfault disaster waiting to happen
-    MojangAccount *m_account = nullptr;
+    Account *m_account = nullptr;
     QNetworkReply *m_netReply = nullptr;
     std::shared_ptr<Error> m_error;
     QTimer timeout_keeper;

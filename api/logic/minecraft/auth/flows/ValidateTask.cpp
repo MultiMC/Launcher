@@ -15,7 +15,7 @@
  */
 
 #include "ValidateTask.h"
-#include "../MojangAccount.h"
+#include "../Account.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -24,7 +24,7 @@
 
 #include <QDebug>
 
-ValidateTask::ValidateTask(MojangAccount * account, QObject *parent)
+ValidateTask::ValidateTask(Account * account, QObject *parent)
     : YggdrasilTask(account, parent)
 {
 }

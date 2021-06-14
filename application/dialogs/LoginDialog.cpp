@@ -15,7 +15,7 @@
 
 #include "LoginDialog.h"
 #include "ui_LoginDialog.h"
-
+#include "minecraft/auth/AuthProviders.h"
 #include "minecraft/auth/YggdrasilTask.h"
 
 #include <QtWidgets/QPushButton>
@@ -25,6 +25,14 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::LoginDia
     ui->setupUi(this);
     ui->progressBar->setVisible(false);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+    for(auto provider: AuthProviders::getAll()) {
+        QRadioButton *button = new QRadioButton(provider->displayName());
+        m_radioButtons[provider->id()] = button;
+        ui->radioLayout->addWidget(button);
+    }
+    m_radioButtons["dummy"]->setChecked(true);
+    adjustSize();
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -41,14 +49,15 @@ void LoginDialog::accept()
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
 
+    m_account = Account::createFromUsername(ui->userTextBox->text());
+    for(auto providerId: m_radioButtons.keys()){
+        if(m_radioButtons[providerId]->isChecked()) {
+            m_account->setProvider(AuthProviders::lookup(providerId));
+            break;
+        }
+    }
+
     // Setup the login task and start it
-    m_account = MojangAccount::createFromUsername(ui->userTextBox->text());
-    if (ui->radioMojang->isChecked())
-        m_account->setLoginType("mojang");
-    else if (ui->radioDummy->isChecked())
-        m_account->setLoginType("dummy");
-    else if (ui->radioElyby->isChecked())
-        m_account->setLoginType("elyby");
     m_loginTask = m_account->login(nullptr, ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &LoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this,
@@ -109,7 +118,7 @@ void LoginDialog::onTaskProgress(qint64 current, qint64 total)
 }
 
 // Public interface
-MojangAccountPtr LoginDialog::newAccount(QWidget *parent, QString msg)
+AccountPtr LoginDialog::newAccount(QWidget *parent, QString msg)
 {
     LoginDialog dlg(parent);
     dlg.ui->label->setText(msg);

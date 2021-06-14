@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "MojangAccountList.h"
-#include "MojangAccount.h"
+#include "AccountList.h"
+#include "Account.h"
 
 #include <QIODevice>
 #include <QFile>
@@ -31,27 +31,27 @@
 
 #define ACCOUNT_LIST_FORMAT_VERSION 2
 
-MojangAccountList::MojangAccountList(QObject *parent) : QAbstractListModel(parent)
+AccountList::AccountList(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-MojangAccountPtr MojangAccountList::findAccount(const QString &username) const
+AccountPtr AccountList::findAccount(const QString &username) const
 {
     for (int i = 0; i < count(); i++)
     {
-        MojangAccountPtr account = at(i);
+        AccountPtr account = at(i);
         if (account->username() == username)
             return account;
     }
     return nullptr;
 }
 
-const MojangAccountPtr MojangAccountList::at(int i) const
+const AccountPtr AccountList::at(int i) const
 {
-    return MojangAccountPtr(m_accounts.at(i));
+    return AccountPtr(m_accounts.at(i));
 }
 
-void MojangAccountList::addAccount(const MojangAccountPtr account)
+void AccountList::addAccount(const AccountPtr account)
 {
     int row = m_accounts.count();
     beginInsertRows(QModelIndex(), row, row);
@@ -61,7 +61,7 @@ void MojangAccountList::addAccount(const MojangAccountPtr account)
     onListChanged();
 }
 
-void MojangAccountList::removeAccount(const QString &username)
+void AccountList::removeAccount(const QString &username)
 {
     int idx = 0;
     for (auto account : m_accounts)
@@ -78,7 +78,7 @@ void MojangAccountList::removeAccount(const QString &username)
     onListChanged();
 }
 
-void MojangAccountList::removeAccount(QModelIndex index)
+void AccountList::removeAccount(QModelIndex index)
 {
     int row = index.row();
     if(index.isValid() && row >= 0 && row < m_accounts.size())
@@ -96,19 +96,19 @@ void MojangAccountList::removeAccount(QModelIndex index)
     }
 }
 
-MojangAccountPtr MojangAccountList::activeAccount() const
+AccountPtr AccountList::activeAccount() const
 {
     return m_activeAccount;
 }
 
-void MojangAccountList::setActiveAccount(const QString &username)
+void AccountList::setActiveAccount(const QString &username)
 {
     if (username.isEmpty() && m_activeAccount)
     {
         int idx = 0;
         auto prevActiveAcc = m_activeAccount;
         m_activeAccount = nullptr;
-        for (MojangAccountPtr account : m_accounts)
+        for (AccountPtr account : m_accounts)
         {
             if (account == prevActiveAcc)
             {
@@ -125,7 +125,7 @@ void MojangAccountList::setActiveAccount(const QString &username)
         auto newActiveAccount = m_activeAccount;
         int newActiveAccountIdx = -1;
         int idx = 0;
-        for (MojangAccountPtr account : m_accounts)
+        for (AccountPtr account : m_accounts)
         {
             if (account->username() == username)
             {
@@ -148,13 +148,13 @@ void MojangAccountList::setActiveAccount(const QString &username)
     }
 }
 
-void MojangAccountList::accountChanged()
+void AccountList::accountChanged()
 {
     // the list changed. there is no doubt.
     onListChanged();
 }
 
-void MojangAccountList::onListChanged()
+void AccountList::onListChanged()
 {
     if (m_autosave)
         // TODO: Alert the user if this fails.
@@ -163,7 +163,7 @@ void MojangAccountList::onListChanged()
     emit listChanged();
 }
 
-void MojangAccountList::onActiveChanged()
+void AccountList::onActiveChanged()
 {
     if (m_autosave)
         saveList();
@@ -171,12 +171,12 @@ void MojangAccountList::onActiveChanged()
     emit activeAccountChanged();
 }
 
-int MojangAccountList::count() const
+int AccountList::count() const
 {
     return m_accounts.count();
 }
 
-QVariant MojangAccountList::data(const QModelIndex &index, int role) const
+QVariant AccountList::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -184,7 +184,7 @@ QVariant MojangAccountList::data(const QModelIndex &index, int role) const
     if (index.row() > count())
         return QVariant();
 
-    MojangAccountPtr account = at(index.row());
+    AccountPtr account = at(index.row());
 
     switch (role)
     {
@@ -195,7 +195,7 @@ QVariant MojangAccountList::data(const QModelIndex &index, int role) const
             return account->username();
 
         case TypeColumn:
-            return account->displayLoginType();
+            return account->provider()->displayName();
 
         default:
             return QVariant();
@@ -219,7 +219,7 @@ QVariant MojangAccountList::data(const QModelIndex &index, int role) const
     }
 }
 
-QVariant MojangAccountList::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant AccountList::headerData(int section, Qt::Orientation orientation, int role) const
 {
     switch (role)
     {
@@ -254,18 +254,18 @@ QVariant MojangAccountList::headerData(int section, Qt::Orientation orientation,
     }
 }
 
-int MojangAccountList::rowCount(const QModelIndex &) const
+int AccountList::rowCount(const QModelIndex &) const
 {
     // Return count
     return count();
 }
 
-int MojangAccountList::columnCount(const QModelIndex &) const
+int AccountList::columnCount(const QModelIndex &) const
 {
     return 3;
 }
 
-Qt::ItemFlags MojangAccountList::flags(const QModelIndex &index) const
+Qt::ItemFlags AccountList::flags(const QModelIndex &index) const
 {
     if (index.row() < 0 || index.row() >= rowCount(index) || !index.isValid())
     {
@@ -275,7 +275,7 @@ Qt::ItemFlags MojangAccountList::flags(const QModelIndex &index) const
     return Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-bool MojangAccountList::setData(const QModelIndex &index, const QVariant &value, int role)
+bool AccountList::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (index.row() < 0 || index.row() >= rowCount(index) || !index.isValid())
     {
@@ -286,7 +286,7 @@ bool MojangAccountList::setData(const QModelIndex &index, const QVariant &value,
     {
         if(value == Qt::Checked)
         {
-            MojangAccountPtr account = this->at(index.row());
+            AccountPtr account = this->at(index.row());
             this->setActiveAccount(account->username());
         }
     }
@@ -295,14 +295,14 @@ bool MojangAccountList::setData(const QModelIndex &index, const QVariant &value,
     return true;
 }
 
-void MojangAccountList::updateListData(QList<MojangAccountPtr> versions)
+void AccountList::updateListData(QList<AccountPtr> versions)
 {
     beginResetModel();
     m_accounts = versions;
     endResetModel();
 }
 
-bool MojangAccountList::loadList(const QString &filePath)
+bool AccountList::loadList(const QString &filePath)
 {
     QString path = filePath;
     if (path.isEmpty())
@@ -366,7 +366,7 @@ bool MojangAccountList::loadList(const QString &filePath)
     for (QJsonValue accountVal : accounts)
     {
         QJsonObject accountObj = accountVal.toObject();
-        MojangAccountPtr account = MojangAccount::loadFromJson(accountObj);
+        AccountPtr account = Account::loadFromJson(accountObj);
         if (account.get() != nullptr)
         {
             connect(account.get(), SIGNAL(changed()), SLOT(accountChanged()));
@@ -383,7 +383,7 @@ bool MojangAccountList::loadList(const QString &filePath)
     return true;
 }
 
-bool MojangAccountList::saveList(const QString &filePath)
+bool AccountList::saveList(const QString &filePath)
 {
     QString path(filePath);
     if (path.isEmpty())
@@ -417,7 +417,7 @@ bool MojangAccountList::saveList(const QString &filePath)
     // Build a list of accounts.
     qDebug() << "Building account array.";
     QJsonArray accounts;
-    for (MojangAccountPtr account : m_accounts)
+    for (AccountPtr account : m_accounts)
     {
         QJsonObject accountObj = account->saveToJson();
         accounts.append(accountObj);
@@ -457,13 +457,13 @@ bool MojangAccountList::saveList(const QString &filePath)
     return true;
 }
 
-void MojangAccountList::setListFilePath(QString path, bool autosave)
+void AccountList::setListFilePath(QString path, bool autosave)
 {
     m_listFilePath = path;
     m_autosave = autosave;
 }
 
-bool MojangAccountList::anyAccountIsValid()
+bool AccountList::anyAccountIsValid()
 {
     for(auto account:m_accounts)
     {
