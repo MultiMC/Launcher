@@ -30,6 +30,8 @@
 #include "meta/VersionList.h"
 
 #include "mod/ModFolderModel.h"
+#include "mod/ResourcePackFolderModel.h"
+#include "mod/TexturePackFolderModel.h"
 #include "WorldList.h"
 
 #include "icons/IIconList.h"
@@ -998,7 +1000,7 @@ std::shared_ptr<ModFolderModel> MinecraftInstance::resourcePackList() const
 {
     if (!m_resource_pack_list)
     {
-        m_resource_pack_list.reset(new ModFolderModel(resourcePacksDir()));
+        m_resource_pack_list.reset(new ResourcePackFolderModel(resourcePacksDir()));
         m_resource_pack_list->disableInteraction(isRunning());
         connect(this, &BaseInstance::runningStatusChanged, m_resource_pack_list.get(), &ModFolderModel::disableInteraction);
     }
@@ -1009,7 +1011,7 @@ std::shared_ptr<ModFolderModel> MinecraftInstance::texturePackList() const
 {
     if (!m_texture_pack_list)
     {
-        m_texture_pack_list.reset(new ModFolderModel(texturePacksDir()));
+        m_texture_pack_list.reset(new TexturePackFolderModel(texturePacksDir()));
         m_texture_pack_list->disableInteraction(isRunning());
         connect(this, &BaseInstance::runningStatusChanged, m_texture_pack_list.get(), &ModFolderModel::disableInteraction);
     }
