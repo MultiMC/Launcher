@@ -21,6 +21,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QLabel" name="microsoftAccountsNoticeLabel">
+     <property name="text">
+      <string>NOTICE: MultiMC does not currently support Microsoft accounts. This means that accounts created from December 2020 onwards cannot be used.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label">
      <property name="text">
       <string notr="true">Message label placeholder.</string>

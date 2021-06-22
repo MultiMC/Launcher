@@ -20,6 +20,9 @@ AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget *parent)
     ui->packView->header()->hide();
     ui->packView->setIndentation(0);
 
+    ui->versionSelectionBox->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    ui->versionSelectionBox->view()->parentWidget()->setMaximumHeight(300);
+
     for(int i = 0; i < filterModel->getAvailableSortings().size(); i++)
     {
         ui->sortByBox->addItem(filterModel->getAvailableSortings().keys().at(i));
@@ -45,15 +48,29 @@ bool AtlPage::shouldDisplay() const
 
 void AtlPage::openedImpl()
 {
-    listModel->request();
+    if(!initialized)
+    {
+        listModel->request();
+        initialized = true;
+    }
+
+    suggestCurrent();
 }
 
 void AtlPage::suggestCurrent()
 {
-    if(isOpened) {
-        dialog->setSuggestedPack(selected.name, new ATLauncher::PackInstallTask(this, selected.safeName, selectedVersion));
+    if(!isOpened)
+    {
+        return;
     }
 
+    if (selectedVersion.isEmpty())
+    {
+        dialog->setSuggestedPack();
+        return;
+    }
+
+    dialog->setSuggestedPack(selected.name, new ATLauncher::PackInstallTask(this, selected.safeName, selectedVersion));
     auto editedLogoName = selected.safeName;
     auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "launcher/images/%1.png").arg(selected.safeName.toLower());
     listModel->getLogo(selected.safeName, url, [this, editedLogoName](QString logo)
