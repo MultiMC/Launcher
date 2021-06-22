@@ -37,14 +37,21 @@ void InjectAuthlib::executeTask()
   auto latestVersionInfo = QString("https://authlib-injector.yushi.moe/artifact/latest.json");
   auto netJob = new NetJob("Injector versions info download");
   MetaEntryPtr entry = ENV.metacache()->resolveEntry("injectors", "version.json");
-  entry->setStale(true);
-  auto task = Net::Download::makeCached(QUrl(latestVersionInfo), entry);
-  netJob->addNetAction(task);
+  if (!m_offlineMode)
+  {
+    entry->setStale(true);
+    auto task = Net::Download::makeCached(QUrl(latestVersionInfo), entry);
+    netJob->addNetAction(task);
 
-  jobPtr.reset(netJob);
-  QObject::connect(netJob, &NetJob::succeeded, this, &InjectAuthlib::onVersionDownloadSucceeded);
-  QObject::connect(netJob, &NetJob::failed, this, &InjectAuthlib::onDownloadFailed);
-  jobPtr->start();
+    jobPtr.reset(netJob);
+    QObject::connect(netJob, &NetJob::succeeded, this, &InjectAuthlib::onVersionDownloadSucceeded);
+    QObject::connect(netJob, &NetJob::failed, this, &InjectAuthlib::onDownloadFailed);
+    jobPtr->start();
+  }
+  else
+  {
+    onVersionDownloadSucceeded();
+  }
 }
 
 void InjectAuthlib::onVersionDownloadSucceeded()
@@ -102,17 +109,23 @@ void InjectAuthlib::onVersionDownloadSucceeded()
   m_versionName = fi.fileName();
 
   qDebug() << "Authlib injector version:" << m_versionName;
+  if (!m_offlineMode)
+  {
+    auto netJob = new NetJob("Injector download");
+    MetaEntryPtr entry = ENV.metacache()->resolveEntry("injectors", m_versionName);
+    entry->setStale(true);
+    auto task = Net::Download::makeCached(QUrl(downloadUrl), entry);
+    netJob->addNetAction(task);
 
-  auto netJob = new NetJob("Injector download");
-  MetaEntryPtr entry = ENV.metacache()->resolveEntry("injectors", m_versionName);
-  entry->setStale(true);
-  auto task = Net::Download::makeCached(QUrl(downloadUrl), entry);
-  netJob->addNetAction(task);
-
-  jobPtr.reset(netJob);
-  QObject::connect(netJob, &NetJob::succeeded, this, &InjectAuthlib::onDownloadSucceeded);
-  QObject::connect(netJob, &NetJob::failed, this, &InjectAuthlib::onDownloadFailed);
-  jobPtr->start();
+    jobPtr.reset(netJob);
+    QObject::connect(netJob, &NetJob::succeeded, this, &InjectAuthlib::onDownloadSucceeded);
+    QObject::connect(netJob, &NetJob::failed, this, &InjectAuthlib::onDownloadFailed);
+    jobPtr->start();
+  }
+  else
+  {
+    onDownloadSucceeded();
+  }
 }
 
 void InjectAuthlib::onDownloadSucceeded()

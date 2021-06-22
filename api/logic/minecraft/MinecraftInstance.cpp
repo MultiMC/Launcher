@@ -886,12 +886,16 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     if(session->status != AuthSession::PlayableOffline)
     {
         process->appendStep(new ClaimAccount(pptr, session));
+    }
+
+    // do update only if we're in online mode
+    if (session->wants_online)
+    {
         process->appendStep(new Update(pptr, Net::Mode::Online));
     }
     else
     {
-        process->appendStep(new Update(pptr, Net::Mode::Online));
-        // TODO: Separate "cracked" logins (offline from auth servers) from genuine offline logins (no internet)
+        process->appendStep(new Update(pptr, Net::Mode::Offline));
     }
 
     // if there are any jar mods
@@ -924,6 +928,7 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     {
         auto step = new InjectAuthlib(pptr, &m_injector);
         step->setAuthServer(session->m_accountPtr->provider()->injectorEndpoint().arg(localAuthServerPort));
+        step->setOfflineMode(!session->wants_online);
         process->appendStep(step);
     }
 
@@ -1049,6 +1054,5 @@ QList< Mod > MinecraftInstance::getJarMods() const
     }
     return mods;
 }
-
 
 #include "MinecraftInstance.moc"

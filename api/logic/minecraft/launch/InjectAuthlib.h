@@ -52,6 +52,10 @@ public:
     m_authServer = server;
   };
 
+  void setOfflineMode(bool offline) { 
+    m_offlineMode = offline;
+  }
+
 public slots:
   bool abort() override;
 
@@ -64,6 +68,7 @@ private:
   shared_qobject_ptr<Task> jobPtr;
   bool m_aborted = false;
 
+  bool m_offlineMode;
   QString m_versionName;
   QString m_authServer;
   AuthlibInjectorPtr *m_injector;
