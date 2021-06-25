@@ -24,6 +24,7 @@
 #include "minecraft/launch/ReconstructAssets.h"
 #include "minecraft/launch/ScanModFolders.h"
 #include "minecraft/launch/InjectAuthlib.h"
+#include "minecraft/launch/VerifyJavaInstall.h"
 #include "java/launch/CheckJava.h"
 #include "java/JavaUtils.h"
 #include "meta/Index.h"
@@ -751,7 +752,7 @@ MessageLevel::Enum MinecraftInstance::guessLevel(const QString &line, MessageLev
         || line.contains(QRegularExpression("Caused by: " + javaSymbol))
         || line.contains(QRegularExpression("([a-zA-Z_$][a-zA-Z\\d_$]*\\.)+[a-zA-Z_$]?[a-zA-Z\\d_$]*(Exception|Error|Throwable)"))
         || line.contains(QRegularExpression("... \\d+ more$"))
-        )        
+        )
         return MessageLevel::Error;
     return level;
 }
@@ -921,6 +922,11 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     // reconstruct assets if needed
     {
         process->appendStep(new ReconstructAssets(pptr));
+    }
+
+    // verify that minimum Java requirements are met
+    {
+        process->appendStep(new VerifyJavaInstall(pptr));
     }
 
     // authlib patch

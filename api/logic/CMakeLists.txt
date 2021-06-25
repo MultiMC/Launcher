@@ -256,6 +256,8 @@ set(MINECRAFT_SOURCES
     minecraft/launch/ScanModFolders.h
     minecraft/launch/InjectAuthlib.cpp
     minecraft/launch/InjectAuthlib.h
+    minecraft/launch/VerifyJavaInstall.cpp
+    minecraft/launch/VerifyJavaInstall.h
 
     minecraft/legacy/LegacyModList.h
     minecraft/legacy/LegacyModList.cpp
