@@ -8,13 +8,13 @@
 class MULTIMC_LOGIC_EXPORT AuthServer: public QObject
 {
 public:
-  explicit AuthServer(QObject *parent = 0);
+    explicit AuthServer(QObject *parent = 0);
 
-  quint16 port();
+    quint16 port();
 
 private:
-  void newConnection();
-  
+    void newConnection();
+
 private:
-  std::shared_ptr<QTcpServer> m_tcpServer;
+    std::shared_ptr<QTcpServer> m_tcpServer;
 };

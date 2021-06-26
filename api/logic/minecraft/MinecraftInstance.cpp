@@ -54,7 +54,7 @@ class OrSetting : public Setting
     Q_OBJECT
 public:
     OrSetting(QString id, std::shared_ptr<Setting> a, std::shared_ptr<Setting> b)
-        :Setting({id}, false), m_a(a), m_b(b)
+    :Setting({id}, false), m_a(a), m_b(b)
     {
     }
     virtual QVariant get() const
@@ -407,7 +407,7 @@ static QString replaceTokensIn(QString text, QMap<QString, QString> with)
 }
 
 QStringList MinecraftInstance::processMinecraftArgs(
-    AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) const
+        AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) const
 {
     auto profile = m_components->getProfile();
     QString args_pattern = profile->getMinecraftArguments();
@@ -487,9 +487,9 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftS
 
     // generic minecraft params
     for (auto param : processMinecraftArgs(
-             session,
-             nullptr /* When using a launch script, the server parameters are handled by it*/
-             ))
+            session,
+            nullptr /* When using a launch script, the server parameters are handled by it*/
+    ))
     {
         launchScript += "param " + param + "\n";
     }
@@ -607,10 +607,10 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, Minecr
             out << QString("%1:").arg(label);
             auto modList = model.allMods();
             std::sort(modList.begin(), modList.end(), [](Mod &a, Mod &b) {
-                          auto aName = a.filename().completeBaseName();
-                          auto bName = b.filename().completeBaseName();
-                          return aName.localeAwareCompare(bName) < 0;
-                      });
+                auto aName = a.filename().completeBaseName();
+                auto bName = b.filename().completeBaseName();
+                return aName.localeAwareCompare(bName) < 0;
+            });
             for(auto & mod: modList)
             {
                 if(mod.type() == Mod::MOD_FOLDER)
@@ -747,7 +747,7 @@ MessageLevel::Enum MinecraftInstance::guessLevel(const QString &line, MessageLev
         return MessageLevel::Fatal;
     //NOTE: this diverges from the real regexp. no unicode, the first section is + instead of *
     static const QString javaSymbol = "([a-zA-Z_$][a-zA-Z\\d_$]*\\.)+[a-zA-Z_$][a-zA-Z\\d_$]*";
-        if (line.contains("Exception in thread")
+    if (line.contains("Exception in thread")
         || line.contains(QRegularExpression("\\s+at " + javaSymbol))
         || line.contains(QRegularExpression("Caused by: " + javaSymbol))
         || line.contains(QRegularExpression("([a-zA-Z_$][a-zA-Z\\d_$]*\\.)+[a-zA-Z_$]?[a-zA-Z\\d_$]*(Exception|Error|Throwable)"))
@@ -816,14 +816,14 @@ shared_qobject_ptr<Task> MinecraftInstance::createUpdateTask(Net::Mode mode)
 {
     switch (mode)
     {
-    case Net::Mode::Offline:
-    {
-        return shared_qobject_ptr<Task>(new MinecraftLoadAndCheck(this));
-    }
-    case Net::Mode::Online:
-    {
-        return shared_qobject_ptr<Task>(new MinecraftUpdate(this));
-    }
+        case Net::Mode::Offline:
+        {
+            return shared_qobject_ptr<Task>(new MinecraftLoadAndCheck(this));
+        }
+        case Net::Mode::Online:
+        {
+            return shared_qobject_ptr<Task>(new MinecraftUpdate(this));
+        }
     }
     return nullptr;
 }
@@ -1060,5 +1060,6 @@ QList< Mod > MinecraftInstance::getJarMods() const
     }
     return mods;
 }
+
 
 #include "MinecraftInstance.moc"

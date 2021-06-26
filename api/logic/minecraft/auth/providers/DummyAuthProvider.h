@@ -11,15 +11,26 @@
 
 class DummyAuthProvider : public BaseAuthProvider
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  QString id()
-  {
-    return "dummy";
-  }
+    QString id()
+    {
+        return "dummy";
+    }
 
-  QString displayName() { return "Local"; }
-  bool dummyAuth() { return true; }
-  QString injectorEndpoint() { return "http://localhost:%1"; };
+    QString displayName()
+    {
+        return "Local";
+    }
+
+    bool dummyAuth()
+    {
+        return true;
+    }
+
+    QString injectorEndpoint()
+    {
+        return "http://localhost:%1";
+    };
 };

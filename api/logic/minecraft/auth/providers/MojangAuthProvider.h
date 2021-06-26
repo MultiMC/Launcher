@@ -11,15 +11,26 @@
 
 class MojangAuthProvider : public BaseAuthProvider
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  QString id()
-  {
-    return "mojang";
-  }
+    QString id()
+    {
+        return "mojang";
+    }
 
-  QString displayName() { return "Mojang"; };
-  QString authEndpoint() { return "https://authserver.mojang.com/"; };
-  bool canChangeSkin() { return true; };
+    QString displayName()
+    {
+        return "Mojang";
+    };
+
+    QString authEndpoint()
+    {
+        return "https://authserver.mojang.com/";
+    };
+
+    bool canChangeSkin()
+    {
+        return true;
+    };
 };
