@@ -3,8 +3,7 @@
 > This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
 
 ## Pre-built binaries:
-- Windows: https://drive.google.com/file/d/1kupcMAJB4vK5H8zxTR-eQvDKgjldecpd/view?usp=sharing
-- Linux x64: https://drive.google.com/file/d/1KbB7G9H07r7wCsHfCbM_WVCFmBjAC7Nq/view?usp=sharing
+- Windows / Linux: https://nightly.link/AfoninZ/MultiMC5-Cracked/workflows/main/develop
 - MacOS: https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
 
 Details about the original launcher below:
