@@ -1,16 +1,16 @@
-name: CI
+name: CI Ubuntu 18.04
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ ubuntu_18.04 ]
   pull_request:
-    branches: [ develop ]
+    branches: [ ubuntu_18.04 ]
   workflow_dispatch:
 
 jobs:
   build:
     name: build-linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     steps:
 
