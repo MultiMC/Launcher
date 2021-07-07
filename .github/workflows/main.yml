@@ -134,7 +134,6 @@ jobs:
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
           cd build
-          REM copy D:\Qt\Tools\mingw492_32\bin\mingw32-make.exe D:\Qt\Tools\mingw492_32\bin\make.exe
           cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked/MultiMC" -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/win32/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=win-bundle -DMultiMC_VERSION_BUILD=%BUILD_NUM% -DMultiMC_VERSION_CHANNEL=refs/heads/develop -DMultiMC_BUILD_PLATFORM=win32 -G "MinGW Makefiles" ..
 
       - name: Compile
