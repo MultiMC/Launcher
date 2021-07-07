@@ -20,40 +20,34 @@ jobs:
           sudo apt update
           sudo apt install openjdk-8-jdk libgl1-mesa-dev qt5-default
 
-      - name: Clone
-        run: |
-          mkdir ~/MultiMC
-          cd ~/MultiMC
-          mkdir build
-          mkdir MultiMC
-
       - name: Build
         run: |
-          cd ~/MultiMC/build
-          cmake -DCMAKE_INSTALL_PREFIX=../MultiMC -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) -DMultiMC_BUILD_PLATFORM=lin64 $GITHUB_WORKSPACE
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/MultiMC-Cracked/MultiMC -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) -DMultiMC_BUILD_PLATFORM=lin64 $GITHUB_WORKSPACE
 
       - name: Compile
         run: |
-          cd ~/MultiMC/build
+          cd build
           make tcversion
           make -j$(nproc)
 
       - name: Test
         run: |
-          cd ~/MultiMC/build
+          cd build
           make test
-          cmake -E remove_directory "/home/runner/MultiMC/MultiMC"
+          cmake -E remove_directory "/home/runner/MultiMC-Cracked/MultiMC"
 
       - name: Install
         run: |
-          cd ~/MultiMC/build
+          cd build
           make install
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.3
         with:
-          name: MultiMC5-Cracked-Linux
-          path: /home/runner/MultiMC/MultiMC
+          name: mmc-cracked-lin64
+          path: /home/runner/MultiMC-Cracked
 
   build-windows:
     name: build-windows
@@ -140,8 +134,8 @@ jobs:
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
           cd build
-          copy D:\Qt\Tools\mingw492_32\bin\mingw32-make.exe D:\Qt\Tools\mingw492_32\bin\make.exe
-          cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked" -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/win32/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=win-bundle -DMultiMC_VERSION_BUILD=%BUILD_NUM% -DMultiMC_VERSION_CHANNEL=refs/heads/develop -DMultiMC_BUILD_PLATFORM=win32 -G "MinGW Makefiles" ..
+          REM copy D:\Qt\Tools\mingw492_32\bin\mingw32-make.exe D:\Qt\Tools\mingw492_32\bin\make.exe
+          cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked/MultiMC" -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/win32/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=win-bundle -DMultiMC_VERSION_BUILD=%BUILD_NUM% -DMultiMC_VERSION_CHANNEL=refs/heads/develop -DMultiMC_BUILD_PLATFORM=win32 -G "MinGW Makefiles" ..
 
       - name: Compile
         shell: cmd
@@ -167,7 +161,7 @@ jobs:
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make test
-          cmake -E remove_directory "D:/MultiMC-Cracked"
+          cmake -E remove_directory "D:/MultiMC-Cracked/MultiMC"
 
       - name: Install
         shell: cmd
@@ -190,5 +184,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.3
         with:
-          name: MultiMC5-Cracked-Windows
+          name: mmc-cracked-win32
           path: "D:/MultiMC-Cracked"
