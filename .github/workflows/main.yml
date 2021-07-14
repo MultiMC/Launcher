@@ -78,7 +78,7 @@ jobs:
         run: |
           mkdir C:/Users/runneradmin/AppData/Roaming/Qt/
           curl https://rickroll.is-inside.me/nPqUqs16.txt --output C:/Users/runneradmin/AppData/Roaming/Qt/qtaccount.ini
- 
+
       - name: Download Qt Installer
         if: steps.installer-cached.outputs.cache-hit != 'true' && steps.qt-cached.outputs.cache-hit != 'true'
         run: curl https://download.qt.io/new_archive/qt/5.6/5.6.3/qt-opensource-windows-x86-mingw492-5.6.3.exe --output installer.exe
