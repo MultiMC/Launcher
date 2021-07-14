@@ -39,6 +39,83 @@ void LaunchController::login()
 {
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
+    // Mojang account login bypass
+    //bool ok = false;
+
+    QString usedname = "Player";
+    QString name; /*= QInputDialog::getText(m_parentWidget, tr("Player name"),
+                                         tr("Choose your offline mode player name."),
+                                         QLineEdit::Normal, "Player", &ok);
+                                         */
+    QFile namesFile;
+    namesFile.setFileName("names.txt");
+    if(!namesFile.exists()) {
+        namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
+        namesFile.write("Player");
+        namesFile.close();
+        qDebug() << "Wrote default \"names.txt\" since it didn't exist";
+    }
+    namesFile.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QInputDialog nameSelector;
+    QStringList names;
+
+    while(!namesFile.atEnd()) {
+        names += namesFile.readLine().simplified();
+    }
+    namesFile.close();
+
+    //names << "Test1" << "Test2" << "New Entry...";
+    //nameSelector.setOption(QInputDialog::UseListViewForComboBoxItems); //In case we want to use a list instead of a combobox
+    nameSelector.setComboBoxItems(names);
+    nameSelector.setComboBoxEditable(true);
+    nameSelector.setWindowTitle("Select Username...");
+
+    if(nameSelector.exec() == QDialog::Accepted) {
+        name = nameSelector.textValue();
+        if(name != names[0]) {
+            namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream writer(&namesFile);
+            writer << name.toUtf8();
+            if(!names.contains(name)) {
+                for(int i = 0; i < names.count(); i++) {
+                    writer << "\n" << names[i].toUtf8();
+                    //namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
+                }
+                qDebug() << "Wrote " << name << " to \"names.txt\" since it didn't exist before";
+            } else {
+                for(int i = 0; i < names.count(); i++) { //TODO: Improve efficiency or find a better way to do this
+                    if(names[i] != name) {
+                        //namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
+                        writer << "\n" << names[i].toUtf8();
+                    }
+                    qDebug() << "Reordered \"names.txt\"";
+                }
+            }
+            namesFile.flush();
+            namesFile.close();
+        }
+    } else {
+        return;
+    }
+    qDebug() << "Username Selected: " << name;
+
+    /*if (!ok)
+    {
+        return;
+    }*/
+
+    if (name.length())
+    {
+        usedname = name;
+    }
+    m_session = std::make_shared<AuthSession>();
+    m_session->MakeCracked(usedname);
+
+    launchInstance();
+
+    // Original login code
+    /*
     // Find an account to use.
     std::shared_ptr<AccountList> accounts = MMC->accounts();
     AccountPtr account = accounts->activeAccount();
@@ -185,7 +262,7 @@ void LaunchController::login()
         }
         }
     }
-    emitFailed(tr("Failed to launch."));
+    emitFailed(tr("Failed to launch."));*/
 }
 
 void LaunchController::launchInstance()

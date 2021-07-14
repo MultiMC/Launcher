@@ -896,7 +896,8 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     }
     else
     {
-        process->appendStep(new Update(pptr, Net::Mode::Offline));
+        process->appendStep(new Update(pptr, Net::Mode::Online));
+        // TODO: Separate "cracked" logins (offline from auth servers) from genuine offline logins (no internet)
     }
 
     // if there are any jar mods

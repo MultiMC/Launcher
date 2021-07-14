@@ -1,18 +1,40 @@
-> **This is a "cracked" version of a popular Minecraft launcher that lets you play the game without a Mojang account.**
->
-> This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
 
-## Pre-built binaries:
-- Windows / Linux: https://nightly.link/AfoninZ/MultiMC5-Cracked/workflows/main/develop
+**This is a "cracked" version of a popular Minecraft launcher that lets you play the game without a Mojang account.**
+This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
+
+## Pre-built binaries (experimental as for now):
+- Windows: ![MultiMC5-Cracked Develop](https://github.com/PibePlayer/MultiMC5-Cracked/actions/workflows/main.yml/badge.svg) 
+
+    [nightly.link lastest-build](https://nightly.link/PibePlayer/MultiMC5-Cracked/workflows/develop/develop/MultiMC5-Cracked-Portable-win32-8.zip)
+  
+    [In-House OAuthApp lastest-build](https://pibeplayer.github.io/MultiMC5-Cracked/download-lastest/index.html)
+    
+    Old:   https://drive.google.com/file/d/1erbFNd_BFZ5Wd9qZqp6mU9vl3tbNBiep/view?usp=sharing
+- Linux x64: https://drive.google.com/file/d/1jzcxDxRDliyAgjrohuaBgdmInIs4DnAM/view?usp=sharing
 - MacOS: https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
 
 Details about the original launcher below:
+
+
+
+
+
+
+
+
 
 MultiMC 5
 =========
 
 MultiMC is a custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once. It also allows you to easily install and remove mods by simply dragging and dropping. Here are the current [features](https://github.com/MultiMC/MultiMC5/wiki#features) of MultiMC.
 
+## How to get it
+This project support only cloning, because it has submodules
+```
+git clone https://github.com/AfoninZ/MultiMC5-Cracked
+cd MultiMC5-Cracked
+git submodule update --init
+```
 
 ## Development
 The project uses C++ and Qt5 as the language and base framework. This might seem odd in the Minecraft community, but allows using 25MB of RAM, where other tools use an excessive amount of resources for no reason.
