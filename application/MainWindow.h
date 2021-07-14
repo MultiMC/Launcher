@@ -187,8 +187,6 @@ private slots:
     void globalSettingsClosed();
 
 private:
-    void retranslateUi();
-
     void addInstance(QString url = QString());
     void activateInstance(InstancePtr instance);
     void setCatBackground(bool enabled);

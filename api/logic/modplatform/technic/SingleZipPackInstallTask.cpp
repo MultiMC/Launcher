@@ -28,14 +28,6 @@ Technic::SingleZipPackInstallTask::SingleZipPackInstallTask(const QUrl &sourceUr
     m_minecraftVersion = minecraftVersion;
 }
 
-bool Technic::SingleZipPackInstallTask::abort() {
-    if(m_abortable)
-    {
-        return m_filesNetJob->abort();
-    }
-    return false;
-}
-
 void Technic::SingleZipPackInstallTask::executeTask()
 {
     setStatus(tr("Downloading modpack:\n%1").arg(m_sourceUrl.toString()));
@@ -55,8 +47,6 @@ void Technic::SingleZipPackInstallTask::executeTask()
 
 void Technic::SingleZipPackInstallTask::downloadSucceeded()
 {
-    m_abortable = false;
-
     setStatus(tr("Extracting modpack"));
     QDir extractDir(FS::PathCombine(m_stagingPath, ".minecraft"));
     qDebug() << "Attempting to create instance from" << m_archivePath;
@@ -77,14 +67,12 @@ void Technic::SingleZipPackInstallTask::downloadSucceeded()
 
 void Technic::SingleZipPackInstallTask::downloadFailed(QString reason)
 {
-    m_abortable = false;
     emitFailed(reason);
     m_filesNetJob.reset();
 }
 
 void Technic::SingleZipPackInstallTask::downloadProgressChanged(qint64 current, qint64 total)
 {
-    m_abortable = true;
     setProgress(current / 2, total);
 }
 

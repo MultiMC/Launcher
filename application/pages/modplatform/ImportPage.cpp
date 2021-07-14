@@ -71,7 +71,6 @@ void ImportPage::updateState()
             {
                 QFileInfo fi(url.fileName());
                 dialog->setSuggestedPack(fi.completeBaseName(), new InstanceImportTask(url));
-                dialog->setSuggestedIcon("default");
             }
         }
         else
@@ -84,7 +83,6 @@ void ImportPage::updateState()
             // hook, line and sinker.
             QFileInfo fi(url.fileName());
             dialog->setSuggestedPack(fi.completeBaseName(), new InstanceImportTask(url));
-            dialog->setSuggestedIcon("default");
         }
     }
     else

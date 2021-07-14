@@ -27,11 +27,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLineEdit" name="searchEdit">
-        <property name="placeholderText">
-         <string>Search and filter ...</string>
-        </property>
-       </widget>
+       <widget class="QLineEdit" name="searchEdit"/>
       </item>
       <item>
        <widget class="QPushButton" name="searchButton">

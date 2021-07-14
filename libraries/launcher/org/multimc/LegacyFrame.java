@@ -46,16 +46,7 @@ public class LegacyFrame extends Frame implements WindowListener
         this.addWindowListener ( this );
     }
 
-    public void start (
-        Applet mcApplet,
-        String user,
-        String session,
-        int winSizeW,
-        int winSizeH,
-        boolean maximize,
-        String serverAddress,
-        String serverPort
-    )
+    public void start ( Applet mcApplet, String user, String session, int winSizeW, int winSizeH, boolean maximize )
     {
         try {
             appletWrap = new Launcher( mcApplet, new URL ( "http://www.minecraft.net/game" ) );
@@ -104,13 +95,6 @@ public class LegacyFrame extends Frame implements WindowListener
             e.printStackTrace(System.err);
             System.exit(-1);
         }
-
-        if (serverAddress != null)
-        {
-            appletWrap.setParameter("server", serverAddress);
-            appletWrap.setParameter("port", serverPort);
-        }
-
         appletWrap.setParameter ( "username", user );
         appletWrap.setParameter ( "sessionid", session );
         appletWrap.setParameter ( "stand-alone", "true" ); // Show the quit button.

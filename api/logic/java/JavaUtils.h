@@ -39,6 +39,6 @@ public:
     JavaInstallPtr GetDefaultJava();
 
 #ifdef Q_OS_WIN
-    QList<JavaInstallPtr> FindJavaFromRegistryKey(DWORD keyType, QString keyName, QString keyJavaDir, QString subkeySuffix = "");
+    QList<JavaInstallPtr> FindJavaFromRegistryKey(DWORD keyType, QString keyName);
 #endif
 };

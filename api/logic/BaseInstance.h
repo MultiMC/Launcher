@@ -34,8 +34,6 @@
 
 #include "multimc_logic_export.h"
 
-#include "minecraft/launch/MinecraftServerTarget.h"
-
 class QDir;
 class Task;
 class LaunchTask;
@@ -224,9 +222,9 @@ public:
     bool reloadSettings();
 
     /**
-     * 'print' a verbose description of the instance into a QStringList
+     * 'print' a verbose desription of the instance into a QStringList
      */
-    virtual QStringList verboseDescription(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) = 0;
+    virtual QStringList verboseDescription(AuthSessionPtr session) = 0;
 
     Status currentStatus() const;
 

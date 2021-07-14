@@ -18,15 +18,13 @@
 #include <launch/LaunchStep.h>
 #include <memory>
 #include "minecraft/auth/AuthSession.h"
-#include "minecraft/launch/MinecraftServerTarget.h"
 
 // FIXME: temporary wrapper for existing task.
 class PrintInstanceInfo: public LaunchStep
 {
     Q_OBJECT
 public:
-    explicit PrintInstanceInfo(LaunchTask *parent, AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) :
-        LaunchStep(parent), m_session(session), m_serverToJoin(serverToJoin) {};
+    explicit PrintInstanceInfo(LaunchTask *parent, AuthSessionPtr session) : LaunchStep(parent), m_session(session) {};
     virtual ~PrintInstanceInfo(){};
 
     virtual void executeTask();
@@ -36,6 +34,5 @@ public:
     }
 private:
     AuthSessionPtr m_session;
-    MinecraftServerTargetPtr m_serverToJoin;
 };
 

@@ -82,19 +82,10 @@ BaseVersionPtr VanillaPage::selectedVersion() const
 
 void VanillaPage::suggestCurrent()
 {
-    if (!isOpened)
+    if(m_selectedVersion && isOpened)
     {
-        return;
+        dialog->setSuggestedPack(m_selectedVersion->descriptor(), new InstanceCreationTask(m_selectedVersion));
     }
-        
-    if(!m_selectedVersion)
-    {
-        dialog->setSuggestedPack();
-        return;
-    }
-
-    dialog->setSuggestedPack(m_selectedVersion->descriptor(), new InstanceCreationTask(m_selectedVersion));
-    dialog->setSuggestedIcon("default");
 }
 
 void VanillaPage::setSelectedVersion(BaseVersionPtr version)

@@ -35,7 +35,7 @@ class ServersPage : public QMainWindow, public BasePage
     Q_OBJECT
 
 public:
-    explicit ServersPage(InstancePtr inst, QWidget *parent = 0);
+    explicit ServersPage(MinecraftInstance *inst, QWidget *parent = 0);
     virtual ~ServersPage();
 
     void openedImpl() override;
@@ -74,7 +74,6 @@ private slots:
     void on_actionRemove_triggered();
     void on_actionMove_Up_triggered();
     void on_actionMove_Down_triggered();
-    void on_actionJoin_triggered();
 
     void on_RunningState_changed(bool running);
 
@@ -89,6 +88,6 @@ private: // data
     bool m_locked = true;
     Ui::ServersPage *ui = nullptr;
     ServersModel * m_model = nullptr;
-    InstancePtr m_inst = nullptr;
+    MinecraftInstance * m_inst = nullptr;
 };
 

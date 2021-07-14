@@ -36,9 +36,6 @@ class MULTIMC_LOGIC_EXPORT SingleZipPackInstallTask : public InstanceTask
 public:
     SingleZipPackInstallTask(const QUrl &sourceUrl, const QString &minecraftVersion);
 
-    bool canAbort() const override { return true; }
-    bool abort() override;
-
 protected:
     void executeTask() override;
 
@@ -51,8 +48,6 @@ private slots:
     void extractAborted();
 
 private:
-    bool m_abortable = false;
-
     QUrl m_sourceUrl;
     QString m_minecraftVersion;
     QString m_archivePath;

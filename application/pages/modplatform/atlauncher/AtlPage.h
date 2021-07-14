@@ -19,7 +19,6 @@
 #include "AtlListModel.h"
 
 #include <QWidget>
-#include <modplatform/atlauncher/ATLPackInstallTask.h>
 
 #include "MultiMC.h"
 #include "pages/BasePage.h"
@@ -32,7 +31,7 @@ namespace Ui
 
 class NewInstanceDialog;
 
-class AtlPage : public QWidget, public BasePage, public ATLauncher::UserInteractionSupport
+class AtlPage : public QWidget, public BasePage
 {
 Q_OBJECT
 
@@ -62,9 +61,6 @@ public:
 private:
     void suggestCurrent();
 
-    QString chooseVersion(Meta::VersionListPtr vlist, QString minecraftVersion) override;
-    QVector<QString> chooseOptionalMods(QVector<ATLauncher::VersionMod> mods) override;
-
 private slots:
     void triggerSearch();
     void resetSearch();
@@ -82,6 +78,4 @@ private:
 
     ATLauncher::IndexedPack selected;
     QString selectedVersion;
-
-    bool initialized = false;
 };

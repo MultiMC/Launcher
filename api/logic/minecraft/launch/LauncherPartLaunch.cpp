@@ -59,7 +59,7 @@ void LauncherPartLaunch::executeTask()
     auto instance = m_parent->instance();
     std::shared_ptr<MinecraftInstance> minecraftInstance = std::dynamic_pointer_cast<MinecraftInstance>(instance);
 
-    m_launchScript = minecraftInstance->createLaunchScript(m_session, m_serverToJoin);
+    m_launchScript = minecraftInstance->createLaunchScript(m_session);
     QStringList args = minecraftInstance->javaArguments();
     QString allArgs = args.join(", ");
     emit logLine("Java Arguments:\n[" + m_parent->censorPrivateInfo(allArgs) + "]\n\n", MessageLevel::MultiMC);
@@ -118,9 +118,9 @@ void LauncherPartLaunch::executeTask()
         auto realWrapperCommand = QStandardPaths::findExecutable(wrapperCommand);
         if (realWrapperCommand.isEmpty())
         {
-            const char *reason = QT_TR_NOOP("The wrapper command \"%1\" couldn't be found.");
-            emit logLine(QString(reason).arg(wrapperCommand), MessageLevel::Fatal);
-            emitFailed(tr(reason).arg(wrapperCommand));
+            QString reason = tr("The wrapper command \"%1\" couldn't be found.").arg(wrapperCommand);
+            emit logLine(reason, MessageLevel::Fatal);
+            emitFailed(reason);
             return;
         }
         emit logLine("Wrapper command is:\n" + wrapperCommandStr + "\n\n", MessageLevel::MultiMC);
@@ -140,16 +140,17 @@ void LauncherPartLaunch::on_state(LoggedProcess::State state)
         case LoggedProcess::FailedToStart:
         {
             //: Error message displayed if instace can't start
-            const char *reason = QT_TR_NOOP("Could not launch minecraft!");
+            QString reason = tr("Could not launch minecraft!");
             emit logLine(reason, MessageLevel::Fatal);
-            emitFailed(tr(reason));
+            emitFailed(reason);
             return;
         }
         case LoggedProcess::Aborted:
         case LoggedProcess::Crashed:
+
         {
             m_parent->setPid(-1);
-            emitFailed(tr("Game crashed."));
+            emitFailed("Game crashed.");
             return;
         }
         case LoggedProcess::Finished:
@@ -159,7 +160,7 @@ void LauncherPartLaunch::on_state(LoggedProcess::State state)
             auto exitCode = m_process.exitCode();
             if(exitCode != 0)
             {
-                emitFailed(tr("Game crashed."));
+                emitFailed("Game crashed.");
                 return;
             }
             //FIXME: make this work again
@@ -169,7 +170,7 @@ void LauncherPartLaunch::on_state(LoggedProcess::State state)
             break;
         }
         case LoggedProcess::Running:
-            emit logLine(QString("Minecraft process ID: %1\n\n").arg(m_process.processId()), MessageLevel::MultiMC);
+            emit logLine(tr("Minecraft process ID: %1\n\n").arg(m_process.processId()), MessageLevel::MultiMC);
             m_parent->setPid(m_process.processId());
             m_parent->instance()->setLastLaunch();
             // send the launch script to the launcher part

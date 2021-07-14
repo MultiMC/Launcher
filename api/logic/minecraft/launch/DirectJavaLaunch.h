@@ -19,8 +19,6 @@
 #include <LoggedProcess.h>
 #include <minecraft/auth/AuthSession.h>
 
-#include "MinecraftServerTarget.h"
-
 class DirectJavaLaunch: public LaunchStep
 {
     Q_OBJECT
@@ -40,12 +38,6 @@ public:
     {
         m_session = session;
     }
-
-    void setServerToJoin(MinecraftServerTargetPtr serverToJoin)
-    {
-        m_serverToJoin = std::move(serverToJoin);
-    }
-
 private slots:
     void on_state(LoggedProcess::State state);
 
@@ -53,6 +45,5 @@ private:
     LoggedProcess m_process;
     QString m_command;
     AuthSessionPtr m_session;
-    MinecraftServerTargetPtr m_serverToJoin;
 };
 

@@ -16,7 +16,6 @@ public:
     explicit PackInstallTask(Modpack pack, QString version);
     virtual ~PackInstallTask(){}
 
-    bool canAbort() const override { return true; }
     bool abort() override;
 
 protected:
@@ -31,16 +30,12 @@ private:
     void install();
 
 private:
-    bool abortable = false;
-
     NetJobPtr jobPtr;
     QByteArray response;
 
     Modpack m_pack;
     QString m_version_name;
     Version m_version;
-
-    QMap<QString, QString> filesToCopy;
 
 };
 

@@ -2,10 +2,8 @@
 #include "ui_AtlPage.h"
 
 #include "dialogs/NewInstanceDialog.h"
-#include "AtlOptionalModDialog.h"
 #include <modplatform/atlauncher/ATLPackInstallTask.h>
 #include <BuildConfig.h>
-#include <dialogs/VersionSelectDialog.h>
 
 AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget *parent)
         : QWidget(parent), ui(new Ui::AtlPage), dialog(dialog)
@@ -20,9 +18,6 @@ AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget *parent)
 
     ui->packView->header()->hide();
     ui->packView->setIndentation(0);
-
-    ui->versionSelectionBox->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    ui->versionSelectionBox->view()->parentWidget()->setMaximumHeight(300);
 
     for(int i = 0; i < filterModel->getAvailableSortings().size(); i++)
     {
@@ -49,29 +44,15 @@ bool AtlPage::shouldDisplay() const
 
 void AtlPage::openedImpl()
 {
-    if(!initialized)
-    {
-        listModel->request();
-        initialized = true;
-    }
-
-    suggestCurrent();
+    listModel->request();
 }
 
 void AtlPage::suggestCurrent()
 {
-    if(!isOpened)
-    {
-        return;
+    if(isOpened) {
+        dialog->setSuggestedPack(selected.name, new ATLauncher::PackInstallTask(selected.safeName, selectedVersion));
     }
 
-    if (selectedVersion.isEmpty())
-    {
-        dialog->setSuggestedPack();
-        return;
-    }
-
-    dialog->setSuggestedPack(selected.name, new ATLauncher::PackInstallTask(this, selected.safeName, selectedVersion));
     auto editedLogoName = selected.safeName;
     auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "launcher/images/%1.png").arg(selected.safeName.toLower());
     listModel->getLogo(selected.safeName, url, [this, editedLogoName](QString logo)
@@ -130,46 +111,4 @@ void AtlPage::onVersionSelectionChanged(QString data)
 
     selectedVersion = data;
     suggestCurrent();
-}
-
-QVector<QString> AtlPage::chooseOptionalMods(QVector<ATLauncher::VersionMod> mods) {
-    AtlOptionalModDialog optionalModDialog(this, mods);
-    optionalModDialog.exec();
-    return optionalModDialog.getResult();
-}
-
-QString AtlPage::chooseVersion(Meta::VersionListPtr vlist, QString minecraftVersion) {
-    VersionSelectDialog vselect(vlist.get(), "Choose Version", MMC->activeWindow(), false);
-    if (minecraftVersion != Q_NULLPTR) {
-        vselect.setExactFilter(BaseVersionList::ParentVersionRole, minecraftVersion);
-        vselect.setEmptyString(tr("No versions are currently available for Minecraft %1").arg(minecraftVersion));
-    }
-    else {
-        vselect.setEmptyString(tr("No versions are currently available"));
-    }
-    vselect.setEmptyErrorString(tr("Couldn't load or download the version lists!"));
-
-    // select recommended build
-    for (int i = 0; i < vlist->versions().size(); i++) {
-        auto version = vlist->versions().at(i);
-        auto reqs = version->requires();
-
-        // filter by minecraft version, if the loader depends on a certain version.
-        if (minecraftVersion != Q_NULLPTR) {
-            auto iter = std::find_if(reqs.begin(), reqs.end(), [](const Meta::Require &req) {
-                return req.uid == "net.minecraft";
-            });
-            if (iter == reqs.end()) continue;
-            if (iter->equalsVersion != minecraftVersion) continue;
-        }
-
-        // first recommended build we find, we use.
-        if (version->isRecommended()) {
-            vselect.setCurrentVersion(version->descriptor());
-            break;
-        }
-    }
-
-    vselect.exec();
-    return vselect.selectedVersion()->descriptor();
 }

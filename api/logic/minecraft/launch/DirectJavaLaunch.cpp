@@ -55,7 +55,7 @@ void DirectJavaLaunch::executeTask()
     // make detachable - this will keep the process running even if the object is destroyed
     m_process.setDetachable(true);
 
-    auto mcArgs = minecraftInstance->processMinecraftArgs(m_session, m_serverToJoin);
+    auto mcArgs = minecraftInstance->processMinecraftArgs(m_session);
     args.append(mcArgs);
 
     QString wrapperCommandStr = instance->getWrapperCommand().trimmed();
@@ -66,9 +66,9 @@ void DirectJavaLaunch::executeTask()
         auto realWrapperCommand = QStandardPaths::findExecutable(wrapperCommand);
         if (realWrapperCommand.isEmpty())
         {
-            const char *reason = QT_TR_NOOP("The wrapper command \"%1\" couldn't be found.");
-            emit logLine(QString(reason).arg(wrapperCommand), MessageLevel::Fatal);
-            emitFailed(tr(reason).arg(wrapperCommand));
+            QString reason = tr("The wrapper command \"%1\" couldn't be found.").arg(wrapperCommand);
+            emit logLine(reason, MessageLevel::Fatal);
+            emitFailed(reason);
             return;
         }
         emit logLine("Wrapper command is:\n" + wrapperCommandStr + "\n\n", MessageLevel::MultiMC);
@@ -87,17 +87,18 @@ void DirectJavaLaunch::on_state(LoggedProcess::State state)
     {
         case LoggedProcess::FailedToStart:
         {
-            //: Error message displayed if instance can't start
-            const char *reason = QT_TR_NOOP("Could not launch minecraft!");
+            //: Error message displayed if instace can't start
+            QString reason = tr("Could not launch minecraft!");
             emit logLine(reason, MessageLevel::Fatal);
-            emitFailed(tr(reason));
+            emitFailed(reason);
             return;
         }
         case LoggedProcess::Aborted:
         case LoggedProcess::Crashed:
+
         {
             m_parent->setPid(-1);
-            emitFailed(tr("Game crashed."));
+            emitFailed("Game crashed.");
             return;
         }
         case LoggedProcess::Finished:
@@ -107,7 +108,7 @@ void DirectJavaLaunch::on_state(LoggedProcess::State state)
             auto exitCode = m_process.exitCode();
             if(exitCode != 0)
             {
-                emitFailed(tr("Game crashed."));
+                emitFailed("Game crashed.");
                 return;
             }
             //FIXME: make this work again
@@ -117,7 +118,7 @@ void DirectJavaLaunch::on_state(LoggedProcess::State state)
             break;
         }
         case LoggedProcess::Running:
-            emit logLine(QString("Minecraft process ID: %1\n\n").arg(m_process.processId()), MessageLevel::MultiMC);
+            emit logLine(tr("Minecraft process ID: %1\n\n").arg(m_process.processId()), MessageLevel::MultiMC);
             m_parent->setPid(m_process.processId());
             m_parent->instance()->setLastLaunch();
             break;

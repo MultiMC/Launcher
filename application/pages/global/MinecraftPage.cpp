@@ -67,10 +67,6 @@ void MinecraftPage::applySettings()
     // Native library workarounds
     s->set("UseNativeOpenAL", ui->useNativeOpenALCheck->isChecked());
     s->set("UseNativeGLFW", ui->useNativeGLFWCheck->isChecked());
-
-    // Game time
-    s->set("ShowGameTime", ui->showGameTime->isChecked());
-    s->set("RecordGameTime", ui->recordGameTime->isChecked());
 }
 
 void MinecraftPage::loadSettings()
@@ -84,7 +80,4 @@ void MinecraftPage::loadSettings()
 
     ui->useNativeOpenALCheck->setChecked(s->get("UseNativeOpenAL").toBool());
     ui->useNativeGLFWCheck->setChecked(s->get("UseNativeGLFW").toBool());
-
-    ui->showGameTime->setChecked(s->get("ShowGameTime").toBool());
-    ui->recordGameTime->setChecked(s->get("RecordGameTime").toBool());
 }

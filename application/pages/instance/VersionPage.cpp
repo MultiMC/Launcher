@@ -120,15 +120,7 @@ VersionPage::VersionPage(MinecraftInstance *inst, QWidget *parent)
 
     auto proxy = new IconProxy(ui->packageView);
     proxy->setSourceModel(m_profile.get());
-
-    m_filterModel = new QSortFilterProxyModel();
-    m_filterModel->setDynamicSortFilter(true);
-    m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_filterModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-    m_filterModel->setSourceModel(proxy);
-    m_filterModel->setFilterKeyColumn(-1);
-
-    ui->packageView->setModel(m_filterModel);
+    ui->packageView->setModel(proxy);
     ui->packageView->installEventFilter(this);
     ui->packageView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->packageView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -142,8 +134,7 @@ VersionPage::VersionPage(MinecraftInstance *inst, QWidget *parent)
     updateVersionControls();
     preselect(0);
     connect(m_inst, &BaseInstance::runningStatusChanged, this, &VersionPage::updateRunningStatus);
-    connect(ui->packageView, &ModListView::customContextMenuRequested, this, &VersionPage::showContextMenu);
-    connect(ui->filterEdit, &QLineEdit::textChanged, this, &VersionPage::onFilterTextChanged);
+    connect(ui->packageView, &ModListView::customContextMenuRequested, this, &VersionPage::ShowContextMenu);
 }
 
 VersionPage::~VersionPage()
@@ -151,7 +142,7 @@ VersionPage::~VersionPage()
     delete ui;
 }
 
-void VersionPage::showContextMenu(const QPoint& pos)
+void VersionPage::ShowContextMenu(const QPoint& pos)
 {
     auto menu = ui->toolBar->createContextMenu(this, tr("Context menu"));
     menu->exec(ui->packageView->mapToGlobal(pos));
@@ -212,11 +203,11 @@ void VersionPage::updateVersionControls()
 {
     // FIXME: this is a dirty hack
     auto minecraftVersion = Version(m_profile->getComponentVersion("net.minecraft"));
-    bool newCraft = minecraftVersion >= Version("1.14");
-    bool oldCraft = minecraftVersion <= Version("1.12.2");
-    ui->actionInstall_Fabric->setEnabled(controlsEnabled && newCraft);
-    ui->actionInstall_Forge->setEnabled(controlsEnabled);
-    ui->actionInstall_LiteLoader->setEnabled(controlsEnabled && oldCraft);
+    bool newCraft = controlsEnabled && (minecraftVersion >= Version("1.14"));
+    bool oldCraft = controlsEnabled && (minecraftVersion <= Version("1.12.2"));
+    ui->actionInstall_Fabric->setEnabled(newCraft);
+    ui->actionInstall_Forge->setEnabled(true);
+    ui->actionInstall_LiteLoader->setEnabled(oldCraft);
     ui->actionReload->setEnabled(true);
     updateButtons();
 }
@@ -627,11 +618,6 @@ void VersionPage::on_actionRevert_triggered()
     updateButtons();
     preselect(currentIdx);
     m_container->refreshContainer();
-}
-
-void VersionPage::onFilterTextChanged(const QString &newContents)
-{
-    m_filterModel->setFilterFixedString(newContents);
 }
 
 #include "VersionPage.moc"

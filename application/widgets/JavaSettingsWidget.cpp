@@ -19,7 +19,7 @@
 
 JavaSettingsWidget::JavaSettingsWidget(QWidget* parent) : QWidget(parent)
 {
-    m_availableMemory = Sys::getSystemRam() / Sys::mebibyte;
+    m_availableMemory = Sys::getSystemRam() / Sys::megabyte;
 
     goodIcon = MMC->getThemedIcon("status-good");
     yellowIcon = MMC->getThemedIcon("status-yellow");

@@ -43,7 +43,6 @@ public:
 
     void setSuggestedPack(const QString & name = QString(), InstanceTask * task = nullptr);
     void setSuggestedIconFromFile(const QString &path, const QString &name);
-    void setSuggestedIcon(const QString &key);
 
     InstanceTask * extractTask();
 
