@@ -1,10 +1,12 @@
 #include "FTBPackInstallTask.h"
 
 #include "BuildConfig.h"
+#include "Env.h"
 #include "FileSystem.h"
 #include "Json.h"
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
+#include "net/ChecksumValidator.h"
 #include "settings/INISettingsObject.h"
 
 namespace ModpacksCH {
@@ -17,7 +19,11 @@ PackInstallTask::PackInstallTask(Modpack pack, QString version)
 
 bool PackInstallTask::abort()
 {
-    return true;
+    if(abortable)
+    {
+        return jobPtr->abort();
+    }
+    return false;
 }
 
 void PackInstallTask::executeTask()
@@ -93,31 +99,41 @@ void PackInstallTask::downloadPack()
     for(auto file : m_version.files) {
         if(file.serverOnly) continue;
 
+        QFileInfo fileName(file.name);
+        auto cacheName = fileName.completeBaseName() + "-" + file.sha1 + "." + fileName.suffix();
+
+        auto entry = ENV.metacache()->resolveEntry("ModpacksCHPacks", cacheName);
+        entry->setStale(true);
+
         auto relpath = FS::PathCombine("minecraft", file.path, file.name);
         auto path = FS::PathCombine(m_stagingPath, relpath);
 
         qDebug() << "Will download" << file.url << "to" << path;
-        auto dl = Net::Download::makeFile(file.url, path);
+        filesToCopy[entry->getFullPath()] = path;
+
+        auto dl = Net::Download::makeCached(file.url, entry);
+        if (!file.sha1.isEmpty()) {
+            auto rawSha1 = QByteArray::fromHex(file.sha1.toLatin1());
+            dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, rawSha1));
+        }
         jobPtr->addNetAction(dl);
     }
 
     connect(jobPtr.get(), &NetJob::succeeded, this, [&]()
     {
+        abortable = false;
         jobPtr.reset();
         install();
     });
     connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
     {
+        abortable = false;
         jobPtr.reset();
-
-        // FIXME: Temporarily ignore file download failures (matching FTB's installer),
-        // while FTB's data is fucked.
-        qWarning() << "Failed to download files for modpack: " + reason;
-
-        install();
+        emitFailed(reason);
     });
     connect(jobPtr.get(), &NetJob::progress, [&](qint64 current, qint64 total)
     {
+        abortable = true;
         setProgress(current, total);
     });
 
@@ -126,6 +142,19 @@ void PackInstallTask::downloadPack()
 
 void PackInstallTask::install()
 {
+    setStatus(tr("Copying modpack files"));
+
+    for (auto iter = filesToCopy.begin(); iter != filesToCopy.end(); iter++) {
+        auto &from = iter.key();
+        auto &to = iter.value();
+        FS::copy fileCopyOperation(from, to);
+        if(!fileCopyOperation()) {
+            qWarning() << "Failed to copy" << from << "to" << to;
+            emitFailed(tr("Failed to copy files"));
+            return;
+        }
+    }
+
     setStatus(tr("Installing modpack"));
 
     auto instanceConfigPath = FS::PathCombine(m_stagingPath, "instance.cfg");

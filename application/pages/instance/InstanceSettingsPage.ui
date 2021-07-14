@@ -116,7 +116,7 @@
              <string>The maximum amount of memory Minecraft is allowed to use.</string>
             </property>
             <property name="suffix">
-             <string notr="true"> MB</string>
+             <string notr="true"> MiB</string>
             </property>
             <property name="minimum">
              <number>128</number>
@@ -138,7 +138,7 @@
              <string>The amount of memory Minecraft is started with.</string>
             </property>
             <property name="suffix">
-             <string notr="true"> MB</string>
+             <string notr="true"> MiB</string>
             </property>
             <property name="minimum">
              <number>128</number>
@@ -160,7 +160,7 @@
              <string>The amount of memory available to store loaded Java classes.</string>
             </property>
             <property name="suffix">
-             <string notr="true"> MB</string>
+             <string notr="true"> MiB</string>
             </property>
             <property name="minimum">
              <number>64</number>
@@ -416,6 +416,93 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="miscellanousPage">
+      <attribute name="title">
+       <string>Miscellanous</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QGroupBox" name="gameTimeGroupBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string>Override global game time settings</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QCheckBox" name="showGameTime">
+            <property name="text">
+             <string>Show time spent playing this instance</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="recordGameTime">
+            <property name="text">
+             <string>Record time spent playing this instance</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="serverJoinGroupBox">
+         <property name="title">
+          <string>Set a server to join on launch</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_11">
+          <item>
+           <layout class="QGridLayout" name="serverJoinLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="serverJoinAddressLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Server address:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="serverJoinAddress"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacerMiscellanous">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -453,6 +540,8 @@
   <tabstop>nativeWorkaroundsGroupBox</tabstop>
   <tabstop>useNativeGLFWCheck</tabstop>
   <tabstop>useNativeOpenALCheck</tabstop>
+  <tabstop>showGameTime</tabstop>
+  <tabstop>recordGameTime</tabstop>
  </tabstops>
  <resources/>
  <connections/>

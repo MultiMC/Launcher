@@ -15,6 +15,9 @@
 #include <minecraft/auth/YggdrasilTask.h>
 #include <launch/steps/TextPrint.h>
 #include <QStringList>
+#include <QHostInfo>
+#include <QList>
+#include <QHostAddress>
 
 LaunchController::LaunchController(QObject *parent) : Task(parent)
 {
@@ -36,83 +39,6 @@ void LaunchController::login()
 {
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
-    // Mojang account login bypass
-    //bool ok = false;
-
-    QString usedname = "Player";
-    QString name; /*= QInputDialog::getText(m_parentWidget, tr("Player name"),
-                                         tr("Choose your offline mode player name."),
-                                         QLineEdit::Normal, "Player", &ok);
-                                         */
-    QFile namesFile;
-    namesFile.setFileName("names.txt");
-    if(!namesFile.exists()) {
-        namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
-        namesFile.write("Player");
-        namesFile.close();
-        qDebug() << "Wrote default \"names.txt\" since it didn't exist";
-    }
-    namesFile.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QInputDialog nameSelector;
-    QStringList names;
-
-    while(!namesFile.atEnd()) {
-        names += namesFile.readLine().simplified();
-    }
-    namesFile.close();
-
-    //names << "Test1" << "Test2" << "New Entry...";
-    //nameSelector.setOption(QInputDialog::UseListViewForComboBoxItems); //In case we want to use a list instead of a combobox
-    nameSelector.setComboBoxItems(names);
-    nameSelector.setComboBoxEditable(true);
-    nameSelector.setWindowTitle("Select Username...");
-
-    if(nameSelector.exec() == QDialog::Accepted) {
-        name = nameSelector.textValue();
-        if(name != names[0]) {
-            namesFile.open(QIODevice::WriteOnly | QIODevice::Text);
-            QTextStream writer(&namesFile);
-            writer << name.toUtf8();
-            if(!names.contains(name)) {
-                for(int i = 0; i < names.count(); i++) {
-                    writer << "\n" << names[i].toUtf8();
-                    //namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
-                }
-                qDebug() << "Wrote " << name << " to \"names.txt\" since it didn't exist before";
-            } else {
-                for(int i = 0; i < names.count(); i++) { //TODO: Improve efficiency or find a better way to do this
-                    if(names[i] != name) {
-                        //namesFile.write("\n"); namesFile.write(names[i].toStdString().c_str());
-                        writer << "\n" << names[i].toUtf8();
-                    }
-                    qDebug() << "Reordered \"names.txt\"";
-                }
-            }
-            namesFile.flush();
-            namesFile.close();
-        }
-    } else {
-        return;
-    }
-    qDebug() << "Username Selected: " << name;
-
-    /*if (!ok)
-    {
-        return;
-    }*/
-
-    if (name.length())
-    {
-        usedname = name;
-    }
-    m_session = std::make_shared<AuthSession>();
-    m_session->MakeCracked(usedname);
-
-    launchInstance();
-
-    // Original login code
-    /*
     // Find an account to use.
     std::shared_ptr<AccountList> accounts = MMC->accounts();
     AccountPtr account = accounts->activeAccount();
@@ -259,7 +185,7 @@ void LaunchController::login()
         }
         }
     }
-    emitFailed(tr("Failed to launch."));*/
+    emitFailed(tr("Failed to launch."));
 }
 
 void LaunchController::launchInstance()
@@ -292,7 +218,46 @@ void LaunchController::launchInstance()
     connect(m_launcher.get(), &LaunchTask::failed, this,  &LaunchController::onFailed);
     connect(m_launcher.get(), &LaunchTask::requestProgress, this, &LaunchController::onProgressRequested);
 
+    // Prepend Online and Auth Status
+    QString online_mode;
+    if(m_session->wants_online) {
+        online_mode = "online";
 
+        // Prepend Server Status
+        QStringList servers = {"authserver.mojang.com", "session.minecraft.net", "textures.minecraft.net", "api.mojang.com"};
+        QString resolved_servers = "";
+        QHostInfo host_info;
+
+        for(QString server : servers) {
+            host_info = QHostInfo::fromName(server);
+            resolved_servers = resolved_servers + server + " resolves to:\n    [";
+            if(!host_info.addresses().isEmpty()) {
+                for(QHostAddress address : host_info.addresses()) {
+                    resolved_servers = resolved_servers + address.toString();
+                    if(!host_info.addresses().endsWith(address)) {
+                        resolved_servers = resolved_servers + ", ";
+                    }
+                }
+            } else {
+                resolved_servers = resolved_servers + "N/A";
+            }
+            resolved_servers = resolved_servers + "]\n\n";
+        }
+        m_launcher->prependStep(new TextPrint(m_launcher.get(), resolved_servers, MessageLevel::MultiMC));
+    } else {
+        online_mode = "offline";
+    }
+
+    QString auth_server_status;
+    if(m_session->auth_server_online) {
+        auth_server_status = "online";
+    } else {
+        auth_server_status = "offline";
+    }
+
+    m_launcher->prependStep(new TextPrint(m_launcher.get(), "Launched instance in " + online_mode + " mode\nAuthentication server is " + auth_server_status + "\n", MessageLevel::MultiMC));
+
+    // Prepend Version
     m_launcher->prependStep(new TextPrint(m_launcher.get(), "MultiMC version: " + BuildConfig.printableVersionString() + "\n\n", MessageLevel::MultiMC));
     m_launcher->start();
 }

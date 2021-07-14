@@ -78,6 +78,15 @@ set(MultiMC_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ" CACHE S
 # Google analytics ID
 set(MultiMC_ANALYTICS_ID "UA-87731965-2" CACHE STRING "ID you can get from Google analytics")
 
+# Bug tracker URL
+set(MultiMC_BUG_TRACKER_URL "" CACHE STRING "URL for the bug tracker.")
+
+# Discord URL
+set(MultiMC_DISCORD_URL "" CACHE STRING "URL for the Discord guild.")
+
+# Subreddit URL
+set(MultiMC_SUBREDDIT_URL "" CACHE STRING "URL for the subreddit.")
+
 #### Check the current Git commit and branch
 include(GetGitRevisionDescription)
 get_git_head_revision(MultiMC_GIT_REFSPEC MultiMC_GIT_COMMIT)
@@ -265,6 +274,7 @@ add_subdirectory(libraries/iconfix) # fork of Qt's QIcon loader
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
 add_subdirectory(libraries/classparser) # google analytics library
 add_subdirectory(libraries/optional-bare)
+add_subdirectory(libraries/tomlc99) # toml parser
 
 ############################### Built Artifacts ###############################
 

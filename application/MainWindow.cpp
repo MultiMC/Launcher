@@ -306,29 +306,35 @@ public:
         helpMenu = new QMenu(MainWindow);
         helpMenu->setToolTipsVisible(true);
 
-        actionReportBug = TranslatedAction(MainWindow);
-        actionReportBug->setObjectName(QStringLiteral("actionReportBug"));
-        actionReportBug->setIcon(MMC->getThemedIcon("bug"));
-        actionReportBug.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Report a Bug"));
-        actionReportBug.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the bug tracker to report a bug with MultiMC."));
-        all_actions.append(&actionReportBug);
-        helpMenu->addAction(actionReportBug);
+        if (!BuildConfig.BUG_TRACKER_URL.isEmpty()) {
+            actionReportBug = TranslatedAction(MainWindow);
+            actionReportBug->setObjectName(QStringLiteral("actionReportBug"));
+            actionReportBug->setIcon(MMC->getThemedIcon("bug"));
+            actionReportBug.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Report a Bug"));
+            actionReportBug.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the bug tracker to report a bug with MultiMC."));
+            all_actions.append(&actionReportBug);
+            helpMenu->addAction(actionReportBug);
+        }
 
-        actionDISCORD = TranslatedAction(MainWindow);
-        actionDISCORD->setObjectName(QStringLiteral("actionDISCORD"));
-        actionDISCORD->setIcon(MMC->getThemedIcon("discord"));
-        actionDISCORD.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Discord"));
-        actionDISCORD.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open MultiMC discord voice chat."));
-        all_actions.append(&actionDISCORD);
-        helpMenu->addAction(actionDISCORD);
+        if (!BuildConfig.DISCORD_URL.isEmpty()) {
+            actionDISCORD = TranslatedAction(MainWindow);
+            actionDISCORD->setObjectName(QStringLiteral("actionDISCORD"));
+            actionDISCORD->setIcon(MMC->getThemedIcon("discord"));
+            actionDISCORD.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Discord"));
+            actionDISCORD.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open MultiMC discord voice chat."));
+            all_actions.append(&actionDISCORD);
+            helpMenu->addAction(actionDISCORD);
+        }
 
-        actionREDDIT = TranslatedAction(MainWindow);
-        actionREDDIT->setObjectName(QStringLiteral("actionREDDIT"));
-        actionREDDIT->setIcon(MMC->getThemedIcon("reddit-alien"));
-        actionREDDIT.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Reddit"));
-        actionREDDIT.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open MultiMC subreddit."));
-        all_actions.append(&actionREDDIT);
-        helpMenu->addAction(actionREDDIT);
+        if (!BuildConfig.SUBREDDIT_URL.isEmpty()) {
+            actionREDDIT = TranslatedAction(MainWindow);
+            actionREDDIT->setObjectName(QStringLiteral("actionREDDIT"));
+            actionREDDIT->setIcon(MMC->getThemedIcon("reddit-alien"));
+            actionREDDIT.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Reddit"));
+            actionREDDIT.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open MultiMC subreddit."));
+            all_actions.append(&actionREDDIT);
+            helpMenu->addAction(actionREDDIT);
+        }
 
         actionAbout = TranslatedAction(MainWindow);
         actionAbout->setObjectName(QStringLiteral("actionAbout"));
@@ -732,7 +738,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     repopulateAccountsMenu();
 
     accountMenuButton = new QToolButton(this);
-    accountMenuButton->setText(tr("Profiles"));
     accountMenuButton->setMenu(accountMenu);
     accountMenuButton->setPopupMode(QToolButton::InstantPopup);
     accountMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -831,6 +836,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
     // removing this looks stupid
     view->setFocus();
+
+    retranslateUi();
+}
+
+void MainWindow::retranslateUi()
+{
+    accountMenuButton->setText(tr("Profiles"));
+
+    if (m_selectedInstance) {
+        m_statusLeft->setText(m_selectedInstance->getStatusbarDescription());
+    } else {
+        m_statusLeft->setText(tr("No instance selected"));
+    }
+
+    ui->retranslateUi(this);
 }
 
 MainWindow::~MainWindow()
@@ -1454,12 +1474,12 @@ void MainWindow::droppedURLs(QList<QUrl> urls)
 
 void MainWindow::on_actionREDDIT_triggered()
 {
-    DesktopServices::openUrl(QUrl("https://www.reddit.com/r/MultiMC/"));
+    DesktopServices::openUrl(QUrl(BuildConfig.SUBREDDIT_URL));
 }
 
 void MainWindow::on_actionDISCORD_triggered()
 {
-    DesktopServices::openUrl(QUrl("https://discord.gg/multimc"));
+    DesktopServices::openUrl(QUrl(BuildConfig.DISCORD_URL));
 }
 
 void MainWindow::on_actionChangeInstIcon_triggered()
@@ -1637,7 +1657,7 @@ void MainWindow::on_actionManageAccounts_triggered()
 
 void MainWindow::on_actionReportBug_triggered()
 {
-    DesktopServices::openUrl(QUrl("https://github.com/MultiMC/MultiMC5/issues"));
+    DesktopServices::openUrl(QUrl(BuildConfig.BUG_TRACKER_URL));
 }
 
 void MainWindow::on_actionPatreon_triggered()
@@ -1744,7 +1764,7 @@ void MainWindow::changeEvent(QEvent* event)
 {
     if (event->type() == QEvent::LanguageChange)
     {
-        ui->retranslateUi(this);
+        retranslateUi();
     }
     QMainWindow::changeEvent(event);
 }
