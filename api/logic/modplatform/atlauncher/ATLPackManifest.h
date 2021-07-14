@@ -86,7 +86,25 @@ struct VersionMod
     QString decompType_raw;
     QString decompFile;
 
+    QString description;
     bool optional;
+    bool recommended;
+    bool selected;
+    bool hidden;
+    bool library;
+    QString group;
+    QVector<QString> depends;
+
+    bool client;
+
+    // computed
+    bool effectively_hidden;
+};
+
+struct VersionConfigs
+{
+    int filesize;
+    QString sha1;
 };
 
 struct PackVersion
@@ -100,6 +118,7 @@ struct PackVersion
     VersionLoader loader;
     QVector<VersionLibrary> libraries;
     QVector<VersionMod> mods;
+    VersionConfigs configs;
 };
 
 MULTIMC_LOGIC_EXPORT void loadVersion(PackVersion & v, QJsonObject & obj);

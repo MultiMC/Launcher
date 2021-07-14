@@ -4,6 +4,7 @@
 #include <MMCZip.h>
 #include <minecraft/OneSixVersionFormat.h>
 #include <Version.h>
+#include <net/ChecksumValidator.h>
 #include "ATLPackInstallTask.h"
 
 #include "BuildConfig.h"
@@ -18,15 +19,20 @@
 
 namespace ATLauncher {
 
-PackInstallTask::PackInstallTask(QString pack, QString version)
+PackInstallTask::PackInstallTask(UserInteractionSupport *support, QString pack, QString version)
 {
+    m_support = support;
     m_pack = pack;
     m_version_name = version;
 }
 
 bool PackInstallTask::abort()
 {
-    return true;
+    if(abortable)
+    {
+        return jobPtr->abort();
+    }
+    return false;
 }
 
 void PackInstallTask::executeTask()
@@ -154,21 +160,54 @@ QString PackInstallTask::getVersionForLoader(QString uid)
         auto vlist = ENV.metadataIndex()->get(uid);
         if(!vlist)
         {
-            emitFailed(tr("Failed to get local metadata index for ") + uid);
+            emitFailed(tr("Failed to get local metadata index for %1").arg(uid));
             return Q_NULLPTR;
         }
 
-        // todo: filter by Minecraft version
-
-        if(m_version.loader.recommended) {
-            return vlist.get()->getRecommended().get()->descriptor();
+        if(!vlist->isLoaded()) {
+            vlist->load(Net::Mode::Online);
         }
-        else if(m_version.loader.latest) {
-            return vlist.get()->at(0)->descriptor();
+
+        if(m_version.loader.recommended || m_version.loader.latest) {
+            for (int i = 0; i < vlist->versions().size(); i++) {
+                auto version = vlist->versions().at(i);
+                auto reqs = version->requires();
+
+                // filter by minecraft version, if the loader depends on a certain version.
+                // not all mod loaders depend on a given Minecraft version, so we won't do this
+                // filtering for those loaders.
+                if (m_version.loader.type != "fabric") {
+                    auto iter = std::find_if(reqs.begin(), reqs.end(), [](const Meta::Require &req) {
+                        return req.uid == "net.minecraft";
+                    });
+                    if (iter == reqs.end()) continue;
+                    if (iter->equalsVersion != m_version.minecraft) continue;
+                }
+
+                if (m_version.loader.recommended) {
+                    // first recommended build we find, we use.
+                    if (!version->isRecommended()) continue;
+                }
+
+                return version->descriptor();
+            }
+
+            emitFailed(tr("Failed to find version for %1 loader").arg(m_version.loader.type));
+            return Q_NULLPTR;
         }
         else if(m_version.loader.choose) {
-            // todo: implement
+            // Fabric Loader doesn't depend on a given Minecraft version.
+            if (m_version.loader.type == "fabric") {
+                return m_support->chooseVersion(vlist, Q_NULLPTR);
+            }
+
+            return m_support->chooseVersion(vlist, m_version.minecraft);
         }
+    }
+
+    if (m_version.loader.version == Q_NULLPTR || m_version.loader.version.isEmpty()) {
+        emitFailed(tr("No loader version set for modpack!"));
+        return Q_NULLPTR;
     }
 
     return m_version.loader.version;
@@ -373,21 +412,29 @@ void PackInstallTask::installConfigs()
     auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", path);
     entry->setStale(true);
 
-    jobPtr->addNetAction(Net::Download::makeCached(url, entry));
+    auto dl = Net::Download::makeCached(url, entry);
+    if (!m_version.configs.sha1.isEmpty()) {
+        auto rawSha1 = QByteArray::fromHex(m_version.configs.sha1.toLatin1());
+        dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, rawSha1));
+    }
+    jobPtr->addNetAction(dl);
     archivePath = entry->getFullPath();
 
     connect(jobPtr.get(), &NetJob::succeeded, this, [&]()
     {
+        abortable = false;
         jobPtr.reset();
         extractConfigs();
     });
     connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
     {
+        abortable = false;
         jobPtr.reset();
         emitFailed(reason);
     });
     connect(jobPtr.get(), &NetJob::progress, [&](qint64 current, qint64 total)
     {
+        abortable = true;
         setProgress(current, total);
     });
 
@@ -423,13 +470,31 @@ void PackInstallTask::extractConfigs()
 void PackInstallTask::downloadMods()
 {
     qDebug() << "PackInstallTask::installMods: " << QThread::currentThreadId();
+
+    QVector<ATLauncher::VersionMod> optionalMods;
+    for (const auto& mod : m_version.mods) {
+        if (mod.optional) {
+            optionalMods.push_back(mod);
+        }
+    }
+
+    // Select optional mods, if pack contains any
+    QVector<QString> selectedMods;
+    if (!optionalMods.isEmpty()) {
+        setStatus(tr("Selecting optional mods..."));
+        selectedMods = m_support->chooseOptionalMods(optionalMods);
+    }
+
     setStatus(tr("Downloading mods..."));
 
     jarmods.clear();
     jobPtr.reset(new NetJob(tr("Mod download")));
     for(const auto& mod : m_version.mods) {
-        // skip optional mods for now
-        if(mod.optional) continue;
+        // skip non-client mods
+        if(!mod.client) continue;
+
+        // skip optional mods that were not selected
+        if(mod.optional && !selectedMods.contains(mod.name)) continue;
 
         QString url;
         switch(mod.download) {
@@ -451,12 +516,15 @@ void PackInstallTask::downloadMods()
         auto cacheName = fileName.completeBaseName() + "-" + mod.md5 + "." + fileName.suffix();
 
         if (mod.type == ModType::Extract || mod.type == ModType::TexturePackExtract || mod.type == ModType::ResourcePackExtract) {
-
             auto entry = ENV.metacache()->resolveEntry("ATLauncherPacks", cacheName);
             entry->setStale(true);
             modsToExtract.insert(entry->getFullPath(), mod);
 
             auto dl = Net::Download::makeCached(url, entry);
+            if (!mod.md5.isEmpty()) {
+                auto rawMd5 = QByteArray::fromHex(mod.md5.toLatin1());
+                dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Md5, rawMd5));
+            }
             jobPtr->addNetAction(dl);
         }
         else if(mod.type == ModType::Decomp) {
@@ -465,6 +533,10 @@ void PackInstallTask::downloadMods()
             modsToDecomp.insert(entry->getFullPath(), mod);
 
             auto dl = Net::Download::makeCached(url, entry);
+            if (!mod.md5.isEmpty()) {
+                auto rawMd5 = QByteArray::fromHex(mod.md5.toLatin1());
+                dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Md5, rawMd5));
+            }
             jobPtr->addNetAction(dl);
         }
         else {
@@ -475,6 +547,10 @@ void PackInstallTask::downloadMods()
             entry->setStale(true);
 
             auto dl = Net::Download::makeCached(url, entry);
+            if (!mod.md5.isEmpty()) {
+                auto rawMd5 = QByteArray::fromHex(mod.md5.toLatin1());
+                dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Md5, rawMd5));
+            }
             jobPtr->addNetAction(dl);
 
             auto path = FS::PathCombine(m_stagingPath, "minecraft", relpath, mod.file);
@@ -507,11 +583,13 @@ void PackInstallTask::downloadMods()
     connect(jobPtr.get(), &NetJob::succeeded, this, &PackInstallTask::onModsDownloaded);
     connect(jobPtr.get(), &NetJob::failed, [&](QString reason)
     {
+        abortable = false;
         jobPtr.reset();
         emitFailed(reason);
     });
     connect(jobPtr.get(), &NetJob::progress, [&](qint64 current, qint64 total)
     {
+        abortable = true;
         setProgress(current, total);
     });
 
@@ -519,10 +597,12 @@ void PackInstallTask::downloadMods()
 }
 
 void PackInstallTask::onModsDownloaded() {
+    abortable = false;
+
     qDebug() << "PackInstallTask::onModsDownloaded: " << QThread::currentThreadId();
     jobPtr.reset();
 
-    if(modsToExtract.size() || modsToDecomp.size() || modsToCopy.size()) {
+    if(!modsToExtract.empty() || !modsToDecomp.empty() || !modsToCopy.empty()) {
         m_modExtractFuture = QtConcurrent::run(QThreadPool::globalInstance(), this, &PackInstallTask::extractMods, modsToExtract, modsToDecomp, modsToCopy);
         connect(&m_modExtractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, &PackInstallTask::onModsExtracted);
         connect(&m_modExtractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, [&]()
@@ -629,6 +709,7 @@ void PackInstallTask::install()
 
     // Use a component to add libraries BEFORE Minecraft
     if(!createLibrariesComponent(instance.instanceRoot(), components)) {
+        emitFailed(tr("Failed to create libraries component"));
         return;
     }
 
@@ -666,6 +747,7 @@ void PackInstallTask::install()
     // Use a component to fill in the rest of the data
     // todo: use more detection
     if(!createPackComponent(instance.instanceRoot(), components)) {
+        emitFailed(tr("Failed to create pack component"));
         return;
     }
 

@@ -21,6 +21,9 @@
          <height>48</height>
         </size>
        </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="1" column="1">

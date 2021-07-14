@@ -17,6 +17,9 @@ FlamePage::FlamePage(NewInstanceDialog* dialog, QWidget *parent)
     listModel = new Flame::ListModel(this);
     ui->packView->setModel(listModel);
 
+    ui->versionSelectionBox->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    ui->versionSelectionBox->view()->parentWidget()->setMaximumHeight(300);
+
     // index is used to set the sorting with the curseforge api
     ui->sortByBox->addItem(tr("Sort by featured"));
     ui->sortByBox->addItem(tr("Sort by popularity"));
@@ -152,6 +155,12 @@ void FlamePage::suggestCurrent()
 {
     if(!isOpened)
     {
+        return;
+    }
+
+    if (selectedVersion.isEmpty())
+    {
+        dialog->setSuggestedPack();
         return;
     }
 

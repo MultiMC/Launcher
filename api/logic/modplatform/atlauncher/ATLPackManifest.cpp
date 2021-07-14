@@ -81,12 +81,21 @@ static ATLauncher::ModType parseModType(QString rawType) {
 
 static void loadVersionLoader(ATLauncher::VersionLoader & p, QJsonObject & obj) {
     p.type = Json::requireString(obj, "type");
-    p.latest = Json::ensureBoolean(obj, QString("latest"), false);
     p.choose = Json::ensureBoolean(obj, QString("choose"), false);
-    p.recommended = Json::ensureBoolean(obj, QString("recommended"), false);
 
     auto metadata = Json::requireObject(obj, "metadata");
-    p.version = Json::requireString(metadata, "version");
+    p.latest = Json::ensureBoolean(metadata, QString("latest"), false);
+    p.recommended = Json::ensureBoolean(metadata, QString("recommended"), false);
+
+    // Minecraft Forge
+    if (p.type == "forge") {
+        p.version = Json::ensureString(metadata, "version", "");
+    }
+
+    // Fabric Loader
+    if (p.type == "fabric") {
+        p.version = Json::ensureString(metadata, "loader", "");
+    }
 }
 
 static void loadVersionLibrary(ATLauncher::VersionLibrary & p, QJsonObject & obj) {
@@ -98,6 +107,11 @@ static void loadVersionLibrary(ATLauncher::VersionLibrary & p, QJsonObject & obj
     p.download = parseDownloadType(p.download_raw);
 
     p.server = Json::ensureString(obj, "server", "");
+}
+
+static void loadVersionConfigs(ATLauncher::VersionConfigs & p, QJsonObject & obj) {
+    p.filesize = Json::requireInteger(obj, "filesize");
+    p.sha1 = Json::requireString(obj, "sha1");
 }
 
 static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
@@ -134,7 +148,24 @@ static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
         p.decompFile = Json::requireString(obj, "decompFile");
     }
 
+    p.description = Json::ensureString(obj, QString("description"), "");
     p.optional = Json::ensureBoolean(obj, QString("optional"), false);
+    p.recommended = Json::ensureBoolean(obj, QString("recommended"), false);
+    p.selected = Json::ensureBoolean(obj, QString("selected"), false);
+    p.hidden = Json::ensureBoolean(obj, QString("hidden"), false);
+    p.library = Json::ensureBoolean(obj, QString("library"), false);
+    p.group = Json::ensureString(obj, QString("group"), "");
+    if(obj.contains("depends")) {
+        auto dependsArr = Json::requireArray(obj, "depends");
+        for (const auto depends : dependsArr) {
+            p.depends.append(Json::requireString(depends));
+        }
+    }
+
+    p.client = Json::ensureBoolean(obj, QString("client"), false);
+
+    // computed
+    p.effectively_hidden = p.hidden || p.library;
 }
 
 void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
@@ -169,12 +200,19 @@ void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
         }
     }
 
-    auto mods = Json::requireArray(obj, "mods");
-    for (const auto modRaw : mods)
-    {
-        auto modObj = Json::requireObject(modRaw);
-        ATLauncher::VersionMod mod;
-        loadVersionMod(mod, modObj);
-        v.mods.append(mod);
+    if(obj.contains("mods")) {
+        auto mods = Json::requireArray(obj, "mods");
+        for (const auto modRaw : mods)
+        {
+            auto modObj = Json::requireObject(modRaw);
+            ATLauncher::VersionMod mod;
+            loadVersionMod(mod, modObj);
+            v.mods.append(mod);
+        }
+    }
+
+    if(obj.contains("configs")) {
+        auto configsObj = Json::requireObject(obj, "configs");
+        loadVersionConfigs(v.configs, configsObj);
     }
 }

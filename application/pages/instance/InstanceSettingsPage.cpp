@@ -19,7 +19,7 @@ InstanceSettingsPage::InstanceSettingsPage(BaseInstance *inst, QWidget *parent)
 {
     m_settings = inst->settings();
     ui->setupUi(this);
-    auto sysMB = Sys::getSystemRam() / Sys::megabyte;
+    auto sysMB = Sys::getSystemRam() / Sys::mebibyte;
     ui->maxMemSpinBox->setMaximum(sysMB);
     connect(ui->openGlobalJavaSettingsButton, &QCommandLinkButton::clicked, this, &InstanceSettingsPage::globalSettingsButtonClicked);
     connect(MMC, &MultiMC::globalSettingsAboutToOpen, this, &InstanceSettingsPage::applySettings);
@@ -177,6 +177,32 @@ void InstanceSettingsPage::applySettings()
         m_settings->reset("UseNativeOpenAL");
         m_settings->reset("UseNativeGLFW");
     }
+
+    // Game time
+    bool gameTime = ui->gameTimeGroupBox->isChecked();
+    m_settings->set("OverrideGameTime", gameTime);
+    if (gameTime)
+    {
+        m_settings->set("ShowGameTime", ui->showGameTime->isChecked());
+        m_settings->set("RecordGameTime", ui->recordGameTime->isChecked());
+    }
+    else
+    {
+        m_settings->reset("ShowGameTime");
+        m_settings->reset("RecordGameTime");
+    }
+
+    // Join server on launch
+    bool joinServerOnLaunch = ui->serverJoinGroupBox->isChecked();
+    m_settings->set("JoinServerOnLaunch", joinServerOnLaunch);
+    if (joinServerOnLaunch)
+    {
+        m_settings->set("JoinServerOnLaunchAddress", ui->serverJoinAddress->text());
+    }
+    else
+    {
+        m_settings->reset("JoinServerOnLaunchAddress");
+    }
 }
 
 void InstanceSettingsPage::loadSettings()
@@ -238,6 +264,14 @@ void InstanceSettingsPage::loadSettings()
     ui->nativeWorkaroundsGroupBox->setChecked(m_settings->get("OverrideNativeWorkarounds").toBool());
     ui->useNativeGLFWCheck->setChecked(m_settings->get("UseNativeGLFW").toBool());
     ui->useNativeOpenALCheck->setChecked(m_settings->get("UseNativeOpenAL").toBool());
+
+    // Miscellanous
+    ui->gameTimeGroupBox->setChecked(m_settings->get("OverrideGameTime").toBool());
+    ui->showGameTime->setChecked(m_settings->get("ShowGameTime").toBool());
+    ui->recordGameTime->setChecked(m_settings->get("RecordGameTime").toBool());
+
+    ui->serverJoinGroupBox->setChecked(m_settings->get("JoinServerOnLaunch").toBool());
+    ui->serverJoinAddress->setText(m_settings->get("JoinServerOnLaunchAddress").toString());
 }
 
 void InstanceSettingsPage::on_javaDetectBtn_clicked()
