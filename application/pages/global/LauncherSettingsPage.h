@@ -29,32 +29,32 @@ class SettingsObject;
 
 namespace Ui
 {
-class MultiMCPage;
+class LauncherSettingsPage;
 }
 
-class MultiMCPage : public QWidget, public BasePage
+class LauncherSettingsPage : public QWidget, public BasePage
 {
     Q_OBJECT
 
 public:
-    explicit MultiMCPage(QWidget *parent = 0);
-    ~MultiMCPage();
+    explicit LauncherSettingsPage(QWidget *parent = 0);
+    ~LauncherSettingsPage();
 
     QString displayName() const override
     {
-        return "MultiMC";
+        return "Launcher Settings";
     }
     QIcon icon() const override
     {
-        return MMC->getThemedIcon("multimc");
+        return MMC->getLogo();
     }
     QString id() const override
     {
-        return "multimc-settings";
+        return "launcher-settings";
     }
     QString helpPage() const override
     {
-        return "MultiMC-settings";
+        return "Launcher-settings";
     }
     bool apply() override;
 
@@ -86,7 +86,7 @@ slots:
     void updateChannelSelectionChanged(int index);
 
 private:
-    Ui::MultiMCPage *ui;
+    Ui::LauncherSettingsPage *ui;
 
     /*!
      * Stores the currently selected update channel.

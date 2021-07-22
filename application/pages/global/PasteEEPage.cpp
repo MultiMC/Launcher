@@ -46,7 +46,7 @@ void PasteEEPage::loadSettings()
     QString keyToUse = s->get("PasteEEAPIKey").toString();
     if(keyToUse == "multimc")
     {
-        ui->multimcButton->setChecked(true);
+        ui->launcherButton->setChecked(true);
     }
     else
     {

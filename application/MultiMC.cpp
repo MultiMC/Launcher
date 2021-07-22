@@ -7,7 +7,7 @@
 #include <QAccessible>
 
 #include "pages/BasePageProvider.h"
-#include "pages/global/MultiMCPage.h"
+#include "pages/global/LauncherSettingsPage.h"
 #include "pages/global/MinecraftPage.h"
 #include "pages/global/JavaPage.h"
 #include "pages/global/LanguagePage.h"
@@ -588,7 +588,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         // Init page provider
         {
             m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
-            m_globalSettingsProvider->addPage<MultiMCPage>();
+            m_globalSettingsProvider->addPage<LauncherSettingsPage>();
             m_globalSettingsProvider->addPage<MinecraftPage>();
             m_globalSettingsProvider->addPage<JavaPage>();
             m_globalSettingsProvider->addPage<LanguagePage>();
@@ -1059,6 +1059,10 @@ void MultiMC::setIconTheme(const QString& name)
 QIcon MultiMC::getThemedIcon(const QString& name)
 {
     return XdgIcon::fromTheme(name);
+}
+
+QIcon MultiMC::getLogo() {
+    return QIcon("://branding/logo.svg");
 }
 
 bool MultiMC::openJsonEditor(const QString &filename)

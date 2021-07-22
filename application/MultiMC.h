@@ -75,6 +75,8 @@ public:
 
     QIcon getThemedIcon(const QString& name);
 
+    QIcon getLogo();
+
     void setIconTheme(const QString& name);
 
     std::vector<ITheme *> getValidApplicationThemes();
