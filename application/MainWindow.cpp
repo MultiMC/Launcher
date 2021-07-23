@@ -724,8 +724,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     connect(MMC, &MultiMC::globalSettingsClosed, this, &MainWindow::globalSettingsClosed);
 
     m_statusLeft = new QLabel(tr("No instance selected"), this);
+    m_statusCenter = new QLabel(tr("Total playtime: 0s."), this);
     m_statusRight = new ServerStatus(this);
     statusBar()->addPermanentWidget(m_statusLeft, 1);
+    statusBar()->addPermanentWidget(m_statusCenter, 1);
     statusBar()->addPermanentWidget(m_statusRight, 0);
 
     // Add "manage accounts" button, right align
@@ -1326,7 +1328,6 @@ void MainWindow::setCatBackground(bool enabled)
     {
         QDateTime now = QDateTime::currentDateTime();
         QDateTime xmas(QDate(now.date().year(), 12, 25), QTime(0, 0));
-        ;
         QString cat = (non_stupid_abs(now.daysTo(xmas)) <= 4) ? "catmas" : "kitteh";
         view->setStyleSheet(QString(R"(
 GroupView
@@ -1525,6 +1526,7 @@ void MainWindow::setSelectedInstanceById(const QString &id)
     {
         QModelIndex selectionIndex = proxymodel->mapFromSource(index);
         view->selectionModel()->setCurrentIndex(selectionIndex, QItemSelectionModel::ClearAndSelect);
+        updateStatusCenter();
     }
 }
 
@@ -1853,6 +1855,7 @@ void MainWindow::instanceChanged(const QModelIndex &current, const QModelIndex &
         ui->actionExportInstance->setEnabled(m_selectedInstance->canExport());
         ui->renameButton->setText(m_selectedInstance->name());
         m_statusLeft->setText(m_selectedInstance->getStatusbarDescription());
+        updateStatusCenter();
         updateInstanceToolIcon(m_selectedInstance->iconKey());
 
         updateToolsMenu();
@@ -1930,4 +1933,19 @@ void MainWindow::checkInstancePathForProblems()
         warning.setDefaultButton(QMessageBox::Ok);
         warning.exec();
     }
+}
+
+void MainWindow::updateStatusCenter()
+{
+    int timeplayed = MMC->instances()->getTotalPlayTime();
+    int minutesTotal = timeplayed / 60;
+    int seconds = timeplayed % 60;
+    int minutes = minutesTotal % 60;
+    int hours = minutesTotal / 60;
+    if(hours != 0)
+        m_statusCenter->setText(tr("Total playtime: %1h %2m %3s").arg(hours).arg(minutes).arg(seconds));
+    else if(minutes != 0)
+        m_statusCenter->setText(tr("Total playtime: %1m %2s").arg(minutes).arg(seconds));
+    else if(seconds != 0)
+        m_statusCenter->setText(tr("Total playtime: %1s").arg(seconds));
 }
