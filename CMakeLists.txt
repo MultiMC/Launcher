@@ -175,7 +175,7 @@ if(MultiMC_LAYOUT_REAL STREQUAL "mac-bundle")
     set(INSTALL_BUNDLE "full")
 
     # Add the icon
-    install(FILES application/resources/MultiMC.icns DESTINATION ${RESOURCES_DEST_DIR})
+    install(FILES launcher/resources/MultiMC.icns DESTINATION ${RESOURCES_DEST_DIR})
 
 elseif(MultiMC_LAYOUT_REAL STREQUAL "lin-bundle")
     set(BINARY_DEST_DIR "bin")
@@ -198,7 +198,7 @@ elseif(MultiMC_LAYOUT_REAL STREQUAL "lin-bundle")
     SET(MultiMC_BINARY_RPATH "$ORIGIN/")
 
     # Install basic runner script
-    install(PROGRAMS application/package/linux/MultiMC DESTINATION ${BUNDLE_DEST_DIR})
+    install(PROGRAMS launcher/package/linux/MultiMC DESTINATION ${BUNDLE_DEST_DIR})
 
 elseif(MultiMC_LAYOUT_REAL STREQUAL "lin-nodeps")
     set(BINARY_DEST_DIR "bin")
@@ -215,7 +215,7 @@ elseif(MultiMC_LAYOUT_REAL STREQUAL "lin-nodeps")
     SET(MultiMC_BINARY_RPATH "$ORIGIN/")
 
     # Install basic runner script
-    install(PROGRAMS application/package/linux/MultiMC DESTINATION ${BUNDLE_DEST_DIR})
+    install(PROGRAMS launcher/package/linux/MultiMC DESTINATION ${BUNDLE_DEST_DIR})
 
 elseif(MultiMC_LAYOUT_REAL STREQUAL "lin-system")
     set(MultiMC_APP_BINARY_NAME "multimc" CACHE STRING "Name of the MultiMC binary")
@@ -278,12 +278,11 @@ add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
 add_subdirectory(libraries/classparser) # google analytics library
 add_subdirectory(libraries/optional-bare)
 add_subdirectory(libraries/tomlc99) # toml parser
+add_subdirectory(libraries/katabasis) # An OAuth2 library that tried to do too much
 
 ############################### Built Artifacts ###############################
 
 add_subdirectory(buildconfig)
-add_subdirectory(api/logic)
-add_subdirectory(api/gui)
 
 # NOTE: this must always be last to appease the CMake deity of quirky install command evaluation order.
-add_subdirectory(application)
+add_subdirectory(launcher)
