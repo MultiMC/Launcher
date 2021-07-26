@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include <tasks/Task.h>
+#include "AccountTask.h"
 
 #include <QString>
 #include <QJsonObject>
@@ -29,58 +29,12 @@ class QNetworkReply;
 /**
  * A Yggdrasil task is a task that performs an operation on a given mojang account.
  */
-class YggdrasilTask : public Task
+class YggdrasilTask : public AccountTask
 {
     Q_OBJECT
 public:
     explicit YggdrasilTask(MojangAccount * account, QObject *parent = 0);
     virtual ~YggdrasilTask() {};
-
-    /**
-     * assign a session to this task. the session will be filled with required infomration
-     * upon completion
-     */
-    void assignSession(AuthSessionPtr session)
-    {
-        m_session = session;
-    }
-
-    /// get the assigned session for filling with information.
-    AuthSessionPtr getAssignedSession()
-    {
-        return m_session;
-    }
-
-    /**
-     * Class describing a Yggdrasil error response.
-     */
-    struct Error
-    {
-        QString m_errorMessageShort;
-        QString m_errorMessageVerbose;
-        QString m_cause;
-    };
-
-    enum AbortedBy
-    {
-        BY_NOTHING,
-        BY_USER,
-        BY_TIMEOUT
-    } m_aborted = BY_NOTHING;
-
-    /**
-     * Enum for describing the state of the current task.
-     * Used by the getStateMessage function to determine what the status message should be.
-     */
-    enum State
-    {
-        STATE_CREATED,
-        STATE_SENDING_REQUEST,
-        STATE_PROCESSING_RESPONSE,
-        STATE_FAILED_SOFT, //!< soft failure. this generally means the user auth details haven't been invalidated
-        STATE_FAILED_HARD, //!< hard failure. auth is invalid
-        STATE_SUCCEEDED
-    } m_state = STATE_CREATED;
 
 protected:
 
@@ -115,37 +69,22 @@ protected:
      */
     virtual void processError(QJsonObject responseData);
 
-    /**
-     * Returns the state message for the given state.
-     * Used to set the status message for the task.
-     * Should be overridden by subclasses that want to change messages for a given state.
-     */
-    virtual QString getStateMessage() const;
-
-protected
-slots:
+protected slots:
     void processReply();
     void refreshTimers(qint64, qint64);
     void heartbeat();
     void sslErrors(QList<QSslError>);
-
-    void changeState(State newState, QString reason=QString());
-public
-slots:
-    virtual bool abort() override;
     void abortByTimeout();
-    State state();
+
+public slots:
+    virtual bool abort() override;
+
 protected:
-    // FIXME: segfault disaster waiting to happen
-    MojangAccount *m_account = nullptr;
     QNetworkReply *m_netReply = nullptr;
-    std::shared_ptr<Error> m_error;
     QTimer timeout_keeper;
     QTimer counter;
     int count = 0; // num msec since time reset
 
     const int timeout_max = 30000;
     const int time_step = 50;
-
-    AuthSessionPtr m_session;
 };

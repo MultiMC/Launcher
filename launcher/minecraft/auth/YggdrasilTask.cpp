@@ -30,14 +30,14 @@
 #include <QDebug>
 
 YggdrasilTask::YggdrasilTask(MojangAccount *account, QObject *parent)
-    : Task(parent), m_account(account)
+    : AccountTask(account, parent)
 {
     changeState(STATE_CREATED);
 }
 
 void YggdrasilTask::executeTask()
 {
-    changeState(STATE_SENDING_REQUEST);
+    changeState(STATE_WORKING);
 
     // Get the content of the request we're going to send to the server.
     QJsonDocument doc(getRequestContent());
@@ -104,7 +104,7 @@ void YggdrasilTask::sslErrors(QList<QSslError> errors)
 
 void YggdrasilTask::processReply()
 {
-    changeState(STATE_PROCESSING_RESPONSE);
+    changeState(STATE_WORKING);
 
     switch (m_netReply->error())
     {
@@ -212,44 +212,4 @@ void YggdrasilTask::processError(QJsonObject responseData)
         // Error is not in standard format. Don't set m_error and return unknown error.
         changeState(STATE_FAILED_HARD, tr("An unknown Yggdrasil error occurred."));
     }
-}
-
-QString YggdrasilTask::getStateMessage() const
-{
-    switch (m_state)
-    {
-    case STATE_CREATED:
-        return "Waiting...";
-    case STATE_SENDING_REQUEST:
-        return tr("Sending request to auth servers...");
-    case STATE_PROCESSING_RESPONSE:
-        return tr("Processing response from servers...");
-    case STATE_SUCCEEDED:
-        return tr("Authentication task succeeded.");
-    case STATE_FAILED_SOFT:
-        return tr("Failed to contact the authentication server.");
-    case STATE_FAILED_HARD:
-        return tr("Failed to authenticate.");
-    default:
-        return tr("...");
-    }
-}
-
-void YggdrasilTask::changeState(YggdrasilTask::State newState, QString reason)
-{
-    m_state = newState;
-    setStatus(getStateMessage());
-    if (newState == STATE_SUCCEEDED)
-    {
-        emitSucceeded();
-    }
-    else if (newState == STATE_FAILED_HARD || newState == STATE_FAILED_SOFT)
-    {
-        emitFailed(reason);
-    }
-}
-
-YggdrasilTask::State YggdrasilTask::state()
-{
-    return m_state;
 }

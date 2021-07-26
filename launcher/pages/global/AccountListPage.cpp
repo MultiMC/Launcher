@@ -103,9 +103,41 @@ void AccountListPage::listChanged()
     updateButtonStates();
 }
 
-void AccountListPage::on_actionAdd_triggered()
+void AccountListPage::on_actionAddMojang_triggered()
 {
-    addAccount(tr("Please enter your Minecraft account email and password to add your account."));
+    MojangAccountPtr account = LoginDialog::newAccount(
+        this,
+        tr("Please enter your Mojang account email and password to add your account.")
+    );
+
+    if (account != nullptr)
+    {
+        m_accounts->addAccount(account);
+        if (m_accounts->count() == 1)
+            m_accounts->setActiveAccount(account->username());
+
+        // Grab associated player skins
+        auto job = new NetJob("Player skins: " + account->username());
+
+        for (AccountProfile profile : account->profiles())
+        {
+            auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
+            auto action = Net::Download::makeCached(QUrl(BuildConfig.SKINS_BASE + profile.id + ".png"), meta);
+            job->addNetAction(action);
+            meta->setStale(true);
+        }
+
+        job->start();
+    }
+}
+
+void AccountListPage::on_actionAddMicrosoft_triggered()
+{
+    QMessageBox msgBox;
+    msgBox.setModal(true);
+    msgBox.setWindowTitle("Not yet!");
+    msgBox.setText("No Microsoft accounts yet. Work in progress!");
+    msgBox.exec();
 }
 
 void AccountListPage::on_actionRemove_triggered()
@@ -154,32 +186,6 @@ void AccountListPage::updateButtonStates()
         ui->actionNoDefault->setChecked(false);
     }
 
-}
-
-void AccountListPage::addAccount(const QString &errMsg)
-{
-    // TODO: The login dialog isn't quite done yet
-    MojangAccountPtr account = LoginDialog::newAccount(this, errMsg);
-
-    if (account != nullptr)
-    {
-        m_accounts->addAccount(account);
-        if (m_accounts->count() == 1)
-            m_accounts->setActiveAccount(account->username());
-
-        // Grab associated player skins
-        auto job = new NetJob("Player skins: " + account->username());
-
-        for (AccountProfile profile : account->profiles())
-        {
-            auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(BuildConfig.SKINS_BASE + profile.id + ".png"), meta);
-            job->addNetAction(action);
-            meta->setStale(true);
-        }
-
-        job->start();
-    }
 }
 
 void AccountListPage::on_actionUploadSkin_triggered()
