@@ -882,7 +882,7 @@ qt5_wrap_ui(MULTIMC_UI ${MULTIMC_UIS})
 qt5_add_resources(MULTIMC_RESOURCES ${MULTIMC_QRCS})
 
 # Add executable
-add_library(MultiMC_logic STATIC ${LOGIC_SOURCES} ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_RESOURCES})
+add_library(MultiMC_logic STATIC ${LOGIC_SOURCES})
 target_link_libraries(MultiMC_logic
     systeminfo
     MultiMC_quazip
@@ -909,7 +909,7 @@ target_link_libraries(MultiMC_logic
     ganalytics
 )
 
-add_executable(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_RCS})
+add_executable(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_RESOURCES} ${MULTIMC_RCS})
 target_link_libraries(MultiMC MultiMC_logic)
 
 if(DEFINED MultiMC_APP_BINARY_NAME)
