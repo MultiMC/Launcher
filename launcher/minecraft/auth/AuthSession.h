@@ -4,8 +4,6 @@
 #include <QMultiMap>
 #include <memory>
 
-#include "logic_export.h"
-
 class MojangAccount;
 
 struct User
