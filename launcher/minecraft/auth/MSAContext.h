@@ -51,12 +51,12 @@ struct AccountData {
     Katabasis::Validity validity_ = Katabasis::Validity::None;
 };
 
-class Context : public QObject
+class MSAContext : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Context(QObject *parent = 0);
+    explicit MSAContext(QObject *parent = 0);
 
     QByteArray saveState();
     bool resumeFromState(QByteArray data);

@@ -211,6 +211,8 @@ set(MINECRAFT_SOURCES
     minecraft/auth/MojangAccountList.cpp
     minecraft/auth/MojangAccount.h
     minecraft/auth/MojangAccount.cpp
+    minecraft/auth/MSAContext.h
+    minecraft/auth/MSAContext.cpp
     minecraft/auth/YggdrasilTask.h
     minecraft/auth/YggdrasilTask.cpp
     minecraft/auth/flows/AuthenticateTask.h
@@ -894,6 +896,7 @@ target_link_libraries(MultiMC_logic
     optional-bare
     tomlc99
     BuildConfig
+    Katabasis
 )
 target_link_libraries(MultiMC_logic
     Qt5::Core

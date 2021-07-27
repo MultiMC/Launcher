@@ -14,38 +14,91 @@
 #include <QPixmap>
 #include <QPainter>
 
-#include "context.h"
+#include "MSAContext.h"
 #include "katabasis/Globals.h"
-#include "katabasis/StoreQSettings.h"
 #include "katabasis/Requestor.h"
 #include "BuildConfig.h"
+
+/*
+class Helper : public QObject {
+    Q_OBJECT
+
+public:
+    Helper(MSAContext * context) : QObject(), context_(context), msg_(QString()) {
+        QFile tokenCache("usercache.dat");
+        if(tokenCache.open(QIODevice::ReadOnly)) {
+            context_->resumeFromState(tokenCache.readAll());
+        }
+    }
+
+public slots:
+    void run() {
+        connect(context_, &MSAContext::activityChanged, this, &Helper::onActivityChanged);
+        context_->silentSignIn();
+    }
+
+    void onFailed() {
+        qDebug() << "Login failed";
+    }
+
+    void onActivityChanged(Katabasis::Activity activity) {
+        if(activity == Katabasis::Activity::Idle) {
+            switch(context_->validity()) {
+                case Katabasis::Validity::None: {
+                    // account is gone, remove it.
+                    QFile::remove("usercache.dat");
+                }
+                break;
+                case Katabasis::Validity::Assumed: {
+                    // this is basically a soft-failed refresh. do nothing.
+                }
+                break;
+                case Katabasis::Validity::Certain: {
+                    // stuff got refreshed / signed in. Save.
+                    auto data = context_->saveState();
+                    QSaveFile tokenCache("usercache.dat");
+                    if(tokenCache.open(QIODevice::WriteOnly)) {
+                        tokenCache.write(context_->saveState());
+                        tokenCache.commit();
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+private:
+    MSAContext *context_;
+    QString msg_;
+};
+*/
 
 using OAuth2 = Katabasis::OAuth2;
 using Requestor = Katabasis::Requestor;
 using Activity = Katabasis::Activity;
 
-Context::Context(QObject *parent) :
+MSAContext::MSAContext(QObject *parent) :
     QObject(parent)
 {
     mgr = new QNetworkAccessManager(this);
 
     Katabasis::OAuth2::Options opts;
     opts.scope = "XboxLive.signin offline_access";
-    opts.clientIdentifier = BuildConfig.CLIENT_ID;
+    opts.clientIdentifier = BuildConfig.MSA_CLIENT_ID;
     opts.authorizationUrl = "https://login.live.com/oauth20_authorize.srf";
     opts.accessTokenUrl = "https://login.live.com/oauth20_token.srf";
     opts.listenerPorts = {28562, 28563, 28564, 28565, 28566};
 
     oauth2 = new OAuth2(opts, m_account.msaToken, this, mgr);
 
-    connect(oauth2, &OAuth2::linkingFailed, this, &Context::onLinkingFailed);
-    connect(oauth2, &OAuth2::linkingSucceeded, this, &Context::onLinkingSucceeded);
-    connect(oauth2, &OAuth2::openBrowser, this, &Context::onOpenBrowser);
-    connect(oauth2, &OAuth2::closeBrowser, this, &Context::onCloseBrowser);
-    connect(oauth2, &OAuth2::activityChanged, this, &Context::onOAuthActivityChanged);
+    connect(oauth2, &OAuth2::linkingFailed, this, &MSAContext::onLinkingFailed);
+    connect(oauth2, &OAuth2::linkingSucceeded, this, &MSAContext::onLinkingSucceeded);
+    connect(oauth2, &OAuth2::openBrowser, this, &MSAContext::onOpenBrowser);
+    connect(oauth2, &OAuth2::closeBrowser, this, &MSAContext::onCloseBrowser);
+    connect(oauth2, &OAuth2::activityChanged, this, &MSAContext::onOAuthActivityChanged);
 }
 
-void Context::beginActivity(Activity activity) {
+void MSAContext::beginActivity(Activity activity) {
     if(isBusy()) {
         throw 0;
     }
@@ -53,7 +106,7 @@ void Context::beginActivity(Activity activity) {
     emit activityChanged(activity_);
 }
 
-void Context::finishActivity() {
+void MSAContext::finishActivity() {
     if(!isBusy()) {
         throw 0;
     }
@@ -62,19 +115,19 @@ void Context::finishActivity() {
     emit activityChanged(activity_);
 }
 
-QString Context::gameToken() {
+QString MSAContext::gameToken() {
     return m_account.minecraftToken.token;
 }
 
-QString Context::userId() {
+QString MSAContext::userId() {
     return m_account.minecraftProfile.id;
 }
 
-QString Context::userName() {
+QString MSAContext::userName() {
     return m_account.minecraftProfile.name;
 }
 
-bool Context::silentSignIn() {
+bool MSAContext::silentSignIn() {
     if(isBusy()) {
         return false;
     }
@@ -91,7 +144,7 @@ bool Context::silentSignIn() {
     return true;
 }
 
-bool Context::signIn() {
+bool MSAContext::signIn() {
     if(isBusy()) {
         return false;
     }
@@ -107,7 +160,7 @@ bool Context::signIn() {
     return true;
 }
 
-bool Context::signOut() {
+bool MSAContext::signOut() {
     if(isBusy()) {
         return false;
     }
@@ -119,19 +172,19 @@ bool Context::signOut() {
 }
 
 
-void Context::onOpenBrowser(const QUrl &url) {
+void MSAContext::onOpenBrowser(const QUrl &url) {
     QDesktopServices::openUrl(url);
 }
 
-void Context::onCloseBrowser() {
+void MSAContext::onCloseBrowser() {
 
 }
 
-void Context::onLinkingFailed() {
+void MSAContext::onLinkingFailed() {
     finishActivity();
 }
 
-void Context::onLinkingSucceeded() {
+void MSAContext::onLinkingSucceeded() {
     auto *o2t = qobject_cast<OAuth2 *>(sender());
     if (!o2t->linked()) {
         finishActivity();
@@ -147,11 +200,11 @@ void Context::onLinkingSucceeded() {
     doUserAuth();
 }
 
-void Context::onOAuthActivityChanged(Katabasis::Activity activity) {
+void MSAContext::onOAuthActivityChanged(Katabasis::Activity activity) {
     // respond to activity change here
 }
 
-void Context::doUserAuth() {
+void MSAContext::doUserAuth() {
     QString xbox_auth_template = R"XXX(
 {
     "Properties": {
@@ -171,7 +224,7 @@ void Context::doUserAuth() {
     auto *requestor = new Katabasis::Requestor(mgr, oauth2, this);
     requestor->setAddAccessTokenInQuery(false);
 
-    connect(requestor, &Requestor::finished, this, &Context::onUserAuthDone);
+    connect(requestor, &Requestor::finished, this, &MSAContext::onUserAuthDone);
     requestor->post(request, xbox_auth_data.toUtf8());
     qDebug() << "First layer of XBox auth ... commencing.";
 }
@@ -294,7 +347,7 @@ bool parseXTokenResponse(QByteArray & data, Katabasis::Token &output) {
 
 }
 
-void Context::onUserAuthDone(
+void MSAContext::onUserAuthDone(
     int requestId,
     QNetworkReply::NetworkError error,
     QByteArray replyData,
@@ -329,7 +382,7 @@ void Context::onUserAuthDone(
             },
         }
 */
-void Context::doSTSAuthMinecraft() {
+void MSAContext::doSTSAuthMinecraft() {
     QString xbox_auth_template = R"XXX(
 {
     "Properties": {
@@ -350,12 +403,12 @@ void Context::doSTSAuthMinecraft() {
     Requestor *requestor = new Requestor(mgr, oauth2, this);
     requestor->setAddAccessTokenInQuery(false);
 
-    connect(requestor, &Requestor::finished, this, &Context::onSTSAuthMinecraftDone);
+    connect(requestor, &Requestor::finished, this, &MSAContext::onSTSAuthMinecraftDone);
     requestor->post(request, xbox_auth_data.toUtf8());
     qDebug() << "Second layer of XBox auth ... commencing.";
 }
 
-void Context::onSTSAuthMinecraftDone(
+void MSAContext::onSTSAuthMinecraftDone(
     int requestId,
     QNetworkReply::NetworkError error,
     QByteArray replyData,
@@ -385,7 +438,7 @@ void Context::onSTSAuthMinecraftDone(
     doMinecraftAuth();
 }
 
-void Context::doSTSAuthGeneric() {
+void MSAContext::doSTSAuthGeneric() {
     QString xbox_auth_template = R"XXX(
 {
     "Properties": {
@@ -406,12 +459,12 @@ void Context::doSTSAuthGeneric() {
     Requestor *requestor = new Requestor(mgr, oauth2, this);
     requestor->setAddAccessTokenInQuery(false);
 
-    connect(requestor, &Requestor::finished, this, &Context::onSTSAuthGenericDone);
+    connect(requestor, &Requestor::finished, this, &MSAContext::onSTSAuthGenericDone);
     requestor->post(request, xbox_auth_data.toUtf8());
     qDebug() << "Second layer of XBox auth ... commencing.";
 }
 
-void Context::onSTSAuthGenericDone(
+void MSAContext::onSTSAuthGenericDone(
     int requestId,
     QNetworkReply::NetworkError error,
     QByteArray replyData,
@@ -442,7 +495,7 @@ void Context::onSTSAuthGenericDone(
 }
 
 
-void Context::doMinecraftAuth() {
+void MSAContext::doMinecraftAuth() {
     QString mc_auth_template = R"XXX(
 {
     "identityToken": "XBL3.0 x=%1;%2"
@@ -456,7 +509,7 @@ void Context::doMinecraftAuth() {
     Requestor *requestor = new Requestor(mgr, oauth2, this);
     requestor->setAddAccessTokenInQuery(false);
 
-    connect(requestor, &Requestor::finished, this, &Context::onMinecraftAuthDone);
+    connect(requestor, &Requestor::finished, this, &MSAContext::onMinecraftAuthDone);
     requestor->post(request, data.toUtf8());
     qDebug() << "Getting Minecraft access token...";
 }
@@ -501,7 +554,7 @@ bool parseMojangResponse(QByteArray & data, Katabasis::Token &output) {
 }
 }
 
-void Context::onMinecraftAuthDone(
+void MSAContext::onMinecraftAuthDone(
     int requestId,
     QNetworkReply::NetworkError error,
     QByteArray replyData,
@@ -527,7 +580,7 @@ void Context::onMinecraftAuthDone(
     checkResult();
 }
 
-void Context::doXBoxProfile() {
+void MSAContext::doXBoxProfile() {
     auto url = QUrl("https://profile.xboxlive.com/users/me/profile/settings");
     QUrlQuery q;
     q.addQueryItem(
@@ -548,12 +601,12 @@ void Context::doXBoxProfile() {
     Requestor *requestor = new Requestor(mgr, oauth2, this);
     requestor->setAddAccessTokenInQuery(false);
 
-    connect(requestor, &Requestor::finished, this, &Context::onXBoxProfileDone);
+    connect(requestor, &Requestor::finished, this, &MSAContext::onXBoxProfileDone);
     requestor->get(request);
     qDebug() << "Getting Xbox profile...";
 }
 
-void Context::onXBoxProfileDone(
+void MSAContext::onXBoxProfileDone(
     int requestId,
     QNetworkReply::NetworkError error,
     QByteArray replyData,
@@ -574,7 +627,7 @@ void Context::onXBoxProfileDone(
     checkResult();
 }
 
-void Context::checkResult() {
+void MSAContext::checkResult() {
     if(requestsDone != 2) {
         return;
     }
@@ -666,7 +719,7 @@ bool parseMinecraftProfile(QByteArray & data, MinecraftProfile &output) {
 }
 }
 
-void Context::doMinecraftProfile() {
+void MSAContext::doMinecraftProfile() {
     auto url = QUrl("https://api.minecraftservices.com/minecraft/profile");
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -676,11 +729,11 @@ void Context::doMinecraftProfile() {
     Requestor *requestor = new Requestor(mgr, oauth2, this);
     requestor->setAddAccessTokenInQuery(false);
 
-    connect(requestor, &Requestor::finished, this, &Context::onMinecraftProfileDone);
+    connect(requestor, &Requestor::finished, this, &MSAContext::onMinecraftProfileDone);
     requestor->get(request);
 }
 
-void Context::onMinecraftProfileDone(int, QNetworkReply::NetworkError error, QByteArray data, QList<QNetworkReply::RawHeaderPair> headers) {
+void MSAContext::onMinecraftProfileDone(int, QNetworkReply::NetworkError error, QByteArray data, QList<QNetworkReply::RawHeaderPair> headers) {
     qDebug() << data;
     if (error == QNetworkReply::ContentNotFoundError) {
         m_account.minecraftProfile = MinecraftProfile();
@@ -699,16 +752,16 @@ void Context::onMinecraftProfileDone(int, QNetworkReply::NetworkError error, QBy
     doGetSkin();
 }
 
-void Context::doGetSkin() {
+void MSAContext::doGetSkin() {
     auto url = QUrl(m_account.minecraftProfile.skin.url);
     QNetworkRequest request = QNetworkRequest(url);
     Requestor *requestor = new Requestor(mgr, oauth2, this);
     requestor->setAddAccessTokenInQuery(false);
-    connect(requestor, &Requestor::finished, this, &Context::onSkinDone);
+    connect(requestor, &Requestor::finished, this, &MSAContext::onSkinDone);
     requestor->get(request);
 }
 
-void Context::onSkinDone(int, QNetworkReply::NetworkError error, QByteArray data, QList<QNetworkReply::RawHeaderPair>) {
+void MSAContext::onSkinDone(int, QNetworkReply::NetworkError error, QByteArray data, QList<QNetworkReply::RawHeaderPair>) {
     if (error == QNetworkReply::NoError) {
         m_account.minecraftProfile.skin.data = data;
     }
@@ -903,7 +956,7 @@ MinecraftProfile profileFromJSON(const QJsonObject &parent, const char * tokenNa
 
 }
 
-bool Context::resumeFromState(QByteArray data) {
+bool MSAContext::resumeFromState(QByteArray data) {
     QJsonParseError error;
     auto doc = QJsonDocument::fromJson(data, &error);
     if(error.error != QJsonParseError::NoError) {
@@ -924,7 +977,7 @@ bool Context::resumeFromState(QByteArray data) {
     return true;
 }
 
-QByteArray Context::saveState() {
+QByteArray MSAContext::saveState() {
     QJsonDocument doc;
     QJsonObject output;
     tokenToJSON(output, m_account.msaToken, "msa");
