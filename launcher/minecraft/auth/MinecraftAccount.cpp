@@ -47,6 +47,7 @@ MinecraftAccountPtr MinecraftAccount::loadFromJsonV3(const QJsonObject& json) {
 MinecraftAccountPtr MinecraftAccount::createFromUsername(const QString &username)
 {
     MinecraftAccountPtr account(new MinecraftAccount());
+    account->data.type = AccountType::Mojang;
     account->data.yggdrasilToken.extra["userName"] = username;
     account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{}-]"));
     return account;
