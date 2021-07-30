@@ -54,7 +54,7 @@
 #include <java/JavaUtils.h>
 #include <java/JavaInstallList.h>
 #include <launch/LaunchTask.h>
-#include <minecraft/auth/MojangAccountList.h>
+#include <minecraft/auth/AccountList.h>
 #include <SkinUtils.h>
 #include <BuildConfig.h>
 #include <net/NetJob.h>
@@ -753,11 +753,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // Update the menu when the active account changes.
     // Shouldn't have to use lambdas here like this, but if I don't, the compiler throws a fit.
     // Template hell sucks...
-    connect(MMC->accounts().get(), &MojangAccountList::activeAccountChanged, [this]
+    connect(MMC->accounts().get(), &AccountList::activeAccountChanged, [this]
             {
                 activeAccountChanged();
             });
-    connect(MMC->accounts().get(), &MojangAccountList::listChanged, [this]
+    connect(MMC->accounts().get(), &AccountList::listChanged, [this]
             {
                 repopulateAccountsMenu();
             });
@@ -765,37 +765,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // Show initial account
     activeAccountChanged();
 
-    auto accounts = MMC->accounts();
-
-    QList<Net::Download::Ptr> skin_dls;
-    for (int i = 0; i < accounts->count(); i++)
-    {
-        auto account = accounts->at(i);
-        if (!account)
-        {
-            qWarning() << "Null account at index" << i;
-            continue;
-        }
-        for (auto profile : account->profiles())
-        {
-            auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(BuildConfig.SKINS_BASE + profile.id + ".png"), meta);
-            skin_dls.append(action);
-            meta->setStale(true);
-        }
-    }
-    if (!skin_dls.isEmpty())
-    {
-        auto job = new NetJob("Startup player skins download");
-        connect(job, &NetJob::succeeded, this, &MainWindow::skinJobFinished);
-        connect(job, &NetJob::failed, this, &MainWindow::skinJobFinished);
-        for (auto action : skin_dls)
-        {
-            job->addNetAction(action);
-        }
-        skin_download_job.reset(job);
-        job->start();
-    }
+    // TODO: refresh accounts here?
+    // auto accounts = MMC->accounts();
 
     // load the news
     {
@@ -870,12 +841,6 @@ void MainWindow::konamiTriggered()
 {
     // ENV.enableFeature("NewModsPage");
     qDebug() << "Super Secret Mode ACTIVATED!";
-}
-
-void MainWindow::skinJobFinished()
-{
-    activeAccountChanged();
-    skin_download_job.reset();
 }
 
 void MainWindow::showInstanceContextMenu(const QPoint &pos)
@@ -1022,7 +987,7 @@ QString profileInUseFilter(const QString & profile, bool used)
 {
     if(used)
     {
-        return profile + QObject::tr(" (in use)");
+        return QObject::tr("%1 (in use)").arg(profile);
     }
     else
     {
@@ -1034,18 +999,17 @@ void MainWindow::repopulateAccountsMenu()
 {
     accountMenu->clear();
 
-    std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
-    MojangAccountPtr active_account = accounts->activeAccount();
+    std::shared_ptr<AccountList> accounts = MMC->accounts();
+    MinecraftAccountPtr active_account = accounts->activeAccount();
 
     QString active_username = "";
     if (active_account != nullptr)
     {
         active_username = active_account->username();
-        const AccountProfile *profile = active_account->currentProfile();
         // this can be called before accountMenuButton exists
-        if (profile != nullptr && accountMenuButton)
+        if (accountMenuButton)
         {
-            auto profileLabel = profileInUseFilter(profile->name, active_account->isInUse());
+            auto profileLabel = profileInUseFilter(active_account->profileName(), active_account->isInUse());
             accountMenuButton->setText(profileLabel);
         }
     }
@@ -1061,22 +1025,19 @@ void MainWindow::repopulateAccountsMenu()
         // TODO: Nicer way to iterate?
         for (int i = 0; i < accounts->count(); i++)
         {
-            MojangAccountPtr account = accounts->at(i);
-            for (auto profile : account->profiles())
+            MinecraftAccountPtr account = accounts->at(i);
+            auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
+            QAction *action = new QAction(profileLabel, this);
+            action->setData(account->username());
+            action->setCheckable(true);
+            if (active_username == account->username())
             {
-                auto profileLabel = profileInUseFilter(profile.name, account->isInUse());
-                QAction *action = new QAction(profileLabel, this);
-                action->setData(account->username());
-                action->setCheckable(true);
-                if (active_username == account->username())
-                {
-                    action->setChecked(true);
-                }
-
-                action->setIcon(SkinUtils::getFaceFromCache(profile.id));
-                accountMenu->addAction(action);
-                connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
+                action->setChecked(true);
             }
+
+            action->setIcon(SkinUtils::getFaceFromCache(account->profileId()));
+            accountMenu->addAction(action);
+            connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
         }
     }
 
@@ -1134,18 +1095,15 @@ void MainWindow::activeAccountChanged()
 {
     repopulateAccountsMenu();
 
-    MojangAccountPtr account = MMC->accounts()->activeAccount();
+    MinecraftAccountPtr account = MMC->accounts()->activeAccount();
 
-    if (account != nullptr && account->username() != "")
+    // FIXME: this needs adjustment for MSA
+    if (account != nullptr && account->profileName() != "")
     {
-        const AccountProfile *profile = account->currentProfile();
-        if (profile != nullptr)
-        {
-            auto profileLabel = profileInUseFilter(profile->name, account->isInUse());
-            accountMenuButton->setIcon(SkinUtils::getFaceFromCache(profile->id));
-            accountMenuButton->setText(profileLabel);
-            return;
-        }
+        auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
+        accountMenuButton->setText(profileLabel);
+        accountMenuButton->setIcon(SkinUtils::getFaceFromCache(account->profileId()));
+        return;
     }
 
     // Set the icon to the "no account" icon.

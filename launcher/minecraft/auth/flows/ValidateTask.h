@@ -26,13 +26,13 @@
 #include <QJsonObject>
 
 /**
- * The validate task takes a MojangAccount and checks to make sure its access token is valid.
+ * The validate task takes a MinecraftAccount and checks to make sure its access token is valid.
  */
 class ValidateTask : public YggdrasilTask
 {
     Q_OBJECT
 public:
-    ValidateTask(MojangAccount *account, QObject *parent = 0);
+    ValidateTask(MinecraftAccount *account, QObject *parent = 0);
 
 protected:
     virtual QJsonObject getRequestContent() const override;

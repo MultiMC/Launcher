@@ -4,13 +4,7 @@
 #include <QMultiMap>
 #include <memory>
 
-class MojangAccount;
-
-struct User
-{
-    QString id;
-    QMultiMap<QString, QString> properties;
-};
+class MinecraftAccount;
 
 struct AuthSession
 {
@@ -25,8 +19,6 @@ struct AuthSession
         PlayableOffline,
         PlayableOnline
     } status = Undetermined;
-
-    User u;
 
     // client token
     QString client_token;
@@ -46,7 +38,7 @@ struct AuthSession
     bool auth_server_online = false;
     // Did the user request online mode?
     bool wants_online = true;
-    std::shared_ptr<MojangAccount> m_accountPtr;
+    std::shared_ptr<MinecraftAccount> m_accountPtr;
 };
 
 typedef std::shared_ptr<AuthSession> AuthSessionPtr;

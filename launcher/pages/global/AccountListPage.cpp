@@ -105,7 +105,7 @@ void AccountListPage::listChanged()
 
 void AccountListPage::on_actionAddMojang_triggered()
 {
-    MojangAccountPtr account = LoginDialog::newAccount(
+    MinecraftAccountPtr account = LoginDialog::newAccount(
         this,
         tr("Please enter your Mojang account email and password to add your account.")
     );
@@ -115,19 +115,6 @@ void AccountListPage::on_actionAddMojang_triggered()
         m_accounts->addAccount(account);
         if (m_accounts->count() == 1)
             m_accounts->setActiveAccount(account->username());
-
-        // Grab associated player skins
-        auto job = new NetJob("Player skins: " + account->username());
-
-        for (AccountProfile profile : account->profiles())
-        {
-            auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(QUrl(BuildConfig.SKINS_BASE + profile.id + ".png"), meta);
-            job->addNetAction(action);
-            meta->setStale(true);
-        }
-
-        job->start();
     }
 }
 
@@ -156,8 +143,8 @@ void AccountListPage::on_actionSetDefault_triggered()
     if (selection.size() > 0)
     {
         QModelIndex selected = selection.first();
-        MojangAccountPtr account =
-            selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
+        MinecraftAccountPtr account =
+            selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
         m_accounts->setActiveAccount(account->username());
     }
 }
@@ -194,7 +181,7 @@ void AccountListPage::on_actionUploadSkin_triggered()
     if (selection.size() > 0)
     {
         QModelIndex selected = selection.first();
-        MojangAccountPtr account = selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
+        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
         SkinUploadDialog dialog(account, this);
         dialog.exec();
     }
@@ -208,7 +195,7 @@ void AccountListPage::on_actionDeleteSkin_triggered()
 
     QModelIndex selected = selection.first();
     AuthSessionPtr session = std::make_shared<AuthSession>();
-    MojangAccountPtr account = selected.data(MojangAccountList::PointerRole).value<MojangAccountPtr>();
+    MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
     auto login = account->login(session);
     ProgressDialog prog(this);
     if (prog.execWithTask((Task*)login.get()) != QDialog::Accepted) {

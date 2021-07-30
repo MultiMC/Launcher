@@ -7,49 +7,7 @@
 #include <QImage>
 
 #include <katabasis/OAuth2.h>
-
-struct Skin {
-    QString id;
-    QString url;
-    QString variant;
-
-    QByteArray data;
-};
-
-struct Cape {
-    QString id;
-    QString url;
-    QString alias;
-
-    QByteArray data;
-};
-
-struct MinecraftProfile  {
-    QString id;
-    QString name;
-    Skin skin;
-    int currentCape = -1;
-    QVector<Cape> capes;
-    Katabasis::Validity validity = Katabasis::Validity::None;
-};
-
-enum class AccountType {
-    MSA,
-    Mojang
-};
-
-struct AccountData {
-    AccountType type = AccountType::MSA;
-
-    Katabasis::Token msaToken;
-    Katabasis::Token userToken;
-    Katabasis::Token xboxApiToken;
-    Katabasis::Token mojangservicesToken;
-    Katabasis::Token minecraftToken;
-
-    MinecraftProfile minecraftProfile;
-    Katabasis::Validity validity_ = Katabasis::Validity::None;
-};
+#include "AccountData.h"
 
 class MSAContext : public QObject
 {
@@ -57,9 +15,6 @@ class MSAContext : public QObject
 
 public:
     explicit MSAContext(QObject *parent = 0);
-
-    QByteArray saveState();
-    bool resumeFromState(QByteArray data);
 
     bool isBusy() {
         return activity_ != Katabasis::Activity::Idle;

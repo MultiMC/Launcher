@@ -14,7 +14,7 @@
  */
 
 #include "AccountTask.h"
-#include "MojangAccount.h"
+#include "MinecraftAccount.h"
 
 #include <QObject>
 #include <QString>
@@ -29,7 +29,7 @@
 
 #include <QDebug>
 
-AccountTask::AccountTask(MojangAccount *account, QObject *parent)
+AccountTask::AccountTask(MinecraftAccount *account, QObject *parent)
     : Task(parent), m_account(account)
 {
     changeState(STATE_CREATED);

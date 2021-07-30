@@ -22,7 +22,7 @@
 #include <QTimer>
 #include <qsslerror.h>
 
-#include "MojangAccount.h"
+#include "MinecraftAccount.h"
 
 class QNetworkReply;
 
@@ -33,7 +33,7 @@ class YggdrasilTask : public AccountTask
 {
     Q_OBJECT
 public:
-    explicit YggdrasilTask(MojangAccount * account, QObject *parent = 0);
+    explicit YggdrasilTask(MinecraftAccount * account, QObject *parent = 0);
     virtual ~YggdrasilTask() {};
 
 protected:

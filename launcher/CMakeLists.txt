@@ -203,14 +203,16 @@ set(STATUS_SOURCES
 # Support for Minecraft instances and launch
 set(MINECRAFT_SOURCES
     # Minecraft support
+    minecraft/auth/AccountData.h
+    minecraft/auth/AccountData.cpp
     minecraft/auth/AccountTask.h
     minecraft/auth/AccountTask.cpp
     minecraft/auth/AuthSession.h
     minecraft/auth/AuthSession.cpp
-    minecraft/auth/MojangAccountList.h
-    minecraft/auth/MojangAccountList.cpp
-    minecraft/auth/MojangAccount.h
-    minecraft/auth/MojangAccount.cpp
+    minecraft/auth/AccountList.h
+    minecraft/auth/AccountList.cpp
+    minecraft/auth/MinecraftAccount.h
+    minecraft/auth/MinecraftAccount.cpp
     minecraft/auth/MSAContext.h
     minecraft/auth/MSAContext.cpp
     minecraft/auth/YggdrasilTask.h

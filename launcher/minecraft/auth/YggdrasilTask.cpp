@@ -14,7 +14,7 @@
  */
 
 #include "YggdrasilTask.h"
-#include "MojangAccount.h"
+#include "MinecraftAccount.h"
 
 #include <QObject>
 #include <QString>
@@ -29,7 +29,7 @@
 
 #include <QDebug>
 
-YggdrasilTask::YggdrasilTask(MojangAccount *account, QObject *parent)
+YggdrasilTask::YggdrasilTask(MinecraftAccount *account, QObject *parent)
     : AccountTask(account, parent)
 {
     changeState(STATE_CREATED);

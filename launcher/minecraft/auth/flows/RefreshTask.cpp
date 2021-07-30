@@ -14,7 +14,7 @@
  */
 
 #include "RefreshTask.h"
-#include "../MojangAccount.h"
+#include "../MinecraftAccount.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -23,7 +23,7 @@
 
 #include <QDebug>
 
-RefreshTask::RefreshTask(MojangAccount *account) : YggdrasilTask(account)
+RefreshTask::RefreshTask(MinecraftAccount *account) : YggdrasilTask(account)
 {
 }
 
@@ -42,8 +42,8 @@ QJsonObject RefreshTask::getRequestContent() const
      * }
      */
     QJsonObject req;
-    req.insert("clientToken", m_account->m_clientToken);
-    req.insert("accessToken", m_account->m_accessToken);
+    req.insert("clientToken", m_account->data.clientToken());
+    req.insert("accessToken", m_account->data.accessToken());
     /*
     {
         auto currentProfile = m_account->currentProfile();
@@ -74,7 +74,7 @@ void RefreshTask::processResponse(QJsonObject responseData)
         changeState(STATE_FAILED_HARD, tr("Authentication server didn't send a client token."));
         return;
     }
-    if (!m_account->m_clientToken.isEmpty() && clientToken != m_account->m_clientToken)
+    if (!m_account->clientToken().isEmpty() && clientToken != m_account->clientToken())
     {
         changeState(STATE_FAILED_HARD, tr("Authentication server attempted to change the client token. This isn't supported."));
         return;
@@ -94,34 +94,17 @@ void RefreshTask::processResponse(QJsonObject responseData)
     // profile)
     QJsonObject currentProfile = responseData.value("selectedProfile").toObject();
     QString currentProfileId = currentProfile.value("id").toString("");
-    if (m_account->currentProfile()->id != currentProfileId)
+    if (m_account->profileId() != currentProfileId)
     {
         changeState(STATE_FAILED_HARD, tr("Authentication server didn't specify the same prefile as expected."));
         return;
-    }
-
-    // this is what the vanilla launcher passes to the userProperties launch param
-    if (responseData.contains("user"))
-    {
-        User u;
-        auto obj = responseData.value("user").toObject();
-        u.id = obj.value("id").toString();
-        auto propArray = obj.value("properties").toArray();
-        for (auto prop : propArray)
-        {
-            auto propTuple = prop.toObject();
-            auto name = propTuple.value("name").toString();
-            auto value = propTuple.value("value").toString();
-            u.properties.insert(name, value);
-        }
-        m_account->m_user = u;
     }
 
     // We've made it through the minefield of possible errors. Return true to indicate that
     // we've succeeded.
     qDebug() << "Finished reading refresh response.";
     // Reset the access token.
-    m_account->m_accessToken = accessToken;
+    m_account->data.yggdrasilToken.token = accessToken;
     changeState(STATE_SUCCEEDED);
 }
 

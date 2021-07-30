@@ -1,6 +1,6 @@
 #include "LaunchController.h"
 #include "MainWindow.h"
-#include <minecraft/auth/MojangAccountList.h>
+#include <minecraft/auth/AccountList.h>
 #include "MultiMC.h"
 #include "dialogs/CustomMessageBox.h"
 #include "dialogs/ProfileSelectDialog.h"
@@ -40,8 +40,8 @@ void LaunchController::login()
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
     // Find an account to use.
-    std::shared_ptr<MojangAccountList> accounts = MMC->accounts();
-    MojangAccountPtr account = accounts->activeAccount();
+    std::shared_ptr<AccountList> accounts = MMC->accounts();
+    MinecraftAccountPtr account = accounts->activeAccount();
     if (accounts->count() <= 0)
     {
         // Tell the user they need to log in at least one account in order to play.
@@ -61,7 +61,7 @@ void LaunchController::login()
     else if (account.get() == nullptr)
     {
         // If no default account is set, ask the user which one to use.
-        ProfileSelectDialog selectDialog(tr("Which profile would you like to use?"),
+        ProfileSelectDialog selectDialog(tr("Which account would you like to use?"),
                                          ProfileSelectDialog::GlobalDefaultCheckbox, m_parentWidget);
 
         selectDialog.exec();
@@ -126,6 +126,7 @@ void LaunchController::login()
         }
         case AuthSession::RequiresPassword:
         {
+            // FIXME: this needs to understand MSA
             EditAccountDialog passDialog(failReason, m_parentWidget, EditAccountDialog::PasswordField);
             auto username = m_session->username;
             auto chopN = [](QString toChop, int N) -> QString

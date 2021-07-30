@@ -19,60 +19,6 @@
 #include "katabasis/Requestor.h"
 #include "BuildConfig.h"
 
-/*
-class Helper : public QObject {
-    Q_OBJECT
-
-public:
-    Helper(MSAContext * context) : QObject(), context_(context), msg_(QString()) {
-        QFile tokenCache("usercache.dat");
-        if(tokenCache.open(QIODevice::ReadOnly)) {
-            context_->resumeFromState(tokenCache.readAll());
-        }
-    }
-
-public slots:
-    void run() {
-        connect(context_, &MSAContext::activityChanged, this, &Helper::onActivityChanged);
-        context_->silentSignIn();
-    }
-
-    void onFailed() {
-        qDebug() << "Login failed";
-    }
-
-    void onActivityChanged(Katabasis::Activity activity) {
-        if(activity == Katabasis::Activity::Idle) {
-            switch(context_->validity()) {
-                case Katabasis::Validity::None: {
-                    // account is gone, remove it.
-                    QFile::remove("usercache.dat");
-                }
-                break;
-                case Katabasis::Validity::Assumed: {
-                    // this is basically a soft-failed refresh. do nothing.
-                }
-                break;
-                case Katabasis::Validity::Certain: {
-                    // stuff got refreshed / signed in. Save.
-                    auto data = context_->saveState();
-                    QSaveFile tokenCache("usercache.dat");
-                    if(tokenCache.open(QIODevice::WriteOnly)) {
-                        tokenCache.write(context_->saveState());
-                        tokenCache.commit();
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-private:
-    MSAContext *context_;
-    QString msg_;
-};
-*/
-
 using OAuth2 = Katabasis::OAuth2;
 using Requestor = Katabasis::Requestor;
 using Activity = Katabasis::Activity;
@@ -116,7 +62,7 @@ void MSAContext::finishActivity() {
 }
 
 QString MSAContext::gameToken() {
-    return m_account.minecraftToken.token;
+    return m_account.yggdrasilToken.token;
 }
 
 QString MSAContext::userId() {
@@ -569,7 +515,7 @@ void MSAContext::onMinecraftAuthDone(
         return;
     }
 
-    if(!parseMojangResponse(replyData, m_account.minecraftToken)) {
+    if(!parseMojangResponse(replyData, m_account.yggdrasilToken)) {
         qWarning() << "Could not parse login_with_xbox response...";
         qDebug() << replyData;
         finishActivity();
@@ -724,7 +670,7 @@ void MSAContext::doMinecraftProfile() {
     QNetworkRequest request = QNetworkRequest(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     // request.setRawHeader("Accept", "application/json");
-    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_account.minecraftToken.token).toUtf8());
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_account.yggdrasilToken.token).toUtf8());
 
     Requestor *requestor = new Requestor(mgr, oauth2, this);
     requestor->setAddAccessTokenInQuery(false);
@@ -766,226 +712,4 @@ void MSAContext::onSkinDone(int, QNetworkReply::NetworkError error, QByteArray d
         m_account.minecraftProfile.skin.data = data;
     }
     finishActivity();
-}
-
-namespace {
-void tokenToJSON(QJsonObject &parent, Katabasis::Token t, const char * tokenName) {
-    if(t.validity == Katabasis::Validity::None || !t.persistent) {
-        return;
-    }
-    QJsonObject out;
-    if(t.issueInstant.isValid()) {
-        out["iat"] = QJsonValue(t.issueInstant.toSecsSinceEpoch());
-    }
-
-    if(t.notAfter.isValid()) {
-        out["exp"] = QJsonValue(t.notAfter.toSecsSinceEpoch());
-    }
-
-    if(!t.token.isEmpty()) {
-        out["token"] = QJsonValue(t.token);
-    }
-    if(!t.refresh_token.isEmpty()) {
-        out["refresh_token"] = QJsonValue(t.refresh_token);
-    }
-    if(t.extra.size()) {
-        out["extra"] = QJsonObject::fromVariantMap(t.extra);
-    }
-    if(out.size()) {
-        parent[tokenName] = out;
-    }
-}
-
-Katabasis::Token tokenFromJSON(const QJsonObject &parent, const char * tokenName) {
-    Katabasis::Token out;
-    auto tokenObject = parent.value(tokenName).toObject();
-    if(tokenObject.isEmpty()) {
-        return out;
-    }
-    auto issueInstant = tokenObject.value("iat");
-    if(issueInstant.isDouble()) {
-        out.issueInstant = QDateTime::fromSecsSinceEpoch((int64_t) issueInstant.toDouble());
-    }
-
-    auto notAfter = tokenObject.value("exp");
-    if(notAfter.isDouble()) {
-        out.notAfter = QDateTime::fromSecsSinceEpoch((int64_t) notAfter.toDouble());
-    }
-
-    auto token = tokenObject.value("token");
-    if(token.isString()) {
-        out.token = token.toString();
-        out.validity = Katabasis::Validity::Assumed;
-    }
-
-    auto refresh_token = tokenObject.value("refresh_token");
-    if(refresh_token.isString()) {
-        out.refresh_token = refresh_token.toString();
-    }
-
-    auto extra = tokenObject.value("extra");
-    if(extra.isObject()) {
-        out.extra = extra.toObject().toVariantMap();
-    }
-    return out;
-}
-
-void profileToJSON(QJsonObject &parent, MinecraftProfile p, const char * tokenName) {
-    if(p.id.isEmpty()) {
-        return;
-    }
-    QJsonObject out;
-    out["id"] = QJsonValue(p.id);
-    out["name"] = QJsonValue(p.name);
-    if(p.currentCape != -1) {
-        out["cape"] = p.capes[p.currentCape].id;
-    }
-
-    {
-        QJsonObject skinObj;
-        skinObj["id"] = p.skin.id;
-        skinObj["url"] = p.skin.url;
-        skinObj["variant"] = p.skin.variant;
-        if(p.skin.data.size()) {
-            skinObj["data"] = QString::fromLatin1(p.skin.data.toBase64());
-        }
-        out["skin"] = skinObj;
-    }
-
-    QJsonArray capesArray;
-    for(auto & cape: p.capes) {
-        QJsonObject capeObj;
-        capeObj["id"] = cape.id;
-        capeObj["url"] = cape.url;
-        capeObj["alias"] = cape.alias;
-        if(cape.data.size()) {
-            capeObj["data"] = QString::fromLatin1(cape.data.toBase64());
-        }
-        capesArray.push_back(capeObj);
-    }
-    out["capes"] = capesArray;
-    parent[tokenName] = out;
-}
-
-MinecraftProfile profileFromJSON(const QJsonObject &parent, const char * tokenName) {
-    MinecraftProfile out;
-    auto tokenObject = parent.value(tokenName).toObject();
-    if(tokenObject.isEmpty()) {
-        return out;
-    }
-    {
-        auto idV = tokenObject.value("id");
-        auto nameV = tokenObject.value("name");
-        if(!idV.isString() || !nameV.isString()) {
-            qWarning() << "mandatory profile attributes are missing or of unexpected type";
-            return MinecraftProfile();
-        }
-        out.name = nameV.toString();
-        out.id = idV.toString();
-    }
-
-    {
-        auto skinV = tokenObject.value("skin");
-        if(!skinV.isObject()) {
-            qWarning() << "skin is missing";
-            return MinecraftProfile();
-        }
-        auto skinObj = skinV.toObject();
-        auto idV = skinObj.value("id");
-        auto urlV = skinObj.value("url");
-        auto variantV = skinObj.value("variant");
-        if(!idV.isString() || !urlV.isString() || !variantV.isString()) {
-            qWarning() << "mandatory skin attributes are missing or of unexpected type";
-            return MinecraftProfile();
-        }
-        out.skin.id = idV.toString();
-        out.skin.url = urlV.toString();
-        out.skin.variant = variantV.toString();
-
-        // data for skin is optional
-        auto dataV = skinObj.value("data");
-        if(dataV.isString()) {
-            // TODO: validate base64
-            out.skin.data = QByteArray::fromBase64(dataV.toString().toLatin1());
-        }
-        else if (!dataV.isUndefined()) {
-            qWarning() << "skin data is something unexpected";
-            return MinecraftProfile();
-        }
-    }
-
-    auto capesV = tokenObject.value("capes");
-    if(!capesV.isArray()) {
-        qWarning() << "capes is not an array!";
-        return MinecraftProfile();
-    }
-    auto capesArray = capesV.toArray();
-    for(auto capeV: capesArray) {
-        if(!capeV.isObject()) {
-            qWarning() << "cape is not an object!";
-            return MinecraftProfile();
-        }
-        auto capeObj = capeV.toObject();
-        auto idV = capeObj.value("id");
-        auto urlV = capeObj.value("url");
-        auto aliasV = capeObj.value("alias");
-        if(!idV.isString() || !urlV.isString() || !aliasV.isString()) {
-            qWarning() << "mandatory skin attributes are missing or of unexpected type";
-            return MinecraftProfile();
-        }
-        Cape cape;
-        cape.id = idV.toString();
-        cape.url = urlV.toString();
-        cape.alias = aliasV.toString();
-
-        // data for cape is optional.
-        auto dataV = capeObj.value("data");
-        if(dataV.isString()) {
-            // TODO: validate base64
-            cape.data = QByteArray::fromBase64(dataV.toString().toLatin1());
-        }
-        else if (!dataV.isUndefined()) {
-            qWarning() << "cape data is something unexpected";
-            return MinecraftProfile();
-        }
-        out.capes.push_back(cape);
-    }
-    out.validity = Katabasis::Validity::Assumed;
-    return out;
-}
-
-}
-
-bool MSAContext::resumeFromState(QByteArray data) {
-    QJsonParseError error;
-    auto doc = QJsonDocument::fromJson(data, &error);
-    if(error.error != QJsonParseError::NoError) {
-        qWarning() << "Failed to parse account data as JSON.";
-        return false;
-    }
-    auto docObject = doc.object();
-    m_account.msaToken = tokenFromJSON(docObject, "msa");
-    m_account.userToken = tokenFromJSON(docObject, "utoken");
-    m_account.xboxApiToken = tokenFromJSON(docObject, "xrp-main");
-    m_account.mojangservicesToken = tokenFromJSON(docObject, "xrp-mc");
-    m_account.minecraftToken = tokenFromJSON(docObject, "ygg");
-
-    m_account.minecraftProfile = profileFromJSON(docObject, "profile");
-
-    m_account.validity_ = m_account.minecraftProfile.validity;
-
-    return true;
-}
-
-QByteArray MSAContext::saveState() {
-    QJsonDocument doc;
-    QJsonObject output;
-    tokenToJSON(output, m_account.msaToken, "msa");
-    tokenToJSON(output, m_account.userToken, "utoken");
-    tokenToJSON(output, m_account.xboxApiToken, "xrp-main");
-    tokenToJSON(output, m_account.mojangservicesToken, "xrp-mc");
-    tokenToJSON(output, m_account.minecraftToken, "ygg");
-    profileToJSON(output, m_account.minecraftProfile, "profile");
-    doc.setObject(output);
-    return doc.toJson(QJsonDocument::Indented);
 }

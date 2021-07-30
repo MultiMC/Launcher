@@ -22,7 +22,7 @@
 #include <QTimer>
 #include <qsslerror.h>
 
-#include "MojangAccount.h"
+#include "MinecraftAccount.h"
 
 class QNetworkReply;
 
@@ -30,7 +30,7 @@ class AccountTask : public Task
 {
     Q_OBJECT
 public:
-    explicit AccountTask(MojangAccount * account, QObject *parent = 0);
+    explicit AccountTask(MinecraftAccount * account, QObject *parent = 0);
     virtual ~AccountTask() {};
 
     /**
@@ -96,7 +96,7 @@ protected slots:
 
 protected:
     // FIXME: segfault disaster waiting to happen
-    MojangAccount *m_account = nullptr;
+    MinecraftAccount *m_account = nullptr;
     std::shared_ptr<Error> m_error;
     AuthSessionPtr m_session;
 };

@@ -22,7 +22,7 @@
 #include <QJsonObject>
 
 /**
- * The authenticate task takes a MojangAccount with a possibly timed-out access token
+ * The authenticate task takes a MinecraftAccount with a possibly timed-out access token
  * and attempts to authenticate with Mojang's servers.
  * If successful, it will set the new access token. The token is considered validated.
  */
@@ -30,7 +30,7 @@ class RefreshTask : public YggdrasilTask
 {
     Q_OBJECT
 public:
-    RefreshTask(MojangAccount * account);
+    RefreshTask(MinecraftAccount * account);
 
 protected:
     virtual QJsonObject getRequestContent() const override;
