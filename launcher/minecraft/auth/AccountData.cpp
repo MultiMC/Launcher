@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
+#include <QUuid>
 
 namespace {
 void tokenToJSONV3(QJsonObject &parent, Katabasis::Token t, const char * tokenName) {

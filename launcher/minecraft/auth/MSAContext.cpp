@@ -180,7 +180,7 @@ bool getDateTime(QJsonValue value, QDateTime & out) {
     if(!value.isString()) {
         return false;
     }
-    out = QDateTime::fromString(value.toString(), Qt::ISODateWithMs);
+    out = QDateTime::fromString(value.toString(), Qt::ISODate);
     return out.isValid();
 }
 
