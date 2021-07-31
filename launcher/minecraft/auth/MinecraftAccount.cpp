@@ -92,11 +92,11 @@ std::shared_ptr<YggdrasilTask> MinecraftAccount::login(AuthSessionPtr session, Q
     {
         if (password.isEmpty())
         {
-            m_currentTask.reset(new RefreshTask(this));
+            m_currentTask.reset(new RefreshTask(&data));
         }
         else
         {
-            m_currentTask.reset(new AuthenticateTask(this, password));
+            m_currentTask.reset(new AuthenticateTask(&data, password));
         }
         m_currentTask->assignSession(session);
 
@@ -158,7 +158,7 @@ void MinecraftAccount::fillSession(AuthSessionPtr session)
     // volatile auth token
     session->access_token = accessToken();
     // the semi-permanent client token
-    session->client_token = clientToken();
+    session->client_token = data.clientToken();
     // profile name
     session->player_name = profileName();
     // profile ID
@@ -197,15 +197,4 @@ void MinecraftAccount::incrementUses()
         // FIXME: we now need a better way to identify accounts...
         qWarning() << "Account" << username() << "is now in use.";
     }
-}
-
-void MinecraftAccount::invalidateClientToken()
-{
-    data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{-}]"));
-    emit changed();
-}
-
-void MinecraftAccount::setClientToken(QString clientToken) {
-    data.yggdrasilToken.extra["clientToken"] = clientToken;
-    emit changed();
 }

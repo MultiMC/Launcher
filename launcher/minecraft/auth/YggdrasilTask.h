@@ -33,7 +33,7 @@ class YggdrasilTask : public AccountTask
 {
     Q_OBJECT
 public:
-    explicit YggdrasilTask(MinecraftAccount * account, QObject *parent = 0);
+    explicit YggdrasilTask(AccountData * data, QObject *parent = 0);
     virtual ~YggdrasilTask() {};
 
 protected:

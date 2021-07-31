@@ -23,7 +23,7 @@
 
 #include <QDebug>
 
-RefreshTask::RefreshTask(MinecraftAccount *account) : YggdrasilTask(account)
+RefreshTask::RefreshTask(AccountData *data) : YggdrasilTask(data)
 {
 }
 
@@ -42,8 +42,8 @@ QJsonObject RefreshTask::getRequestContent() const
      * }
      */
     QJsonObject req;
-    req.insert("clientToken", m_account->data.clientToken());
-    req.insert("accessToken", m_account->data.accessToken());
+    req.insert("clientToken", m_data->clientToken());
+    req.insert("accessToken", m_data->accessToken());
     /*
     {
         auto currentProfile = m_account->currentProfile();
@@ -74,7 +74,7 @@ void RefreshTask::processResponse(QJsonObject responseData)
         changeState(STATE_FAILED_HARD, tr("Authentication server didn't send a client token."));
         return;
     }
-    if (!m_account->clientToken().isEmpty() && clientToken != m_account->clientToken())
+    if (!m_data->clientToken().isEmpty() && clientToken != m_data->clientToken())
     {
         changeState(STATE_FAILED_HARD, tr("Authentication server attempted to change the client token. This isn't supported."));
         return;
@@ -94,7 +94,7 @@ void RefreshTask::processResponse(QJsonObject responseData)
     // profile)
     QJsonObject currentProfile = responseData.value("selectedProfile").toObject();
     QString currentProfileId = currentProfile.value("id").toString("");
-    if (m_account->profileId() != currentProfileId)
+    if (m_data->minecraftProfile.id != currentProfileId)
     {
         changeState(STATE_FAILED_HARD, tr("Authentication server didn't specify the same prefile as expected."));
         return;
@@ -104,7 +104,8 @@ void RefreshTask::processResponse(QJsonObject responseData)
     // we've succeeded.
     qDebug() << "Finished reading refresh response.";
     // Reset the access token.
-    m_account->data.yggdrasilToken.token = accessToken;
+    m_data->yggdrasilToken.token = accessToken;
+    m_data->yggdrasilToken.validity = Katabasis::Validity::Certain;
     changeState(STATE_SUCCEEDED);
 }
 

@@ -89,14 +89,6 @@ public: /* manipulation */
      * If the attempt fails because we already are performing some task, it returns false.
      */
     std::shared_ptr<YggdrasilTask> login(AuthSessionPtr session, QString password = QString());
-    void invalidateClientToken();
-    void generateClientTokenIfMissing() {
-        if(data.yggdrasilToken.extra.contains("clientToken")) {
-            return;
-        }
-        invalidateClientToken();
-    }
-    void setClientToken(QString clientToken);
 
 public: /* queries */
     QString username() const {
@@ -105,10 +97,6 @@ public: /* queries */
 
     QString accessToken() const {
         return data.yggdrasilToken.token;
-    }
-
-    QString clientToken() const {
-        return data.yggdrasilToken.extra.value("clientToken", QString()).toString();
     }
 
     QString profileId() const {
@@ -141,6 +129,10 @@ public: /* queries */
     //! Returns whether the account is NotVerified, Verified or Online
     AccountStatus accountStatus() const;
 
+    AccountData * accountData() {
+        return &data;
+    }
+
 signals:
     /**
      * This signal is emitted when the account changes
@@ -167,10 +159,4 @@ slots:
 
 private:
     void fillSession(AuthSessionPtr session);
-
-public:
-    friend class YggdrasilTask;
-    friend class AuthenticateTask;
-    friend class ValidateTask;
-    friend class RefreshTask;
 };

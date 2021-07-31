@@ -32,7 +32,7 @@ class ValidateTask : public YggdrasilTask
 {
     Q_OBJECT
 public:
-    ValidateTask(MinecraftAccount *account, QObject *parent = 0);
+    ValidateTask(AccountData *data, QObject *parent = 0);
 
 protected:
     virtual QJsonObject getRequestContent() const override;

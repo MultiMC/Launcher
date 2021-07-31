@@ -29,8 +29,8 @@
 
 #include <QDebug>
 
-AccountTask::AccountTask(MinecraftAccount *account, QObject *parent)
-    : Task(parent), m_account(account)
+AccountTask::AccountTask(AccountData *data, QObject *parent)
+    : Task(parent), m_data(data)
 {
     changeState(STATE_CREATED);
 }

@@ -30,7 +30,7 @@ class AuthenticateTask : public YggdrasilTask
 {
     Q_OBJECT
 public:
-    AuthenticateTask(MinecraftAccount *account, const QString &password, QObject *parent = 0);
+    AuthenticateTask(AccountData *data, const QString &password, QObject *parent = 0);
 
 protected:
     virtual QJsonObject getRequestContent() const override;

@@ -30,7 +30,7 @@ class AccountTask : public Task
 {
     Q_OBJECT
 public:
-    explicit AccountTask(MinecraftAccount * account, QObject *parent = 0);
+    explicit AccountTask(AccountData * account, QObject *parent = 0);
     virtual ~AccountTask() {};
 
     /**
@@ -96,7 +96,7 @@ protected slots:
 
 protected:
     // FIXME: segfault disaster waiting to happen
-    MinecraftAccount *m_account = nullptr;
+    AccountData *m_data = nullptr;
     std::shared_ptr<Error> m_error;
     AuthSessionPtr m_session;
 };

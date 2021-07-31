@@ -25,8 +25,8 @@
 #include <QDebug>
 #include <QUuid>
 
-AuthenticateTask::AuthenticateTask(MinecraftAccount * account, const QString &password, QObject *parent)
-    : YggdrasilTask(account, parent), m_password(password)
+AuthenticateTask::AuthenticateTask(AccountData * data, const QString &password, QObject *parent)
+    : YggdrasilTask(data, parent), m_password(password)
 {
 }
 
@@ -57,15 +57,15 @@ QJsonObject AuthenticateTask::getRequestContent() const
         req.insert("agent", agent);
     }
 
-    req.insert("username", m_account->username());
+    req.insert("username", m_data->userName());
     req.insert("password", m_password);
     req.insert("requestUser", false);
 
     // If we already have a client token, give it to the server.
     // Otherwise, let the server give us one.
 
-    m_account->generateClientTokenIfMissing();
-    req.insert("clientToken", m_account->clientToken());
+    m_data->generateClientTokenIfMissing();
+    req.insert("clientToken", m_data->clientToken());
 
     return req;
 }
@@ -86,10 +86,10 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
         changeState(STATE_FAILED_HARD, tr("Authentication server didn't send a client token."));
         return;
     }
-    if(m_account->clientToken().isEmpty()) {
-        m_account->setClientToken(clientToken);
+    if(m_data->clientToken().isEmpty()) {
+        m_data->setClientToken(clientToken);
     }
-    else if(clientToken != m_account->clientToken()) {
+    else if(clientToken != m_data->clientToken()) {
         changeState(STATE_FAILED_HARD, tr("Authentication server attempted to change the client token. This isn't supported."));
         return;
     }
@@ -104,8 +104,8 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
         return;
     }
     // Set the access token.
-    m_account->data.yggdrasilToken.token = accessToken;
-    m_account->data.yggdrasilToken.validity = Katabasis::Validity::Certain;
+    m_data->yggdrasilToken.token = accessToken;
+    m_data->yggdrasilToken.validity = Katabasis::Validity::Certain;
 
     // Now we load the list of available profiles.
     qDebug() << "Loading profile list.";
@@ -121,12 +121,12 @@ void AuthenticateTask::processResponse(QJsonObject responseData)
 
     // get the profile data
     QJsonObject profile = availableProfiles[0].toObject();
-    m_account->data.minecraftProfile.id = profile.value("id").toString("");
-    m_account->data.minecraftProfile.name = profile.value("name").toString("");
-    m_account->data.legacy = profile.value("legacy").toBool(false);
-    m_account->data.minecraftProfile.validity = Katabasis::Validity::Certain;
+    m_data->minecraftProfile.id = profile.value("id").toString("");
+    m_data->minecraftProfile.name = profile.value("name").toString("");
+    m_data->legacy = profile.value("legacy").toBool(false);
+    m_data->minecraftProfile.validity = Katabasis::Validity::Certain;
 
-    m_account->data.validity_ = Katabasis::Validity::Certain;
+    m_data->validity_ = Katabasis::Validity::Certain;
 
     // We've made it through the minefield of possible errors. Return true to indicate that
     // we've succeeded.

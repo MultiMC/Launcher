@@ -29,8 +29,8 @@
 
 #include <QDebug>
 
-YggdrasilTask::YggdrasilTask(MinecraftAccount *account, QObject *parent)
-    : AccountTask(account, parent)
+YggdrasilTask::YggdrasilTask(AccountData *data, QObject *parent)
+    : AccountTask(data, parent)
 {
     changeState(STATE_CREATED);
 }

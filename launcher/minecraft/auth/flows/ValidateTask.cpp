@@ -24,15 +24,15 @@
 
 #include <QDebug>
 
-ValidateTask::ValidateTask(MinecraftAccount * account, QObject *parent)
-    : YggdrasilTask(account, parent)
+ValidateTask::ValidateTask(AccountData * data, QObject *parent)
+    : YggdrasilTask(data, parent)
 {
 }
 
 QJsonObject ValidateTask::getRequestContent() const
 {
     QJsonObject req;
-    req.insert("accessToken", m_account->accessToken());
+    req.insert("accessToken", m_data->accessToken());
     return req;
 }
 

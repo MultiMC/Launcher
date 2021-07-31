@@ -1,6 +1,7 @@
 #pragma once
 #include <QString>
 #include <QByteArray>
+#include <QVector>
 #include <katabasis/Bits.h>
 #include <QJsonObject>
 
@@ -44,6 +45,9 @@ struct AccountData {
 
     //! Only valid for Mojang accounts.
     QString clientToken() const;
+    void setClientToken(QString clientToken);
+    void invalidateClientToken();
+    void generateClientTokenIfMissing();
 
     //! Yggdrasil access token, as passed to the game.
     QString accessToken() const;

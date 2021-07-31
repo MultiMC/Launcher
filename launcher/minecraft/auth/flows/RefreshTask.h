@@ -30,7 +30,7 @@ class RefreshTask : public YggdrasilTask
 {
     Q_OBJECT
 public:
-    RefreshTask(MinecraftAccount * account);
+    RefreshTask(AccountData  * account);
 
 protected:
     virtual QJsonObject getRequestContent() const override;

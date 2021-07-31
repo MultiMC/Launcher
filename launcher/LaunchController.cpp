@@ -107,9 +107,9 @@ void LaunchController::login()
             if (!task->wasSuccessful())
             {
                 auto failReasonNew = task->failReason();
-                if(failReasonNew == "Invalid token.")
+                if(failReasonNew == "Invalid token." || failReasonNew == "Invalid Signature")
                 {
-                    account->invalidateClientToken();
+                    // account->invalidateClientToken();
                     failReason = needLoginAgain;
                 }
                 else failReason = failReasonNew;

@@ -5,7 +5,7 @@
 
 namespace {
 void tokenToJSONV3(QJsonObject &parent, Katabasis::Token t, const char * tokenName) {
-    if(t.validity == Katabasis::Validity::None || !t.persistent) {
+    if(!t.persistent) {
         return;
     }
     QJsonObject out;
@@ -17,16 +17,20 @@ void tokenToJSONV3(QJsonObject &parent, Katabasis::Token t, const char * tokenNa
         out["exp"] = QJsonValue(t.notAfter.toSecsSinceEpoch());
     }
 
+    bool save = false;
     if(!t.token.isEmpty()) {
         out["token"] = QJsonValue(t.token);
+        save = true;
     }
     if(!t.refresh_token.isEmpty()) {
         out["refresh_token"] = QJsonValue(t.refresh_token);
+        save = true;
     }
     if(t.extra.size()) {
         out["extra"] = QJsonObject::fromVariantMap(t.extra);
+        save = true;
     }
-    if(out.size()) {
+    if(save) {
         parent[tokenName] = out;
     }
 }
@@ -332,4 +336,25 @@ QString AccountData::clientToken() const {
         return QString();
     }
     return yggdrasilToken.extra["clientToken"].toString();
+}
+
+void AccountData::setClientToken(QString clientToken) {
+    if(type != AccountType::Mojang) {
+        return;
+    }
+    yggdrasilToken.extra["clientToken"] = clientToken;
+}
+
+void AccountData::generateClientTokenIfMissing() {
+    if(yggdrasilToken.extra.contains("clientToken")) {
+        return;
+    }
+    invalidateClientToken();
+}
+
+void AccountData::invalidateClientToken() {
+    if(type != AccountType::Mojang) {
+        return;
+    }
+    yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{-}]"));
 }
