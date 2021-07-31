@@ -11,11 +11,11 @@ void tokenToJSONV3(QJsonObject &parent, Katabasis::Token t, const char * tokenNa
     }
     QJsonObject out;
     if(t.issueInstant.isValid()) {
-        out["iat"] = QJsonValue(t.issueInstant.toSecsSinceEpoch());
+        out["iat"] = QJsonValue(t.issueInstant.toMSecsSinceEpoch() / 1000);
     }
 
     if(t.notAfter.isValid()) {
-        out["exp"] = QJsonValue(t.notAfter.toSecsSinceEpoch());
+        out["exp"] = QJsonValue(t.notAfter.toMSecsSinceEpoch() / 1000);
     }
 
     bool save = false;
@@ -44,12 +44,12 @@ Katabasis::Token tokenFromJSONV3(const QJsonObject &parent, const char * tokenNa
     }
     auto issueInstant = tokenObject.value("iat");
     if(issueInstant.isDouble()) {
-        out.issueInstant = QDateTime::fromSecsSinceEpoch((int64_t) issueInstant.toDouble());
+        out.issueInstant = QDateTime::fromMSecsSinceEpoch(((int64_t) issueInstant.toDouble()) * 1000);
     }
 
     auto notAfter = tokenObject.value("exp");
     if(notAfter.isDouble()) {
-        out.notAfter = QDateTime::fromSecsSinceEpoch((int64_t) notAfter.toDouble());
+        out.notAfter = QDateTime::fromMSecsSinceEpoch(((int64_t) notAfter.toDouble()) * 1000);
     }
 
     auto token = tokenObject.value("token");
