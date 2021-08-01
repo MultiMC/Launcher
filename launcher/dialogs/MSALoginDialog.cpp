@@ -86,14 +86,11 @@ void MSALoginDialog::onTaskProgress(qint64 current, qint64 total)
 // Public interface
 MinecraftAccountPtr MSALoginDialog::newAccount(QWidget *parent, QString msg)
 {
-    qDebug() << "MSALoginDialog::newAccount";
     MSALoginDialog dlg(parent);
     dlg.ui->label->setText(msg);
     if (dlg.exec() == QDialog::Accepted)
     {
-        qDebug() << "MSALoginDialog::newAccount Accepted";
         return dlg.m_account;
     }
-    qDebug() << "MSALoginDialog::newAccount Not Accepted";
     return 0;
 }
