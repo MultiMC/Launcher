@@ -40,6 +40,9 @@ struct AccountData {
     bool resumeStateFromV2(QJsonObject data);
     bool resumeStateFromV3(QJsonObject data);
 
+    //! userName for Mojang accounts, gamertag for MSA
+    QString accountDisplayString() const;
+
     //! Only valid for Mojang accounts. MSA does not preserve this information
     QString userName() const;
 
@@ -51,6 +54,9 @@ struct AccountData {
 
     //! Yggdrasil access token, as passed to the game.
     QString accessToken() const;
+
+    QString profileId() const;
+    QString profileName() const;
 
     AccountType type = AccountType::MSA;
     bool legacy = false;

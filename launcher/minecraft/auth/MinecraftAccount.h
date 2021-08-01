@@ -91,20 +91,24 @@ public: /* manipulation */
     std::shared_ptr<YggdrasilTask> login(AuthSessionPtr session, QString password = QString());
 
 public: /* queries */
-    QString username() const {
+    QString accountDisplayString() const {
+        return data.accountDisplayString();
+    }
+
+    QString mojangUserName() const {
         return data.userName();
     }
 
     QString accessToken() const {
-        return data.yggdrasilToken.token;
+        return data.accessToken();
     }
 
     QString profileId() const {
-        return data.minecraftProfile.id;
+        return data.profileId();
     }
 
     QString profileName() const {
-        return data.minecraftProfile.name;
+        return data.profileName();
     }
 
     QString typeString() const {

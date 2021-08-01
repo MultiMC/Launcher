@@ -60,7 +60,7 @@ QJsonObject MinecraftAccount::saveToJson() const
 
 AccountStatus MinecraftAccount::accountStatus() const {
     // FIXME: this needs to understand MSA
-    if (accessToken().isEmpty())
+    if (data.accessToken().isEmpty())
         return NotVerified;
     else
         return Verified;
@@ -154,20 +154,20 @@ void MinecraftAccount::fillSession(AuthSessionPtr session)
 {
     // the user name. you have to have an user name
     // FIXME: not with MSA
-    session->username = username();
+    session->username = data.userName();
     // volatile auth token
-    session->access_token = accessToken();
+    session->access_token = data.accessToken();
     // the semi-permanent client token
     session->client_token = data.clientToken();
     // profile name
-    session->player_name = profileName();
+    session->player_name = data.profileName();
     // profile ID
-    session->uuid = profileId();
+    session->uuid = data.profileId();
     // 'legacy' or 'mojang', depending on account type
     session->user_type = typeString();
     if (!session->access_token.isEmpty())
     {
-        session->session = "token:" + accessToken() + ":" + profileId();
+        session->session = "token:" + data.accessToken() + ":" + data.profileId();
     }
     else
     {
@@ -183,7 +183,7 @@ void MinecraftAccount::decrementUses()
     {
         emit changed();
         // FIXME: we now need a better way to identify accounts...
-        qWarning() << "Account" << username() << "is no longer in use.";
+        qWarning() << "Profile" << data.profileId() << "is no longer in use.";
     }
 }
 
@@ -195,6 +195,6 @@ void MinecraftAccount::incrementUses()
     {
         emit changed();
         // FIXME: we now need a better way to identify accounts...
-        qWarning() << "Account" << username() << "is now in use.";
+        qWarning() << "Profile" << data.profileId() << "is now in use.";
     }
 }

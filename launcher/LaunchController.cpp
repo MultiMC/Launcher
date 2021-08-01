@@ -35,8 +35,7 @@ void LaunchController::executeTask()
 }
 
 // FIXME: minecraft specific
-void LaunchController::login()
-{
+void LaunchController::login() {
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
     // Find an account to use.
@@ -46,11 +45,14 @@ void LaunchController::login()
     {
         // Tell the user they need to log in at least one account in order to play.
         auto reply = CustomMessageBox::selectable(
-            m_parentWidget, tr("No Accounts"),
+            m_parentWidget,
+            tr("No Accounts"),
             tr("In order to play Minecraft, you must have at least one Mojang or Minecraft "
                "account logged in to MultiMC."
                "Would you like to open the account manager to add an account now?"),
-            QMessageBox::Information, QMessageBox::Yes | QMessageBox::No)->exec();
+            QMessageBox::Information,
+            QMessageBox::Yes | QMessageBox::No
+        )->exec();
 
         if (reply == QMessageBox::Yes)
         {
@@ -61,8 +63,11 @@ void LaunchController::login()
     else if (account.get() == nullptr)
     {
         // If no default account is set, ask the user which one to use.
-        ProfileSelectDialog selectDialog(tr("Which account would you like to use?"),
-                                         ProfileSelectDialog::GlobalDefaultCheckbox, m_parentWidget);
+        ProfileSelectDialog selectDialog(
+            tr("Which account would you like to use?"),
+            ProfileSelectDialog::GlobalDefaultCheckbox,
+            m_parentWidget
+        );
 
         selectDialog.exec();
 
@@ -70,8 +75,9 @@ void LaunchController::login()
         account = selectDialog.selectedAccount();
 
         // If the user said to use the account as default, do that.
-        if (selectDialog.useAsGlobalDefault() && account.get() != nullptr)
-            accounts->setActiveAccount(account->username());
+        if (selectDialog.useAsGlobalDefault() && account.get() != nullptr) {
+            accounts->setActiveAccount(account->profileId());
+        }
     }
 
     // if no account is selected, we bail

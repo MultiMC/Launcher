@@ -360,3 +360,26 @@ void AccountData::invalidateClientToken() {
     }
     yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{-}]"));
 }
+
+QString AccountData::profileId() const {
+    return minecraftProfile.id;
+}
+
+QString AccountData::profileName() const {
+    return minecraftProfile.name;
+}
+
+QString AccountData::accountDisplayString() const {
+    switch(type) {
+        case AccountType::Mojang: {
+            return userName();
+        }
+        case AccountType::MSA: {
+            // FIXME: pin this down.
+            return "GAMERTAG";
+        }
+        default: {
+            return "Invalid Account";
+        }
+    }
+}

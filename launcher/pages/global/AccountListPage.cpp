@@ -113,8 +113,9 @@ void AccountListPage::on_actionAddMojang_triggered()
     if (account != nullptr)
     {
         m_accounts->addAccount(account);
-        if (m_accounts->count() == 1)
-            m_accounts->setActiveAccount(account->username());
+        if (m_accounts->count() == 1) {
+            m_accounts->setActiveAccount(account->profileId());
+        }
     }
 }
 
@@ -143,9 +144,8 @@ void AccountListPage::on_actionSetDefault_triggered()
     if (selection.size() > 0)
     {
         QModelIndex selected = selection.first();
-        MinecraftAccountPtr account =
-            selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
-        m_accounts->setActiveAccount(account->username());
+        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+        m_accounts->setActiveAccount(account->profileId());
     }
 }
 

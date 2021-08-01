@@ -57,7 +57,7 @@ public:
 
     void addAccount(const MinecraftAccountPtr account);
     void removeAccount(QModelIndex index);
-    MinecraftAccountPtr findAccountByUsername(const QString &username) const;
+    int findAccountByProfileId(const QString &profileId) const;
 
     /*!
      * Sets the path to load/save the list file from/to.
@@ -74,7 +74,7 @@ public:
     bool saveList();
 
     MinecraftAccountPtr activeAccount() const;
-    void setActiveAccount(const QString &username);
+    void setActiveAccount(const QString &profileId);
     bool anyAccountIsValid();
 
 signals:

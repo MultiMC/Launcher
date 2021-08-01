@@ -1002,10 +1002,10 @@ void MainWindow::repopulateAccountsMenu()
     std::shared_ptr<AccountList> accounts = MMC->accounts();
     MinecraftAccountPtr active_account = accounts->activeAccount();
 
-    QString active_username = "";
+    QString active_profileId = "";
     if (active_account != nullptr)
     {
-        active_username = active_account->username();
+        active_profileId = active_account->profileId();
         // this can be called before accountMenuButton exists
         if (accountMenuButton)
         {
@@ -1028,9 +1028,9 @@ void MainWindow::repopulateAccountsMenu()
             MinecraftAccountPtr account = accounts->at(i);
             auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
             QAction *action = new QAction(profileLabel, this);
-            action->setData(account->username());
+            action->setData(account->profileId());
             action->setCheckable(true);
-            if (active_username == account->username())
+            if (active_profileId == account->profileId())
             {
                 action->setChecked(true);
             }
@@ -1047,8 +1047,7 @@ void MainWindow::repopulateAccountsMenu()
     action->setCheckable(true);
     action->setIcon(MMC->getThemedIcon("noaccount"));
     action->setData("");
-    if (active_username.isEmpty())
-    {
+    if (active_profileId.isEmpty()) {
         action->setChecked(true);
     }
 

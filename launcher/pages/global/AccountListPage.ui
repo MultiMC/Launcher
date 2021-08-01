@@ -25,7 +25,20 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="VersionListView" name="listView"/>
+     <widget class="VersionListView" name="listView">
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="rootIsDecorated">
+       <bool>false</bool>
+      </property>
+      <property name="itemsExpandable">
+       <bool>false</bool>
+      </property>
+      <property name="allColumnsShowFocus">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
