@@ -21,6 +21,7 @@
 #include <QJsonObject>
 #include <QPair>
 #include <QMap>
+#include <QPixmap>
 
 #include <memory>
 #include "AuthSession.h"
@@ -28,7 +29,7 @@
 #include "AccountData.h"
 
 class Task;
-class YggdrasilTask;
+class AccountTask;
 class MinecraftAccount;
 
 typedef std::shared_ptr<MinecraftAccount> MinecraftAccountPtr;
@@ -73,8 +74,9 @@ public: /* construction */
     //! Default constructor
     explicit MinecraftAccount(QObject *parent = 0) : QObject(parent) {};
 
-    //! Creates an empty Mojang account for the specified user name.
     static MinecraftAccountPtr createFromUsername(const QString &username);
+
+    static MinecraftAccountPtr createBlankMSA();
 
     static MinecraftAccountPtr loadFromJsonV2(const QJsonObject &json);
     static MinecraftAccountPtr loadFromJsonV3(const QJsonObject &json);
@@ -88,7 +90,11 @@ public: /* manipulation */
      * Attempt to login. Empty password means we use the token.
      * If the attempt fails because we already are performing some task, it returns false.
      */
-    std::shared_ptr<YggdrasilTask> login(AuthSessionPtr session, QString password = QString());
+    std::shared_ptr<AccountTask> login(AuthSessionPtr session, QString password = QString());
+
+    std::shared_ptr<AccountTask> loginMSA(AuthSessionPtr session);
+
+    std::shared_ptr<AccountTask> refresh(AuthSessionPtr session);
 
 public: /* queries */
     QString accountDisplayString() const {
@@ -130,6 +136,8 @@ public: /* queries */
         }
     }
 
+    QPixmap getFace() const;
+
     //! Returns whether the account is NotVerified, Verified or Online
     AccountStatus accountStatus() const;
 
@@ -149,7 +157,7 @@ protected: /* variables */
     AccountData data;
 
     // current task we are executing here
-    std::shared_ptr<YggdrasilTask> m_currentTask;
+    std::shared_ptr<AccountTask> m_currentTask;
 
 protected: /* methods */
 

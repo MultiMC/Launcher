@@ -15,6 +15,7 @@ struct AuthSession
     enum Status
     {
         Undetermined,
+        RequiresOAuth,
         RequiresPassword,
         PlayableOffline,
         PlayableOnline

@@ -116,7 +116,7 @@ QString RefreshTask::getEndpoint() const
 
 QString RefreshTask::getStateMessage() const
 {
-    switch (m_state)
+    switch (m_accountState)
     {
     case STATE_WORKING:
         return tr("Refreshing login token...");

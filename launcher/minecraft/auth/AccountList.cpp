@@ -189,31 +189,41 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
 
     switch (role)
     {
-    case Qt::DisplayRole:
-        switch (index.column())
-        {
-        case NameColumn:
+        case Qt::DisplayRole:
+            switch (index.column())
+            {
+            case NameColumn:
+                return account->accountDisplayString();
+
+            case TypeColumn: {
+                auto typeStr = account->typeString();
+                typeStr[0] = typeStr[0].toUpper();
+                return typeStr;
+            }
+
+            case ProfileNameColumn: {
+                return account->profileName();
+            }
+
+            default:
+                return QVariant();
+            }
+
+        case Qt::ToolTipRole:
             return account->accountDisplayString();
+
+        case PointerRole:
+            return qVariantFromValue(account);
+
+        case Qt::CheckStateRole:
+            switch (index.column())
+            {
+                case NameColumn:
+                    return account == m_activeAccount ? Qt::Checked : Qt::Unchecked;
+            }
 
         default:
             return QVariant();
-        }
-
-    case Qt::ToolTipRole:
-        return account->accountDisplayString();
-
-    case PointerRole:
-        return qVariantFromValue(account);
-
-    case Qt::CheckStateRole:
-        switch (index.column())
-        {
-        case ActiveColumn:
-            return account == m_activeAccount ? Qt::Checked : Qt::Unchecked;
-        }
-
-    default:
-        return QVariant();
     }
 }
 
@@ -224,12 +234,12 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
     case Qt::DisplayRole:
         switch (section)
         {
-        case ActiveColumn:
-            return tr("Active?");
-
         case NameColumn:
-            return tr("Name");
-
+            return tr("Account");
+        case TypeColumn:
+            return tr("Type");
+        case ProfileNameColumn:
+            return tr("Profile");
         default:
             return QVariant();
         }
@@ -238,8 +248,11 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
         switch (section)
         {
         case NameColumn:
-            return tr("The name of the version.");
-
+            return tr("User name of the account.");
+        case TypeColumn:
+            return tr("Type of the account - Mojang or MSA.");
+        case ProfileNameColumn:
+            return tr("Name of the Minecraft profile associated with the account.");
         default:
             return QVariant();
         }
@@ -257,7 +270,7 @@ int AccountList::rowCount(const QModelIndex &) const
 
 int AccountList::columnCount(const QModelIndex &) const
 {
-    return 2;
+    return NUM_COLUMNS;
 }
 
 Qt::ItemFlags AccountList::flags(const QModelIndex &index) const

@@ -14,7 +14,7 @@
  */
 
 #include "YggdrasilTask.h"
-#include "MinecraftAccount.h"
+#include "../AccountData.h"
 
 #include <QObject>
 #include <QString>

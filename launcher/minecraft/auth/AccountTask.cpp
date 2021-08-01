@@ -37,7 +37,7 @@ AccountTask::AccountTask(AccountData *data, QObject *parent)
 
 QString AccountTask::getStateMessage() const
 {
-    switch (m_state)
+    switch (m_accountState)
     {
     case STATE_CREATED:
         return "Waiting...";
@@ -56,7 +56,7 @@ QString AccountTask::getStateMessage() const
 
 void AccountTask::changeState(AccountTask::State newState, QString reason)
 {
-    m_state = newState;
+    m_accountState = newState;
     setStatus(getStateMessage());
     if (newState == STATE_SUCCEEDED)
     {

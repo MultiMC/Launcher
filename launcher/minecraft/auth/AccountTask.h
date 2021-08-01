@@ -30,7 +30,7 @@ class AccountTask : public Task
 {
     Q_OBJECT
 public:
-    explicit AccountTask(AccountData * account, QObject *parent = 0);
+    explicit AccountTask(AccountData * data, QObject *parent = 0);
     virtual ~AccountTask() {};
 
     /**
@@ -76,10 +76,10 @@ public:
         STATE_FAILED_SOFT, //!< soft failure. this generally means the user auth details haven't been invalidated
         STATE_FAILED_HARD, //!< hard failure. auth is invalid
         STATE_SUCCEEDED
-    } m_state = STATE_CREATED;
+    } m_accountState = STATE_CREATED;
 
-    State state() {
-        return m_state;
+    State accountState() {
+        return m_accountState;
     }
 
 protected:

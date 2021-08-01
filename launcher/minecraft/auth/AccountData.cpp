@@ -375,8 +375,10 @@ QString AccountData::accountDisplayString() const {
             return userName();
         }
         case AccountType::MSA: {
-            // FIXME: pin this down.
-            return "GAMERTAG";
+            if(xboxApiToken.extra.contains("gtg")) {
+                return xboxApiToken.extra["gtg"].toString();
+            }
+            return "Xbox profile missing";
         }
         default: {
             return "Invalid Account";

@@ -15,14 +15,14 @@
 
 #pragma once
 
-#include "AccountTask.h"
+#include "../AccountTask.h"
 
 #include <QString>
 #include <QJsonObject>
 #include <QTimer>
 #include <qsslerror.h>
 
-#include "MinecraftAccount.h"
+#include "../MinecraftAccount.h"
 
 class QNetworkReply;
 

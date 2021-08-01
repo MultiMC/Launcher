@@ -38,8 +38,11 @@ public:
     enum VListColumns
     {
         // TODO: Add icon column.
-        ActiveColumn = 0,
-        NameColumn,
+        NameColumn = 0,
+        ProfileNameColumn,
+        TypeColumn,
+
+        NUM_COLUMNS
     };
 
     explicit AccountList(QObject *parent = 0);

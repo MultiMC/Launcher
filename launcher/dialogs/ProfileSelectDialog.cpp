@@ -58,7 +58,7 @@ ProfileSelectDialog::ProfileSelectDialog(const QString &message, int flags, QWid
         }
         auto item = new QTreeWidgetItem(view);
         item->setText(0, profileLabel);
-        item->setIcon(0, SkinUtils::getFaceFromCache(account->profileId()));
+        item->setIcon(0, account->getFace());
         item->setData(0, AccountList::PointerRole, QVariant::fromValue(account));
         items.append(item);
     }

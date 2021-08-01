@@ -16,7 +16,7 @@
 #include "LoginDialog.h"
 #include "ui_LoginDialog.h"
 
-#include "minecraft/auth/YggdrasilTask.h"
+#include "minecraft/auth/AccountTask.h"
 
 #include <QtWidgets/QPushButton>
 

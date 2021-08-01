@@ -2,7 +2,7 @@ class Helper : public QObject {
     Q_OBJECT
 
 public:
-    Helper(MSAContext * context) : QObject(), context_(context), msg_(QString()) {
+    Helper(MSAFlows * context) : QObject(), context_(context), msg_(QString()) {
         QFile tokenCache("usercache.dat");
         if(tokenCache.open(QIODevice::ReadOnly)) {
             context_->resumeFromState(tokenCache.readAll());
@@ -11,7 +11,7 @@ public:
 
 public slots:
     void run() {
-        connect(context_, &MSAContext::activityChanged, this, &Helper::onActivityChanged);
+        connect(context_, &MSAFlows::activityChanged, this, &Helper::onActivityChanged);
         context_->silentSignIn();
     }
 
@@ -46,6 +46,6 @@ public slots:
     }
 
 private:
-    MSAContext *context_;
+    MSAFlows *context_;
     QString msg_;
 };

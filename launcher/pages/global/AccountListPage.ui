@@ -38,6 +38,9 @@
       <property name="allColumnsShowFocus">
        <bool>true</bool>
       </property>
+      <attribute name="headerStretchLastSection">
+       <bool>false</bool>
+      </attribute>
      </widget>
     </item>
    </layout>

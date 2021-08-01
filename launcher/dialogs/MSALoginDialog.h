@@ -33,6 +33,7 @@ public:
     ~MSALoginDialog();
 
     static MinecraftAccountPtr newAccount(QWidget *parent, QString message);
+    int exec() override;
 
 private:
     explicit MSALoginDialog(QWidget *parent = 0);
@@ -41,15 +42,10 @@ private:
 
 protected
 slots:
-    void accept();
-
     void onTaskFailed(const QString &reason);
     void onTaskSucceeded();
     void onTaskStatus(const QString &status);
     void onTaskProgress(qint64 current, qint64 total);
-
-    void on_userTextBox_textEdited(const QString &newText);
-    void on_passTextBox_textEdited(const QString &newText);
 
 private:
     Ui::MSALoginDialog *ui;

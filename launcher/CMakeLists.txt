@@ -213,10 +213,14 @@ set(MINECRAFT_SOURCES
     minecraft/auth/AccountList.cpp
     minecraft/auth/MinecraftAccount.h
     minecraft/auth/MinecraftAccount.cpp
-    minecraft/auth/MSAContext.h
-    minecraft/auth/MSAContext.cpp
-    minecraft/auth/YggdrasilTask.h
-    minecraft/auth/YggdrasilTask.cpp
+    minecraft/auth/flows/AuthContext.h
+    minecraft/auth/flows/AuthContext.cpp
+    minecraft/auth/flows/MSAInteractive.h
+    minecraft/auth/flows/MSAInteractive.cpp
+    minecraft/auth/flows/MSASilent.h
+    minecraft/auth/flows/MSASilent.cpp
+    minecraft/auth/flows/YggdrasilTask.h
+    minecraft/auth/flows/YggdrasilTask.cpp
     minecraft/auth/flows/AuthenticateTask.h
     minecraft/auth/flows/AuthenticateTask.cpp
     minecraft/auth/flows/RefreshTask.cpp
@@ -736,6 +740,8 @@ SET(MULTIMC_SOURCES
     dialogs/IconPickerDialog.h
     dialogs/LoginDialog.cpp
     dialogs/LoginDialog.h
+    dialogs/MSALoginDialog.cpp
+    dialogs/MSALoginDialog.h
     dialogs/NewComponentDialog.cpp
     dialogs/NewComponentDialog.h
     dialogs/NewInstanceDialog.cpp
@@ -854,6 +860,7 @@ SET(MULTIMC_UIS
     dialogs/EditAccountDialog.ui
     dialogs/ExportInstanceDialog.ui
     dialogs/LoginDialog.ui
+    dialogs/MSALoginDialog.ui
     dialogs/UpdateDialog.ui
     dialogs/NotificationDialog.ui
     dialogs/SkinUploadDialog.ui

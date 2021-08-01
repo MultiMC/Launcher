@@ -90,6 +90,20 @@
 #include "KonamiCode.h"
 #include <InstanceCopyTask.h>
 
+namespace {
+QString profileInUseFilter(const QString & profile, bool used)
+{
+    if(used)
+    {
+        return QObject::tr("%1 (in use)").arg(profile);
+    }
+    else
+    {
+        return profile;
+    }
+}
+}
+
 // WHY: to hold the pre-translation strings together with the T pointer, so it can be retranslated without a lot of ugly code
 template <typename T>
 class Translated
@@ -753,14 +767,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // Update the menu when the active account changes.
     // Shouldn't have to use lambdas here like this, but if I don't, the compiler throws a fit.
     // Template hell sucks...
-    connect(MMC->accounts().get(), &AccountList::activeAccountChanged, [this]
-            {
-                activeAccountChanged();
-            });
-    connect(MMC->accounts().get(), &AccountList::listChanged, [this]
-            {
-                repopulateAccountsMenu();
-            });
+    connect(
+        MMC->accounts().get(),
+        &AccountList::activeAccountChanged,
+        [this] {
+            activeAccountChanged();
+        }
+    );
+    connect(
+        MMC->accounts().get(),
+        &AccountList::listChanged,
+        [this]
+        {
+            repopulateAccountsMenu();
+        }
+    );
 
     // Show initial account
     activeAccountChanged();
@@ -815,7 +836,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
 void MainWindow::retranslateUi()
 {
-    accountMenuButton->setText(tr("Profiles"));
+    std::shared_ptr<AccountList> accounts = MMC->accounts();
+    MinecraftAccountPtr active_account = accounts->activeAccount();
+    if(active_account) {
+        auto profileLabel = profileInUseFilter(active_account->profileName(), active_account->isInUse());
+        accountMenuButton->setText(profileLabel);
+    }
+    else {
+        accountMenuButton->setText(tr("Profiles"));
+    }
 
     if (m_selectedInstance) {
         m_statusLeft->setText(m_selectedInstance->getStatusbarDescription());
@@ -983,18 +1012,6 @@ void MainWindow::updateToolsMenu()
     ui->actionLaunchInstanceOffline->setMenu(launchOfflineMenu);
 }
 
-QString profileInUseFilter(const QString & profile, bool used)
-{
-    if(used)
-    {
-        return QObject::tr("%1 (in use)").arg(profile);
-    }
-    else
-    {
-        return profile;
-    }
-}
-
 void MainWindow::repopulateAccountsMenu()
 {
     accountMenu->clear();
@@ -1035,7 +1052,7 @@ void MainWindow::repopulateAccountsMenu()
                 action->setChecked(true);
             }
 
-            action->setIcon(SkinUtils::getFaceFromCache(account->profileId()));
+            action->setIcon(account->getFace());
             accountMenu->addAction(action);
             connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
         }
@@ -1101,7 +1118,7 @@ void MainWindow::activeAccountChanged()
     {
         auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
         accountMenuButton->setText(profileLabel);
-        accountMenuButton->setIcon(SkinUtils::getFaceFromCache(account->profileId()));
+        accountMenuButton->setIcon(account->getFace());
         return;
     }
 

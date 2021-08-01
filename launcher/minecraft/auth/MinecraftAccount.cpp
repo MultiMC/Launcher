@@ -18,6 +18,7 @@
 #include "MinecraftAccount.h"
 #include "flows/RefreshTask.h"
 #include "flows/AuthenticateTask.h"
+#include "flows/AuthContext.h"
 
 #include <QUuid>
 #include <QJsonObject>
@@ -27,6 +28,10 @@
 #include <QJsonDocument>
 
 #include <QDebug>
+
+#include <QPainter>
+#include <minecraft/auth/flows/MSASilent.h>
+#include <minecraft/auth/flows/MSAInteractive.h>
 
 MinecraftAccountPtr MinecraftAccount::loadFromJsonV2(const QJsonObject& json) {
     MinecraftAccountPtr account(new MinecraftAccount());
@@ -53,20 +58,52 @@ MinecraftAccountPtr MinecraftAccount::createFromUsername(const QString &username
     return account;
 }
 
+MinecraftAccountPtr MinecraftAccount::createBlankMSA()
+{
+    MinecraftAccountPtr account(new MinecraftAccount());
+    account->data.type = AccountType::MSA;
+    return account;
+}
+
+
 QJsonObject MinecraftAccount::saveToJson() const
 {
     return data.saveState();
 }
 
 AccountStatus MinecraftAccount::accountStatus() const {
-    // FIXME: this needs to understand MSA
-    if (data.accessToken().isEmpty())
+    if(data.type == AccountType::Mojang) {
+        if (data.accessToken().isEmpty()) {
+            return NotVerified;
+        }
+        else {
+            return Verified;
+        }
+    }
+    // MSA
+    // FIXME: this is extremely crude and probably wrong
+    if(data.msaToken.token.isEmpty()) {
         return NotVerified;
-    else
+    }
+    else {
         return Verified;
+    }
 }
 
-std::shared_ptr<YggdrasilTask> MinecraftAccount::login(AuthSessionPtr session, QString password)
+QPixmap MinecraftAccount::getFace() const {
+    QPixmap skinTexture;
+    if(!skinTexture.loadFromData(data.minecraftProfile.skin.data, "PNG")) {
+        return QPixmap();
+    }
+    QPixmap skin = QPixmap(8, 8);
+    QPainter painter(&skin);
+    painter.drawPixmap(0, 0, skinTexture.copy(8, 8, 8, 8));
+    painter.drawPixmap(0, 0, skinTexture.copy(40, 8, 8, 8));
+    return skin.scaled(64, 64, Qt::KeepAspectRatio);
+}
+
+
+std::shared_ptr<AccountTask> MinecraftAccount::login(AuthSessionPtr session, QString password)
 {
     Q_ASSERT(m_currentTask.get() == nullptr);
 
@@ -106,6 +143,70 @@ std::shared_ptr<YggdrasilTask> MinecraftAccount::login(AuthSessionPtr session, Q
     return m_currentTask;
 }
 
+std::shared_ptr<AccountTask> MinecraftAccount::loginMSA(AuthSessionPtr session) {
+    Q_ASSERT(m_currentTask.get() == nullptr);
+
+    if(accountStatus() == Verified && !session->wants_online)
+    {
+        session->status = AuthSession::PlayableOffline;
+        session->auth_server_online = false;
+        fillSession(session);
+        return nullptr;
+    }
+    else
+    {
+        m_currentTask.reset(new MSAInteractive(&data));
+        m_currentTask->assignSession(session);
+
+        connect(m_currentTask.get(), SIGNAL(succeeded()), SLOT(authSucceeded()));
+        connect(m_currentTask.get(), SIGNAL(failed(QString)), SLOT(authFailed(QString)));
+    }
+    return m_currentTask;
+}
+
+std::shared_ptr<AccountTask> MinecraftAccount::refresh(AuthSessionPtr session) {
+    Q_ASSERT(m_currentTask.get() == nullptr);
+
+    // take care of the true offline status
+    if (accountStatus() == NotVerified)
+    {
+        if (session)
+        {
+            if(data.type == AccountType::MSA) {
+                session->status = AuthSession::RequiresOAuth;
+            }
+            else {
+                session->status = AuthSession::RequiresPassword;
+            }
+            fillSession(session);
+        }
+        return nullptr;
+    }
+
+    if(accountStatus() == Verified && !session->wants_online)
+    {
+        session->status = AuthSession::PlayableOffline;
+        session->auth_server_online = false;
+        fillSession(session);
+        return nullptr;
+    }
+    else
+    {
+        if(data.type == AccountType::MSA) {
+            m_currentTask.reset(new MSASilent(&data));
+        }
+        else {
+            m_currentTask.reset(new RefreshTask(&data));
+        }
+        m_currentTask->assignSession(session);
+
+        connect(m_currentTask.get(), SIGNAL(succeeded()), SLOT(authSucceeded()));
+        connect(m_currentTask.get(), SIGNAL(failed(QString)), SLOT(authFailed(QString)));
+    }
+    return m_currentTask;
+}
+
+
 void MinecraftAccount::authSucceeded()
 {
     auto session = m_currentTask->getAssignedSession();
@@ -125,7 +226,7 @@ void MinecraftAccount::authFailed(QString reason)
     auto session = m_currentTask->getAssignedSession();
     // This is emitted when the yggdrasil tasks time out or are cancelled.
     // -> we treat the error as no-op
-    if (m_currentTask->state() == YggdrasilTask::STATE_FAILED_SOFT)
+    if (m_currentTask->accountState() == AccountTask::STATE_FAILED_SOFT)
     {
         if (session)
         {
@@ -136,6 +237,7 @@ void MinecraftAccount::authFailed(QString reason)
     }
     else
     {
+        // FIXME: MSA ...
         data.yggdrasilToken.token = QString();
         data.yggdrasilToken.validity = Katabasis::Validity::None;
         data.validity_ = Katabasis::Validity::None;

@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "../YggdrasilTask.h"
+#include "YggdrasilTask.h"
 
 #include <QObject>
 #include <QString>
