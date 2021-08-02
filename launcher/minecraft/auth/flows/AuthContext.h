@@ -39,6 +39,8 @@ private slots:
     void onOAuthActivityChanged(Katabasis::Activity activity);
 
 protected:
+    void initMSA();
+
     void doUserAuth();
     Q_SLOT void onUserAuthDone(int, QNetworkReply::NetworkError, QByteArray, QList<QNetworkReply::RawHeaderPair>);
 

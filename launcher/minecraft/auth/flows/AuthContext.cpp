@@ -27,21 +27,6 @@ AuthContext::AuthContext(AccountData * data, QObject *parent) :
     AccountTask(data, parent)
 {
     mgr = new QNetworkAccessManager(this);
-
-    Katabasis::OAuth2::Options opts;
-    opts.scope = "XboxLive.signin offline_access";
-    opts.clientIdentifier = BuildConfig.MSA_CLIENT_ID;
-    opts.authorizationUrl = "https://login.live.com/oauth20_authorize.srf";
-    opts.accessTokenUrl = "https://login.live.com/oauth20_token.srf";
-    opts.listenerPorts = {28562, 28563, 28564, 28565, 28566};
-
-    m_oauth2 = new OAuth2(opts, m_data->msaToken, this, mgr);
-
-    connect(m_oauth2, &OAuth2::linkingFailed, this, &AuthContext::onLinkingFailed);
-    connect(m_oauth2, &OAuth2::linkingSucceeded, this, &AuthContext::onLinkingSucceeded);
-    connect(m_oauth2, &OAuth2::openBrowser, this, &AuthContext::onOpenBrowser);
-    connect(m_oauth2, &OAuth2::closeBrowser, this, &AuthContext::onCloseBrowser);
-    connect(m_oauth2, &OAuth2::activityChanged, this, &AuthContext::onOAuthActivityChanged);
 }
 
 void AuthContext::beginActivity(Activity activity) {
@@ -62,6 +47,27 @@ void AuthContext::finishActivity() {
     m_data->validity_ = m_data->minecraftProfile.validity;
     emit activityChanged(m_activity);
 }
+
+void AuthContext::initMSA() {
+    if(m_oauth2) {
+        return;
+    }
+    Katabasis::OAuth2::Options opts;
+    opts.scope = "XboxLive.signin offline_access";
+    opts.clientIdentifier = BuildConfig.MSA_CLIENT_ID;
+    opts.authorizationUrl = "https://login.live.com/oauth20_authorize.srf";
+    opts.accessTokenUrl = "https://login.live.com/oauth20_token.srf";
+    opts.listenerPorts = {28562, 28563, 28564, 28565, 28566};
+
+    m_oauth2 = new OAuth2(opts, m_data->msaToken, this, mgr);
+
+    connect(m_oauth2, &OAuth2::linkingFailed, this, &AuthContext::onLinkingFailed);
+    connect(m_oauth2, &OAuth2::linkingSucceeded, this, &AuthContext::onLinkingSucceeded);
+    connect(m_oauth2, &OAuth2::openBrowser, this, &AuthContext::onOpenBrowser);
+    connect(m_oauth2, &OAuth2::closeBrowser, this, &AuthContext::onCloseBrowser);
+    connect(m_oauth2, &OAuth2::activityChanged, this, &AuthContext::onOAuthActivityChanged);
+}
+
 
 /*
 bool AuthContext::signOut() {

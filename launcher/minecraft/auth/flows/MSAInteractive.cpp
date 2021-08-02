@@ -7,6 +7,8 @@ void MSAInteractive::executeTask() {
     m_xboxProfileSucceeded = false;
     m_mcAuthSucceeded = false;
 
+    initMSA();
+
     QVariantMap extraOpts;
     extraOpts["prompt"] = "select_account";
     m_oauth2->setExtraRequestParams(extraOpts);
