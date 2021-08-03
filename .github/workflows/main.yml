@@ -26,7 +26,18 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/MultiMC-Cracked/MultiMC -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=lin-nodeps -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) -DMultiMC_BUILD_PLATFORM=lin64 $GITHUB_WORKSPACE
+          cmake \
+           -DCMAKE_BUILD_TYPE=Release \
+           -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
+           -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/MultiMC-Cracked/MultiMC \
+           -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json \
+           -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
+           -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 \
+           -DMultiMC_LAYOUT=lin-nodeps \
+           -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) \
+           -DMultiMC_VERSION_CHANNEL=refs/heads/develop \
+           -DMultiMC_BUILD_PLATFORM=lin64 \
+           $GITHUB_WORKSPACE
 
       - name: Compile
         run: |
@@ -44,9 +55,11 @@ jobs:
         run: |
           cd build
           make install
+          chmod +x /home/runner/MultiMC-Cracked/MultiMC/MultiMC
+          chmod +x /home/runner/MultiMC-Cracked/MultiMC/bin/MultiMC
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: mmc-cracked-lin64
           path: /home/runner/MultiMC-Cracked
@@ -61,14 +74,14 @@ jobs:
           submodules: 'recursive'
 
       - name: Cache Qt
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v2.1.6
         id: qt-cached
         with:
           path: "D:/Qt"
           key: ${{ runner.os }}-qt56-installed-d
 
       - name: Cache Qt Installer
-        uses: actions/cache@v2.1.5
+        uses: actions/cache@v2.1.6
         if: steps.qt-cached.outputs.cache-hit != 'true'
         id: installer-cached
         with:
@@ -136,7 +149,19 @@ jobs:
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked/MultiMC" -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/win32/channels.json -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 -DMultiMC_LAYOUT=win-bundle -DMultiMC_VERSION_BUILD=%BUILD_NUM% -DMultiMC_VERSION_CHANNEL=refs/heads/develop -DMultiMC_BUILD_PLATFORM=win32 -G "MinGW Makefiles" ..
+          cmake ^
+           -DCMAKE_BUILD_TYPE=Release ^
+           -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json ^
+           -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked/MultiMC" ^
+           -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/win32/channels.json ^
+           -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ ^
+           -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 ^
+           -DMultiMC_LAYOUT=win-bundle ^
+           -DMultiMC_VERSION_BUILD=%BUILD_NUM% ^
+           -DMultiMC_VERSION_CHANNEL=refs/heads/develop ^
+           -DMultiMC_BUILD_PLATFORM=win32 ^
+           -G "MinGW Makefiles" ^
+           ..
 
       - name: Compile
         shell: cmd
@@ -183,7 +208,71 @@ jobs:
           cp OpenSSL/libeay32.dll D:/MultiMC-Cracked/MultiMC/libeay32.dll
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: mmc-cracked-win32
           path: "D:/MultiMC-Cracked"
+
+  build-mac:
+    name: build-mac
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: 'recursive'
+
+      - name: Cache Dependencies
+        uses: actions/cache@v2.1.6
+        with:
+          path: /Users/runner/Library/Caches/Homebrew
+          key: ${{ runner.os }}-deps-cache
+
+      - name: Install Dependencies
+        run: |
+          brew cleanup
+          brew install qt@5
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake \
+          -DCMAKE_C_COMPILER=/usr/bin/clang \
+          -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
+          -DCMAKE_INSTALL_PREFIX=dist \
+          -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5)/lib/cmake/Qt5Core;$(brew --prefix qt@5)/lib/cmake/Qt5Widgets;$(brew --prefix qt@5)/lib/cmake/Qt5Concurrent;$(brew --prefix qt@5)/lib/cmake/Qt5Network;$(brew --prefix qt@5)/lib/cmake/Qt5Test;$(brew --prefix qt@5)/lib/cmake/Qt5Xml" \
+          -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/osx64/channels.json \
+          -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
+          -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 \
+          -DMultiMC_LAYOUT=mac-bundle \
+          -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_MacOS_Build/builds/status:success/number) \
+          -DMultiMC_VERSION_CHANNEL=refs/heads/develop \
+          -DMultiMC_BUILD_PLATFORM=osx64 \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+          $GITHUB_WORKSPACE
+
+      - name: Compile
+        run: |
+          cd build
+          make tcversion
+          make -j$(sysctl -n hw.logicalcpu)
+
+      - name: Test
+        run: |
+          cd build
+          make test
+
+      - name: Install
+        run: |
+          cd build
+          make install
+          chmod +x dist/MultiMC.app/Contents/MacOS/MultiMC
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: mmc-cracked-osx64
+          path: build/dist
