@@ -766,7 +766,19 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         insertTheme(new SystemTheme());
         insertTheme(darkTheme);
         insertTheme(new BrightTheme());
-        insertTheme(new CustomTheme(darkTheme, "custom"));
+
+        QDirIterator it("themes", QDir::Dirs | QDir::NoDot | QDir::NoDotDot | QDir::Readable, QDirIterator::FollowSymlinks);
+        while (it.hasNext())
+        {
+            auto filepath = it.next();
+            QFileInfo file(filepath);
+            QString themeDir = file.baseName();
+            if(file.isDir())
+            {
+                qDebug() << "Found custom theme: " << themeDir;
+                insertTheme(new CustomTheme(darkTheme, themeDir));
+            }
+        }
         qDebug() << "<> Widget themes initialized.";
     }
 
