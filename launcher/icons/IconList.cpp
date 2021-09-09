@@ -268,7 +268,7 @@ void IconList::installIcons(const QStringList &iconFiles)
             continue;
         
         const QString sourceHash = getIconHash(sourceFile);
-        QString sourceFileName = fileinfo.baseName();
+        QString sourceFileName = fileinfo.baseName().remove("_" + sourceHash).remove(sourceHash);
         sourceFileName = QString("%1_%2.%3").arg(sourceFileName, sourceHash, suffix);
         QString target = FS::PathCombine(m_dir.dirName(), sourceFileName);
         
@@ -283,7 +283,7 @@ void IconList::installIcons(const QStringList &iconFiles)
             if(sourceHash == targetHash)
                 continue;
             
-            QString targetFileName = fileinfo.baseName();
+            QString targetFileName = fileinfo.baseName().remove("_" + targetHash).remove(targetHash);
             targetFileName = QString("%1_%2.%3").arg(targetFileName, targetHash, suffix);
             targetFileName = FS::PathCombine(m_dir.dirName(), targetFileName);
             if(!targetFile.rename(targetFileName))
@@ -309,6 +309,7 @@ void IconList::installIcon(const QString &file, QString &name)
             return;
         
         const QString sourceHash = getIconHash(sourceFile);
+        name = name.remove("_" + sourceHash).remove(sourceHash);
         name = QString("%1_%2.%3").arg(name, sourceHash, suffix);
         QString target = FS::PathCombine(m_dir.dirName(), name);
         
@@ -323,7 +324,7 @@ void IconList::installIcon(const QString &file, QString &name)
             if(sourceHash == targetHash)
                 return;
             
-            QString targetFileName = QString(name);
+            QString targetFileName = QString(name).remove("_" + targetHash).remove(targetHash);
             targetFileName = QString("%1_%2.%3").arg(targetFileName, targetHash, suffix);
             targetFileName = FS::PathCombine(m_dir.dirName(), targetFileName);
             if(!targetFile.rename(targetFileName))
