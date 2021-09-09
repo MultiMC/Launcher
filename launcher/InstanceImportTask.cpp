@@ -107,7 +107,7 @@ void InstanceImportTask::processZipPack()
         root = mmcFound;
         m_modpackType = ModpackType::MultiMC;
     }
-    else if (technicFound)
+    else if(technicFound)
     {
         // process as Technic pack
         qDebug() << "Technic:" << technicFound;
@@ -445,11 +445,11 @@ void InstanceImportTask::processMultiMC()
         {
             // import icon
             auto iconList = ENV.icons();
-            if (iconList->iconFileExists(m_instIcon))
+            if (!iconList->iconFileExists(m_instIcon))
             {
-                iconList->deleteIcon(m_instIcon);
+                iconList->installIcon(importIconPath, m_instIcon);
             }
-            iconList->installIcons({importIconPath});
+            
         }
     }
     emitSucceeded();
