@@ -203,20 +203,33 @@ set(STATUS_SOURCES
 # Support for Minecraft instances and launch
 set(MINECRAFT_SOURCES
     # Minecraft support
+    minecraft/auth/AccountData.h
+    minecraft/auth/AccountData.cpp
+    minecraft/auth/AccountTask.h
+    minecraft/auth/AccountTask.cpp
     minecraft/auth/AuthSession.h
     minecraft/auth/AuthSession.cpp
-    minecraft/auth/MojangAccountList.h
-    minecraft/auth/MojangAccountList.cpp
-    minecraft/auth/MojangAccount.h
-    minecraft/auth/MojangAccount.cpp
-    minecraft/auth/YggdrasilTask.h
-    minecraft/auth/YggdrasilTask.cpp
-    minecraft/auth/flows/AuthenticateTask.h
-    minecraft/auth/flows/AuthenticateTask.cpp
-    minecraft/auth/flows/RefreshTask.cpp
-    minecraft/auth/flows/RefreshTask.cpp
-    minecraft/auth/flows/ValidateTask.h
-    minecraft/auth/flows/ValidateTask.cpp
+    minecraft/auth/AccountList.h
+    minecraft/auth/AccountList.cpp
+    minecraft/auth/MinecraftAccount.h
+    minecraft/auth/MinecraftAccount.cpp
+    minecraft/auth/flows/AuthContext.h
+    minecraft/auth/flows/AuthContext.cpp
+    minecraft/auth/flows/AuthRequest.h
+    minecraft/auth/flows/AuthRequest.cpp
+
+    minecraft/auth/flows/MSAInteractive.h
+    minecraft/auth/flows/MSAInteractive.cpp
+    minecraft/auth/flows/MSASilent.h
+    minecraft/auth/flows/MSASilent.cpp
+
+    minecraft/auth/flows/MojangLogin.h
+    minecraft/auth/flows/MojangLogin.cpp
+    minecraft/auth/flows/MojangRefresh.h
+    minecraft/auth/flows/MojangRefresh.cpp
+
+    minecraft/auth/flows/Yggdrasil.h
+    minecraft/auth/flows/Yggdrasil.cpp
 
     minecraft/gameoptions/GameOptions.h
     minecraft/gameoptions/GameOptions.cpp
@@ -318,6 +331,8 @@ set(MINECRAFT_SOURCES
     minecraft/AssetsUtils.cpp
 
     # Minecraft services
+    minecraft/services/CapeChange.cpp
+    minecraft/services/CapeChange.h
     minecraft/services/SkinUpload.cpp
     minecraft/services/SkinUpload.h
     minecraft/services/SkinDelete.cpp
@@ -732,6 +747,8 @@ SET(MULTIMC_SOURCES
     dialogs/IconPickerDialog.h
     dialogs/LoginDialog.cpp
     dialogs/LoginDialog.h
+    dialogs/MSALoginDialog.cpp
+    dialogs/MSALoginDialog.h
     dialogs/NewComponentDialog.cpp
     dialogs/NewComponentDialog.h
     dialogs/NewInstanceDialog.cpp
@@ -850,6 +867,7 @@ SET(MULTIMC_UIS
     dialogs/EditAccountDialog.ui
     dialogs/ExportInstanceDialog.ui
     dialogs/LoginDialog.ui
+    dialogs/MSALoginDialog.ui
     dialogs/UpdateDialog.ui
     dialogs/NotificationDialog.ui
     dialogs/SkinUploadDialog.ui
@@ -892,6 +910,7 @@ target_link_libraries(MultiMC_logic
     optional-bare
     tomlc99
     BuildConfig
+    Katabasis
 )
 target_link_libraries(MultiMC_logic
     Qt5::Core
@@ -930,6 +949,8 @@ install(TARGETS MultiMC
     RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
 )
 
+target_link_libraries(MultiMC_logic secrets)
+
 #### The MultiMC bundle mess! ####
 # Bundle utilities are used to complete the portable packages - they add all the libraries that would otherwise be missing on the target system.
 # NOTE: it seems that this absolutely has to be here, and nowhere else.
@@ -962,6 +983,14 @@ if(INSTALL_BUNDLE STREQUAL "full")
             COMPONENT Runtime
             REGEX "minimal|linuxfb|offscreen" EXCLUDE
         )
+        # Style plugins
+        if(EXISTS "${QT_PLUGINS_DIR}/styles")
+            install(
+                DIRECTORY "${QT_PLUGINS_DIR}/styles"
+                DESTINATION ${PLUGIN_DEST_DIR}
+                COMPONENT Runtime
+            )
+        endif()
     else()
         # Image formats
         install(
@@ -993,6 +1022,17 @@ if(INSTALL_BUNDLE STREQUAL "full")
             REGEX "_debug\\." EXCLUDE
             REGEX "\\.dSYM" EXCLUDE
         )
+        # Style plugins
+        if(EXISTS "${QT_PLUGINS_DIR}/styles")
+            install(
+                DIRECTORY "${QT_PLUGINS_DIR}/styles"
+                DESTINATION ${PLUGIN_DEST_DIR}
+                COMPONENT Runtime
+                REGEX "d\\." EXCLUDE
+                REGEX "_debug\\." EXCLUDE
+                REGEX "\\.dSYM" EXCLUDE
+            )
+        endif()
     endif()
     configure_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/install_prereqs.cmake.in"

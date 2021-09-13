@@ -1,13 +1,32 @@
+/* Copyright 2013-2021 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #pragma once
 
-#include "Account.h"
+#include "MinecraftAccount.h"
 
 #include <QObject>
 #include <QVariant>
 #include <QAbstractListModel>
 #include <QSharedPointer>
 
-class MojangAccountList : public QAbstractListModel
+/*!
+ * List of available Mojang accounts.
+ * This should be loaded in the background by MultiMC on startup.
+ */
+class AccountList : public QAbstractListModel
 {
     Q_OBJECT
 public:
@@ -19,15 +38,12 @@ public:
     enum VListColumns
     {
         // TODO: Add icon column.
-
-        // First column - Active?
-        ActiveColumn = 0,
-
-        // Second column - Name
-        NameColumn,
-
-        // Third column - account type
+        NameColumn = 0,
+        ProfileNameColumn,
+        MigrationColumn,
         TypeColumn,
+
+        NUM_COLUMNS
     };
 
     explicit AccountList(QObject *parent = 0);
@@ -126,6 +142,24 @@ signals:
 
 public
 slots:
+=======
+    void setListFilePath(QString path, bool autosave = false);
+
+    bool loadList();
+    bool loadV2(QJsonObject &root);
+    bool loadV3(QJsonObject &root);
+    bool saveList();
+
+    MinecraftAccountPtr activeAccount() const;
+    void setActiveAccount(const QString &profileId);
+    bool anyAccountIsValid();
+
+signals:
+    void listChanged();
+    void activeAccountChanged();
+
+public slots:
+>>>>>>> e2355eb276bf355ca4acf526a0f3cc390aa88f8b
     /**
      * This is called when one of the accounts changes and the list needs to be updated
      */

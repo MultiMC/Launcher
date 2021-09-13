@@ -29,7 +29,7 @@ public:
     QString BUILD_PLATFORM;
 
     /// URL for the updater's channel
-    QString CHANLIST_URL;
+    QString UPDATER_BASE;
 
     /// User-Agent to use.
     QString USER_AGENT = "MultiMC/5.0";
@@ -81,6 +81,7 @@ public:
 
     QString RESOURCE_BASE = "https://resources.download.minecraft.net/";
     QString LIBRARY_BASE = "https://libraries.minecraft.net/";
+    QString AUTH_BASE = "https://authserver.mojang.com/";
     QString MOJANG_STATUS_URL = "https://status.mojang.com/check";
     QString IMGUR_BASE_URL = "https://api.imgur.com/3/";
     QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";

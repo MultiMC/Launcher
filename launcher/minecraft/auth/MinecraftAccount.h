@@ -6,19 +6,34 @@
 #include <QJsonObject>
 #include <QPair>
 #include <QMap>
+#include <QPixmap>
 
 #include <memory>
 #include "AuthSession.h"
 #include "AccountProfile.h"
 #include "Usable.h"
-#include "providers/BaseAuthProvider.h"
+#include "AccountData.h"
 
 class Task;
-class YggdrasilTask;
-class Account;
+class AccountTask;
+class MinecraftAccount;
 
-typedef std::shared_ptr<Account> AccountPtr;
-Q_DECLARE_METATYPE(AccountPtr)
+typedef std::shared_ptr<MinecraftAccount> MinecraftAccountPtr;
+Q_DECLARE_METATYPE(MinecraftAccountPtr)
+
+/**
+ * A profile within someone's Mojang account.
+ *
+ * Currently, the profile system has not been implemented by Mojang yet,
+ * but we might as well add some things for it in MultiMC right now so
+ * we don't have to rip the code to pieces to add it later.
+ */
+struct AccountProfile
+{
+    QString id;
+    QString name;
+    bool legacy;
+};
 
 enum AccountStatus
 {
@@ -32,7 +47,7 @@ enum AccountStatus
  * Said information may include things such as that account's username, client token, and access
  * token if the user chose to stay logged in.
  */
-class MojangAccount :
+class MinecraftAccount :
     public QObject,
     public Usable,
     public std::enable_shared_from_this<Account>
@@ -71,8 +86,11 @@ public: /* manipulation */
      * Attempt to login. Empty password means we use the token.
      * If the attempt fails because we already are performing some task, it returns false.
      */
-    std::shared_ptr<YggdrasilTask> login(AuthSessionPtr session, QString password = QString());
-    void invalidateClientToken();
+    std::shared_ptr<AccountTask> login(AuthSessionPtr session, QString password = QString());
+
+    std::shared_ptr<AccountTask> loginMSA(AuthSessionPtr session);
+
+    std::shared_ptr<AccountTask> refresh(AuthSessionPtr session);
 
 public: /* queries */
     const AuthProviderPtr provider() const
@@ -85,31 +103,45 @@ public: /* queries */
         return m_username;
     }
 
-    const QString &clientToken() const
-    {
-        return m_clientToken;
+    QString profileName() const {
+        return data.profileName();
     }
 
-    const QString &accessToken() const
-    {
-        return m_accessToken;
+    bool canMigrate() const {
+        return data.canMigrateToMSA;
     }
 
-    const QList<AccountProfile> &profiles() const
-    {
-        return m_profiles;
+    bool isMSA() const {
+        return data.type == AccountType::MSA;
     }
 
-    const User &user()
-    {
-        return m_user;
+    QString typeString() const {
+        switch(data.type) {
+            case AccountType::Mojang: {
+                if(data.legacy) {
+                    return "legacy";
+                }
+                return "mojang";
+            }
+            break;
+            case AccountType::MSA: {
+                return "msa";
+            }
+            break;
+            default: {
+                return "unknown";
+            }
+        }
     }
 
-    //! Returns the currently selected profile (if none, returns nullptr)
-    const AccountProfile *currentProfile() const;
+    QPixmap getFace() const;
 
     //! Returns whether the account is NotVerified, Verified or Online
     AccountStatus accountStatus() const;
+
+    AccountData * accountData() {
+        return &data;
+    }
 
 signals:
     /**
@@ -145,7 +177,7 @@ protected: /* variables */
     User m_user;
 
     // current task we are executing here
-    std::shared_ptr<YggdrasilTask> m_currentTask;
+    std::shared_ptr<AccountTask> m_currentTask;
 
 protected: /* methods */
 
@@ -159,10 +191,4 @@ slots:
 
 private:
     void fillSession(AuthSessionPtr session);
-
-public:
-    friend class YggdrasilTask;
-    friend class AuthenticateTask;
-    friend class ValidateTask;
-    friend class RefreshTask;
 };
