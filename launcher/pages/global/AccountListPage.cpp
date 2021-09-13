@@ -59,8 +59,6 @@ AccountListPage::AccountListPage(QWidget *parent)
     ui->listView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Expand the account column
-    ui->listView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    ui->listView->header()->setSectionResizeMode(2, QHeaderView::Stretch);
 
     QItemSelectionModel *selectionModel = ui->listView->selectionModel();
 
@@ -188,9 +186,8 @@ void AccountListPage::on_actionSetDefault_triggered()
     if (selection.size() > 0)
     {
         QModelIndex selected = selection.first();
-        AccountPtr account =
-            selected.data(AccountList::PointerRole).value<AccountPtr>();
-        m_accounts->setActiveAccount(account->username());
+        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+        m_accounts->setActiveAccount(account->profileId());
     }
 }
 
@@ -210,10 +207,6 @@ void AccountListPage::updateButtonStates()
     ui->actionDeleteSkin->setEnabled(selection.size() > 0);
     ui->actionRefresh->setEnabled(selection.size() > 0);
 
-    bool enableSkins = selection.size() > 0 && selection.first().data(AccountList::PointerRole).value<AccountPtr>()->provider()->canChangeSkin();
-    ui->actionUploadSkin->setEnabled(enableSkins);
-    ui->actionDeleteSkin->setEnabled(enableSkins);
-
     if(m_accounts->activeAccount().get() == nullptr) {
         ui->actionNoDefault->setEnabled(false);
         ui->actionNoDefault->setChecked(true);
@@ -225,39 +218,13 @@ void AccountListPage::updateButtonStates()
 
 }
 
-void AccountListPage::addAccount(const QString &errMsg)
-{
-    // TODO: The login dialog isn't quite done yet
-    AccountPtr account = LoginDialog::newAccount(this, errMsg);
-
-    if (account != nullptr)
-    {
-        m_accounts->addAccount(account);
-        if (m_accounts->count() == 1)
-            m_accounts->setActiveAccount(account->username());
-
-        // Grab associated player skins
-        auto job = new NetJob("Player skins: " + account->username());
-
-        for (AccountProfile profile : account->profiles())
-        {
-            auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(account->provider()->resolveSkinUrl(profile), meta);
-            job->addNetAction(action);
-            meta->setStale(true);
-        }
-
-        job->start();
-    }
-}
-
 void AccountListPage::on_actionUploadSkin_triggered()
 {
     QModelIndexList selection = ui->listView->selectionModel()->selectedIndexes();
     if (selection.size() > 0)
     {
         QModelIndex selected = selection.first();
-        AccountPtr account = selected.data(AccountList::PointerRole).value<AccountPtr>();
+        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
         SkinUploadDialog dialog(account, this);
         dialog.exec();
     }
@@ -271,8 +238,8 @@ void AccountListPage::on_actionDeleteSkin_triggered()
 
     QModelIndex selected = selection.first();
     AuthSessionPtr session = std::make_shared<AuthSession>();
-    AccountPtr account = selected.data(AccountList::PointerRole).value<AccountPtr>();
-    auto login = account->login(session);
+    MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+    auto login = account->refresh(session);
     ProgressDialog prog(this);
     if (prog.execWithTask((Task*)login.get()) != QDialog::Accepted) {
         CustomMessageBox::selectable(this, tr("Skin Delete"), tr("Failed to login!"), QMessageBox::Warning)->exec();

@@ -59,7 +59,7 @@ public:
      * Gets a pointer to the account that the user selected.
      * This is null if the user clicked cancel or hasn't clicked OK yet.
      */
-    AccountPtr selectedAccount() const;
+    MinecraftAccountPtr selectedAccount() const;
 
     /*!
      * Returns true if the user checked the "use as global default" checkbox.
@@ -83,7 +83,7 @@ protected:
     std::shared_ptr<AccountList> m_accounts;
 
     //! The account that was selected when the user clicked OK.
-    AccountPtr m_selected;
+    MinecraftAccountPtr m_selected;
 
 private:
     Ui::ProfileSelectDialog *ui;

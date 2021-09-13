@@ -22,7 +22,7 @@
 #include <QTimer>
 #include <qsslerror.h>
 
-#include "Account.h"
+#include "MinecraftAccount.h"
 
 class QNetworkReply;
 
@@ -31,8 +31,8 @@ class AccountTask : public Task
     friend class AuthContext;
     Q_OBJECT
 public:
-    explicit YggdrasilTask(Account * account, QObject *parent = 0);
-    virtual ~YggdrasilTask() {};
+    explicit AccountTask(AccountData * data, QObject *parent = 0);
+    virtual ~AccountTask() {};
 
     /**
      * assign a session to this task. the session will be filled with required infomration
@@ -102,8 +102,7 @@ protected slots:
 
 protected:
     // FIXME: segfault disaster waiting to happen
-    Account *m_account = nullptr;
-    QNetworkReply *m_netReply = nullptr;
+    AccountData *m_data = nullptr;
     std::shared_ptr<Error> m_error;
     AuthSessionPtr m_session;
 };

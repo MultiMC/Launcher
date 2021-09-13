@@ -40,7 +40,6 @@ void LaunchController::login() {
 
     // Find an account to use.
     std::shared_ptr<AccountList> accounts = MMC->accounts();
-    AccountPtr account = accounts->activeAccount();
     if (accounts->count() <= 0)
     {
         // Tell the user they need to log in at least one account in order to play.

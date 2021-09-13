@@ -19,7 +19,7 @@
 #include <QtWidgets/QRadioButton>
 #include <QtCore/QEventLoop>
 
-#include "minecraft/auth/Account.h"
+#include "minecraft/auth/MinecraftAccount.h"
 
 namespace Ui
 {
@@ -33,7 +33,7 @@ class LoginDialog : public QDialog
 public:
     ~LoginDialog();
 
-    static AccountPtr newAccount(QWidget *parent, QString message);
+    static MinecraftAccountPtr newAccount(QWidget *parent, QString message);
 
 private:
     explicit LoginDialog(QWidget *parent = 0);
@@ -54,7 +54,6 @@ slots:
 
 private:
     Ui::LoginDialog *ui;
-    AccountPtr m_account;
-    QMap<QString, QRadioButton*> m_radioButtons;
+    MinecraftAccountPtr m_account;
     std::shared_ptr<Task> m_loginTask;
 };
