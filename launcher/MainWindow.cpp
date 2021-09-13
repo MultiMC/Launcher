@@ -767,49 +767,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // Update the menu when the active account changes.
     // Shouldn't have to use lambdas here like this, but if I don't, the compiler throws a fit.
     // Template hell sucks...
-    connect(MMC->accounts().get(), &AccountList::activeAccountChanged, [this]
-            {
-                activeAccountChanged();
-            });
-    connect(MMC->accounts().get(), &AccountList::listChanged, [this]
-            {
-                repopulateAccountsMenu();
-            });
+    connect(
+        MMC->accounts().get(),
+        &AccountList::activeAccountChanged,
+        [this] {
+            activeAccountChanged();
+        }
+    );
+    connect(
+        MMC->accounts().get(),
+        &AccountList::listChanged,
+        [this]
+        {
+            repopulateAccountsMenu();
+        }
+    );
 
     // Show initial account
     activeAccountChanged();
 
-    auto accounts = MMC->accounts();
-
-    QList<Net::Download::Ptr> skin_dls;
-    for (int i = 0; i < accounts->count(); i++)
-    {
-        auto account = accounts->at(i);
-        if (!account)
-        {
-            qWarning() << "Null account at index" << i;
-            continue;
-        }
-        for (auto profile : account->profiles())
-        {
-            auto meta = Env::getInstance().metacache()->resolveEntry("skins", profile.id + ".png");
-            auto action = Net::Download::makeCached(account->provider()->resolveSkinUrl(profile), meta);
-            skin_dls.append(action);
-            meta->setStale(true);
-        }
-    }
-    if (!skin_dls.isEmpty())
-    {
-        auto job = new NetJob("Startup player skins download");
-        connect(job, &NetJob::succeeded, this, &MainWindow::skinJobFinished);
-        connect(job, &NetJob::failed, this, &MainWindow::skinJobFinished);
-        for (auto action : skin_dls)
-        {
-            job->addNetAction(action);
-        }
-        skin_download_job.reset(job);
-        job->start();
-    }
+    // TODO: refresh accounts here?
+    // auto accounts = MMC->accounts();
 
     // load the news
     {
@@ -1032,17 +1010,6 @@ void MainWindow::updateToolsMenu()
     }
     ui->actionLaunchInstance->setMenu(launchMenu);
     ui->actionLaunchInstanceOffline->setMenu(launchOfflineMenu);
-}
-
-QString formatProfile(const QString & profileName,  const QString & provider, bool used)
-{
-    QString textInBrackets = provider;
-    if(used)
-    {
-        textInBrackets += ", in use";
-    }
-    return ((QString)"%1 (%2)").arg(profileName).arg(textInBrackets);
-
 }
 
 void MainWindow::repopulateAccountsMenu()

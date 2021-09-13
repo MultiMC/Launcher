@@ -446,6 +446,7 @@ bool AccountList::loadV3(QJsonObject& root) {
     return true;
 }
 
+
 bool AccountList::saveList()
 {
     if (m_listFilePath.isEmpty())
