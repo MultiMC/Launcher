@@ -7,8 +7,6 @@
 #include <QProcess>
 #include <QUrl>
 
-
-#include "logic_export.h"
 #include "minecraft/auth/AccountProfile.h"
 
 class BaseAuthProvider;
@@ -22,7 +20,7 @@ typedef std::shared_ptr<BaseAuthProvider> AuthProviderPtr;
  * To create a new provider, create a new class inheriting from this class,
  * implement the pure virtual functions, and
  */
-class LOGIC_EXPORT BaseAuthProvider : public QObject
+class BaseAuthProvider : public QObject
 {
     Q_OBJECT
 

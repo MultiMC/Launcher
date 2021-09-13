@@ -8,7 +8,6 @@
 #include <QMap>
 
 #include "providers/BaseAuthProvider.h"
-#include "logic_export.h"
 
 /*!
  * \brief Namespace for auth providers.
@@ -16,7 +15,7 @@
  */
 namespace AuthProviders
 {
-    LOGIC_EXPORT void load();
-    LOGIC_EXPORT AuthProviderPtr lookup(QString id);
-    LOGIC_EXPORT QList<AuthProviderPtr> getAll();
+    void load();
+    AuthProviderPtr lookup(QString id);
+    QList<AuthProviderPtr> getAll();
 }
