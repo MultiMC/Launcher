@@ -40,7 +40,7 @@ struct AuthSession
     bool auth_server_online = false;
     // Did the user request online mode?
     bool wants_online = true;
-    std::shared_ptr<Account> m_accountPtr;
+    std::shared_ptr<MinecraftAccount> m_accountPtr;
 };
 
 typedef std::shared_ptr<AuthSession> AuthSessionPtr;

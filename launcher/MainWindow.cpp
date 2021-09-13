@@ -1050,7 +1050,7 @@ void MainWindow::repopulateAccountsMenu()
     accountMenu->clear();
 
     std::shared_ptr<AccountList> accounts = MMC->accounts();
-    AccountPtr active_account = accounts->activeAccount();
+    MinecraftAccountPtr active_account = accounts->activeAccount();
 
     QString active_profileId = "";
     if (active_account != nullptr)
@@ -1059,7 +1059,7 @@ void MainWindow::repopulateAccountsMenu()
         // this can be called before accountMenuButton exists
         if (accountMenuButton)
         {
-            auto profileLabel = formatProfile(profile->name, active_account->provider()->displayName(), active_account->isInUse());
+            auto profileLabel = profileInUseFilter(active_account->profileName(), active_account->isInUse());
             accountMenuButton->setText(profileLabel);
         }
     }
@@ -1075,21 +1075,14 @@ void MainWindow::repopulateAccountsMenu()
         // TODO: Nicer way to iterate?
         for (int i = 0; i < accounts->count(); i++)
         {
-            AccountPtr account = accounts->at(i);
-            for (auto profile : account->profiles())
+            MinecraftAccountPtr account = accounts->at(i);
+            auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
+            QAction *action = new QAction(profileLabel, this);
+            action->setData(account->profileId());
+            action->setCheckable(true);
+            if (active_profileId == account->profileId())
             {
-                auto profileLabel = formatProfile(profile.name, account->provider()->displayName(), account->isInUse());
-                QAction *action = new QAction(profileLabel, this);
-                action->setData(account->username());
-                action->setCheckable(true);
-                if (active_username == account->username())
-                {
-                    action->setChecked(true);
-                }
-
-                action->setIcon(SkinUtils::getFaceFromCache(profile.id));
-                accountMenu->addAction(action);
-                connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
+                action->setChecked(true);
             }
 
             action->setIcon(account->getFace());
@@ -1151,19 +1144,15 @@ void MainWindow::activeAccountChanged()
 {
     repopulateAccountsMenu();
 
-    AccountPtr account = MMC->accounts()->activeAccount();
+    MinecraftAccountPtr account = MMC->accounts()->activeAccount();
 
     // FIXME: this needs adjustment for MSA
     if (account != nullptr && account->profileName() != "")
     {
-        const AccountProfile *profile = account->currentProfile();
-        if (profile != nullptr)
-        {
-            auto profileLabel = formatProfile(profile->name, account->provider()->displayName(), account->isInUse());
-            accountMenuButton->setIcon(SkinUtils::getFaceFromCache(profile->id));
-            accountMenuButton->setText(profileLabel);
-            return;
-        }
+        auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
+        accountMenuButton->setText(profileLabel);
+        accountMenuButton->setIcon(account->getFace());
+        return;
     }
 
     // Set the icon to the "no account" icon.

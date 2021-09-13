@@ -15,8 +15,6 @@
 
 #include "AccountList.h"
 #include "AccountData.h"
-#include "AccountList.h"
-#include "Account.h"
 
 #include <QIODevice>
 #include <QFile>
@@ -39,15 +37,14 @@ enum AccountListVersion {
 
 AccountList::AccountList(QObject *parent) : QAbstractListModel(parent) { }
 
-AccountPtr AccountList::findAccount(const QString &username) const
-{
-    for (int i = 0; i < count(); i++)
-    {
-        AccountPtr account = at(i);
-        if (account->username() == username)
-            return account;
+int AccountList::findAccountByProfileId(const QString& profileId) const {
+    for (int i = 0; i < count(); i++) {
+        MinecraftAccountPtr account = at(i);
+        if (account->profileId() == profileId) {
+            return i;
+        }
     }
-    return nullptr;
+    return -1;
 }
 
 const MinecraftAccountPtr AccountList::at(int i) const
@@ -56,12 +53,6 @@ const MinecraftAccountPtr AccountList::at(int i) const
 }
 
 void AccountList::addAccount(const MinecraftAccountPtr account)
-const AccountPtr AccountList::at(int i) const
-{
-    return AccountPtr(m_accounts.at(i));
-}
-
-void AccountList::addAccount(const AccountPtr account)
 {
     // We only ever want accounts with valid profiles.
     // Keeping profile-less accounts is pointless and serves no purpose.
@@ -88,23 +79,6 @@ void AccountList::addAccount(const AccountPtr account)
     onListChanged();
 }
 
-void AccountList::removeAccount(const QString &username)
-{
-    int idx = 0;
-    for (auto account : m_accounts)
-    {
-        if (account->username() == username)
-        {
-            beginRemoveRows(QModelIndex(), idx, idx);
-            m_accounts.removeOne(account);
-            endRemoveRows();
-            return;
-        }
-        idx++;
-    }
-    onListChanged();
-}
-
 void AccountList::removeAccount(QModelIndex index)
 {
     int row = index.row();
@@ -123,7 +97,7 @@ void AccountList::removeAccount(QModelIndex index)
     }
 }
 
-AccountPtr AccountList::activeAccount() const
+MinecraftAccountPtr AccountList::activeAccount() const
 {
     return m_activeAccount;
 }
@@ -135,7 +109,7 @@ void AccountList::setActiveAccount(const QString &profileId)
         int idx = 0;
         auto prevActiveAcc = m_activeAccount;
         m_activeAccount = nullptr;
-        for (AccountPtr account : m_accounts)
+        for (MinecraftAccountPtr account : m_accounts)
         {
             if (account == prevActiveAcc)
             {
@@ -152,7 +126,7 @@ void AccountList::setActiveAccount(const QString &profileId)
         auto newActiveAccount = m_activeAccount;
         int newActiveAccountIdx = -1;
         int idx = 0;
-        for (AccountPtr account : m_accounts)
+        for (MinecraftAccountPtr account : m_accounts)
         {
             if (account->profileId() == profileId)
             {
@@ -211,15 +185,7 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
     if (index.row() > count())
         return QVariant();
 
-    AccountPtr account = at(index.row());
-
-    switch (role)
-    {
-    case Qt::DisplayRole:
-        switch (index.column())
-        {
-        case NameColumn:
-            return account->username();
+    MinecraftAccountPtr account = at(index.row());
 
     switch (role)
     {
@@ -234,28 +200,7 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                 typeStr[0] = typeStr[0].toUpper();
                 return typeStr;
             }
-        case TypeColumn:
-            return account->provider()->displayName();
 
-        default:
-            return QVariant();
-        }
-
-    case Qt::ToolTipRole:
-        return account->username();
-
-    case PointerRole:
-        return qVariantFromValue(account);
-
-    case Qt::CheckStateRole:
-        switch (index.column())
-        {
-        case ActiveColumn:
-            return account == m_activeAccount ? Qt::Checked : Qt::Unchecked;
-        }
-
-    default:
-        return QVariant();
             case ProfileNameColumn: {
                 return account->profileName();
             }
@@ -301,9 +246,6 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
     case Qt::DisplayRole:
         switch (section)
         {
-        case ActiveColumn:
-            return tr("Active?");
-
         case NameColumn:
             return tr("Account");
         case TypeColumn:
@@ -312,10 +254,6 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
             return tr("Can Migrate?");
         case ProfileNameColumn:
             return tr("Profile");
-
-        case TypeColumn:
-            return tr("Account type");
-
         default:
             return QVariant();
         }
@@ -372,8 +310,8 @@ bool AccountList::setData(const QModelIndex &index, const QVariant &value, int r
     {
         if(value == Qt::Checked)
         {
-            AccountPtr account = this->at(index.row());
-            this->setActiveAccount(account->username());
+            MinecraftAccountPtr account = at(index.row());
+            setActiveAccount(account->profileId());
         }
     }
 
@@ -381,19 +319,9 @@ bool AccountList::setData(const QModelIndex &index, const QVariant &value, int r
     return true;
 }
 
-void AccountList::updateListData(QList<AccountPtr> versions)
+bool AccountList::loadList()
 {
-    beginResetModel();
-    m_accounts = versions;
-    endResetModel();
-}
-
-bool AccountList::loadList(const QString &filePath)
-{
-    QString path = filePath;
-    if (path.isEmpty())
-        path = m_listFilePath;
-    if (path.isEmpty())
+    if (m_listFilePath.isEmpty())
     {
         qCritical() << "Can't load Mojang account list. No file path given and no default set.";
         return false;
@@ -493,11 +421,7 @@ bool AccountList::loadV3(QJsonObject& root) {
     for (QJsonValue accountVal : accounts)
     {
         QJsonObject accountObj = accountVal.toObject();
-        AccountPtr account = Account::loadFromJson(accountObj);
-        if (account.get() != nullptr)
-        {
-            connect(account.get(), SIGNAL(changed()), SLOT(accountChanged()));
-            m_accounts.append(account);
+        MinecraftAccountPtr account = MinecraftAccount::loadFromJsonV3(accountObj);
         if (account.get() != nullptr)
         {
             auto profileId = account->profileId();
@@ -518,13 +442,11 @@ bool AccountList::loadV3(QJsonObject& root) {
             qWarning() << "Failed to load an account.";
         }
     }
-    // Load the active account.
-    m_activeAccount = findAccount(root.value("activeAccount").toString(""));
     endResetModel();
     return true;
 }
 
-bool AccountList::saveList(const QString &filePath)
+bool AccountList::saveList()
 {
     if (m_listFilePath.isEmpty())
     {
@@ -555,7 +477,7 @@ bool AccountList::saveList(const QString &filePath)
     // Build a list of accounts.
     qDebug() << "Building account array.";
     QJsonArray accounts;
-    for (AccountPtr account : m_accounts)
+    for (MinecraftAccountPtr account : m_accounts)
     {
         QJsonObject accountObj = account->saveToJson();
         if(m_activeAccount == account) {
@@ -566,12 +488,6 @@ bool AccountList::saveList(const QString &filePath)
 
     // Insert the account list into the root object.
     root.insert("accounts", accounts);
-
-    if(m_activeAccount)
-    {
-        // Save the active account.
-        root.insert("activeAccount", m_activeAccount->username());
-    }
 
     // Create a JSON document object to convert our JSON to bytes.
     QJsonDocument doc(root);

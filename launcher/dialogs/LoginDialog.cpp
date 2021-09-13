@@ -129,7 +129,7 @@ void LoginDialog::onTaskProgress(qint64 current, qint64 total)
 }
 
 // Public interface
-AccountPtr LoginDialog::newAccount(QWidget *parent, QString msg)
+MinecraftAccountPtr LoginDialog::newAccount(QWidget *parent, QString msg)
 {
     LoginDialog dlg(parent);
     dlg.ui->label->setText(msg);
