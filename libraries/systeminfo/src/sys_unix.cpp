@@ -6,13 +6,41 @@
 #include <fstream>
 #include <limits>
 
+#include <QString>
+#include <QStringList>
+#include <QDebug>
+
 Sys::KernelInfo Sys::getKernelInfo()
 {
     Sys::KernelInfo out;
     struct utsname buf;
     uname(&buf);
+    // NOTE: we assume linux here. this needs further elaboration
+    out.kernelType = KernelType::Linux;
     out.kernelName = buf.sysname;
-    out.kernelVersion = buf.release;
+    QString release = out.kernelVersion = buf.release;
+
+    // linux binary running on WSL is cursed.
+    out.isCursed = release.contains("WSL", Qt::CaseInsensitive) || release.contains("Microsoft", Qt::CaseInsensitive);
+
+    out.kernelMajor = 0;
+    out.kernelMinor = 0;
+    out.kernelPatch = 0;
+    auto sections = release.split('-');
+    if(sections.size() >= 1) {
+        auto versionParts = sections[0].split('.');
+        if(versionParts.size() >= 3) {
+            out.kernelMajor = versionParts[0].toInt();
+            out.kernelMinor = versionParts[1].toInt();
+            out.kernelPatch = versionParts[2].toInt();
+        }
+        else {
+            qWarning() << "Not enough version numbers in " << sections[0] << " found " << versionParts.size();
+        }
+    }
+    else {
+        qWarning() << "Not enough '-' sections in " << release << " found " << sections.size();
+    }
     return out;
 }
 

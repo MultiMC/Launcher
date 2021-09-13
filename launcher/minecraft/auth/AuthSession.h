@@ -4,13 +4,7 @@
 #include <QMultiMap>
 #include <memory>
 
-class MojangAccount;
-
-struct User
-{
-    QString id;
-    QMultiMap<QString, QString> properties;
-};
+class MinecraftAccount;
 
 struct AuthSession
 {
@@ -21,12 +15,12 @@ struct AuthSession
     enum Status
     {
         Undetermined,
+        RequiresOAuth,
         RequiresPassword,
         PlayableOffline,
-        PlayableOnline
+        PlayableOnline,
+        GoneOrMigrated
     } status = Undetermined;
-
-    User u;
 
     // client token
     QString client_token;

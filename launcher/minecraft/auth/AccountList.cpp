@@ -1,3 +1,20 @@
+/* Copyright 2013-2021 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "AccountList.h"
+#include "AccountData.h"
 #include "AccountList.h"
 #include "Account.h"
 
@@ -13,12 +30,14 @@
 #include <QDebug>
 
 #include <FileSystem.h>
+#include <QSaveFile>
 
-#define ACCOUNT_LIST_FORMAT_VERSION 2
+enum AccountListVersion {
+    MojangOnly = 2,
+    MojangMSA = 3
+};
 
-AccountList::AccountList(QObject *parent) : QAbstractListModel(parent)
-{
-}
+AccountList::AccountList(QObject *parent) : QAbstractListModel(parent) { }
 
 AccountPtr AccountList::findAccount(const QString &username) const
 {
@@ -31,6 +50,12 @@ AccountPtr AccountList::findAccount(const QString &username) const
     return nullptr;
 }
 
+const MinecraftAccountPtr AccountList::at(int i) const
+{
+    return MinecraftAccountPtr(m_accounts.at(i));
+}
+
+void AccountList::addAccount(const MinecraftAccountPtr account)
 const AccountPtr AccountList::at(int i) const
 {
     return AccountPtr(m_accounts.at(i));
@@ -38,6 +63,23 @@ const AccountPtr AccountList::at(int i) const
 
 void AccountList::addAccount(const AccountPtr account)
 {
+    // We only ever want accounts with valid profiles.
+    // Keeping profile-less accounts is pointless and serves no purpose.
+    auto profileId = account->profileId();
+    if(!profileId.size()) {
+        return;
+    }
+
+    // override/replace existing account with the same profileId
+    auto existingAccount = findAccountByProfileId(profileId);
+    if(existingAccount != -1) {
+        m_accounts[existingAccount] = account;
+        emit dataChanged(index(existingAccount), index(existingAccount, columnCount(QModelIndex()) - 1));
+        onListChanged();
+        return;
+    }
+
+    // if we don't have this porfileId yet, add the account to the end
     int row = m_accounts.count();
     beginInsertRows(QModelIndex(), row, row);
     connect(account.get(), SIGNAL(changed()), SLOT(accountChanged()));
@@ -86,9 +128,9 @@ AccountPtr AccountList::activeAccount() const
     return m_activeAccount;
 }
 
-void AccountList::setActiveAccount(const QString &username)
+void AccountList::setActiveAccount(const QString &profileId)
 {
-    if (username.isEmpty() && m_activeAccount)
+    if (profileId.isEmpty() && m_activeAccount)
     {
         int idx = 0;
         auto prevActiveAcc = m_activeAccount;
@@ -112,7 +154,7 @@ void AccountList::setActiveAccount(const QString &username)
         int idx = 0;
         for (AccountPtr account : m_accounts)
         {
-            if (account->username() == username)
+            if (account->profileId() == profileId)
             {
                 newActiveAccount = account;
                 newActiveAccountIdx = idx;
@@ -179,6 +221,19 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
         case NameColumn:
             return account->username();
 
+    switch (role)
+    {
+        case Qt::DisplayRole:
+            switch (index.column())
+            {
+            case NameColumn:
+                return account->accountDisplayString();
+
+            case TypeColumn: {
+                auto typeStr = account->typeString();
+                typeStr[0] = typeStr[0].toUpper();
+                return typeStr;
+            }
         case TypeColumn:
             return account->provider()->displayName();
 
@@ -201,6 +256,41 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
 
     default:
         return QVariant();
+            case ProfileNameColumn: {
+                return account->profileName();
+            }
+
+            case MigrationColumn: {
+                if(account->isMSA()) {
+                    return tr("N/A", "Can Migrate?");
+                }
+                if (account->canMigrate()) {
+                    return tr("Yes", "Can Migrate?");
+                }
+                else {
+                    return tr("No", "Can Migrate?");
+                }
+            }
+
+            default:
+                return QVariant();
+            }
+
+        case Qt::ToolTipRole:
+            return account->accountDisplayString();
+
+        case PointerRole:
+            return qVariantFromValue(account);
+
+        case Qt::CheckStateRole:
+            switch (index.column())
+            {
+                case NameColumn:
+                    return account == m_activeAccount ? Qt::Checked : Qt::Unchecked;
+            }
+
+        default:
+            return QVariant();
     }
 }
 
@@ -215,7 +305,13 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
             return tr("Active?");
 
         case NameColumn:
-            return tr("Name");
+            return tr("Account");
+        case TypeColumn:
+            return tr("Type");
+        case MigrationColumn:
+            return tr("Can Migrate?");
+        case ProfileNameColumn:
+            return tr("Profile");
 
         case TypeColumn:
             return tr("Account type");
@@ -228,8 +324,13 @@ QVariant AccountList::headerData(int section, Qt::Orientation orientation, int r
         switch (section)
         {
         case NameColumn:
-            return tr("The name of the version.");
-
+            return tr("User name of the account.");
+        case TypeColumn:
+            return tr("Type of the account - Mojang or MSA.");
+        case MigrationColumn:
+            return tr("Can this account migrate to Microsoft account?");
+        case ProfileNameColumn:
+            return tr("Name of the Minecraft profile associated with the account.");
         default:
             return QVariant();
         }
@@ -247,7 +348,7 @@ int AccountList::rowCount(const QModelIndex &) const
 
 int AccountList::columnCount(const QModelIndex &) const
 {
-    return 3;
+    return NUM_COLUMNS;
 }
 
 Qt::ItemFlags AccountList::flags(const QModelIndex &index) const
@@ -298,13 +399,13 @@ bool AccountList::loadList(const QString &filePath)
         return false;
     }
 
-    QFile file(path);
+    QFile file(m_listFilePath);
 
     // Try to open the file and fail if we can't.
     // TODO: We should probably report this error to the user.
     if (!file.open(QIODevice::ReadOnly))
     {
-        qCritical() << QString("Failed to read the account list file (%1).").arg(path).toUtf8();
+        qCritical() << QString("Failed to read the account list file (%1).").arg(m_listFilePath).toUtf8();
         return false;
     }
 
@@ -334,18 +435,59 @@ bool AccountList::loadList(const QString &filePath)
     QJsonObject root = jsonDoc.object();
 
     // Make sure the format version matches.
-    if (root.value("formatVersion").toVariant().toInt() != ACCOUNT_LIST_FORMAT_VERSION)
-    {
-        QString newName = "accounts-old.json";
-        qWarning() << "Format version mismatch when loading account list. Existing one will be renamed to"
-                    << newName;
-
-        // Attempt to rename the old version.
-        file.rename(newName);
-        return false;
+    auto listVersion = root.value("formatVersion").toVariant().toInt();
+    switch(listVersion) {
+        case AccountListVersion::MojangOnly: {
+            return loadV2(root);
+        }
+        break;
+        case AccountListVersion::MojangMSA: {
+            return loadV3(root);
+        }
+        break;
+        default: {
+            QString newName = "accounts-old.json";
+            qWarning() << "Unknown format version when loading account list. Existing one will be renamed to" << newName;
+            // Attempt to rename the old version.
+            file.rename(newName);
+            return false;
+        }
     }
+}
 
-    // Now, load the accounts array.
+bool AccountList::loadV2(QJsonObject& root) {
+    beginResetModel();
+    auto activeUserName = root.value("activeAccount").toString("");
+    QJsonArray accounts = root.value("accounts").toArray();
+    for (QJsonValue accountVal : accounts)
+    {
+        QJsonObject accountObj = accountVal.toObject();
+        MinecraftAccountPtr account = MinecraftAccount::loadFromJsonV2(accountObj);
+        if (account.get() != nullptr)
+        {
+            auto profileId = account->profileId();
+            if(!profileId.size()) {
+                continue;
+            }
+            if(findAccountByProfileId(profileId) != -1) {
+                continue;
+            }
+            connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
+            m_accounts.append(account);
+            if (activeUserName.size() && account->mojangUserName() == activeUserName) {
+                m_activeAccount = account;
+            }
+        }
+        else
+        {
+            qWarning() << "Failed to load an account.";
+        }
+    }
+    endResetModel();
+    return true;
+}
+
+bool AccountList::loadV3(QJsonObject& root) {
     beginResetModel();
     QJsonArray accounts = root.value("accounts").toArray();
     for (QJsonValue accountVal : accounts)
@@ -356,6 +498,20 @@ bool AccountList::loadList(const QString &filePath)
         {
             connect(account.get(), SIGNAL(changed()), SLOT(accountChanged()));
             m_accounts.append(account);
+        if (account.get() != nullptr)
+        {
+            auto profileId = account->profileId();
+            if(!profileId.size()) {
+                continue;
+            }
+            if(findAccountByProfileId(profileId) != -1) {
+                continue;
+            }
+            connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
+            m_accounts.append(account);
+            if(accountObj.value("active").toBool(false)) {
+                m_activeAccount = account;
+            }
         }
         else
         {
@@ -370,34 +526,31 @@ bool AccountList::loadList(const QString &filePath)
 
 bool AccountList::saveList(const QString &filePath)
 {
-    QString path(filePath);
-    if (path.isEmpty())
-        path = m_listFilePath;
-    if (path.isEmpty())
+    if (m_listFilePath.isEmpty())
     {
         qCritical() << "Can't save Mojang account list. No file path given and no default set.";
         return false;
     }
 
     // make sure the parent folder exists
-    if(!FS::ensureFilePathExists(path))
+    if(!FS::ensureFilePathExists(m_listFilePath))
         return false;
 
     // make sure the file wasn't overwritten with a folder before (fixes a bug)
-    QFileInfo finfo(path);
+    QFileInfo finfo(m_listFilePath);
     if(finfo.isDir())
     {
-        QDir badDir(path);
+        QDir badDir(m_listFilePath);
         badDir.removeRecursively();
     }
 
-    qDebug() << "Writing account list to" << path;
+    qDebug() << "Writing account list to" << m_listFilePath;
 
     qDebug() << "Building JSON data structure.";
     // Build the JSON document to write to the list file.
     QJsonObject root;
 
-    root.insert("formatVersion", ACCOUNT_LIST_FORMAT_VERSION);
+    root.insert("formatVersion", AccountListVersion::MojangMSA);
 
     // Build a list of accounts.
     qDebug() << "Building account array.";
@@ -405,6 +558,9 @@ bool AccountList::saveList(const QString &filePath)
     for (AccountPtr account : m_accounts)
     {
         QJsonObject accountObj = account->saveToJson();
+        if(m_activeAccount == account) {
+            accountObj["active"] = true;
+        }
         accounts.append(accountObj);
     }
 
@@ -422,24 +578,27 @@ bool AccountList::saveList(const QString &filePath)
 
     // Now that we're done building the JSON object, we can write it to the file.
     qDebug() << "Writing account list to file.";
-    QFile file(path);
+    QSaveFile file(m_listFilePath);
 
     // Try to open the file and fail if we can't.
     // TODO: We should probably report this error to the user.
     if (!file.open(QIODevice::WriteOnly))
     {
-        qCritical() << QString("Failed to read the account list file (%1).").arg(path).toUtf8();
+        qCritical() << QString("Failed to read the account list file (%1).").arg(m_listFilePath).toUtf8();
         return false;
     }
 
     // Write the JSON to the file.
     file.write(doc.toJson());
     file.setPermissions(QFile::ReadOwner|QFile::WriteOwner|QFile::ReadUser|QFile::WriteUser);
-    file.close();
-
-    qDebug() << "Saved account list to" << path;
-
-    return true;
+    if(file.commit()) {
+        qDebug() << "Saved account list to" << m_listFilePath;
+        return true;
+    }
+    else {
+        qDebug() << "Failed to save accounts to" << m_listFilePath;
+        return false;
+    }
 }
 
 void AccountList::setListFilePath(QString path, bool autosave)

@@ -90,6 +90,20 @@
 #include "KonamiCode.h"
 #include <InstanceCopyTask.h>
 
+namespace {
+QString profileInUseFilter(const QString & profile, bool used)
+{
+    if(used)
+    {
+        return QObject::tr("%1 (in use)").arg(profile);
+    }
+    else
+    {
+        return profile;
+    }
+}
+}
+
 // WHY: to hold the pre-translation strings together with the T pointer, so it can be retranslated without a lot of ugly code
 template <typename T>
 class Translated
@@ -844,7 +858,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
 void MainWindow::retranslateUi()
 {
-    accountMenuButton->setText(tr("Profiles"));
+    std::shared_ptr<AccountList> accounts = MMC->accounts();
+    MinecraftAccountPtr active_account = accounts->activeAccount();
+    if(active_account) {
+        auto profileLabel = profileInUseFilter(active_account->profileName(), active_account->isInUse());
+        accountMenuButton->setText(profileLabel);
+    }
+    else {
+        accountMenuButton->setText(tr("Profiles"));
+    }
 
     if (m_selectedInstance) {
         m_statusLeft->setText(m_selectedInstance->getStatusbarDescription());
@@ -870,12 +892,6 @@ void MainWindow::konamiTriggered()
 {
     // ENV.enableFeature("NewModsPage");
     qDebug() << "Super Secret Mode ACTIVATED!";
-}
-
-void MainWindow::skinJobFinished()
-{
-    activeAccountChanged();
-    skin_download_job.reset();
 }
 
 void MainWindow::showInstanceContextMenu(const QPoint &pos)
@@ -1026,7 +1042,7 @@ QString formatProfile(const QString & profileName,  const QString & provider, bo
         textInBrackets += ", in use";
     }
     return ((QString)"%1 (%2)").arg(profileName).arg(textInBrackets);
-    
+
 }
 
 void MainWindow::repopulateAccountsMenu()
@@ -1036,13 +1052,12 @@ void MainWindow::repopulateAccountsMenu()
     std::shared_ptr<AccountList> accounts = MMC->accounts();
     AccountPtr active_account = accounts->activeAccount();
 
-    QString active_username = "";
+    QString active_profileId = "";
     if (active_account != nullptr)
     {
-        active_username = active_account->username();
-        const AccountProfile *profile = active_account->currentProfile();
+        active_profileId = active_account->profileId();
         // this can be called before accountMenuButton exists
-        if (profile != nullptr && accountMenuButton)
+        if (accountMenuButton)
         {
             auto profileLabel = formatProfile(profile->name, active_account->provider()->displayName(), active_account->isInUse());
             accountMenuButton->setText(profileLabel);
@@ -1076,6 +1091,10 @@ void MainWindow::repopulateAccountsMenu()
                 accountMenu->addAction(action);
                 connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
             }
+
+            action->setIcon(account->getFace());
+            accountMenu->addAction(action);
+            connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
         }
     }
 
@@ -1085,8 +1104,7 @@ void MainWindow::repopulateAccountsMenu()
     action->setCheckable(true);
     action->setIcon(MMC->getThemedIcon("noaccount"));
     action->setData("");
-    if (active_username.isEmpty())
-    {
+    if (active_profileId.isEmpty()) {
         action->setChecked(true);
     }
 
@@ -1135,7 +1153,8 @@ void MainWindow::activeAccountChanged()
 
     AccountPtr account = MMC->accounts()->activeAccount();
 
-    if (account != nullptr && account->username() != "")
+    // FIXME: this needs adjustment for MSA
+    if (account != nullptr && account->profileName() != "")
     {
         const AccountProfile *profile = account->currentProfile();
         if (profile != nullptr)

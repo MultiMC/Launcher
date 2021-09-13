@@ -36,6 +36,7 @@ ProfileSelectDialog::ProfileSelectDialog(const QString &message, int flags, QWid
     //view->hideColumn(AccountList::ActiveColumn);
     view->setColumnCount(1);
     view->setRootIsDecorated(false);
+    // FIXME: use a real model, not this
     if(QTreeWidgetItem* header = view->headerItem())
     {
         header->setText(0, tr("Name"));
@@ -61,6 +62,14 @@ ProfileSelectDialog::ProfileSelectDialog(const QString &message, int flags, QWid
             item->setData(0, AccountList::PointerRole, QVariant::fromValue(account));
             items.append(item);
         }
+        else {
+            profileLabel = account->profileName();
+        }
+        auto item = new QTreeWidgetItem(view);
+        item->setText(0, profileLabel);
+        item->setIcon(0, account->getFace());
+        item->setData(0, AccountList::PointerRole, QVariant::fromValue(account));
+        items.append(item);
     }
     view->addTopLevelItems(items);
 

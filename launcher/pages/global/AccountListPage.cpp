@@ -29,12 +29,15 @@
 #include "dialogs/CustomMessageBox.h"
 #include "dialogs/SkinUploadDialog.h"
 #include "tasks/Task.h"
-#include "minecraft/auth/YggdrasilTask.h"
+#include "minecraft/auth/AccountTask.h"
 #include "minecraft/services/SkinDelete.h"
 
 #include "MultiMC.h"
 
 #include "BuildConfig.h"
+#include <dialogs/MSALoginDialog.h>
+
+#include "Secrets.h"
 
 AccountListPage::AccountListPage(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::AccountListPage)
@@ -50,7 +53,9 @@ AccountListPage::AccountListPage(QWidget *parent)
     m_accounts = MMC->accounts();
 
     ui->listView->setModel(m_accounts.get());
-    ui->listView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->listView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->listView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    ui->listView->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->listView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Expand the account column
@@ -64,10 +69,13 @@ AccountListPage::AccountListPage(QWidget *parent)
     });
     connect(ui->listView, &VersionListView::customContextMenuRequested, this, &AccountListPage::ShowContextMenu);
 
-    connect(m_accounts.get(), SIGNAL(listChanged()), SLOT(listChanged()));
-    connect(m_accounts.get(), SIGNAL(activeAccountChanged()), SLOT(listChanged()));
+    connect(m_accounts.get(), &AccountList::listChanged, this, &AccountListPage::listChanged);
+    connect(m_accounts.get(), &AccountList::activeAccountChanged, this, &AccountListPage::listChanged);
 
     updateButtonStates();
+
+    // Xbox authentication won't work without a client identifier, so disable the button if it is missing
+    ui->actionAddMicrosoft->setVisible(Secrets::hasMSAClientID());
 }
 
 AccountListPage::~AccountListPage()
@@ -104,9 +112,48 @@ void AccountListPage::listChanged()
     updateButtonStates();
 }
 
-void AccountListPage::on_actionAdd_triggered()
+void AccountListPage::on_actionAddMojang_triggered()
 {
-    addAccount(tr("Please enter your Minecraft account email and password to add your account."));
+    MinecraftAccountPtr account = LoginDialog::newAccount(
+        this,
+        tr("Please enter your Mojang account email and password to add your account.")
+    );
+
+    if (account != nullptr)
+    {
+        m_accounts->addAccount(account);
+        if (m_accounts->count() == 1) {
+            m_accounts->setActiveAccount(account->profileId());
+        }
+    }
+}
+
+void AccountListPage::on_actionAddMicrosoft_triggered()
+{
+    if(BuildConfig.BUILD_PLATFORM == "osx64") {
+        CustomMessageBox::selectable(
+            this,
+            tr("Microsoft Accounts not available"),
+            tr(
+                "Microsoft accounts are only usable on macOS 10.13 or newer, with fully updated MultiMC.\n\n"
+                "Please update both your operating system and MultiMC."
+            ),
+            QMessageBox::Warning
+        )->exec();
+        return;
+    }
+    MinecraftAccountPtr account = MSALoginDialog::newAccount(
+        this,
+        tr("Please enter your Mojang account email and password to add your account.")
+    );
+
+    if (account != nullptr)
+    {
+        m_accounts->addAccount(account);
+        if (m_accounts->count() == 1) {
+            m_accounts->setActiveAccount(account->profileId());
+        }
+    }
 }
 
 void AccountListPage::on_actionRemove_triggered()
@@ -118,6 +165,22 @@ void AccountListPage::on_actionRemove_triggered()
         m_accounts->removeAccount(selected);
     }
 }
+
+void AccountListPage::on_actionRefresh_triggered() {
+    QModelIndexList selection = ui->listView->selectionModel()->selectedIndexes();
+    if (selection.size() > 0) {
+        QModelIndex selected = selection.first();
+        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+        AuthSessionPtr session = std::make_shared<AuthSession>();
+        auto task = account->refresh(session);
+        if (task) {
+            ProgressDialog progDialog(this);
+            progDialog.execWithTask(task.get());
+            // TODO: respond to results of the task
+        }
+    }
+}
+
 
 void AccountListPage::on_actionSetDefault_triggered()
 {
@@ -143,11 +206,14 @@ void AccountListPage::updateButtonStates()
 
     ui->actionRemove->setEnabled(selection.size() > 0);
     ui->actionSetDefault->setEnabled(selection.size() > 0);
+    ui->actionUploadSkin->setEnabled(selection.size() > 0);
+    ui->actionDeleteSkin->setEnabled(selection.size() > 0);
+    ui->actionRefresh->setEnabled(selection.size() > 0);
 
     bool enableSkins = selection.size() > 0 && selection.first().data(AccountList::PointerRole).value<AccountPtr>()->provider()->canChangeSkin();
     ui->actionUploadSkin->setEnabled(enableSkins);
     ui->actionDeleteSkin->setEnabled(enableSkins);
-    
+
     if(m_accounts->activeAccount().get() == nullptr) {
         ui->actionNoDefault->setEnabled(false);
         ui->actionNoDefault->setChecked(true);
