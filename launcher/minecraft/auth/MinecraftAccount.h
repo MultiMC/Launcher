@@ -28,6 +28,8 @@
 #include "Usable.h"
 #include "AccountData.h"
 
+#include "providers/BaseAuthProvider.h"
+
 class Task;
 class AccountTask;
 class MinecraftAccount;
@@ -42,12 +44,13 @@ Q_DECLARE_METATYPE(MinecraftAccountPtr)
  * but we might as well add some things for it in MultiMC right now so
  * we don't have to rip the code to pieces to add it later.
  */
-struct AccountProfile
-{
-    QString id;
-    QString name;
-    bool legacy;
-};
+// Defined in providers/BaseAuthProvider.h
+//struct AccountProfile
+//{
+    //QString id;
+    //QString name;
+    //bool legacy;
+//};
 
 enum AccountStatus
 {
@@ -97,6 +100,10 @@ public: /* manipulation */
     std::shared_ptr<AccountTask> refresh(AuthSessionPtr session);
 
 public: /* queries */
+    const AuthProviderPtr provider() const {
+        return data.provider();
+    }
+
     QString accountDisplayString() const {
         return data.accountDisplayString();
     }

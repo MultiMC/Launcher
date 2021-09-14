@@ -7,7 +7,12 @@
 #include <QProcess>
 #include <QUrl>
 
-#include "minecraft/auth/AccountProfile.h"
+struct AccountProfile
+{
+    QString id;
+    QString name;
+    bool legacy;
+};
 
 class BaseAuthProvider;
 typedef std::shared_ptr<BaseAuthProvider> AuthProviderPtr;
