@@ -50,7 +50,7 @@ void LoginDialog::accept()
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
 
-    m_account = Account::createFromUsername(ui->userTextBox->text());
+    m_account = MinecraftAccount::createFromUsername(ui->userTextBox->text());
     for(auto providerId: m_radioButtons.keys()){
         if(m_radioButtons[providerId]->isChecked()) {
             m_account->setProvider(AuthProviders::lookup(providerId));
@@ -59,7 +59,6 @@ void LoginDialog::accept()
     }
 
     // Setup the login task and start it
-    m_account = MinecraftAccount::createFromUsername(ui->userTextBox->text());
     m_loginTask = m_account->login(nullptr, ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &LoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &LoginDialog::onTaskSucceeded);
