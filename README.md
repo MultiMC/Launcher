@@ -6,6 +6,17 @@
 - Windows / Linux: https://nightly.link/AfoninZ/MultiMC5-Cracked/workflows/main/develop
 - MacOS: https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
 
+## How to install and use
+1. Download pre-built binaries for your system
+2. Unpack them in your desired directory
+3. Launch the MultiMC
+4. Go to account settings, and you will be requested to use email and password
+5. As your email use your username, and then type a random password
+6. Save it
+7. Now enjoy MultiMC
+
+In case if you are using MacOS/Linux then additional step is to make a script `MultiMC` executable by using the command `chmod +x MultiMC` in the terminal
+
 Details about the original launcher below:
 
 MultiMC 5
