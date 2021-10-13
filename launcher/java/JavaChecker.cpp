@@ -69,7 +69,8 @@ void JavaChecker::stderrReady()
     QByteArray data = process->readAllStandardError();
     QString added = QString::fromLocal8Bit(data);
     added.remove('\r');
-    m_stderr += added;
+
+    qWarning() << "Forwarding error from JavaChecker" << added;
 }
 
 void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
