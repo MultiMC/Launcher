@@ -1,7 +1,7 @@
 #include "LaunchController.h"
 #include "MainWindow.h"
 #include <minecraft/auth/AccountList.h>
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "dialogs/CustomMessageBox.h"
 #include "dialogs/ProfileSelectDialog.h"
 #include "dialogs/ProgressDialog.h"
@@ -39,7 +39,7 @@ void LaunchController::login() {
     JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget);
 
     // Find an account to use.
-    std::shared_ptr<AccountList> accounts = MMC->accounts();
+    std::shared_ptr<AccountList> accounts = LAUNCHER->accounts();
     if (accounts->count() <= 0)
     {
         // Tell the user they need to log in at least one account in order to play.
@@ -47,7 +47,7 @@ void LaunchController::login() {
             m_parentWidget,
             tr("No Accounts"),
             tr("In order to play Minecraft, you must have at least one Mojang or Minecraft "
-               "account logged in to MultiMC."
+               "account logged in."
                "Would you like to open the account manager to add an account now?"),
             QMessageBox::Information,
             QMessageBox::Yes | QMessageBox::No
@@ -56,7 +56,7 @@ void LaunchController::login() {
         if (reply == QMessageBox::Yes)
         {
             // Open the account manager.
-            MMC->ShowGlobalSettings(m_parentWidget, "accounts");
+            LAUNCHER->ShowGlobalSettings(m_parentWidget, "accounts");
         }
     }
 
@@ -254,7 +254,7 @@ void LaunchController::launchInstance()
     auto showConsole = m_instance->settings()->get("ShowConsole").toBool();
     if(!console && showConsole)
     {
-        MMC->showInstanceWindow(m_instance);
+        LAUNCHER->showInstanceWindow(m_instance);
     }
     connect(m_launcher.get(), &LaunchTask::readyForLaunch, this, &LaunchController::readyForLaunch);
     connect(m_launcher.get(), &LaunchTask::succeeded, this, &LaunchController::onSucceeded);
@@ -286,7 +286,7 @@ void LaunchController::launchInstance()
             }
             resolved_servers = resolved_servers + "]\n\n";
         }
-        m_launcher->prependStep(new TextPrint(m_launcher.get(), resolved_servers, MessageLevel::MultiMC));
+        m_launcher->prependStep(new TextPrint(m_launcher.get(), resolved_servers, MessageLevel::Launcher));
     } else {
         online_mode = "offline";
     }
@@ -298,10 +298,10 @@ void LaunchController::launchInstance()
         auth_server_status = "offline";
     }
 
-    m_launcher->prependStep(new TextPrint(m_launcher.get(), "Launched instance in " + online_mode + " mode\nAuthentication server is " + auth_server_status + "\n", MessageLevel::MultiMC));
+    m_launcher->prependStep(new TextPrint(m_launcher.get(), "Launched instance in " + online_mode + " mode\nAuthentication server is " + auth_server_status + "\n", MessageLevel::Launcher));
 
     // Prepend Version
-    m_launcher->prependStep(new TextPrint(m_launcher.get(), "MultiMC version: " + BuildConfig.printableVersionString() + "\n\n", MessageLevel::MultiMC));
+    m_launcher->prependStep(new TextPrint(m_launcher.get(), BuildConfig.LAUNCHER_NAME + " version: " + BuildConfig.printableVersionString() + "\n\n", MessageLevel::Launcher));
     m_launcher->start();
 }
 
@@ -360,7 +360,7 @@ void LaunchController::onFailed(QString reason)
 {
     if(m_instance->settings()->get("ShowConsoleOnError").toBool())
     {
-        MMC->showInstanceWindow(m_instance, "console");
+        LAUNCHER->showInstanceWindow(m_instance, "console");
     }
     emitFailed(reason);
 }

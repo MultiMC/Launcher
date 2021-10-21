@@ -20,7 +20,7 @@
 
 #include "java/JavaChecker.h"
 #include "pages/BasePage.h"
-#include <MultiMC.h>
+#include <Launcher.h>
 #include "ColorCache.h"
 #include <translations/TranslationsModel.h>
 
@@ -29,32 +29,32 @@ class SettingsObject;
 
 namespace Ui
 {
-class MultiMCPage;
+class LauncherPage;
 }
 
-class MultiMCPage : public QWidget, public BasePage
+class LauncherPage : public QWidget, public BasePage
 {
     Q_OBJECT
 
 public:
-    explicit MultiMCPage(QWidget *parent = 0);
-    ~MultiMCPage();
+    explicit LauncherPage(QWidget *parent = 0);
+    ~LauncherPage();
 
     QString displayName() const override
     {
-        return "MultiMC";
+        return "Launcher";
     }
     QIcon icon() const override
     {
-        return MMC->getThemedIcon("multimc");
+        return LAUNCHER->getThemedIcon("launcher");
     }
     QString id() const override
     {
-        return "multimc-settings";
+        return "launcher-settings";
     }
     QString helpPage() const override
     {
-        return "MultiMC-settings";
+        return "Launcher-settings";
     }
     bool apply() override;
 
@@ -87,7 +87,7 @@ slots:
     void updateChannelSelectionChanged(int index);
 
 private:
-    Ui::MultiMCPage *ui;
+    Ui::LauncherPage *ui;
 
     /*!
      * Stores the currently selected update channel.
