@@ -88,13 +88,13 @@ set(CORE_SOURCES
 
 add_unit_test(FileSystem
     SOURCES FileSystem_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     DATA testdata
     )
 
 add_unit_test(GZip
     SOURCES GZip_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 set(PATHMATCHER_SOURCES
@@ -158,13 +158,13 @@ set(UPDATE_SOURCES
 
 add_unit_test(UpdateChecker
     SOURCES updater/UpdateChecker_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     DATA updater/testdata
     )
 
 add_unit_test(DownloadTask
     SOURCES updater/DownloadTask_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     DATA updater/testdata
     )
 
@@ -191,13 +191,6 @@ set(ICONS_SOURCES
     icons/IIconList.cpp
     icons/IconUtils.h
     icons/IconUtils.cpp
-)
-
-# Minecraft services status checker
-set(STATUS_SOURCES
-    # Status system
-    status/StatusChecker.h
-    status/StatusChecker.cpp
 )
 
 # Support for Minecraft instances and launch
@@ -344,14 +337,14 @@ set(MINECRAFT_SOURCES
 
 add_unit_test(GradleSpecifier
     SOURCES minecraft/GradleSpecifier_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 add_executable(PackageManifest
     mojang/PackageManifest_test.cpp
 )
 target_link_libraries(PackageManifest
-    MultiMC_logic
+    Launcher_logic
     Qt5::Test
 )
 target_include_directories(PackageManifest
@@ -365,25 +358,25 @@ add_test(
 
 add_unit_test(MojangVersionFormat
     SOURCES minecraft/MojangVersionFormat_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     DATA minecraft/testdata
     )
 
 add_unit_test(Library
     SOURCES minecraft/Library_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 # FIXME: shares data with FileSystem test
 add_unit_test(ModFolderModel
     SOURCES minecraft/mod/ModFolderModel_test.cpp
     DATA testdata
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 add_unit_test(ParseUtils
     SOURCES minecraft/ParseUtils_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 # the screenshots feature
@@ -421,7 +414,7 @@ set(SETTINGS_SOURCES
 
 add_unit_test(INIFile
     SOURCES settings/INIFile_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 set(JAVA_SOURCES
@@ -444,7 +437,7 @@ set(JAVA_SOURCES
 
 add_unit_test(JavaVersion
     SOURCES java/JavaVersion_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 set(TRANSLATIONS_SOURCES
@@ -530,7 +523,7 @@ set(ATLAUNCHER_SOURCES
 
 add_unit_test(Index
     SOURCES meta/Index_test.cpp
-    LIBS MultiMC_logic
+    LIBS Launcher_logic
     )
 
 ################################ COMPILE ################################
@@ -546,7 +539,6 @@ set(LOGIC_SOURCES
     ${UPDATE_SOURCES}
     ${NOTIFICATIONS_SOURCES}
     ${NEWS_SOURCES}
-    ${STATUS_SOURCES}
     ${MINECRAFT_SOURCES}
     ${SCREENSHOTS_SOURCES}
     ${TASKS_SOURCES}
@@ -563,10 +555,10 @@ set(LOGIC_SOURCES
     ${ATLAUNCHER_SOURCES}
 )
 
-SET(MULTIMC_SOURCES
+SET(LAUNCHER_SOURCES
     # Application base
-    MultiMC.h
-    MultiMC.cpp
+    Launcher.h
+    Launcher.cpp
     UpdateController.cpp
     UpdateController.h
 
@@ -686,8 +678,8 @@ SET(MULTIMC_SOURCES
     pages/global/LanguagePage.h
     pages/global/MinecraftPage.cpp
     pages/global/MinecraftPage.h
-    pages/global/MultiMCPage.cpp
-    pages/global/MultiMCPage.h
+    pages/global/LauncherPage.cpp
+    pages/global/LauncherPage.h
     pages/global/ProxyPage.cpp
     pages/global/ProxyPage.h
     pages/global/PasteEEPage.cpp
@@ -796,8 +788,6 @@ SET(MULTIMC_SOURCES
     widgets/PageContainer.cpp
     widgets/PageContainer.h
     widgets/PageContainer_p.h
-    widgets/ServerStatus.cpp
-    widgets/ServerStatus.h
     widgets/VersionListView.cpp
     widgets/VersionListView.h
     widgets/VersionSelectWidget.cpp
@@ -822,7 +812,7 @@ SET(MULTIMC_SOURCES
     )
 
 ######## UIs ########
-SET(MULTIMC_UIS
+SET(LAUNCHER_UIS
     # Instance pages
     pages/instance/GameOptionsPage.ui
     pages/instance/VersionPage.ui
@@ -841,7 +831,7 @@ SET(MULTIMC_UIS
     pages/global/ExternalToolsPage.ui
     pages/global/JavaPage.ui
     pages/global/MinecraftPage.ui
-    pages/global/MultiMCPage.ui
+    pages/global/LauncherPage.ui
     pages/global/ProxyPage.ui
     pages/global/PasteEEPage.ui
 
@@ -878,7 +868,7 @@ SET(MULTIMC_UIS
     widgets/MCModInfoFrame.ui
 )
 
-set(MULTIMC_QRCS
+set(LAUNCHER_QRCS
     resources/backgrounds/backgrounds.qrc
     resources/multimc/multimc.qrc
     resources/pe_dark/pe_dark.qrc
@@ -889,23 +879,24 @@ set(MULTIMC_QRCS
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
+    ../${Launcher_Branding_LogoQRC}
 )
 
 ######## Windows resource files ########
 if(WIN32)
-    set(MULTIMC_RCS resources/multimc.rc)
+    set(LAUNCHER_RCS ../${Launcher_Branding_WindowsRC})
 endif()
 
 # Qt 5 stuff
-qt5_wrap_ui(MULTIMC_UI ${MULTIMC_UIS})
-qt5_add_resources(MULTIMC_RESOURCES ${MULTIMC_QRCS})
+qt5_wrap_ui(LAUNCHER_UI ${LAUNCHER_UIS})
+qt5_add_resources(LAUNCHER_RESOURCES ${LAUNCHER_QRCS})
 
 # Add executable
-add_library(MultiMC_logic STATIC ${LOGIC_SOURCES} ${MULTIMC_SOURCES} ${MULTIMC_UI} ${MULTIMC_RESOURCES})
-target_link_libraries(MultiMC_logic
+add_library(Launcher_logic STATIC ${LOGIC_SOURCES} ${LAUNCHER_SOURCES} ${LAUNCHER_UI} ${LAUNCHER_RESOURCES})
+target_link_libraries(Launcher_logic
     systeminfo
-    MultiMC_quazip
-    MultiMC_classparser
+    Launcher_quazip
+    Launcher_classparser
     ${NBT_NAME}
     ${ZLIB_LIBRARIES}
     optional-bare
@@ -913,46 +904,46 @@ target_link_libraries(MultiMC_logic
     BuildConfig
     Katabasis
 )
-target_link_libraries(MultiMC_logic
+target_link_libraries(Launcher_logic
     Qt5::Core
     Qt5::Xml
     Qt5::Network
     Qt5::Concurrent
     Qt5::Gui
 )
-target_link_libraries(MultiMC_logic
-    MultiMC_iconfix
+target_link_libraries(Launcher_logic
+    Launcher_iconfix
     ${QUAZIP_LIBRARIES}
     hoedown
-    MultiMC_rainbow
+    Launcher_rainbow
     LocalPeer
     ganalytics
 )
 
-add_executable(MultiMC MACOSX_BUNDLE WIN32 main.cpp ${MULTIMC_RCS})
-target_link_libraries(MultiMC MultiMC_logic)
+target_link_libraries(Launcher_logic secrets)
 
-if(DEFINED MultiMC_APP_BINARY_NAME)
-    set_target_properties(MultiMC PROPERTIES OUTPUT_NAME "${MultiMC_APP_BINARY_NAME}")
-endif()
-if(DEFINED MultiMC_BINARY_RPATH)
-    SET_TARGET_PROPERTIES(MultiMC PROPERTIES INSTALL_RPATH "${MultiMC_BINARY_RPATH}")
-endif()
+add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
+target_link_libraries(${Launcher_Name} Launcher_logic)
 
-if(DEFINED MultiMC_APP_BINARY_DEFS)
-    target_compile_definitions(MultiMC PRIVATE ${MultiMC_APP_BINARY_DEFS})
-    target_compile_definitions(MultiMC_logic PRIVATE ${MultiMC_APP_BINARY_DEFS})
+if(DEFINED Launcher_APP_BINARY_NAME)
+    set_target_properties(${Launcher_Name} PROPERTIES OUTPUT_NAME "${Launcher_APP_BINARY_NAME}")
+endif()
+if(DEFINED Launcher_BINARY_RPATH)
+    SET_TARGET_PROPERTIES(${Launcher_Name} PROPERTIES INSTALL_RPATH "${Launcher_BINARY_RPATH}")
 endif()
 
-install(TARGETS MultiMC
+if(DEFINED Launcher_APP_BINARY_DEFS)
+    target_compile_definitions(${Launcher_Name} PRIVATE ${Launcher_APP_BINARY_DEFS})
+    target_compile_definitions(Launcher_logic PRIVATE ${Launcher_APP_BINARY_DEFS})
+endif()
+
+install(TARGETS ${Launcher_Name}
     BUNDLE DESTINATION ${BUNDLE_DEST_DIR} COMPONENT Runtime
     LIBRARY DESTINATION ${LIBRARY_DEST_DIR} COMPONENT Runtime
     RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
 )
 
-target_link_libraries(MultiMC_logic secrets)
-
-#### The MultiMC bundle mess! ####
+#### The bundle mess! ####
 # Bundle utilities are used to complete the portable packages - they add all the libraries that would otherwise be missing on the target system.
 # NOTE: it seems that this absolutely has to be here, and nowhere else.
 if(INSTALL_BUNDLE STREQUAL "full")

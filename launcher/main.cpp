@@ -1,4 +1,4 @@
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "MainWindow.h"
 #include "LaunchController.h"
 #include <InstanceList.h>
@@ -34,15 +34,17 @@ int main(int argc, char *argv[])
 #endif
 
     // initialize Qt
-    MultiMC app(argc, argv);
+    Launcher app(argc, argv);
 
     switch (app.status())
     {
-    case MultiMC::StartingUp:
-    case MultiMC::Initialized:
+    case Launcher::StartingUp:
+    case Launcher::Initialized:
     {
         Q_INIT_RESOURCE(multimc);
         Q_INIT_RESOURCE(backgrounds);
+        Q_INIT_RESOURCE(documents);
+        Q_INIT_RESOURCE(logo);
 
         Q_INIT_RESOURCE(pe_dark);
         Q_INIT_RESOURCE(pe_light);
@@ -53,9 +55,9 @@ int main(int argc, char *argv[])
         Q_INIT_RESOURCE(flat);
         return app.exec();
     }
-    case MultiMC::Failed:
+    case Launcher::Failed:
         return 1;
-    case MultiMC::Succeeded:
+    case Launcher::Succeeded:
         return 0;
     }
 }

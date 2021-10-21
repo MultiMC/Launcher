@@ -1,4 +1,4 @@
-#include "MultiMC.h"
+#include "Launcher.h"
 #include "BuildConfig.h"
 #include "MainWindow.h"
 #include "InstanceWindow.h"
@@ -7,7 +7,7 @@
 #include <QAccessible>
 
 #include "pages/BasePageProvider.h"
-#include "pages/global/MultiMCPage.h"
+#include "pages/global/LauncherPage.h"
 #include "pages/global/MinecraftPage.h"
 #include "pages/global/JavaPage.h"
 #include "pages/global/LanguagePage.h"
@@ -89,7 +89,7 @@ static const QLatin1String liveCheckFile("live.check");
 
 using namespace Commandline;
 
-#define MACOS_HINT "If you are on macOS Sierra, you might have to move MultiMC.app to your /Applications or ~/Applications folder. "\
+#define MACOS_HINT "If you are on macOS Sierra, you might have to move the app to your /Applications or ~/Applications folder. "\
     "This usually fixes the problem and you can move the application elsewhere afterwards.\n"\
     "\n"
 
@@ -99,7 +99,7 @@ void appDebugOutput(QtMsgType type, const QMessageLogContext &context, const QSt
     const char *levels = "DWCFIS";
     const QString format("%1 %2 %3\n");
 
-    qint64 msecstotal = MMC->timeSinceStart();
+    qint64 msecstotal = LAUNCHER->timeSinceStart();
     qint64 seconds = msecstotal / 1000;
     qint64 msecs = msecstotal % 1000;
     QString foo;
@@ -108,8 +108,8 @@ void appDebugOutput(QtMsgType type, const QMessageLogContext &context, const QSt
 
     QString out = format.arg(buf).arg(levels[type]).arg(msg);
 
-    MMC->logFile->write(out.toUtf8());
-    MMC->logFile->flush();
+    LAUNCHER->logFile->write(out.toUtf8());
+    LAUNCHER->logFile->flush();
     QTextStream(stderr) << out.toLocal8Bit();
     fflush(stderr);
 }
@@ -155,7 +155,7 @@ QString getIdealPlatform(QString currentPlatform) {
 
 }
 
-MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
+Launcher::Launcher(int &argc, char **argv) : QApplication(argc, argv)
 {
 #if defined Q_OS_WIN32
     // attach the parent console
@@ -181,10 +181,10 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         consoleAttached = true;
     }
 #endif
-    setOrganizationName("MultiMC");
-    setOrganizationDomain("multimc.org");
-    setApplicationName("MultiMC5");
-    setApplicationDisplayName("MultiMC 5");
+    setOrganizationName(BuildConfig.LAUNCHER_NAME);
+    setOrganizationDomain(BuildConfig.LAUNCHER_DOMAIN);
+    setApplicationName(BuildConfig.LAUNCHER_NAME);
+    setApplicationDisplayName(BuildConfig.LAUNCHER_DISPLAYNAME);
     setApplicationVersion(BuildConfig.printableVersionString());
 
     startTime = QDateTime::currentDateTime();
@@ -202,7 +202,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
                 showFatalErrorMessage(
                     "Unsupported system detected!",
                     "Linux-on-Windows distributions are not supported.\n\n"
-                    "Please use the Windows MultiMC binary when playing on Windows."
+                    "Please use the Windows binary when playing on Windows."
                 );
                 return;
             }
@@ -229,7 +229,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         // --dir
         parser.addOption("dir");
         parser.addShortOpt("dir", 'd');
-        parser.addDocumentation("dir", "Use the supplied folder as MultiMC root instead of "
+        parser.addDocumentation("dir", "Use the supplied folder as application root instead of "
                                        "the binary location (use '.' for current)");
         // --launch
         parser.addOption("launch");
@@ -242,7 +242,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
                                           "(only valid in combination with --launch)");
         // --alive
         parser.addSwitch("alive");
-        parser.addDocumentation("alive", "Write a small '" + liveCheckFile + "' file after MultiMC starts");
+        parser.addDocumentation("alive", "Write a small '" + liveCheckFile + "' file after the launcher starts");
         // --import
         parser.addOption("import");
         parser.addShortOpt("import", 'I');
@@ -257,9 +257,9 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         {
             std::cerr << "CommandLineError: " << e.what() << std::endl;
             if(argc > 0)
-                std::cerr << "Try '" << argv[0] << " -h' to get help on MultiMC's command line parameters."
+                std::cerr << "Try '" << argv[0] << " -h' to get help on command line parameters."
                           << std::endl;
-            m_status = MultiMC::Failed;
+            m_status = Launcher::Failed;
             return;
         }
 
@@ -267,7 +267,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         if (args["help"].toBool())
         {
             std::cout << qPrintable(parser.compileHelp(arguments()[0]));
-            m_status = MultiMC::Succeeded;
+            m_status = Launcher::Succeeded;
             return;
         }
 
@@ -276,7 +276,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         {
             std::cout << "Version " << BuildConfig.printableVersionString().toStdString() << std::endl;
             std::cout << "Git " << BuildConfig.GIT_COMMIT.toStdString() << std::endl;
-            m_status = MultiMC::Succeeded;
+            m_status = Launcher::Succeeded;
             return;
         }
     }
@@ -300,13 +300,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     }
     else
     {
-#ifdef MULTIMC_LINUX_DATADIR
-        QString xdgDataHome = QFile::decodeName(qgetenv("XDG_DATA_HOME"));
-        if (xdgDataHome.isEmpty())
-            xdgDataHome = QDir::homePath() + QLatin1String("/.local/share");
-        dataPath = xdgDataHome + "/multimc";
-        adjustedBy += "XDG standard " + dataPath;
-#elif defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
         QDir foo(FS::PathCombine(applicationDirPath(), "../../Data"));
         dataPath = foo.absolutePath();
         adjustedBy += "Fallback to special Mac location " + dataPath;
@@ -319,30 +313,30 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     if (!FS::ensureFolderPathExists(dataPath))
     {
         showFatalErrorMessage(
-            "MultiMC data folder could not be created.",
-            "MultiMC data folder could not be created.\n"
+            "The launcher data folder could not be created.",
+            "The launcher data folder could not be created.\n"
             "\n"
 #if defined(Q_OS_MAC)
             MACOS_HINT
 #endif
-            "Make sure you have the right permissions to the MultiMC data folder and any folder needed to access it.\n"
+            "Make sure you have the right permissions to the launcher data folder and any folder needed to access it.\n"
             "\n"
-            "MultiMC cannot continue until you fix this problem."
+            "The launcher cannot continue until you fix this problem."
         );
         return;
     }
     if (!QDir::setCurrent(dataPath))
     {
         showFatalErrorMessage(
-            "MultiMC data folder could not be opened.",
-            "MultiMC data folder could not be opened.\n"
+            "The launcher data folder could not be opened.",
+            "The launcher data folder could not be opened.\n"
             "\n"
 #if defined(Q_OS_MAC)
             MACOS_HINT
 #endif
-            "Make sure you have the right permissions to the MultiMC data folder.\n"
+            "Make sure you have the right permissions to the launcher data folder.\n"
             "\n"
-            "MultiMC cannot continue until you fix this problem."
+            "The launcher cannot continue until you fix this problem."
         );
         return;
     }
@@ -350,7 +344,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     if(m_instanceIdToLaunch.isEmpty() && !m_serverToJoin.isEmpty())
     {
         std::cerr << "--server can only be used in combination with --launch!" << std::endl;
-        m_status = MultiMC::Failed;
+        m_status = Launcher::Failed;
         return;
     }
 
@@ -359,18 +353,24 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     QDir fi(applicationDirPath());
     QString originalData = fi.absolutePath();
     // if the config file exists in Contents/MacOS, then user data is still there and needs to moved
-    if (QFileInfo::exists(FS::PathCombine(originalData, "multimc.cfg")))
+    if (QFileInfo::exists(FS::PathCombine(originalData, BuildConfig.LAUNCHER_CONFIGFILE)))
     {
         if (!QFileInfo::exists(FS::PathCombine(originalData, "dontmovemacdata")))
         {
             QMessageBox::StandardButton askMoveDialogue;
-            askMoveDialogue = QMessageBox::question(nullptr, "MultiMC 5", "Would you like to move application data to a new data location? It will improve MultiMC's performance, but if you switch to older versions it will look like instances have disappeared. If you select no, you can migrate later in settings. You should select yes unless you're commonly switching between different versions of MultiMC (eg. develop and stable).", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+            askMoveDialogue = QMessageBox::question(
+                nullptr,
+                BuildConfig.LAUNCHER_DISPLAYNAME,
+                "Would you like to move application data to a new data location? It will improve the launcher's performance, but if you switch to older versions it will look like instances have disappeared. If you select no, you can migrate later in settings. You should select yes unless you're commonly switching between different versions (eg. develop and stable).",
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::Yes
+            );
             if (askMoveDialogue == QMessageBox::Yes)
             {
                 qDebug() << "On macOS and found config file in old location, moving user data...";
                 QDir dir;
                 QStringList dataFiles {
-                    "*.log", // MultiMC-@.log
+                    "*.log", // Launcher log files: ${Launcher_Name}-@.log
                     "accounts.json",
                     "accounts",
                     "assets",
@@ -381,7 +381,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
                     "meta",
                     "metacache",
                     "mods",
-                    "multimc.cfg",
+                    BuildConfig.LAUNCHER_CONFIGFILE,
                     "themes",
                     "translations"
                 };
@@ -420,7 +420,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     {
         // FIXME: you can run the same binaries with multiple data dirs and they won't clash. This could cause issues for updates.
         m_peerInstance = new LocalPeer(this, appID);
-        connect(m_peerInstance, &LocalPeer::messageReceived, this, &MultiMC::messageReceived);
+        connect(m_peerInstance, &LocalPeer::messageReceived, this, &Launcher::messageReceived);
         if(m_peerInstance->isClient())
         {
             int timeout = 2000;
@@ -446,14 +446,14 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
                     m_peerInstance->sendMessage("launch " + m_instanceIdToLaunch, timeout);
                 }
             }
-            m_status = MultiMC::Succeeded;
+            m_status = Launcher::Succeeded;
             return;
         }
     }
 
     // init the logger
     {
-        static const QString logBase = "MultiMC-%0.log";
+        static const QString logBase = BuildConfig.LAUNCHER_NAME + "-%0.log";
         auto moveFile = [](const QString &oldName, const QString &newName)
         {
             QFile::remove(newName);
@@ -470,15 +470,15 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         if(!logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
         {
             showFatalErrorMessage(
-                "MultiMC data folder is not writable!",
-                "MultiMC couldn't create a log file - the MultiMC data folder is not writable.\n"
+                "The launcher data folder is not writable!",
+                "The launcher couldn't create a log file - the data folder is not writable.\n"
                 "\n"
     #if defined(Q_OS_MAC)
                 MACOS_HINT
     #endif
-                "Make sure you have write permissions to the MultiMC data folder.\n"
+                "Make sure you have write permissions to the data folder.\n"
                 "\n"
-                "MultiMC cannot continue until you fix this problem."
+                "The launcher cannot continue until you fix this problem."
             );
             return;
         }
@@ -505,7 +505,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         ENV.setJarsPath( TOSTRING(MULTIMC_JARS_LOCATION) );
 #endif
 
-        qDebug() << "MultiMC 5, (c) 2013-2021 MultiMC Contributors";
+        qDebug() << BuildConfig.LAUNCHER_DISPLAYNAME << ", (c) 2013-2021 " << BuildConfig.LAUNCHER_COPYRIGHT;
         qDebug() << "Version                    : " << BuildConfig.printableVersionString();
         qDebug() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
         qDebug() << "Git refspec                : " << BuildConfig.GIT_REFSPEC;
@@ -555,7 +555,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 
     // Initialize application settings
     {
-        m_settings.reset(new INISettingsObject("multimc.cfg", this));
+        m_settings.reset(new INISettingsObject(BuildConfig.LAUNCHER_CONFIGFILE, this));
         // Updates
         m_settings->registerSetting("UpdateChannel", BuildConfig.VERSION_CHANNEL);
         m_settings->registerSetting("AutoUpdate", true);
@@ -693,7 +693,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         // Init page provider
         {
             m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
-            m_globalSettingsProvider->addPage<MultiMCPage>();
+            m_globalSettingsProvider->addPage<LauncherPage>();
             m_globalSettingsProvider->addPage<MinecraftPage>();
             m_globalSettingsProvider->addPage<JavaPage>();
             m_globalSettingsProvider->addPage<LanguagePage>();
@@ -731,7 +731,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
 
     // Instance icons
     {
-        auto setting = MMC->settings()->getSetting("IconsDir");
+        auto setting = LAUNCHER->settings()->getSetting("IconsDir");
         QStringList instFolders =
         {
             ":/icons/multimc/32x32/instances/",
@@ -842,7 +842,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         qDebug() << "<> Auth server started.";
     }
 
-    connect(this, &MultiMC::aboutToQuit, [this](){
+    connect(this, &Launcher::aboutToQuit, [this](){
         if(m_instances)
         {
             // save any remaining instance state
@@ -872,7 +872,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
         }
 
         auto analyticsSetting = m_settings->getSetting("Analytics");
-        connect(analyticsSetting.get(), &Setting::SettingChanged, this, &MultiMC::analyticsSettingChanged);
+        connect(analyticsSetting.get(), &Setting::SettingChanged, this, &Launcher::analyticsSettingChanged);
         QString clientID = m_settings->get("AnalyticsClientID").toString();
         if(clientID.isEmpty())
         {
@@ -908,7 +908,7 @@ MultiMC::MultiMC(int &argc, char **argv) : QApplication(argc, argv)
     performMainStartupAction();
 }
 
-bool MultiMC::createSetupWizard()
+bool Launcher::createSetupWizard()
 {
     bool javaRequired = [&]()
     {
@@ -966,22 +966,22 @@ bool MultiMC::createSetupWizard()
         {
             m_setupWizard->addPage(new AnalyticsWizardPage(m_setupWizard));
         }
-        connect(m_setupWizard, &QDialog::finished, this, &MultiMC::setupWizardFinished);
+        connect(m_setupWizard, &QDialog::finished, this, &Launcher::setupWizardFinished);
         m_setupWizard->show();
         return true;
     }
     return false;
 }
 
-void MultiMC::setupWizardFinished(int status)
+void Launcher::setupWizardFinished(int status)
 {
     qDebug() << "Wizard result =" << status;
     performMainStartupAction();
 }
 
-void MultiMC::performMainStartupAction()
+void Launcher::performMainStartupAction()
 {
-    m_status = MultiMC::Initialized;
+    m_status = Launcher::Initialized;
     if(!m_instanceIdToLaunch.isEmpty())
     {
         auto inst = instances()->getInstanceById(m_instanceIdToLaunch);
@@ -1016,14 +1016,14 @@ void MultiMC::performMainStartupAction()
     }
 }
 
-void MultiMC::showFatalErrorMessage(const QString& title, const QString& content)
+void Launcher::showFatalErrorMessage(const QString& title, const QString& content)
 {
-    m_status = MultiMC::Failed;
+    m_status = Launcher::Failed;
     auto dialog = CustomMessageBox::selectable(nullptr, title, content, QMessageBox::Critical);
     dialog->exec();
 }
 
-MultiMC::~MultiMC()
+Launcher::~Launcher()
 {
     // kill the other globals.
     Env::dispose();
@@ -1043,7 +1043,7 @@ MultiMC::~MultiMC()
 #endif
 }
 
-void MultiMC::messageReceived(const QString& message)
+void Launcher::messageReceived(const QString& message)
 {
     if(status() != Initialized)
     {
@@ -1112,7 +1112,7 @@ void MultiMC::messageReceived(const QString& message)
     }
 }
 
-void MultiMC::analyticsSettingChanged(const Setting&, QVariant value)
+void Launcher::analyticsSettingChanged(const Setting&, QVariant value)
 {
     if(!m_analytics)
         return;
@@ -1128,12 +1128,12 @@ void MultiMC::analyticsSettingChanged(const Setting&, QVariant value)
     m_analytics->enable(enabled);
 }
 
-std::shared_ptr<TranslationsModel> MultiMC::translations()
+std::shared_ptr<TranslationsModel> Launcher::translations()
 {
     return m_translations;
 }
 
-std::shared_ptr<JavaInstallList> MultiMC::javalist()
+std::shared_ptr<JavaInstallList> Launcher::javalist()
 {
     if (!m_javalist)
     {
@@ -1142,7 +1142,7 @@ std::shared_ptr<JavaInstallList> MultiMC::javalist()
     return m_javalist;
 }
 
-std::vector<ITheme *> MultiMC::getValidApplicationThemes()
+std::vector<ITheme *> Launcher::getValidApplicationThemes()
 {
     std::vector<ITheme *> ret;
     auto iter = m_themes.cbegin();
@@ -1154,7 +1154,7 @@ std::vector<ITheme *> MultiMC::getValidApplicationThemes()
     return ret;
 }
 
-void MultiMC::setApplicationTheme(const QString& name, bool initial)
+void Launcher::setApplicationTheme(const QString& name, bool initial)
 {
     auto systemPalette = qApp->palette();
     auto themeIter = m_themes.find(name);
@@ -1169,17 +1169,20 @@ void MultiMC::setApplicationTheme(const QString& name, bool initial)
     }
 }
 
-void MultiMC::setIconTheme(const QString& name)
+void Launcher::setIconTheme(const QString& name)
 {
     XdgIcon::setThemeName(name);
 }
 
-QIcon MultiMC::getThemedIcon(const QString& name)
+QIcon Launcher::getThemedIcon(const QString& name)
 {
+    if(name == "logo") {
+        return QIcon(":/logo.svg");
+    }
     return XdgIcon::fromTheme(name);
 }
 
-bool MultiMC::openJsonEditor(const QString &filename)
+bool Launcher::openJsonEditor(const QString &filename)
 {
     const QString file = QDir::current().absoluteFilePath(filename);
     if (m_settings->get("JsonEditor").toString().isEmpty())
@@ -1193,7 +1196,7 @@ bool MultiMC::openJsonEditor(const QString &filename)
     }
 }
 
-bool MultiMC::launch(
+bool Launcher::launch(
         InstancePtr instance,
         bool online,
         BaseProfilerFactory *profiler,
@@ -1229,8 +1232,8 @@ bool MultiMC::launch(
         {
             controller->setParentWidget(m_mainWindow);
         }
-        connect(controller.get(), &LaunchController::succeeded, this, &MultiMC::controllerSucceeded);
-        connect(controller.get(), &LaunchController::failed, this, &MultiMC::controllerFailed);
+        connect(controller.get(), &LaunchController::succeeded, this, &Launcher::controllerSucceeded);
+        connect(controller.get(), &LaunchController::failed, this, &Launcher::controllerFailed);
         addRunningInstance();
         controller->start();
         return true;
@@ -1248,7 +1251,7 @@ bool MultiMC::launch(
     return false;
 }
 
-bool MultiMC::kill(InstancePtr instance)
+bool Launcher::kill(InstancePtr instance)
 {
     if (!instance->isRunning())
     {
@@ -1265,7 +1268,7 @@ bool MultiMC::kill(InstancePtr instance)
     return true;
 }
 
-void MultiMC::addRunningInstance()
+void Launcher::addRunningInstance()
 {
     m_runningInstances ++;
     if(m_runningInstances == 1)
@@ -1274,7 +1277,7 @@ void MultiMC::addRunningInstance()
     }
 }
 
-void MultiMC::subRunningInstance()
+void Launcher::subRunningInstance()
 {
     if(m_runningInstances == 0)
     {
@@ -1288,23 +1291,23 @@ void MultiMC::subRunningInstance()
     }
 }
 
-bool MultiMC::shouldExitNow() const
+bool Launcher::shouldExitNow() const
 {
     return m_runningInstances == 0 && m_openWindows == 0;
 }
 
-bool MultiMC::updatesAreAllowed()
+bool Launcher::updatesAreAllowed()
 {
     return m_runningInstances == 0;
 }
 
-void MultiMC::updateIsRunning(bool running)
+void Launcher::updateIsRunning(bool running)
 {
     m_updateRunning = running;
 }
 
 
-void MultiMC::controllerSucceeded()
+void Launcher::controllerSucceeded()
 {
     auto controller = qobject_cast<LaunchController *>(QObject::sender());
     if(!controller)
@@ -1331,7 +1334,7 @@ void MultiMC::controllerSucceeded()
     }
 }
 
-void MultiMC::controllerFailed(const QString& error)
+void Launcher::controllerFailed(const QString& error)
 {
     Q_UNUSED(error);
     auto controller = qobject_cast<LaunchController *>(QObject::sender());
@@ -1352,21 +1355,21 @@ void MultiMC::controllerFailed(const QString& error)
     }
 }
 
-void MultiMC::ShowGlobalSettings(class QWidget* parent, QString open_page)
+void Launcher::ShowGlobalSettings(class QWidget* parent, QString open_page)
 {
     if(!m_globalSettingsProvider) {
         return;
     }
     emit globalSettingsAboutToOpen();
     {
-        SettingsObject::Lock lock(MMC->settings());
+        SettingsObject::Lock lock(LAUNCHER->settings());
         PageDialog dlg(m_globalSettingsProvider.get(), open_page, parent);
         dlg.exec();
     }
     emit globalSettingsClosed();
 }
 
-MainWindow* MultiMC::showMainWindow(bool minimized)
+MainWindow* Launcher::showMainWindow(bool minimized)
 {
     if(m_mainWindow)
     {
@@ -1377,8 +1380,8 @@ MainWindow* MultiMC::showMainWindow(bool minimized)
     else
     {
         m_mainWindow = new MainWindow();
-        m_mainWindow->restoreState(QByteArray::fromBase64(MMC->settings()->get("MainWindowState").toByteArray()));
-        m_mainWindow->restoreGeometry(QByteArray::fromBase64(MMC->settings()->get("MainWindowGeometry").toByteArray()));
+        m_mainWindow->restoreState(QByteArray::fromBase64(LAUNCHER->settings()->get("MainWindowState").toByteArray()));
+        m_mainWindow->restoreGeometry(QByteArray::fromBase64(LAUNCHER->settings()->get("MainWindowGeometry").toByteArray()));
         if(minimized)
         {
             m_mainWindow->showMinimized();
@@ -1389,8 +1392,8 @@ MainWindow* MultiMC::showMainWindow(bool minimized)
         }
 
         m_mainWindow->checkInstancePathForProblems();
-        connect(this, &MultiMC::updateAllowedChanged, m_mainWindow, &MainWindow::updatesAllowedChanged);
-        connect(m_mainWindow, &MainWindow::isClosing, this, &MultiMC::on_windowClose);
+        connect(this, &Launcher::updateAllowedChanged, m_mainWindow, &MainWindow::updatesAllowedChanged);
+        connect(m_mainWindow, &MainWindow::isClosing, this, &Launcher::on_windowClose);
         m_openWindows++;
     }
     // FIXME: move this somewhere else...
@@ -1450,7 +1453,7 @@ MainWindow* MultiMC::showMainWindow(bool minimized)
     return m_mainWindow;
 }
 
-InstanceWindow *MultiMC::showInstanceWindow(InstancePtr instance, QString page)
+InstanceWindow *Launcher::showInstanceWindow(InstancePtr instance, QString page)
 {
     if(!instance)
         return nullptr;
@@ -1467,7 +1470,7 @@ InstanceWindow *MultiMC::showInstanceWindow(InstancePtr instance, QString page)
     {
         window = new InstanceWindow(instance);
         m_openWindows ++;
-        connect(window, &InstanceWindow::isClosing, this, &MultiMC::on_windowClose);
+        connect(window, &InstanceWindow::isClosing, this, &Launcher::on_windowClose);
     }
     if(!page.isEmpty())
     {
@@ -1480,7 +1483,7 @@ InstanceWindow *MultiMC::showInstanceWindow(InstancePtr instance, QString page)
     return window;
 }
 
-void MultiMC::on_windowClose()
+void Launcher::on_windowClose()
 {
     m_openWindows--;
     auto instWindow = qobject_cast<InstanceWindow *>(QObject::sender());

@@ -1121,7 +1121,7 @@ Fluffy and functional!
   - GH-1275: Server resource pack folder is created on launch.
     - This is a workaround for Minecraft bug MCL-3732.
   - GH-1320: Improve compatibility with non-Oracle Java.
-  - GH-1355: MMC environment will no longer leak into Minecraft after MultiMC updates itself.
+  - GH-1355: LAUNCHER environment will no longer leak into Minecraft after MultiMC updates itself.
 
 - Minecraft log:
   - Java exception detection in Minecraft logs has been improved.
@@ -1166,7 +1166,7 @@ Fluffy and functional!
 - GH-1069, GH-1100: `LD_LIBRARY_PATH` and `LD_PRELOAD` environment variables supplied to MultiMC now don't affect MultiMC but affect the launched game.
 
   This means you can use something like the Steam overlay in MultiMC instances on Linux.
-  If you need to use these variables for MultiMC itself, you can use `MMC_LIBRARY_PATH` and `MMC_PRELOAD` instead.
+  If you need to use these variables for MultiMC itself, you can use `LAUNCHER_LIBRARY_PATH` and `LAUNCHER_PRELOAD` instead.
 
 - GH-1389: External processes (like folder views, editors, etc.) are now started in a way that prevents the MultiMC environment to be reused by them.
 - GH-1355: If `LD_LIBRARY_PATH` contains any of MultiMC's internal folders, this will not propagate to started processes.
@@ -1453,7 +1453,7 @@ Long time coming, this release brought a lot of incremental improvements and fix
 - Update to the German translation.
 
 ## MultiMC 0.1.1
-- Hotfix - Changed the issue tracker URL to [GitHub issues](https://github.com/MultiMC/MultiMC5/issues).
+- Hotfix - Changed the issue tracker URL to [GitHub issues](https://github.com/MultiMC/Launcher/issues).
 
 ## MultiMC 0.1
 - Reworked the version numbering system to support our [new Git workflow](http://nvie.com/posts/a-successful-git-branching-model/).

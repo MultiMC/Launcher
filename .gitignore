@@ -3,7 +3,6 @@ Thumbs.db
 .user
 .directory
 resources/CMakeFiles
-resources/MultiMCLauncher.jar
 *~
 *.swp
 html/
@@ -31,5 +30,5 @@ tags
 #OSX Stuff
 .DS_Store
 
-branding
-secrets
+branding/
+secrets/
