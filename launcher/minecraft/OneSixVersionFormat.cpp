@@ -16,8 +16,14 @@ static void readString(const QJsonObject &root, const QString &key, QString &var
 LibraryPtr OneSixVersionFormat::libraryFromJson(ProblemContainer & problems, const QJsonObject &libObj, const QString &filename)
 {
     LibraryPtr out = MojangVersionFormat::libraryFromJson(problems, libObj, filename);
+    // Support legacy strings
+    readString(libObj, "MMC-hint", out->m_hint);
+    readString(libObj, "MMC-absulute_url", out->m_absoluteURL);
+    readString(libObj, "MMC-absoluteUrl", out->m_absoluteURL);
+    readString(libObj, "MMC-filename", out->m_filename);
+    readString(libObj, "MMC-displayname", out->m_displayname);
+
     readString(libObj, "LAUNCHER-hint", out->m_hint);
-    readString(libObj, "LAUNCHER-absulute_url", out->m_absoluteURL);
     readString(libObj, "LAUNCHER-absoluteUrl", out->m_absoluteURL);
     readString(libObj, "LAUNCHER-filename", out->m_filename);
     readString(libObj, "LAUNCHER-displayname", out->m_displayname);
