@@ -32,7 +32,7 @@ FtbPage::FtbPage(NewInstanceDialog* dialog, QWidget *parent)
     }
     ui->sortByBox->setCurrentText(filterModel->translateCurrentSorting());
 
-    connect(ui->searchButton, &QPushButton::clicked, this, &FtbPage::triggerSearch);
+    connect(ui->searchEdit, &QLineEdit::textChanged, this, &FtbPage::triggerSearch);
     connect(ui->sortByBox, &QComboBox::currentTextChanged, this, &FtbPage::onSortingSelectionChanged);
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &FtbPage::onSelectionChanged);
     connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &FtbPage::onVersionSelectionChanged);
@@ -63,7 +63,12 @@ bool FtbPage::shouldDisplay() const
 
 void FtbPage::openedImpl()
 {
-    triggerSearch();
+    if(!initialised)
+    {
+        listModel->request();
+        initialised = true;
+    }
+
     suggestCurrent();
 }
 
@@ -80,7 +85,7 @@ void FtbPage::suggestCurrent()
         return;
     }
 
-    dialog->setSuggestedPack(selected.name, new ModpacksCH::PackInstallTask(selected, selectedVersion));
+    dialog->setSuggestedPack(selected.name + " " + selectedVersion, new ModpacksCH::PackInstallTask(selected, selectedVersion));
     for(auto art : selected.art) {
         if(art.type == "square") {
             QString editedLogoName;
@@ -96,7 +101,7 @@ void FtbPage::suggestCurrent()
 
 void FtbPage::triggerSearch()
 {
-    listModel->searchWithTerm(ui->searchEdit->text());
+    filterModel->setSearchTerm(ui->searchEdit->text());
 }
 
 void FtbPage::onSortingSelectionChanged(QString data)
