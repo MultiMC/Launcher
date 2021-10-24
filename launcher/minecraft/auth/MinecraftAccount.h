@@ -100,8 +100,13 @@ public: /* manipulation */
     std::shared_ptr<AccountTask> refresh(AuthSessionPtr session);
 
 public: /* queries */
-    const AuthProviderPtr provider() const {
-        return data.provider();
+    bool setProvider(AuthProviderPtr provider) {
+        data.provider = provider;
+        return true;
+    }
+
+    AuthProviderPtr provider() {
+        return data.provider;
     }
 
     QString accountDisplayString() const {

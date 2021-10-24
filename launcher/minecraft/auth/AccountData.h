@@ -42,7 +42,7 @@ struct AccountData {
     bool resumeStateFromV2(QJsonObject data);
     bool resumeStateFromV3(QJsonObject data);
 
-    const AuthProviderPtr provider() const;
+    AuthProviderPtr provider;
 
     //! userName for Mojang accounts, gamertag for MSA
     QString accountDisplayString() const;
