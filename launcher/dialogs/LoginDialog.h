@@ -55,5 +55,6 @@ slots:
 private:
     Ui::LoginDialog *ui;
     MinecraftAccountPtr m_account;
+    QMap<QString, QRadioButton*> m_radioButtons;
     std::shared_ptr<Task> m_loginTask;
 };
