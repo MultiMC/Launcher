@@ -75,7 +75,7 @@ You can use IDEs like KDevelop or QtCreator to open the CMake project if you wan
 ### Loading the project in Qt Creator (optional)
 1. Open Qt Creator.
 2. Choose `File->Open File or Project`.
-3. Navigate to the MultiMC5 source folder you cloned and choose CMakeLists.txt.
+3. Navigate to the Launcher source folder you cloned and choose CMakeLists.txt.
 4. Read the instructions that just popped up about a build location and choose one.
 5. You should see "Run CMake" in the window.
     - Make sure that Generator is set to "Unix Generator (Desktop Qt 5.6.x GCC 64bit)".
@@ -83,7 +83,7 @@ You can use IDEs like KDevelop or QtCreator to open the CMake project if you wan
     - You'll see warnings and it might not be clear that it succeeded until you scroll to the bottom of the window.
     - Hit "Finish" if CMake ran successfully.
 6. Cross your fingers and press the Run button (bottom left of Qt Creator).
-    - If the project builds successfully it will run and the MultiMC5 window will pop up.
+    - If the project builds successfully it will run and the Launcher window will pop up.
 
 # Windows
 
@@ -130,7 +130,7 @@ Ensure that OpenSSL, zlib, Java and CMake are on `PATH`.
 ### Loading the project
 1. Open Qt Creator,
 2. Choose File->Open File or Project,
-3. Navigate to the MultiMC5 source folder you cloned and choose CMakeLists.txt,
+3. Navigate to the Launcher source folder you cloned and choose CMakeLists.txt,
 4. Read the instructions that just popped up about a build location and choose one,
 5. If you chose not to add CMake to the system PATH, tell Qt Creator where you installed it,
     - Otherwise you can skip this step.
@@ -140,7 +140,7 @@ Ensure that OpenSSL, zlib, Java and CMake are on `PATH`.
     - You'll see warnings and it might not be clear that it succeeded until you scroll to the bottom of the window.
     - Hit "Finish" if CMake ran successfully.
 7. Cross your fingers and press the Run button (bottom left of Qt Creator)!
-    - If the project builds successfully it will run and the MultiMC5 window will pop up,
+    - If the project builds successfully it will run and the Launcher window will pop up,
     - Test OpenSSL by making an instance and trying to log in. If Qt Creator couldn't find OpenSSL during the CMake stage, login will fail and you'll get an error.
 
 The following .dlls are needed for the app to run (copy them to build directory if you want to be able to move the build to another pc):
