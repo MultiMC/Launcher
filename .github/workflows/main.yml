@@ -34,7 +34,6 @@ jobs:
            -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
            -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 \
            -DMultiMC_LAYOUT=lin-nodeps \
-           -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) \
            -DMultiMC_VERSION_CHANNEL=refs/heads/develop \
            -DMultiMC_BUILD_PLATFORM=lin64 \
            $GITHUB_WORKSPACE
@@ -55,8 +54,8 @@ jobs:
         run: |
           cd build
           make install
-          chmod +x /home/runner/MultiMC-Cracked/MultiMC/MultiMC
-          chmod +x /home/runner/MultiMC-Cracked/MultiMC/bin/MultiMC
+          chmod +x /home/runner/MultiMC-Cracked/MultiMC/DevLauncher
+          chmod +x /home/runner/MultiMC-Cracked/MultiMC/bin/DevLauncher
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.4
@@ -139,7 +138,6 @@ jobs:
         shell: cmd
         if: steps.build-cached.outputs.cache-hit != 'true'
         run: |
-          for /F "tokens=*" %%n IN ('curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Windows_Build/builds/status:success/number') DO @(set BUILD_NUM=%%n)
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
@@ -157,7 +155,6 @@ jobs:
            -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ ^
            -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 ^
            -DMultiMC_LAYOUT=win-bundle ^
-           -DMultiMC_VERSION_BUILD=%BUILD_NUM% ^
            -DMultiMC_VERSION_CHANNEL=refs/heads/develop ^
            -DMultiMC_BUILD_PLATFORM=win32 ^
            -G "MinGW Makefiles" ^
