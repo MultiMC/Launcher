@@ -28,14 +28,14 @@ jobs:
           cd build
           cmake \
            -DCMAKE_BUILD_TYPE=Release \
-           -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
+           -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
            -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/MultiMC-Cracked/MultiMC \
-           -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/lin64/channels.json \
-           -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
-           -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 \
-           -DMultiMC_LAYOUT=lin-nodeps \
-           -DMultiMC_VERSION_CHANNEL=refs/heads/develop \
-           -DMultiMC_BUILD_PLATFORM=lin64 \
+           -DLauncher_UPDATER_BASE=https://files.multimc.org/update/ \
+           -DLauncher_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
+           -DLauncher_ANALYTICS_ID:STRING=UA-87731965-2 \
+           -DLauncher_LAYOUT=lin-nodeps \
+           -DLauncher_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) \
+           -DLauncher_BUILD_PLATFORM=lin64 \
            $GITHUB_WORKSPACE
 
       - name: Compile
@@ -108,7 +108,7 @@ jobs:
 
       - name: Setup CMake
         run: |
-          curl -L https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-windows-i386.zip -o cmake.zip
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3-windows-i386.zip -o cmake.zip
           unzip cmake.zip
 
       - name: Setup JDK
@@ -138,25 +138,26 @@ jobs:
         shell: cmd
         if: steps.build-cached.outputs.cache-hit != 'true'
         run: |
+          for /F "tokens=*" %%n IN ('curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Windows_Build/builds/status:success/number') DO @(set BUILD_NUM=%%n)
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set PATH=%CD%\cmake-3.21.0-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.21.3-windows-i386\bin;%PATH%
           set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
           cd build
           cmake ^
            -DCMAKE_BUILD_TYPE=Release ^
-           -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json ^
+           -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json ^
            -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked/MultiMC" ^
-           -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/win32/channels.json ^
-           -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ ^
-           -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 ^
-           -DMultiMC_LAYOUT=win-bundle ^
-           -DMultiMC_VERSION_CHANNEL=refs/heads/develop ^
-           -DMultiMC_BUILD_PLATFORM=win32 ^
+           -DLauncher_UPDATER_BASE=https://files.multimc.org/update/ ^
+           -DLauncher_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ ^
+           -DLauncher_ANALYTICS_ID:STRING=UA-87731965-2 ^
+           -DLauncher_LAYOUT=win-bundle ^
+           -DLauncher_VERSION_BUILD=%BUILD_NUM% ^
+           -DLauncher_BUILD_PLATFORM=win32 ^
            -G "MinGW Makefiles" ^
            ..
 
@@ -167,7 +168,7 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set PATH=%CD%\cmake-3.21.0-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.21.3-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make tcversion
@@ -180,7 +181,7 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set PATH=%CD%\cmake-3.21.0-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.21.3-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make test
@@ -193,7 +194,7 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set PATH=%CD%\cmake-3.21.0-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.21.3-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make install
@@ -238,17 +239,17 @@ jobs:
           -DCMAKE_C_COMPILER=/usr/bin/clang \
           -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
           -DCMAKE_BUILD_TYPE=Release \
-          -DMultiMC_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
-          -DCMAKE_INSTALL_PREFIX=dist \
-          -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5)/lib/cmake/Qt5Core;$(brew --prefix qt@5)/lib/cmake/Qt5Widgets;$(brew --prefix qt@5)/lib/cmake/Qt5Concurrent;$(brew --prefix qt@5)/lib/cmake/Qt5Network;$(brew --prefix qt@5)/lib/cmake/Qt5Test;$(brew --prefix qt@5)/lib/cmake/Qt5Xml" \
-          -DMultiMC_CHANLIST_URL=https://files.multimc.org/update/osx64/channels.json \
-          -DMultiMC_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
-          -DMultiMC_ANALYTICS_ID:STRING=UA-87731965-2 \
-          -DMultiMC_LAYOUT=mac-bundle \
-          -DMultiMC_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_MacOS_Build/builds/status:success/number) \
-          -DMultiMC_VERSION_CHANNEL=refs/heads/develop \
-          -DMultiMC_BUILD_PLATFORM=osx64 \
-          -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
+          -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
+          -DCMAKE_INSTALL_PREFIX:PATH="/Users/runner/work/MultiMC5-Cracked/build/dist" \
+          -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5);$(brew --prefix qt@5)/lib/cmake/Qt5Core;$(brew --prefix qt@5)/lib/cmake/Qt5Widgets;$(brew --prefix qt@5)/lib/cmake/Qt5Concurrent;$(brew --prefix qt@5)/lib/cmake/Qt5Network;$(brew --prefix qt@5)/lib/cmake/Qt5Test;$(brew --prefix qt@5)/lib/cmake/Qt5Xml" \
+          -DQt5_DIR="$(brew --prefix qt@5)" \
+          -DLauncher_UPDATER_BASE=https://files.multimc.org/update/ \
+          -DLauncher_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
+          -DLauncher_ANALYTICS_ID:STRING=UA-87731965-2 \
+          -DLauncher_LAYOUT=mac-bundle \
+          -DLauncher_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_MacOSAmd645152_Build/builds/status:success/number) \
+          -DLauncher_BUILD_PLATFORM=osx64-5.15.2 \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
           $GITHUB_WORKSPACE
 
       - name: Compile
@@ -261,15 +262,16 @@ jobs:
         run: |
           cd build
           make test
+          cmake -E remove_directory "/Users/runner/work/MultiMC5-Cracked/build/dist"
 
       - name: Install
         run: |
           cd build
           make install
-          chmod +x dist/MultiMC.app/Contents/MacOS/MultiMC
+          chmod +x /Users/runner/work/MultiMC5-Cracked/build/dist/DevLauncher.app/Contents/MacOS/DevLauncher
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
           name: mmc-cracked-osx64
-          path: build/dist
+          path: /Users/runner/work/MultiMC5-Cracked/build/dist
