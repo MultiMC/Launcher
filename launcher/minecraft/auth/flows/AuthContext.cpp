@@ -864,7 +864,7 @@ void AuthContext::doGetSkin() {
 
     auto url = QUrl(m_data->provider->resolveSkinUrl(m_data->profileId(), m_data->profileName()));
     QNetworkRequest request = QNetworkRequest(url);
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
 
     AuthRequest *requestor = new AuthRequest(this);
     connect(requestor, &AuthRequest::finished, this, &AuthContext::onSkinDone);
