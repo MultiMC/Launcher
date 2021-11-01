@@ -1,4 +1,5 @@
 #include "AccountData.h"
+#include "AuthProviders.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -283,11 +284,9 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
     auto typeS = typeV.toString();
     if(typeS == "MSA") {
         type = AccountType::MSA;
-    } else if (typeS == "Mojang") {
-        type = AccountType::Mojang;
     } else {
-        qWarning() << "Failed to parse account data: type is not recognized.";
-        return false;
+        type = AccountType::Mojang;
+        provider = AuthProviders::lookup(typeS);
     }
 
     if(type == AccountType::Mojang) {
@@ -313,7 +312,7 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
 QJsonObject AccountData::saveState() const {
     QJsonObject output;
     if(type == AccountType::Mojang) {
-        output["type"] = "Mojang";
+        output["type"] = provider->id();
         if(legacy) {
             output["legacy"] = true;
         }

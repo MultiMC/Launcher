@@ -31,6 +31,16 @@ public:
 
     QString injectorEndpoint()
     {
-        return "http://localhost:%1";
+        return ((QString)"http://localhost:%1").arg(m_authServer->port());
     };
+
+    QString authEndpoint()
+    {
+        return ((QString) "http://localhost:%1/auth/").arg(m_authServer->port());
+    };
+
+    virtual bool useYggdrasil()
+    {
+        return true;
+    }
 };

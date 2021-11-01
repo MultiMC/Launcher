@@ -1,7 +1,10 @@
 #include "AuthServer.h"
 
+#include <QThread>
 #include <QDebug>
 #include <QTcpSocket>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 AuthServer::AuthServer(QObject *parent) : QObject(parent)
 {
@@ -48,8 +51,37 @@ void AuthServer::newConnection()
             {
                 responseStatusCode = 204;
             }
+            else if (requestPath == "/auth/authenticate") 
+            {
+                QString body = rawRequest.mid(rawRequest.indexOf("\r\n\r\n") + 4);
+                auto doc = QJsonDocument::fromJson(body.toUtf8());
+                auto json = doc.object();
+                QString clientToken = json.value("clientToken").toString();
+                QString username = json.value("username").toString();
+
+                QString profile = ((QString)"{\"id\":\"%1\",\"name\":\"%2\"}").arg(clientToken, username);
+
+                responseStatusCode = 200;
+                responseBody = ((QString)"{\"accessToken\":\"%1\",\"clientToken\":\"%2\",\"availableProfiles\":[%3], \"selectedProfile\": %3}").arg(username, clientToken, profile);
+            }
+            else if (requestPath == "/auth/refresh")
+            {
+                qDebug() << "Request process222";
+                QString body = rawRequest.mid(rawRequest.indexOf("\r\n\r\n") + 4);
+                auto doc = QJsonDocument::fromJson(body.toUtf8());
+                auto json = doc.object();
+                QString clientToken = json.value("clientToken").toString();
+                QString username = json.value("accessToken").toString();
+                
+
+                QString profile = ((QString) "{\"id\":\"%1\",\"name\":\"%2\"}").arg(clientToken, username);
+
+                responseStatusCode = 200;
+                responseBody = ((QString) "{\"accessToken\":\"%1\",\"clientToken\":\"%2\",\"availableProfiles\":[%3], \"selectedProfile\": %3}").arg(username, clientToken, profile);
+            }
             else
             {
+                qDebug() << "Request failed" << requestPath;
                 responseBody = "Not found";
                 responseStatusCode = 404;
             }
@@ -66,7 +98,8 @@ void AuthServer::newConnection()
             {
                 responseHeaders << ((QString) "Content-Length: %1").arg(responseBody.length());
             }
-
+            qDebug() << responseBody;
+            
             tcpSocket->write(((QString) "HTTP/1.1 %1 %2\r\nConnection: keep-alive\r\n").arg(responseStatusCode).arg(responseStatusText).toUtf8());
             tcpSocket->write(responseHeaders.join("\r\n").toUtf8());
             tcpSocket->write("\r\n\r\n");

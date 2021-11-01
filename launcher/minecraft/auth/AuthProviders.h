@@ -8,6 +8,7 @@
 #include <QMap>
 
 #include "providers/BaseAuthProvider.h"
+#include "../../AuthServer.h"
 
 /*!
  * \brief Namespace for auth providers.
@@ -15,7 +16,7 @@
  */
 namespace AuthProviders
 {
-    void load();
+    void load(std::shared_ptr<AuthServer> authServer);
     AuthProviderPtr lookup(QString id);
     QList<AuthProviderPtr> getAll();
 }

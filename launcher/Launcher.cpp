@@ -791,9 +791,14 @@ Launcher::Launcher(int &argc, char **argv) : QApplication(argc, argv)
         qDebug() << "<> Instances loaded.";
     }
 
+    {
+        m_authserver.reset(new AuthServer(this));
+        qDebug() << "<> Auth server started.";
+    }
+
     // load auth providers
     {
-        AuthProviders::load();
+        AuthProviders::load(m_authserver);
     }
 
     // and accounts
@@ -836,11 +841,6 @@ Launcher::Launcher(int &argc, char **argv) : QApplication(argc, argv)
     // Create the MCEdit thing... why is this here?
     {
         m_mcedit.reset(new MCEditTool(m_settings));
-    }
-
-    {
-        m_authserver.reset(new AuthServer(this));
-        qDebug() << "<> Auth server started.";
     }
 
     connect(this, &Launcher::aboutToQuit, [this](){

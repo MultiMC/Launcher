@@ -6,6 +6,7 @@
 #include <QSet>
 #include <QProcess>
 #include <QUrl>
+#include "../../../AuthServer.h"
 
 class BaseAuthProvider;
 typedef std::shared_ptr<BaseAuthProvider> AuthProviderPtr;
@@ -37,12 +38,6 @@ public:
         return "Base";
     };
 
-    // Use dummy auth on login instead of calling endpoint
-    virtual bool dummyAuth()
-    {
-        return false;
-    };
-
     // Endpoint for authlib injector (use empty if authlib injector isn't required)
     virtual QString injectorEndpoint()
     {
@@ -72,4 +67,13 @@ public:
     {
         return false;
     }
+
+    bool setAuthServer(std::shared_ptr<AuthServer> authServer)
+    {
+        m_authServer = authServer;
+        return true;
+    }
+
+protected:
+    std::shared_ptr<AuthServer> m_authServer;
 };
