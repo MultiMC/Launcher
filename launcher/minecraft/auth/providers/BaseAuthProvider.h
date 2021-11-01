@@ -7,13 +7,6 @@
 #include <QProcess>
 #include <QUrl>
 
-struct AccountProfile
-{
-    QString id;
-    QString name;
-    bool legacy;
-};
-
 class BaseAuthProvider;
 typedef std::shared_ptr<BaseAuthProvider> AuthProviderPtr;
 
@@ -63,13 +56,19 @@ public:
     };
 
     // Function to get url of skin to display in launcher
-    virtual QUrl resolveSkinUrl(AccountProfile profile)
+    virtual QUrl resolveSkinUrl(QString id, QString name)
     {
-        return QUrl(((QString) "https://crafatar.com/skins/%1.png").arg(profile.id));
+        return QUrl(((QString) "https://crafatar.com/skins/%1.png").arg(id));
     };
 
     // Can change skin (currently only mojang support)
     virtual bool canChangeSkin()
+    {
+        return false;
+    }
+
+    // Use legacy yggdrasil auth, (get profile from refresh and login)
+    virtual bool useYggdrasil()
     {
         return false;
     }

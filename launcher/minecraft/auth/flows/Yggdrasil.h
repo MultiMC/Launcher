@@ -38,6 +38,9 @@ public:
 
     void refresh();
     void login(QString password);
+
+    QJsonObject yggdrasilProfile;
+
 protected:
     void executeTask() override;
 

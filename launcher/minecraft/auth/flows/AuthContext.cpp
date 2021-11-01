@@ -663,21 +663,10 @@ void AuthContext::checkResult() {
 }
 
 namespace {
-bool parseMinecraftProfile(QByteArray & data, MinecraftProfile &output) {
-    qDebug() << "Parsing Minecraft profile...";
-#ifndef NDEBUG
-    qDebug() << data;
-#endif
-
-    QJsonParseError jsonError;
-    QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
-    if(jsonError.error) {
-        qWarning() << "Failed to parse response from user.auth.xboxlive.com as JSON: " << jsonError.errorString();
-        return false;
-    }
-
-    auto obj = doc.object();
-    if(!getString(obj.value("id"), output.id)) {
+bool parseMinecraftProfileFromJSON(QJsonObject & obj, MinecraftProfile &output)
+{
+    if(!getString(obj.value("id"), output.id))
+    {
         qWarning() << "Minecraft profile id is not a string";
         return false;
     }
@@ -740,21 +729,44 @@ bool parseMinecraftProfile(QByteArray & data, MinecraftProfile &output) {
     output.validity = Katabasis::Validity::Certain;
     return true;
 }
+
+bool parseMinecraftProfile(QByteArray & data, MinecraftProfile &output) {
+    qDebug() << "Parsing Minecraft profile...";
+#ifndef NDEBUG
+    qDebug() << data;
+#endif
+
+    QJsonParseError jsonError;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+    if(jsonError.error) {
+        qWarning() << "Failed to parse response from user.auth.xboxlive.com as JSON: " << jsonError.errorString();
+        return false;
+    }
+
+    auto obj = doc.object();
+    return parseMinecraftProfileFromJSON(obj, output);
+}
 }
 
 void AuthContext::doMinecraftProfile() {
-    setStage(AuthStage::MinecraftProfile);
-    changeState(STATE_WORKING, tr("Starting minecraft profile acquisition"));
+     
+    if(!m_data->provider->useYggdrasil()){
+        setStage(AuthStage::MinecraftProfile);
+        changeState(STATE_WORKING, tr("Starting minecraft profile acquisition"));
 
-    auto url = QUrl("https://api.minecraftservices.com/minecraft/profile");
-    QNetworkRequest request = QNetworkRequest(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    // request.setRawHeader("Accept", "application/json");
-    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_data->yggdrasilToken.token).toUtf8());
+        auto url = QUrl("https://api.minecraftservices.com/minecraft/profile");
+        QNetworkRequest request = QNetworkRequest(url);
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        // request.setRawHeader("Accept", "application/json");
+        request.setRawHeader("Authorization", QString("Bearer %1").arg(m_data->yggdrasilToken.token).toUtf8());
 
-    AuthRequest *requestor = new AuthRequest(this);
-    connect(requestor, &AuthRequest::finished, this, &AuthContext::onMinecraftProfileDone);
-    requestor->get(request);
+        AuthRequest *requestor = new AuthRequest(this);
+        connect(requestor, &AuthRequest::finished, this, &AuthContext::onMinecraftProfileDone);
+        requestor->get(request);
+    } else {
+        parseMinecraftProfileFromJSON(m_yggdrasil->yggdrasilProfile, m_data->minecraftProfile);
+        doGetSkin();
+    }
 }
 
 void AuthContext::onMinecraftProfileDone(
@@ -850,8 +862,10 @@ void AuthContext::doGetSkin() {
     setStage(AuthStage::Skin);
     changeState(STATE_WORKING, tr("Fetching player skin"));
 
-    auto url = QUrl(m_data->minecraftProfile.skin.url);
+    auto url = QUrl(m_data->provider->resolveSkinUrl(m_data->profileId(), m_data->profileName()));
     QNetworkRequest request = QNetworkRequest(url);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+
     AuthRequest *requestor = new AuthRequest(this);
     connect(requestor, &AuthRequest::finished, this, &AuthContext::onSkinDone);
     requestor->get(request);

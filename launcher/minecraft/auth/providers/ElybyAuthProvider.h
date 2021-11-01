@@ -34,8 +34,13 @@ public:
         return "https://authserver.ely.by/auth/";
     };
 
-    QUrl resolveSkinUrl(AccountProfile profile)
+    QUrl resolveSkinUrl(QString id, QString name)
     {
-        return QUrl(((QString) "http://skinsystem.ely.by/skins/%1.png").arg(profile.name));
+        return QUrl(((QString) "http://skinsystem.ely.by/skins/%1.png").arg(name));
+    }
+
+    virtual bool useYggdrasil()
+    {
+        return true;
     }
 };

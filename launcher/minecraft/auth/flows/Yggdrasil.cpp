@@ -85,8 +85,7 @@ void Yggdrasil::refresh() {
     */
     req.insert("requestUser", false);
     QJsonDocument doc(req);
-
-    QUrl reqUrl(BuildConfig.AUTH_BASE + "refresh");
+    QUrl reqUrl(m_data->provider->authEndpoint() + "refresh");
     QByteArray requestData = doc.toJson();
 
     sendRequest(reqUrl, requestData);
@@ -131,7 +130,7 @@ void Yggdrasil::login(QString password) {
 
     QJsonDocument doc(req);
 
-    QUrl reqUrl(BuildConfig.AUTH_BASE + "authenticate");
+    QUrl reqUrl(m_data->provider->authEndpoint() + "authenticate");
     QNetworkRequest netRequest(reqUrl);
     QByteArray requestData = doc.toJson();
 
@@ -217,6 +216,10 @@ void Yggdrasil::processResponse(QJsonObject responseData)
     // Set the access token.
     m_data->yggdrasilToken.token = accessToken;
     m_data->yggdrasilToken.validity = Katabasis::Validity::Certain;
+
+    if(responseData.contains("selectedProfile")) {
+        yggdrasilProfile = responseData.value("selectedProfile").toObject();
+    }
 
     // We've made it through the minefield of possible errors. Return true to indicate that
     // we've succeeded.
