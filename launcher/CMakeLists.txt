@@ -575,6 +575,8 @@ SET(LAUNCHER_SOURCES
     Launcher.cpp
     UpdateController.cpp
     UpdateController.h
+    LauncherMessage.h
+    LauncherMessage.cpp
 
     # GUI - general utilities
     DesktopServices.h
