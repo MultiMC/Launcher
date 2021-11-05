@@ -91,16 +91,15 @@
 #include "MMCTime.h"
 
 namespace {
-QString profileInUseFilter(const QString & profile, bool used)
+QString getProfileDisplay(MinecraftAccountPtr account)
 {
-    if(used)
+    QString additionalPart = account->typeString();
+    if(account->isInUse())
     {
-        return QObject::tr("%1 (in use)").arg(profile);
+        additionalPart += ", in use";
     }
-    else
-    {
-        return profile;
-    }
+
+    return ((QString)"%1 (%2)").arg(account->profileName(), additionalPart);
 }
 }
 
@@ -847,7 +846,7 @@ void MainWindow::retranslateUi()
     std::shared_ptr<AccountList> accounts = LAUNCHER->accounts();
     MinecraftAccountPtr active_account = accounts->activeAccount();
     if(active_account) {
-        auto profileLabel = profileInUseFilter(active_account->profileName(), active_account->isInUse());
+        auto profileLabel = getProfileDisplay(active_account);
         accountMenuButton->setText(profileLabel);
     }
     else {
@@ -1034,7 +1033,7 @@ void MainWindow::repopulateAccountsMenu()
         // this can be called before accountMenuButton exists
         if (accountMenuButton)
         {
-            auto profileLabel = profileInUseFilter(active_account->profileName(), active_account->isInUse());
+            auto profileLabel = getProfileDisplay(active_account);
             accountMenuButton->setText(profileLabel);
         }
     }
@@ -1051,7 +1050,7 @@ void MainWindow::repopulateAccountsMenu()
         for (int i = 0; i < accounts->count(); i++)
         {
             MinecraftAccountPtr account = accounts->at(i);
-            auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
+            auto profileLabel = getProfileDisplay(account);
             QAction *action = new QAction(profileLabel, this);
             action->setData(account->profileId());
             action->setCheckable(true);
@@ -1124,7 +1123,7 @@ void MainWindow::activeAccountChanged()
     // FIXME: this needs adjustment for MSA
     if (account != nullptr && account->profileName() != "")
     {
-        auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
+        auto profileLabel = getProfileDisplay(account);
         accountMenuButton->setText(profileLabel);
         accountMenuButton->setIcon(account->getFace());
         return;

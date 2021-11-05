@@ -143,7 +143,7 @@ public: /* queries */
                 if(data.legacy) {
                     return "legacy";
                 }
-                return "mojang";
+                return data.provider->displayName();
             }
             break;
             case AccountType::MSA: {
