@@ -1,23 +1,25 @@
-> **This is a "cracked" version of a popular Minecraft launcher that lets you play the game without a Mojang account.**
->
-> This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
+## **This is a "cracked" version of a popular Minecraft launcher that lets you play the game without a Mojang account.**
+
+## This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
 
 ## Pre-built binaries:
-- Windows / Linux: https://nightly.link/AfoninZ/MultiMC5-Cracked/workflows/main/develop
-- MacOS: https://drive.google.com/file/d/1QKjeghZecHH9foduy6dKEmpAH9AHbRTA/view?usp=sharing
+- Windows / Linux / MacOS: https://nightly.link/AfoninZ/MultiMC5-Cracked/workflows/main/develop
+To update the launcher delete the bin directory and the executable and replace with the newer one. Do not use inbuilt option.
 
 ## How to install and use
-1. Download pre-built binaries for your system
-2. Unpack them in your desired directory
-3. Launch the MultiMC
-4. Go to account settings, and you will be requested to use email and password
-5. As your email use your username, and then type a random password
-6. Save it
-7. Now enjoy MultiMC
+1. Download pre-built binaries for your system.
+2. Unpack them in your desired directory.
+3. Launch `UltimMC`.
+4. Go to account settings, and you will be requested to use email and password.
+5. As your email use your username, and then type a random password or use ElyBy account.
+6. Save it.
+7. Now enjoy the Launcher.
 
-In case if you are using MacOS/Linux then additional step is to make a script `MultiMC` executable by using the command `chmod +x MultiMC` in the terminal
+In case if you are using MacOS/Linux then additional step is to make a script `UltimMC` executable by using the command `chmod +x UltimMC` in the terminal
 
-Details about the original launcher below:
+To remove the "localhost:nnnn" or "ElyBy" in the minecraft main menu and F3, add `-Dauthlibinjector.noShowServerName` to the java arguments.
+
+# Details about the ORIGINAL launcher below:
 
 MultiMC 5
 =========
@@ -25,7 +27,7 @@ MultiMC 5
 MultiMC is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.
 
 ## Development
-If you want to contribute, talk to us on [Discord](https://discord.gg/multimc) first.
+If you want to contribute, talk to us on [Discord](https://discord.gg/multimc) (this is the official MultiMC discord, do NOT talk about the cracked version here) first.
 
 While blindly submitting PRs is definitely possible, they're not necessarily going to get accepted.
 
@@ -46,7 +48,7 @@ In general, in order of importance:
 
 
 ## Translations
-Translations can be done [on crowdin](https://translate.multimc.org). Please avoid making direct pull requests to the translations repository.
+Translations can be done [on crowdin](https://translate.multimc.org) (this link is for the original MultiMC launcher). Please avoid making direct pull requests to the translations repository.
 
 ## Forking/Redistributing/Custom builds policy
 We keep MultiMC open source because we think it's important to be able to see the source code for a project like this, and we do so using the Apache license.
