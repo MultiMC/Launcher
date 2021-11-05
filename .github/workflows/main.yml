@@ -54,8 +54,8 @@ jobs:
         run: |
           cd build
           make install
-          chmod +x /home/runner/MultiMC-Cracked/MultiMC/DevLauncher
-          chmod +x /home/runner/MultiMC-Cracked/MultiMC/bin/DevLauncher
+          chmod +x /home/runner/MultiMC-Cracked/MultiMC/UltimMC
+          chmod +x /home/runner/MultiMC-Cracked/MultiMC/bin/UltimMC
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.4
@@ -268,7 +268,7 @@ jobs:
         run: |
           cd build
           make install
-          chmod +x /Users/runner/work/MultiMC5-Cracked/build/dist/DevLauncher.app/Contents/MacOS/DevLauncher
+          chmod +x /Users/runner/work/MultiMC5-Cracked/build/dist/UltimMC.app/Contents/MacOS/UltimMC
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.4
