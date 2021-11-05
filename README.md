@@ -1,20 +1,21 @@
-# **This is a "cracked" version of a popular Minecraft launcher that lets you play the game without a Mojang account.**
+## **This is a "cracked" version of a popular Minecraft launcher that lets you play the game without a Mojang account.**
 
-# This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
+## This software is not related to MultiMC developers and provided without any warranty. Please don't bomb MultiMC developers if something gets wrong using this launcher.
 
 ## Pre-built binaries:
 - Windows / Linux / MacOS: https://nightly.link/AfoninZ/MultiMC5-Cracked/workflows/main/develop
+To update the launcher delete the bin directory and the executable and replace with the newer one. Do not use inbuilt option.
 
 ## How to install and use
 1. Download pre-built binaries for your system.
 2. Unpack them in your desired directory.
-3. Launch `DevLauncher`.
+3. Launch `UltimMC`.
 4. Go to account settings, and you will be requested to use email and password.
 5. As your email use your username, and then type a random password or use ElyBy account.
 6. Save it.
 7. Now enjoy the Launcher.
 
-In case if you are using MacOS/Linux then additional step is to make a script `DevLauncher` executable by using the command `chmod +x DevLauncher` in the terminal
+In case if you are using MacOS/Linux then additional step is to make a script `UltimMC` executable by using the command `chmod +x UltimMC` in the terminal
 
 To remove the "localhost:nnnn" or "ElyBy" in the minecraft main menu and F3, add `-Dauthlibinjector.noShowServerName` to the java arguments.
 
