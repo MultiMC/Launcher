@@ -29,7 +29,7 @@ jobs:
           cmake \
            -DCMAKE_BUILD_TYPE=Release \
            -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
-           -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/MultiMC-Cracked/MultiMC \
+           -DCMAKE_INSTALL_PREFIX:PATH=/home/runner/UltimMC/UltimMC \
            -DLauncher_UPDATER_BASE=https://files.multimc.org/update/ \
            -DLauncher_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
            -DLauncher_ANALYTICS_ID:STRING=UA-87731965-2 \
@@ -48,20 +48,20 @@ jobs:
         run: |
           cd build
           make test
-          cmake -E remove_directory "/home/runner/MultiMC-Cracked/MultiMC"
+          cmake -E remove_directory "/home/runner/UltimMC/UltimMC"
 
       - name: Install
         run: |
           cd build
           make install
-          chmod +x /home/runner/MultiMC-Cracked/MultiMC/UltimMC
-          chmod +x /home/runner/MultiMC-Cracked/MultiMC/bin/UltimMC
+          chmod +x /home/runner/UltimMC/UltimMC/UltimMC
+          chmod +x /home/runner/UltimMC/UltimMC/bin/UltimMC
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
           name: mmc-cracked-lin64
-          path: /home/runner/MultiMC-Cracked
+          path: /home/runner/UltimMC
 
   build-windows:
     name: build-windows
@@ -151,7 +151,7 @@ jobs:
           cmake ^
            -DCMAKE_BUILD_TYPE=Release ^
            -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json ^
-           -DCMAKE_INSTALL_PREFIX:PATH="D:/MultiMC-Cracked/MultiMC" ^
+           -DCMAKE_INSTALL_PREFIX:PATH="D:/UltimMC/UltimMC" ^
            -DLauncher_UPDATER_BASE=https://files.multimc.org/update/ ^
            -DLauncher_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ ^
            -DLauncher_ANALYTICS_ID:STRING=UA-87731965-2 ^
@@ -185,7 +185,7 @@ jobs:
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make test
-          cmake -E remove_directory "D:/MultiMC-Cracked/MultiMC"
+          cmake -E remove_directory "D:/UltimMC/UltimMC"
 
       - name: Install
         shell: cmd
@@ -202,14 +202,14 @@ jobs:
       - name: Copy OpenSSL
         shell: cmd
         run: |
-          cp OpenSSL/ssleay32.dll D:/MultiMC-Cracked/MultiMC/ssleay32.dll
-          cp OpenSSL/libeay32.dll D:/MultiMC-Cracked/MultiMC/libeay32.dll
+          cp OpenSSL/ssleay32.dll D:/UltimMC/UltimMC/ssleay32.dll
+          cp OpenSSL/libeay32.dll D:/UltimMC/UltimMC/libeay32.dll
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
           name: mmc-cracked-win32
-          path: "D:/MultiMC-Cracked"
+          path: "D:/UltimMC"
 
   build-mac:
     name: build-mac
@@ -240,7 +240,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
           -DCMAKE_BUILD_TYPE=Release \
           -DLauncher_NOTIFICATION_URL:STRING=https://files.multimc.org/notifications.json \
-          -DCMAKE_INSTALL_PREFIX:PATH="/Users/runner/work/MultiMC5-Cracked/build/dist" \
+          -DCMAKE_INSTALL_PREFIX:PATH="/Users/runner/work/UltimMC/build/dist" \
           -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5);$(brew --prefix qt@5)/lib/cmake/Qt5Core;$(brew --prefix qt@5)/lib/cmake/Qt5Widgets;$(brew --prefix qt@5)/lib/cmake/Qt5Concurrent;$(brew --prefix qt@5)/lib/cmake/Qt5Network;$(brew --prefix qt@5)/lib/cmake/Qt5Test;$(brew --prefix qt@5)/lib/cmake/Qt5Xml" \
           -DQt5_DIR="$(brew --prefix qt@5)" \
           -DLauncher_UPDATER_BASE=https://files.multimc.org/update/ \
@@ -262,16 +262,16 @@ jobs:
         run: |
           cd build
           make test
-          cmake -E remove_directory "/Users/runner/work/MultiMC5-Cracked/build/dist"
+          cmake -E remove_directory "/Users/runner/work/UltimMC/build/dist"
 
       - name: Install
         run: |
           cd build
           make install
-          chmod +x /Users/runner/work/MultiMC5-Cracked/build/dist/UltimMC.app/Contents/MacOS/UltimMC
+          chmod +x /Users/runner/work/UltimMC/build/dist/UltimMC.app/Contents/MacOS/UltimMC
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
           name: mmc-cracked-osx64
-          path: /Users/runner/work/MultiMC5-Cracked/build/dist
+          path: /Users/runner/work/UltimMC/build/dist
