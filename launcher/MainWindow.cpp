@@ -497,6 +497,13 @@ public:
         renameButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         instanceToolBar->addWidget(renameButton);
 
+        actionChangeInstGroup = TranslatedAction(MainWindow);
+        actionChangeInstGroup->setObjectName(QStringLiteral("actionChangeInstGroup"));
+        actionChangeInstGroup.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Change Group"));
+        actionChangeInstGroup.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Change the selected instance's group."));
+        all_actions.append(&actionChangeInstGroup);
+        instanceToolBar->addAction(actionChangeInstGroup);
+
         instanceToolBar->addSeparator();
 
         actionLaunchInstance = TranslatedAction(MainWindow);
@@ -540,13 +547,6 @@ public:
         actionScreenshots.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "View and upload screenshots for this instance."));
         all_actions.append(&actionScreenshots);
         instanceToolBar->addAction(actionScreenshots);
-
-        actionChangeInstGroup = TranslatedAction(MainWindow);
-        actionChangeInstGroup->setObjectName(QStringLiteral("actionChangeInstGroup"));
-        actionChangeInstGroup.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Change Group"));
-        actionChangeInstGroup.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Change the selected instance's group."));
-        all_actions.append(&actionChangeInstGroup);
-        instanceToolBar->addAction(actionChangeInstGroup);
 
         instanceToolBar->addSeparator();
 
