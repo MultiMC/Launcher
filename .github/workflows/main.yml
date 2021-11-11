@@ -10,10 +10,10 @@ on:
 jobs:
   build-linux:
     name: build-linux
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
         with:
           submodules: 'recursive'
 
@@ -68,7 +68,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
         with:
           submodules: 'recursive'
 
@@ -108,7 +108,7 @@ jobs:
 
       - name: Setup CMake
         run: |
-          curl -L https://github.com/Kitware/CMake/releases/download/v3.21.3/cmake-3.21.3-windows-i386.zip -o cmake.zip
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.21.4/cmake-3.21.4-windows-i386.zip -o cmake.zip
           unzip cmake.zip
 
       - name: Setup JDK
@@ -131,7 +131,7 @@ jobs:
         run: |
           mkdir OpenSSL
           cd OpenSSL
-          curl -L https://github.com/IndySockets/OpenSSL-Binaries/raw/master/Archive/openssl-1.0.2g-i386-win32.zip -o OpenSSL.zip
+          curl -L https://github.com/IndySockets/OpenSSL-Binaries/raw/master/Archive/openssl-1.0.2n-i386-win32.zip -o OpenSSL.zip
           unzip OpenSSL.zip
 
       - name: Build
@@ -143,7 +143,7 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set PATH=%CD%\cmake-3.21.3-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.21.4-windows-i386\bin;%PATH%
           set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
@@ -168,7 +168,7 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set PATH=%CD%\cmake-3.21.3-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.21.4-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make tcversion
@@ -181,7 +181,7 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set PATH=%CD%\cmake-3.21.3-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.21.4-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make test
@@ -194,7 +194,7 @@ jobs:
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
           set PATH=C:\hostedtoolcache\windows\Java_Zulu_jdk\8.0.292-10\x86\bin;%PATH%
-          set PATH=%CD%\cmake-3.21.3-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.21.4-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make install
@@ -216,7 +216,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.4.0
         with:
           submodules: 'recursive'
 
