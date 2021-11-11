@@ -197,7 +197,6 @@ std::shared_ptr<AccountTask> MinecraftAccount::refresh(AuthSessionPtr session) {
             m_currentTask.reset(new MSASilent(&data));
         }
         else {
-            qDebug() << "Account dfdf";
             m_currentTask.reset(new MojangRefresh(&data));
         }
         m_currentTask->assignSession(session);
