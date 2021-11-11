@@ -501,6 +501,35 @@ void AuthContext::checkResult() {
     }
 }
 
+void AuthContext::doEntitlements() {
+    auto uuid = QUuid::createUuid();
+    entitlementsRequestId = uuid.toString().remove('{').remove('}');
+    auto url = "https://api.minecraftservices.com/entitlements/license?requestId=" + entitlementsRequestId;
+    QNetworkRequest request = QNetworkRequest(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Accept", "application/json");
+    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_data->yggdrasilToken.token).toUtf8());
+    AuthRequest *requestor = new AuthRequest(this);
+    connect(requestor, &AuthRequest::finished, this, &AuthContext::onEntitlementsDone);
+    requestor->get(request);
+    qDebug() << "Getting Xbox profile...";
+}
+
+
+void AuthContext::onEntitlementsDone(
+    QNetworkReply::NetworkError error,
+    QByteArray data,
+    QList<QNetworkReply::RawHeaderPair> headers
+) {
+#ifndef NDEBUG
+    qDebug() << data;
+#endif
+    // TODO: check presence of same entitlementsRequestId?
+    // TODO: validate JWTs?
+    Parsers::parseMinecraftEntitlements(data, m_data->minecraftEntitlement);
+    doMinecraftProfile();
+}
+
 namespace {
 bool parseMinecraftProfileFromJSON(QJsonObject & obj, MinecraftProfile &output)
 {
@@ -568,56 +597,9 @@ bool parseMinecraftProfileFromJSON(QJsonObject & obj, MinecraftProfile &output)
     output.validity = Katabasis::Validity::Certain;
     return true;
 }
-
-void AuthContext::doEntitlements() {
-    auto uuid = QUuid::createUuid();
-    entitlementsRequestId = uuid.toString().remove('{').remove('}');
-    auto url = "https://api.minecraftservices.com/entitlements/license?requestId=" + entitlementsRequestId;
-    QNetworkRequest request = QNetworkRequest(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Accept", "application/json");
-    request.setRawHeader("Authorization", QString("Bearer %1").arg(m_data->yggdrasilToken.token).toUtf8());
-    AuthRequest *requestor = new AuthRequest(this);
-    connect(requestor, &AuthRequest::finished, this, &AuthContext::onEntitlementsDone);
-    requestor->get(request);
-    qDebug() << "Getting Xbox profile...";
-}
-
-
-void AuthContext::onEntitlementsDone(
-    QNetworkReply::NetworkError error,
-    QByteArray data,
-    QList<QNetworkReply::RawHeaderPair> headers
-) {
-#ifndef NDEBUG
-    qDebug() << data;
-#endif
-    // TODO: check presence of same entitlementsRequestId?
-    // TODO: validate JWTs?
-    Parsers::parseMinecraftEntitlements(data, m_data->minecraftEntitlement);
-    doMinecraftProfile();
-}
-
-bool parseMinecraftProfile(QByteArray & data, MinecraftProfile &output) {
-    qDebug() << "Parsing Minecraft profile...";
-#ifndef NDEBUG
-    qDebug() << data;
-#endif
-
-    QJsonParseError jsonError;
-    QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
-    if(jsonError.error) {
-        qWarning() << "Failed to parse response from user.auth.xboxlive.com as JSON: " << jsonError.errorString();
-        return false;
-    }
-
-    auto obj = doc.object();
-    return parseMinecraftProfileFromJSON(obj, output);
-}
 }
 
 void AuthContext::doMinecraftProfile() {
-
     if(!m_data->provider->useYggdrasil()){
         setStage(AuthStage::MinecraftProfile);
         changeState(STATE_WORKING, tr("Starting minecraft profile acquisition"));
