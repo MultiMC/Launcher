@@ -504,13 +504,13 @@ void AuthContext::checkResult() {
 namespace {
 bool parseMinecraftProfileFromJSON(QJsonObject & obj, MinecraftProfile &output)
 {
-    if(!getString(obj.value("id"), output.id))
+    if(!Parsers::getString(obj.value("id"), output.id))
     {
         qWarning() << "Minecraft profile id is not a string";
         return false;
     }
 
-    if(!getString(obj.value("name"), output.name)) {
+    if(!Parsers::getString(obj.value("name"), output.name)) {
         qWarning() << "Minecraft profile name is not a string";
         return false;
     }
@@ -519,20 +519,20 @@ bool parseMinecraftProfileFromJSON(QJsonObject & obj, MinecraftProfile &output)
     for(auto skin: skinsArray) {
         auto skinObj = skin.toObject();
         Skin skinOut;
-        if(!getString(skinObj.value("id"), skinOut.id)) {
+        if(!Parsers::getString(skinObj.value("id"), skinOut.id)) {
             continue;
         }
         QString state;
-        if(!getString(skinObj.value("state"), state)) {
+        if(!Parsers::getString(skinObj.value("state"), state)) {
             continue;
         }
         if(state != "ACTIVE") {
             continue;
         }
-        if(!getString(skinObj.value("url"), skinOut.url)) {
+        if(!Parsers::getString(skinObj.value("url"), skinOut.url)) {
             continue;
         }
-        if(!getString(skinObj.value("variant"), skinOut.variant)) {
+        if(!Parsers::getString(skinObj.value("variant"), skinOut.variant)) {
             continue;
         }
         // we deal with only the active skin
@@ -545,20 +545,20 @@ bool parseMinecraftProfileFromJSON(QJsonObject & obj, MinecraftProfile &output)
     for(auto cape: capesArray) {
         auto capeObj = cape.toObject();
         Cape capeOut;
-        if(!getString(capeObj.value("id"), capeOut.id)) {
+        if(!Parsers::getString(capeObj.value("id"), capeOut.id)) {
             continue;
         }
         QString state;
-        if(!getString(capeObj.value("state"), state)) {
+        if(!Parsers::getString(capeObj.value("state"), state)) {
             continue;
         }
         if(state == "ACTIVE") {
             currentCape = capeOut.id;
         }
-        if(!getString(capeObj.value("url"), capeOut.url)) {
+        if(!Parsers::getString(capeObj.value("url"), capeOut.url)) {
             continue;
         }
-        if(!getString(capeObj.value("alias"), capeOut.alias)) {
+        if(!Parsers::getString(capeObj.value("alias"), capeOut.alias)) {
             continue;
         }
 
