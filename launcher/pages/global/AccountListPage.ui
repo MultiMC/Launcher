@@ -64,7 +64,7 @@
   </widget>
   <action name="actionAddMojang">
    <property name="text">
-    <string>Add Mojang</string>
+    <string>Add Account</string>
    </property>
   </action>
   <action name="actionRemove">
