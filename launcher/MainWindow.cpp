@@ -398,8 +398,8 @@ public:
         actionPatreon = TranslatedAction(MainWindow);
         actionPatreon->setObjectName(QStringLiteral("actionPatreon"));
         actionPatreon->setIcon(LAUNCHER->getThemedIcon("patreon"));
-        actionPatreon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Support %1"));
-        actionPatreon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the %1 Patreon page."));
+        actionPatreon.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Support MultiMC"));
+        actionPatreon.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the MultiMC Patreon page."));
         all_actions.append(&actionPatreon);
         mainToolBar->addAction(actionPatreon);
 
