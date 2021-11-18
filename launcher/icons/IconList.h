@@ -54,10 +54,13 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void installIcons(const QStringList &iconFiles) override;
-    void installIcon(const QString &file, const QString &name) override;
-
+    void installIcon(const QString &file, QString &name) override;
+    
     const MMCIcon * icon(const QString &key) const;
 
+    const QString getIconHash(QFile& file);
+    const QString getIconHash(const QString& fileName);
+    
     void startWatching();
     void stopWatching();
 

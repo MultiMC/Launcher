@@ -22,6 +22,7 @@
 #include <QFileSystemWatcher>
 #include <QSet>
 #include <QDebug>
+#include <QCryptographicHash>
 
 #define MAX_SIZE 1024
 
@@ -255,28 +256,97 @@ void IconList::installIcons(const QStringList &iconFiles)
     for (QString file : iconFiles)
     {
         QFileInfo fileinfo(file);
-        if (!fileinfo.isReadable() || !fileinfo.isFile())
+        if(!fileinfo.isReadable() || !fileinfo.isFile())
             continue;
-        QString target = FS::PathCombine(m_dir.dirName(), fileinfo.fileName());
 
+        QFile sourceFile(file);
+        if(!sourceFile.open(QIODevice::ReadOnly))
+            continue;
+        
         QString suffix = fileinfo.suffix();
         if (suffix != "jpeg" && suffix != "png" && suffix != "jpg" && suffix != "ico" && suffix != "svg" && suffix != "gif")
             continue;
+        
+        const QString sourceHash = getIconHash(sourceFile);
+        QString sourceFileName = fileinfo.baseName().remove("_" + sourceHash).remove(sourceHash);
+        sourceFileName = QString("%1_%2.%3").arg(sourceFileName, sourceHash, suffix);
+        QString target = FS::PathCombine(m_dir.dirName(), sourceFileName);
+        
+        if(QFile::exists(target))
+        {
+            QFile targetFile(target);
+            if(!targetFile.open(QIODevice::ReadOnly))
+                continue;
 
+            const QString targetHash = getIconHash(targetFile);
+            
+            if(sourceHash == targetHash)
+                continue;
+            
+            QString targetFileName = fileinfo.baseName().remove("_" + targetHash).remove(targetHash);
+            targetFileName = QString("%1_%2.%3").arg(targetFileName, targetHash, suffix);
+            targetFileName = FS::PathCombine(m_dir.dirName(), targetFileName);
+            if(!targetFile.rename(targetFileName))
+                continue;
+        }
         if (!QFile::copy(file, target))
             continue;
     }
 }
 
-void IconList::installIcon(const QString &file, const QString &name)
+void IconList::installIcon(const QString &file, QString &name)
 {
-    QFileInfo fileinfo(file);
-    if(!fileinfo.isReadable() || !fileinfo.isFile())
-        return;
+        QFileInfo fileinfo(file);
+        if(!fileinfo.isReadable() || !fileinfo.isFile())
+            return;
 
-    QString target = FS::PathCombine(m_dir.dirName(), name);
+        QFile sourceFile(file);
+        if(!sourceFile.open(QIODevice::ReadOnly))
+            return;
+        
+        QString suffix = fileinfo.suffix();
+        if (suffix != "jpeg" && suffix != "png" && suffix != "jpg" && suffix != "ico" && suffix != "svg" && suffix != "gif")
+            return;
+        
+        const QString sourceHash = getIconHash(sourceFile);
+        name = name.remove("_" + sourceHash).remove(sourceHash);
+        name = QString("%1_%2.%3").arg(name, sourceHash, suffix);
+        QString target = FS::PathCombine(m_dir.dirName(), name);
+        
+        if(QFile::exists(target))
+        {
+            QFile targetFile(target);
+            if(!targetFile.open(QIODevice::ReadOnly))
+                return;
 
-    QFile::copy(file, target);
+            const QString targetHash = getIconHash(targetFile);
+            
+            if(sourceHash == targetHash)
+                return;
+            
+            QString targetFileName = QString(name).remove("_" + targetHash).remove(targetHash);
+            targetFileName = QString("%1_%2.%3").arg(targetFileName, targetHash, suffix);
+            targetFileName = FS::PathCombine(m_dir.dirName(), targetFileName);
+            if(!targetFile.rename(targetFileName))
+                return;
+        }
+        if (!QFile::copy(file, target))
+            return;
+}
+
+const QString IconList::getIconHash(QFile& file)
+{
+    QByteArray iconByteArray = file.readAll();
+    const QString iconHash = QString(QCryptographicHash::hash((iconByteArray), QCryptographicHash::Md5).toHex());
+    return iconHash;
+}
+
+const QString IconList::getIconHash(const QString& fileName)
+{
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly))
+        return "";
+    return getIconHash(file);
 }
 
 bool IconList::iconFileExists(const QString &key) const
