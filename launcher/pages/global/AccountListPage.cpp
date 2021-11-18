@@ -45,7 +45,7 @@ AccountListPage::AccountListPage(QWidget *parent)
     ui->setupUi(this);
     ui->listView->setEmptyString(tr(
         "Welcome!\n"
-        "If you're new here, you can click the \"Add\" button to add your Mojang or Minecraft account."
+        "If you're new here, you can click the \"Add\" button to add your Mojang, local, or ElyBy account."
     ));
     ui->listView->setEmptyMode(VersionListView::String);
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -114,7 +114,7 @@ void AccountListPage::on_actionAddMojang_triggered()
 {
     MinecraftAccountPtr account = LoginDialog::newAccount(
         this,
-        tr("Please enter your Mojang account email and password to add your account.")
+        tr("Please enter your account email and password to add your account.")
     );
 
     if (account != nullptr)
@@ -142,7 +142,7 @@ void AccountListPage::on_actionAddMicrosoft_triggered()
     }
     MinecraftAccountPtr account = MSALoginDialog::newAccount(
         this,
-        tr("Please enter your Mojang account email and password to add your account.")
+        tr("Please enter your account email and password to add your account.")
     );
 
     if (account != nullptr)

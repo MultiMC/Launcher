@@ -4,7 +4,9 @@
 
 ## Pre-built binaries:
 - Windows / Linux / MacOS: https://nightly.link/AfoninZ/MultiMC5-Cracked/workflows/main/develop
-To update the launcher delete the bin directory and the executable and replace with the newer one. Do not use inbuilt option.
+
+To update the launcher replace all replaceable files and folders with the newer one from the above link. Do not use the inbuilt option, as that downloads the MultiMC launcher instead (this will be fixed in a future version).
+
 
 ## How to install and use
 1. Download pre-built binaries for your system.
@@ -17,7 +19,7 @@ To update the launcher delete the bin directory and the executable and replace w
 
 In case if you are using MacOS/Linux then additional step is to make a script `UltimMC` executable by using the command `chmod +x UltimMC` in the terminal
 
-To remove the "localhost:nnnn" or "ElyBy" in the minecraft main menu and F3, add `-Dauthlibinjector.noShowServerName` to the java arguments.
+To remove the "localhost:nnnn" or "ElyBy" in the minecraft main menu and F3, add `-Dauthlibinjector.noShowServerName` to the java arguments in UltimMC settings.
 
 # Details about the ORIGINAL launcher below:
 
