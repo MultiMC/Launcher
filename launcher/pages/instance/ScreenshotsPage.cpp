@@ -15,7 +15,7 @@
 #include <QKeyEvent>
 #include <QMenu>
 
-#include <Launcher.h>
+#include <Application.h>
 
 #include "dialogs/ProgressDialog.h"
 #include "dialogs/CustomMessageBox.h"
@@ -104,7 +104,7 @@ public:
     {
         m_thumbnailingPool.setMaxThreadCount(4);
         m_thumbnailCache = std::make_shared<SharedIconCache>();
-        m_thumbnailCache->add("placeholder", LAUNCHER->getThemedIcon("screenshot-placeholder"));
+        m_thumbnailCache->add("placeholder", APPLICATION->getThemedIcon("screenshot-placeholder"));
         connect(&watcher, SIGNAL(fileChanged(QString)), SLOT(fileChanged(QString)));
         // FIXME: the watched file set is not updated when files are removed
     }
@@ -347,8 +347,8 @@ void ScreenshotsPage::on_actionUpload_triggered()
     auto albumTask = NetJobPtr(new NetJob("Imgur Album Creation"));
     auto imgurAlbum = ImgurAlbumCreation::make(uploaded);
     albumTask->addNetAction(imgurAlbum);
-    task.addTask(job.unwrap());
-    task.addTask(albumTask.unwrap());
+    task.addTask(job);
+    task.addTask(albumTask);
     m_uploadActive = true;
     ProgressDialog prog(this);
     if (prog.execWithTask(&task) != QDialog::Accepted)

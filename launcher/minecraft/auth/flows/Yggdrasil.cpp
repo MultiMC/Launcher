@@ -23,11 +23,9 @@
 #include <QNetworkReply>
 #include <QByteArray>
 
-#include <Env.h>
-
-#include <BuildConfig.h>
-
 #include <QDebug>
+
+#include <Env.h>
 
 Yggdrasil::Yggdrasil(AccountData *data, QObject *parent)
     : AccountTask(data, parent)
@@ -40,7 +38,7 @@ void Yggdrasil::sendRequest(QUrl endpoint, QByteArray content) {
 
     QNetworkRequest netRequest(endpoint);
     netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    m_netReply = ENV.network().post(netRequest, content);
+    m_netReply = ENV->network().post(netRequest, content);
     connect(m_netReply, &QNetworkReply::finished, this, &Yggdrasil::processReply);
     connect(m_netReply, &QNetworkReply::uploadProgress, this, &Yggdrasil::refreshTimers);
     connect(m_netReply, &QNetworkReply::downloadProgress, this, &Yggdrasil::refreshTimers);
@@ -85,6 +83,7 @@ void Yggdrasil::refresh() {
     */
     req.insert("requestUser", false);
     QJsonDocument doc(req);
+
     QUrl reqUrl(m_data->provider->authEndpoint() + "refresh");
     QByteArray requestData = doc.toJson();
 
@@ -139,20 +138,18 @@ void Yggdrasil::login(QString password) {
 
 
 
-void Yggdrasil::refreshTimers(qint64, qint64)
-{
+void Yggdrasil::refreshTimers(qint64, qint64) {
     timeout_keeper.stop();
     timeout_keeper.start(timeout_max);
     progress(count = 0, timeout_max);
 }
-void Yggdrasil::heartbeat()
-{
+
+void Yggdrasil::heartbeat() {
     count += time_step;
     progress(count, timeout_max);
 }
 
-bool Yggdrasil::abort()
-{
+bool Yggdrasil::abort() {
     progress(timeout_max, timeout_max);
     // TODO: actually use this in a meaningful way
     m_aborted = Yggdrasil::BY_USER;
@@ -160,19 +157,16 @@ bool Yggdrasil::abort()
     return true;
 }
 
-void Yggdrasil::abortByTimeout()
-{
+void Yggdrasil::abortByTimeout() {
     progress(timeout_max, timeout_max);
     // TODO: actually use this in a meaningful way
     m_aborted = Yggdrasil::BY_TIMEOUT;
     m_netReply->abort();
 }
 
-void Yggdrasil::sslErrors(QList<QSslError> errors)
-{
+void Yggdrasil::sslErrors(QList<QSslError> errors) {
     int i = 1;
-    for (auto error : errors)
-    {
+    for (auto error : errors) {
         qCritical() << "LOGIN SSL Error #" << i << " : " << error.errorString();
         auto cert = error.certificate();
         qCritical() << "Certificate in question:\n" << cert.toText();
@@ -180,8 +174,7 @@ void Yggdrasil::sslErrors(QList<QSslError> errors)
     }
 }
 
-void Yggdrasil::processResponse(QJsonObject responseData)
-{
+void Yggdrasil::processResponse(QJsonObject responseData) {
     // Read the response data. We need to get the client token, access token, and the selected
     // profile.
     qDebug() << "Processing authentication response.";
@@ -190,8 +183,7 @@ void Yggdrasil::processResponse(QJsonObject responseData)
     // If we already have a client token, make sure the one the server gave us matches our
     // existing one.
     QString clientToken = responseData.value("clientToken").toString("");
-    if (clientToken.isEmpty())
-    {
+    if (clientToken.isEmpty()) {
         // Fail if the server gave us an empty client token
         changeState(STATE_FAILED_HARD, tr("Authentication server didn't send a client token."));
         return;
@@ -207,8 +199,7 @@ void Yggdrasil::processResponse(QJsonObject responseData)
     // Now, we set the access token.
     qDebug() << "Getting access token.";
     QString accessToken = responseData.value("accessToken").toString("");
-    if (accessToken.isEmpty())
-    {
+    if (accessToken.isEmpty()) {
         // Fail if the server didn't give us an access token.
         changeState(STATE_FAILED_HARD, tr("Authentication server didn't send an access token."));
         return;
@@ -216,6 +207,7 @@ void Yggdrasil::processResponse(QJsonObject responseData)
     // Set the access token.
     m_data->yggdrasilToken.token = accessToken;
     m_data->yggdrasilToken.validity = Katabasis::Validity::Certain;
+    m_data->yggdrasilToken.issueInstant = QDateTime::currentDateTimeUtc();
 
     if(responseData.contains("selectedProfile")) {
         yggdrasilProfile = responseData.value("selectedProfile").toObject();
@@ -227,8 +219,7 @@ void Yggdrasil::processResponse(QJsonObject responseData)
     changeState(STATE_SUCCEEDED);
 }
 
-void Yggdrasil::processReply()
-{
+void Yggdrasil::processReply() {
     changeState(STATE_WORKING);
 
     switch (m_netReply->error())
@@ -250,9 +241,9 @@ void Yggdrasil::processReply()
                 "<li>You use Windows and need to update your root certificates, please install any outstanding updates.</li>"
                 "<li>Some device on your network is interfering with SSL traffic. In that case, "
                 "you have bigger worries than Minecraft not starting.</li>"
-                "<li>Possibly something else. Check the %1 log file for details</li>"
+                "<li>Possibly something else. Check the log file for details</li>"
                 "</ul>"
-            ).arg(BuildConfig.LAUNCHER_NAME)
+            )
         );
         return;
     // used for invalid credentials and similar errors. Fall through.
@@ -281,19 +272,16 @@ void Yggdrasil::processReply()
     // Check the response code.
     int responseCode = m_netReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-    if (responseCode == 200)
-    {
+    if (responseCode == 200) {
         // If the response code was 200, then there shouldn't be an error. Make sure
         // anyways.
         // Also, sometimes an empty reply indicates success. If there was no data received,
         // pass an empty json object to the processResponse function.
-        if (jsonError.error == QJsonParseError::NoError || replyData.size() == 0)
-        {
+        if (jsonError.error == QJsonParseError::NoError || replyData.size() == 0) {
             processResponse(replyData.size() > 0 ? doc.object() : QJsonObject());
             return;
         }
-        else
-        {
+        else {
             changeState(
                 STATE_FAILED_SOFT,
                 tr("Failed to parse authentication server response JSON response: %1 at offset %2.").arg(jsonError.errorString()).arg(jsonError.offset)
@@ -307,16 +295,14 @@ void Yggdrasil::processReply()
     // about the error.
     // If we can parse the response, then get information from it. Otherwise just say
     // there was an unknown error.
-    if (jsonError.error == QJsonParseError::NoError)
-    {
+    if (jsonError.error == QJsonParseError::NoError) {
         // We were able to parse the server's response. Woo!
         // Call processError. If a subclass has overridden it then they'll handle their
         // stuff there.
         qDebug() << "The request failed, but the server gave us an error message. Processing error.";
         processError(doc.object());
     }
-    else
-    {
+    else {
         // The server didn't say anything regarding the error. Give the user an unknown
         // error.
         qDebug() << "The request failed and the server gave no error message. Unknown error.";
@@ -327,14 +313,12 @@ void Yggdrasil::processReply()
     }
 }
 
-void Yggdrasil::processError(QJsonObject responseData)
-{
+void Yggdrasil::processError(QJsonObject responseData) {
     QJsonValue errorVal = responseData.value("error");
     QJsonValue errorMessageValue = responseData.value("errorMessage");
     QJsonValue causeVal = responseData.value("cause");
 
-    if (errorVal.isString() && errorMessageValue.isString())
-    {
+    if (errorVal.isString() && errorMessageValue.isString()) {
         m_error = std::shared_ptr<Error>(
             new Error {
                 errorVal.toString(""),
@@ -344,8 +328,7 @@ void Yggdrasil::processError(QJsonObject responseData)
         );
         changeState(STATE_FAILED_HARD, m_error->m_errorMessageVerbose);
     }
-    else
-    {
+    else {
         // Error is not in standard format. Don't set m_error and return unknown error.
         changeState(STATE_FAILED_HARD, tr("An unknown Yggdrasil error occurred."));
     }
