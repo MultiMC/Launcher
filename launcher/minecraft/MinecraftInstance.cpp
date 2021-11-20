@@ -914,11 +914,14 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         process->appendStep(new VerifyJavaInstall(pptr));
     }
 
+    auto accounts = APPLICATION->accounts();
+    auto m_acct = accounts->getAccountByProfileName(session->player_name);
+
     // authlib patch
-    if (session->m_accountPtr->provider()->injectorEndpoint() != "")
+    if (m_acct->provider()->injectorEndpoint() != "")
     {
         auto step = new InjectAuthlib(pptr, &m_injector);
-        step->setAuthServer(session->m_accountPtr->provider()->injectorEndpoint().arg(localAuthServerPort));
+        step->setAuthServer(m_acct->provider()->injectorEndpoint().arg(localAuthServerPort));
         step->setOfflineMode(!session->wants_online);
         process->appendStep(step);
     }

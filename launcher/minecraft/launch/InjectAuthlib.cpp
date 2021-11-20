@@ -20,7 +20,7 @@ void InjectAuthlib::executeTask()
 
     auto latestVersionInfo = QString("https://authlib-injector.yushi.moe/artifact/latest.json");
     auto netJob = new NetJob("Injector versions info download");
-    MetaEntryPtr entry = ENV.metacache()->resolveEntry("injectors", "version.json");
+    MetaEntryPtr entry = ENV->metacache()->resolveEntry("injectors", "version.json");
     if (!m_offlineMode)
     {
         entry->setStale(true);
@@ -96,7 +96,7 @@ void InjectAuthlib::onVersionDownloadSucceeded()
     if (!m_offlineMode)
     {
         auto netJob = new NetJob("Injector download");
-        MetaEntryPtr entry = ENV.metacache()->resolveEntry("injectors", m_versionName);
+        MetaEntryPtr entry = ENV->metacache()->resolveEntry("injectors", m_versionName);
         entry->setStale(true);
         auto task = Net::Download::makeCached(QUrl(downloadUrl), entry);
         netJob->addNetAction(task);
