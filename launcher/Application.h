@@ -37,12 +37,12 @@ class MCEditTool;
 class AuthServer;
 class GAnalytics;
 
-#if defined(LAUNCHER)
-#undef LAUNCHER
+#if defined(APPLICATION)
+#undef APPLICATION
 #endif
-#define LAUNCHER (static_cast<Launcher *>(QCoreApplication::instance()))
+#define APPLICATION (static_cast<Application *>(QCoreApplication::instance()))
 
-class Launcher : public QApplication
+class Application : public QApplication
 {
     // friends for the purpose of limiting access to deprecated stuff
     Q_OBJECT
@@ -56,8 +56,8 @@ public:
     };
 
 public:
-    Launcher(int &argc, char **argv);
-    virtual ~Launcher();
+    Application(int &argc, char **argv);
+    virtual ~Application();
 
     GAnalytics *analytics() const
     {
@@ -112,10 +112,12 @@ public:
         return m_mcedit.get();
     }
 
-    std::shared_ptr<AccountList> accounts() const
+    shared_qobject_ptr<AccountList> accounts() const
     {
         return m_accounts;
     }
+
+    QString msaClientId() const;
 
     Status status() const
     {
@@ -190,7 +192,7 @@ private:
     FolderInstanceProvider * m_instanceFolder = nullptr;
     std::shared_ptr<IconList> m_icons;
     std::shared_ptr<UpdateChecker> m_updateChecker;
-    std::shared_ptr<AccountList> m_accounts;
+    shared_qobject_ptr<AccountList> m_accounts;
     std::shared_ptr<JavaInstallList> m_javalist;
     std::shared_ptr<TranslationsModel> m_translations;
     std::shared_ptr<GenericPageProvider> m_globalSettingsProvider;
@@ -201,7 +203,7 @@ private:
     QMap<QString, std::shared_ptr<BaseProfilerFactory>> m_profilers;
 
     QString m_rootPath;
-    Status m_status = Launcher::StartingUp;
+    Status m_status = Application::StartingUp;
 
 #if defined Q_OS_WIN32
     // used on Windows to attach the standard IO streams
