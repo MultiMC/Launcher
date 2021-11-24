@@ -1,36 +1,42 @@
 #include "Application.h"
 #include "BuildConfig.h"
-#include "MainWindow.h"
-#include "InstanceWindow.h"
 
-#include "instanceview/AccessibleInstanceView.h"
-#include <QAccessible>
+#include "ui/MainWindow.h"
+#include "ui/InstanceWindow.h"
 
-#include "pages/BasePageProvider.h"
-#include "pages/global/LauncherPage.h"
-#include "pages/global/MinecraftPage.h"
-#include "pages/global/JavaPage.h"
-#include "pages/global/LanguagePage.h"
-#include "pages/global/ProxyPage.h"
-#include "pages/global/ExternalToolsPage.h"
-#include "pages/global/AccountListPage.h"
-#include "pages/global/PasteEEPage.h"
-#include "pages/global/CustomCommandsPage.h"
+#include "ui/instanceview/AccessibleInstanceView.h"
 
-#include "themes/ITheme.h"
-#include "themes/SystemTheme.h"
-#include "themes/DarkTheme.h"
-#include "themes/BrightTheme.h"
-#include "themes/CustomTheme.h"
+#include "ui/pages/BasePageProvider.h"
+#include "ui/pages/global/LauncherPage.h"
+#include "ui/pages/global/MinecraftPage.h"
+#include "ui/pages/global/JavaPage.h"
+#include "ui/pages/global/LanguagePage.h"
+#include "ui/pages/global/ProxyPage.h"
+#include "ui/pages/global/ExternalToolsPage.h"
+#include "ui/pages/global/AccountListPage.h"
+#include "ui/pages/global/PasteEEPage.h"
+#include "ui/pages/global/CustomCommandsPage.h"
+
+#include "ui/themes/ITheme.h"
+#include "ui/themes/SystemTheme.h"
+#include "ui/themes/DarkTheme.h"
+#include "ui/themes/BrightTheme.h"
+#include "ui/themes/CustomTheme.h"
+
+#include "ui/setupwizard/SetupWizard.h"
+#include "ui/setupwizard/LanguageWizardPage.h"
+#include "ui/setupwizard/JavaWizardPage.h"
+#include "ui/setupwizard/AnalyticsWizardPage.h"
+
+#include "ui/dialogs/CustomMessageBox.h"
+
+#include "ui/pagedialog/PageDialog.h"
 
 #include "ApplicationMessage.h"
 
-#include "setupwizard/SetupWizard.h"
-#include "setupwizard/LanguageWizardPage.h"
-#include "setupwizard/JavaWizardPage.h"
-#include "setupwizard/AnalyticsWizardPage.h"
-
 #include <iostream>
+
+#include <QAccessible>
 #include <QDir>
 #include <QFileInfo>
 #include <QNetworkAccessManager>
@@ -41,14 +47,12 @@
 #include <QDebug>
 #include <QStyleFactory>
 
-#include "dialogs/CustomMessageBox.h"
 #include "InstanceList.h"
 
 #include <minecraft/auth/AuthProviders.h>
 #include <minecraft/auth/AccountList.h>
 #include "icons/IconList.h"
 #include "net/HttpMetaCache.h"
-#include "Env.h"
 
 #include "java/JavaUtils.h"
 
@@ -64,6 +68,7 @@
 #include "settings/Setting.h"
 
 #include "translations/TranslationsModel.h"
+#include "meta/Index.h"
 
 #include <Commandline.h>
 #include <FileSystem.h>
@@ -73,7 +78,6 @@
 #include <ganalytics.h>
 #include <sys.h>
 
-#include "pagedialog/PageDialog.h"
 #include <Secrets.h>
 
 
@@ -522,10 +526,6 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         FS::updateTimestamp(m_rootPath);
 #endif
 
-#ifdef MULTIMC_JARS_LOCATION
-        ENV->setJarsPath( TOSTRING(MULTIMC_JARS_LOCATION) );
-#endif
-
         qDebug() << BuildConfig.LAUNCHER_DISPLAYNAME << ", (c) 2013-2021 " << BuildConfig.LAUNCHER_COPYRIGHT;
         qDebug() << "Version                    : " << BuildConfig.printableVersionString();
         qDebug() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
@@ -732,6 +732,18 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     QAccessible::installFactory(groupViewAccessibleFactory);
 #endif /* !QT_NO_ACCESSIBILITY */
 
+    // initialize network access and proxy setup
+    {
+        m_network = new QNetworkAccessManager();
+        QString proxyTypeStr = settings()->get("ProxyType").toString();
+        QString addr = settings()->get("ProxyAddr").toString();
+        int port = settings()->get("ProxyPort").value<qint16>();
+        QString user = settings()->get("ProxyUser").toString();
+        QString pass = settings()->get("ProxyPass").toString();
+        updateProxySettings(proxyTypeStr, addr, port, user, pass);
+        qDebug() << "<> Network done.";
+    }
+
     // load translations
     {
         m_translations.reset(new TranslationsModel("translations"));
@@ -747,7 +759,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         auto platform = getIdealPlatform(BuildConfig.BUILD_PLATFORM);
         auto channelUrl = BuildConfig.UPDATER_BASE + platform + "/channels.json";
         qDebug() << "Initializing updater with platform: " << platform << " -- " << channelUrl;
-        m_updateChecker.reset(new UpdateChecker(channelUrl, BuildConfig.VERSION_CHANNEL, BuildConfig.VERSION_BUILD));
+        m_updateChecker.reset(new UpdateChecker(m_network, channelUrl, BuildConfig.VERSION_CHANNEL, BuildConfig.VERSION_BUILD));
         qDebug() << "<> Updater started.";
     }
 
@@ -766,7 +778,6 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         {
             m_icons->directoryChanged(value.toString());
         });
-        ENV->registerIconList(m_icons);
         qDebug() << "<> Instance icons intialized.";
     }
 
@@ -833,19 +844,26 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
 
     // init the http meta cache
     {
-        ENV->initHttpMetaCache();
+        m_metacache.reset(new HttpMetaCache("metacache"));
+        m_metacache->addBase("asset_indexes", QDir("assets/indexes").absolutePath());
+        m_metacache->addBase("asset_objects", QDir("assets/objects").absolutePath());
+        m_metacache->addBase("versions", QDir("versions").absolutePath());
+        m_metacache->addBase("libraries", QDir("libraries").absolutePath());
+        m_metacache->addBase("minecraftforge", QDir("mods/minecraftforge").absolutePath());
+        m_metacache->addBase("fmllibs", QDir("mods/minecraftforge/libs").absolutePath());
+        m_metacache->addBase("liteloader", QDir("mods/liteloader").absolutePath());
+        m_metacache->addBase("general", QDir("cache").absolutePath());
+        m_metacache->addBase("ATLauncherPacks", QDir("cache/ATLauncherPacks").absolutePath());
+        m_metacache->addBase("FTBPacks", QDir("cache/FTBPacks").absolutePath());
+        m_metacache->addBase("ModpacksCHPacks", QDir("cache/ModpacksCHPacks").absolutePath());
+        m_metacache->addBase("TechnicPacks", QDir("cache/TechnicPacks").absolutePath());
+        m_metacache->addBase("FlamePacks", QDir("cache/FlamePacks").absolutePath());
+        m_metacache->addBase("root", QDir::currentPath());
+        m_metacache->addBase("translations", QDir("translations").absolutePath());
+        m_metacache->addBase("icons", QDir("cache/icons").absolutePath());
+        m_metacache->addBase("meta", QDir("meta").absolutePath());
+        m_metacache->Load();
         qDebug() << "<> Cache initialized.";
-    }
-
-    // init proxy settings
-    {
-        QString proxyTypeStr = settings()->get("ProxyType").toString();
-        QString addr = settings()->get("ProxyAddr").toString();
-        int port = settings()->get("ProxyPort").value<qint16>();
-        QString user = settings()->get("ProxyUser").toString();
-        QString pass = settings()->get("ProxyPass").toString();
-        ENV->updateProxySettings(proxyTypeStr, addr, port, user, pass);
-        qDebug() << "<> Proxy settings done.";
     }
 
     // now we have network, download translation updates
@@ -906,7 +924,8 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_analytics = new GAnalytics(BuildConfig.ANALYTICS_ID, clientID, analyticsVersion, this);
         m_analytics->setLogLevel(GAnalytics::Debug);
         m_analytics->setAnonymizeIPs(true);
-        m_analytics->setNetworkAccessManager(&ENV->network());
+        // FIXME: the ganalytics library has no idea about our fancy shared pointers...
+        m_analytics->setNetworkAccessManager(network().get());
 
         if(m_settings->get("AnalyticsSeen").toInt() < m_analytics->version())
         {
@@ -1055,9 +1074,6 @@ void Application::showFatalErrorMessage(const QString& title, const QString& con
 
 Application::~Application()
 {
-    // kill the other globals.
-    Env::dispose();
-
     // Shut down logger by setting the logger function to nothing
     qInstallMessageHandler(nullptr);
 
@@ -1547,4 +1563,93 @@ void Application::on_windowClose()
 
 QString Application::msaClientId() const {
     return Secrets::getMSAClientID('-');
+}
+
+void Application::updateProxySettings(QString proxyTypeStr, QString addr, int port, QString user, QString password)
+{
+    // Set the application proxy settings.
+    if (proxyTypeStr == "SOCKS5")
+    {
+        QNetworkProxy::setApplicationProxy(
+            QNetworkProxy(QNetworkProxy::Socks5Proxy, addr, port, user, password));
+    }
+    else if (proxyTypeStr == "HTTP")
+    {
+        QNetworkProxy::setApplicationProxy(
+            QNetworkProxy(QNetworkProxy::HttpProxy, addr, port, user, password));
+    }
+    else if (proxyTypeStr == "None")
+    {
+        // If we have no proxy set, set no proxy and return.
+        QNetworkProxy::setApplicationProxy(QNetworkProxy(QNetworkProxy::NoProxy));
+    }
+    else
+    {
+        // If we have "Default" selected, set Qt to use the system proxy settings.
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+    }
+
+    qDebug() << "Detecting proxy settings...";
+    QNetworkProxy proxy = QNetworkProxy::applicationProxy();
+    m_network->setProxy(proxy);
+
+    QString proxyDesc;
+    if (proxy.type() == QNetworkProxy::NoProxy)
+    {
+        qDebug() << "Using no proxy is an option!";
+        return;
+    }
+    switch (proxy.type())
+    {
+    case QNetworkProxy::DefaultProxy:
+        proxyDesc = "Default proxy: ";
+        break;
+    case QNetworkProxy::Socks5Proxy:
+        proxyDesc = "Socks5 proxy: ";
+        break;
+    case QNetworkProxy::HttpProxy:
+        proxyDesc = "HTTP proxy: ";
+        break;
+    case QNetworkProxy::HttpCachingProxy:
+        proxyDesc = "HTTP caching: ";
+        break;
+    case QNetworkProxy::FtpCachingProxy:
+        proxyDesc = "FTP caching: ";
+        break;
+    default:
+        proxyDesc = "DERP proxy: ";
+        break;
+    }
+    proxyDesc += QString("%1:%2")
+                     .arg(proxy.hostName())
+                     .arg(proxy.port());
+    qDebug() << proxyDesc;
+}
+
+shared_qobject_ptr< HttpMetaCache > Application::metacache()
+{
+    return m_metacache;
+}
+
+shared_qobject_ptr<QNetworkAccessManager> Application::network()
+{
+    return m_network;
+}
+
+shared_qobject_ptr<Meta::Index> Application::metadataIndex()
+{
+    if (!m_metadataIndex)
+    {
+        m_metadataIndex.reset(new Meta::Index());
+    }
+    return m_metadataIndex;
+}
+
+QString Application::getJarsPath()
+{
+    if(m_jarsPath.isEmpty())
+    {
+        return FS::PathCombine(QCoreApplication::applicationDirPath(), "jars");
+    }
+    return m_jarsPath;
 }

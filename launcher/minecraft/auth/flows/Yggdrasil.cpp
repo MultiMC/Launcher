@@ -25,7 +25,7 @@
 
 #include <QDebug>
 
-#include <Env.h>
+#include "Application.h"
 
 Yggdrasil::Yggdrasil(AccountData *data, QObject *parent)
     : AccountTask(data, parent)
@@ -38,7 +38,7 @@ void Yggdrasil::sendRequest(QUrl endpoint, QByteArray content) {
 
     QNetworkRequest netRequest(endpoint);
     netRequest.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    m_netReply = ENV->network().post(netRequest, content);
+    m_netReply = APPLICATION->network()->post(netRequest, content);
     connect(m_netReply, &QNetworkReply::finished, this, &Yggdrasil::processReply);
     connect(m_netReply, &QNetworkReply::uploadProgress, this, &Yggdrasil::refreshTimers);
     connect(m_netReply, &QNetworkReply::downloadProgress, this, &Yggdrasil::refreshTimers);

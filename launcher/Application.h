@@ -18,7 +18,6 @@ class LocalPeer;
 class InstanceWindow;
 class MainWindow;
 class SetupWizard;
-class FolderInstanceProvider;
 class GenericPageProvider;
 class QFile;
 class HttpMetaCache;
@@ -37,6 +36,10 @@ class MCEditTool;
 class AuthServer;
 class GAnalytics;
 
+namespace Meta {
+    class Index;
+}
+
 #if defined(APPLICATION)
 #undef APPLICATION
 #endif
@@ -47,8 +50,7 @@ class Application : public QApplication
     // friends for the purpose of limiting access to deprecated stuff
     Q_OBJECT
 public:
-    enum Status
-    {
+    enum Status {
         StartingUp,
         Failed,
         Succeeded,
@@ -59,18 +61,15 @@ public:
     Application(int &argc, char **argv);
     virtual ~Application();
 
-    GAnalytics *analytics() const
-    {
+    GAnalytics *analytics() const {
         return m_analytics;
     }
 
-    std::shared_ptr<SettingsObject> settings() const
-    {
+    std::shared_ptr<SettingsObject> settings() const {
         return m_settings;
     }
 
-    qint64 timeSinceStart() const
-    {
+    qint64 timeSinceStart() const {
         return startTime.msecsTo(QDateTime::currentDateTime());
     }
 
@@ -82,9 +81,7 @@ public:
 
     void setApplicationTheme(const QString& name, bool initial);
 
-    // DownloadUpdateTask
-    std::shared_ptr<UpdateChecker> updateChecker()
-    {
+    shared_qobject_ptr<UpdateChecker> updateChecker() {
         return m_updateChecker;
     }
 
@@ -92,46 +89,44 @@ public:
 
     std::shared_ptr<JavaInstallList> javalist();
 
-    std::shared_ptr<InstanceList> instances() const
-    {
+    std::shared_ptr<InstanceList> instances() const {
         return m_instances;
     }
 
-    FolderInstanceProvider * folderProvider() const
-    {
-        return m_instanceFolder;
-    }
-
-    std::shared_ptr<IconList> icons() const
-    {
+    std::shared_ptr<IconList> icons() const {
         return m_icons;
     }
 
-    MCEditTool *mcedit() const
-    {
+    MCEditTool *mcedit() const {
         return m_mcedit.get();
     }
 
-    shared_qobject_ptr<AccountList> accounts() const
-    {
+    shared_qobject_ptr<AccountList> accounts() const {
         return m_accounts;
     }
 
     QString msaClientId() const;
 
-    Status status() const
-    {
+    Status status() const {
         return m_status;
     }
 
-    const QMap<QString, std::shared_ptr<BaseProfilerFactory>> &profilers() const
-    {
+    const QMap<QString, std::shared_ptr<BaseProfilerFactory>> &profilers() const {
         return m_profilers;
     }
 
+    void updateProxySettings(QString proxyTypeStr, QString addr, int port, QString user, QString password);
+
+    shared_qobject_ptr<QNetworkAccessManager> network();
+
+    shared_qobject_ptr<HttpMetaCache> metacache();
+
+    shared_qobject_ptr<Meta::Index> metadataIndex();
+
+    QString getJarsPath();
+
     /// this is the root of the 'installation'. Used for automatic updates
-    const QString &root()
-    {
+    const QString &root() {
         return m_rootPath;
     }
 
@@ -156,11 +151,11 @@ signals:
 
 public slots:
     bool launch(
-            InstancePtr instance,
-            bool online = true,
-            BaseProfilerFactory *profiler = nullptr,
-            MinecraftServerTargetPtr serverToJoin = nullptr,
-            MinecraftAccountPtr accountToUse = nullptr
+        InstancePtr instance,
+        bool online = true,
+        BaseProfilerFactory *profiler = nullptr,
+        MinecraftServerTargetPtr serverToJoin = nullptr,
+        MinecraftAccountPtr accountToUse = nullptr
     );
     bool kill(InstancePtr instance);
 
@@ -187,18 +182,25 @@ private:
 private:
     QDateTime startTime;
 
+    shared_qobject_ptr<QNetworkAccessManager> m_network;
+
+    shared_qobject_ptr<UpdateChecker> m_updateChecker;
+    shared_qobject_ptr<AccountList> m_accounts;
+
+    shared_qobject_ptr<HttpMetaCache> m_metacache;
+    shared_qobject_ptr<Meta::Index> m_metadataIndex;
+
     std::shared_ptr<SettingsObject> m_settings;
     std::shared_ptr<InstanceList> m_instances;
-    FolderInstanceProvider * m_instanceFolder = nullptr;
     std::shared_ptr<IconList> m_icons;
-    std::shared_ptr<UpdateChecker> m_updateChecker;
-    shared_qobject_ptr<AccountList> m_accounts;
     std::shared_ptr<JavaInstallList> m_javalist;
     std::shared_ptr<TranslationsModel> m_translations;
     std::shared_ptr<GenericPageProvider> m_globalSettingsProvider;
     std::map<QString, std::unique_ptr<ITheme>> m_themes;
     std::unique_ptr<MCEditTool> m_mcedit;
     std::shared_ptr<AuthServer> m_authserver;
+    QString m_jarsPath;
+    QSet<QString> m_features;
 
     QMap<QString, std::shared_ptr<BaseProfilerFactory>> m_profilers;
 
@@ -211,8 +213,7 @@ private:
 #endif
 
     // FIXME: attach to instances instead.
-    struct InstanceXtras
-    {
+    struct InstanceXtras {
         InstanceWindow * window = nullptr;
         shared_qobject_ptr<LaunchController> controller;
     };
