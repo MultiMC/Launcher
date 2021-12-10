@@ -94,15 +94,16 @@
 #include "MMCTime.h"
 
 namespace {
-QString getProfileDisplay(MinecraftAccountPtr account)
+QString profileInUseFilter(const QString & profile, bool used)
 {
-    QString additionalPart = account->typeString();
-    if(account->isInUse())
+    if(used)
     {
-        additionalPart += ", in use";
+        return QObject::tr("%1 (in use)").arg(profile);
     }
-
-    return ((QString)"%1 (%2)").arg(account->profileName(), additionalPart);
+    else
+    {
+        return profile;
+    }
 }
 }
 
@@ -1051,7 +1052,7 @@ void MainWindow::repopulateAccountsMenu()
         for (int i = 0; i < accounts->count(); i++)
         {
             MinecraftAccountPtr account = accounts->at(i);
-            auto profileLabel = getProfileDisplay(account);
+            auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
             QAction *action = new QAction(profileLabel, this);
             action->setData(i);
             action->setCheckable(true);
@@ -1129,7 +1130,7 @@ void MainWindow::defaultAccountChanged()
     // FIXME: this needs adjustment for MSA
     if (account && account->profileName() != "")
     {
-        auto profileLabel = getProfileDisplay(account);
+        auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
         accountMenuButton->setText(profileLabel);
         auto face = account->getFace();
         if(face.isNull()) {
