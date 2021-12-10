@@ -214,20 +214,11 @@ set(MINECRAFT_SOURCES
     minecraft/auth/AuthStep.h
     minecraft/auth/MinecraftAccount.cpp
     minecraft/auth/MinecraftAccount.h
-    minecraft/auth/AccountList.h
-    minecraft/auth/AccountTask.cpp
-    minecraft/auth/AccountTask.h
-    minecraft/auth/AuthSession.cpp
-    minecraft/auth/AuthSession.h
     minecraft/auth/Parsers.cpp
     minecraft/auth/Parsers.h
     minecraft/auth/Yggdrasil.cpp
     minecraft/auth/Yggdrasil.h
 
-    minecraft/auth/flows/AuthContext.h
-    minecraft/auth/flows/AuthContext.cpp
-    minecraft/auth/flows/AuthRequest.h
-    minecraft/auth/flows/AuthRequest.cpp
     minecraft/auth/providers/BaseAuthProvider.h
     minecraft/auth/providers/DummyAuthProvider.h
     minecraft/auth/providers/ElybyAuthProvider.h
