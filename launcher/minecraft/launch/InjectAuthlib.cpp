@@ -2,7 +2,7 @@
 #include <launch/LaunchTask.h>
 #include <minecraft/MinecraftInstance.h>
 #include <FileSystem.h>
-#include <Env.h>
+#include <Application.h>
 #include <Json.h>
 
 InjectAuthlib::InjectAuthlib(LaunchTask *parent, AuthlibInjectorPtr* injector) : LaunchStep(parent)
@@ -20,7 +20,7 @@ void InjectAuthlib::executeTask()
 
     auto latestVersionInfo = QString("https://authlib-injector.yushi.moe/artifact/latest.json");
     auto netJob = new NetJob("Injector versions info download");
-    MetaEntryPtr entry = ENV->metacache()->resolveEntry("injectors", "version.json");
+    MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("injectors", "version.json");
     if (!m_offlineMode)
     {
         entry->setStale(true);
@@ -30,7 +30,7 @@ void InjectAuthlib::executeTask()
         jobPtr.reset(netJob);
         QObject::connect(netJob, &NetJob::succeeded, this, &InjectAuthlib::onVersionDownloadSucceeded);
         QObject::connect(netJob, &NetJob::failed, this, &InjectAuthlib::onDownloadFailed);
-        jobPtr->start();
+        jobPtr->start(APPLICATION->network());
     }
     else
     {
@@ -96,7 +96,7 @@ void InjectAuthlib::onVersionDownloadSucceeded()
     if (!m_offlineMode)
     {
         auto netJob = new NetJob("Injector download");
-        MetaEntryPtr entry = ENV->metacache()->resolveEntry("injectors", m_versionName);
+        MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("injectors", m_versionName);
         entry->setStale(true);
         auto task = Net::Download::makeCached(QUrl(downloadUrl), entry);
         netJob->addNetAction(task);
@@ -104,7 +104,7 @@ void InjectAuthlib::onVersionDownloadSucceeded()
         jobPtr.reset(netJob);
         QObject::connect(netJob, &NetJob::succeeded, this, &InjectAuthlib::onDownloadSucceeded);
         QObject::connect(netJob, &NetJob::failed, this, &InjectAuthlib::onDownloadFailed);
-        jobPtr->start();
+        jobPtr->start(APPLICATION->network());
     }
     else
     {
