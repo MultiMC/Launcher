@@ -18,6 +18,5 @@ void MSAInteractive::executeTask() {
 
     beginActivity(Katabasis::Activity::LoggingIn);
     m_oauth2->unlink();
-    *m_data = AccountData();
     m_oauth2->link();
 }

@@ -33,6 +33,7 @@
 
 #include "flows/MojangRefresh.h"
 #include "flows/MojangLogin.h"
+#include "AuthProviders.h"
 
 MinecraftAccountPtr MinecraftAccount::loadFromJsonV2(const QJsonObject& json) {
     MinecraftAccountPtr account(new MinecraftAccount());
@@ -63,6 +64,7 @@ MinecraftAccountPtr MinecraftAccount::createBlankMSA()
 {
     MinecraftAccountPtr account(new MinecraftAccount());
     account->data.type = AccountType::MSA;
+    account->setProvider(AuthProviders::lookup("MSA"));
     return account;
 }
 

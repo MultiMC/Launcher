@@ -862,6 +862,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_metacache->addBase("translations", QDir("translations").absolutePath());
         m_metacache->addBase("icons", QDir("cache/icons").absolutePath());
         m_metacache->addBase("meta", QDir("meta").absolutePath());
+        m_metacache->addBase("injectors", QDir("injectors").absolutePath());
         m_metacache->Load();
         qDebug() << "<> Cache initialized.";
     }

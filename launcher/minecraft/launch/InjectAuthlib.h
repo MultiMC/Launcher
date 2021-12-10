@@ -50,7 +50,7 @@ private slots:
     void onDownloadFailed(QString reason);
 
 private:
-    shared_qobject_ptr<Task> jobPtr;
+    shared_qobject_ptr<NetJob> jobPtr;
     bool m_aborted = false;
 
     bool m_offlineMode;

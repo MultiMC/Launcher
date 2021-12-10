@@ -218,6 +218,7 @@ set(MINECRAFT_SOURCES
     minecraft/auth/providers/DummyAuthProvider.h
     minecraft/auth/providers/ElybyAuthProvider.h
     minecraft/auth/providers/MojangAuthProvider.h
+    minecraft/auth/providers/MicrosoftAuthProvider.h
 
     minecraft/auth/flows/MSAInteractive.h
     minecraft/auth/flows/MSAInteractive.cpp

@@ -29,6 +29,7 @@
 #include "minecraft/launch/ScanModFolders.h"
 #include "minecraft/launch/InjectAuthlib.h"
 #include "minecraft/launch/VerifyJavaInstall.h"
+#include "minecraft/auth/AccountList.h"
 
 #include "java/JavaUtils.h"
 
@@ -311,7 +312,9 @@ QStringList MinecraftInstance::javaArguments() const
 {
     QStringList args;
 
-    args.append(m_injector->javaArg);
+    if (m_injector) {
+        args.append(m_injector->javaArg);
+    }
 
     // custom args go first. we want to override them if we have our own here.
     args.append(extraArguments());
