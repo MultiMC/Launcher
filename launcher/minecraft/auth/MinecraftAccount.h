@@ -24,6 +24,7 @@
 #include <QPixmap>
 
 #include <memory>
+
 #include "AuthSession.h"
 #include "Usable.h"
 #include "AccountData.h"
@@ -53,12 +54,6 @@ Q_DECLARE_METATYPE(MinecraftAccountPtr)
     //bool legacy;
 //};
 
-enum AccountStatus
-{
-    NotVerified,
-    Verified
-};
-
 /**
  * Object that stores information about a certain Mojang account.
  *
@@ -75,7 +70,7 @@ public: /* construction */
     explicit MinecraftAccount(const MinecraftAccount &other, QObject *parent) = delete;
 
     //! Default constructor
-    explicit MinecraftAccount(QObject *parent = 0) : QObject(parent) {};
+    explicit MinecraftAccount(QObject *parent = 0);
 
     static MinecraftAccountPtr createFromUsername(const QString &username);
 
@@ -93,11 +88,13 @@ public: /* manipulation */
      * Attempt to login. Empty password means we use the token.
      * If the attempt fails because we already are performing some task, it returns false.
      */
-    shared_qobject_ptr<AccountTask> login(AuthSessionPtr session, QString password);
+    shared_qobject_ptr<AccountTask> login(QString password);
 
-    shared_qobject_ptr<AccountTask> loginMSA(AuthSessionPtr session);
+    shared_qobject_ptr<AccountTask> loginMSA();
 
-    shared_qobject_ptr<AccountTask> refresh(AuthSessionPtr session);
+    shared_qobject_ptr<AccountTask> refresh();
+
+    shared_qobject_ptr<AccountTask> currentTask();
 
 public: /* queries */
     bool setProvider(AuthProviderPtr provider) {
@@ -107,6 +104,10 @@ public: /* queries */
 
     AuthProviderPtr provider() {
         return data.provider;
+    }
+
+    QString internalId() const {
+        return data.internalId;
     }
 
     QString accountDisplayString() const {
@@ -139,6 +140,14 @@ public: /* queries */
         return data.type == AccountType::MSA;
     }
 
+    bool ownsMinecraft() const {
+        return data.minecraftEntitlement.ownsMinecraft;
+    }
+
+    bool hasProfile() const {
+        return data.profileId().size() != 0;
+    }
+
     QString typeString() const {
         switch(data.type) {
             case AccountType::Mojang: {
@@ -160,14 +169,20 @@ public: /* queries */
 
     QPixmap getFace() const;
 
-    //! Returns whether the account is NotVerified, Verified or Online
-    AccountStatus accountStatus() const;
+    //! Returns the current state of the account
+    AccountState accountState() const;
 
     AccountData * accountData() {
         return &data;
     }
 
     bool shouldRefresh() const;
+
+    void fillSession(AuthSessionPtr session);
+
+    QString lastError() const {
+        return data.lastError();
+    }
 
 signals:
     /**
@@ -194,7 +209,4 @@ private
 slots:
     void authSucceeded();
     void authFailed(QString reason);
-
-private:
-    void fillSession(AuthSessionPtr session);
 };

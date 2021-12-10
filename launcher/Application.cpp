@@ -839,6 +839,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         qDebug() << "Loading accounts...";
         m_accounts->setListFilePath("accounts.json", true);
         m_accounts->loadList();
+        m_accounts->fillQueue();
         qDebug() << "<> Accounts loaded.";
     }
 
