@@ -313,6 +313,7 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
     auto typeS = typeV.toString();
     if(typeS == "MSA") {
         type = AccountType::MSA;
+        provider = AuthProviders::lookup("MSA");
     } else {
         type = AccountType::Mojang;
         provider = AuthProviders::lookup(typeS);

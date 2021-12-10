@@ -2,6 +2,7 @@
 #include "providers/ElybyAuthProvider.h"
 #include "providers/DummyAuthProvider.h"
 #include "providers/MojangAuthProvider.h"
+#include "providers/MicrosoftAuthProvider.h"
 #include "../../AuthServer.h"
 
 #define REGISTER_AUTH_PROVIDER(Provider)          \
@@ -20,6 +21,7 @@ namespace AuthProviders
         REGISTER_AUTH_PROVIDER(ElybyAuthProvider);
         REGISTER_AUTH_PROVIDER(DummyAuthProvider);
         REGISTER_AUTH_PROVIDER(MojangAuthProvider);
+        REGISTER_AUTH_PROVIDER(MicrosoftAuthProvider);
     }
 
     AuthProviderPtr lookup(QString id)
