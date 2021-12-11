@@ -31,6 +31,12 @@ In general, in order of importance:
 ## Translations
 Translations can be done [on crowdin](https://translate.multimc.org). Please avoid making direct pull requests to the translations repository.
 
+## Java Issue
+According to the official Minecraft 1.18 update. You will need jdk 17 to run it properly. If you are also playing some older versions at the same time. You might need to switch betweek jdk 17 and jre 8. To solve the issue. It is pretty easy! You can configure java versions in the instance settings so you don't need to switch around all the time
+java 8 for anything older than 1.16, java 17 for anything newer
+
+https://github.com/MultiMC/Launcher/wiki/Using-the-right-Java#set-instance-java-installation
+
 ## Forking/Redistributing/Custom builds policy
 We keep MultiMC open source because we think it's important to be able to see the source code for a project like this, and we do so using the Apache license.
 
