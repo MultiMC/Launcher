@@ -7,6 +7,25 @@ MultiMC 5
 
 MultiMC is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.
 
+## Installation
+Packages for MultiMC are available for Arch Linux and Gentoo Linux, both from source and from binary. Other distributions/operating systems must download from the [official website](https://multimc.org/#Download).
+
+Arch Linux: [multimc-git](https://aur.archlinux.org/packages/multimc-git/):
+
+```bash
+git clone https://aur.archlinux.org/multimc-git.git
+cd multimc-git
+makepkg -si
+```
+
+Gentoo Linux: [Add](https://git.swurl.xyz/swirl/ebuilds#adding-the-repository) the "swirl" repository, then emerge:
+
+```bash
+emerge --ask --noreplace eselect-repository
+eselect repository enable swirl
+emerge multimc
+```
+
 ## Development
 If you want to contribute, talk to us on [Discord](https://discord.gg/multimc) first.
 
