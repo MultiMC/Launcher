@@ -1,4 +1,5 @@
 /* Copyright 2013-2021 MultiMC Contributors
+ * Copyright 2021-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@
 
 #include "ui/pages/BasePage.h"
 #include <Application.h>
+#include "net/NetJob.h"
 #include "tasks/Task.h"
 #include "TechnicData.h"
 
@@ -65,14 +67,22 @@ public:
 private:
     void suggestCurrent();
     void metadataLoaded();
+    void selectVersion();
 
 private slots:
     void triggerSearch();
     void onSelectionChanged(QModelIndex first, QModelIndex second);
+    void onSolderLoaded();
+    void onVersionSelectionChanged(QString data);
 
 private:
     Ui::TechnicPage *ui = nullptr;
     NewInstanceDialog* dialog = nullptr;
     Technic::ListModel* model = nullptr;
+
     Technic::Modpack current;
+    QString selectedVersion;
+
+    NetJob::Ptr jobPtr;
+    QByteArray response;
 };
