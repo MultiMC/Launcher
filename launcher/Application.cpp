@@ -840,6 +840,16 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         qDebug() << "<> Accounts loaded.";
     }
 
+    // and java runtimes
+    {
+        m_runtimes.reset(new RuntimeManager(this));
+        qDebug() << "Initializing runtimes...";
+        m_runtimes->setListFilePath("runtimes.json", true);
+        m_runtimes->loadLocal();
+        m_runtimes->fillQueue();
+        qDebug() << "<> Runtimes loading.";
+    }
+
     // init the http meta cache
     {
         m_metacache.reset(new HttpMetaCache("metacache"));

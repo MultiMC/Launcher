@@ -24,6 +24,7 @@ class HttpMetaCache;
 class SettingsObject;
 class InstanceList;
 class AccountList;
+class RuntimeManager;
 class IconList;
 class QNetworkAccessManager;
 class JavaInstallList;
@@ -185,6 +186,7 @@ private:
 
     shared_qobject_ptr<UpdateChecker> m_updateChecker;
     shared_qobject_ptr<AccountList> m_accounts;
+    shared_qobject_ptr<RuntimeManager> m_runtimes;
 
     shared_qobject_ptr<HttpMetaCache> m_metacache;
     shared_qobject_ptr<Meta::Index> m_metadataIndex;
