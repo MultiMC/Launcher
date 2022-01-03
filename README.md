@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="https://avatars2.githubusercontent.com/u/5411890" alt="MultiMC logo"/>
+  <img src="https://avatars2.githubusercontent.com/u/5411890" alt="Launcher logo"/>
 </p>
 
-MultiMC 5
+Launcher
 =========
 
-MultiMC is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.
+Launcher is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.
 
 ## Development
 If you want to contribute, talk to us on [Discord](https://discord.gg/multimc) first.
@@ -15,7 +15,7 @@ While blindly submitting PRs is definitely possible, they're not necessarily goi
 We aren't looking for flashy features, but expanding upon the existing feature set without distruption or endangering future viability of the project is OK.
 
 ### Building
-If you want to build MultiMC yourself, check [BUILD.md](BUILD.md) for build instructions.
+If you want to build Launcher yourself, check [BUILD.md](BUILD.md) for build instructions.
 
 ### Code formatting
 Just follow the existing formatting.
@@ -34,9 +34,9 @@ Translations can be done [on crowdin](https://translate.multimc.org). Please avo
 ## Forking/Redistributing/Custom builds policy
 We keep Launcher open source because we think it's important to be able to see the source code for a project like this, and we do so using the Apache license.
 
-Part of the reason for using the Apache license is that we don't want people using the "MultiMC" name when redistributing the project. This means people must take the time to go through the source code and remove all references to "MultiMC", including but not limited to the project icon and the title of windows, (no *MultiMC-fork* in the title).
+Part of the reason for using the Apache license is that we don't want people using the "MultiMC" name when redistributing Launcher. This means people must take the time to go through the source code and remove all residual references to "MultiMC", including but not limited to icons and window titles, (no *MultiMC-fork* in the title).
 
-Apache covers reasonable use for the name - a mention of the project's origins in the About dialog and the license is acceptable. However, it should be abundantly clear that the project is a fork *without* implying that you have our blessing.
+Apache covers reasonable use for the name - a mention of the project's origins in the About dialog and the license is acceptable (such as saying in a package description that your redistribution is "MultiMC-like", similar to how some OSes call themselves "Unix-like"). However, it should be abundantly clear that the project is a fork *without* implying that you have our blessing.
 
 
 ## License
