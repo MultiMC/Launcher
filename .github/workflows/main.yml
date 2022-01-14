@@ -34,7 +34,6 @@ jobs:
            -DLauncher_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
            -DLauncher_ANALYTICS_ID:STRING=UA-87731965-2 \
            -DLauncher_LAYOUT=lin-nodeps \
-           -DLauncher_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Linux64_Build/builds/status:success/number) \
            -DLauncher_BUILD_PLATFORM=lin64 \
            $GITHUB_WORKSPACE
 
@@ -58,7 +57,7 @@ jobs:
           chmod +x /home/runner/UltimMC/UltimMC/bin/UltimMC
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: mmc-cracked-lin64
           path: /home/runner/UltimMC
@@ -73,14 +72,14 @@ jobs:
           submodules: 'recursive'
 
       - name: Cache Qt
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         id: qt-cached
         with:
           path: "D:/Qt"
           key: ${{ runner.os }}-qt56-installed-d
 
       - name: Cache Qt Installer
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         if: steps.qt-cached.outputs.cache-hit != 'true'
         id: installer-cached
         with:
@@ -91,7 +90,7 @@ jobs:
         if: steps.qt-cached.outputs.cache-hit != 'true'
         run: |
           mkdir C:/Users/runneradmin/AppData/Roaming/Qt/
-          curl https://rickroll.is-inside.me/nPqUqs16.txt --output C:/Users/runneradmin/AppData/Roaming/Qt/qtaccount.ini
+          curl https://gist.github.com/Sebastian-byte/1086e0a3126be6a66580b71afcf8bd99/raw/797d8b90edf07ce88f265b38a573cc6b1fb45bfb/qtaccount.txt --output C:/Users/runneradmin/AppData/Roaming/Qt/qtaccount.ini
 
       - name: Download Qt Installer
         if: steps.installer-cached.outputs.cache-hit != 'true' && steps.qt-cached.outputs.cache-hit != 'true'
@@ -108,11 +107,11 @@ jobs:
 
       - name: Setup CMake
         run: |
-          curl -L https://github.com/Kitware/CMake/releases/download/v3.21.4/cmake-3.21.4-windows-i386.zip -o cmake.zip
+          curl -L https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-windows-i386.zip -o cmake.zip
           unzip cmake.zip
 
       - name: Setup JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v2.5.0
         with:
           distribution: 'zulu'
           java-version: '8'
@@ -138,11 +137,10 @@ jobs:
         shell: cmd
         if: steps.build-cached.outputs.cache-hit != 'true'
         run: |
-          for /F "tokens=*" %%n IN ('curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_Windows_Build/builds/status:success/number') DO @(set BUILD_NUM=%%n)
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%CD%\zlib\lib;%CD%\zlib\include;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.21.4-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.22.1-windows-i386\bin;%PATH%
           set CC=D:\Qt\Tools\mingw492_32\bin\gcc.exe
           set CXX=D:\Qt\Tools\mingw492_32\bin\g++.exe
           mkdir build
@@ -155,7 +153,6 @@ jobs:
            -DLauncher_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ ^
            -DLauncher_ANALYTICS_ID:STRING=UA-87731965-2 ^
            -DLauncher_LAYOUT=win-bundle ^
-           -DLauncher_VERSION_BUILD=%BUILD_NUM% ^
            -DLauncher_BUILD_PLATFORM=win32 ^
            -G "MinGW Makefiles" ^
            ..
@@ -166,7 +163,7 @@ jobs:
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.21.4-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.22.1-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make tcversion
@@ -178,7 +175,7 @@ jobs:
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.21.4-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.22.1-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make test
@@ -190,7 +187,7 @@ jobs:
           set PATH=D:\Qt\5.6.3\mingw49_32\bin;D:\Qt\Tools\mingw492_32\bin;
           set PATH=%CD%\zlib;%CD%\zlib\bin;%PATH%
           set PATH=%CD%\OpenSSL;%PATH%
-          set PATH=%CD%\cmake-3.21.4-windows-i386\bin;%PATH%
+          set PATH=%CD%\cmake-3.22.1-windows-i386\bin;%PATH%
           set PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;%PATH%
           cd build
           mingw32-make install
@@ -202,7 +199,7 @@ jobs:
           cp OpenSSL/libeay32.dll D:/UltimMC/UltimMC/libeay32.dll
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: mmc-cracked-win32
           path: "D:/UltimMC"
@@ -217,7 +214,7 @@ jobs:
           submodules: 'recursive'
 
       - name: Cache Dependencies
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: /Users/runner/Library/Caches/Homebrew
           key: ${{ runner.os }}-deps-cache
@@ -267,7 +264,7 @@ jobs:
           chmod +x /Users/runner/work/UltimMC/build/dist/UltimMC.app/Contents/MacOS/UltimMC
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v2.3.1
         with:
           name: mmc-cracked-osx64
           path: /Users/runner/work/UltimMC/build/dist
