@@ -240,7 +240,6 @@ jobs:
           -DLauncher_PASTE_EE_API_KEY:STRING=utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ \
           -DLauncher_ANALYTICS_ID:STRING=UA-87731965-2 \
           -DLauncher_LAYOUT=mac-bundle \
-          -DLauncher_VERSION_BUILD=$(curl https://teamcity.multimc.org/guestAuth/app/rest/buildTypes/MultiMC_Launcher_MacOSAmd645152_Build/builds/status:success/number) \
           -DLauncher_BUILD_PLATFORM=osx64-5.15.2 \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 \
           $GITHUB_WORKSPACE
