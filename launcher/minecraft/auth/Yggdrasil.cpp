@@ -209,10 +209,6 @@ void Yggdrasil::processResponse(QJsonObject responseData) {
     m_data->yggdrasilToken.validity = Katabasis::Validity::Certain;
     m_data->yggdrasilToken.issueInstant = QDateTime::currentDateTimeUtc();
 
-    if(responseData.contains("selectedProfile")) {
-        yggdrasilProfile = responseData.value("selectedProfile").toObject();
-    }
-
     // We've made it through the minefield of possible errors. Return true to indicate that
     // we've succeeded.
     qDebug() << "Finished reading authentication response.";

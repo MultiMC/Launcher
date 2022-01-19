@@ -28,8 +28,6 @@
 
 #include <QPainter>
 
-#include "flows/MojangRefresh.h"
-#include "flows/MojangLogin.h"
 #include "AuthProviders.h"
 #include "flows/MSA.h"
 #include "flows/Mojang.h"
