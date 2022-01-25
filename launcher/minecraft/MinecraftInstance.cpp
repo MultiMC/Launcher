@@ -876,10 +876,10 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     }
 
     // if we aren't in offline mode,.
-    if(session->status != AuthSession::PlayableOffline)
+    /*if(session->status != AuthSession::PlayableOffline)
     {
         process->appendStep(new ClaimAccount(pptr, session));
-    }
+    }*/
 
     // do update only if we're in online mode
     if (session->wants_online)

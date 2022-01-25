@@ -415,7 +415,8 @@ QString AccountData::profileId() const {
 
 QString AccountData::profileName() const {
     if(minecraftProfile.name.size() == 0) {
-        return QObject::tr("No profile (%1)").arg(accountDisplayString());
+        // Fix for too long of a name
+        return QObject::tr("%1").arg(accountDisplayString());
     }
     else {
         return minecraftProfile.name;

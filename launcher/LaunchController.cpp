@@ -121,61 +121,7 @@ void LaunchController::login() {
                 // NOTE: fallthrough is intentional
             }
             case AccountState::Online: {
-                if(!m_session->wants_online) {
-                    // we ask the user for a player name
-                    bool ok = false;
-                    QString usedname = m_session->player_name;
-                    QString name = QInputDialog::getText(
-                        m_parentWidget,
-                        tr("Player name"),
-                        tr("Choose your offline mode player name."),
-                        QLineEdit::Normal,
-                        m_session->player_name,
-                        &ok
-                    );
-                    if (!ok)
-                    {
-                        tryagain = false;
-                        break;
-                    }
-                    if (name.length())
-                    {
-                        usedname = name;
-                    }
-                    m_session->MakeOffline(usedname);
-                    // offline flavored game from here :3
-                }
-                if(m_accountToUse->ownsMinecraft() && !m_accountToUse->hasProfile()) {
-                    auto entitlement = m_accountToUse->accountData()->minecraftEntitlement;
-                    QString errorString;
-                    if(!entitlement.canPlayMinecraft) {
-                        errorString = tr("The account does not own Minecraft. You need to purchase the game first to play it.");
-                        QMessageBox::warning(
-                            nullptr,
-                            tr("Missing Minecraft profile"),
-                            errorString,
-                            QMessageBox::StandardButton::Ok,
-                            QMessageBox::StandardButton::Ok
-                        );
-                        emitFailed(errorString);
-                        return;
-                    }
-                    // Now handle setting up a profile name here...
-                    ProfileSetupDialog dialog(m_accountToUse, m_parentWidget);
-                    if (dialog.exec() == QDialog::Accepted)
-                    {
-                        tryagain = true;
-                        continue;
-                    }
-                    else
-                    {
-                        emitFailed(tr("Received undetermined session status during login."));
-                        return;
-                    }
-                }
-                else {
-                    launchInstance();
-                }
+                launchInstance();
                 return;
             }
             case AccountState::Errored:

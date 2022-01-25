@@ -42,6 +42,7 @@ void MinecraftProfileStep::onRequestDone(
 #ifndef NDEBUG
     qDebug() << data;
 #endif
+    /*
     if (error == QNetworkReply::ContentNotFoundError) {
         // NOTE: Succeed even if we do not have a profile. This is a valid account state.
         if(m_data->type == AccountType::Mojang) {
@@ -55,27 +56,33 @@ void MinecraftProfileStep::onRequestDone(
         );
         return;
     }
-    if (error != QNetworkReply::NoError) {
+    */
+
+    // This is too generic of a error handler
+    // Should be replaced with a switch for errors
+    /*if (error != QNetworkReply::NoError) {
         emit finished(
             AccountTaskState::STATE_FAILED_SOFT,
             tr("Minecraft Java profile acquisition failed.")
         );
         return;
-    }
-    if(!Parsers::parseMinecraftProfile(data, m_data->minecraftProfile)) {
+    }*/
+    /*if(!Parsers::parseMinecraftProfile(data, m_data->minecraftProfile)) {
         m_data->minecraftProfile = MinecraftProfile();
         emit finished(
             AccountTaskState::STATE_FAILED_SOFT,
             tr("Minecraft Java profile response could not be parsed")
         );
         return;
-    }
+    }*/
 
     if(m_data->type == AccountType::Mojang) {
-        auto validProfile = m_data->minecraftProfile.validity == Katabasis::Validity::Certain;
-        m_data->minecraftEntitlement.canPlayMinecraft = validProfile;
-        m_data->minecraftEntitlement.ownsMinecraft = validProfile;
+        //auto validProfile = m_data->minecraftProfile.validity == Katabasis::Validity::Certain;
+        // IDK if this should be modified or not but still just to be sure
+        m_data->minecraftEntitlement.canPlayMinecraft = true;
+        m_data->minecraftEntitlement.ownsMinecraft = true;
     }
+    
     emit finished(
         AccountTaskState::STATE_WORKING,
         tr("Minecraft Java profile acquisition succeeded.")
