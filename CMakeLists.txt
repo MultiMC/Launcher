@@ -91,7 +91,7 @@ set(MultiMC_DISCORD_URL "" CACHE STRING "URL for the Discord guild.")
 set(MultiMC_SUBREDDIT_URL "" CACHE STRING "URL for the subreddit.")
 
 # MSA Client ID
-set(MultiMC_MSA_CLIENT_ID "0d742867-f14f-4ad9-9d0b-13692c38dc3a" CACHE STRING "Client ID used for MSA authentication")
+set(MultiMC_MSA_CLIENT_ID "c158633f-4040-414a-b5fa-6d47a62424fd" CACHE STRING "Client ID used for MSA authentication")
 
 #### Check the current Git commit and branch
 include(GetGitRevisionDescription)
