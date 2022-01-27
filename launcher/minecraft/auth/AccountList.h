@@ -40,12 +40,15 @@ public:
         // TODO: Add icon column.
         NameColumn = 0,
         ProfileNameColumn,
+        MigrationColumn,
         TypeColumn,
+        StatusColumn,
 
         NUM_COLUMNS
     };
 
     explicit AccountList(QObject *parent = 0);
+    virtual ~AccountList() noexcept;
 
     const MinecraftAccountPtr at(int i) const;
     int count() const;
@@ -61,6 +64,13 @@ public:
     void addAccount(const MinecraftAccountPtr account);
     void removeAccount(QModelIndex index);
     int findAccountByProfileId(const QString &profileId) const;
+    MinecraftAccountPtr getAccountByProfileName(const QString &profileName) const;
+    QStringList profileNames() const;
+
+    // requesting a refresh pushes it to the front of the queue
+    void requestRefresh(QString accountId);
+    // queuing a refresh will let it go to the back of the queue (unless it's somewhere inside the queue already)
+    void queueRefresh(QString accountId);
 
     /*!
      * Sets the path to load/save the list file from/to.
@@ -76,13 +86,24 @@ public:
     bool loadV3(QJsonObject &root);
     bool saveList();
 
-    MinecraftAccountPtr activeAccount() const;
-    void setActiveAccount(const QString &profileId);
+    MinecraftAccountPtr defaultAccount() const;
+    void setDefaultAccount(MinecraftAccountPtr profileId);
     bool anyAccountIsValid();
 
+    bool isActive() const;
+
+protected:
+    void beginActivity();
+    void endActivity();
+
+private:
+    const char* m_name;
+    uint32_t m_activityCount = 0;
 signals:
     void listChanged();
-    void activeAccountChanged();
+    void listActivityChanged();
+    void defaultAccountChanged();
+    void activityChanged(bool active);
 
 public slots:
     /**
@@ -90,7 +111,28 @@ public slots:
      */
     void accountChanged();
 
+    /**
+     * This is called when a (refresh/login) task involving the account starts or ends
+     */
+    void accountActivityChanged(bool active);
+
+    /**
+     * This is initially to run background account refresh tasks, or on a hourly timer
+     */
+    void fillQueue();
+
+private slots:
+    void tryNext();
+
+    void authSucceeded();
+    void authFailed(QString reason);
+
 protected:
+    QList<QString> m_refreshQueue;
+    QTimer *m_refreshTimer;
+    QTimer *m_nextTimer;
+    shared_qobject_ptr<AccountTask> m_currentTask;
+
     /*!
      * Called whenever the list changes.
      * This emits the listChanged() signal and autosaves the list (if autosave is enabled).
@@ -99,13 +141,13 @@ protected:
 
     /*!
      * Called whenever the active account changes.
-     * Emits the activeAccountChanged() signal and autosaves the list if enabled.
+     * Emits the defaultAccountChanged() signal and autosaves the list if enabled.
      */
-    void onActiveChanged();
+    void onDefaultAccountChanged();
 
     QList<MinecraftAccountPtr> m_accounts;
 
-    MinecraftAccountPtr m_activeAccount;
+    MinecraftAccountPtr m_defaultAccount;
 
     //! Path to the account list file. Empty string if there isn't one.
     QString m_listFilePath;

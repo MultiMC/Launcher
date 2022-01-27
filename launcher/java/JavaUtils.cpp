@@ -31,7 +31,7 @@ JavaUtils::JavaUtils()
 {
 }
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
 static QString processLD_LIBRARY_PATH(const QString & LD_LIBRARY_PATH)
 {
     QDir mmcBin(QCoreApplication::applicationDirPath());
@@ -83,7 +83,7 @@ QProcessEnvironment CleanEnviroment()
             qDebug() << "Env: ignoring" << key << value;
             continue;
         }
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
         // Do not pass LD_* variables to java. They were intended for MultiMC
         if(key.startsWith("LD_"))
         {
@@ -265,11 +265,21 @@ QList<QString> JavaUtils::FindJavaPaths()
     QList<JavaInstallPtr> ADOPTOPENJDK64s = this->FindJavaFromRegistryKey(
         KEY_WOW64_64KEY, "SOFTWARE\\AdoptOpenJDK\\JDK", "Path", "\\hotspot\\MSI");
 
-    // Adoptium (Eclipse)
-    QList<JavaInstallPtr> ECLIPSEJDK32s = this->FindJavaFromRegistryKey(
+    // Eclipse Foundation
+    QList<JavaInstallPtr> FOUNDATIONJDK32s = this->FindJavaFromRegistryKey(
         KEY_WOW64_32KEY, "SOFTWARE\\Eclipse Foundation\\JDK", "Path", "\\hotspot\\MSI");
-    QList<JavaInstallPtr> ECLIPSEJDK64s = this->FindJavaFromRegistryKey(
+    QList<JavaInstallPtr> FOUNDATIONJDK64s = this->FindJavaFromRegistryKey(
         KEY_WOW64_64KEY, "SOFTWARE\\Eclipse Foundation\\JDK", "Path", "\\hotspot\\MSI");
+
+    // Eclipse Adoptium
+    QList<JavaInstallPtr> ADOPTIUMJRE32s = this->FindJavaFromRegistryKey(
+        KEY_WOW64_32KEY, "SOFTWARE\\Eclipse Adoptium\\JRE", "Path", "\\hotspot\\MSI");
+    QList<JavaInstallPtr> ADOPTIUMJRE64s = this->FindJavaFromRegistryKey(
+        KEY_WOW64_64KEY, "SOFTWARE\\Eclipse Adoptium\\JRE", "Path", "\\hotspot\\MSI");
+    QList<JavaInstallPtr> ADOPTIUMJDK32s = this->FindJavaFromRegistryKey(
+        KEY_WOW64_32KEY, "SOFTWARE\\Eclipse Adoptium\\JDK", "Path", "\\hotspot\\MSI");
+    QList<JavaInstallPtr> ADOPTIUMJDK64s = this->FindJavaFromRegistryKey(
+        KEY_WOW64_64KEY, "SOFTWARE\\Eclipse Adoptium\\JDK", "Path", "\\hotspot\\MSI");
 
     // Microsoft
     QList<JavaInstallPtr> MICROSOFTJDK64s = this->FindJavaFromRegistryKey(
@@ -291,13 +301,15 @@ QList<QString> JavaUtils::FindJavaPaths()
     java_candidates.append(JRE64s);
     java_candidates.append(NEWJRE64s);
     java_candidates.append(ADOPTOPENJRE64s);
+    java_candidates.append(ADOPTIUMJRE64s);
     java_candidates.append(MakeJavaPtr("C:/Program Files/Java/jre8/bin/javaw.exe"));
     java_candidates.append(MakeJavaPtr("C:/Program Files/Java/jre7/bin/javaw.exe"));
     java_candidates.append(MakeJavaPtr("C:/Program Files/Java/jre6/bin/javaw.exe"));
     java_candidates.append(JDK64s);
     java_candidates.append(NEWJDK64s);
     java_candidates.append(ADOPTOPENJDK64s);
-    java_candidates.append(ECLIPSEJDK64s);
+    java_candidates.append(FOUNDATIONJDK64s);
+    java_candidates.append(ADOPTIUMJDK64s);
     java_candidates.append(MICROSOFTJDK64s);
     java_candidates.append(ZULU64s);
     java_candidates.append(LIBERICA64s);
@@ -305,13 +317,15 @@ QList<QString> JavaUtils::FindJavaPaths()
     java_candidates.append(JRE32s);
     java_candidates.append(NEWJRE32s);
     java_candidates.append(ADOPTOPENJRE32s);
+    java_candidates.append(ADOPTIUMJRE32s);
     java_candidates.append(MakeJavaPtr("C:/Program Files (x86)/Java/jre8/bin/javaw.exe"));
     java_candidates.append(MakeJavaPtr("C:/Program Files (x86)/Java/jre7/bin/javaw.exe"));
     java_candidates.append(MakeJavaPtr("C:/Program Files (x86)/Java/jre6/bin/javaw.exe"));
     java_candidates.append(JDK32s);
     java_candidates.append(NEWJDK32s);
     java_candidates.append(ADOPTOPENJDK32s);
-    java_candidates.append(ECLIPSEJDK32s);
+    java_candidates.append(FOUNDATIONJDK32s);
+    java_candidates.append(ADOPTIUMJDK32s);
     java_candidates.append(ZULU32s);
     java_candidates.append(LIBERICA32s);
     
@@ -386,6 +400,7 @@ QList<QString> JavaUtils::FindJavaPaths()
     scanJavaDir("/usr/java");
     // general locations used by distro packaging
     scanJavaDir("/usr/lib/jvm");
+    scanJavaDir("/usr/lib64/jvm");
     scanJavaDir("/usr/lib32/jvm");
     // javas stored in MultiMC's folder
     scanJavaDir("java");

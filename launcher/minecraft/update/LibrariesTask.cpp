@@ -1,7 +1,9 @@
-#include "Env.h"
 #include "LibrariesTask.h"
+
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
+
+#include "Application.h"
 
 LibrariesTask::LibrariesTask(MinecraftInstance * inst)
 {
@@ -18,10 +20,10 @@ void LibrariesTask::executeTask()
     auto components = inst->getPackProfile();
     auto profile = components->getProfile();
 
-    auto job = new NetJob(tr("Libraries for instance %1").arg(inst->name()));
+    auto job = new NetJob(tr("Libraries for instance %1").arg(inst->name()), APPLICATION->network());
     downloadJob.reset(job);
 
-    auto metacache = ENV.metacache();
+    auto metacache = APPLICATION->metacache();
 
     auto processArtifactPool = [&](const QList<LibraryPtr> & pool, QStringList & errors, const QString & localPath)
     {

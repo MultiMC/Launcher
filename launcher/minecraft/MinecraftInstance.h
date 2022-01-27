@@ -39,7 +39,8 @@ public:
     QString jarModsDir() const;
     QString resourcePacksDir() const;
     QString texturePacksDir() const;
-    QString loaderModsDir() const;
+    QString shaderPacksDir() const;
+    QString modsRoot() const override;
     QString coreModsDir() const;
     QString modsCacheLocation() const;
     QString libDir() const;
@@ -71,11 +72,12 @@ public:
     std::shared_ptr<ModFolderModel> coreModList() const;
     std::shared_ptr<ModFolderModel> resourcePackList() const;
     std::shared_ptr<ModFolderModel> texturePackList() const;
+    std::shared_ptr<ModFolderModel> shaderPackList() const;
     std::shared_ptr<WorldList> worldList() const;
     std::shared_ptr<GameOptions> gameOptionsModel() const;
 
     //////  Launch stuff //////
-    shared_qobject_ptr<Task> createUpdateTask(Net::Mode mode) override;
+    Task::Ptr createUpdateTask(Net::Mode mode) override;
     shared_qobject_ptr<LaunchTask> createLaunchTask(AuthSessionPtr account, MinecraftServerTargetPtr serverToJoin) override;
     QStringList extraArguments() const override;
     QStringList verboseDescription(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) override;
@@ -116,14 +118,12 @@ protected:
     QStringList validLaunchMethods();
     QString launchMethod();
 
-private:
-    QString prettifyTimeDuration(int64_t duration);
-
 protected: // data
     std::shared_ptr<PackProfile> m_components;
     mutable std::shared_ptr<ModFolderModel> m_loader_mod_list;
     mutable std::shared_ptr<ModFolderModel> m_core_mod_list;
     mutable std::shared_ptr<ModFolderModel> m_resource_pack_list;
+    mutable std::shared_ptr<ModFolderModel> m_shader_pack_list;
     mutable std::shared_ptr<ModFolderModel> m_texture_pack_list;
     mutable std::shared_ptr<WorldList> m_world_list;
     mutable std::shared_ptr<GameOptions> m_game_options;

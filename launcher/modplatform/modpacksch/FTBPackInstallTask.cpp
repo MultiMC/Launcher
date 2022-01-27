@@ -1,13 +1,31 @@
+/*
+ * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2021 Petr Mrazek <peterix@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "FTBPackInstallTask.h"
 
-#include "BuildConfig.h"
-#include "Env.h"
 #include "FileSystem.h"
 #include "Json.h"
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 #include "net/ChecksumValidator.h"
 #include "settings/INISettingsObject.h"
+
+#include "BuildConfig.h"
+#include "Application.h"
 
 namespace ModpacksCH {
 
@@ -45,9 +63,8 @@ void PackInstallTask::executeTask()
         return;
     }
 
-    auto *netJob = new NetJob("ModpacksCH::VersionFetch");
-    auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1/%2")
-            .arg(m_pack.id).arg(version.id);
+    auto *netJob = new NetJob("ModpacksCH::VersionFetch", APPLICATION->network());
+    auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1/%2").arg(m_pack.id).arg(version.id);
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
     jobPtr = netJob;
     jobPtr->start();
@@ -95,21 +112,25 @@ void PackInstallTask::downloadPack()
 {
     setStatus(tr("Downloading mods..."));
 
-    jobPtr.reset(new NetJob(tr("Mod download")));
+    jobPtr = new NetJob(tr("Mod download"), APPLICATION->network());
     for(auto file : m_version.files) {
         if(file.serverOnly) continue;
 
         QFileInfo fileName(file.name);
         auto cacheName = fileName.completeBaseName() + "-" + file.sha1 + "." + fileName.suffix();
 
-        auto entry = ENV.metacache()->resolveEntry("ModpacksCHPacks", cacheName);
+        auto entry = APPLICATION->metacache()->resolveEntry("ModpacksCHPacks", cacheName);
         entry->setStale(true);
 
         auto relpath = FS::PathCombine("minecraft", file.path, file.name);
         auto path = FS::PathCombine(m_stagingPath, relpath);
 
+        if (filesToCopy.contains(path)) {
+            qWarning() << "Ignoring" << file.url << "as a file of that path is already downloading.";
+            continue;
+        }
         qDebug() << "Will download" << file.url << "to" << path;
-        filesToCopy[entry->getFullPath()] = path;
+        filesToCopy[path] = entry->getFullPath();
 
         auto dl = Net::Download::makeCached(file.url, entry);
         if (!file.sha1.isEmpty()) {
@@ -145,8 +166,8 @@ void PackInstallTask::install()
     setStatus(tr("Copying modpack files"));
 
     for (auto iter = filesToCopy.begin(); iter != filesToCopy.end(); iter++) {
-        auto &from = iter.key();
-        auto &to = iter.value();
+        auto &to = iter.key();
+        auto &from = iter.value();
         FS::copy fileCopyOperation(from, to);
         if(!fileCopyOperation()) {
             qWarning() << "Failed to copy" << from << "to" << to;

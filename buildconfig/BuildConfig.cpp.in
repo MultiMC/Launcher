@@ -5,21 +5,32 @@ const Config BuildConfig;
 
 Config::Config()
 {
+    // Name and copyright
+    LAUNCHER_NAME = "@Launcher_Name@";
+    LAUNCHER_DISPLAYNAME = "@Launcher_DisplayName@";
+    LAUNCHER_COPYRIGHT = "@Launcher_Copyright@";
+    LAUNCHER_DOMAIN = "@Launcher_Domain@";
+    LAUNCHER_CONFIGFILE = "@Launcher_ConfigFile@";
+    LAUNCHER_GIT = "@Launcher_Git@";
+
+    USER_AGENT = "@Launcher_UserAgent@";
+    USER_AGENT_UNCACHED = USER_AGENT + " (Uncached)";
+
     // Version information
-    VERSION_MAJOR = @MultiMC_VERSION_MAJOR@;
-    VERSION_MINOR = @MultiMC_VERSION_MINOR@;
-    VERSION_HOTFIX = @MultiMC_VERSION_HOTFIX@;
-    VERSION_BUILD = @MultiMC_VERSION_BUILD@;
+    VERSION_MAJOR = @Launcher_VERSION_MAJOR@;
+    VERSION_MINOR = @Launcher_VERSION_MINOR@;
+    VERSION_HOTFIX = @Launcher_VERSION_HOTFIX@;
+    VERSION_BUILD = @Launcher_VERSION_BUILD@;
 
-    BUILD_PLATFORM = "@MultiMC_BUILD_PLATFORM@";
-    CHANLIST_URL = "@MultiMC_CHANLIST_URL@";
-    ANALYTICS_ID = "@MultiMC_ANALYTICS_ID@";
-    NOTIFICATION_URL = "@MultiMC_NOTIFICATION_URL@";
-    FULL_VERSION_STR = "@MultiMC_VERSION_MAJOR@.@MultiMC_VERSION_MINOR@.@MultiMC_VERSION_BUILD@";
+    BUILD_PLATFORM = "@Launcher_BUILD_PLATFORM@";
+    UPDATER_BASE = "@Launcher_UPDATER_BASE@";
+    ANALYTICS_ID = "@Launcher_ANALYTICS_ID@";
+    NOTIFICATION_URL = "@Launcher_NOTIFICATION_URL@";
+    FULL_VERSION_STR = "@Launcher_VERSION_MAJOR@.@Launcher_VERSION_MINOR@.@Launcher_VERSION_BUILD@";
 
-    GIT_COMMIT = "@MultiMC_GIT_COMMIT@";
-    GIT_REFSPEC = "@MultiMC_GIT_REFSPEC@";
-    if(GIT_REFSPEC.startsWith("refs/heads/") && !CHANLIST_URL.isEmpty() && VERSION_BUILD >= 0)
+    GIT_COMMIT = "@Launcher_GIT_COMMIT@";
+    GIT_REFSPEC = "@Launcher_GIT_REFSPEC@";
+    if(GIT_REFSPEC.startsWith("refs/heads/") && !UPDATER_BASE.isEmpty() && !BUILD_PLATFORM.isEmpty() && VERSION_BUILD >= 0)
     {
         VERSION_CHANNEL = GIT_REFSPEC;
         VERSION_CHANNEL.remove("refs/heads/");
@@ -30,16 +41,15 @@ Config::Config()
         VERSION_CHANNEL = QObject::tr("custom");
     }
 
-    VERSION_STR = "@MultiMC_VERSION_STRING@";
-    NEWS_RSS_URL = "@MultiMC_NEWS_RSS_URL@";
-    PASTE_EE_KEY = "@MultiMC_PASTE_EE_API_KEY@";
-    IMGUR_CLIENT_ID = "@MultiMC_IMGUR_CLIENT_ID@";
-    META_URL = "@MultiMC_META_URL@";
-    MSA_CLIENT_ID = "@MultiMC_MSA_CLIENT_ID@";
+    VERSION_STR = "@Launcher_VERSION_STRING@";
+    NEWS_RSS_URL = "@Launcher_NEWS_RSS_URL@";
+    PASTE_EE_KEY = "@Launcher_PASTE_EE_API_KEY@";
+    IMGUR_CLIENT_ID = "@Launcher_IMGUR_CLIENT_ID@";
+    META_URL = "@Launcher_META_URL@";
 
-    BUG_TRACKER_URL = "@MultiMC_BUG_TRACKER_URL@";
-    DISCORD_URL = "@MultiMC_DISCORD_URL@";
-    SUBREDDIT_URL = "@MultiMC_SUBREDDIT_URL@";
+    BUG_TRACKER_URL = "@Launcher_BUG_TRACKER_URL@";
+    DISCORD_URL = "@Launcher_DISCORD_URL@";
+    SUBREDDIT_URL = "@Launcher_SUBREDDIT_URL@";
 }
 
 QString Config::printableVersionString() const

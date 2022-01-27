@@ -3,7 +3,6 @@ Thumbs.db
 .user
 .directory
 resources/CMakeFiles
-resources/MultiMCLauncher.jar
 *~
 *.swp
 html/
@@ -22,6 +21,10 @@ Debug
 build
 /build-*
 
+# Install dirs
+install
+/install-*
+
 # Ctags File
 tags
 
@@ -30,3 +33,7 @@ tags
 
 #OSX Stuff
 .DS_Store
+
+branding/
+secrets/
+run/

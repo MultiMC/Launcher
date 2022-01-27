@@ -26,8 +26,12 @@
 namespace GoUpdate
 {
 
-DownloadTask::DownloadTask(Status status, QString target, QObject *parent)
-    : Task(parent), m_updateFilesDir(target)
+DownloadTask::DownloadTask(
+    shared_qobject_ptr<QNetworkAccessManager> network,
+    Status status,
+    QString target,
+    QObject *parent
+) : Task(parent), m_updateFilesDir(target), m_network(network)
 {
     m_status = status;
 
@@ -43,7 +47,7 @@ void DownloadTask::loadVersionInfo()
 {
     setStatus(tr("Loading version information..."));
 
-    NetJob *netJob = new NetJob("Version Info");
+    NetJob *netJob = new NetJob("Version Info", m_network);
 
     // Find the index URL.
     QUrl newIndexUrl = QUrl(m_status.newRepoUrl).resolved(QString::number(m_status.newVersionId) + ".json");
@@ -117,7 +121,7 @@ void DownloadTask::processDownloadedVersionInfo()
     setStatus(tr("Processing file lists - figuring out how to install the update..."));
 
     // make a new netjob for the actual update files
-    NetJobPtr netJob (new NetJob("Update Files"));
+    NetJob::Ptr netJob = new NetJob("Update Files", m_network);
 
     // fill netJob and operationList
     if (!processFileLists(m_currentVersionFileList, m_newVersionFileList, m_status.rootPath, m_updateFilesDir.path(), netJob, m_operations))
@@ -131,7 +135,7 @@ void DownloadTask::processDownloadedVersionInfo()
     QObject::connect(netJob.get(), &NetJob::progress, this, &DownloadTask::fileDownloadProgressChanged);
     QObject::connect(netJob.get(), &NetJob::failed, this, &DownloadTask::fileDownloadFailed);
 
-    if(netJob->size() == 1) // Translation issues... see https://github.com/MultiMC/MultiMC5/issues/1701
+    if(netJob->size() == 1) // Translation issues... see https://github.com/MultiMC/Launcher/issues/1701
     {
         setStatus(tr("Downloading one update file."));
     }

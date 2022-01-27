@@ -24,15 +24,17 @@
 #include <QPixmap>
 
 #include <memory>
+
 #include "AuthSession.h"
 #include "Usable.h"
 #include "AccountData.h"
+#include "QObjectPtr.h"
 
 class Task;
 class AccountTask;
 class MinecraftAccount;
 
-typedef std::shared_ptr<MinecraftAccount> MinecraftAccountPtr;
+typedef shared_qobject_ptr<MinecraftAccount> MinecraftAccountPtr;
 Q_DECLARE_METATYPE(MinecraftAccountPtr)
 
 /**
@@ -49,12 +51,6 @@ struct AccountProfile
     bool legacy;
 };
 
-enum AccountStatus
-{
-    NotVerified,
-    Verified
-};
-
 /**
  * Object that stores information about a certain Mojang account.
  *
@@ -63,8 +59,7 @@ enum AccountStatus
  */
 class MinecraftAccount :
     public QObject,
-    public Usable,
-    public std::enable_shared_from_this<MinecraftAccount>
+    public Usable
 {
     Q_OBJECT
 public: /* construction */
@@ -72,7 +67,7 @@ public: /* construction */
     explicit MinecraftAccount(const MinecraftAccount &other, QObject *parent) = delete;
 
     //! Default constructor
-    explicit MinecraftAccount(QObject *parent = 0) : QObject(parent) {};
+    explicit MinecraftAccount(QObject *parent = 0);
 
     static MinecraftAccountPtr createFromUsername(const QString &username);
 
@@ -90,13 +85,19 @@ public: /* manipulation */
      * Attempt to login. Empty password means we use the token.
      * If the attempt fails because we already are performing some task, it returns false.
      */
-    std::shared_ptr<AccountTask> login(AuthSessionPtr session, QString password = QString());
+    shared_qobject_ptr<AccountTask> login(QString password);
 
-    std::shared_ptr<AccountTask> loginMSA(AuthSessionPtr session);
+    shared_qobject_ptr<AccountTask> loginMSA();
 
-    std::shared_ptr<AccountTask> refresh(AuthSessionPtr session);
+    shared_qobject_ptr<AccountTask> refresh();
+
+    shared_qobject_ptr<AccountTask> currentTask();
 
 public: /* queries */
+    QString internalId() const {
+        return data.internalId;
+    }
+
     QString accountDisplayString() const {
         return data.accountDisplayString();
     }
@@ -115,6 +116,24 @@ public: /* queries */
 
     QString profileName() const {
         return data.profileName();
+    }
+
+    bool isActive() const;
+
+    bool canMigrate() const {
+        return data.canMigrateToMSA;
+    }
+
+    bool isMSA() const {
+        return data.type == AccountType::MSA;
+    }
+
+    bool ownsMinecraft() const {
+        return data.minecraftEntitlement.ownsMinecraft;
+    }
+
+    bool hasProfile() const {
+        return data.profileId().size() != 0;
     }
 
     QString typeString() const {
@@ -138,11 +157,19 @@ public: /* queries */
 
     QPixmap getFace() const;
 
-    //! Returns whether the account is NotVerified, Verified or Online
-    AccountStatus accountStatus() const;
+    //! Returns the current state of the account
+    AccountState accountState() const;
 
     AccountData * accountData() {
         return &data;
+    }
+
+    bool shouldRefresh() const;
+
+    void fillSession(AuthSessionPtr session);
+
+    QString lastError() const {
+        return data.lastError();
     }
 
 signals:
@@ -151,13 +178,15 @@ signals:
      */
     void changed();
 
+    void activityChanged(bool active);
+
     // TODO: better signalling for the various possible state changes - especially errors
 
 protected: /* variables */
     AccountData data;
 
     // current task we are executing here
-    std::shared_ptr<AccountTask> m_currentTask;
+    shared_qobject_ptr<AccountTask> m_currentTask;
 
 protected: /* methods */
 
@@ -168,7 +197,4 @@ private
 slots:
     void authSucceeded();
     void authFailed(QString reason);
-
-private:
-    void fillSession(AuthSessionPtr session);
 };

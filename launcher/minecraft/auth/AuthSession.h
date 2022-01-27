@@ -3,12 +3,15 @@
 #include <QString>
 #include <QMultiMap>
 #include <memory>
+#include "QObjectPtr.h"
 
 class MinecraftAccount;
+class QNetworkAccessManager;
 
 struct AuthSession
 {
     bool MakeOffline(QString offline_playername);
+    void MakeDemo();
 
     QString serializeUserProperties();
 
@@ -17,8 +20,10 @@ struct AuthSession
         Undetermined,
         RequiresOAuth,
         RequiresPassword,
+        RequiresProfileSetup,
         PlayableOffline,
-        PlayableOnline
+        PlayableOnline,
+        GoneOrMigrated
     } status = Undetermined;
 
     // client token
@@ -39,7 +44,9 @@ struct AuthSession
     bool auth_server_online = false;
     // Did the user request online mode?
     bool wants_online = true;
-    std::shared_ptr<MinecraftAccount> m_accountPtr;
+
+    //Is this a demo session?
+    bool demo = false;
 };
 
 typedef std::shared_ptr<AuthSession> AuthSessionPtr;

@@ -2,22 +2,20 @@
 
 #include <QFile>
 #include <QtNetwork/QtNetwork>
-#include <memory>
-#include <minecraft/auth/AuthSession.h>
 #include "tasks/Task.h"
 
-typedef std::shared_ptr<class SkinDelete> SkinDeletePtr;
+typedef shared_qobject_ptr<class SkinDelete> SkinDeletePtr;
 
 class SkinDelete : public Task
 {
     Q_OBJECT
 public:
-    SkinDelete(QObject *parent, AuthSessionPtr session);
+    SkinDelete(QObject *parent, QString token);
     virtual ~SkinDelete() = default;
 
 private:
-    AuthSessionPtr m_session;
-    std::shared_ptr<QNetworkReply> m_reply;
+    QString m_token;
+    shared_qobject_ptr<QNetworkReply> m_reply;
 
 protected:
     virtual void executeTask();
@@ -26,4 +24,3 @@ public slots:
     void downloadError(QNetworkReply::NetworkError);
     void downloadFinished();
 };
-

@@ -36,6 +36,8 @@ OPTIONS
 
 *-v, --version*::
     Display program version and exit.
+*-a, --profile*='PROFILE'::
+    Use the account specified by 'PROFILE' (only valid in combination with --launch).
 
 EXIT STATUS
 -----------
@@ -47,11 +49,11 @@ EXIT STATUS
 
 BUGS
 ----
-<https://github.com/MultiMC/MultiMC5/issues>
+<https://github.com/MultiMC/Launcher/issues>
 
 RESOURCES
 ---------
-GitHub: <https://github.com/MultiMC/MultiMC5>
+GitHub: <https://github.com/MultiMC/Launcher>
 
 Main website: <https://multimc.org>
 

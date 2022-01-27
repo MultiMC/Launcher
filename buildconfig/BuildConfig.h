@@ -8,6 +8,13 @@ class Config
 {
 public:
     Config();
+    QString LAUNCHER_NAME;
+    QString LAUNCHER_DISPLAYNAME;
+    QString LAUNCHER_COPYRIGHT;
+    QString LAUNCHER_DOMAIN;
+    QString LAUNCHER_CONFIGFILE;
+    QString LAUNCHER_GIT;
+
     /// The major version number.
     int VERSION_MAJOR;
     /// The minor version number.
@@ -29,12 +36,15 @@ public:
     QString BUILD_PLATFORM;
 
     /// URL for the updater's channel
-    QString CHANLIST_URL;
+    QString UPDATER_BASE;
+
 
     /// User-Agent to use.
-    QString USER_AGENT = "MultiMC/5.0";
+    QString USER_AGENT;
+
     /// User-Agent to use for uncached requests.
-    QString USER_AGENT_UNCACHED = "MultiMC/5.0 (Uncached)";
+    QString USER_AGENT_UNCACHED;
+
 
     /// Google analytics ID
     QString ANALYTICS_ID;
@@ -71,14 +81,9 @@ public:
     QString IMGUR_CLIENT_ID;
 
     /**
-     * MultiMC Metadata repository URL prefix
+     * Metadata repository URL prefix
      */
     QString META_URL;
-
-    /**
-     * MSA client ID - registered with Azure / Microsoft, needs correct setup on MS side.
-     */
-    QString MSA_CLIENT_ID;
 
     QString BUG_TRACKER_URL;
     QString DISCORD_URL;
@@ -87,7 +92,6 @@ public:
     QString RESOURCE_BASE = "https://resources.download.minecraft.net/";
     QString LIBRARY_BASE = "https://libraries.minecraft.net/";
     QString AUTH_BASE = "https://authserver.mojang.com/";
-    QString MOJANG_STATUS_URL = "https://status.mojang.com/check";
     QString IMGUR_BASE_URL = "https://api.imgur.com/3/";
     QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";
     QString TRANSLATIONS_BASE_URL = "https://files.multimc.org/translations/";

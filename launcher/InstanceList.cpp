@@ -26,6 +26,7 @@
 #include <QUuid>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMimeData>
 
 #include "InstanceList.h"
 #include "BaseInstance.h"
@@ -62,6 +63,50 @@ InstanceList::InstanceList(SettingsObjectPtr settings, const QString & instDir, 
 InstanceList::~InstanceList()
 {
 }
+
+Qt::DropActions InstanceList::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
+Qt::DropActions InstanceList::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
+
+bool InstanceList::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const
+{
+    if(data && data->hasFormat("application/x-instanceid")) {
+        return true;
+    }
+    return false;
+}
+
+bool InstanceList::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
+{
+    if(data && data->hasFormat("application/x-instanceid")) {
+        return true;
+    }
+    return false;
+}
+
+QStringList InstanceList::mimeTypes() const
+{
+    auto types = QAbstractListModel::mimeTypes();
+    types.push_back("application/x-instanceid");
+    return types;
+}
+
+QMimeData * InstanceList::mimeData(const QModelIndexList& indexes) const
+{
+    auto mimeData = QAbstractListModel::mimeData(indexes);
+    if(indexes.size() == 1) {
+        auto instanceId = data(indexes[0], InstanceIDRole).toString();
+        mimeData->setData("application/x-instanceid", instanceId.toUtf8());
+    }
+    return mimeData;
+}
+
 
 int InstanceList::rowCount(const QModelIndex &parent) const
 {
@@ -112,7 +157,7 @@ QVariant InstanceList::data(const QModelIndex &index, int role) const
     {
         return pdata->iconKey();
     }
-    // HACK: see GroupView.h in gui!
+    // HACK: see InstanceView.h in gui!
     case GroupRole:
     {
         return getInstanceGroup(pdata->id());
@@ -259,7 +304,7 @@ void InstanceList::deleteInstance(const InstanceId& id)
         return;
     }
 
-    qDebug() << "Instance" << id << "has been deleted by MultiMC.";
+    qDebug() << "Instance" << id << "has been deleted by the launcher.";
 }
 
 static QMap<InstanceId, InstanceLocator> getIdMapping(const QList<InstancePtr> &list)
@@ -799,7 +844,7 @@ private slots:
 private:
     /*
      * WHY: the whole reason why this uses an exponential backoff retry scheme is antivirus on Windows.
-     * Basically, it starts messing things up while MultiMC is extracting/creating instances
+     * Basically, it starts messing things up while the launcher is extracting/creating instances
      * and causes that horrible failure that is NTFS to lock files in place because they are open.
      */
     ExponentialSeries backoff;
@@ -822,7 +867,7 @@ Task * InstanceList::wrapInstanceTask(InstanceTask * task)
 QString InstanceList::getStagedInstancePath()
 {
     QString key = QUuid::createUuid().toString();
-    QString relPath = FS::PathCombine("_MMC_TEMP/" , key);
+    QString relPath = FS::PathCombine("_LAUNCHER_TEMP/" , key);
     QDir rootPath(m_instDir);
     auto path = FS::PathCombine(m_instDir, relPath);
     if(!rootPath.mkpath(relPath))

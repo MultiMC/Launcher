@@ -1,14 +1,14 @@
 #include "JavaChecker.h"
-#include "JavaUtils.h"
-#include <FileSystem.h>
-#include <Commandline.h>
+
 #include <QFile>
 #include <QProcess>
 #include <QMap>
-#include <QCoreApplication>
 #include <QDebug>
 
-#include "Env.h"
+#include "JavaUtils.h"
+#include "FileSystem.h"
+#include "Commandline.h"
+#include "Application.h"
 
 JavaChecker::JavaChecker(QObject *parent) : QObject(parent)
 {
@@ -16,7 +16,7 @@ JavaChecker::JavaChecker(QObject *parent) : QObject(parent)
 
 void JavaChecker::performCheck()
 {
-    QString checkerJar = FS::PathCombine(ENV.getJarsPath(), "JavaCheck.jar");
+    QString checkerJar = FS::PathCombine(APPLICATION->getJarsPath(), "JavaCheck.jar");
 
     QStringList args;
 
@@ -103,11 +103,15 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
     for(QString line : lines)
     {
         line = line.trimmed();
+        // NOTE: workaround for GH-4125, where garbage is getting printed into stdout on bedrock linux
+        if (line.contains("/bedrock/strata")) {
+            continue;
+        }
 
         auto parts = line.split('=', QString::SkipEmptyParts);
         if(parts.size() != 2 || parts[0].isEmpty() || parts[1].isEmpty())
         {
-            success = false;
+            continue;
         }
         else
         {
@@ -142,8 +146,12 @@ void JavaChecker::error(QProcess::ProcessError err)
 {
     if(err == QProcess::FailedToStart)
     {
-        killTimer.stop();
         qDebug() << "Java checker has failed to start.";
+        qDebug() << "Process environment:";
+        qDebug() << process->environment();
+        qDebug() << "Native environment:";
+        qDebug() << QProcessEnvironment::systemEnvironment().toStringList();
+        killTimer.stop();
         JavaCheckResult result;
         {
             result.path = m_path;

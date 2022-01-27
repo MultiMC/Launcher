@@ -1,15 +1,17 @@
 #include "MinecraftInstance.h"
-#include <minecraft/launch/CreateGameFolders.h>
-#include <minecraft/launch/ExtractNatives.h>
-#include <minecraft/launch/PrintInstanceInfo.h>
-#include <settings/Setting.h>
+#include "minecraft/launch/CreateGameFolders.h"
+#include "minecraft/launch/ExtractNatives.h"
+#include "minecraft/launch/PrintInstanceInfo.h"
+#include "settings/Setting.h"
 #include "settings/SettingsObject.h"
-#include "Env.h"
-#include <MMCStrings.h>
-#include <pathmatcher/RegexpMatcher.h>
-#include <pathmatcher/MultiMatcher.h>
-#include <FileSystem.h>
-#include <java/JavaVersion.h>
+#include "Application.h"
+
+#include "MMCStrings.h"
+#include "pathmatcher/RegexpMatcher.h"
+#include "pathmatcher/MultiMatcher.h"
+#include "FileSystem.h"
+#include "java/JavaVersion.h"
+#include "MMCTime.h"
 
 #include "launch/LaunchTask.h"
 #include "launch/steps/LookupServerAddress.h"
@@ -17,6 +19,8 @@
 #include "launch/steps/Update.h"
 #include "launch/steps/PreLaunchCommand.h"
 #include "launch/steps/TextPrint.h"
+#include "launch/steps/CheckJava.h"
+
 #include "minecraft/launch/LauncherPartLaunch.h"
 #include "minecraft/launch/DirectJavaLaunch.h"
 #include "minecraft/launch/ModMinecraftJar.h"
@@ -24,25 +28,26 @@
 #include "minecraft/launch/ReconstructAssets.h"
 #include "minecraft/launch/ScanModFolders.h"
 #include "minecraft/launch/VerifyJavaInstall.h"
-#include "java/launch/CheckJava.h"
+
 #include "java/JavaUtils.h"
+
 #include "meta/Index.h"
 #include "meta/VersionList.h"
+
+#include "icons/IconList.h"
 
 #include "mod/ModFolderModel.h"
 #include "mod/ResourcePackFolderModel.h"
 #include "mod/TexturePackFolderModel.h"
+
 #include "WorldList.h"
 
-#include "icons/IIconList.h"
-
-#include <QCoreApplication>
 #include "PackProfile.h"
 #include "AssetsUtils.h"
 #include "MinecraftUpdate.h"
 #include "MinecraftLoadAndCheck.h"
-#include <minecraft/gameoptions/GameOptions.h>
-#include <minecraft/update/FoldersTask.h>
+#include "minecraft/gameoptions/GameOptions.h"
+#include "minecraft/update/FoldersTask.h"
 
 #define IBUS "@im=ibus"
 
@@ -197,7 +202,7 @@ QString MinecraftInstance::jarModsDir() const
     return jarmods_dir.absolutePath();
 }
 
-QString MinecraftInstance::loaderModsDir() const
+QString MinecraftInstance::modsRoot() const
 {
     return FS::PathCombine(gameRoot(), "mods");
 }
@@ -220,6 +225,11 @@ QString MinecraftInstance::resourcePacksDir() const
 QString MinecraftInstance::texturePacksDir() const
 {
     return FS::PathCombine(gameRoot(), "texturepacks");
+}
+
+QString MinecraftInstance::shaderPacksDir() const
+{
+    return FS::PathCombine(gameRoot(), "shaderpacks");
 }
 
 QString MinecraftInstance::instanceConfigFolder() const
@@ -421,8 +431,7 @@ QStringList MinecraftInstance::processMinecraftArgs(
 
     QMap<QString, QString> token_mapping;
     // yggdrasil!
-    if(session)
-    {
+    if(session) {
         // token_mapping["auth_username"] = session->username;
         token_mapping["auth_session"] = session->session;
         token_mapping["auth_access_token"] = session->access_token;
@@ -430,6 +439,9 @@ QStringList MinecraftInstance::processMinecraftArgs(
         token_mapping["auth_uuid"] = session->uuid;
         token_mapping["user_properties"] = session->serializeUserProperties();
         token_mapping["user_type"] = session->user_type;
+        if(session->demo) {
+            args_pattern += " --demo";
+        }
     }
 
     // blatant self-promotion.
@@ -761,25 +773,6 @@ QString MinecraftInstance::getLogFileRoot()
     return gameRoot();
 }
 
-QString MinecraftInstance::prettifyTimeDuration(int64_t duration)
-{
-    int seconds = (int) (duration % 60);
-    duration /= 60;
-    int minutes = (int) (duration % 60);
-    duration /= 60;
-    int hours = (int) (duration % 24);
-    int days = (int) (duration / 24);
-    if((hours == 0)&&(days == 0))
-    {
-        return tr("%1m %2s").arg(minutes).arg(seconds);
-    }
-    if (days == 0)
-    {
-        return tr("%1h %2m").arg(hours).arg(minutes);
-    }
-    return tr("%1d %2h %3m").arg(days).arg(hours).arg(minutes);
-}
-
 QString MinecraftInstance::getStatusbarDescription()
 {
     QStringList traits;
@@ -793,11 +786,11 @@ QString MinecraftInstance::getStatusbarDescription()
     if(m_settings->get("ShowGameTime").toBool())
     {
         if (lastTimePlayed() > 0) {
-            description.append(tr(", last played for %1").arg(prettifyTimeDuration(lastTimePlayed())));
+            description.append(tr(", last played for %1").arg(Time::prettifyDuration(lastTimePlayed())));
         }
 
         if (totalTimePlayed() > 0) {
-            description.append(tr(", total played for %1").arg(prettifyTimeDuration(totalTimePlayed())));
+            description.append(tr(", total played for %1").arg(Time::prettifyDuration(totalTimePlayed())));
         }
     }
     if(hasCrashed())
@@ -807,17 +800,17 @@ QString MinecraftInstance::getStatusbarDescription()
     return description;
 }
 
-shared_qobject_ptr<Task> MinecraftInstance::createUpdateTask(Net::Mode mode)
+Task::Ptr MinecraftInstance::createUpdateTask(Net::Mode mode)
 {
     switch (mode)
     {
         case Net::Mode::Offline:
         {
-            return shared_qobject_ptr<Task>(new MinecraftLoadAndCheck(this));
+            return Task::Ptr(new MinecraftLoadAndCheck(this));
         }
         case Net::Mode::Online:
         {
-            return shared_qobject_ptr<Task>(new MinecraftUpdate(this));
+            return Task::Ptr(new MinecraftUpdate(this));
         }
     }
     return nullptr;
@@ -829,11 +822,11 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     auto process = LaunchTask::create(std::dynamic_pointer_cast<MinecraftInstance>(shared_from_this()));
     auto pptr = process.get();
 
-    ENV.icons()->saveIcon(iconKey(), FS::PathCombine(gameRoot(), "icon.png"), "PNG");
+    APPLICATION->icons()->saveIcon(iconKey(), FS::PathCombine(gameRoot(), "icon.png"), "PNG");
 
     // print a header
     {
-        process->appendStep(new TextPrint(pptr, "Minecraft folder is:\n" + gameRoot() + "\n\n", MessageLevel::MultiMC));
+        process->appendStep(new TextPrint(pptr, "Minecraft folder is:\n" + gameRoot() + "\n\n", MessageLevel::Launcher));
     }
 
     // check java
@@ -881,7 +874,9 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     // if we aren't in offline mode,.
     if(session->status != AuthSession::PlayableOffline)
     {
-        process->appendStep(new ClaimAccount(pptr, session));
+        if(!session->demo) {
+            process->appendStep(new ClaimAccount(pptr, session));
+        }
         process->appendStep(new Update(pptr, Net::Mode::Online));
     }
     else
@@ -970,7 +965,7 @@ std::shared_ptr<ModFolderModel> MinecraftInstance::loaderModList() const
 {
     if (!m_loader_mod_list)
     {
-        m_loader_mod_list.reset(new ModFolderModel(loaderModsDir()));
+        m_loader_mod_list.reset(new ModFolderModel(modsRoot()));
         m_loader_mod_list->disableInteraction(isRunning());
         connect(this, &BaseInstance::runningStatusChanged, m_loader_mod_list.get(), &ModFolderModel::disableInteraction);
     }
@@ -1008,6 +1003,17 @@ std::shared_ptr<ModFolderModel> MinecraftInstance::texturePackList() const
         connect(this, &BaseInstance::runningStatusChanged, m_texture_pack_list.get(), &ModFolderModel::disableInteraction);
     }
     return m_texture_pack_list;
+}
+
+std::shared_ptr<ModFolderModel> MinecraftInstance::shaderPackList() const
+{
+    if (!m_shader_pack_list)
+    {
+        m_shader_pack_list.reset(new ResourcePackFolderModel(shaderPacksDir()));
+        m_shader_pack_list->disableInteraction(isRunning());
+        connect(this, &BaseInstance::runningStatusChanged, m_shader_pack_list.get(), &ModFolderModel::disableInteraction);
+    }
+    return m_shader_pack_list;
 }
 
 std::shared_ptr<WorldList> MinecraftInstance::worldList() const

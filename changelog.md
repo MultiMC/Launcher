@@ -1,10 +1,199 @@
-# MultiMC 0.6.12
+# MultiMC 0.6.14
+
+This further refines Microsoft account support, along with small fixes related to modpack platforms and Java runtime detection.
+
+It's also been 10 years since the first release of MultiMC. All background cats are now ready to party!
+
+### Microsoft accounts
+
+The account system now refreshes accounts in the background while the application is running.
+
+- GH-4071: Errors encountered while refreshing account tokens no longer always result in the tokens expiring:
+  - Network errors encountered when refreshing the main account tokens result in the account being **Offline**.
+  - **Hard** errors are produced by the main tokens becoming provably invalid.
+  - Errors encountered later are treated as **Soft** - they do make the account unusable, but still recoverable by trying again.
+  - **Soft** errors are treated as **Hard** errors when adding the account initially.
+
+In general, this should make MultiMC much more forgiving towards various temporary and non-fatal errors.
+
+- GH-4217: Added support for GamePass accounts and Minecraft profile setup:
+  - The new endpoint for logging in with Microsoft is now used (`/launcher/login`), enabling compatibility with GamePass.
+  - Game ownership is checked instead of only relying on Minecraft profile presence.
+  - Accounts can now be added even when they do not have a profile.
+  - The launcher should guide you through selecting a Minecraft name if you don't have one yet.
+
+### Modpack platform changes
+
+- GH-4055: MultiMC now tries to avoid downloading multiple files to the same path for FTB modpacks.
+
+- Search as you type is now used for FTB.
+
+- GH-4185: Version of the modpack is now included in the name of the instance by default.
+
+- The modpack platform UIs now include text field clear buttons.
+
+### Other changes
+
+- Adjusted warnings about Java runtime required for Minecraft 1.18 (it's not Java 16, it's Java 17).
+
+- GH-3490: Instance sorting is now aware of numbers (and sorts 99 before 100).
+
+- GH-4164: Reimplemented assigning instances to groups using drag & drop.
+
+- GH-1795: Added terminal launch option to use a specific Minecraft profile (in-game player name).
+
+    Used like this:
+    ```
+    ./MultiMC --launch 1.17.1 --profile MultiMCTest --server mc.hypixel.net
+    ```
+
+- GH-4227: Fix crash related to invalid Forge mod metadata.
+
+- GH-4200: Search for the *Eclipse Foundation* and *Adoptium* Java runtimes in the Windows Registry.
+
+- Added shader packs page to instances.
+
+- Removed Mojang services status information from the main window - the status is no longer provided by Mojang.
+
+- It is now possible to turn of global tracking of play time.
+
+### Technical changes
+
+- Debranding is mostly finished. You may see some changes in the logo being used in less places.
+
+# Previous releases
+
+## MultiMC 0.6.13
+
+This release brings initial support for Microsoft accounts, along with a nice pile of modpack platform support changes and improved Java runtime detection.
+
+Java runtimes still need an overhaul, so we're staying on the 0.6 version for a little longer.
+
+Next release should also tackle the current Forge 1.17.x issues in a systematic way.
+
+#### Microsoft accounts
+
+This is the first release with Microsoft accounts in.
+
+Implementation is loosely based on documentation available from [wiki.vg](https://wiki.vg/Microsoft_Authentication_Scheme) with some notable changes:
+
+- More complete implementation including getting and displaying GamerTags [(see XR-046)](https://docs.microsoft.com/en-us/gaming/gdk/_content/gc/policies/pc/live-policies-pc#xr-046-display-name-and-gamerpic-).
+
+- Using the OAuth Device Flow instead of closely integrating with a browser engine.
+
+    MultiMC asks you to open a Microsoft login web page and put in a code that lets MultiMC authenticate.
+
+    This lets you authenticate on a completely separate device like your phone, leaving code we ship and the computer you may not even trust out of the picture.
+
+As part of this, the skin fetching no longer uses a third party service and instead gets skins directly from Mojang.
+
+Capes can also be selected in MultiMC now. With how many people will now get one for migrating their accounts, it only makes sense.
+
+#### macOS update
+
+Because of issues with the Microsoft accounts, we now have two builds on macOS:
+
+- The old build with Qt 5.6 that does not work with Microsoft accounts, but can run on macOS older than 10.13.
+
+- A new build with Qt 5.15.2 that does work with Microsoft accounts, can use the new macOS dark theme and highlight colors, but requires at least macOS 10.13.
+
+MultiMC will update to the 5.15.2 builds when it detects that this is possible. **It may look like it is updating twice, just let it do its thing.**
+
+Similar approach got attempted on Windows, aiming to fix various display scaling and theming issues, but it ran into too many problems and will be attempted later, with more caution.
+
+#### Modpack platforms
+
+In general, the modpack platform pages have been made more consistent with each other (GH-3118, GH-3720, GH-3731).
+
+- FTB improvements:
+
+    - Modpack file downloads are now checked with checksums and cached.
+
+    - GH-1949: Allow Legacy FTB and FTB pack downloads to be aborted.
+
+- CurseForge improvements:
+
+    - CurseForge modpack platform is now presented as CurseForge, not Twitch.
+
+    - UI has been updated to match other platforms
+
+    - Added sorting
+
+    - GH-3667: Added version selection
+
+    - GH-3611: Added ability to install beta versions
+
+    - GH-3633: When a CurseForge pack is available for multiple Minecraft versions, we assume the latest one.
+
+- ATLauncher improvements:
+
+    - Handling latest/custom/recommended mod loader versions.
+
+    - Fabric loader packs should now work.
+
+    - GH-3764: Only client mods are installed now for ATL packs.
+
+    - Improved error handling
+
+    - Optional mods are supported.
+
+    - GH-1949: Allow ATLauncher pack downloads to be aborted
+
+
+- Fixed bugs in FTB platform search.
+
+#### Other changes
+
+- Forge installation is disabled on Minecraft 1.17+ because of incompatible/unresolved changes on the Forge side.
+
+    We're going to aim for fixing it in time for 1.18. Thankfully, 1.17 is more of a in-between release, so go play some 1.16.x packs!
+
+- GH-2529: On macOS, MultiMC will ask to move all the instance data to a new `Data` folder in order to fix long load times caused by macOS checking all files.
+
+- Detection of a large amount of various Java runtime flavors have been added.
+
+- It is now possible to join servers when starting an instance:
+
+    - From command line via the `--launch` and `--server` arguments.
+
+    - Or by setting this up in the instance settings page.
+
+    This may not work correctly in some cases, because it is a rarely used feature and modders do not test with it.
+
+- MultiMC now prints resolved IP addresses of Minecraft services into the game log for diagnostic purposes.
+
+- Updated instance icons based on Minecraft textures.
+
+- Forge `mods.toml` files are now used for displaying mods in the UI.
+
+- Datapack button is now disabled when no world is selected.
+
+- MultiMC warns about GLFW and OpenAL workarounds being enabled in the game log.
+
+- Languages in the translations list are now sorted by their two/three letter key
+
+- GH-3450: Displaying and recording gameplay time is now optional and can be turned off.
+
+- GH-3930: MultiMC can now track the gameplay time of the last session.
+
+- GH-3033: The version pages of instances now have a filter bar.
+
+- GH-2971: UI descriptions of texture and resource packs no longer mention mods.
+
+- Quick and dirty minimum Java runtime versions checks have been added. This needs to be expanded in the future.
+
+#### Technical changes
+
+- The codebase continues to move towards being debranded and harder to build as 'MultiMC' for third parties.
+
+
+## MultiMC 0.6.12
 
 After roughly one year of maintenance and development work by various contributors, we're just calling it a good time to release.
 
 What got added since the last time? Quite a bit! But in general, this is more of a spring cleaning before the major changes that we need to make come in.
 
-### Modpack platforms
+#### Modpack platforms
 
 We've added a whole bunch of new modpack platforms to pick from right into the new instance dialog. If you run into any unusual issues with the imported packs, report them on the bug tracker.
 
@@ -18,7 +207,7 @@ We've added a whole bunch of new modpack platforms to pick from right into the n
 
 - GH-405: Added a ATLauncher pack browser
 
-### Other changes
+#### Other changes
 
 - Added the option to not use OpenAL and/or GLFW libraries bundled with the game.
 
@@ -46,7 +235,7 @@ We've added a whole bunch of new modpack platforms to pick from right into the n
 
 - GH-3602: Pre-launch commands could fail on first launch of the instance because the .minecraft folder has not been created yet.
 
-### Technical changes
+#### Technical changes
 
 - GH-3234: At build time, the meta URL can be changed.
 
@@ -57,8 +246,6 @@ We've added a whole bunch of new modpack platforms to pick from right into the n
 - Some preparations have been done to allow downloading Java runtimes from Mojang - support for the Piston repository.
 
 - Compatibility with unusual build environments has been increased
-
-# Previous releases
 
 ## MultiMC 0.6.11
 
@@ -998,7 +1185,7 @@ Fluffy and functional!
   - GH-1275: Server resource pack folder is created on launch.
     - This is a workaround for Minecraft bug MCL-3732.
   - GH-1320: Improve compatibility with non-Oracle Java.
-  - GH-1355: MMC environment will no longer leak into Minecraft after MultiMC updates itself.
+  - GH-1355: LAUNCHER environment will no longer leak into Minecraft after MultiMC updates itself.
 
 - Minecraft log:
   - Java exception detection in Minecraft logs has been improved.
@@ -1043,7 +1230,7 @@ Fluffy and functional!
 - GH-1069, GH-1100: `LD_LIBRARY_PATH` and `LD_PRELOAD` environment variables supplied to MultiMC now don't affect MultiMC but affect the launched game.
 
   This means you can use something like the Steam overlay in MultiMC instances on Linux.
-  If you need to use these variables for MultiMC itself, you can use `MMC_LIBRARY_PATH` and `MMC_PRELOAD` instead.
+  If you need to use these variables for MultiMC itself, you can use `LAUNCHER_LIBRARY_PATH` and `LAUNCHER_PRELOAD` instead.
 
 - GH-1389: External processes (like folder views, editors, etc.) are now started in a way that prevents the MultiMC environment to be reused by them.
 - GH-1355: If `LD_LIBRARY_PATH` contains any of MultiMC's internal folders, this will not propagate to started processes.
@@ -1330,7 +1517,7 @@ Long time coming, this release brought a lot of incremental improvements and fix
 - Update to the German translation.
 
 ## MultiMC 0.1.1
-- Hotfix - Changed the issue tracker URL to [GitHub issues](https://github.com/MultiMC/MultiMC5/issues).
+- Hotfix - Changed the issue tracker URL to [GitHub issues](https://github.com/MultiMC/Launcher/issues).
 
 ## MultiMC 0.1
 - Reworked the version numbering system to support our [new Git workflow](http://nvie.com/posts/a-successful-git-branching-model/).

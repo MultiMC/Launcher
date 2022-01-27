@@ -3,10 +3,9 @@
 #include <QFile>
 #include <QtNetwork/QtNetwork>
 #include <memory>
-#include <minecraft/auth/AuthSession.h>
 #include "tasks/Task.h"
 
-typedef std::shared_ptr<class SkinUpload> SkinUploadPtr;
+typedef shared_qobject_ptr<class SkinUpload> SkinUploadPtr;
 
 class SkinUpload : public Task
 {
@@ -19,14 +18,14 @@ public:
     };
 
     // Note this class takes ownership of the file.
-    SkinUpload(QObject *parent, AuthSessionPtr session, QByteArray skin, Model model = STEVE);
+    SkinUpload(QObject *parent, QString token, QByteArray skin, Model model = STEVE);
     virtual ~SkinUpload() {}
 
 private:
     Model m_model;
     QByteArray m_skin;
-    AuthSessionPtr m_session;
-    std::shared_ptr<QNetworkReply> m_reply;
+    QString m_token;
+    shared_qobject_ptr<QNetworkReply> m_reply;
 protected:
     virtual void executeTask();
 

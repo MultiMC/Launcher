@@ -6,14 +6,16 @@
 #include <QDir>
 #include <QLibraryInfo>
 #include <QDebug>
-#include <FileSystem.h>
-#include <net/NetJob.h>
-#include <net/ChecksumValidator.h>
-#include <Env.h>
-#include <BuildConfig.h>
+
+#include "FileSystem.h"
+#include "net/NetJob.h"
+#include "net/ChecksumValidator.h"
+#include "BuildConfig.h"
 #include "Json.h"
 
 #include "POTranslator.h"
+
+#include "Application.h"
 
 const static QLatin1Literal defaultLangCode("en_US");
 
@@ -35,6 +37,20 @@ struct Language
         key = _key;
         locale = QLocale(key);
         updated = (key == defaultLangCode);
+    }
+
+    QString languageName() const {
+        QString result;
+        if(key == "ja_KANJI") {
+            result = locale.nativeLanguageName() + u8" (漢字)";
+        }
+        else if(key == "es_UY") {
+            result = u8"español de Latinoamérica";
+        }
+        else {
+            result = locale.nativeLanguageName();
+        }
+        return result;
     }
 
     float percentTranslated() const
@@ -119,10 +135,10 @@ struct TranslationsModel::Private
     std::unique_ptr<QTranslator> m_qt_translator;
     std::unique_ptr<QTranslator> m_app_translator;
 
-    std::shared_ptr<Net::Download> m_index_task;
+    Net::Download::Ptr m_index_task;
     QString m_downloadingTranslation;
-    NetJobPtr m_dl_job;
-    NetJobPtr m_index_job;
+    NetJob::Ptr m_dl_job;
+    NetJob::Ptr m_index_job;
     QString m_nextDownload;
 
     std::unique_ptr<POTranslator> m_po_translator;
@@ -338,7 +354,7 @@ QVariant TranslationsModel::data(const QModelIndex& index, int role) const
         {
             case Column::Language:
             {
-                return lang.locale.nativeLanguageName();
+                return lang.languageName();
             }
             case Column::Completeness:
             {
@@ -557,8 +573,8 @@ void TranslationsModel::downloadIndex()
         return;
     }
     qDebug() << "Downloading Translations Index...";
-    d->m_index_job.reset(new NetJob("Translations Index"));
-    MetaEntryPtr entry = ENV.metacache()->resolveEntry("translations", "index_v2.json");
+    d->m_index_job = new NetJob("Translations Index", APPLICATION->network());
+    MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("translations", "index_v2.json");
     entry->setStale(true);
     d->m_index_task = Net::Download::makeCached(QUrl("https://files.multimc.org/translations/index_v2.json"), entry);
     d->m_index_job->addNetAction(d->m_index_task);
@@ -601,7 +617,7 @@ void TranslationsModel::downloadTranslation(QString key)
     }
 
     d->m_downloadingTranslation = key;
-    MetaEntryPtr entry = ENV.metacache()->resolveEntry("translations", "mmc_" + key + ".qm");
+    MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("translations", "mmc_" + key + ".qm");
     entry->setStale(true);
 
     auto dl = Net::Download::makeCached(QUrl(BuildConfig.TRANSLATIONS_BASE_URL + lang->file_name), entry);
@@ -609,7 +625,7 @@ void TranslationsModel::downloadTranslation(QString key)
     dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, rawHash));
     dl->m_total_progress = lang->file_size;
 
-    d->m_dl_job.reset(new NetJob("Translation for " + key));
+    d->m_dl_job = new NetJob("Translation for " + key, APPLICATION->network());
     d->m_dl_job->addNetAction(dl);
 
     connect(d->m_dl_job.get(), &NetJob::succeeded, this, &TranslationsModel::dlGood);

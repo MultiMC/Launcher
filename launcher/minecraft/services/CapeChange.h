@@ -3,14 +3,14 @@
 #include <QFile>
 #include <QtNetwork/QtNetwork>
 #include <memory>
-#include <minecraft/auth/AuthSession.h>
 #include "tasks/Task.h"
+#include "QObjectPtr.h"
 
 class CapeChange : public Task
 {
     Q_OBJECT
 public:
-    CapeChange(QObject *parent, AuthSessionPtr session, QString capeId);
+    CapeChange(QObject *parent, QString token, QString capeId);
     virtual ~CapeChange() {}
 
 private:
@@ -19,8 +19,8 @@ private:
 
 private:
     QString m_capeId;
-    AuthSessionPtr m_session;
-    std::shared_ptr<QNetworkReply> m_reply;
+    QString m_token;
+    shared_qobject_ptr<QNetworkReply> m_reply;
 
 protected:
     virtual void executeTask();

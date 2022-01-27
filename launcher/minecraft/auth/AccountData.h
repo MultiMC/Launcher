@@ -21,6 +21,12 @@ struct Cape {
     QByteArray data;
 };
 
+struct MinecraftEntitlement {
+    bool ownsMinecraft = false;
+    bool canPlayMinecraft = false;
+    Katabasis::Validity validity = Katabasis::Validity::None;
+};
+
 struct MinecraftProfile {
     QString id;
     QString name;
@@ -33,6 +39,16 @@ struct MinecraftProfile {
 enum class AccountType {
     MSA,
     Mojang
+};
+
+enum class AccountState {
+    Unchecked,
+    Offline,
+    Working,
+    Online,
+    Errored,
+    Expired,
+    Gone
 };
 
 struct AccountData {
@@ -58,6 +74,8 @@ struct AccountData {
     QString profileId() const;
     QString profileName() const;
 
+    QString lastError() const;
+
     AccountType type = AccountType::MSA;
     bool legacy = false;
     bool canMigrateToMSA = false;
@@ -69,5 +87,11 @@ struct AccountData {
 
     Katabasis::Token yggdrasilToken;
     MinecraftProfile minecraftProfile;
+    MinecraftEntitlement minecraftEntitlement;
     Katabasis::Validity validity_ = Katabasis::Validity::None;
+
+    // runtime only information (not saved with the account)
+    QString internalId;
+    QString errorString;
+    AccountState accountState = AccountState::Unchecked;
 };
