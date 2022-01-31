@@ -69,7 +69,8 @@ void ImportPage::updateState()
         {
             // FIXME: actually do some validation of what's inside here... this is fake AF
             QFileInfo fi(input);
-            if(fi.exists() && fi.suffix() == "zip")
+            // mrpack is a modrinth pack
+            if(fi.exists() && (fi.suffix() == "zip" || fi.suffix() == "mrpack"))
             {
                 QFileInfo fi(url.fileName());
                 dialog->setSuggestedPack(fi.completeBaseName(), new InstanceImportTask(url));
@@ -103,7 +104,7 @@ void ImportPage::setUrl(const QString& url)
 
 void ImportPage::on_modpackBtn_clicked()
 {
-    const QUrl url = QFileDialog::getOpenFileUrl(this, tr("Choose modpack"), modpackUrl(), tr("Zip (*.zip)"));
+    const QUrl url = QFileDialog::getOpenFileUrl(this, tr("Choose modpack"), modpackUrl(), tr("Zip (*.zip *.mrpack)"));
     if (url.isValid())
     {
         if (url.isLocalFile())
