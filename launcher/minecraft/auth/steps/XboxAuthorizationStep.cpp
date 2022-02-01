@@ -141,7 +141,7 @@ bool XboxAuthorizationStep::processSTSError(
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
                     tr("This is not an adult Microsoft account and it is not linked to a family.\n\nPlease set up the account according to %1.")
-                        .arg("<a href=\"https://help.minecraft.net/hc/en-us/articles/4403181904525\">help.minecraft.net</a>")
+                        .arg(tr("<a href=\"https://help.minecraft.net/hc/en-us/articles/4403181904525\">help.minecraft.net</a>"))
                 );
                 return true;
             }
