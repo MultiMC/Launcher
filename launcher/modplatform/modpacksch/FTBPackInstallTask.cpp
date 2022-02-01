@@ -94,7 +94,7 @@ void PackInstallTask::onDownloadSucceeded()
     }
     catch (const JSONValidationError &e)
     {
-        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
+        emitFailed(tr("Could not parse the pack manifest:\n") + e.cause());
         return;
     }
     m_version = version;

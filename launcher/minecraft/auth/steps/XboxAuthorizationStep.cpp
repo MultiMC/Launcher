@@ -124,8 +124,7 @@ bool XboxAuthorizationStep::processSTSError(
             case 2148916233:{
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
-                    tr("This Microsoft account does not have an XBox Live profile. Buy the game on %1 first.")
-                        .arg("<a href=\"https://www.minecraft.net/en-us/store/minecraft-java-edition\">minecraft.net</a>")
+                    tr("This Microsoft account does not have an XBox Live profile. Purchasing the game on <a href=\"https://www.minecraft.net/en-us/store/minecraft-java-edition\">minecraft.net</a> is required.")
                 );
                 return true;
             }
@@ -133,22 +132,21 @@ bool XboxAuthorizationStep::processSTSError(
                 // NOTE: this is the Grulovia error
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
-                    tr("XBox Live is not available in your country. You've been blocked.")
+                    tr("XBox Live is not available in this country. The provided account has been blocked.")
                 );
                 return true;
             }
             case 2148916238: {
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
-                    tr("This Microsoft account is underaged and is not linked to a family.\n\nPlease set up your account according to %1.")
-                        .arg("<a href=\"https://help.minecraft.net/hc/en-us/articles/4403181904525\">help.minecraft.net</a>")
+                    tr("This is not an adult Microsoft account and it is not linked to a family.\n\nPlease set up the account according to <a href=\"https://help.minecraft.net/hc/en-us/articles/4403181904525\">help.minecraft.net</a>.")
                 );
                 return true;
             }
             default: {
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
-                    tr("XSTS authentication ended with unrecognized error(s):\n\n%1").arg(errorCode)
+                    tr("XSTS authentication ended with an unrecognized error code:\n\n%1").arg(errorCode)
                 );
                 return true;
             }

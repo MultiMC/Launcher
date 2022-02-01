@@ -423,7 +423,7 @@ void VersionPage::on_actionInstall_Forge_triggered()
     }
     VersionSelectDialog vselect(vlist.get(), tr("Select Forge version"), this);
     vselect.setExactFilter(BaseVersionList::ParentVersionRole, m_profile->getComponentVersion("net.minecraft"));
-    vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft ") + m_profile->getComponentVersion("net.minecraft"));
+    vselect.setEmptyString(tr("No Forge versions are currently available for Minecraft %1").arg(m_profile->getComponentVersion("net.minecraft")));
     vselect.setEmptyErrorString(tr("Couldn't load or download the Forge version lists!"));
 
     auto currentVersion = m_profile->getComponentVersion("net.minecraftforge");

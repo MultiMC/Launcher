@@ -91,7 +91,7 @@ void PackInstallTask::onDownloadSucceeded()
     }
     catch (const JSONValidationError &e)
     {
-        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
+        emitFailed(tr("Could not parse the pack manifest:\n") + e.cause());
         return;
     }
     m_version = version;
@@ -471,7 +471,7 @@ void PackInstallTask::extractConfigs()
     QuaZip packZip(archivePath);
     if(!packZip.open(QuaZip::mdUnzip))
     {
-        emitFailed(tr("Failed to open pack configs %1!").arg(archivePath));
+        emitFailed(tr("Failed to open the pack configs archive in %1").arg(archivePath));
         return;
     }
 

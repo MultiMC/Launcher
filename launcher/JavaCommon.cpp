@@ -8,9 +8,9 @@ bool JavaCommon::checkJVMArgs(QString jvmargs, QWidget *parent)
         || jvmargs.contains("-XX-MaxHeapSize") || jvmargs.contains("-XX:InitialHeapSize"))
     {
         auto warnStr = QObject::tr(
-            "You tried to manually set a JVM memory option (using \"-XX:PermSize\", \"-XX-MaxHeapSize\", \"-XX:InitialHeapSize\",  \"-Xmx\" or \"-Xms\").\n"
+            "An attempt was made to manually set a JVM memory option (using \"-XX:PermSize\", \"-XX-MaxHeapSize\", \"-XX:InitialHeapSize\",  \"-Xmx\" or \"-Xms\").\n"
             "There are dedicated boxes for these in the settings (Java tab, in the Memory group at the top).\n"
-            "This message will be displayed until you remove them from the JVM arguments.");
+            "This message will be displayed until these arguments are removed from the JVM arguments.");
         CustomMessageBox::selectable(
             parent, QObject::tr("JVM arguments warning"),
             warnStr,

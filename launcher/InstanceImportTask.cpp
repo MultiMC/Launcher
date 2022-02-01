@@ -218,7 +218,7 @@ void InstanceImportTask::processFlame()
     }
     catch (const JSONValidationError &e)
     {
-        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
+        emitFailed(tr("Could not parse the pack manifest:\n") + e.cause());
         return;
     }
     if(!pack.overrides.isEmpty())

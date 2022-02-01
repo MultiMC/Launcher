@@ -339,7 +339,7 @@ void ScreenshotsPage::on_actionUpload_triggered()
             CustomMessageBox::selectable(
                     this,
                     tr("Upload finished"),
-                    tr("The <a href=\"%1\">link  to the uploaded screenshot</a> has been placed in your clipboard.")
+                    tr("The <a href=\"%1\">link to the uploaded screenshot</a> has been placed in your clipboard.")
                         .arg(link),
                     QMessageBox::Information
             )->exec();

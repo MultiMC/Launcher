@@ -149,11 +149,10 @@ JavaSettingsWidget::ValidationStatus JavaSettingsWidget::validate()
             int button = CustomMessageBox::selectable(
                 this,
                 tr("No Java version selected"),
-                tr("You didn't select a Java version or selected something that doesn't work.\n"
-                    "%1 will not be able to start Minecraft.\n"
-                    "Do you wish to proceed without any Java?"
+                tr("%1 will not be able to start Minecraft, because a working Java version has not been selected.\n"
+                    "The Java version can be changed in the settings at any time.\n"
                     "\n\n"
-                    "You can change the Java version in the settings later.\n"
+                    "Proceed without Java?"
                 ).arg(BuildConfig.LAUNCHER_NAME),
                 QMessageBox::Warning,
                 QMessageBox::Yes | QMessageBox::No,

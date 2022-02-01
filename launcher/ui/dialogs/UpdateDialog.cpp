@@ -133,12 +133,12 @@ QString reprocessCommits(QByteArray json)
             result += QObject::tr("<p>The update removes %1 commits and adds the following %2:</p>").arg(commit_behind).arg(commit_ahead);
             print_commits();
         }
-        result += QObject::tr("<p>You can <a href=\"%1\">look at the changes on github</a>.</p>").arg(diff_url);
+        result += QObject::tr("<p>You can <a href=\"%1\">look at the changes on GitHub</a>.</p>").arg(diff_url);
         return result;
     }
     catch (const JSONValidationError &e)
     {
-        qWarning() << "Got an unparseable commit log from github:" << e.what();
+        qWarning() << "Got an unparseable commit log from GitHub:" << e.what();
         qDebug() << json;
     }
     return QString();

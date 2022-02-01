@@ -238,7 +238,7 @@ void Page::onPackSelectionChanged(Modpack* pack)
     ui->versionSelectionBox->clear();
     if(pack)
     {
-        currentModpackInfo->setHtml("Pack by <b>" + pack->author + "</b>" +
+        currentModpackInfo->setHtml(tr("Pack by %1").arg("<b>" + pack->author + "</b>") +
                                     "<br>Minecraft " + pack->mcVersion + "<br>" + "<br>" + pack->description + "<ul><li>" + pack->mods.replace(";", "</li><li>")
                                     + "</li></ul>");
         bool currentAdded = false;

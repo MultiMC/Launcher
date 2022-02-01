@@ -350,7 +350,7 @@ public:
             actionDISCORD->setObjectName(QStringLiteral("actionDISCORD"));
             actionDISCORD->setIcon(APPLICATION->getThemedIcon("discord"));
             actionDISCORD.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Discord"));
-            actionDISCORD.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open %1 discord voice chat."));
+            actionDISCORD.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open %1 Discord chat."));
             all_actions.append(&actionDISCORD);
             helpMenu->addAction(actionDISCORD);
         }

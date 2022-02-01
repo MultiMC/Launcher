@@ -286,7 +286,7 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                         return tr("Working", "Account status");
                     }
                     case AccountState::Errored: {
-                        return tr("Errored", "Account status");
+                        return tr("Error", "Account status");
                     }
                     case AccountState::Expired: {
                         return tr("Expired", "Account status");

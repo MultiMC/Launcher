@@ -37,7 +37,7 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget *parent)
     setAttribute(Qt::WA_DeleteOnClose);
 
     auto icon = APPLICATION->icons()->getIcon(m_instance->iconKey());
-    QString windowTitle = tr("Console window for ") + m_instance->name();
+    QString windowTitle = tr("Console window for %1").arg(m_instance->name());
 
     // Set window properties
     {
