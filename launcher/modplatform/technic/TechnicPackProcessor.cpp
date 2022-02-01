@@ -146,7 +146,7 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings, const 
     else
     {
         // This is the "Vanilla" modpack, excluded by the search code
-        emit failed(tr("Unable to find \"version.json\"!"));
+        emit failed(tr("Unable to find the file \"version.json\"!"));
         return;
     }
 
@@ -159,7 +159,7 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings, const 
         {
             if (fmlMinecraftVersion.isEmpty())
             {
-                emit failed(tr("Could not understand \"version.json\":\ninheritsFrom is missing"));
+                emit failed(tr("Could not parse the file \"version.json\":\ninheritsFrom is missing"));
                 return;
             }
             minecraftVersion = fmlMinecraftVersion;

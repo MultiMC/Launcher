@@ -124,7 +124,8 @@ bool XboxAuthorizationStep::processSTSError(
             case 2148916233:{
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
-                    tr("This Microsoft account does not have an XBox Live profile. Purchasing the game on <a href=\"https://www.minecraft.net/en-us/store/minecraft-java-edition\">minecraft.net</a> is required.")
+                    tr("This Microsoft account does not have an Xbox Live profile. Purchasing the game on %1 is required.")
+                        .arg(tr("<a href=\"https://www.minecraft.net/en-us/store/minecraft-java-edition\">minecraft.net</a>"))
                 );
                 return true;
             }
@@ -132,14 +133,15 @@ bool XboxAuthorizationStep::processSTSError(
                 // NOTE: this is the Grulovia error
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
-                    tr("XBox Live is not available in this country. The provided account has been blocked.")
+                    tr("Xbox Live is not available in this country. The provided account has been blocked by Microsoft.")
                 );
                 return true;
             }
             case 2148916238: {
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
-                    tr("This is not an adult Microsoft account and it is not linked to a family.\n\nPlease set up the account according to <a href=\"https://help.minecraft.net/hc/en-us/articles/4403181904525\">help.minecraft.net</a>.")
+                    tr("This is not an adult Microsoft account and it is not linked to a family.\n\nPlease set up the account according to %1.")
+                        .arg("<a href=\"https://help.minecraft.net/hc/en-us/articles/4403181904525\">help.minecraft.net</a>")
                 );
                 return true;
             }
