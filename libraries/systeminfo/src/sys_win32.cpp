@@ -61,10 +61,6 @@ Sys::DistributionInfo Sys::getDistributionInfo()
 bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &description)
 {
     bool hasCodeName = Win32::lookupNtStatusCodeName(code, name);
-    if(!hasCodeName)
-    {
-        name = "unknown status";
-    }
 
     PSTR messageBuffer = nullptr;
     HMODULE ntdll = GetModuleHandleA("ntdll.dll");
