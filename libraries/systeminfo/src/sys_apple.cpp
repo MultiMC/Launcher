@@ -72,3 +72,8 @@ Sys::DistributionInfo Sys::getDistributionInfo()
     DistributionInfo result;
     return result;
 }
+
+bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &description)
+{
+    return false;
+}

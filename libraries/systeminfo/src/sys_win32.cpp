@@ -2,6 +2,8 @@
 
 #include <windows.h>
 
+#include "NtStatsuGen.h"
+
 Sys::KernelInfo Sys::getKernelInfo()
 {
     Sys::KernelInfo out;
@@ -53,4 +55,10 @@ Sys::DistributionInfo Sys::getDistributionInfo()
 {
     DistributionInfo result;
     return result;
+}
+
+bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &description)
+{
+
+    return false;
 }

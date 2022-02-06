@@ -60,4 +60,6 @@ uint64_t getSystemRam();
 bool isSystem64bit();
 
 bool isCPU64bit();
+
+bool lookupSystemStatusCode(uint64_t code, std::string &name, std::string &description);
 }
