@@ -1,8 +1,9 @@
 #include "sys.h"
 
 #include <windows.h>
+#include <QDebug>
 
-#include "NtStatsuGen.h"
+#include "NtStatusGen.h"
 
 Sys::KernelInfo Sys::getKernelInfo()
 {
@@ -59,6 +60,41 @@ Sys::DistributionInfo Sys::getDistributionInfo()
 
 bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &description)
 {
+    bool hasCodeName = Win32::lookupNtStatusCodeName(code, name);
+    if(!hasCodeName)
+    {
+        name = "unknown status";
+    }
 
-    return false;
+    PSTR messageBuffer = nullptr;
+    HMODULE ntdll = GetModuleHandleA("ntdll.dll");
+    if(!ntdll)
+    {
+        // ???
+        qWarning() << "GetModuleHandleA returned nullptr for ntdll.dll";
+        return false;
+    }
+
+    auto messageSize = FormatMessageA(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE,
+            ntdll,
+            code,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            reinterpret_cast<PSTR>(&messageBuffer),
+            0,
+            nullptr
+    );
+
+    bool hasDescription = messageSize > 0;
+    if(hasDescription)
+    {
+        description = std::string(messageBuffer, messageSize);
+    }
+
+    if(messageBuffer)
+    {
+        LocalFree(messageBuffer);
+    }
+
+    return hasCodeName || hasDescription;
 }

@@ -39,7 +39,7 @@ if (WIN32)
     target_compile_definitions(systeminfo-ntstatus-gen PRIVATE
             NTSTATUS_PREPROCESSOR_OUT=\"${systeminfo_PREPROCESSOR_OUT}\")
 
-    set(NTSTATUS_GEN_HEADER "${CMAKE_CURRENT_BINARY_DIR}/NtStatsuGen.h")
+    set(NTSTATUS_GEN_HEADER "${CMAKE_CURRENT_BINARY_DIR}/NtStatusGen.h")
     set(NTSTATUS_GEN_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/NtStatusGen.cpp")
 
     add_custom_command(
