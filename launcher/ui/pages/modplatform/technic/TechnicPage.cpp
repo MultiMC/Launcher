@@ -12,10 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * -----
- *
- * This source and all future changes to it are subject to the Microsoft Permissive License (MS-PL).
- * Please see the COPYING.md file for more information.
  */
 
 #include "TechnicPage.h"
