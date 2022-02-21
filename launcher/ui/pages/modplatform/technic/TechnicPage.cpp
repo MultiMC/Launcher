@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2022 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,6 +11,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 #include "TechnicPage.h"
@@ -187,8 +188,9 @@ void TechnicPage::metadataLoaded()
         text += tr(" by ") + current.author;
     }
 
-    ui->frame->setModText(text);
-    ui->frame->setModDescription(current.description);
+    text += "<br><br>";
+
+    ui->packDescription->setHtml(text + current.description);
     if (!current.isSolder)
     {
         dialog->setSuggestedPack(current.name, new Technic::SingleZipPackInstallTask(current.url, current.minecraftVersion));

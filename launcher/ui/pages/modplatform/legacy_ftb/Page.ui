@@ -25,7 +25,7 @@
         <widget class="QTreeView" name="publicPackList">
          <property name="maximumSize">
           <size>
-           <width>250</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
@@ -51,7 +51,7 @@
         <widget class="QTreeView" name="thirdPartyPackList">
          <property name="maximumSize">
           <size>
-           <width>250</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
@@ -71,7 +71,7 @@
         <widget class="QTreeView" name="privatePackList">
          <property name="maximumSize">
           <size>
-           <width>250</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
@@ -103,16 +103,6 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout_4">
-     <item row="0" column="1">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Version selected:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="2">
       <widget class="QComboBox" name="versionSelectionBox"/>
      </item>
@@ -123,6 +113,16 @@
          <width>265</width>
          <height>0</height>
         </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Version selected:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
