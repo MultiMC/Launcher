@@ -1,10 +1,41 @@
-# MultiMC 0.6.14
+# MultiMC 0.6.15
+
+This is mostly a bugfix release.
+
+#### Accounts
+
+- Scan for changes to Minecraft entitlements on account refresh (to make sure we detect changes to entitlements).
+- Add some more logging to interaction with Minecraft services and authentication (profile fetching, etc.).
+- Add support for demo mode for accounts that don't have a Minecraft profile.
+
+#### UI
+
+- Fixed how 'español de Latinoamérica' appears in the language selector.
+- Added a way to open loader mods for an instance from the main window.
+- Improved error messages when the data folder cannot be accessed correctly.
+- Fixed window title of the Java checker failure dialog.
+- Updated layout of various modpack import pages to be more consistent and better in general.
+
+#### Java
+
+- GH-4000: add detection for Adoptium Java runtimes.
+- Changed minimum Java version to 7 - it was too hard to maintain compatibility with 6 in development environments.
+- GH-4125: Add a workaround for Java interacting badly with some features of Bedrock Linux.
+
+#### Screenshots
+
+- GH-4299: Fix crash when uploading screenshots.
+- Added the capability to copypaste screenshots as raw images (to image editors) and files (to file explorers).
+
+# Previous releases
+
+## MultiMC 0.6.14
 
 This further refines Microsoft account support, along with small fixes related to modpack platforms and Java runtime detection.
 
 It's also been 10 years since the first release of MultiMC. All background cats are now ready to party!
 
-### Microsoft accounts
+#### Microsoft accounts
 
 The account system now refreshes accounts in the background while the application is running.
 
@@ -22,7 +53,7 @@ In general, this should make MultiMC much more forgiving towards various tempora
   - Accounts can now be added even when they do not have a profile.
   - The launcher should guide you through selecting a Minecraft name if you don't have one yet.
 
-### Modpack platform changes
+#### Modpack platform changes
 
 - GH-4055: MultiMC now tries to avoid downloading multiple files to the same path for FTB modpacks.
 
@@ -32,7 +63,7 @@ In general, this should make MultiMC much more forgiving towards various tempora
 
 - The modpack platform UIs now include text field clear buttons.
 
-### Other changes
+#### Other changes
 
 - Adjusted warnings about Java runtime required for Minecraft 1.18 (it's not Java 16, it's Java 17).
 
@@ -57,11 +88,9 @@ In general, this should make MultiMC much more forgiving towards various tempora
 
 - It is now possible to turn of global tracking of play time.
 
-### Technical changes
+#### Technical changes
 
 - Debranding is mostly finished. You may see some changes in the logo being used in less places.
-
-# Previous releases
 
 ## MultiMC 0.6.13
 
