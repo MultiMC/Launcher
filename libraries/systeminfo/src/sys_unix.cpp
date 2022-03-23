@@ -48,15 +48,16 @@ uint64_t Sys::getSystemRam()
 {
     std::string token;
 #ifdef Q_OS_LINUX
+    uint64_t mem = 0;
     std::ifstream file("/proc/meminfo");
     while(file >> token)
     {
-        if(token == "MemTotal:")
+        if(token == "MemTotal:" || token == "SwapTotal:")
         {
-            uint64_t mem;
-            if(file >> mem)
+            uint64_t temp_mem;
+            if(file >> temp_mem)
             {
-                return mem * 1024ull;
+                mem += temp_mem;
             }
             else
             {
@@ -66,6 +67,7 @@ uint64_t Sys::getSystemRam()
         // ignore rest of the line
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
+    return mem * 1024ull;
 #elif defined(Q_OS_FREEBSD)
     char buff[512];
     FILE *fp = popen("sysctl hw.physmem", "r");
@@ -78,8 +80,8 @@ uint64_t Sys::getSystemRam()
 	    return mem * 1024ull;
 	}
     }
-#endif
     return 0; // nothing found
+#endif
 }
 
 bool Sys::isCPU64bit()
