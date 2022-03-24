@@ -132,6 +132,16 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="allowSwapCheckBox">
+            <property name="text">
+             <string>Allow use of swap</string>
+            </property>
+            <property name="toolTip">
+             <string>Allows the usage of swap when specifying memory allocation.</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
