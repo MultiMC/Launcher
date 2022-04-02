@@ -1,4 +1,5 @@
 /* Copyright 2013-2021 MultiMC Contributors
+ * Copyright 2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +21,7 @@
 #include <QtConcurrentRun>
 #include <MMCZip.h>
 #include "TechnicPackProcessor.h"
+#include "SolderPackManifest.h"
 
 Technic::SolderPackInstallTask::SolderPackInstallTask(
     shared_qobject_ptr<QNetworkAccessManager> network,
@@ -52,21 +54,29 @@ void Technic::SolderPackInstallTask::executeTask()
 
 void Technic::SolderPackInstallTask::versionSucceeded()
 {
-    try
-    {
-        QJsonDocument doc = Json::requireDocument(m_response);
-        QJsonObject obj = Json::requireObject(doc);
-        QString version = Json::requireString(obj, "recommended", "__placeholder__");
-        m_sourceUrl = m_sourceUrl.toString() + '/' + version;
+    setStatus(tr("Resolving modpack files"));
+
+    QJsonParseError parse_error {};
+    QJsonDocument doc = QJsonDocument::fromJson(m_response, &parse_error);
+    if (parse_error.error != QJsonParseError::NoError) {
+        qWarning() << "Error while parsing JSON response from Solder at " << parse_error.offset << " reason: " << parse_error.errorString();
+        qWarning() << m_response;
+        return;
     }
-    catch (const JSONValidationError &e)
-    {
-        emitFailed(e.cause());
+    auto obj = doc.object();
+
+    TechnicSolder::Pack pack;
+    try {
+        TechnicSolder::loadPack(pack, obj);
+    }
+    catch (const JSONValidationError& e) {
+        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
         m_filesNetJob.reset();
         return;
     }
 
-    setStatus(tr("Resolving modpack files:\n%1").arg(m_sourceUrl.toString()));
+    m_sourceUrl = m_sourceUrl.toString() + '/' + pack.recommended;
+
     m_filesNetJob = new NetJob(tr("Resolving modpack files"), m_network);
     m_filesNetJob->addNetAction(Net::Download::makeByteArray(m_sourceUrl, &m_response));
     auto job = m_filesNetJob.get();
@@ -77,38 +87,40 @@ void Technic::SolderPackInstallTask::versionSucceeded()
 
 void Technic::SolderPackInstallTask::fileListSucceeded()
 {
-    setStatus(tr("Downloading modpack:"));
-    QStringList modUrls;
-    try
-    {
-        QJsonDocument doc = Json::requireDocument(m_response);
-        QJsonObject obj = Json::requireObject(doc);
-        QString minecraftVersion = Json::ensureString(obj, "minecraft", QString(), "__placeholder__");
-        if (!minecraftVersion.isEmpty())
-            m_minecraftVersion = minecraftVersion;
-        QJsonArray mods = Json::requireArray(obj, "mods", "'mods'");
-        for (auto mod: mods)
-        {
-            QJsonObject modObject = Json::requireValueObject(mod);
-            modUrls.append(Json::requireString(modObject, "url", "'url'"));
-        }
+    setStatus(tr("Downloading modpack"));
+
+    QJsonParseError parse_error {};
+    QJsonDocument doc = QJsonDocument::fromJson(m_response, &parse_error);
+    if (parse_error.error != QJsonParseError::NoError) {
+        qWarning() << "Error while parsing JSON response from Solder at " << parse_error.offset << " reason: " << parse_error.errorString();
+        qWarning() << m_response;
+        return;
     }
-    catch (const JSONValidationError &e)
-    {
-        emitFailed(e.cause());
+    auto obj = doc.object();
+
+    TechnicSolder::PackBuild build;
+    try {
+        TechnicSolder::loadPackBuild(build, obj);
+    }
+    catch (const JSONValidationError& e) {
+        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
         m_filesNetJob.reset();
         return;
     }
+
+    if (!build.minecraft.isEmpty())
+        m_minecraftVersion = build.minecraft;
+
     m_filesNetJob = new NetJob(tr("Downloading modpack"), m_network);
     int i = 0;
-    for (auto &modUrl: modUrls)
+    for (const auto &mod : build.mods)
     {
         auto path = FS::PathCombine(m_outputDir.path(), QString("%1").arg(i));
-        m_filesNetJob->addNetAction(Net::Download::makeFile(modUrl, path));
+        m_filesNetJob->addNetAction(Net::Download::makeFile(mod.url, path));
         i++;
     }
 
-    m_modCount = modUrls.size();
+    m_modCount = build.mods.size();
 
     connect(m_filesNetJob.get(), &NetJob::succeeded, this, &Technic::SolderPackInstallTask::downloadSucceeded);
     connect(m_filesNetJob.get(), &NetJob::progress, this, &Technic::SolderPackInstallTask::downloadProgressChanged);
@@ -206,6 +218,4 @@ void Technic::SolderPackInstallTask::extractFinished()
 void Technic::SolderPackInstallTask::extractAborted()
 {
     emitFailed(tr("Instance import has been aborted."));
-    return;
 }
-
