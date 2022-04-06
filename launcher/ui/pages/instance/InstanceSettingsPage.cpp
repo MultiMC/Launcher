@@ -141,7 +141,6 @@ void InstanceSettingsPage::applySettings()
     if(javaArgs)
     {
         m_settings->set("JvmArgs", ui->jvmArgsTextBox->toPlainText().replace("\n", " "));
-        JavaCommon::checkJVMArgs(m_settings->get("JvmArgs").toString(), this->parentWidget());
     }
     else
     {
