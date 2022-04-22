@@ -48,7 +48,8 @@ enum class AccountState {
     Online,
     Errored,
     Expired,
-    Gone
+    Gone,
+    MustMigrate
 };
 
 struct AccountData {
@@ -79,6 +80,7 @@ struct AccountData {
     AccountType type = AccountType::MSA;
     bool legacy = false;
     bool canMigrateToMSA = false;
+    bool mustMigrateToMSA = false;
 
     Katabasis::Token msaToken;
     Katabasis::Token userToken;

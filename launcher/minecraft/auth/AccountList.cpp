@@ -294,6 +294,9 @@ QVariant AccountList::data(const QModelIndex &index, int role) const
                     case AccountState::Gone: {
                         return tr("Gone", "Account status");
                     }
+                    case AccountState::MustMigrate: {
+                        return tr("Must Migrate", "Account status");
+                    }
                 }
             }
 

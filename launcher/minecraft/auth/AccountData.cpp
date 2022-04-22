@@ -322,6 +322,7 @@ bool AccountData::resumeStateFromV3(QJsonObject data) {
     if(type == AccountType::Mojang) {
         legacy = data.value("legacy").toBool(false);
         canMigrateToMSA = data.value("canMigrateToMSA").toBool(false);
+        mustMigrateToMSA = data.value("mustMigrateToMSA").toBool(false);
     }
 
     if(type == AccountType::MSA) {
@@ -354,6 +355,9 @@ QJsonObject AccountData::saveState() const {
         }
         if(canMigrateToMSA) {
             output["canMigrateToMSA"] = true;
+        }
+        if(mustMigrateToMSA) {
+            output["mustMigrateToMSA"] = true;
         }
     }
     else if (type == AccountType::MSA) {

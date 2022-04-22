@@ -16,4 +16,5 @@ namespace Parsers
     bool parseMinecraftProfile(QByteArray &data, MinecraftProfile &output);
     bool parseMinecraftEntitlements(QByteArray &data, MinecraftEntitlement &output);
     bool parseRolloutResponse(QByteArray &data, bool& result);
+    bool parseForcedMigrationResponse(QByteArray & data, bool& result);
 }

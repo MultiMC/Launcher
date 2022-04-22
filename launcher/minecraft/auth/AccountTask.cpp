@@ -45,6 +45,8 @@ QString AccountTask::getStateMessage() const
         return tr("Failed to contact the authentication server.");
     case AccountTaskState::STATE_FAILED_SOFT:
         return tr("Encountered an error during authentication.");
+    case AccountTaskState::STATE_FAILED_MUST_MIGRATE:
+        return tr("Failed to authenticate. The account must be migrated to a Microsoft account to be usable.");
     case AccountTaskState::STATE_FAILED_HARD:
         return tr("Failed to authenticate. The session has expired.");
     case AccountTaskState::STATE_FAILED_GONE:
@@ -81,6 +83,12 @@ bool AccountTask::changeState(AccountTaskState newState, QString reason)
         case AccountTaskState::STATE_FAILED_SOFT: {
             m_data->errorString = reason;
             m_data->accountState = AccountState::Errored;
+            emitFailed(reason);
+            return false;
+        }
+        case AccountTaskState::STATE_FAILED_MUST_MIGRATE: {
+            m_data->errorString = reason;
+            m_data->accountState = AccountState::MustMigrate;
             emitFailed(reason);
             return false;
         }

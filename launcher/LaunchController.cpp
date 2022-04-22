@@ -239,6 +239,18 @@ void LaunchController::login() {
                 emitFailed(errorString);
                 return;
             }
+            case AccountState::MustMigrate: {
+                auto errorString = tr("The account must be migrated to a Microsoft account.");
+                QMessageBox::warning(
+                    m_parentWidget,
+                    tr("Account requires migration"),
+                    errorString,
+                    QMessageBox::StandardButton::Ok,
+                    QMessageBox::StandardButton::Ok
+                );
+                emitFailed(errorString);
+                return;
+            }
         }
     }
     emitFailed(tr("Failed to launch."));

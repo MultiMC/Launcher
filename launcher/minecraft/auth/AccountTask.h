@@ -36,6 +36,7 @@ enum class AccountTaskState
     STATE_WORKING,
     STATE_SUCCEEDED,
     STATE_FAILED_SOFT, //!< soft failure. authentication went through partially
+    STATE_FAILED_MUST_MIGRATE, //!< soft failure. main tokens are valid, but the account must be migrated
     STATE_FAILED_HARD, //!< hard failure. main tokens are invalid
     STATE_FAILED_GONE, //!< hard failure. main tokens are invalid, and the account no longer exists
     STATE_OFFLINE //!< soft failure. authentication failed in the first step in a 'soft' way

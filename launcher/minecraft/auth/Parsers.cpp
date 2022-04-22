@@ -247,6 +247,36 @@ bool parseMinecraftEntitlements(QByteArray & data, MinecraftEntitlement &output)
     return true;
 }
 
+bool parseForcedMigrationResponse(QByteArray & data, bool& result) {
+    qDebug() << "Parsing Rollout response...";
+#ifndef NDEBUG
+    qDebug() << data;
+#endif
+
+    QJsonParseError jsonError;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &jsonError);
+    if(jsonError.error) {
+        qWarning() << "Failed to parse response from https://api.minecraftservices.com/rollout/v1/msamigrationforced as JSON: " << jsonError.errorString();
+        return false;
+    }
+
+    auto obj = doc.object();
+    QString feature;
+    if(!getString(obj.value("feature"), feature)) {
+        qWarning() << "Rollout feature is not a string";
+        return false;
+    }
+    if(feature != "msamigrationforced") {
+        qWarning() << "Rollout feature is not what we expected (msamigrationforced), but is instead \"" << feature << "\"";
+        return false;
+    }
+    if(!getBool(obj.value("rollout"), result)) {
+        qWarning() << "Rollout feature is not a string";
+        return false;
+    }
+    return true;
+}
+
 bool parseRolloutResponse(QByteArray & data, bool& result) {
     qDebug() << "Parsing Rollout response...";
 #ifndef NDEBUG

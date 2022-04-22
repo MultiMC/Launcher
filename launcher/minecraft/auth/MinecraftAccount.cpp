@@ -145,6 +145,7 @@ void MinecraftAccount::authFailed(QString reason)
 {
     switch (m_currentTask->taskState()) {
         case AccountTaskState::STATE_OFFLINE:
+        case AccountTaskState::STATE_FAILED_MUST_MIGRATE:
         case AccountTaskState::STATE_FAILED_SOFT: {
             // NOTE: this doesn't do much. There was an error of some sort.
         }

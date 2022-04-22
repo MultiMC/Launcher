@@ -224,6 +224,8 @@ set(MINECRAFT_SOURCES
 
     minecraft/auth/steps/EntitlementsStep.cpp
     minecraft/auth/steps/EntitlementsStep.h
+    minecraft/auth/steps/ForcedMigrationStep.cpp
+    minecraft/auth/steps/ForcedMigrationStep.h
     minecraft/auth/steps/GetSkinStep.cpp
     minecraft/auth/steps/GetSkinStep.h
     minecraft/auth/steps/LauncherLoginStep.cpp
