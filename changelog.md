@@ -10,7 +10,7 @@ This is mostly a bugfix release.
 
 #### UI
 
-- Fixed how 'español de Latinoamérica' appears in the language selector.
+- Fixed how 'Español de Latinoamérica' appears in the language selector.
 - Added a way to open loader mods for an instance from the main window.
 - Improved error messages when the data folder cannot be accessed correctly.
 - Fixed window title of the Java checker failure dialog.
