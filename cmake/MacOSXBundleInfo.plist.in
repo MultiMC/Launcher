@@ -36,5 +36,7 @@
     <true/>
     <key>NSHumanReadableCopyright</key>
     <string>${MACOSX_BUNDLE_COPYRIGHT}</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>MultiMC does not need access to your microphone for itself. Likely it's requesting it on behalf of a Minecraft mod you installed, which needs to access your microphone in order to function properly.</string>
 </dict>
 </plist>
