@@ -156,7 +156,7 @@ void WorldListPage::on_actionRemove_triggered()
 
     auto result = QMessageBox::question(this,
                 tr("Are you sure?"),
-                tr("This will remove the selected world permenantly.\n"
+                tr("This will remove the selected world permanently.\n"
                     "The world will be gone forever (A LONG TIME).\n"
                     "\n"
                     "Do you want to continue?"));

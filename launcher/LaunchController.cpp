@@ -58,9 +58,8 @@ void LaunchController::decideAccount()
         auto reply = CustomMessageBox::selectable(
             m_parentWidget,
             tr("No Accounts"),
-            tr("In order to play Minecraft, you must have at least one Mojang or Minecraft "
-               "account logged in."
-               "Would you like to open the account manager to add an account now?"),
+            tr("In order to play Minecraft, logging in to at least one Mojang or Microsoft account is required. "
+               "Open the account manager to add an account?"),
             QMessageBox::Information,
             QMessageBox::Yes | QMessageBox::No
         )->exec();
@@ -77,7 +76,7 @@ void LaunchController::decideAccount()
     {
         // If no default account is set, ask the user which one to use.
         ProfileSelectDialog selectDialog(
-            tr("Which account would you like to use?"),
+            tr("Select the account that should be used"),
             ProfileSelectDialog::GlobalDefaultCheckbox,
             m_parentWidget
         );
@@ -110,7 +109,7 @@ void LaunchController::login() {
     // we loop until the user succeeds in logging in or gives up
     bool tryagain = true;
     // the failure. the default failure.
-    const QString needLoginAgain = tr("Your account is currently not logged in. Please enter your password to log in again. <br /> <br /> This could be caused by a password change.");
+    const QString needLoginAgain = tr("Not currently logged in. Please enter the password to log in again.<br /><br />This could be caused by a password change.");
     QString failReason = needLoginAgain;
 
     while (tryagain)
@@ -133,7 +132,7 @@ void LaunchController::login() {
                     QString name = QInputDialog::getText(
                         m_parentWidget,
                         tr("Player name"),
-                        tr("Choose your offline mode player name."),
+                        tr("Choose an offline mode player name."),
                         QLineEdit::Normal,
                         usedname,
                         &ok
@@ -174,7 +173,7 @@ void LaunchController::login() {
                     // play demo ?
                     QMessageBox box(m_parentWidget);
                     box.setWindowTitle(tr("Play demo?"));
-                    box.setText(tr("This account does not own Minecraft.\nYou need to purchase the game first to play it.\n\nDo you want to play the demo?"));
+                    box.setText(tr("This account does not own Minecraft.\nPurchasing the game is required to play the full version.\n\nDo you want to play the demo?"));
                     box.setIcon(QMessageBox::Warning);
                     auto demoButton = box.addButton(tr("Play Demo"), QMessageBox::ButtonRole::YesRole);
                     auto cancelButton = box.addButton(tr("Cancel"), QMessageBox::ButtonRole::NoRole);
@@ -344,8 +343,8 @@ void LaunchController::readyForLaunch()
     connect(profilerInstance, &BaseProfiler::readyToLaunch, [this](const QString & message)
     {
         QMessageBox msg;
-        msg.setText(tr("The game launch is delayed until you press the "
-                        "button. This is the right time to setup the profiler, as the "
+        msg.setText(tr("The game launch is delayed until the button is pressed. "
+                        "This is the right time to setup the profiler, as the "
                         "profiler server is running now.\n\n%1").arg(message));
         msg.setWindowTitle(tr("Waiting."));
         msg.setIcon(QMessageBox::Information);
@@ -403,8 +402,8 @@ bool LaunchController::abort()
     }
     auto response = CustomMessageBox::selectable(
             m_parentWidget, tr("Kill Minecraft?"),
-            tr("This can cause the instance to get corrupted and should only be used if Minecraft "
-            "is frozen for some reason"),
+            tr("This can cause the instance to get corrupted and should only be done if Minecraft "
+            "is not responding"),
             QMessageBox::Question, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)->exec();
     if (response == QMessageBox::Yes)
     {

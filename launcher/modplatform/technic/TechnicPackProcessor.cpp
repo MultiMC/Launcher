@@ -90,7 +90,8 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings, const 
         else
         {
             if (minecraftVersion.isEmpty())
-                emit failed(tr("Could not find \"version.json\" inside \"bin/modpack.jar\", but minecraft version is unknown"));
+                emit failed(tr("Could not find \"version.json\" inside \"bin/modpack.jar\", "
+                               "the Minecraft version cannot be automatically determined"));
             components->setComponentVersion("net.minecraft", minecraftVersion, true);
             components->installJarMods({modpackJar});
 
@@ -145,7 +146,7 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings, const 
     else
     {
         // This is the "Vanilla" modpack, excluded by the search code
-        emit failed(tr("Unable to find a \"version.json\"!"));
+        emit failed(tr("Unable to find the file \"version.json\"!"));
         return;
     }
 
@@ -158,7 +159,7 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings, const 
         {
             if (fmlMinecraftVersion.isEmpty())
             {
-                emit failed(tr("Could not understand \"version.json\":\ninheritsFrom is missing"));
+                emit failed(tr("Could not parse the file \"version.json\":\ninheritsFrom is missing"));
                 return;
             }
             minecraftVersion = fmlMinecraftVersion;
@@ -199,7 +200,7 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings, const 
     }
     catch (const JSONValidationError &e)
     {
-        emit failed(tr("Could not understand \"version.json\":\n") + e.cause());
+        emit failed(tr("Could not parse the file \"version.json\":\n") + e.cause());
         return;
     }
 

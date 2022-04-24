@@ -51,7 +51,7 @@
           <item>
            <widget class="QCheckBox" name="maximizedCheckBox">
             <property name="text">
-             <string>Start Minecraft maximized?</string>
+             <string>Start Minecraft maximized</string>
             </property>
            </widget>
           </item>

@@ -412,7 +412,7 @@ void UpdateController::fail()
         if(!rollbackOK)
         {
             msg = QObject::tr("The rollback failed too.\n"
-                "You will have to repair %1 manually.\n"
+                "%1 will have to be repaired manually.\n"
                 "Please let us know why and how this happened.").arg(BuildConfig.LAUNCHER_NAME);
             QMessageBox::critical(m_parent, rollFailTitle, msg);
             qApp->quit();

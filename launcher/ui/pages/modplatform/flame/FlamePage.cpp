@@ -100,7 +100,7 @@ void FlamePage::onSelectionChanged(QModelIndex first, QModelIndex second)
         for(auto & author: current.authors) {
             authorStrs.push_back(authorToStr(author));
         }
-        text += "<br>" + tr(" by ") + authorStrs.join(", ");
+        text = tr("%1 by %2").arg(text + "<br>", authorStrs.join(", "));
     }
     text += "<br><br>";
 

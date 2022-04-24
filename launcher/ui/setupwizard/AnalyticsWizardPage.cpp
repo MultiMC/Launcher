@@ -55,9 +55,9 @@ void AnalyticsWizardPage::retranslate()
         "<li>Anonymized (partial) IP address.</li>"
         "<li>Launcher version.</li>"
         "<li>Operating system name, version and architecture.</li>"
-        "<li>CPU architecture (kernel architecture on linux).</li>"
+        "<li>CPU architecture (kernel architecture on Linux).</li>"
         "<li>Size of system memory.</li>"
         "<li>Java version, architecture and memory settings.</li></ul>"
-        "<p>If we change the tracked information, you will see this page again.</p></body></html>"));
+        "<p>If we change the tracked information, this page will be shown again.</p></body></html>"));
     checkBox->setText(tr("Enable Analytics"));
 }

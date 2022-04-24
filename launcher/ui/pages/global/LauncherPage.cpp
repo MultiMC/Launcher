@@ -112,13 +112,10 @@ void LauncherPage::on_instDirBrowseBtn_clicked()
         if (FS::checkProblemticPathJava(QDir(cooked_dir)))
         {
             QMessageBox warning;
-            warning.setText(tr("You're trying to specify an instance folder which\'s path "
-                               "contains at least one \'!\'. "
-                               "Java is known to cause problems if that is the case, your "
-                               "instances (probably) won't start!"));
-            warning.setInformativeText(
-                tr("Do you really want to use this path? "
-                   "Selecting \"No\" will close this and not alter your instance path."));
+            warning.setText(tr("The specified instance path contains the disallowed symbol: '!'. "
+                               "Java has problems with paths containing '!', it is unlikely that "
+                               "the instance will be able to start."));
+            warning.setInformativeText(tr("Continue using the specified path?"));
             warning.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             int result = warning.exec();
             if (result == QMessageBox::Yes)

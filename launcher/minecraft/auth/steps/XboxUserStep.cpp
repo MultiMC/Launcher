@@ -53,14 +53,14 @@ void XboxUserStep::onRequestDone(
 
     if (error != QNetworkReply::NoError) {
         qWarning() << "Reply error:" << error;
-        emit finished(AccountTaskState::STATE_FAILED_SOFT, tr("XBox user authentication failed."));
+        emit finished(AccountTaskState::STATE_FAILED_SOFT, tr("Xbox user authentication failed."));
         return;
     }
 
     Katabasis::Token temp;
     if(!Parsers::parseXTokenResponse(data, temp, "UToken")) {
         qWarning() << "Could not parse user authentication response...";
-        emit finished(AccountTaskState::STATE_FAILED_SOFT, tr("XBox user authentication response could not be understood."));
+        emit finished(AccountTaskState::STATE_FAILED_SOFT, tr("Unexpected Xbox user authentication response."));
         return;
     }
     m_data->userToken = temp;

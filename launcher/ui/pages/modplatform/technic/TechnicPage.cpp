@@ -185,7 +185,7 @@ void TechnicPage::metadataLoaded()
         text = "<a href=\"" + current.websiteUrl + "\">" + name + "</a>";
     if (!current.author.isEmpty()) {
         // This allows injecting HTML here
-        text += tr(" by ") + current.author;
+        text = tr("%1 by %2").arg(text, current.author);
     }
 
     text += "<br><br>";

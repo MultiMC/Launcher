@@ -35,14 +35,14 @@
      <item>
       <widget class="QCheckBox" name="globalDefaultCheck">
        <property name="text">
-        <string>Use as default?</string>
+        <string>Use as default</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="instDefaultCheck">
        <property name="text">
-        <string>Use as default for this instance only?</string>
+        <string>Use as default for this instance only</string>
        </property>
       </widget>
      </item>
