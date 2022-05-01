@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  * Copyright 2020-2021 Petr Mrazek <peterix@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 
 #include "FileSystem.h"
 #include "Json.h"
+#include "MMCZip.h"
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 #include "net/ChecksumValidator.h"
@@ -122,15 +123,20 @@ void PackInstallTask::downloadPack()
         auto entry = APPLICATION->metacache()->resolveEntry("ModpacksCHPacks", cacheName);
         entry->setStale(true);
 
-        auto relpath = FS::PathCombine("minecraft", file.path, file.name);
-        auto path = FS::PathCombine(m_stagingPath, relpath);
-
-        if (filesToCopy.contains(path)) {
-            qWarning() << "Ignoring" << file.url << "as a file of that path is already downloading.";
-            continue;
+        if (file.type == "cf-extract") {
+            filesToExtract[entry->getFullPath()] = file;
         }
-        qDebug() << "Will download" << file.url << "to" << path;
-        filesToCopy[path] = entry->getFullPath();
+        else {
+            auto relpath = FS::PathCombine("minecraft", file.path, file.name);
+            auto path = FS::PathCombine(m_stagingPath, relpath);
+
+            if (filesToCopy.contains(path)) {
+                qWarning() << "Ignoring" << file.url << "as a file of that path is already downloading.";
+                continue;
+            }
+            qDebug() << "Will download" << file.url << "to" << path;
+            filesToCopy[path] = entry->getFullPath();
+        }
 
         auto dl = Net::Download::makeCached(file.url, entry);
         if (!file.sha1.isEmpty()) {
@@ -163,16 +169,36 @@ void PackInstallTask::downloadPack()
 
 void PackInstallTask::install()
 {
-    setStatus(tr("Copying modpack files"));
+    if (!filesToCopy.isEmpty()) {
+        setStatus(tr("Copying modpack files"));
 
-    for (auto iter = filesToCopy.begin(); iter != filesToCopy.end(); iter++) {
-        auto &to = iter.key();
-        auto &from = iter.value();
-        FS::copy fileCopyOperation(from, to);
-        if(!fileCopyOperation()) {
-            qWarning() << "Failed to copy" << from << "to" << to;
-            emitFailed(tr("Failed to copy files"));
-            return;
+        for (auto iter = filesToCopy.begin(); iter != filesToCopy.end(); iter++) {
+            auto& to = iter.key();
+            auto& from = iter.value();
+            FS::copy fileCopyOperation(from, to);
+            if (!fileCopyOperation()) {
+                qWarning() << "Failed to copy" << from << "to" << to;
+                emitFailed(tr("Failed to copy files"));
+                return;
+            }
+        }
+    }
+
+    if (!filesToExtract.isEmpty()) {
+        setStatus(tr("Extracting modpack files"));
+
+        for (auto iter = filesToExtract.begin(); iter != filesToExtract.end(); iter++) {
+            auto& filePath = iter.key();
+            auto& file = iter.value();
+
+            auto relpath = FS::PathCombine("minecraft", file.path);
+            auto path = FS::PathCombine(m_stagingPath, relpath);
+
+            if (!MMCZip::extractDir(filePath, "overrides/", path)) {
+                qWarning() << "Failed to extract files from" << filePath << "to" << path;
+                emitFailed(tr("Failed to extract files"));
+                return;
+            }
         }
     }
 
