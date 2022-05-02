@@ -73,6 +73,11 @@ QVariant AtlOptionalModListModel::data(const QModelIndex &index, int role) const
             return mod.description;
         }
     }
+    else if (role == Qt::ForegroundRole) {
+        if (!mod.colour.isEmpty() && m_version.colours.contains(mod.colour)) {
+            return QColor(QString("#%1").arg(m_version.colours[mod.colour]));
+        }
+    }
     else if (role == Qt::CheckStateRole) {
         if (index.column() == EnabledColumn) {
             return m_selection[mod.name] ? Qt::Checked : Qt::Unchecked;
