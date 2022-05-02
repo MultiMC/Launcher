@@ -30,10 +30,11 @@
 
 namespace ModpacksCH {
 
-PackInstallTask::PackInstallTask(Modpack pack, QString version)
+PackInstallTask::PackInstallTask(Modpack pack, QString version, PackType type)
 {
     m_pack = pack;
     m_version_name = version;
+    m_pack_type = type;
 }
 
 bool PackInstallTask::abort()
@@ -65,7 +66,10 @@ void PackInstallTask::executeTask()
     }
 
     auto *netJob = new NetJob("ModpacksCH::VersionFetch", APPLICATION->network());
-    auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1/%2").arg(m_pack.id).arg(version.id);
+    auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/%1/%2/%3")
+                         .arg(getRealmForPackType(m_pack_type))
+                         .arg(m_pack.id)
+                         .arg(version.id);
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
     jobPtr = netJob;
     jobPtr->start();
@@ -78,14 +82,13 @@ void PackInstallTask::onDownloadSucceeded()
 {
     jobPtr.reset();
 
-    QJsonParseError parse_error;
+    QJsonParseError parse_error {};
     QJsonDocument doc = QJsonDocument::fromJson(response, &parse_error);
     if(parse_error.error != QJsonParseError::NoError) {
         qWarning() << "Error while parsing JSON response from FTB at " << parse_error.offset << " reason: " << parse_error.errorString();
         qWarning() << response;
         return;
     }
-
     auto obj = doc.object();
 
     ModpacksCH::Version version;

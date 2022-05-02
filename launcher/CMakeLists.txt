@@ -519,6 +519,8 @@ set(MODPACKSCH_SOURCES
     modplatform/modpacksch/FTBPackInstallTask.cpp
     modplatform/modpacksch/FTBPackManifest.h
     modplatform/modpacksch/FTBPackManifest.cpp
+    modplatform/modpacksch/MCHPackType.h
+    modplatform/modpacksch/MCHPackType.cpp
 )
 
 set(TECHNIC_SOURCES
