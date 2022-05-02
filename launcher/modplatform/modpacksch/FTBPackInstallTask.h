@@ -18,6 +18,7 @@
 #pragma once
 
 #include "FTBPackManifest.h"
+#include "MCHPackType.h"
 
 #include "InstanceTask.h"
 #include "net/NetJob.h"
@@ -29,7 +30,7 @@ class PackInstallTask : public InstanceTask
     Q_OBJECT
 
 public:
-    explicit PackInstallTask(Modpack pack, QString version);
+    explicit PackInstallTask(Modpack pack, QString version, PackType type = PackType::ModpacksCH);
     virtual ~PackInstallTask(){}
 
     bool canAbort() const override { return true; }
@@ -55,6 +56,8 @@ private:
     Modpack m_pack;
     QString m_version_name;
     Version m_version;
+
+    PackType m_pack_type;
 
     QMap<QString, VersionFile> filesToExtract;
     QMap<QString, QString> filesToCopy;
