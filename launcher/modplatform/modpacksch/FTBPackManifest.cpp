@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  * Copyright 2020-2021 Petr Mrazek <peterix@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,8 +60,12 @@ static void loadVersionInfo(ModpacksCH::VersionInfo & v, QJsonObject & obj)
     v.name = Json::requireString(obj, "name");
     v.type = Json::requireString(obj, "type");
     v.updated = Json::requireInteger(obj, "updated");
-    auto specs = Json::requireObject(obj, "specs");
-    loadSpecs(v.specs, specs);
+
+    // CurseForge packs don't have specs.
+    if (obj.contains("specs")) {
+        auto specs = Json::requireObject(obj, "specs");
+        loadSpecs(v.specs, specs);
+    }
 }
 
 void ModpacksCH::loadModpack(ModpacksCH::Modpack & m, QJsonObject & obj)
@@ -126,7 +130,19 @@ static void loadVersionFile(ModpacksCH::VersionFile & a, QJsonObject & obj)
     a.type = Json::requireString(obj, "type");
     a.path = Json::requireString(obj, "path");
     a.name = Json::requireString(obj, "name");
-    a.version = Json::requireString(obj, "version");
+
+    // This will be an integer with CurseForge packs.
+    auto versionVal = obj.value("version");
+    if (versionVal.isString()) {
+        a.version = versionVal.toString();
+    }
+    else if (versionVal.isDouble()) {
+        a.version = QString(versionVal.toInt());
+    }
+    else {
+        throw Json::JsonException("'version' is not a string or integer");
+    }
+
     a.url = Json::requireString(obj, "url");
     a.sha1 = Json::requireString(obj, "sha1");
     a.size = Json::requireInteger(obj, "size");
@@ -146,8 +162,13 @@ void ModpacksCH::loadVersion(ModpacksCH::Version & m, QJsonObject & obj)
     m.plays = Json::requireInteger(obj, "plays");
     m.updated = Json::requireInteger(obj, "updated");
     m.refreshed = Json::requireInteger(obj, "refreshed");
-    auto specs = Json::requireObject(obj, "specs");
-    loadSpecs(m.specs, specs);
+
+    // CurseForge packs don't have specs.
+    if (obj.contains("specs")) {
+        auto specs = Json::requireObject(obj, "specs");
+        loadSpecs(m.specs, specs);
+    }
+
     auto targetArr = Json::requireArray(obj, "targets");
     for (QJsonValueRef targetRaw : targetArr)
     {
