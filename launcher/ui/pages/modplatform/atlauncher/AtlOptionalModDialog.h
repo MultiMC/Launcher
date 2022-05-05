@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2021-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public:
         DescriptionColumn,
     };
 
-    AtlOptionalModListModel(QWidget *parent, QVector<ATLauncher::VersionMod> mods);
+    AtlOptionalModListModel(QWidget *parent, ATLauncher::PackVersion version, QVector<ATLauncher::VersionMod> mods);
 
     QVector<QString> getResult();
 
@@ -58,7 +58,9 @@ private:
     void setMod(ATLauncher::VersionMod mod, int index, bool enable, bool shouldEmit = true);
 
 private:
+    ATLauncher::PackVersion m_version;
     QVector<ATLauncher::VersionMod> m_mods;
+
     QMap<QString, bool> m_selection;
     QMap<QString, int> m_index;
     QMap<QString, QVector<QString>> m_dependants;
@@ -68,7 +70,7 @@ class AtlOptionalModDialog : public QDialog {
     Q_OBJECT
 
 public:
-    AtlOptionalModDialog(QWidget *parent, QVector<ATLauncher::VersionMod> mods);
+    AtlOptionalModDialog(QWidget *parent, ATLauncher::PackVersion version, QVector<ATLauncher::VersionMod> mods);
     ~AtlOptionalModDialog() override;
 
     QVector<QString> getResult() {
