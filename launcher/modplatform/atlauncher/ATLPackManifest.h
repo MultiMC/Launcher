@@ -134,6 +134,12 @@ struct PackVersionExtraArguments
     QString depends;
 };
 
+struct VersionMessages
+{
+    QString install;
+    QString update;
+};
+
 struct PackVersion
 {
     QString version;
@@ -146,6 +152,8 @@ struct PackVersion
     QVector<VersionLibrary> libraries;
     QVector<VersionMod> mods;
     VersionConfigs configs;
+
+    VersionMessages messages;
 };
 
 void loadVersion(PackVersion & v, QJsonObject & obj);

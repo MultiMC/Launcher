@@ -197,6 +197,12 @@ static void loadVersionExtraArguments(ATLauncher::PackVersionExtraArguments & a,
     a.depends = Json::ensureString(obj, "depends", "");
 }
 
+static void loadVersionMessages(ATLauncher::VersionMessages & m, QJsonObject & obj)
+{
+    m.install = Json::ensureString(obj, "install", "");
+    m.update = Json::ensureString(obj, "update", "");
+}
+
 void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
 {
     v.version = Json::requireString(obj, "version");
@@ -243,5 +249,10 @@ void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
     if(obj.contains("configs")) {
         auto configsObj = Json::requireObject(obj, "configs");
         loadVersionConfigs(v.configs, configsObj);
+    }
+
+    if(obj.contains("messages")) {
+        auto messages = Json::requireObject(obj, "messages");
+        loadVersionMessages(v.messages, messages);
     }
 }

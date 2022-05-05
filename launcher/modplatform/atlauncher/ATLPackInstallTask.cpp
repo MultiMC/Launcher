@@ -96,6 +96,10 @@ void PackInstallTask::onDownloadSucceeded()
     }
     m_version = version;
 
+    // Display install message if one exists
+    if (!m_version.messages.install.isEmpty())
+        m_support->displayMessage(m_version.messages.install);
+
     auto vlist = APPLICATION->metadataIndex()->get("net.minecraft");
     if(!vlist)
     {

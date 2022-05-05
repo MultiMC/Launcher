@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  * Copyright 2021 Philip T <me@phit.link>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,8 @@
 #include "ui/dialogs/VersionSelectDialog.h"
 
 #include <BuildConfig.h>
+
+#include <QMessageBox>
 
 AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget *parent)
         : QWidget(parent), ui(new Ui::AtlPage), dialog(dialog)
@@ -185,4 +187,9 @@ QString AtlPage::chooseVersion(Meta::VersionListPtr vlist, QString minecraftVers
 
     vselect.exec();
     return vselect.selectedVersion()->descriptor();
+}
+
+void AtlPage::displayMessage(QString message)
+{
+    QMessageBox::information(this, tr("Installing"), message);
 }

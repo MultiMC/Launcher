@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  * Copyright 2021 Petr Mrazek <peterix@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,6 +44,11 @@ public:
      * and constrained to a given Minecraft version.
      */
     virtual QString chooseVersion(Meta::VersionListPtr vlist, QString minecraftVersion) = 0;
+
+    /**
+     * Requests a user interaction to display a message.
+     */
+    virtual void displayMessage(QString message) = 0;
 
 };
 
