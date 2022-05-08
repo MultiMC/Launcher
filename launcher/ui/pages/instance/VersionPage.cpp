@@ -213,8 +213,10 @@ void VersionPage::updateVersionControls()
     auto minecraftVersion = Version(m_profile->getComponentVersion("net.minecraft"));
 
     bool supportsFabric = minecraftVersion >= Version("1.14");
-    ui->actionInstall_Fabric->setEnabled(controlsEnabled);
+    bool supportsLegacyFabric = minecraftVersion >= Version("1.3") && minecraftVersion <= Version("1.13.2");
+    ui->actionInstall_Fabric->setEnabled(controlsEnabled && supportsFabric);
     ui->actionInstall_Quilt->setEnabled((controlsEnabled) && supportsFabric);
+    ui->actionInstall_LegacyFabric->setEnabled((controlsEnabled) && supportsLegacyFabric);
 
     bool supportsLiteLoader = minecraftVersion <= Version("1.12.2");
     ui->actionInstall_LiteLoader->setEnabled(controlsEnabled && supportsLiteLoader);
@@ -365,7 +367,7 @@ void VersionPage::on_actionChange_version_triggered()
         return;
     }
     VersionSelectDialog vselect(list.get(), tr("Change %1 version").arg(name), this);
-    if (uid == "net.fabricmc.intermediary" || uid == "org.quiltmc.hashed")
+    if (uid == "net.fabricmc.intermediary" || uid == "org.quiltmc.hashed" || uid == "net.legacyfabric.intermediary")
     {
         vselect.setEmptyString(tr("No intermediary mappings versions are currently available."));
         vselect.setEmptyErrorString(tr("Couldn't load or download the intermediary mappings version lists!"));
@@ -465,6 +467,33 @@ void VersionPage::on_actionInstall_Fabric_triggered()
     {
         auto vsn = vselect.selectedVersion();
         m_profile->setComponentVersion("net.fabricmc.fabric-loader", vsn->descriptor());
+        m_profile->resolve(Net::Mode::Online);
+        preselect(m_profile->rowCount(QModelIndex())-1);
+        m_container->refreshContainer();
+    }
+}
+
+void VersionPage::on_actionInstall_LegacyFabric_triggered()
+{
+    auto vlist = APPLICATION->metadataIndex()->get("net.legacyfabric.fabric-loader");
+    if(!vlist)
+    {
+        return;
+    }
+    VersionSelectDialog vselect(vlist.get(), tr("Select Fabric Loader version"), this);
+    vselect.setEmptyString(tr("No Fabric Loader versions are currently available."));
+    vselect.setEmptyErrorString(tr("Couldn't load or download the Fabric Loader version lists!"));
+
+    auto currentVersion = m_profile->getComponentVersion("net.legacyfabric.fabric-loader");
+    if(!currentVersion.isEmpty())
+    {
+        vselect.setCurrentVersion(currentVersion);
+    }
+
+    if (vselect.exec() && vselect.selectedVersion())
+    {
+        auto vsn = vselect.selectedVersion();
+        m_profile->setComponentVersion("net.legacyfabric.fabric-loader", vsn->descriptor());
         m_profile->resolve(Net::Mode::Online);
         preselect(m_profile->rowCount(QModelIndex())-1);
         m_container->refreshContainer();

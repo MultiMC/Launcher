@@ -107,6 +107,7 @@
    <addaction name="separator"/>
    <addaction name="actionInstall_Forge"/>
    <addaction name="actionInstall_Fabric"/>
+   <addaction name="actionInstall_LegacyFabric"/>
    <addaction name="actionInstall_Quilt"/>
    <addaction name="actionInstall_LiteLoader"/>
    <addaction name="actionInstall_mods"/>
@@ -191,6 +192,14 @@
    </property>
    <property name="toolTip">
     <string>Install the Fabric Loader package.</string>
+   </property>
+  </action>
+  <action name="actionInstall_LegacyFabric">
+   <property name="text">
+    <string>Install Legacy Fabric</string>
+   </property>
+   <property name="toolTip">
+    <string>Install the Fabric Loader package for Legacy Fabric.</string>
    </property>
   </action>
   <action name="actionInstall_Quilt">
