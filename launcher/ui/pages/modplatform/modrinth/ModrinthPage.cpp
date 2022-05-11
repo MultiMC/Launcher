@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
+#include "ModrinthModel.h"
 #include "ModrinthPage.h"
+#include "ui/dialogs/NewInstanceDialog.h"
 
 #include "ui_ModrinthPage.h"
 
@@ -24,6 +26,23 @@
 ModrinthPage::ModrinthPage(NewInstanceDialog *dialog, QWidget *parent) : QWidget(parent), ui(new Ui::ModrinthPage), dialog(dialog)
 {
     ui->setupUi(this);
+    connect(ui->searchButton, &QPushButton::clicked, this, &ModrinthPage::triggerSearch);
+    ui->searchEdit->installEventFilter(this);
+    model = new Modrinth::ListModel(this);
+    ui->packView->setModel(model);
+
+    ui->versionSelectionBox->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    ui->versionSelectionBox->view()->parentWidget()->setMaximumHeight(300);
+
+    ui->sortByBox->addItem(tr("Sort by relevance"), QStringLiteral("relevance"));
+    ui->sortByBox->addItem(tr("Sort by total downloads"), QStringLiteral("downloads"));
+    ui->sortByBox->addItem(tr("Sort by follow count"), QStringLiteral("follows"));
+    ui->sortByBox->addItem(tr("Sort by creation date"), QStringLiteral("newest"));
+    ui->sortByBox->addItem(tr("Sort by last updated"), QStringLiteral("updated"));
+
+    connect(ui->sortByBox, SIGNAL(currentIndexChanged(int)), this, SLOT(triggerSearch()));
+    connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ModrinthPage::onSelectionChanged);
+    //connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &ModrinthPage::onVersionSelectionChanged);
 }
 
 ModrinthPage::~ModrinthPage()
@@ -51,5 +70,24 @@ bool ModrinthPage::eventFilter(QObject *watched, QEvent *event)
 }
 
 void ModrinthPage::triggerSearch() {
+    model->searchWithTerm(ui->searchEdit->text(), ui->sortByBox->itemData(ui->sortByBox->currentIndex()).toString());
+}
+
+void ModrinthPage::onSelectionChanged(QModelIndex first, QModelIndex second) {
+    if(!first.isValid())
+    {
+        if(isOpened)
+        {
+            dialog->setSuggestedPack();
+        }
+        //ui->frame->clear();
+        return;
+    }
+
+    current = model->data(first, Qt::UserRole).value<Modrinth::Modpack>();
+    suggestCurrent();
+}
+
+void ModrinthPage::suggestCurrent() {
 
 }

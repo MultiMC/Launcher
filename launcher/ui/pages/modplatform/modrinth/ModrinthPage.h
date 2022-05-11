@@ -18,14 +18,20 @@
 #pragma once
 
 #include "Application.h"
-#include "ui/dialogs/NewInstanceDialog.h"
 #include "ui/pages/BasePage.h"
+#include "ModrinthData.h"
 
 #include <QWidget>
 
 namespace Ui
 {
     class ModrinthPage;
+}
+
+class NewInstanceDialog;
+
+namespace Modrinth {
+    class ListModel;
 }
 
 class ModrinthPage : public QWidget, public BasePage
@@ -55,8 +61,13 @@ public:
 
 private slots:
     void triggerSearch();
+    void onSelectionChanged(QModelIndex first, QModelIndex second);
 
 private:
+    void suggestCurrent();
+
     Ui::ModrinthPage *ui;
     NewInstanceDialog *dialog;
+    Modrinth::ListModel *model = nullptr;
+    Modrinth::Modpack current;
 };
