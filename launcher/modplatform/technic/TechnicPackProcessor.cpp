@@ -195,6 +195,10 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings, const 
             {
                 components->setComponentVersion("net.fabricmc.fabric-loader", libraryName.section(':', 2));
             }
+            else if (libraryName.startsWith("org.quiltmc:quilt-loader:"))
+            {
+                components->setComponentVersion("org.quiltmc.quilt-loader", libraryName.section(':', 2));
+            }
         }
     }
     catch (const JSONValidationError &e)
