@@ -44,7 +44,7 @@ public:
 
     QString displayName() const override
     {
-        return tr("Modrinth");
+        return tr("Modrinth (WIP)");
     }
     QIcon icon() const override
     {
@@ -62,12 +62,16 @@ public:
 private slots:
     void triggerSearch();
     void onSelectionChanged(QModelIndex first, QModelIndex second);
+    void onVersionSelectionChanged(const QString & version);
+    void onPackDataChanged(const QString &id);
 
 private:
+    void updateCurrentPackUI();
     void suggestCurrent();
 
     Ui::ModrinthPage *ui;
     NewInstanceDialog *dialog;
     Modrinth::ListModel *model = nullptr;
     Modrinth::Modpack current;
+    Modrinth::Version currentVersion;
 };

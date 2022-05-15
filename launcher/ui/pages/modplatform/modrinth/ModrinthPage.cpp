@@ -22,6 +22,8 @@
 #include "ui_ModrinthPage.h"
 
 #include <QKeyEvent>
+#include <HoeDown.h>
+#include <InstanceImportTask.h>
 
 ModrinthPage::ModrinthPage(NewInstanceDialog *dialog, QWidget *parent) : QWidget(parent), ui(new Ui::ModrinthPage), dialog(dialog)
 {
@@ -42,7 +44,8 @@ ModrinthPage::ModrinthPage(NewInstanceDialog *dialog, QWidget *parent) : QWidget
 
     connect(ui->sortByBox, SIGNAL(currentIndexChanged(int)), this, SLOT(triggerSearch()));
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ModrinthPage::onSelectionChanged);
-    //connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &ModrinthPage::onVersionSelectionChanged);
+    connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &ModrinthPage::onVersionSelectionChanged);
+    connect(model, &Modrinth::ListModel::packDataChanged, this, &ModrinthPage::onPackDataChanged);
 }
 
 ModrinthPage::~ModrinthPage()
@@ -85,9 +88,112 @@ void ModrinthPage::onSelectionChanged(QModelIndex first, QModelIndex second) {
     }
 
     current = model->data(first, Qt::UserRole).value<Modrinth::Modpack>();
+    model->getPackDetails(current.id);
+    updateCurrentPackUI();
     suggestCurrent();
 }
 
-void ModrinthPage::suggestCurrent() {
+void ModrinthPage::onVersionSelectionChanged(const QString& version) {
+    if(version.isEmpty() || ui->versionSelectionBox->count() == 0) {
+        currentVersion = Modrinth::Version();
+    }
+    else {
+        currentVersion = ui->versionSelectionBox->currentData().value<Modrinth::Version>();
+    }
+}
 
+void ModrinthPage::suggestCurrent()
+{
+    if(!isOpened)
+    {
+        return;
+    }
+
+    if (!currentVersion.name.size())
+    {
+        dialog->setSuggestedPack();
+        return;
+    }
+
+    dialog->setSuggestedPack(current.name + " " + currentVersion.name, new InstanceImportTask(currentVersion.download.url));
+    MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("ModrinthPacks", QString("logos/%1").arg(current.id));
+    dialog->setSuggestedIconFromFile(entry->getFullPath(), QString("modrinth-%1").arg(current.id));
+}
+
+void ModrinthPage::onPackDataChanged(const QString& id)
+{
+    if(id != current.id) {
+        return;
+    }
+    auto newData = model->getModpackById(id);
+    if(newData) {
+        current = *newData;
+        updateCurrentPackUI();
+    }
+}
+
+namespace {
+QString processMarkdown(QString input)
+{
+    HoeDown hoedown;
+    return hoedown.process(input.toUtf8());
+}
+}
+
+QString versionToString(const Modrinth::Version& version) {
+    switch(version.type) {
+        case Modrinth::VersionType::Alpha: {
+            return QString("%1 (Alpha)").arg(version.name);
+        }
+        case Modrinth::VersionType::Beta: {
+            return QString("%1 (Beta)").arg(version.name);
+        }
+        case Modrinth::VersionType::Release: {
+            return version.name;
+        }
+        case Modrinth::VersionType::Unknown: {
+            return QString("%1 (?)").arg(version.name);
+        }
+    }
+}
+
+void ModrinthPage::updateCurrentPackUI()
+{
+    switch(current.detailsLoaded) {
+        case Modrinth::LoadState::Errored: {
+            ui->packDescription->setText(tr("Failed to get Modrinth modpack details..."));
+            break;
+        }
+        case Modrinth::LoadState::NotLoaded: {
+            ui->packDescription->setText(tr("Loading..."));
+            break;
+        }
+        case Modrinth::LoadState::Loaded: {
+            ui->packDescription->setText(processMarkdown(current.body));
+            break;
+        }
+    }
+    if(current.versions.size() == 0) {
+        ui->versionSelectionBox->clear();
+    }
+    else {
+        ui->versionSelectionBox->clear();
+        int releaseFound = -1;
+        int i = 0;
+        for(auto & version: current.versions) {
+            ui->versionSelectionBox->addItem(versionToString(version), QVariant::fromValue(version));
+            if(releaseFound == -1 && version.type == Modrinth::VersionType::Release) {
+                releaseFound = i;
+            }
+            i++;
+        }
+        if(releaseFound != -1) {
+            ui->versionSelectionBox->setCurrentIndex(releaseFound);
+        }
+        else if(current.versions.size() != 0) {
+            ui->versionSelectionBox->setCurrentIndex(0);
+        }
+        // select first release found from the top
+    }
+    suggestCurrent();
 }

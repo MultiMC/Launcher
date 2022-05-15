@@ -12,6 +12,8 @@
 #include "net/NetJob.h"
 
 #include <QAbstractListModel>
+#include <QVector>
+#include <nonstd/optional>
 
 namespace Modrinth {
 
@@ -31,10 +33,21 @@ public:
     void fetchMore(const QModelIndex &parent) override;
 
     void searchWithTerm(const QString &term, const QString &sort);
+    void getPackDetails(const QString &id);
+    nonstd::optional<Modpack> getModpackById(const QString &id);
+
+signals:
+    void packDataChanged(const QString &id);
 
 private slots:
     void searchRequestFinished();
     void searchRequestFailed();
+
+    void detailsRequestFinished();
+    void detailsRequestFailed();
+
+    void versionsRequestFinished();
+    void versionsRequestFailed();
 
 private:
     void performPaginatedSearch();
@@ -44,7 +57,13 @@ private:
 
     void requestLogo(const QString &logo, const QUrl &url);
 
-    QList<Modpack> modpacks;
+    nonstd::optional<int> getIndexFromId(const QString &id);
+
+    bool isPackDetailInProgress();
+    void cancelPackDetail();
+    void checkDetailsDone();
+
+    QVector<Modpack> modpacks;
     QStringList m_failedLogos;
     QStringList m_loadingLogos;
     QMap<QString, QIcon> m_logoMap;
@@ -59,8 +78,17 @@ private:
         ResetRequested,
         Finished
     } searchState = None;
+
+    QString queuedPackDetailRequest;
+    QString currentPackDetailRequest;
     NetJob::Ptr jobPtr;
     QByteArray response;
+
+    NetJob::Ptr detailsPtr;
+    QByteArray detailsResponse;
+
+    NetJob::Ptr versionsPtr;
+    QByteArray versionsResponse;
 };
 
 }

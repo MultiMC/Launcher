@@ -474,7 +474,7 @@ void InstanceImportTask::processMultiMC()
 
 void InstanceImportTask::processModrinth() {
     std::vector<Modrinth::File> files;
-    QString minecraftVersion, fabricVersion, forgeVersion;
+    QString minecraftVersion, fabricVersion, quiltVersion, forgeVersion;
     try
     {
         QString indexPath = FS::PathCombine(m_stagingPath, "modrinth.index.json");
@@ -490,40 +490,53 @@ void InstanceImportTask::processModrinth() {
             }
 
             auto jsonFiles = Json::requireIsArrayOf<QJsonObject>(obj, "files", "modrinth.index.json");
-            std::transform(jsonFiles.begin(), jsonFiles.end(), std::back_inserter(files), [](const QJsonObject& obj)
+            for(auto & obj: jsonFiles) {
+                Modrinth::File file;
+                file.path = Json::requireString(obj, "path");
+
+                // env doesn't have to be present, in that case mod is required
+                auto env = Json::ensureObject(obj, "env");
+                auto clientEnv = Json::ensureString(env, "client", "required");
+
+                if(clientEnv == "required") {
+                    // NOOP
+                }
+                else if(clientEnv == "optional") {
+                    file.path += ".disabled";
+                }
+                else if(clientEnv == "unsupported") {
+                    continue;
+                }
+
+                QJsonObject hashes = Json::requireObject(obj, "hashes");
+                QString hash;
+                QCryptographicHash::Algorithm hashAlgorithm;
+                hash = Json::ensureString(hashes, "sha256");
+                hashAlgorithm = QCryptographicHash::Sha256;
+                if (hash.isEmpty())
                 {
-                    Modrinth::File file;
-                    file.path = Json::requireString(obj, "path");
-                    QString supported = Json::ensureString(Json::ensureObject(obj, "env"));
-                    QJsonObject hashes = Json::requireObject(obj, "hashes");
-                    QString hash;
-                    QCryptographicHash::Algorithm hashAlgorithm;
-                    hash = Json::ensureString(hashes, "sha256");
-                    hashAlgorithm = QCryptographicHash::Sha256;
+                    hash = Json::ensureString(hashes, "sha512");
+                    hashAlgorithm = QCryptographicHash::Sha512;
                     if (hash.isEmpty())
                     {
-                        hash = Json::ensureString(hashes, "sha512");
-                        hashAlgorithm = QCryptographicHash::Sha512;
+                        hash = Json::ensureString(hashes, "sha1");
+                        hashAlgorithm = QCryptographicHash::Sha1;
                         if (hash.isEmpty())
                         {
-                            hash = Json::ensureString(hashes, "sha1");
-                            hashAlgorithm = QCryptographicHash::Sha1;
-                            if (hash.isEmpty())
-                            {
-                                throw JSONValidationError("No hash found for: " + file.path);
-                            }
+                            throw JSONValidationError("No hash found for: " + file.path);
                         }
                     }
-                    file.hash = QByteArray::fromHex(hash.toLatin1());
-                    file.hashAlgorithm = hashAlgorithm;
-                    // Do not use requireUrl, which uses StrictMode, instead use QUrl's default TolerantMode (as Modrinth seems to incorrectly handle spaces)
-                    file.download = Json::requireString(Json::ensureArray(obj, "downloads").first(), "Download URL for " + file.path);
-                    if (!file.download.isValid())
-                    {
-                        throw JSONValidationError("Download URL for " + file.path + " is not a correctly formatted URL");
-                    }
-                    return file;
-                });
+                }
+                file.hash = QByteArray::fromHex(hash.toLatin1());
+                file.hashAlgorithm = hashAlgorithm;
+                // Do not use requireUrl, which uses StrictMode, instead use QUrl's default TolerantMode (as Modrinth seems to incorrectly handle spaces)
+                file.download = Json::requireString(Json::ensureArray(obj, "downloads").first(), "Download URL for " + file.path);
+                if (!file.download.isValid())
+                {
+                    throw JSONValidationError("Download URL for " + file.path + " is not a correctly formatted URL");
+                }
+                files.push_back(file);
+            }
 
             auto dependencies = Json::requireObject(obj, "dependencies", "modrinth.index.json");
             for (auto it = dependencies.begin(), end = dependencies.end(); it != end; ++it)
@@ -540,6 +553,12 @@ void InstanceImportTask::processModrinth() {
                     if (!fabricVersion.isEmpty())
                         throw JSONValidationError("Duplicate Fabric Loader version");
                     fabricVersion = Json::requireString(*it, "Fabric Loader version");
+                }
+                else if (name == "quilt-loader")
+                {
+                    if (!quiltVersion.isEmpty())
+                        throw JSONValidationError("Duplicate Quilt Loader version");
+                    quiltVersion = Json::requireString(*it, "Quilt Loader version");
                 }
                 else if (name == "forge")
                 {
@@ -583,6 +602,8 @@ void InstanceImportTask::processModrinth() {
     components->setComponentVersion("net.minecraft", minecraftVersion, true);
     if (!fabricVersion.isEmpty())
         components->setComponentVersion("net.fabricmc.fabric-loader", fabricVersion, true);
+    if (!quiltVersion.isEmpty())
+        components->setComponentVersion("org.quiltmc.quilt-loader", quiltVersion, true);
     if (!forgeVersion.isEmpty())
         components->setComponentVersion("net.minecraftforge", forgeVersion, true);
     if (m_instIcon != "default")
@@ -602,11 +623,10 @@ void InstanceImportTask::processModrinth() {
         m_filesNetJob->addNetAction(dl);
     }
     connect(m_filesNetJob.get(), &NetJob::succeeded, this, [&]()
-            {
-                m_filesNetJob.reset();
-                emitSucceeded();
-            }
-    );
+    {
+        m_filesNetJob.reset();
+        emitSucceeded();
+    });
     connect(m_filesNetJob.get(), &NetJob::failed, [&](const QString &reason)
     {
         m_filesNetJob.reset();
