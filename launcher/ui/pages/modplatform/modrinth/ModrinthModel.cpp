@@ -181,7 +181,10 @@ void Modrinth::ListModel::searchRequestFinished()
         searchState = CanPossiblyFetchMore;
     }
     beginInsertRows(QModelIndex(), modpacks.size(), modpacks.size() + newList.size() - 1);
-    modpacks.append(newList);
+    // TODO: when we update from Qt 5.4, just use append(QVector)
+    for(auto item: newList) {
+        modpacks.append(item);
+    }
     endInsertRows();
 }
 

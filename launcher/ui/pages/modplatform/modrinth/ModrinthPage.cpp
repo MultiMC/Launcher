@@ -152,9 +152,10 @@ QString versionToString(const Modrinth::Version& version) {
             return version.name;
         }
         case Modrinth::VersionType::Unknown: {
-            return QString("%1 (?)").arg(version.name);
+            break;
         }
     }
+    return QString("%1 (?)").arg(version.name);
 }
 
 void ModrinthPage::updateCurrentPackUI()
