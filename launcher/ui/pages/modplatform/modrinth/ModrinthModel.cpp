@@ -138,7 +138,7 @@ void Modrinth::ListModel::searchRequestFinished()
 
     QVector<Modrinth::Modpack> newList;
     QJsonArray hits;
-    int total_hits;
+    int total_hits = 0;
 
     try
     {
@@ -149,6 +149,7 @@ void Modrinth::ListModel::searchRequestFinished()
     catch(const JSONValidationError &e)
     {
         qWarning() << "Error while parsing response from Modrinth: " << e.cause();
+        return;
     }
 
     for (auto packRaw : hits)
