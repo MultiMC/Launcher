@@ -28,6 +28,7 @@ QString getRealmForPackType(PackType type)
     case PackType::CurseForge:
         return "curseforge";
     }
+    return "unknown";
 }
 
 }
