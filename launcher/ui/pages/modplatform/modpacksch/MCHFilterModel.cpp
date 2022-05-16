@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "FtbFilterModel.h"
+#include "MCHFilterModel.h"
 
 #include <QDebug>
 
 #include "modplatform/modpacksch/FTBPackManifest.h"
 #include <MMCStrings.h>
 
-namespace Ftb {
+namespace ModpacksCH {
 
 FilterModel::FilterModel(QObject *parent) : QSortFilterProxyModel(parent)
 {

@@ -30,7 +30,7 @@ class PackInstallTask : public InstanceTask
     Q_OBJECT
 
 public:
-    explicit PackInstallTask(Modpack pack, QString version, PackType type = PackType::ModpacksCH);
+    explicit PackInstallTask(Modpack pack, QString version, PackType type = PackType::FTB);
     virtual ~PackInstallTask(){}
 
     bool canAbort() const override { return true; }

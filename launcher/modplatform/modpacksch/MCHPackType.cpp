@@ -23,7 +23,7 @@ namespace ModpacksCH {
 QString getRealmForPackType(PackType type)
 {
     switch (type) {
-    case PackType::ModpacksCH:
+    case PackType::FTB:
         return "modpack";
     case PackType::CurseForge:
         return "curseforge";

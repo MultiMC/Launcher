@@ -21,7 +21,7 @@
 namespace ModpacksCH {
 
 enum class PackType {
-    ModpacksCH,
+    FTB,
     CurseForge,
 };
 

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#include "FtbListModel.h"
+#include "MCHListModel.h"
 
 #include "BuildConfig.h"
 #include "Application.h"
 #include "Json.h"
 
 #include <QPainter>
+#include <algorithm>
 
-namespace Ftb {
+namespace ModpacksCH {
 
 ListModel::ListModel(QObject *parent) : QAbstractListModel(parent)
 {
@@ -50,7 +51,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
         return QString("INVALID INDEX %1").arg(pos);
     }
 
-    ModpacksCH::Modpack pack = modpacks.at(pos);
+    auto &pack = modpacks.at(pos);
     if(role == Qt::DisplayRole)
     {
         return pack.name;
@@ -103,12 +104,42 @@ void ListModel::getLogo(const QString &logo, const QString &logoUrl, LogoCallbac
 
 void ListModel::request()
 {
+    if(jobPtr) {
+        jobPtr->abort();
+        jobPtr.reset();
+    }
+
+    requestedPackType = PackType::FTB;
+
     beginResetModel();
     modpacks.clear();
     endResetModel();
 
     auto *netJob = new NetJob("Ftb::Request", APPLICATION->network());
     auto url = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/all");
+    netJob->addNetAction(Net::Download::makeByteArray(QUrl(url), &response));
+    jobPtr = netJob;
+    jobPtr->start();
+
+    QObject::connect(netJob, &NetJob::succeeded, this, &ListModel::requestFinished);
+    QObject::connect(netJob, &NetJob::failed, this, &ListModel::requestFailed);
+}
+
+void ListModel::requestCurse(const QString & searchTerm) {
+
+    if(jobPtr) {
+        jobPtr->abort();
+        jobPtr.reset();
+    }
+
+    requestedPackType = PackType::CurseForge;
+
+    beginResetModel();
+    modpacks.clear();
+    endResetModel();
+
+    auto *netJob = new NetJob("Ftb::RequestCurse", APPLICATION->network());
+    auto url = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/search/25?term=" + searchTerm);
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(url), &response));
     jobPtr = netJob;
     jobPtr->start();
@@ -129,11 +160,22 @@ void ListModel::requestFinished()
         qWarning() << response;
         return;
     }
+    qDebug() << response;
 
-    auto packs = doc.object().value("packs").toArray();
-    for(auto pack : packs) {
-        auto packId = pack.toInt();
-        remainingPacks.append(packId);
+    if(requestedPackType == PackType::FTB) {
+        auto packs = doc.object().value("packs").toArray();
+        for(auto pack : packs) {
+            auto packId = pack.toInt();
+            remainingPacks.append({ModpacksCH::PackType::FTB, packId});
+        }
+    }
+
+    if(requestedPackType == PackType::CurseForge) {
+        auto cfpacks = doc.object().value("curseforge").toArray();
+        for(auto pack : cfpacks) {
+            auto packId = pack.toInt();
+            remainingPacks.append({ModpacksCH::PackType::CurseForge, packId});
+        }
     }
 
     if(!remainingPacks.isEmpty()) {
@@ -151,8 +193,17 @@ void ListModel::requestFailed(QString reason)
 void ListModel::requestPack()
 {
     auto *netJob = new NetJob("Ftb::Search", APPLICATION->network());
-    auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1").arg(currentPack);
-    netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
+    QString requestUrl;
+    switch(currentPack.type) {
+        case ModpacksCH::PackType::FTB: {
+            requestUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1").arg(currentPack.identifier);
+            break;
+        }
+        case ModpacksCH::PackType::CurseForge: {
+            requestUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/curseforge/%1").arg(currentPack.identifier);
+        }
+    }
+    netJob->addNetAction(Net::Download::makeByteArray(QUrl(requestUrl), &response));
     jobPtr = netJob;
     jobPtr->start();
 
@@ -163,6 +214,7 @@ void ListModel::requestPack()
 void ListModel::packRequestFinished()
 {
     jobPtr.reset();
+    auto type = currentPack.type;
     remainingPacks.removeOne(currentPack);
 
     QJsonParseError parse_error;
@@ -176,10 +228,14 @@ void ListModel::packRequestFinished()
 
     auto obj = doc.object();
 
-    ModpacksCH::Modpack pack;
+    Modpack pack;
     try
     {
         ModpacksCH::loadModpack(pack, obj);
+        pack.packType = type;
+        if(type == ModpacksCH::PackType::CurseForge) {
+            std::reverse(pack.versions.begin(), pack.versions.end());
+        }
     }
     catch (const JSONValidationError &e)
     {

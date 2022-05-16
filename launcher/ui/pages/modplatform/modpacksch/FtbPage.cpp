@@ -30,8 +30,8 @@ FtbPage::FtbPage(NewInstanceDialog* dialog, QWidget *parent)
 {
     ui->setupUi(this);
 
-    filterModel = new Ftb::FilterModel(this);
-    listModel = new Ftb::ListModel(this);
+    filterModel = new ModpacksCH::FilterModel(this);
+    listModel = new ModpacksCH::ListModel(this);
     filterModel->setSourceModel(listModel);
     ui->packView->setModel(filterModel);
     ui->packView->setSortingEnabled(true);
@@ -102,13 +102,14 @@ void FtbPage::suggestCurrent()
         return;
     }
 
-    dialog->setSuggestedPack(selected.name + " " + selectedVersion, new ModpacksCH::PackInstallTask(selected, selectedVersion));
-    for(auto art : selected.art) {
+    auto & selectedPack = selected;
+    dialog->setSuggestedPack(selected.name + " " + selectedVersion, new ModpacksCH::PackInstallTask(selectedPack, selectedVersion, selected.packType));
+    for(auto art : selectedPack.art) {
         if(art.type == "square") {
             QString editedLogoName;
-            editedLogoName = selected.name;
+            editedLogoName = selectedPack.name;
 
-            listModel->getLogo(selected.name, art.url, [this, editedLogoName](QString logo)
+            listModel->getLogo(selectedPack.name, art.url, [this, editedLogoName](QString logo)
             {
                 dialog->setSuggestedIconFromFile(logo + ".small", editedLogoName);
             });
@@ -141,14 +142,15 @@ void FtbPage::onSelectionChanged(QModelIndex first, QModelIndex second)
     }
 
     selected = filterModel->data(first, Qt::UserRole).value<ModpacksCH::Modpack>();
+    auto & selectedPack = selected;
 
     HoeDown hoedown;
-    QString output = hoedown.process(selected.description.toUtf8());
+    QString output = hoedown.process(selectedPack.description.toUtf8());
     ui->packDescription->setHtml(output);
 
     // reverse foreach, so that the newest versions are first
-    for (auto i = selected.versions.size(); i--;) {
-        ui->versionSelectionBox->addItem(selected.versions.at(i).name);
+    for (auto i = selectedPack.versions.size(); i--;) {
+        ui->versionSelectionBox->addItem(selectedPack.versions.at(i).name);
     }
 
     suggestCurrent();

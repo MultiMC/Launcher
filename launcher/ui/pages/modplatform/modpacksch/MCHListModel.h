@@ -19,10 +19,11 @@
 #include <QAbstractListModel>
 
 #include "modplatform/modpacksch/FTBPackManifest.h"
+#include "modplatform/modpacksch/MCHPackType.h"
 #include "net/NetJob.h"
 #include <QIcon>
 
-namespace Ftb {
+namespace ModpacksCH {
 
 struct Logo {
     QString fullpath;
@@ -33,6 +34,14 @@ struct Logo {
 
 typedef QMap<QString, Logo> LogoMap;
 typedef std::function<void(QString)> LogoCallback;
+
+struct PackCoord {
+    bool operator==(const PackCoord& other) {
+        return type == other.type && identifier == other.identifier;
+    }
+    PackType type;
+    int identifier;
+};
 
 class ListModel : public QAbstractListModel
 {
@@ -47,6 +56,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
 
     void request();
+    void requestCurse(const QString & searchTerm);
 
     void getLogo(const QString &logo, const QString &logoUrl, LogoCallback callback);
 
@@ -65,12 +75,13 @@ private:
     void requestLogo(QString file, QString url);
 
 private:
-    QList<ModpacksCH::Modpack> modpacks;
+    PackType requestedPackType = PackType::FTB;
+    QList<Modpack> modpacks;
     LogoMap m_logoMap;
 
     NetJob::Ptr jobPtr;
-    int currentPack;
-    QList<int> remainingPacks;
+    PackCoord currentPack;
+    QList<PackCoord> remainingPacks;
     QByteArray response;
 };
 

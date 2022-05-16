@@ -15,8 +15,8 @@
 
 #pragma once
 
-#include "FtbFilterModel.h"
-#include "FtbListModel.h"
+#include "MCHFilterModel.h"
+#include "MCHListModel.h"
 
 #include <QWidget>
 
@@ -73,8 +73,8 @@ private slots:
 private:
     Ui::FtbPage *ui = nullptr;
     NewInstanceDialog* dialog = nullptr;
-    Ftb::ListModel* listModel = nullptr;
-    Ftb::FilterModel* filterModel = nullptr;
+    ModpacksCH::ListModel* listModel = nullptr;
+    ModpacksCH::FilterModel* filterModel = nullptr;
 
     ModpacksCH::Modpack selected;
     QString selectedVersion;

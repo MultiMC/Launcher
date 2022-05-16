@@ -22,6 +22,7 @@
 #include <QUrl>
 #include <QJsonObject>
 #include <QMetaType>
+#include "MCHPackType.h"
 
 namespace ModpacksCH
 {
@@ -72,16 +73,17 @@ struct VersionInfo
 
 struct Modpack
 {
-    int id;
+    PackType packType = PackType::FTB;
+    int id = 0;
     QString name;
     QString synopsis;
     QString description;
     QString type;
-    bool featured;
-    int installs;
-    int plays;
-    int64_t updated;
-    int64_t refreshed;
+    bool featured = false;
+    int installs = 0;
+    int plays = 0;
+    int64_t updated = 0;
+    int64_t refreshed = 0;
     QVector<Art> art;
     QVector<Author> authors;
     QVector<VersionInfo> versions;

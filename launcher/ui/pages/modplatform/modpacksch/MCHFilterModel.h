@@ -18,7 +18,7 @@
 
 #include <QtCore/QSortFilterProxyModel>
 
-namespace Ftb {
+namespace ModpacksCH {
 
 class FilterModel : public QSortFilterProxyModel
 {

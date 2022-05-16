@@ -735,12 +735,14 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/atlauncher/AtlPage.cpp
     ui/pages/modplatform/atlauncher/AtlPage.h
 
-    ui/pages/modplatform/ftb/FtbFilterModel.cpp
-    ui/pages/modplatform/ftb/FtbFilterModel.h
-    ui/pages/modplatform/ftb/FtbListModel.cpp
-    ui/pages/modplatform/ftb/FtbListModel.h
-    ui/pages/modplatform/ftb/FtbPage.cpp
-    ui/pages/modplatform/ftb/FtbPage.h
+    ui/pages/modplatform/modpacksch/MCHFilterModel.cpp
+    ui/pages/modplatform/modpacksch/MCHFilterModel.h
+    ui/pages/modplatform/modpacksch/MCHListModel.cpp
+    ui/pages/modplatform/modpacksch/MCHListModel.h
+    ui/pages/modplatform/modpacksch/FtbPage.cpp
+    ui/pages/modplatform/modpacksch/FtbPage.h
+    ui/pages/modplatform/modpacksch/CursePage.cpp
+    ui/pages/modplatform/modpacksch/CursePage.h
 
     ui/pages/modplatform/legacy_ftb/Page.cpp
     ui/pages/modplatform/legacy_ftb/Page.h
@@ -881,7 +883,8 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/pages/modplatform/flame/FlamePage.ui
     ui/pages/modplatform/legacy_ftb/Page.ui
     ui/pages/modplatform/ImportPage.ui
-    ui/pages/modplatform/ftb/FtbPage.ui
+    ui/pages/modplatform/modpacksch/FtbPage.ui
+    ui/pages/modplatform/modpacksch/CursePage.ui
     ui/pages/modplatform/modrinth/ModrinthPage.ui
     ui/pages/modplatform/technic/TechnicPage.ui
     ui/widgets/InstanceCardWidget.ui
