@@ -20,7 +20,7 @@ void VersionFile::applyTo(LaunchProfile *profile)
     // Only real Minecraft can set those. Don't let anything override them.
     if (isMinecraftVersion(uid))
     {
-        profile->applyMinecraftVersion(minecraftVersion);
+        profile->applyMinecraftVersion(version);
         profile->applyMinecraftVersionType(type);
         // HACK: ignore assets from other version files than Minecraft
         // workaround for stupid assets issue caused by amazon:
