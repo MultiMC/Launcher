@@ -262,6 +262,51 @@ std::shared_ptr<ModDetails> ReadFabricModInfo(QByteArray contents)
     return details;
 }
 
+// https://github.com/QuiltMC/rfcs/blob/master/specification/0002-quilt.mod.json.md
+std::shared_ptr<ModDetails> ReadQuiltModInfo(QByteArray contents)
+{
+    QJsonParseError jsonError;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(contents, &jsonError);
+    auto object = jsonDoc.object();
+
+    std::shared_ptr<ModDetails> details = std::make_shared<ModDetails>();
+
+    if (object.contains("schema_version") && object.value("schema_version").toInt() == 1)
+    {
+        QJsonObject loader = object.value("quilt_loader").toObject();
+        details->mod_id = loader.value("id").toString();
+        details->version = loader.value("version").toString();
+
+        if (loader.contains("metadata"))
+        {
+            QJsonObject metadata = loader.value("metadata").toObject();
+            details->name = metadata.contains("name") ? metadata.value("name").toString() : details->mod_id;
+
+            if (metadata.contains("description"))
+            {
+                details->description = metadata.value("description").toString();
+            }
+
+            if (metadata.contains("contributors"))
+            {
+                // NOTE: This lists every contributor, not just "authors"
+                details->authors = metadata.value("contributors").toObject().keys();
+            }
+
+            if (object.contains("contact"))
+            {
+                QJsonObject contact = object.value("contact").toObject();
+
+                if (contact.contains("homepage"))
+                {
+                    details->homeurl = contact.value("homepage").toString();
+                }
+            }
+        }
+    }
+    return details;
+}
+
 std::shared_ptr<ModDetails> ReadForgeInfo(QByteArray contents)
 {
     std::shared_ptr<ModDetails> details = std::make_shared<ModDetails>();
@@ -403,6 +448,20 @@ void LocalModParseTask::processAsZip()
         file.close();
         zip.close();
         return;
+    }
+    else if (zip.setCurrentFile("quilt.mod.json"))
+    {
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            zip.close();
+            return;
+        }
+
+        m_result->details = ReadQuiltModInfo(file.readAll());
+        file.close();
+        zip.close();
+        return;
+
     }
     else if (zip.setCurrentFile("forgeversion.properties"))
     {
