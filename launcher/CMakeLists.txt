@@ -504,25 +504,6 @@ set(FTB_SOURCES
     modplatform/legacy_ftb/PackHelpers.h
 )
 
-set(FLAME_SOURCES
-    # Flame
-    modplatform/flame/FlamePackIndex.cpp
-    modplatform/flame/FlamePackIndex.h
-    modplatform/flame/PackManifest.h
-    modplatform/flame/PackManifest.cpp
-    modplatform/flame/FileResolvingTask.h
-    modplatform/flame/FileResolvingTask.cpp
-)
-
-set(MODPACKSCH_SOURCES
-    modplatform/modpacksch/FTBPackInstallTask.h
-    modplatform/modpacksch/FTBPackInstallTask.cpp
-    modplatform/modpacksch/FTBPackManifest.h
-    modplatform/modpacksch/FTBPackManifest.cpp
-    modplatform/modpacksch/MCHPackType.h
-    modplatform/modpacksch/MCHPackType.cpp
-)
-
 set(TECHNIC_SOURCES
     modplatform/technic/SingleZipPackInstallTask.h
     modplatform/technic/SingleZipPackInstallTask.cpp
@@ -735,24 +716,10 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/atlauncher/AtlPage.cpp
     ui/pages/modplatform/atlauncher/AtlPage.h
 
-    ui/pages/modplatform/modpacksch/MCHFilterModel.cpp
-    ui/pages/modplatform/modpacksch/MCHFilterModel.h
-    ui/pages/modplatform/modpacksch/MCHListModel.cpp
-    ui/pages/modplatform/modpacksch/MCHListModel.h
-    ui/pages/modplatform/modpacksch/FtbPage.cpp
-    ui/pages/modplatform/modpacksch/FtbPage.h
-    ui/pages/modplatform/modpacksch/CursePage.cpp
-    ui/pages/modplatform/modpacksch/CursePage.h
-
     ui/pages/modplatform/legacy_ftb/Page.cpp
     ui/pages/modplatform/legacy_ftb/Page.h
     ui/pages/modplatform/legacy_ftb/ListModel.h
     ui/pages/modplatform/legacy_ftb/ListModel.cpp
-
-    ui/pages/modplatform/flame/FlameModel.cpp
-    ui/pages/modplatform/flame/FlameModel.h
-    ui/pages/modplatform/flame/FlamePage.cpp
-    ui/pages/modplatform/flame/FlamePage.h
 
     ui/pages/modplatform/modrinth/ModrinthData.h
     ui/pages/modplatform/modrinth/ModrinthModel.cpp
@@ -880,11 +847,8 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/pages/modplatform/atlauncher/AtlOptionalModDialog.ui
     ui/pages/modplatform/atlauncher/AtlPage.ui
     ui/pages/modplatform/VanillaPage.ui
-    ui/pages/modplatform/flame/FlamePage.ui
     ui/pages/modplatform/legacy_ftb/Page.ui
     ui/pages/modplatform/ImportPage.ui
-    ui/pages/modplatform/modpacksch/FtbPage.ui
-    ui/pages/modplatform/modpacksch/CursePage.ui
     ui/pages/modplatform/modrinth/ModrinthPage.ui
     ui/pages/modplatform/technic/TechnicPage.ui
     ui/widgets/InstanceCardWidget.ui
