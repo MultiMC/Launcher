@@ -105,7 +105,7 @@ void LoggedProcess::on_exit(int exit_code, QProcess::ExitStatus status)
         }
 
         emit log({tr("Please not that usually neither exit code nor its description are enough to diagnose issues!")}, MessageLevel::Launcher);
-        emit log({tr("Always post the entire log and not just the exit code.")}, MessageLevel::Launcher);
+        emit log({tr("Always upload the entire log and not just the exit code.")}, MessageLevel::Launcher);
     }
     else
     {

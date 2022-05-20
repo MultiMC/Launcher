@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <QDebug>
 
-#include "NtStatusGen.h"
+#include "ntstatus/NtStatusNames.hpp"
 
 Sys::KernelInfo Sys::getKernelInfo()
 {
@@ -60,7 +60,7 @@ Sys::DistributionInfo Sys::getDistributionInfo()
 
 bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &description)
 {
-    bool hasCodeName = Win32::lookupNtStatusCodeName(code, name);
+    bool hasCodeName = NtStatus::lookupNtStatusCodeName(code, name);
 
     PSTR messageBuffer = nullptr;
     HMODULE ntdll = GetModuleHandleA("ntdll.dll");
@@ -72,7 +72,7 @@ bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &
     }
 
     auto messageSize = FormatMessageA(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE,
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS,
             ntdll,
             code,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
