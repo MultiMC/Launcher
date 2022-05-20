@@ -92,6 +92,8 @@ void LoggedProcess::on_exit(int exit_code, QProcess::ExitStatus status)
             bool hasNameOrDescription = Sys::lookupSystemStatusCode(u_exit_code, statusName, statusDescription);
             if(hasNameOrDescription)
             {
+                emit log({tr("Below is an analysis of the exit code. THIS MAY BE INCORRECT AND SHOULD BE TAKEN WITH A GRAIN OF SALT!")}, MessageLevel::Launcher);
+
                 if(!statusName.empty())
                 {
                     emit log({tr("System exit code name: %1").arg(QString::fromStdString(statusName))}, MessageLevel::Launcher);
