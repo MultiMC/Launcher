@@ -2,6 +2,8 @@
 #include "MessageLevel.h"
 #include <QDebug>
 
+#include <sys.h>
+
 LoggedProcess::LoggedProcess(QObject *parent) : QProcess(parent)
 {
     // QProcess has a strange interface... let's map a lot of those into a few.
@@ -65,7 +67,7 @@ void LoggedProcess::on_exit(int exit_code, QProcess::ExitStatus status)
         if (status == QProcess::NormalExit)
         {
             //: Message displayed on instance exit
-            emit log({tr("Process exited with code %1.").arg(exit_code)}, MessageLevel::Launcher);
+            emit log({tr("Process exited with code %1 (0x%2).").arg(exit_code).arg(exit_code, 0, 16)}, MessageLevel::Launcher);
             changeState(LoggedProcess::Finished);
         }
         else
@@ -74,9 +76,38 @@ void LoggedProcess::on_exit(int exit_code, QProcess::ExitStatus status)
             if(exit_code == -1)
                 emit log({tr("Process crashed.")}, MessageLevel::Launcher);
             else
-                emit log({tr("Process crashed with exitcode %1.").arg(exit_code)}, MessageLevel::Launcher);
+                emit log({tr("Process crashed with exitcode %1 (0x%2).").arg(exit_code).arg(exit_code, 0, 16)}, MessageLevel::Launcher);
             changeState(LoggedProcess::Crashed);
         }
+
+        // Filter out some exit codes, which would only result in erroneous output
+        // -1, 0, 1 and 255 are usually program generated and don't aid much in debugging
+        if((exit_code < -1 || exit_code > 1) && (exit_code != 255))
+        {
+            // Gross hack for preserving the **exact bit pattern**, we need to "cast" while ignoring the sign bit
+            unsigned int u_exit_code = *((unsigned int *) &exit_code);
+
+            std::string statusName;
+            std::string statusDescription;
+            bool hasNameOrDescription = Sys::lookupSystemStatusCode(u_exit_code, statusName, statusDescription);
+            if(hasNameOrDescription)
+            {
+                emit log({tr("Below is an analysis of the exit code. THIS MAY BE INCORRECT AND SHOULD BE TAKEN WITH A GRAIN OF SALT!")}, MessageLevel::Launcher);
+
+                if(!statusName.empty())
+                {
+                    emit log({tr("System exit code name: %1").arg(QString::fromStdString(statusName))}, MessageLevel::Launcher);
+                }
+
+                if(!statusDescription.empty())
+                {
+                    emit log({tr("System exit code description: %1").arg(QString::fromStdString(statusDescription))}, MessageLevel::Launcher);
+                }
+            }
+        }
+
+        emit log({tr("Please not that usually neither exit code nor its description are enough to diagnose issues!")}, MessageLevel::Launcher);
+        emit log({tr("Always upload the entire log and not just the exit code.")}, MessageLevel::Launcher);
     }
     else
     {
