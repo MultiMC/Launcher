@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  * Copyright 2021 Petr Mrazek <peterix@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -357,8 +357,22 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
 
 bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
 {
-    if(m_version.mainClass == QString() && m_version.extraArguments == QString()) {
+    if(m_version.mainClass.mainClass.isEmpty() && m_version.extraArguments.isEmpty()) {
         return true;
+    }
+
+    auto mainClass = m_version.mainClass.mainClass;
+
+    auto hasMainClassDepends = !m_version.mainClass.depends.isEmpty();
+    if (hasMainClassDepends) {
+        QSet<QString> mods;
+        for (const auto& item : m_version.mods) {
+            mods.insert(item.name);
+        }
+
+        if (hasMainClassDepends && !mods.contains(m_version.mainClass.depends)) {
+            mainClass = "";
+        }
     }
 
     auto uuid = QUuid::createUuid();
@@ -385,8 +399,8 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
 
     auto f = std::make_shared<VersionFile>();
     f->name = m_pack + " " + m_version_name;
-    if(m_version.mainClass != QString() && !mainClasses.contains(m_version.mainClass)) {
-        f->mainClass = m_version.mainClass;
+    if(!mainClass.isEmpty() && !mainClasses.contains(mainClass)) {
+        f->mainClass = mainClass;
     }
 
     // Parse out tweakers
