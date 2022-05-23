@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  * Copyright 2021 Petr Mrazek <peterix@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -357,7 +357,31 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
 
 bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
 {
-    if(m_version.mainClass == QString() && m_version.extraArguments == QString()) {
+    if(m_version.mainClass.mainClass.isEmpty() && m_version.extraArguments.arguments.isEmpty()) {
+        return true;
+    }
+
+    auto mainClass = m_version.mainClass.mainClass;
+    auto extraArguments = m_version.extraArguments.arguments;
+
+    auto hasMainClassDepends = !m_version.mainClass.depends.isEmpty();
+    auto hasExtraArgumentsDepends = !m_version.extraArguments.depends.isEmpty();
+    if (hasMainClassDepends || hasExtraArgumentsDepends) {
+        QSet<QString> mods;
+        for (const auto& item : m_version.mods) {
+            mods.insert(item.name);
+        }
+
+        if (hasMainClassDepends && !mods.contains(m_version.mainClass.depends)) {
+            mainClass = "";
+        }
+
+        if (hasExtraArgumentsDepends && !mods.contains(m_version.extraArguments.depends)) {
+            extraArguments = "";
+        }
+    }
+
+    if (mainClass.isEmpty() && extraArguments.isEmpty()) {
         return true;
     }
 
@@ -385,12 +409,12 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
 
     auto f = std::make_shared<VersionFile>();
     f->name = m_pack + " " + m_version_name;
-    if(m_version.mainClass != QString() && !mainClasses.contains(m_version.mainClass)) {
-        f->mainClass = m_version.mainClass;
+    if(!mainClass.isEmpty() && !mainClasses.contains(mainClass)) {
+        f->mainClass = mainClass;
     }
 
     // Parse out tweakers
-    auto args = m_version.extraArguments.split(" ");
+    auto args = extraArguments.split(" ");
     QString previous;
     for(auto arg : args) {
         if(arg.startsWith("--tweakClass=") || previous == "--tweakClass") {
@@ -703,6 +727,17 @@ bool PackInstallTask::extractMods(
     for (auto iter = toCopy.begin(); iter != toCopy.end(); iter++) {
         auto &from = iter.key();
         auto &to = iter.value();
+
+        // If the file already exists, assume the mod is the correct copy - and remove
+        // the copy from the Configs.zip
+        QFileInfo fileInfo(to);
+        if (fileInfo.exists()) {
+            if (!QFile::remove(to)) {
+                qWarning() << "Failed to delete" << to;
+                return false;
+            }
+        }
+
         FS::copy fileCopyOperation(from, to);
         if(!fileCopyOperation()) {
             qWarning() << "Failed to copy" << from << "to" << to;

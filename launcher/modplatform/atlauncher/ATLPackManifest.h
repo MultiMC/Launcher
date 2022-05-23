@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,13 +122,25 @@ struct VersionConfigs
     QString sha1;
 };
 
+struct PackVersionMainClass
+{
+    QString mainClass;
+    QString depends;
+};
+
+struct PackVersionExtraArguments
+{
+    QString arguments;
+    QString depends;
+};
+
 struct PackVersion
 {
     QString version;
     QString minecraft;
     bool noConfigs;
-    QString mainClass;
-    QString extraArguments;
+    PackVersionMainClass mainClass;
+    PackVersionExtraArguments extraArguments;
 
     VersionLoader loader;
     QVector<VersionLibrary> libraries;

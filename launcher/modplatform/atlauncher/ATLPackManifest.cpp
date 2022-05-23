@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  * Copyright 2021 Petr Mrazek <peterix@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -185,6 +185,18 @@ static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
     p.effectively_hidden = p.hidden || p.library;
 }
 
+static void loadVersionMainClass(ATLauncher::PackVersionMainClass & m, QJsonObject & obj)
+{
+    m.mainClass = Json::ensureString(obj, "mainClass", "");
+    m.depends = Json::ensureString(obj, "depends", "");
+}
+
+static void loadVersionExtraArguments(ATLauncher::PackVersionExtraArguments & a, QJsonObject & obj)
+{
+    a.arguments = Json::ensureString(obj, "arguments", "");
+    a.depends = Json::ensureString(obj, "depends", "");
+}
+
 void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
 {
     v.version = Json::requireString(obj, "version");
@@ -193,12 +205,12 @@ void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
 
     if(obj.contains("mainClass")) {
         auto main = Json::requireObject(obj, "mainClass");
-        v.mainClass = Json::ensureString(main, "mainClass", "");
+        loadVersionMainClass(v.mainClass, main);
     }
 
     if(obj.contains("extraArguments")) {
         auto arguments = Json::requireObject(obj, "extraArguments");
-        v.extraArguments = Json::ensureString(arguments, "arguments", "");
+        loadVersionExtraArguments(v.extraArguments, arguments);
     }
 
     if(obj.contains("loader")) {
