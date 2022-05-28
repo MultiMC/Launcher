@@ -20,6 +20,11 @@
 #include <FileSystem.h>
 #include <Json.h>
 
+#if defined(Q_OS_WIN32)
+#include <windows.h>
+constexpr int BUFFER_SIZE = 1024;
+#endif
+
 namespace ImportFTB {
 
 Model::Model(QObject *parent) : QAbstractListModel(parent)
@@ -71,10 +76,13 @@ QString getFTBASettingsPath() {
 }
 #elif defined(Q_OS_WIN32)
 QString getFTBASettingsPath() {
-    auto appDataLocalInner = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-    QDir appdata(appDataLocalInner);
-    appdata.cdUp();
-    return FS::PathCombine(appdata.absolutePath(), ".ftba/bin/settings.json");
+    wchar_t buf[BUFFER_SIZE];
+    if(!GetEnvironmentVariableW(L"APPDATALOCAL", buf, BUFFER_SIZE))
+    {
+        return QString();
+    }
+    QString appDataLocal = QString::fromWCharArray(buf);
+    return FS::PathCombine(appDataLocal, ".ftba/bin/settings.json");
 }
 #else
 QString getFTBASettingsPath() {
