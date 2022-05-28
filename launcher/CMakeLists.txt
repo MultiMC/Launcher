@@ -555,8 +555,7 @@ set(LOGIC_SOURCES
     ${META_SOURCES}
     ${ICONS_SOURCES}
     ${FTB_SOURCES}
-    ${FLAME_SOURCES}
-    ${MODPACKSCH_SOURCES}
+    ${FTBA_SOURCES}
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
     ${MODRINTH_SOURCES}
@@ -721,6 +720,13 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/legacy_ftb/ListModel.h
     ui/pages/modplatform/legacy_ftb/ListModel.cpp
 
+    ui/pages/modplatform/import_ftb/PackInstallTask.cpp
+    ui/pages/modplatform/import_ftb/PackInstallTask.h
+    ui/pages/modplatform/import_ftb/Model.cpp
+    ui/pages/modplatform/import_ftb/Model.h
+    ui/pages/modplatform/import_ftb/FTBAPage.cpp
+    ui/pages/modplatform/import_ftb/FTBAPage.h
+
     ui/pages/modplatform/modrinth/ModrinthData.h
     ui/pages/modplatform/modrinth/ModrinthModel.cpp
     ui/pages/modplatform/modrinth/ModrinthModel.h
@@ -848,6 +854,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/pages/modplatform/atlauncher/AtlPage.ui
     ui/pages/modplatform/VanillaPage.ui
     ui/pages/modplatform/legacy_ftb/Page.ui
+    ui/pages/modplatform/import_ftb/FTBAPage.ui
     ui/pages/modplatform/ImportPage.ui
     ui/pages/modplatform/modrinth/ModrinthPage.ui
     ui/pages/modplatform/technic/TechnicPage.ui
