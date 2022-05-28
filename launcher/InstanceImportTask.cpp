@@ -313,6 +313,11 @@ void InstanceImportTask::processModrinth() {
                 {
                     throw JSONValidationError("Download URL for " + file.path + " is not a correctly formatted URL");
                 }
+                QString downloadDomain = file.download.host();
+                if (std::find(std::begin(Modrinth::allowedDownloadDomains), std::end(Modrinth::allowedDownloadDomains), downloadDomain) == std::end(Modrinth::allowedDownloadDomains))
+                {
+                    throw JSONValidationError("Download URL for " + file.path + " is not on an allowed domain as per the Modrinth pack format specification");
+                }
                 files.push_back(file);
             }
 

@@ -1,4 +1,4 @@
-/* Copyright 2022 kb1000
+/* Copyright 2022 kb1000, arthomnix
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,14 @@
 #include <QUrl>
 
 namespace Modrinth {
+
+const QString allowedDownloadDomains[] = {
+    "cdn.modrinth.com",
+    "github.com",
+    "raw.githubusercontent.com",
+    "gitlab.com"
+};
+
 struct File
 {
     QString path;
@@ -29,4 +37,5 @@ struct File
     // TODO: should this support multiple download URLs, like the JSON does?
     QUrl download;
 };
+
 }
