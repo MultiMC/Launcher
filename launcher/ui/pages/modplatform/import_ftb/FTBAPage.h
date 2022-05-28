@@ -38,7 +38,7 @@ public:
     virtual ~FTBAPage();
     QString displayName() const override
     {
-        return tr("FTBApp Import");
+        return tr("FTB App Import");
     }
     QIcon icon() const override
     {

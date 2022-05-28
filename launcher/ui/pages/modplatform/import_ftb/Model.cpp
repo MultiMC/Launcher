@@ -64,11 +64,29 @@ QVariant Model::data(const QModelIndex &index, int role) const
 }
 
 namespace {
+
+#if defined (Q_OS_OSX)
+QString getFTBASettingsPath() {
+    return FS::PathCombine(QDir::homePath(), "Library/Application Support/.ftba/bin/settings.json");
+}
+#elif defined(Q_OS_WIN32)
+QString getFTBASettingsPath() {
+    auto appDataLocalInner = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QDir appdata(appDataLocalInner);
+    appdata.cdUp();
+    return FS::PathCombine(appdata.absolutePath(), ".ftba/bin/settings.json");
+}
+#else
+QString getFTBASettingsPath() {
+    return FS::PathCombine(QDir::homePath(), ".ftba/bin/settings.json");
+}
+#endif
+
 QString getFTBAInstances() {
     QByteArray data;
     try
     {
-        auto path = FS::PathCombine(QDir::homePath(), ".ftba/bin/settings.json");
+        auto path = getFTBASettingsPath();
         data = FS::read(path);
     }
     catch (const Exception &e)
