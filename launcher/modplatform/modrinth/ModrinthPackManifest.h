@@ -22,7 +22,7 @@
 
 namespace Modrinth {
 
-const QString allowedDownloadDomains[] = {
+const QStringList allowedDownloadDomains = {
     "cdn.modrinth.com",
     "github.com",
     "raw.githubusercontent.com",
