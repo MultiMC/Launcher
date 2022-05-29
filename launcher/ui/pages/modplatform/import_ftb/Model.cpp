@@ -160,26 +160,26 @@ bool parseModpackJson(const QByteArray& data, Modpack & out) {
     {
         auto document = Json::requireDocument(data);
         auto object = Json::requireObject(document);
-        bool isInstalled = Json::requireBoolean(object, "installComplete");
+        bool isInstalled = Json::ensureBoolean(object, "installComplete", true);
         if(!isInstalled) {
             return false;
         }
         out.id = Json::requireInteger(object, "id");
         out.name = Json::requireString(object, "name");
         out.version = Json::requireString(object, "version");
-        out.description = Json::requireString(object, "description");
-        auto authorsArray = Json::requireArray(object, "authors");
+        out.description = Json::ensureString(object, "description", QObject::tr("Description is missing in the FTB App instance."));
+        auto authorsArray = Json::ensureArray(object, "authors", QJsonArray());
         for(auto author: authorsArray) {
             out.authors.append(Json::requireString(author));
         }
 
         out.mcVersion = Json::requireString(object, "mcVersion");
-        out.modLoader = Json::requireString(object, "modLoader");
-        out.hasInstMods = Json::requireBoolean(object, "hasInstMods");
+        out.modLoader = Json::ensureString(object, "modLoader", QString());
+        out.hasInstMods = Json::ensureBoolean(object, "hasInstMods", false);
 
-        out.minMemory = Json::requireInteger(object, "minMemory");
-        out.recMemory = Json::requireInteger(object, "recMemory");
-        out.memory = Json::requireInteger(object, "memory");
+        out.minMemory = Json::ensureInteger(object, "minMemory", 1024);
+        out.recMemory = Json::ensureInteger(object, "recMemory", 2048);
+        out.memory = Json::ensureInteger(object, "memory", 2048);
         return true;
     }
     catch (Json::JsonException & e)
