@@ -9,7 +9,7 @@ static void readString(const QJsonObject &root, const QString &key, QString &var
 {
     if (root.contains(key))
     {
-        variable = requireString(root.value(key));
+        variable = requireValueString(root.value(key));
     }
 }
 
@@ -65,7 +65,7 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument &doc
     {
         if (root.contains("order"))
         {
-            out->order = requireInteger(root.value("order"));
+            out->order = requireValueInteger(root.value("order"));
         }
         else
         {
@@ -94,26 +94,26 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument &doc
 
     if (root.contains("+tweakers"))
     {
-        for (auto tweakerVal : requireArray(root.value("+tweakers")))
+        for (auto tweakerVal : requireValueArray(root.value("+tweakers")))
         {
-            out->addTweakers.append(requireString(tweakerVal));
+            out->addTweakers.append(requireValueString(tweakerVal));
         }
     }
 
     if (root.contains("+traits"))
     {
-        for (auto tweakerVal : requireArray(root.value("+traits")))
+        for (auto tweakerVal : requireValueArray(root.value("+traits")))
         {
-            out->traits.insert(requireString(tweakerVal));
+            out->traits.insert(requireValueString(tweakerVal));
         }
     }
 
 
     if (root.contains("jarMods"))
     {
-        for (auto libVal : requireArray(root.value("jarMods")))
+        for (auto libVal : requireValueArray(root.value("jarMods")))
         {
-            QJsonObject libObj = requireObject(libVal);
+            QJsonObject libObj = requireValueObject(libVal);
             // parse the jarmod
             auto lib = OneSixVersionFormat::jarModFromJson(*out, libObj, filename);
             // and add to jar mods
@@ -122,9 +122,9 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument &doc
     }
     else if (root.contains("+jarMods")) // DEPRECATED: old style '+jarMods' are only here for backwards compatibility
     {
-        for (auto libVal : requireArray(root.value("+jarMods")))
+        for (auto libVal : requireValueArray(root.value("+jarMods")))
         {
-            QJsonObject libObj = requireObject(libVal);
+            QJsonObject libObj = requireValueObject(libVal);
             // parse the jarmod
             auto lib = OneSixVersionFormat::plusJarModFromJson(*out, libObj, filename, out->name);
             // and add to jar mods
@@ -134,9 +134,9 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument &doc
 
     if (root.contains("mods"))
     {
-        for (auto libVal : requireArray(root.value("mods")))
+        for (auto libVal : requireValueArray(root.value("mods")))
         {
-            QJsonObject libObj = requireObject(libVal);
+            QJsonObject libObj = requireValueObject(libVal);
             // parse the jarmod
             auto lib = OneSixVersionFormat::modFromJson(*out, libObj, filename);
             // and add to jar mods
@@ -146,9 +146,9 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument &doc
 
     auto readLibs = [&](const char * which, QList<LibraryPtr> & outList)
     {
-        for (auto libVal : requireArray(root.value(which)))
+        for (auto libVal : requireValueArray(root.value(which)))
         {
-            QJsonObject libObj = requireObject(libVal);
+            QJsonObject libObj = requireValueObject(libVal);
             // parse the library
             auto lib = libraryFromJson(*out, libObj, filename);
             outList.append(lib);

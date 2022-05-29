@@ -170,8 +170,9 @@ bool parseModpackJson(const QByteArray& data, Modpack & out) {
         out.description = Json::ensureString(object, "description", QObject::tr("Description is missing in the FTB App instance."));
         auto authorsArray = Json::ensureArray(object, "authors", QJsonArray());
         for(auto author: authorsArray) {
-            out.authors.append(Json::requireString(author));
+            out.authors.append(Json::requireValueString(author));
         }
+
 
         out.mcVersion = Json::requireString(object, "mcVersion");
         out.modLoader = Json::ensureString(object, "modLoader", QString());

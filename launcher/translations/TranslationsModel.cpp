@@ -214,7 +214,7 @@ void readIndex(const QString & path, QMap<QString, Language>& languages)
         {
             Language lang(iter.key());
 
-            auto langObj =  Json::requireObject(iter.value());
+            auto langObj =  Json::requireValueObject(iter.value());
             lang.setTranslationStats(
                 Json::ensureInteger(langObj, "translated", 0),
                 Json::ensureInteger(langObj, "untranslated", 0),

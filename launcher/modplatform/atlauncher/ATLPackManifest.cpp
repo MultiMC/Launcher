@@ -175,7 +175,7 @@ static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
     if(obj.contains("depends")) {
         auto dependsArr = Json::requireArray(obj, "depends");
         for (const auto depends : dependsArr) {
-            p.depends.append(Json::requireString(depends));
+            p.depends.append(Json::requireValueString(depends));
         }
     }
 
@@ -222,7 +222,7 @@ void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
         auto libraries = Json::requireArray(obj, "libraries");
         for (const auto libraryRaw : libraries)
         {
-            auto libraryObj = Json::requireObject(libraryRaw);
+            auto libraryObj = Json::requireValueObject(libraryRaw);
             ATLauncher::VersionLibrary target;
             loadVersionLibrary(target, libraryObj);
             v.libraries.append(target);
@@ -233,7 +233,7 @@ void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
         auto mods = Json::requireArray(obj, "mods");
         for (const auto modRaw : mods)
         {
-            auto modObj = Json::requireObject(modRaw);
+            auto modObj = Json::requireValueObject(modRaw);
             ATLauncher::VersionMod mod;
             loadVersionMod(mod, modObj);
             v.mods.append(mod);

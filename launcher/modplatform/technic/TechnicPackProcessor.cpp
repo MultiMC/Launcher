@@ -171,7 +171,7 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings, const 
                 continue;
             }
 
-            auto libraryObject = Json::ensureObject(library, {}, "");
+            auto libraryObject = Json::ensureValueObject(library, {}, "");
             auto libraryName = Json::ensureString(libraryObject, "name", "", "");
 
             if (libraryName.startsWith("net.minecraftforge:forge:") && libraryName.contains('-'))

@@ -101,21 +101,21 @@ static QJsonObject componentToJsonV1(ComponentPtr component)
 static ComponentPtr componentFromJsonV1(PackProfile * parent, const QString & componentJsonPattern, const QJsonObject &obj)
 {
     // critical
-    auto uid = Json::requireString(obj.value("uid"));
+    auto uid = Json::requireValueString(obj.value("uid"));
     auto filePath = componentJsonPattern.arg(uid);
     auto component = new Component(parent, uid);
-    component->m_version = Json::ensureString(obj.value("version"));
-    component->m_dependencyOnly = Json::ensureBoolean(obj.value("dependencyOnly"), false);
-    component->m_important = Json::ensureBoolean(obj.value("important"), false);
+    component->m_version = Json::ensureValueString(obj.value("version"));
+    component->m_dependencyOnly = Json::ensureValueBoolean(obj.value("dependencyOnly"), false);
+    component->m_important = Json::ensureValueBoolean(obj.value("important"), false);
 
     // cached
     // TODO @RESILIENCE: ignore invalid values/structure here?
-    component->m_cachedVersion = Json::ensureString(obj.value("cachedVersion"));
-    component->m_cachedName = Json::ensureString(obj.value("cachedName"));
+    component->m_cachedVersion = Json::ensureValueString(obj.value("cachedVersion"));
+    component->m_cachedName = Json::ensureValueString(obj.value("cachedName"));
     Meta::parseRequires(obj, &component->m_cachedRequires, "cachedRequires");
     Meta::parseRequires(obj, &component->m_cachedConflicts, "cachedConflicts");
-    component->m_cachedVolatile = Json::ensureBoolean(obj.value("volatile"), false);
-    bool disabled = Json::ensureBoolean(obj.value("disabled"), false);
+    component->m_cachedVolatile = Json::ensureValueBoolean(obj.value("volatile"), false);
+    bool disabled = Json::ensureValueBoolean(obj.value("disabled"), false);
     component->setEnabled(!disabled);
     return component;
 }
@@ -185,16 +185,16 @@ static bool loadPackProfile(PackProfile * parent, const QString & filename, cons
     {
         auto obj = Json::requireObject(doc);
         // check order file version.
-        auto version = Json::requireInteger(obj.value("formatVersion"));
+        auto version = Json::requireValueInteger(obj.value("formatVersion"));
         if (version != currentComponentsFileVersion)
         {
             throw JSONValidationError(QObject::tr("Invalid component file version, expected %1")
                                           .arg(currentComponentsFileVersion));
         }
-        auto orderArray = Json::requireArray(obj.value("components"));
+        auto orderArray = Json::requireValueArray(obj.value("components"));
         for(auto item: orderArray)
         {
-            auto obj = Json::requireObject(item, "Component must be an object.");
+            auto obj = Json::requireValueObject(item, "Component must be an object.");
             container.append(componentFromJsonV1(parent, componentJsonPattern, obj));
         }
     }

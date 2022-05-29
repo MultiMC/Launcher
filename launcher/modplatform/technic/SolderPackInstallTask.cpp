@@ -89,7 +89,7 @@ void Technic::SolderPackInstallTask::fileListSucceeded()
         QJsonArray mods = Json::requireArray(obj, "mods", "'mods'");
         for (auto mod: mods)
         {
-            QJsonObject modObject = Json::requireObject(mod);
+            QJsonObject modObject = Json::requireValueObject(mod);
             modUrls.append(Json::requireString(modObject, "url", "'url'"));
         }
     }

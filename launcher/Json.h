@@ -212,11 +212,11 @@ QVector<T> ensureIsArrayOf(const QJsonObject &parent, const QString &key,
 
 // this macro part could be replaced by variadic functions that just pass on their arguments, but that wouldn't work well with IDE helpers
 #define JSON_HELPERFUNCTIONS(NAME, TYPE) \
-    inline TYPE require##NAME(const QJsonValue &value, const QString &what = "Value") \
+    inline TYPE requireValue##NAME(const QJsonValue &value, const QString &what = "Value") \
     { \
         return requireIsType<TYPE>(value, what); \
     } \
-    inline TYPE ensure##NAME(const QJsonValue &value, const TYPE default_ = TYPE(), const QString &what = "Value") \
+    inline TYPE ensureValue##NAME(const QJsonValue &value, const TYPE default_ = TYPE(), const QString &what = "Value") \
     { \
         return ensureIsType<TYPE>(value, default_, what); \
     } \

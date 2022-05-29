@@ -128,7 +128,7 @@ void Technic::ListModel::searchRequestFinished()
         auto objs = Json::requireArray(root, "modpacks");
         for (auto technicPack: objs) {
             Modpack pack;
-            auto technicPackObject = Json::requireObject(technicPack);
+            auto technicPackObject = Json::requireValueObject(technicPack);
             pack.name = Json::requireString(technicPackObject, "name");
             pack.slug = Json::requireString(technicPackObject, "slug");
             if (pack.slug == "vanilla")

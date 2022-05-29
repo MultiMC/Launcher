@@ -22,7 +22,7 @@ static void readString(const QJsonObject &root, const QString &key, QString &var
 {
     if (root.contains(key))
     {
-        variable = requireString(root.value(key));
+        variable = requireValueString(root.value(key));
     }
 }
 
@@ -75,7 +75,7 @@ QJsonObject downloadInfoToJson(MojangDownloadInfo::Ptr info)
 MojangLibraryDownloadInfo::Ptr libDownloadInfoFromJson(const QJsonObject &libObj)
 {
     auto out = std::make_shared<MojangLibraryDownloadInfo>();
-    auto dlObj = requireObject(libObj.value("downloads"));
+    auto dlObj = requireValueObject(libObj.value("downloads"));
     if(dlObj.contains("artifact"))
     {
         out->artifact = downloadInfoFromJson(requireObject(dlObj, "artifact"));
@@ -86,7 +86,7 @@ MojangLibraryDownloadInfo::Ptr libDownloadInfoFromJson(const QJsonObject &libObj
         for(auto iter = classifiersObj.begin(); iter != classifiersObj.end(); iter++)
         {
             auto classifier = iter.key();
-            auto classifierObj = requireObject(iter.value());
+            auto classifierObj = requireValueObject(iter.value());
             out->classifiers[classifier] = downloadInfoFromJson(classifierObj);
         }
     }
@@ -171,7 +171,7 @@ void MojangVersionFormat::readVersionProperties(const QJsonObject &in, VersionFi
 
     if (in.contains("minimumLauncherVersion"))
     {
-        out->minimumLauncherVersion = requireInteger(in.value("minimumLauncherVersion"));
+        out->minimumLauncherVersion = requireValueInteger(in.value("minimumLauncherVersion"));
         if (out->minimumLauncherVersion > CURRENT_MINIMUM_LAUNCHER_VERSION)
         {
             out->addProblem(
@@ -189,7 +189,7 @@ void MojangVersionFormat::readVersionProperties(const QJsonObject &in, VersionFi
         for(auto iter = downloadsObj.begin(); iter != downloadsObj.end(); iter++)
         {
             auto classifier = iter.key();
-            auto classifierObj = requireObject(iter.value());
+            auto classifierObj = requireValueObject(iter.value());
             out->mojangDownloads[classifier] = downloadInfoFromJson(classifierObj);
         }
     }
@@ -219,9 +219,9 @@ VersionFilePtr MojangVersionFormat::versionFileFromJson(const QJsonDocument &doc
 
     if (root.contains("libraries"))
     {
-        for (auto libVal : requireArray(root.value("libraries")))
+        for (auto libVal : requireValueArray(root.value("libraries")))
         {
-            auto libObj = requireObject(libVal);
+            auto libObj = requireValueObject(libVal);
 
             auto lib = MojangVersionFormat::libraryFromJson(*out, libObj, filename);
             out->libraries.append(lib);
@@ -303,15 +303,15 @@ LibraryPtr MojangVersionFormat::libraryFromJson(ProblemContainer & problems, con
     if (libObj.contains("extract"))
     {
         out->m_hasExcludes = true;
-        auto extractObj = requireObject(libObj.value("extract"));
-        for (auto excludeVal : requireArray(extractObj.value("exclude")))
+        auto extractObj = requireValueObject(libObj.value("extract"));
+        for (auto excludeVal : requireValueArray(extractObj.value("exclude")))
         {
-            out->m_extractExcludes.append(requireString(excludeVal));
+            out->m_extractExcludes.append(requireValueString(excludeVal));
         }
     }
     if (libObj.contains("natives"))
     {
-        QJsonObject nativesObj = requireObject(libObj.value("natives"));
+        QJsonObject nativesObj = requireValueObject(libObj.value("natives"));
         for (auto it = nativesObj.begin(); it != nativesObj.end(); ++it)
         {
             if (!it.value().isString())

@@ -111,7 +111,7 @@ void fromJson(QJsonDocument & doc, Package & out) {
             for(auto iter2 = downloads.begin(); iter2 != downloads.end(); iter2++) {
                 FileSource source;
 
-                auto downloadObject = Json::requireObject(iter2.value());
+                auto downloadObject = Json::requireValueObject(iter2.value());
                 source.hash = Json::requireString(downloadObject, "sha1");
                 source.size = Json::requireInteger(downloadObject, "size");
                 source.url = Json::requireString(downloadObject, "url");

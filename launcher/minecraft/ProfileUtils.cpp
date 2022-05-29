@@ -45,16 +45,16 @@ bool readOverrideOrders(QString path, PatchOrder &order)
     {
         auto obj = Json::requireObject(doc);
         // check order file version.
-        auto version = Json::requireInteger(obj.value("version"));
+        auto version = Json::requireValueInteger(obj.value("version"));
         if (version != currentOrderFileVersion)
         {
             throw JSONValidationError(QObject::tr("Invalid order file version, expected %1")
                                           .arg(currentOrderFileVersion));
         }
-        auto orderArray = Json::requireArray(obj.value("order"));
+        auto orderArray = Json::requireValueArray(obj.value("order"));
         for(auto item: orderArray)
         {
-            order.append(Json::requireString(item));
+            order.append(Json::requireValueString(item));
         }
     }
     catch (const JSONValidationError &err)

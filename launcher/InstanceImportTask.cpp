@@ -308,7 +308,7 @@ void InstanceImportTask::processModrinth() {
                 file.hash = QByteArray::fromHex(hash.toLatin1());
                 file.hashAlgorithm = hashAlgorithm;
                 // Do not use requireUrl, which uses StrictMode, instead use QUrl's default TolerantMode (as Modrinth seems to incorrectly handle spaces)
-                file.download = Json::requireString(Json::ensureArray(obj, "downloads").first(), "Download URL for " + file.path);
+                file.download = Json::requireValueString(Json::ensureArray(obj, "downloads").first(), "Download URL for " + file.path);
                 if (!file.download.isValid())
                 {
                     throw JSONValidationError("Download URL for " + file.path + " is not a correctly formatted URL");
@@ -324,25 +324,25 @@ void InstanceImportTask::processModrinth() {
                 {
                     if (!minecraftVersion.isEmpty())
                         throw JSONValidationError("Duplicate Minecraft version");
-                    minecraftVersion = Json::requireString(*it, "Minecraft version");
+                    minecraftVersion = Json::requireValueString(*it, "Minecraft version");
                 }
                 else if (name == "fabric-loader")
                 {
                     if (!fabricVersion.isEmpty())
                         throw JSONValidationError("Duplicate Fabric Loader version");
-                    fabricVersion = Json::requireString(*it, "Fabric Loader version");
+                    fabricVersion = Json::requireValueString(*it, "Fabric Loader version");
                 }
                 else if (name == "quilt-loader")
                 {
                     if (!quiltVersion.isEmpty())
                         throw JSONValidationError("Duplicate Quilt Loader version");
-                    quiltVersion = Json::requireString(*it, "Quilt Loader version");
+                    quiltVersion = Json::requireValueString(*it, "Quilt Loader version");
                 }
                 else if (name == "forge")
                 {
                     if (!forgeVersion.isEmpty())
                         throw JSONValidationError("Duplicate Forge version");
-                    forgeVersion = Json::requireString(*it, "Forge version");
+                    forgeVersion = Json::requireValueString(*it, "Forge version");
                 }
                 else
                 {

@@ -38,7 +38,7 @@ void ATLauncher::loadIndexedPack(ATLauncher::IndexedPack & m, QJsonObject & obj)
     auto versionsArr = Json::requireArray(obj, "versions");
     for (const auto versionRaw : versionsArr)
     {
-        auto versionObj = Json::requireObject(versionRaw);
+        auto versionObj = Json::requireValueObject(versionRaw);
         ATLauncher::IndexedVersion version;
         loadIndexedVersion(version, versionObj);
         m.versions.append(version);

@@ -81,7 +81,7 @@ QString reprocessCommits(QByteArray json)
             for(int i = commitarray.size() - 1; i >= 0; i--)
             {
                 const auto & commitval = commitarray[i];
-                auto commitobj = Json::requireObject(commitval);
+                auto commitobj = Json::requireValueObject(commitval);
                 auto parents_info = Json::ensureArray(commitobj, "parents");
                 // NOTE: this ignores merge commits, because they have more than one parent
                 if(parents_info.size() > 1)

@@ -181,7 +181,7 @@ void parseRequires(const QJsonObject& obj, RequireSet* ptr, const char * keyName
         auto iter = reqArray.begin();
         while(iter != reqArray.end())
         {
-            auto reqObject = requireObject(*iter);
+            auto reqObject = requireValueObject(*iter);
             auto uid = requireString(reqObject, "uid");
             auto equals = ensureString(reqObject, "equals", QString());
             auto suggests = ensureString(reqObject, "suggests", QString());
