@@ -21,8 +21,21 @@
 
 namespace ImportFTB {
 
-struct Modpack
-{
+enum class ModLoaderType {
+    Unresolved,
+    None,
+    Forge,
+    Fabric,
+    Quilt
+};
+
+struct ModLoader {
+    QString id;
+    ModLoaderType type = ModLoaderType::Unresolved;
+    QString version;
+};
+
+struct Modpack {
     int id = 0;
     int versionId = 0;
 
@@ -32,7 +45,7 @@ struct Modpack
     QStringList authors;
 
     QString mcVersion;
-    QString modLoader;
+    ModLoader modLoader;
     bool hasInstMods = false;
 
     int minMemory = 1024;

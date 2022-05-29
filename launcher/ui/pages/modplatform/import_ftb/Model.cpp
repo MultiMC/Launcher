@@ -19,6 +19,7 @@
 #include <BuildConfig.h>
 #include <FileSystem.h>
 #include <Json.h>
+#include <minecraft/GradleSpecifier.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -71,25 +72,33 @@ QVariant Model::data(const QModelIndex &index, int role) const
 namespace {
 
 #if defined (Q_OS_OSX)
-QString getFTBASettingsPath() {
-    return FS::PathCombine(QDir::homePath(), "Library/Application Support/.ftba/bin/settings.json");
+QString getFTBAPath() {
+    return FS::PathCombine(QDir::homePath(), "Library/Application Support/.ftba");
 }
 #elif defined(Q_OS_WIN32)
-QString getFTBASettingsPath() {
+QString getFTBAPath() {
     wchar_t buf[BUFFER_SIZE];
     if(!GetEnvironmentVariableW(L"LOCALAPPDATA", buf, BUFFER_SIZE))
     {
         return QString();
     }
     QString appDataLocal = QString::fromWCharArray(buf);
-    QString settingsPath = FS::PathCombine(appDataLocal, ".ftba/bin/settings.json");
+    QString settingsPath = FS::PathCombine(appDataLocal, ".ftba");
     return settingsPath;
 }
 #else
-QString getFTBASettingsPath() {
-    return FS::PathCombine(QDir::homePath(), ".ftba/bin/settings.json");
+QString getFTBAPath() {
+    return FS::PathCombine(QDir::homePath(), ".ftba");
 }
 #endif
+
+QString getFTBASettingsPath() {
+    return FS::PathCombine(getFTBAPath(), "bin/settings.json");
+}
+
+QString getFTBAVersionPath(const QString& id) {
+    return FS::PathCombine(getFTBAPath(), QString("bin/versions/%1/%1.json").arg(id));
+}
 
 QString getFTBAInstances() {
     QByteArray data;
@@ -155,6 +164,90 @@ Reference from an FTB App file, as of 28.05.2022
 }
 */
 
+void resolveModloader(QString mcVersion, ModLoader &loader) {
+    if(loader.id.isEmpty()) {
+        loader.type = ModLoaderType::None;
+        return;
+    }
+    auto path = getFTBAVersionPath(loader.id);
+    QByteArray data;
+
+    try
+    {
+        data = FS::read(path);
+    }
+    catch (const Exception &e)
+    {
+        qWarning() << "Could not resolve modloader ID: " << loader.id << "File cannot be loaded: " << path;
+        loader.type = ModLoaderType::Unresolved;
+        return;
+    }
+    try
+    {
+        QJsonDocument doc = Json::requireDocument(data);
+        QJsonObject root = Json::requireObject(doc, "version.json");
+        for (auto library: Json::ensureArray(root, "libraries", {}))
+        {
+            if (!library.isObject())
+            {
+                continue;
+            }
+
+            auto libraryObject = Json::ensureValueObject(library, {}, "");
+            GradleSpecifier name = Json::requireString(libraryObject, "name");
+            auto artifactPrefix = name.artifactPrefix();
+
+            if(artifactPrefix == "net.minecraftforge:forge") {
+                QString libraryVersion = name.version();
+                loader.type = ModLoaderType::Forge;
+                // remove any garbage 'minecraft version' prefix / suffix
+                libraryVersion.remove(QString("%1-").arg(mcVersion));
+                libraryVersion.remove(QString("-%1").arg(mcVersion));
+                loader.version = libraryVersion;
+                return;
+            }
+            else if(artifactPrefix == "net.minecraftforge:minecraftforge") {
+                loader.type = ModLoaderType::Forge;
+                loader.version = name.version();
+                return;
+            }
+            else if (artifactPrefix == "net.fabricmc:fabric-loader")
+            {
+                loader.type = ModLoaderType::Fabric;
+                loader.version = name.version();
+                return;
+            }
+            else if (artifactPrefix == "org.quiltmc:quilt-loader")
+            {
+                loader.type = ModLoaderType::Quilt;
+                loader.version = name.version();
+                return;
+            }
+        }
+        // Weird detection for 'modern' forge
+        QJsonObject arguments = Json::ensureObject(root, "arguments");
+        auto gameArgs = Json::ensureArray(arguments, "game");
+        bool versionIsNext = false;
+        for (auto arg: gameArgs) {
+            QString value = Json::ensureValueString(arg, QString());
+            if(versionIsNext) {
+                loader.type = ModLoaderType::Forge;
+                loader.version = value;
+                break;
+            }
+            if(value == "--fml.forgeVersion") {
+                versionIsNext = true;
+            }
+        }
+        return;
+    }
+    catch (const JSONValidationError &e)
+    {
+        qWarning() << "Could not resolve modloader ID: " << loader.id << "File cannot be understood: " << path << "Error: " << e.cause();
+        loader.type = ModLoaderType::Unresolved;
+    }
+}
+
 bool parseModpackJson(const QByteArray& data, Modpack & out) {
     try
     {
@@ -173,9 +266,9 @@ bool parseModpackJson(const QByteArray& data, Modpack & out) {
             out.authors.append(Json::requireValueString(author));
         }
 
-
         out.mcVersion = Json::requireString(object, "mcVersion");
-        out.modLoader = Json::ensureString(object, "modLoader", QString());
+        out.modLoader.id = Json::ensureString(object, "modLoader", QString());
+        resolveModloader(out.mcVersion, out.modLoader);
         out.hasInstMods = Json::ensureBoolean(object, "hasInstMods", false);
 
         out.minMemory = Json::ensureInteger(object, "minMemory", 1024);

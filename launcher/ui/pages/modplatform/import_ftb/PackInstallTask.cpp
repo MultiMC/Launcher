@@ -53,16 +53,27 @@ void PackInstallTask::copyFinished() {
     components->setComponentVersion("net.minecraft", m_pack.mcVersion, true);
 
     auto modloader = m_pack.modLoader;
-    if(!modloader.isEmpty()) {
-        if(modloader.contains("-forge-")) {
-            auto forgeVersion = modloader.replace(m_pack.mcVersion, "").replace("-forge-", "");
-            components->setComponentVersion("net.minecraftforge", forgeVersion, true);
+    switch(modloader.type) {
+        case ModLoaderType::None: {
+            // NOOP
+            break;
         }
-        else {
-            qWarning() << "Unknown modloader version: " << modloader;
+        case ModLoaderType::Forge: {
+            components->setComponentVersion("net.minecraftforge", modloader.version, true);
+            break;
+        }
+        case ModLoaderType::Fabric: {
+            components->setComponentVersion("net.fabricmc.fabric-loader", modloader.version, true);
+            break;
+        }
+        case ModLoaderType::Quilt: {
+            components->setComponentVersion("org.quiltmc.quilt-loader", modloader.version, true);
+            break;
+        }
+        case ModLoaderType::Unresolved: {
+            qWarning() << "Unknown modloader version: " << modloader.id;
         }
     }
-
     components->saveNow();
 
     instance.setName(m_instName);
