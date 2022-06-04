@@ -233,12 +233,13 @@ void resolveModloader(QString mcVersion, ModLoader &loader) {
             if(versionIsNext) {
                 loader.type = ModLoaderType::Forge;
                 loader.version = value;
-                break;
+                return;
             }
             if(value == "--fml.forgeVersion") {
                 versionIsNext = true;
             }
         }
+        loader.type = ModLoaderType::Unresolved;
         return;
     }
     catch (const JSONValidationError &e)
