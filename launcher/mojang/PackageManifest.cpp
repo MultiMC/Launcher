@@ -1,3 +1,10 @@
+/*
+ * Copyright 2020 Petr Mrázek
+ *
+ * This source is subject to the Microsoft Permissive License (MS-PL).
+ * Please see the COPYING.md file for more information.
+ */
+
 #include "PackageManifest.h"
 #include <Json.h>
 #include <QDir>
