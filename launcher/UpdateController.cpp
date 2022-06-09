@@ -116,7 +116,6 @@ void UpdateController::installUpdates()
         return;
     }
 
-    bool useXPHack = false;
     QString exePath;
     QString exeOrigin;
     QString exeBackup;
@@ -138,20 +137,6 @@ void UpdateController::installUpdates()
                 }
 #endif
                 QFileInfo destination (FS::PathCombine(m_root, op.destination));
-#ifdef Q_OS_WIN32
-                if(QSysInfo::windowsVersion() < QSysInfo::WV_VISTA)
-                {
-                    if(destination.fileName() == windowsExeName)
-                    {
-                        QDir rootDir(m_root);
-                        exeOrigin = rootDir.relativeFilePath(op.source);
-                        exePath = rootDir.relativeFilePath(op.destination);
-                        exeBackup = rootDir.relativeFilePath(FS::PathCombine(backupPath, destination.fileName()));
-                        useXPHack = true;
-                        continue;
-                    }
-                }
-#endif
                 if(destination.exists())
                 {
                     QString backupName = op.destination;
@@ -224,38 +209,6 @@ void UpdateController::installUpdates()
     args = qApp->arguments();
     args.removeFirst();
 
-    // on old Windows, do insane things... no error checking here, this is just to have something.
-    if(useXPHack)
-    {
-        QString script;
-        auto nativePath = QDir::toNativeSeparators(exePath);
-        auto nativeOriginPath = QDir::toNativeSeparators(exeOrigin);
-        auto nativeBackupPath = QDir::toNativeSeparators(exeBackup);
-
-        // so we write this vbscript thing...
-        QTextStream out(&script);
-        out << "WScript.Sleep 1000\n";
-        out << "Set fso=CreateObject(\"Scripting.FileSystemObject\")\n";
-        out << "Set shell=CreateObject(\"WScript.Shell\")\n";
-        out << "fso.MoveFile \"" << nativePath << "\", \"" << nativeBackupPath << "\"\n";
-        out << "fso.MoveFile \"" << nativeOriginPath << "\", \"" << nativePath << "\"\n";
-        out << "shell.Run \"" << nativePath << "\"\n";
-
-        QString scriptPath = FS::PathCombine(m_root, "update", "update.vbs");
-
-        // we save it
-        QFile scriptFile(scriptPath);
-        scriptFile.open(QIODevice::WriteOnly);
-        scriptFile.write(script.toLocal8Bit().replace("\n", "\r\n"));
-        scriptFile.close();
-
-        // we run it
-        started = QProcess::startDetached("wscript", {scriptPath}, m_root);
-
-        // and we quit. conscious thought.
-        qApp->quit();
-        return;
-    }
     bool doLiveCheck = true;
     bool startFailed = false;
 
