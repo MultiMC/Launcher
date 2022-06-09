@@ -126,28 +126,35 @@ void LaunchController::login() {
             }
             case AccountState::Online: {
                 if(!m_session->wants_online) {
-                    // we ask the user for a player name
-                    bool ok = false;
-                    QString lastOfflinePlayerName = APPLICATION->settings()->get("LastOfflinePlayerName").toString();
-                    QString usedname = lastOfflinePlayerName.isEmpty() ? m_session->player_name : lastOfflinePlayerName;
-                    QString name = QInputDialog::getText(
-                        m_parentWidget,
-                        tr("Player name"),
-                        tr("Choose your offline mode player name."),
-                        QLineEdit::Normal,
-                        usedname,
-                        &ok
-                    );
-                    if (!ok)
-                    {
-                        tryagain = false;
-                        break;
+                    QString usedname;
+                    if(m_offlineName.isEmpty()) {
+                        // we ask the user for a player name
+                        bool ok = false;
+                        QString lastOfflinePlayerName = APPLICATION->settings()->get("LastOfflinePlayerName").toString();
+                        usedname = lastOfflinePlayerName.isEmpty() ? m_session->player_name : lastOfflinePlayerName;
+                        QString name = QInputDialog::getText(
+                            m_parentWidget,
+                            tr("Player name"),
+                            tr("Choose your offline mode player name."),
+                            QLineEdit::Normal,
+                            usedname,
+                            &ok
+                        );
+                        if (!ok)
+                        {
+                            tryagain = false;
+                            break;
+                        }
+                        if (name.length())
+                        {
+                            usedname = name;
+                            APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
+                        }
                     }
-                    if (name.length())
-                    {
-                        usedname = name;
-                        APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
+                    else {
+                        usedname = m_offlineName;
                     }
+
                     m_session->MakeOffline(usedname);
                     // offline flavored game from here :3
                 }
