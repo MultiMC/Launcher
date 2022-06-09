@@ -44,7 +44,7 @@ public:
 
     QString displayName() const override
     {
-        return tr("Modrinth (WIP)");
+        return tr("Modrinth");
     }
     QIcon icon() const override
     {
