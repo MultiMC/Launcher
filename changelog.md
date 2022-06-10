@@ -2,7 +2,7 @@
 
 This brings some good and bad changes to modpack platforms, along with various fixes.
 
-We've added Modrinth as a directly supported modpack platform. It's nice, and the list of packs availale from it is slowly growing.
+We've added Modrinth as a directly supported modpack platform. It's nice, and the list of packs available from it is slowly growing.
 
 We can no longer directly import FTB modpacks from the FTB platform. Instead, this has been replaced by import from the [FTB App](https://www.feed-the-beast.com/app). You can get FTB modpacks through the FTB App and then import them into MultiMC using the `FTB App Import` page in `Add Instance`.
 
