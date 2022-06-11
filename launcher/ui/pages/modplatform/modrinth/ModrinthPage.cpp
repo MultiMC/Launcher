@@ -100,6 +100,7 @@ void ModrinthPage::onVersionSelectionChanged(const QString& version) {
     else {
         currentVersion = ui->versionSelectionBox->currentData().value<Modrinth::Version>();
     }
+    suggestCurrent();
 }
 
 void ModrinthPage::suggestCurrent()
