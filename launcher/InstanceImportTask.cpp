@@ -250,6 +250,47 @@ void InstanceImportTask::processMultiMC()
     emitSucceeded();
 }
 
+namespace {
+bool mergeOverrides(const QString &fromDir, const QString &toDir) {
+    QDir dir(fromDir);
+    if(!dir.exists()) {
+        return true;
+    }
+    if(!FS::ensureFolderPathExists(toDir)) {
+        return false;
+    }
+    const int absSourcePathLength = dir.absoluteFilePath(fromDir).length();
+
+    QDirIterator it(fromDir, QDirIterator::Subdirectories);
+    while (it.hasNext()){
+        it.next();
+        const auto fileInfo = it.fileInfo();
+        auto fileName = fileInfo.fileName();
+        if(fileName == "." || fileName == "..") {
+            continue;
+        }
+        const QString subPathStructure = fileInfo.absoluteFilePath().mid(absSourcePathLength);
+        const QString constructedAbsolutePath = toDir + subPathStructure;
+
+        if(fileInfo.isDir()){
+            //Create directory in target folder
+            dir.mkpath(constructedAbsolutePath);
+        } else if(fileInfo.isFile()) {
+            QFileInfo targetFileInfo(constructedAbsolutePath);
+            if(targetFileInfo.exists()) {
+                continue;
+            }
+            // move
+            QFile::rename(fileInfo.absoluteFilePath(), constructedAbsolutePath);
+        }
+    }
+
+    dir.removeRecursively();
+    return true;
+}
+
+}
+
 void InstanceImportTask::processModrinth() {
     std::vector<Modrinth::File> files;
     QString minecraftVersion, fabricVersion, quiltVersion, forgeVersion;
@@ -361,14 +402,28 @@ void InstanceImportTask::processModrinth() {
         emitFailed(tr("Could not understand pack index:\n") + e.cause());
         return;
     }
-    QString overridePath = FS::PathCombine(m_stagingPath, "overrides");
-    if (QFile::exists(overridePath)) {
+    QString clientOverridePath = FS::PathCombine(m_stagingPath, "client-overrides");
+    if (QFile::exists(clientOverridePath)) {
         QString mcPath = FS::PathCombine(m_stagingPath, ".minecraft");
-        if (!QFile::rename(overridePath, mcPath)) {
+        if (!QFile::rename(clientOverridePath, mcPath)) {
             emitFailed(tr("Could not rename the overrides folder:\n") + "overrides");
             return;
         }
     }
+
+    // TODO: only extract things we actually want instead of everything only to just delete it afterwards ...
+    if(!mergeOverrides(FS::PathCombine(m_stagingPath, "client-overrides"), FS::PathCombine(m_stagingPath, ".minecraft"))) {
+        emitFailed(tr("Could not merge the overrides folder:\n") + "client-overrides");
+        return;
+    }
+
+    if(!mergeOverrides(FS::PathCombine(m_stagingPath, "overrides"), FS::PathCombine(m_stagingPath, ".minecraft"))) {
+        emitFailed(tr("Could not merge the overrides folder:\n") + "overrides");
+        return;
+    }
+
+    FS::deletePath(FS::PathCombine(m_stagingPath, "server-overrides"));
+
 
     QString configPath = FS::PathCombine(m_stagingPath, "instance.cfg");
     auto instanceSettings = std::make_shared<INISettingsObject>(configPath);
