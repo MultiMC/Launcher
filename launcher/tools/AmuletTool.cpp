@@ -1,4 +1,4 @@
-#include "MCEditTool.h"
+#include "AmuletTool.h"
 
 #include <QDir>
 #include <QProcess>
@@ -8,23 +8,23 @@
 #include "BaseInstance.h"
 #include "minecraft/MinecraftInstance.h"
 
-MCEditTool::MCEditTool(SettingsObjectPtr settings)
+AmuletTool::AmuletTool(SettingsObjectPtr settings)
 {
     settings->registerSetting("AmuletPath");
     m_settings = settings;
 }
 
-void MCEditTool::setPath(QString& path)
+void AmuletTool::setPath(QString& path)
 {
     m_settings->set("AmuletPath", path);
 }
 
-QString MCEditTool::path() const
+QString AmuletTool::path() const
 {
     return m_settings->get("AmuletPath").toString();
 }
 
-bool MCEditTool::check(const QString& toolPath, QString& error)
+bool AmuletTool::check(const QString& toolPath, QString& error)
 {
     if (toolPath.isEmpty())
     {
@@ -45,7 +45,7 @@ bool MCEditTool::check(const QString& toolPath, QString& error)
     return true;
 }
 
-QString MCEditTool::getProgramPath()
+QString AmuletTool::getProgramPath()
 {
 #if defined(Q_OS_WIN32) // no amulet on anything other than windows
     if (mceditDir.exists("amulet_app.exe"))
@@ -54,4 +54,5 @@ QString MCEditTool::getProgramPath()
     }
     return QString();
 #endif
+    return QString();
 }
