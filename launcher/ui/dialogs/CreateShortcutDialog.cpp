@@ -99,6 +99,13 @@ void CreateShortcutDialog::createShortcut()
 {
     // Linux implementation using .desktop file
 #ifdef Q_OS_LINUX
+    // save the launcher icon to a file so we can use it in the shortcut
+    if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/shortcut-icon.png"))
+    {
+        QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
+        iconPixmap.save(QCoreApplication::applicationDirPath() + "/shortcut-icon.png");
+    }
+
     QFile desktopFile(ui->shortcutPath->text());
     if (desktopFile.open(QIODevice::WriteOnly))
     {
@@ -107,7 +114,8 @@ void CreateShortcutDialog::createShortcut()
         stream << "[Desktop Entry]" << endl
                     << "Type=Application" << endl
                     << "Name=" << m_instance->name() << " - " << BuildConfig.LAUNCHER_DISPLAYNAME << endl
-                    << "Exec=" << getLaunchCommand() << endl;
+                    << "Exec=" << getLaunchCommand() << endl
+                    << "Icon=" << QCoreApplication::applicationDirPath() << "/shortcut-icon.png" << endl;
         desktopFile.setPermissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther
                                                 | QFile::WriteOwner | QFile::ExeOwner | QFile::ExeGroup);
         desktopFile.close();
