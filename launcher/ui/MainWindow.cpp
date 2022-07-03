@@ -83,14 +83,15 @@
 #include "ui/dialogs/UpdateDialog.h"
 #include "ui/dialogs/EditAccountDialog.h"
 #include "ui/dialogs/NotificationDialog.h"
+#include "ui/dialogs/CreateShortcutDialog.h"
+
 #include "ui/dialogs/ExportInstanceDialog.h"
-
 #include "UpdateController.h"
+
 #include "KonamiCode.h"
-
 #include "InstanceImportTask.h"
-#include "InstanceCopyTask.h"
 
+#include "InstanceCopyTask.h"
 #include "MMCTime.h"
 
 namespace {
@@ -222,6 +223,9 @@ public:
     TranslatedAction actionLaunchInstanceOffline;
     TranslatedAction actionScreenshots;
     TranslatedAction actionExportInstance;
+#if defined(Q_OS_LINUX) // currently only implemented for linux; TODO: other OS implementations
+    TranslatedAction actionCreateShortcut;
+#endif
     QVector<TranslatedAction *> all_actions;
 
     LabeledToolButton *renameButton = nullptr;
@@ -593,6 +597,15 @@ public:
         instanceToolBar->addAction(actionViewSelectedInstFolder);
 
         instanceToolBar->addSeparator();
+
+#if defined(Q_OS_LINUX)
+        actionCreateShortcut = TranslatedAction(MainWindow);
+        actionCreateShortcut->setObjectName(QStringLiteral("actionCreateShortcut"));
+        actionCreateShortcut.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Create Shortcut"));
+        actionCreateShortcut.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Create a shortcut that launches the selected instance"));
+        all_actions.append(&actionCreateShortcut);
+        instanceToolBar->addAction(actionCreateShortcut);
+#endif
 
         actionExportInstance = TranslatedAction(MainWindow);
         actionExportInstance->setObjectName(QStringLiteral("actionExportInstance"));
@@ -1843,6 +1856,15 @@ void MainWindow::on_actionLaunchInstance_triggered()
         APPLICATION->launch(m_selectedInstance);
     }
 }
+
+#if defined(Q_OS_LINUX)
+void MainWindow::on_actionCreateShortcut_triggered() {
+    if (m_selectedInstance)
+    {
+        CreateShortcutDialog(this, m_selectedInstance).exec();
+    }
+}
+#endif
 
 void MainWindow::activateInstance(InstancePtr instance)
 {
