@@ -92,6 +92,10 @@ void CreateShortcutDialog::updateDialogState()
     ui->profileComboBox->setEnabled(ui->useProfileCheckBox->isChecked());
     ui->offlineUsernameCheckBox->setEnabled(ui->launchOfflineCheckBox->isChecked());
     ui->offlineUsername->setEnabled(ui->launchOfflineCheckBox->isChecked() && ui->offlineUsernameCheckBox->isChecked());
+    if (!ui->launchOfflineCheckBox->isChecked())
+    {
+        ui->offlineUsernameCheckBox->setChecked(false);
+    }
 }
 
 QString CreateShortcutDialog::getLaunchCommand()
@@ -136,6 +140,7 @@ void CreateShortcutDialog::createShortcut()
                            "Type=Application\n"
                            "Name=" + m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "\n"
                            + "Exec=" + getLaunchCommand() + "\n"
+                           + "Path=" + QCoreApplication::applicationDirPath() + "\n"
                            + "Icon=" + QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.png\n";
 
         }
