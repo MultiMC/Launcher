@@ -41,6 +41,8 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
         ui->profileComboBox->setCurrentText(accounts->defaultAccount()->profileName());
     }
 
+    // check if instance is affected by a bug causing it to crash when trying to join a server on launch
+    // TODO: implement this check in meta
     if (m_instance->typeName() == "Minecraft")
     {
         try
@@ -64,6 +66,7 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
         }
     }
 
+    // Macs don't have any concept of a desktop shortcut, so force-enable the option to generate a shell script instead
 #if defined(Q_OS_UNIX) && !defined(Q_OS_LINUX)
     ui->createScriptCheckBox->setEnabled(false);
     ui->createScriptCheckBox->setChecked(true);
