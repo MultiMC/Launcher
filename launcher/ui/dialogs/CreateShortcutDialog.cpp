@@ -91,7 +91,7 @@ void CreateShortcutDialog::on_shortcutPathBrowse_clicked()
 #endif
     QFileDialog fileDialog(this, tr("Select shortcut path"), QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
     fileDialog.setDefaultSuffix(linkExtension);
-    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
     fileDialog.setFileMode(QFileDialog::AnyFile);
     fileDialog.selectFile(m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "." + linkExtension);
     if (fileDialog.exec())
