@@ -44,6 +44,6 @@ private:
     void createShortcut();
 
 #ifdef Q_OS_WIN
-    void createWindowsLink(LPCSTR target, LPCSTR args, LPCSTR filename, LPCSTR desc, LPCSTR iconPath);
+    void createWindowsLink(LPCSTR target, LPCSTR workingDir, LPCSTR args, LPCSTR filename, LPCSTR desc, LPCSTR iconPath);
 #endif
 };

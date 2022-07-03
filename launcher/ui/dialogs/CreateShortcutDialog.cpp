@@ -125,7 +125,9 @@ void CreateShortcutDialog::createShortcut()
         // Unix shell script
         if (ui->createScriptCheckBox->isChecked())
         {
-            shortcutText = "#!/bin/sh\n" + getLaunchCommand() + " &\n";
+            shortcutText = "#!/bin/sh\n"
+                    + "cd " + QCoreApplication::applicationDirPath() + "\n"
+                    + getLaunchCommand() + " &\n";
         } else
             // freedesktop.org desktop entry
         {
@@ -148,6 +150,7 @@ void CreateShortcutDialog::createShortcut()
 #ifdef Q_OS_WIN
         // Windows batch script implementation
         shortcutText = "@ECHO OFF\r\n"
+                       "CD " + QDir::toNativeSeparators(QCoreApplication::applicationDirPath()) + "\r\n"
                        "START /B " + getLaunchCommand() + "\r\n";
 #endif
         QFile shortcutFile(ui->shortcutPath->text());
@@ -170,6 +173,7 @@ void CreateShortcutDialog::createShortcut()
         }
         
         createWindowsLink(QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdString().c_str(),
+                          QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdString().c_str(),
                           getLaunchArgs().toStdString().c_str(),
                           ui->shortcutPath->text().toStdString().c_str(),
                           (m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME).toStdString().c_str(),
@@ -180,7 +184,8 @@ void CreateShortcutDialog::createShortcut()
 }
 
 #ifdef Q_OS_WIN
-void CreateShortcutDialog::createWindowsLink(LPCSTR target, LPCSTR args, LPCSTR filename, LPCSTR desc, LPCSTR iconPath)
+void CreateShortcutDialog::createWindowsLink(LPCSTR target, LPCSTR workingDir, LPCSTR args, LPCSTR filename,
+                                             LPCSTR desc, LPCSTR iconPath)
 {
     HRESULT result;
     IShellLink *link;
@@ -192,6 +197,7 @@ void CreateShortcutDialog::createWindowsLink(LPCSTR target, LPCSTR args, LPCSTR 
         IPersistFile *file;
 
         link->SetPath(target);
+        link->SetWorkingDirectory(workingDir);
         link->SetArguments(args);
         link->SetDescription(desc);
         link->SetIconLocation(iconPath, 0);
