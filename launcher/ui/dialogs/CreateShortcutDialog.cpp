@@ -44,7 +44,7 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
     {
         MinecraftInstancePtr minecraftInstance = qobject_pointer_cast<MinecraftInstance>(m_instance);
         QString version = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraft");
-        bool enableJoinServer = QRegExp(JOIN_SERVER_DISALLOWED_VERSIONS).exactMatch(version);
+        bool enableJoinServer = !QRegExp(JOIN_SERVER_DISALLOWED_VERSIONS).exactMatch(version);
         ui->joinServerCheckBox->setEnabled(enableJoinServer);
         ui->joinServer->setEnabled(enableJoinServer);
     }
