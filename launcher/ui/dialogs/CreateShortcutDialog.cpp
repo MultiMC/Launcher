@@ -7,6 +7,7 @@
 
 #include <QFileDialog>
 #include <BuildConfig.h>
+#include <QMessageBox>
 #include "CreateShortcutDialog.h"
 #include "ui_CreateShortcutDialog.h"
 #include "Application.h"
@@ -42,11 +43,23 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
 
     if (m_instance->typeName() == "Minecraft")
     {
-        MinecraftInstancePtr minecraftInstance = qobject_pointer_cast<MinecraftInstance>(m_instance);
-        QString version = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraft");
-        bool enableJoinServer = !QRegExp(JOIN_SERVER_DISALLOWED_VERSIONS).exactMatch(version);
-        ui->joinServerCheckBox->setEnabled(enableJoinServer);
-        ui->joinServer->setEnabled(enableJoinServer);
+        try
+        {
+            MinecraftInstancePtr minecraftInstance = qobject_pointer_cast<MinecraftInstance>(m_instance);
+            minecraftInstance->getPackProfile()->reload(Net::Mode::Online);
+            QString version = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraft");
+            bool enableJoinServer = !QRegExp(JOIN_SERVER_DISALLOWED_VERSIONS).exactMatch(version);
+            ui->joinServerCheckBox->setEnabled(enableJoinServer);
+            ui->joinServer->setEnabled(enableJoinServer);
+        }
+        catch (const Exception &e)
+        {
+            QMessageBox::critical(this, tr("Error"), e.cause());
+        }
+        catch (...)
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Failed to load pack profile to check version!"));
+        }
     }
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_LINUX)
