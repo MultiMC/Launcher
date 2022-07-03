@@ -56,6 +56,7 @@ void CreateShortcutDialog::on_shortcutPathBrowse_clicked()
     fileDialog.setDefaultSuffix(linkExtension);
     fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
     fileDialog.setFileMode(QFileDialog::AnyFile);
+    fileDialog.selectFile(m_instance->id() + "." + linkExtension);
     if (fileDialog.exec())
     {
         ui->shortcutPath->setText(fileDialog.selectedFiles().at(0));
