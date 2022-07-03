@@ -15,6 +15,22 @@
 #include <windows.h>
 #endif
 
+const QString JOIN_SERVER_DISALLOWED_VERSIONS(
+        "(19w0[89][a-z])"
+        "|(19w1[0-9][a-z])"
+        "|(1.14.?[1-4]?-pre[0-9])"
+        "|(1.14.?[1-4]?)"
+        "|(19w[34][0-9][a-z])"
+        "|(1.15.?[0-9]?-pre[0-9])"
+        "|(1.15.?[0-9]?)"
+        "|(20w[01][0-9][a-z])"
+        "|(20w20a)"
+        "|(21w[12][0-9][a-z])"
+        "|(1.17-pre[0-9])"
+        "|(1.17-rc[0-9])"
+        "|(1.17)"
+        );
+
 namespace Ui
 {
     class CreateShortcutDialog;

@@ -11,6 +11,8 @@
 #include "ui_CreateShortcutDialog.h"
 #include "Application.h"
 #include "minecraft/auth/AccountList.h"
+#include "minecraft/MinecraftInstance.h"
+#include "minecraft/PackProfile.h"
 #include "icons/IconList.h"
 
 #ifdef Q_OS_WIN
@@ -36,6 +38,15 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
     if (accounts->defaultAccount())
     {
         ui->profileComboBox->setCurrentText(accounts->defaultAccount()->profileName());
+    }
+
+    if (m_instance->typeName() == "Minecraft")
+    {
+        MinecraftInstancePtr minecraftInstance = qobject_pointer_cast<MinecraftInstance>(m_instance);
+        QString version = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraft");
+        bool enableJoinServer = QRegExp(JOIN_SERVER_DISALLOWED_VERSIONS).exactMatch(version);
+        ui->joinServerCheckBox->setEnabled(enableJoinServer);
+        ui->joinServer->setEnabled(enableJoinServer);
     }
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_LINUX)
