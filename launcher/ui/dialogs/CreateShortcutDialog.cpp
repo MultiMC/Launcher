@@ -155,7 +155,9 @@ void CreateShortcutDialog::createShortcut()
             shortcutFile.close();
         }
 #ifdef Q_OS_WIN
-    } else {
+    }
+    else
+    {
         if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.ico"))
         {
             QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
