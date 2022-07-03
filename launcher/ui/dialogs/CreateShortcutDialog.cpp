@@ -5,8 +5,6 @@
  * Please see the COPYING.md file for more information.
  */
 
-#include <fstream>
-#include <iostream>
 #include <QFileDialog>
 #include <BuildConfig.h>
 #include "CreateShortcutDialog.h"
@@ -14,6 +12,11 @@
 #include "Application.h"
 #include "minecraft/auth/AccountList.h"
 #include "icons/IconList.h"
+
+#ifdef Q_OS_WIN
+#include <shobjidl.h>
+#include <shlguid.h>
+#endif
 
 CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance)
     :QDialog(parent), ui(new Ui::CreateShortcutDialog), m_instance(instance)
@@ -35,7 +38,7 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
         ui->profileComboBox->setCurrentText(accounts->defaultAccount()->profileName());
     }
 
-#if defined(Q_OS_WIN) || (defined(Q_OS_UNIX) && !defined(Q_OS_LINUX))
+#if defined(Q_OS_UNIX) && !defined(Q_OS_LINUX)
     ui->createScriptCheckBox->setEnabled(false);
     ui->createScriptCheckBox->setChecked(true);
 #endif
@@ -61,7 +64,7 @@ void CreateShortcutDialog::on_shortcutPathBrowse_clicked()
     fileDialog.setDefaultSuffix(linkExtension);
     fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
     fileDialog.setFileMode(QFileDialog::AnyFile);
-    fileDialog.selectFile(m_instance->id() + "." + linkExtension);
+    fileDialog.selectFile(m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "." + linkExtension);
     if (fileDialog.exec())
     {
         ui->shortcutPath->setText(fileDialog.selectedFiles().at(0));
@@ -93,12 +96,17 @@ void CreateShortcutDialog::updateDialogState()
 
 QString CreateShortcutDialog::getLaunchCommand()
 {
-    return QCoreApplication::applicationFilePath()
-        + " -l " + m_instance->id()
-        + (ui->joinServerCheckBox->isChecked() ? " -s " + ui->joinServer->text() : "")
-        + (ui->useProfileCheckBox->isChecked() ? " -a " + ui->profileComboBox->currentText() : "")
-        + (ui->launchOfflineCheckBox->isChecked() ? " -o" : "")
-        + (ui->offlineUsernameCheckBox->isChecked() ? " -n " + ui->offlineUsername->text() : "");
+    return QDir::toNativeSeparators(QCoreApplication::applicationFilePath())
+        + getLaunchArgs();
+}
+
+QString CreateShortcutDialog::getLaunchArgs()
+{
+    return " -l " + m_instance->id()
+           + (ui->joinServerCheckBox->isChecked() ? " -s " + ui->joinServer->text() : "")
+           + (ui->useProfileCheckBox->isChecked() ? " -a " + ui->profileComboBox->currentText() : "")
+           + (ui->launchOfflineCheckBox->isChecked() ? " -o" : "")
+           + (ui->offlineUsernameCheckBox->isChecked() ? " -n " + ui->offlineUsername->text() : "");
 }
 
 void CreateShortcutDialog::createShortcut()
@@ -118,31 +126,24 @@ void CreateShortcutDialog::createShortcut()
             // freedesktop.org desktop entry
         {
             // save the launcher icon to a file so we can use it in the shortcut
-            if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/shortcut-icon.png"))
+            if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.png"))
             {
                 QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
-                iconPixmap.save(QCoreApplication::applicationDirPath() + "/shortcut-icon.png");
+                iconPixmap.save(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.png");
             }
 
             shortcutText = "[Desktop Entry]\n"
                            "Type=Application\n"
                            "Name=" + m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "\n"
                            + "Exec=" + getLaunchCommand() + "\n"
-                           + "Icon=" + QCoreApplication::applicationDirPath() + "/shortcut-icon.png\n";
+                           + "Icon=" + QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.png\n";
 
         }
 #endif
 #ifdef Q_OS_WIN
         // Windows batch script implementation
-        if (ui->createScriptCheckBox->isChecked())
-        {
-            shortcutText = "@ECHO OFF\r\n"
-                           "START /B " + getLaunchCommand() + "\r\n";
-        }
-        else
-        {
-            // TODO: windows .lnk implementation
-        }
+        shortcutText = "@ECHO OFF\r\n"
+                       "START /B " + getLaunchCommand() + "\r\n";
 #endif
         QFile shortcutFile(ui->shortcutPath->text());
         if (shortcutFile.open(QIODevice::WriteOnly))
@@ -154,6 +155,52 @@ void CreateShortcutDialog::createShortcut()
             shortcutFile.close();
         }
 #ifdef Q_OS_WIN
+    } else {
+        if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.ico"))
+        {
+            QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
+            iconPixmap.save(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.ico");
+        }
+        
+        createWindowsLink(QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdString().c_str(),
+                          getLaunchArgs().toStdString().c_str(),
+                          ui->shortcutPath->text().toStdString().c_str(),
+                          (m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME).toStdString().c_str(),
+                          QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.ico").toStdString().c_str()
+                          );
     }
 #endif
 }
+
+#ifdef Q_OS_WIN
+void CreateShortcutDialog::createWindowsLink(LPCSTR target, LPCSTR args, LPCSTR filename, LPCSTR desc, LPCSTR iconPath)
+{
+    HRESULT result;
+    IShellLink *link;
+
+    CoInitialize(nullptr);
+    result = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID *) &link);
+    if (SUCCEEDED(result))
+    {
+        IPersistFile *file;
+
+        link->SetPath(target);
+        link->SetArguments(args);
+        link->SetDescription(desc);
+        link->SetIconLocation(iconPath, 0);
+
+        result = link->QueryInterface(IID_IPersistFile, (LPVOID *) &file);
+
+        if (SUCCEEDED(result))
+        {
+            WCHAR path[MAX_PATH];
+            MultiByteToWideChar(CP_ACP, 0, filename, -1, path, MAX_PATH);
+
+            file->Save(path, TRUE);
+            file->Release();
+        }
+        link->Release();
+    }
+    CoUninitialize();
+}
+#endif

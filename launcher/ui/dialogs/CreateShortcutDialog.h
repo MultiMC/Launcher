@@ -11,6 +11,10 @@
 #include "minecraft/auth/MinecraftAccount.h"
 #include "BaseInstance.h"
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 namespace Ui
 {
     class CreateShortcutDialog;
@@ -35,6 +39,11 @@ private:
     InstancePtr m_instance;
 
     QString getLaunchCommand();
+    QString getLaunchArgs();
 
     void createShortcut();
+
+#ifdef Q_OS_WIN
+    void createWindowsLink(LPCSTR target, LPCSTR args, LPCSTR filename, LPCSTR desc, LPCSTR iconPath);
+#endif
 };
