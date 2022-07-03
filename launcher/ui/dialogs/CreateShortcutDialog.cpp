@@ -137,7 +137,7 @@ void CreateShortcutDialog::createShortcut()
         if (ui->createScriptCheckBox->isChecked())
         {
             shortcutText = "#!/bin/sh\n"
-                    + "cd " + QCoreApplication::applicationDirPath() + "\n"
+                    "cd " + QCoreApplication::applicationDirPath() + "\n"
                     + getLaunchCommand() + " &\n";
         } else
             // freedesktop.org desktop entry
