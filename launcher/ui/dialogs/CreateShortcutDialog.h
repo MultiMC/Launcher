@@ -10,26 +10,17 @@
 #include <QDialog>
 #include "minecraft/auth/MinecraftAccount.h"
 #include "BaseInstance.h"
+#include "minecraft/ParseUtils.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
 
-const QString JOIN_SERVER_DISALLOWED_VERSIONS(
-        "(19w0[89][a-z])"
-        "|(19w1[0-9][a-z])"
-        "|(1.14.?[1-4]?-pre[0-9])"
-        "|(1.14.?[1-4]?)"
-        "|(19w[34][0-9][a-z])"
-        "|(1.15.?[0-9]?-pre[0-9])"
-        "|(1.15.?[0-9]?)"
-        "|(20w[01][0-9][a-z])"
-        "|(20w20a)"
-        "|(21w[12][0-9][a-z])"
-        "|(1.17-pre[0-9])"
-        "|(1.17-rc[0-9])"
-        "|(1.17)"
-        );
+// Dates when the game was affected by bugs that crashed the game when using the option to join a server on startup
+const QDateTime MC_145102_START = timeFromS3Time("2019-02-20T14:56:58+00:00");
+const QDateTime MC_145102_END = timeFromS3Time("2020-05-14T08:16:26+00:00");
+const QDateTime MC_228828_START = timeFromS3Time("2021-03-10T15:24:38+00:00");
+const QDateTime MC_228828_END = timeFromS3Time("2021-06-18T12:24:40+00:00");
 
 namespace Ui
 {
