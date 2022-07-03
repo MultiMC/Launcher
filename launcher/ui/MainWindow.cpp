@@ -84,13 +84,12 @@
 #include "ui/dialogs/EditAccountDialog.h"
 #include "ui/dialogs/NotificationDialog.h"
 #include "ui/dialogs/CreateShortcutDialog.h"
-
 #include "ui/dialogs/ExportInstanceDialog.h"
+
 #include "UpdateController.h"
-
 #include "KonamiCode.h"
-#include "InstanceImportTask.h"
 
+#include "InstanceImportTask.h"
 #include "InstanceCopyTask.h"
 #include "MMCTime.h"
 
