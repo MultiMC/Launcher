@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- Copyright 2022 arthomnix
-
- This source is subject to the Microsoft Public License (MS-PL).
- Please see the COPYING.md file for more information.
--->
 <ui version="4.0">
  <class>CreateShortcutDialog</class>
  <widget class="QDialog" name="CreateShortcutDialog">
@@ -13,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>796</width>
-    <height>230</height>
+    <height>232</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -31,10 +25,10 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="joinServerCheckBox">
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="launchOfflineCheckBox">
        <property name="text">
-        <string>Join server on launch:</string>
+        <string>Launch in offline mode</string>
        </property>
       </widget>
      </item>
@@ -45,26 +39,33 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="joinServer"/>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="shortcutPath"/>
-     </item>
-     <item row="3" column="0">
-      <widget class="QCheckBox" name="launchOfflineCheckBox">
-       <property name="text">
-        <string>Launch in offline mode</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="offlineUsername"/>
-     </item>
      <item row="0" column="2">
       <widget class="QPushButton" name="shortcutPathBrowse">
        <property name="text">
         <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="shortcutPath"/>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="profileComboBox"/>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="offlineUsername"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QCheckBox" name="offlineUsernameCheckBox">
+       <property name="text">
+        <string>Set offline mode username:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="joinServerCheckBox">
+       <property name="text">
+        <string>Join server on launch:</string>
        </property>
       </widget>
      </item>
@@ -75,15 +76,8 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="profileComboBox"/>
-     </item>
-     <item row="4" column="0">
-      <widget class="QCheckBox" name="offlineUsernameCheckBox">
-       <property name="text">
-        <string>Set offline mode username:</string>
-       </property>
-      </widget>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="joinServer"/>
      </item>
     </layout>
    </item>
@@ -101,11 +95,25 @@
     </spacer>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="bottomMargin">
+      <number>0</number>
      </property>
-    </widget>
+     <item>
+      <widget class="QCheckBox" name="createScriptCheckBox">
+       <property name="text">
+        <string>Create script instead of shortcut</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

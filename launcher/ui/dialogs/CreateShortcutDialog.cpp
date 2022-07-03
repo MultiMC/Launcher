@@ -35,6 +35,11 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
         ui->profileComboBox->setCurrentText(accounts->defaultAccount()->profileName());
     }
 
+#if defined(Q_OS_WIN) || (defined(Q_OS_UNIX) && !defined(Q_OS_LINUX))
+    ui->createScriptCheckBox->setEnabled(false);
+    ui->createScriptCheckBox->setChecked(true);
+#endif
+
     updateDialogState();
 }
 
@@ -46,11 +51,11 @@ CreateShortcutDialog::~CreateShortcutDialog()
 void CreateShortcutDialog::on_shortcutPathBrowse_clicked()
 {
     QString linkExtension;
-#ifdef Q_OS_LINUX
-    linkExtension = "desktop";
+#ifdef Q_OS_UNIX
+    linkExtension = ui->createScriptCheckBox->isChecked() ? "sh" : "desktop";
 #endif
 #ifdef Q_OS_WIN
-    linkExtension = "lnk";
+    linkExtension = ui->createScriptCheckBox->isChecked() ? "bat" : "lnk";
 #endif
     QFileDialog fileDialog(this, tr("Select shortcut path"), QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
     fileDialog.setDefaultSuffix(linkExtension);
@@ -98,29 +103,57 @@ QString CreateShortcutDialog::getLaunchCommand()
 
 void CreateShortcutDialog::createShortcut()
 {
-    // Linux implementation using .desktop file
-#ifdef Q_OS_LINUX
-    // save the launcher icon to a file so we can use it in the shortcut
-    if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/shortcut-icon.png"))
+#ifdef Q_OS_WIN
+    if (ui->createScriptCheckBox->isChecked()) // on windows, creating .lnk shortcuts requires specific win32 api stuff
+                                               // rather than just writing a text file
     {
-        QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
-        iconPixmap.save(QCoreApplication::applicationDirPath() + "/shortcut-icon.png");
-    }
+#endif
+        QString shortcutText;
+#ifdef Q_OS_UNIX
+        // Unix shell script
+        if (ui->createScriptCheckBox->isChecked())
+        {
+            shortcutText = "#!/bin/sh\n" + getLaunchCommand() + " &\n";
+        } else
+            // freedesktop.org desktop entry
+        {
+            // save the launcher icon to a file so we can use it in the shortcut
+            if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/shortcut-icon.png"))
+            {
+                QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
+                iconPixmap.save(QCoreApplication::applicationDirPath() + "/shortcut-icon.png");
+            }
 
-    QFile desktopFile(ui->shortcutPath->text());
-    if (desktopFile.open(QIODevice::WriteOnly))
-    {
-        QTextStream stream(&desktopFile);
-        qDebug() << m_instance->iconKey();
-        stream << "[Desktop Entry]" << endl
-                    << "Type=Application" << endl
-                    << "Name=" << m_instance->name() << " - " << BuildConfig.LAUNCHER_DISPLAYNAME << endl
-                    << "Exec=" << getLaunchCommand() << endl
-                    << "Icon=" << QCoreApplication::applicationDirPath() << "/shortcut-icon.png" << endl;
-        desktopFile.setPermissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther
-                                                | QFile::WriteOwner | QFile::ExeOwner | QFile::ExeGroup);
-        desktopFile.close();
+            shortcutText = "[Desktop Entry]\n"
+                           "Type=Application\n"
+                           "Name=" + m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "\n"
+                           + "Exec=" + getLaunchCommand() + "\n"
+                           + "Icon=" + QCoreApplication::applicationDirPath() + "/shortcut-icon.png\n";
+
+        }
+#endif
+#ifdef Q_OS_WIN
+        // Windows batch script implementation
+        if (ui->createScriptCheckBox->isChecked())
+        {
+            shortcutText = "@ECHO OFF\r\n"
+                           "START /B " + getLaunchCommand() + "\r\n";
+        }
+        else
+        {
+            // TODO: windows .lnk implementation
+        }
+#endif
+        QFile shortcutFile(ui->shortcutPath->text());
+        if (shortcutFile.open(QIODevice::WriteOnly))
+        {
+            QTextStream stream(&shortcutFile);
+            stream << shortcutText;
+            shortcutFile.setPermissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther
+                                        | QFile::WriteOwner | QFile::ExeOwner | QFile::ExeGroup);
+            shortcutFile.close();
+        }
+#ifdef Q_OS_WIN
     }
 #endif
-    // TODO: implementations for other operating systems
 }

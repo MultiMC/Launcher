@@ -141,9 +141,7 @@ private slots:
 
     void on_actionScreenshots_triggered();
 
-#if defined(Q_OS_LINUX)
     void on_actionCreateShortcut_triggered();
-#endif
 
     void taskEnd();
 
