@@ -173,7 +173,7 @@ void CreateShortcutDialog::createShortcut()
         }
         
         createWindowsLink(QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdString().c_str(),
-                          QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdString().c_str(),
+                          QDir::toNativeSeparators(QCoreApplication::applicationDirPath()).toStdString().c_str(),
                           getLaunchArgs().toStdString().c_str(),
                           ui->shortcutPath->text().toStdString().c_str(),
                           (m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME).toStdString().c_str(),
