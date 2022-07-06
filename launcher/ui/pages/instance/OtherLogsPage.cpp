@@ -21,6 +21,7 @@
 #include "ui/GuiUtil.h"
 
 #include "RecursiveFileSystemWatcher.h"
+#include "ui/dialogs/CustomMessageBox.h"
 #include <GZip.h>
 #include <FileSystem.h>
 #include <QShortcut>
@@ -179,6 +180,18 @@ void OtherLogsPage::on_btnReload_clicked()
 
 void OtherLogsPage::on_btnPaste_clicked()
 {
+    auto response = CustomMessageBox::selectable(
+            this,
+            tr("Log upload"),
+            tr("Are you sure you want to upload a log file?"),
+            QMessageBox::Warning,
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No
+    )->exec();
+
+    if (response != QMessageBox::Yes)
+        return;
+
     GuiUtil::uploadPaste(ui->text->toPlainText(), this);
 }
 
