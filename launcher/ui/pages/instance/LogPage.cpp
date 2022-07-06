@@ -12,6 +12,7 @@
 
 #include "ui/GuiUtil.h"
 #include "ui/ColorCache.h"
+#include "ui/dialogs/CustomMessageBox.h"
 
 #include <BuildConfig.h>
 
@@ -236,6 +237,18 @@ bool LogPage::shouldDisplay() const
 void LogPage::on_btnPaste_clicked()
 {
     if(!m_model)
+        return;
+
+    auto response = CustomMessageBox::selectable(
+            this,
+            tr("Log upload"),
+            tr("Are you sure you want to upload a log file?"),
+            QMessageBox::Warning,
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No
+    )->exec();
+
+    if (response != QMessageBox::Yes)
         return;
 
     //FIXME: turn this into a proper task and move the upload logic out of GuiUtil!
