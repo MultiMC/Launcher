@@ -129,7 +129,7 @@ void CreateShortcutDialog::updateDialogState()
 
 QString CreateShortcutDialog::getLaunchCommand()
 {
-    return QDir::toNativeSeparators(QCoreApplication::applicationFilePath())
+    return "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + "\""
         + getLaunchArgs();
 }
 
@@ -155,7 +155,7 @@ void CreateShortcutDialog::createShortcut()
         if (ui->createScriptCheckBox->isChecked())
         {
             shortcutText = "#!/bin/sh\n"
-                    "cd " + QCoreApplication::applicationDirPath() + "\n"
+                    "cd \"" + QCoreApplication::applicationDirPath() + "\"\n"
                     + getLaunchCommand() + " &\n";
         } else
             // freedesktop.org desktop entry
@@ -179,7 +179,7 @@ void CreateShortcutDialog::createShortcut()
 #ifdef Q_OS_WIN
         // Windows batch script implementation
         shortcutText = "@ECHO OFF\r\n"
-                       "CD " + QDir::toNativeSeparators(QCoreApplication::applicationDirPath()) + "\r\n"
+                       "CD \"" + QDir::toNativeSeparators(QCoreApplication::applicationDirPath()) + "\"\r\n"
                        "START /B " + getLaunchCommand() + "\r\n";
 #endif
         QFile shortcutFile(ui->shortcutPath->text());
