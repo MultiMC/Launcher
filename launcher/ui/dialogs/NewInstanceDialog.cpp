@@ -151,6 +151,9 @@ void NewInstanceDialog::setSuggestedPack(const QString& name, InstanceTask* task
 {
     creationTask.reset(task);
     ui->instNameTextBox->setPlaceholderText(name);
+    ui->instNameTextBox->setText(name);
+    ui->instNameTextBox->selectAll();
+    ui->instNameTextBox->setFocus();
 
     if(!task)
     {
