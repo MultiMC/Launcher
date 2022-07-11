@@ -154,10 +154,10 @@ void NewInstanceDialog::setSuggestedPack(const QString& name, InstanceTask* task
     creationTask.reset(task);
 
     defaultInstName = name;
+    ui->instNameTextBox->setPlaceholderText(name);
 
     if (!instNameChanged)
     {
-        ui->instNameTextBox->setPlaceholderText(name);
         ui->instNameTextBox->setText(name);
     }
 
