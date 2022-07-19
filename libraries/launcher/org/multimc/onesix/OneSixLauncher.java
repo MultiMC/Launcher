@@ -21,6 +21,7 @@ import java.applet.Applet;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,12 +144,14 @@ public class OneSixLauncher implements Launcher
         String[] paramsArray = mcparams.toArray(new String[mcparams.size()]);
         try
         {
-            mc.getMethod("main", String[].class).invoke(null, (Object) paramsArray);
+            Method meth = mc.getMethod("main", String[].class);
+            meth.setAccessible(true);
+            meth.invoke(null, (Object) paramsArray);
             return 0;
         } catch (Exception e)
         {
             Utils.log("Failed to invoke the Minecraft main class:", "Fatal");
-            e.printStackTrace(System.err);
+            (e instanceof InvocationTargetException ? e.getCause() : e).printStackTrace(System.err);
             return -1;
         }
     }
@@ -195,7 +198,8 @@ public class OneSixLauncher implements Launcher
         try
         {
             meth = mc.getMethod("main", String[].class);
-        } catch (NoSuchMethodException e)
+            meth.setAccessible(true);
+        } catch (NoSuchMethodException | SecurityException e)
         {
             System.err.println("Failed to acquire the main method:");
             e.printStackTrace(System.err);
@@ -211,7 +215,7 @@ public class OneSixLauncher implements Launcher
         } catch (Exception e)
         {
             System.err.println("Failed to start Minecraft:");
-            e.printStackTrace(System.err);
+            (e instanceof InvocationTargetException ? e.getCause() : e).printStackTrace(System.err);
             return -1;
         }
         return 0;
