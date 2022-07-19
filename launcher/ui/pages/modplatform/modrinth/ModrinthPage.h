@@ -64,6 +64,7 @@ private slots:
     void onSelectionChanged(QModelIndex first, QModelIndex second);
     void onVersionSelectionChanged(const QString & version);
     void onPackDataChanged(const QString &id);
+    void forceDocumentLayout();
 
 private:
     void updateCurrentPackUI();

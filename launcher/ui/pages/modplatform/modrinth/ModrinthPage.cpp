@@ -17,12 +17,12 @@
 
 #include "ModrinthModel.h"
 #include "ModrinthPage.h"
+#include "ModrinthDocument.h"
 #include "ui/dialogs/NewInstanceDialog.h"
 
 #include "ui_ModrinthPage.h"
 
 #include <QKeyEvent>
-#include <HoeDown.h>
 #include <InstanceImportTask.h>
 
 ModrinthPage::ModrinthPage(NewInstanceDialog *dialog, QWidget *parent) : QWidget(parent), ui(new Ui::ModrinthPage), dialog(dialog)
@@ -133,14 +133,6 @@ void ModrinthPage::onPackDataChanged(const QString& id)
     }
 }
 
-namespace {
-QString processMarkdown(QString input)
-{
-    HoeDown hoedown;
-    return hoedown.process(input.toUtf8());
-}
-}
-
 QString versionToString(const Modrinth::Version& version) {
     switch(version.type) {
         case Modrinth::VersionType::Alpha: {
@@ -171,7 +163,9 @@ void ModrinthPage::updateCurrentPackUI()
             break;
         }
         case Modrinth::LoadState::Loaded: {
-            ui->packDescription->setText(processMarkdown(current.body));
+            auto document = new Modrinth::ModrinthDocument(current.body);
+            connect(document, &Modrinth::ModrinthDocument::layoutUpdateRequired, this, &ModrinthPage::forceDocumentLayout);
+            ui->packDescription->setDocument(document);
             break;
         }
     }
@@ -198,4 +192,8 @@ void ModrinthPage::updateCurrentPackUI()
         // select first release found from the top
     }
     suggestCurrent();
+}
+
+void ModrinthPage::forceDocumentLayout() {
+    ui->packDescription->document()->adjustSize();
 }

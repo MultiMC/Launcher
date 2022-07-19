@@ -57,7 +57,7 @@ public:
     HoeDown()
     {
         renderer = hoedown_html_renderer_new((hoedown_html_flags) 0,0);
-        document = hoedown_document_new(renderer, (hoedown_extensions) 0, 8);
+        document = hoedown_document_new(renderer, (hoedown_extensions) HOEDOWN_EXT_TABLES, 8);
     }
     ~HoeDown()
     {
