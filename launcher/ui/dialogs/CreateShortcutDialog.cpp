@@ -41,30 +41,7 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
         ui->profileComboBox->setCurrentText(accounts->defaultAccount()->profileName());
     }
 
-    // check if instance is affected by a bug causing it to crash when trying to join a server on launch
-    // TODO: implement this check in meta
-    if (m_instance->typeName() == "Minecraft")
-    {
-        try
-        {
-            MinecraftInstancePtr minecraftInstance = qobject_pointer_cast<MinecraftInstance>(m_instance);
-            minecraftInstance->getPackProfile()->reload(Net::Mode::Online);
-            QDateTime versionDate = minecraftInstance->getPackProfile()->getComponent("net.minecraft")->getReleaseDateTime();
-            bool enableJoinServer = (versionDate < MC_145102_START)
-                    || (versionDate >= MC_145102_END && versionDate < MC_228828_START)
-                    || (versionDate >= MC_228828_END);
-            ui->joinServerCheckBox->setEnabled(enableJoinServer);
-            ui->joinServer->setEnabled(enableJoinServer);
-        }
-        catch (const Exception &e)
-        {
-            QMessageBox::critical(this, tr("Error"), e.cause());
-        }
-        catch (...)
-        {
-            QMessageBox::critical(this, tr("Error"), tr("Failed to load pack profile to check version!"));
-        }
-    }
+    // TODO: check if version is affected by crashing when joining servers on launch, ideally in meta
 
     // Macs don't have any concept of a desktop shortcut, so force-enable the option to generate a shell script instead
 #if defined(Q_OS_UNIX) && !defined(Q_OS_LINUX)

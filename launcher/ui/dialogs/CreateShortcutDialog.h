@@ -16,12 +16,6 @@
 #include <windows.h>
 #endif
 
-// Dates when the game was affected by bugs that crashed the game when using the option to join a server on startup
-const QDateTime MC_145102_START = timeFromS3Time("2019-02-20T14:56:58+00:00");
-const QDateTime MC_145102_END = timeFromS3Time("2020-05-14T08:16:26+00:00");
-const QDateTime MC_228828_START = timeFromS3Time("2021-03-10T15:24:38+00:00");
-const QDateTime MC_228828_END = timeFromS3Time("2021-06-18T12:24:40+00:00");
-
 namespace Ui
 {
     class CreateShortcutDialog;
