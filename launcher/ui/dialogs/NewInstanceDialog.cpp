@@ -103,6 +103,8 @@ NewInstanceDialog::NewInstanceDialog(const QString & initialGroup, const QString
         importPage->setUrl(url);
     }
 
+    connect(APPLICATION, &QApplication::focusChanged, this, &NewInstanceDialog::onFocusChanged);
+
     updateDialogState();
 
     restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("NewInstanceGeometry").toByteArray()));
@@ -150,7 +152,14 @@ NewInstanceDialog::~NewInstanceDialog()
 void NewInstanceDialog::setSuggestedPack(const QString& name, InstanceTask* task)
 {
     creationTask.reset(task);
+
+    defaultInstName = name;
     ui->instNameTextBox->setPlaceholderText(name);
+
+    if (!instNameChanged)
+    {
+        ui->instNameTextBox->setText(name);
+    }
 
     if(!task)
     {
@@ -238,9 +247,27 @@ void NewInstanceDialog::on_iconButton_clicked()
     }
 }
 
+void NewInstanceDialog::on_resetNameButton_clicked()
+{
+    ui->instNameTextBox->setText(defaultInstName);
+    instNameChanged = false;
+}
+
 void NewInstanceDialog::on_instNameTextBox_textChanged(const QString &arg1)
 {
     updateDialogState();
+}
+
+void NewInstanceDialog::on_instNameTextBox_textEdited(const QString &text)
+{
+    instNameChanged = true;
+}
+
+void NewInstanceDialog::onFocusChanged(QWidget *, QWidget *newWidget)
+{
+    if (newWidget == ui->instNameTextBox && !instNameChanged) {
+        QTimer::singleShot(0, ui->instNameTextBox, &QLineEdit::selectAll);
+    }
 }
 
 void NewInstanceDialog::importIconNow()
