@@ -112,7 +112,8 @@ QString CreateShortcutDialog::getLaunchCommand()
 
 QString CreateShortcutDialog::getLaunchArgs()
 {
-    return " -l " + m_instance->id()
+    return " -d \"" + QDir::toNativeSeparators(QDir::currentPath()) + "\""
+           + " -l " + m_instance->id()
            + (ui->joinServerCheckBox->isChecked() ? " -s " + ui->joinServer->text() : "")
            + (ui->useProfileCheckBox->isChecked() ? " -a " + ui->profileComboBox->currentText() : "")
            + (ui->launchOfflineCheckBox->isChecked() ? " -o" : "")
@@ -132,31 +133,32 @@ void CreateShortcutDialog::createShortcut()
         if (ui->createScriptCheckBox->isChecked())
         {
             shortcutText = "#!/bin/sh\n"
-                    "cd \"" + QCoreApplication::applicationDirPath() + "\"\n"
+                           // FIXME: is there a way to use the launcher script instead of the raw binary here?
+                    "cd \"" + QDir::currentPath() + "\"\n"
                     + getLaunchCommand() + " &\n";
         } else
             // freedesktop.org desktop entry
         {
             // save the launcher icon to a file so we can use it in the shortcut
-            if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.png"))
+            if (!QFileInfo::exists(QDir::currentPath() + "/icons/shortcut-icon.png"))
             {
                 QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
-                iconPixmap.save(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.png");
+                iconPixmap.save(QDir::currentPath() + "/icons/shortcut-icon.png");
             }
 
             shortcutText = "[Desktop Entry]\n"
                            "Type=Application\n"
                            "Name=" + m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "\n"
                            + "Exec=" + getLaunchCommand() + "\n"
-                           + "Path=" + QCoreApplication::applicationDirPath() + "\n"
-                           + "Icon=" + QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.png\n";
+                           + "Path=" + QDir::currentPath() + "\n"
+                           + "Icon=" + QDir::currentPath() + "/icons/shortcut-icon.png\n";
 
         }
 #endif
 #ifdef Q_OS_WIN
         // Windows batch script implementation
         shortcutText = "@ECHO OFF\r\n"
-                       "CD \"" + QDir::toNativeSeparators(QCoreApplication::applicationDirPath()) + "\"\r\n"
+                       "CD \"" + QDir::toNativeSeparators(QDir::currentPath()) + "\"\r\n"
                        "START /B " + getLaunchCommand() + "\r\n";
 #endif
         QFile shortcutFile(ui->shortcutPath->text());
@@ -172,18 +174,18 @@ void CreateShortcutDialog::createShortcut()
     }
     else
     {
-        if (!QFileInfo::exists(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.ico"))
+        if (!QFileInfo::exists(QDir::currentPath() + "/icons/shortcut-icon.ico"))
         {
             QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
-            iconPixmap.save(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.ico");
+            iconPixmap.save(QDir::currentPath() + "/icons/shortcut-icon.ico");
         }
         
         createWindowsLink(QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdString().c_str(),
-                          QDir::toNativeSeparators(QCoreApplication::applicationDirPath()).toStdString().c_str(),
+                          QDir::toNativeSeparators(QDir::currentPath()).toStdString().c_str(),
                           getLaunchArgs().toStdString().c_str(),
                           ui->shortcutPath->text().toStdString().c_str(),
                           (m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME).toStdString().c_str(),
-                          QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/icons/shortcut-icon.ico").toStdString().c_str()
+                          QDir::toNativeSeparators(QDir::currentPath() + "/icons/shortcut-icon.ico").toStdString().c_str()
                           );
     }
 #endif
