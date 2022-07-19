@@ -141,6 +141,8 @@ private slots:
 
     void on_actionScreenshots_triggered();
 
+    void on_actionCreateShortcut_triggered();
+
     void taskEnd();
 
     /**

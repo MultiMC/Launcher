@@ -778,7 +778,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/VersionSelectDialog.h
     ui/dialogs/SkinUploadDialog.cpp
     ui/dialogs/SkinUploadDialog.h
-
+    ui/dialogs/CreateShortcutDialog.cpp
+    ui/dialogs/CreateShortcutDialog.h
 
     # GUI - widgets
     ui/widgets/Common.cpp
@@ -876,6 +877,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/AboutDialog.ui
     ui/dialogs/LoginDialog.ui
     ui/dialogs/EditAccountDialog.ui
+    ui/dialogs/CreateShortcutDialog.ui
 )
 
 qt5_add_resources(LAUNCHER_RESOURCES

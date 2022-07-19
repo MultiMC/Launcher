@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2022 arthomnix
+ This source is subject to the Microsoft Public License (MS-PL).
+ Please see the COPYING.md file for more information.
+-->
+<ui version="4.0">
+ <class>CreateShortcutDialog</class>
+ <widget class="QDialog" name="CreateShortcutDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>796</width>
+    <height>232</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>796</width>
+    <height>230</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Create Shortcut</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="launchOfflineCheckBox">
+       <property name="text">
+        <string>Launch in offline mode</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="shortcutPathLabel">
+       <property name="text">
+        <string>Shortcut path:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="shortcutPathBrowse">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="shortcutPath"/>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="profileComboBox"/>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLineEdit" name="offlineUsername"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QCheckBox" name="offlineUsernameCheckBox">
+       <property name="text">
+        <string>Set offline mode username:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="joinServerCheckBox">
+       <property name="text">
+        <string>Join server on launch:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="useProfileCheckBox">
+       <property name="text">
+        <string>Use specific profile:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="joinServer"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="createScriptCheckBox">
+       <property name="text">
+        <string>Create script instead of shortcut</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>397</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>397</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinServer</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>471</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinServerCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>122</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>launchOfflineCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>122</x>
+     <y>130</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>offlineUsername</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>471</x>
+     <y>162</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>offlineUsernameCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>122</x>
+     <y>162</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>profileComboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>471</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>shortcutPath</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>471</x>
+     <y>23</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useProfileCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>122</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

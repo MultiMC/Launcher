@@ -83,6 +83,7 @@
 #include "ui/dialogs/UpdateDialog.h"
 #include "ui/dialogs/EditAccountDialog.h"
 #include "ui/dialogs/NotificationDialog.h"
+#include "ui/dialogs/CreateShortcutDialog.h"
 #include "ui/dialogs/ExportInstanceDialog.h"
 
 #include "UpdateController.h"
@@ -222,6 +223,7 @@ public:
     TranslatedAction actionLaunchInstanceOffline;
     TranslatedAction actionScreenshots;
     TranslatedAction actionExportInstance;
+    TranslatedAction actionCreateShortcut;
     QVector<TranslatedAction *> all_actions;
 
     LabeledToolButton *renameButton = nullptr;
@@ -593,6 +595,13 @@ public:
         instanceToolBar->addAction(actionViewSelectedInstFolder);
 
         instanceToolBar->addSeparator();
+
+        actionCreateShortcut = TranslatedAction(MainWindow);
+        actionCreateShortcut->setObjectName(QStringLiteral("actionCreateShortcut"));
+        actionCreateShortcut.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Create Shortcut"));
+        actionCreateShortcut.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Create a shortcut that launches the selected instance"));
+        all_actions.append(&actionCreateShortcut);
+        instanceToolBar->addAction(actionCreateShortcut);
 
         actionExportInstance = TranslatedAction(MainWindow);
         actionExportInstance->setObjectName(QStringLiteral("actionExportInstance"));
@@ -1841,6 +1850,13 @@ void MainWindow::on_actionLaunchInstance_triggered()
     else
     {
         APPLICATION->launch(m_selectedInstance);
+    }
+}
+
+void MainWindow::on_actionCreateShortcut_triggered() {
+    if (m_selectedInstance)
+    {
+        CreateShortcutDialog(this, m_selectedInstance).exec();
     }
 }
 
