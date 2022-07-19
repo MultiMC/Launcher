@@ -28,27 +28,30 @@ namespace {
 // This is a hack, but I can't think of a better way to do this easily without screwing with QTextDocument...
 QString getCreditsHtml(QStringList patrons)
 {
-    QString patronsHeading = QObject::tr("Patrons", "About Credits");
     QString output;
     QTextStream stream(&output);
     stream.setCodec(QTextCodec::codecForName("UTF-8"));
     stream << "<center>\n";
-    // TODO: possibly retrieve from git history at build time?
-    stream << "<h3>" << QObject::tr("Developers", "About Credits") << "</h3>\n";
-    stream << "<p>Andrew Okin &lt;<a href='mailto:forkk@forkk.net'>forkk@forkk.net</a>&gt;</p>\n";
-    stream << "<p>Petr Mrázek &lt;<a href='mailto:peterix@gmail.com'>peterix@gmail.com</a>&gt;</p>\n";
-    stream << "<p>Sky Welch &lt;<a href='mailto:multimc@bunnies.io'>multimc@bunnies.io</a>&gt;</p>\n";
-    stream << "<p>Jan (02JanDal) &lt;<a href='mailto:02jandal@gmail.com'>02jandal@gmail.com</a>&gt;</p>\n";
-    stream << "<p>RoboSky &lt;<a href='https://twitter.com/RoboSky_'>@RoboSky_</a>&gt;</p>\n";
-    stream << "<br />\n";
 
-    stream << "<h3>" << QObject::tr("With thanks to", "About Credits") << "</h3>\n";
-    stream << "<p>Orochimarufan &lt;<a href='mailto:orochimarufan.x3@gmail.com'>orochimarufan.x3@gmail.com</a>&gt;</p>\n";
-    stream << "<p>TakSuyu &lt;<a href='mailto:taksuyu@gmail.com'>taksuyu@gmail.com</a>&gt;</p>\n";
-    stream << "<p>Kilobyte &lt;<a href='mailto:stiepen22@gmx.de'>stiepen22@gmx.de</a>&gt;</p>\n";
-    stream << "<p>Rootbear75 &lt;<a href='https://twitter.com/rootbear75'>@rootbear75</a>&gt;</p>\n";
-    stream << "<p>Zeker Zhayard &lt;<a href='https://twitter.com/zeker_zhayard'>@Zeker_Zhayard</a>&gt;</p>\n";
-    stream << "<br />\n";
+    stream << "<h3>" << QObject::tr("Original Author", "About Credits") << "</h3>\n";
+    stream << "<p>Andrew Okin &lt;<a href='mailto:forkk@forkk.net'>forkk@forkk.net</a>&gt;</p>\n";
+
+    stream << "<h3>" << QObject::tr("Maintainer", "About Credits") << "</h3>\n";
+    stream << "<p>Petr Mr&aacute;zek &lt;<a href='mailto:peterix@gmail.com'>peterix@gmail.com</a>&gt;</p>\n";
+
+    stream << "<h3>Dedicated to Erika</h3>\n";
+    stream << "<p>You gave all the work put into this meaning.</p>\n";
+
+    // TODO: grab contributors from git history
+    /*
+    if(!contributors.isEmpty()) {
+        stream << "<h3>" << QObject::tr("Contributors", "About Credits") << "</h3>\n";
+        for (auto &contributor : contributors)
+        {
+            stream << "<p>" << contributor << "</p>\n";
+        }
+    }
+    */
 
     if(!patrons.isEmpty()) {
         stream << "<h3>" << QObject::tr("Patrons", "About Credits") << "</h3>\n";
@@ -57,6 +60,7 @@ QString getCreditsHtml(QStringList patrons)
             stream << "<p>" << patron << "</p>\n";
         }
     }
+
     stream << "</center>\n";
     return output;
 }
