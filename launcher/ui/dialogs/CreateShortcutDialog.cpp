@@ -60,8 +60,11 @@ CreateShortcutDialog::~CreateShortcutDialog()
 void CreateShortcutDialog::on_shortcutPathBrowse_clicked()
 {
     QString linkExtension;
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     linkExtension = ui->createScriptCheckBox->isChecked() ? "sh" : "desktop";
+#endif
+#ifdef Q_OS_MAC
+    linkExtension = "command";
 #endif
 #ifdef Q_OS_WIN
     linkExtension = ui->createScriptCheckBox->isChecked() ? "bat" : "lnk";
