@@ -49,6 +49,7 @@ slots:
     void onTaskProgress(qint64 current, qint64 total);
     void showVerificationUriAndCode(const QUrl &uri, const QString &code, int expiresIn);
     void hideVerificationUriAndCode();
+    void on_copyCodeButton_clicked();
 
     void externalLoginTick();
 
@@ -57,6 +58,7 @@ private:
     MinecraftAccountPtr m_account;
     shared_qobject_ptr<AccountTask> m_loginTask;
     QTimer m_externalLoginTimer;
+    QString m_code;
     int m_externalLoginElapsed = 0;
     int m_externalLoginTimeout = 0;
 };
