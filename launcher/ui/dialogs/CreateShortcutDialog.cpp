@@ -116,11 +116,11 @@ QString CreateShortcutDialog::getLaunchCommand()
 QString CreateShortcutDialog::getLaunchArgs()
 {
     return " -d \"" + QDir::toNativeSeparators(QDir::currentPath()) + "\""
-           + " -l " + m_instance->id()
-           + (ui->joinServerCheckBox->isChecked() ? " -s " + ui->joinServer->text() : "")
-           + (ui->useProfileCheckBox->isChecked() ? " -a " + ui->profileComboBox->currentText() : "")
+           + " -l \"" + m_instance->id() + "\""
+           + (ui->joinServerCheckBox->isChecked() ? " -s \"" + ui->joinServer->text() + "\"" : "")
+           + (ui->useProfileCheckBox->isChecked() ? " -a \"" + ui->profileComboBox->currentText() + "\"" : "")
            + (ui->launchOfflineCheckBox->isChecked() ? " -o" : "")
-           + (ui->offlineUsernameCheckBox->isChecked() ? " -n " + ui->offlineUsername->text() : "");
+           + (ui->offlineUsernameCheckBox->isChecked() ? " -n \"" + ui->offlineUsername->text() + "\"" : "");
 }
 
 void CreateShortcutDialog::createShortcut()
@@ -162,7 +162,7 @@ void CreateShortcutDialog::createShortcut()
         // Windows batch script implementation
         shortcutText = "@ECHO OFF\r\n"
                        "CD \"" + QDir::toNativeSeparators(QDir::currentPath()) + "\"\r\n"
-                       "START /B " + getLaunchCommand() + "\r\n";
+                       "START /B \"\" " + getLaunchCommand() + "\r\n";
 #endif
         QFile shortcutFile(ui->shortcutPath->text());
         if (shortcutFile.open(QIODevice::WriteOnly))
