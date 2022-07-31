@@ -107,15 +107,15 @@ void CreateShortcutDialog::updateDialogState()
     }
 }
 
-QString CreateShortcutDialog::getLaunchCommand()
+QString CreateShortcutDialog::getLaunchCommand(bool escapeQuotesTwice)
 {
-    return "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + "\""
-        + getLaunchArgs();
+    return "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).replace('"', escapeQuotesTwice ? "\\\\\"" : "\\\"") + "\""
+        + getLaunchArgs(escapeQuotesTwice);
 }
 
-QString CreateShortcutDialog::getLaunchArgs()
+QString CreateShortcutDialog::getLaunchArgs(bool escapeQuotesTwice)
 {
-    return " -d \"" + QDir::toNativeSeparators(QDir::currentPath()) + "\""
+    return " -d \"" + QDir::toNativeSeparators(QDir::currentPath()).replace('"', escapeQuotesTwice ? "\\\\\"" : "\\\"") + "\""
            + " -l \"" + m_instance->id() + "\""
            + (ui->joinServerCheckBox->isChecked() ? " -s \"" + ui->joinServer->text() + "\"" : "")
            + (ui->useProfileCheckBox->isChecked() ? " -a \"" + ui->profileComboBox->currentText() + "\"" : "")
@@ -137,7 +137,7 @@ void CreateShortcutDialog::createShortcut()
         {
             shortcutText = "#!/bin/sh\n"
                            // FIXME: is there a way to use the launcher script instead of the raw binary here?
-                    "cd \"" + QDir::currentPath() + "\"\n"
+                    "cd \"" + QDir::currentPath().replace('"', "\\\"") + "\"\n"
                     + getLaunchCommand() + " &\n";
         } else
             // freedesktop.org desktop entry
@@ -152,7 +152,7 @@ void CreateShortcutDialog::createShortcut()
             shortcutText = "[Desktop Entry]\n"
                            "Type=Application\n"
                            "Name=" + m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "\n"
-                           + "Exec=" + getLaunchCommand() + "\n"
+                           + "Exec=" + getLaunchCommand(true) + "\n"
                            + "Path=" + QDir::currentPath() + "\n"
                            + "Icon=" + QDir::currentPath() + "/icons/shortcut-icon.png\n";
 

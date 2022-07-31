@@ -39,8 +39,8 @@ private:
     Ui::CreateShortcutDialog *ui;
     InstancePtr m_instance;
 
-    QString getLaunchCommand();
-    QString getLaunchArgs();
+    QString getLaunchCommand(bool escapeQuotesTwice = false);
+    QString getLaunchArgs(bool escapeQuotesTwice = false);
 
     void createShortcut();
 
