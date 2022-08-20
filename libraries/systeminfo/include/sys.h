@@ -12,6 +12,46 @@ enum class KernelType {
     Linux
 };
 
+enum class ArchitectureType {
+    Intel32,
+    Amd64,
+    Arm64,
+    Unknown
+};
+
+struct Architecture {
+    Architecture() {
+        name = "unknown";
+        type = ArchitectureType::Unknown;
+    }
+    Architecture(QString name) {
+        this->name = name;
+        type = ArchitectureType::Unknown;
+    }
+    Architecture(ArchitectureType type, QString name) {
+        this->name = name;
+        this->type = type;
+    }
+
+    bool operator==(const Architecture &other) const {
+        if(type == ArchitectureType::Unknown && other.type == ArchitectureType::Unknown) {
+            return name == other.name;
+        }
+        return type == other.type;
+    }
+
+    bool operator!=(const Architecture &other) const {
+        return !(*this == other);
+    }
+
+    bool isKnown() const {
+        return type != ArchitectureType::Unknown;
+    }
+
+    QString name;
+    ArchitectureType type;
+};
+
 struct KernelInfo
 {
     QString kernelName;
@@ -60,6 +100,10 @@ uint64_t getSystemRam();
 bool isSystem64bit();
 
 bool isCPU64bit();
+
+Architecture systemArchitecture();
+
+Architecture cpuArchitecture();
 
 bool lookupSystemStatusCode(uint64_t code, std::string &name, std::string &description);
 }

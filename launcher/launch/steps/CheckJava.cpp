@@ -88,7 +88,7 @@ void CheckJava::checkJavaFinished(JavaCheckResult result)
             emit logLine(QString("Could not start java:"), MessageLevel::Error);
             emit logLines(result.errorLog.split('\n'), MessageLevel::Error);
             emit logLine("\nCheck your MultiMC Java settings.", MessageLevel::Launcher);
-            printSystemInfo(false, false);
+            printSystemInfo(Sys::Architecture());
             emitFailed(QString("Could not start java!"));
             return;
         }
@@ -97,7 +97,7 @@ void CheckJava::checkJavaFinished(JavaCheckResult result)
             emit logLine(QString("Java checker returned some invalid data MultiMC doesn't understand:"), MessageLevel::Error);
             emit logLines(result.outLog.split('\n'), MessageLevel::Warning);
             emit logLine("\nMinecraft might not start properly.", MessageLevel::Launcher);
-            printSystemInfo(false, false);
+            printSystemInfo(Sys::Architecture());
             emitSucceeded();
             return;
         }
@@ -115,23 +115,23 @@ void CheckJava::checkJavaFinished(JavaCheckResult result)
     }
 }
 
-void CheckJava::printJavaInfo(const QString& version, const QString& architecture, const QString & vendor)
+void CheckJava::printJavaInfo(const QString& version, const Sys::Architecture &architecture, const QString & vendor)
 {
-    emit logLine(QString("Java is version %1, using %2-bit architecture, from %3.\n\n").arg(version, architecture, vendor), MessageLevel::Launcher);
-    printSystemInfo(true, architecture == "64");
+    emit logLine(QString("Java is version %1, using %2 architecture, from %3.\n\n").arg(version, architecture.name, vendor), MessageLevel::Launcher);
+    printSystemInfo(architecture);
 }
 
-void CheckJava::printSystemInfo(bool javaIsKnown, bool javaIs64bit)
+void CheckJava::printSystemInfo(Sys::Architecture javaArch)
 {
-    auto cpu64 = Sys::isCPU64bit();
-    auto system64 = Sys::isSystem64bit();
-    if(cpu64 != system64)
+    auto cpuArch = Sys::cpuArchitecture();
+    auto systemArch = Sys::systemArchitecture();
+    if(cpuArch != systemArch)
     {
         emit logLine(QString("Your CPU architecture is not matching your system architecture. You might want to install a 64bit Operating System.\n\n"), MessageLevel::Error);
     }
-    if(javaIsKnown)
+    if(javaArch.isKnown())
     {
-        if(javaIs64bit != system64)
+        if(javaArch != systemArch)
         {
             emit logLine(QString("Your Java architecture is not matching your system architecture. You might want to install a 64bit Java version.\n\n"), MessageLevel::Error);
         }

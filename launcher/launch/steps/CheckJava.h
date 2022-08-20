@@ -19,6 +19,8 @@
 #include <LoggedProcess.h>
 #include <java/JavaChecker.h>
 
+#include <sys.h>
+
 class CheckJava: public LaunchStep
 {
     Q_OBJECT
@@ -35,8 +37,8 @@ private slots:
     void checkJavaFinished(JavaCheckResult result);
 
 private:
-    void printJavaInfo(const QString & version, const QString & architecture, const QString & vendor);
-    void printSystemInfo(bool javaIsKnown, bool javaIs64bit);
+    void printJavaInfo(const QString & version, const Sys::Architecture &architecture, const QString & vendor);
+    void printSystemInfo(Sys::Architecture javaArch);
 
 private:
     QString m_javaPath;
