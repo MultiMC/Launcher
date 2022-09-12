@@ -31,7 +31,7 @@ runmmc() {
     # more granularly
     while read line; do
         [ "$line" == "" ] && continue
-	path_fwd="$path_fwd --ro-bind-try '$line' '$line'"
+        path_fwd="$path_fwd --ro-bind-try '$line' '$line'"
     done <<< "$(echo "$GAME_LIBRARY_PATH" | tr ':' '\n')"
     while read line; do
         [ "$line" == "" ] && continue
@@ -44,7 +44,7 @@ runmmc() {
     done <<< "$(echo "$LD_LIBRARY_PATH" | tr ':' '\n')"
     while read line; do
         [ "$line" == "" ] && continue
-	line="$(dirname "$line")"
+        line="$(dirname "$line")"
         path_fwd="$path_fwd --ro-bind-try '$line' '$line'"
     done <<< "$(echo "$LD_PRELOAD" | tr ':' '\n')"
     while read line; do
