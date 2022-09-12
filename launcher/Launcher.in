@@ -14,7 +14,7 @@ if [[ $EUID -eq 0 ]]; then
 fi
 
 
-LAUNCHER_NAME=@Launcher_Name@
+LAUNCHER_NAME=MultiMC
 LAUNCHER_DIR="$(dirname "$(readlink -f "$0")")"
 echo "Launcher Dir: ${LAUNCHER_DIR}"
 
@@ -29,24 +29,26 @@ export QT_FONTPATH="${LAUNCHER_DIR}/fonts"
 # Detect missing dependencies...
 DEPS_LIST=`ldd "${LAUNCHER_DIR}"/plugins/*/*.so 2>/dev/null | grep "not found" | sort -u | awk -vORS=", " '{ print $1 }'`
 if [ "x$DEPS_LIST" = "x" ]; then
-    # We have all our dependencies. Run the launcher.
-    echo "No missing dependencies found."
+    if [ "$1" != "--dry-run" ]; then
+        # We have all our dependencies. Run the launcher.
+        echo "No missing dependencies found."
 
-    # Just to be sure...
-    chmod +x "${LAUNCHER_DIR}/bin/${LAUNCHER_NAME}"
+        # Just to be sure...
+        chmod +x "${LAUNCHER_DIR}/bin/${LAUNCHER_NAME}"
 
-    # Run the launcher
-    exec -a "${LAUNCHER_DIR}/${LAUNCHER_NAME}" "${LAUNCHER_DIR}/bin/${LAUNCHER_NAME}" -d "${LAUNCHER_DIR}" "$@"
+        # Run the launcher
+        exec -a "${LAUNCHER_DIR}/${LAUNCHER_NAME}" "${LAUNCHER_DIR}/bin/${LAUNCHER_NAME}" -d "${LAUNCHER_DIR}" "$@"
 
-    # Run the launcher in valgrind
-    # valgrind --log-file="valgrind.log" --leak-check=full --track-origins=yes "${LAUNCHER_DIR}/bin/${LAUNCHER_NAME}" -d "${LAUNCHER_DIR}" "$@"
+        # Run the launcher in valgrind
+        # valgrind --log-file="valgrind.log" --leak-check=full --track-origins=yes "${LAUNCHER_DIR}/bin/${LAUNCHER_NAME}" -d "${LAUNCHER_DIR}" "$@"
 
-    # Run the launcher with callgrind, delay instrumentation
-    # valgrind --log-file="valgrind.log" --tool=callgrind --instr-atstart=no "${LAUNCHER_DIR}/bin/${LAUNCHER_NAME}" -d "${LAUNCHER_DIR}" "$@"
-    # use callgrind_control -i on/off to profile actions
+        # Run the launcher with callgrind, delay instrumentation
+        # valgrind --log-file="valgrind.log" --tool=callgrind --instr-atstart=no "${LAUNCHER_DIR}/bin/${LAUNCHER_NAME}" -d "${LAUNCHER_DIR}" "$@"
+        # use callgrind_control -i on/off to profile actions
 
-    # Exit with launcher's exit code.
-    # exit $?
+        # Exit with launcher's exit code.
+        # exit $?
+    fi
 else
     # apt
     if which apt-file &>/dev/null; then
