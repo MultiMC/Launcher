@@ -23,8 +23,6 @@ deploy() {
 runmmc() {
     cd ${INSTDIR}
     source ./MultiMC --dry-run
-    bash
-exit
     path_fwd=""
     # Now to setup binds for the execution environment
     echo "$GAME_LIBRARY_PATH"
