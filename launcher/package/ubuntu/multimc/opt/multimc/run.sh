@@ -57,6 +57,11 @@ runmmc() {
         [ "$line" == "" ] && continue
         path_fwd="$path_fwd --ro-bind-try '$line' '$line'"
     done <<< "$(echo "$QT_FONTPATH" | tr ':' '\n')"
+
+    for f in /etc/java*/; do
+        path_fwd="$path_fwd --ro-bind $f $f"
+    done
+
 	# This sandbox script was written to provide as much isolation as reasonably possible for a MultiMC instance
 	# However, it's not as well-restricted as I'd like. I'd prefer to replace `--ro-bind / /` with more specific binds
 	# to limit MultiMC's read access to the host filesystem as much as possible.
@@ -70,8 +75,28 @@ runmmc() {
 	# can do if they manage to successfully infect my system through a Minecraft/Java vulnerability, especially if I
 	# intend to play online on older Minecraft versions that will likely never see a log4j fix
     bwrap --die-with-parent --cap-drop all --new-session --unshare-all --share-net \
-        --ro-bind / / --tmpfs /tmp --tmpfs /home --tmpfs /root --dev-bind-try /dev /dev --proc /proc \
+        --tmpfs / --tmpfs /tmp --tmpfs /home --tmpfs /root --dev-bind /dev /dev --proc /proc \
+        --ro-bind /usr/bin /usr/bin --bind /bin /bin --ro-bind-try /etc/alternatives /etc/alternatives \
+        --ro-bind /lib /lib --ro-bind-try /lib64 /lib64 --ro-bind-try /lib32 /lib32 \
+        --ro-bind /usr/lib /usr/lib \
         $path_fwd --bind "$INSTDIR" "$INSTDIR" \
+        --setenv PATH /usr/bin:/bin \
+        --dir /run/user/"$UID" \
+        --ro-bind-try /run/user/"$UID"/pulse /run/user/"$UID"/pulse \
+        --ro-bind-try /run/user/"$UID"/pipewire-0 /run/user/"$UID"/pipewire-0 \
+        --ro-bind-try /tmp/.X11-unix/X0 /tmp/.X11-unix/X0 \
+        --ro-bind-try /run/user/"$UID"/wayland-1 /run/user/"$UID"/wayland-1 \
+        --setenv XDG_RUNTIME_DIR "/run/user/$UID" \
+        --setenv DISPLAY "$DISPLAY" \
+        --ro-bind /etc/fonts /etc/fonts \
+        --ro-bind /usr/share/icons /usr/share/icons \
+        --ro-bind /usr/share/mime /usr/share/mime \
+        --ro-bind /usr/share/fontconfig /usr/share/fontconfig \
+        --ro-bind /usr/share/fonts /usr/share/fonts \
+        --ro-bind /etc/resolv.conf /etc/resolv.conf \
+        --ro-bind /etc/ssl /etc/ssl \
+        --ro-bind /etc/ca-certificates /etc/ca-certificates \
+        --ro-bind /usr/share /usr/share \
     ./MultiMC "$@"
 }
 
