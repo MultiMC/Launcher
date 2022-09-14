@@ -9,7 +9,7 @@ ExclusiveArch:  %{ix86} x86_64
 
 BuildRequires:  desktop-file-utils
 BuildRequires:  libappstream-glib
-Requires:       zenity %{?suse_version:lib}qt5-qtbase wget xrandr
+Requires:       zenity %{?suse_version:lib}qt5-qtbase wget xrandr bubblewrap
 Provides:       multimc = %{version}
 Provides:       MultiMC = %{version}
 Provides:       multimc5 = %{version}
