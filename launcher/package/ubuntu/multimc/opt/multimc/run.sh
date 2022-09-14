@@ -86,7 +86,7 @@ runmmc() {
         --ro-bind-try /run/user/"$UID"/pipewire-0 /run/user/"$UID"/pipewire-0 \
         --ro-bind-try /tmp/.X11-unix/X0 /tmp/.X11-unix/X0 \
         --ro-bind-try /run/user/"$UID"/wayland-1 /run/user/"$UID"/wayland-1 \
-        --setenv XDG_RUNTIME_DIR "/run/user/$UID" \
+        --setenv XDG_RUNTIME_DIR /run/user/"$UID" \
         --setenv DISPLAY "$DISPLAY" \
         --ro-bind /etc/fonts /etc/fonts \
         --ro-bind /usr/share/icons /usr/share/icons \
