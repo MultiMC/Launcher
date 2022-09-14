@@ -80,14 +80,10 @@ runmmc() {
         --ro-bind /lib /lib --ro-bind-try /lib64 /lib64 --ro-bind-try /lib32 /lib32 \
         --ro-bind /usr/lib /usr/lib \
         $path_fwd --bind "$INSTDIR" "$INSTDIR" \
-        --setenv PATH /usr/bin:/bin \
-        --dir /run/user/"$UID" \
         --ro-bind-try /run/user/"$UID"/pulse /run/user/"$UID"/pulse \
         --ro-bind-try /run/user/"$UID"/pipewire-0 /run/user/"$UID"/pipewire-0 \
         --ro-bind-try /tmp/.X11-unix/X0 /tmp/.X11-unix/X0 \
         --ro-bind-try /run/user/"$UID"/wayland-1 /run/user/"$UID"/wayland-1 \
-        --setenv XDG_RUNTIME_DIR /run/user/"$UID" \
-        --setenv DISPLAY "$DISPLAY" \
         --ro-bind /etc/fonts /etc/fonts \
         --ro-bind /usr/share/icons /usr/share/icons \
         --ro-bind /usr/share/mime /usr/share/mime \
