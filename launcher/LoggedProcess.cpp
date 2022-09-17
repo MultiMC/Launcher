@@ -67,7 +67,7 @@ void LoggedProcess::on_exit(int exit_code, QProcess::ExitStatus status)
         if (status == QProcess::NormalExit)
         {
             //: Message displayed on instance exit
-            emit log({tr("Process exited with code %1 (0x%2).").arg(exit_code).arg(exit_code, 0, 16)}, MessageLevel::Launcher);
+            emit log({tr("Process exited with exit code %1 (0x%2).").arg(exit_code).arg(exit_code, 0, 16)}, MessageLevel::Launcher);
             changeState(LoggedProcess::Finished);
         }
         else
@@ -76,7 +76,7 @@ void LoggedProcess::on_exit(int exit_code, QProcess::ExitStatus status)
             if(exit_code == -1)
                 emit log({tr("Process crashed.")}, MessageLevel::Launcher);
             else
-                emit log({tr("Process crashed with exitcode %1 (0x%2).").arg(exit_code).arg(exit_code, 0, 16)}, MessageLevel::Launcher);
+                emit log({tr("Process crashed with exit code %1 (0x%2).").arg(exit_code).arg(exit_code, 0, 16)}, MessageLevel::Launcher);
             changeState(LoggedProcess::Crashed);
         }
 
