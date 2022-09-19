@@ -12,7 +12,7 @@ If you want to contribute, talk to us on [Discord](https://discord.gg/multimc) f
 
 While blindly submitting PRs is definitely possible, they're not necessarily going to get accepted.
 
-We aren't looking for flashy features, but expanding upon the existing feature set without distruption or endangering future viability of the project is OK.
+We aren't looking for flashy features, but expanding upon the existing feature set without disruption or endangering the future viability of the project is OK.
 
 ### Building
 If you want to build the launcher yourself, check [BUILD.md](BUILD.md) for build instructions.
@@ -40,9 +40,9 @@ Unless required by applicable law or agreed to in writing, software distributed 
 ## Forking/Redistributing/Custom builds policy
 We keep Launcher open source because we think it's important to be able to see the source code for a project like this, and we do so using the Apache license.
 
-The license gives you access to the source MultiMC is build from, but:
-- Not the name, logo and other branding.
-- Not the API tokens required to talk to services the launcher depends on.
+The license gives you access to the source MultiMC is built from, but not:
+- The name, logo and other branding.
+- The API tokens required to talk to services that the launcher depends on.
 
 Because of the nature of the agreements required to interact with the Microsoft identity platform, it's impossible for us to continue allowing everyone to build the code as 'MultiMC'. The source code has been debranded and now builds as `DevLauncher` by default.
 
