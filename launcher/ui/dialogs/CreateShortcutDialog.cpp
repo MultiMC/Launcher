@@ -113,7 +113,7 @@ QString CreateShortcutDialog::getLaunchCommand()
 QString CreateShortcutDialog::getLaunchArgs()
 {
     return " -d \"" + QDir::toNativeSeparators(QDir::currentPath()) + "\""
-           + " -l " + m_instance->id()
+           + " -l \"" + m_instance->id() + "\""
            + (ui->joinServerCheckBox->isChecked() ? " -s " + ui->joinServer->text() : "")
            + (ui->useProfileCheckBox->isChecked() ? " -a " + ui->profileComboBox->currentText() : "")
            + (ui->launchOfflineCheckBox->isChecked() ? " -o" : "")
