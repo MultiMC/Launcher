@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,8 @@ private:
     void suggestCurrent();
 
     QString chooseVersion(Meta::VersionListPtr vlist, QString minecraftVersion) override;
-    QVector<QString> chooseOptionalMods(QVector<ATLauncher::VersionMod> mods) override;
+    QVector<QString> chooseOptionalMods(ATLauncher::PackVersion version, QVector<ATLauncher::VersionMod> mods) override;
+    void displayMessage(QString message) override;
 
 private slots:
     void triggerSearch();

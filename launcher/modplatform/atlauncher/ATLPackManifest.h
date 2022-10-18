@@ -109,6 +109,7 @@ struct VersionMod
     bool library;
     QString group;
     QVector<QString> depends;
+    QString warning;
 
     bool client;
 
@@ -134,6 +135,12 @@ struct PackVersionExtraArguments
     QString depends;
 };
 
+struct VersionMessages
+{
+    QString install;
+    QString update;
+};
+
 struct PackVersion
 {
     QString version;
@@ -146,6 +153,9 @@ struct PackVersion
     QVector<VersionLibrary> libraries;
     QVector<VersionMod> mods;
     VersionConfigs configs;
+
+    QMap<QString, QString> warnings;
+    VersionMessages messages;
 };
 
 void loadVersion(PackVersion & v, QJsonObject & obj);
