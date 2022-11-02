@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2022 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ void MinecraftPage::applySettings()
     s->set("ShowGameTime", ui->showGameTime->isChecked());
     s->set("ShowGlobalGameTime", ui->showGlobalGameTime->isChecked());
     s->set("RecordGameTime", ui->recordGameTime->isChecked());
+    s->set("ShowGameTimeHours", ui->showGameTimeHours->isChecked());
 }
 
 void MinecraftPage::loadSettings()
