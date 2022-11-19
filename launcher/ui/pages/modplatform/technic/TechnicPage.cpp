@@ -290,7 +290,7 @@ void TechnicPage::onSolderLoaded() {
 
     current.versionsLoaded = true;
     current.recommended = pack.recommended;
-    current.versions.append(pack.builds);
+    current.versions << pack.builds;
 
     // Finally, let's reload :)
     ui->versionSelectionBox->clear();
