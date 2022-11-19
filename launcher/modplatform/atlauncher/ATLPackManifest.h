@@ -18,6 +18,7 @@
 
 #include <QString>
 #include <QVector>
+#include <QMap>
 #include <QJsonObject>
 
 namespace ATLauncher
