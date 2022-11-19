@@ -178,6 +178,7 @@ static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
             p.depends.append(Json::requireValueString(depends));
         }
     }
+    p.colour = Json::ensureString(obj, QString("colour"), "");
     p.warning = Json::ensureString(obj, QString("warning"), "");
 
     p.client = Json::ensureBoolean(obj, QString("client"), false);
@@ -250,6 +251,14 @@ void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
     if(obj.contains("configs")) {
         auto configsObj = Json::requireObject(obj, "configs");
         loadVersionConfigs(v.configs, configsObj);
+    }
+
+    if(obj.contains("colours")) {
+        auto colourObj = Json::requireObject(obj, "colours");
+
+        for (const auto &key : colourObj.keys()) {
+            v.colours[key] = Json::requireValueString(colourObj.value(key), "colour");
+        }
     }
 
     if(obj.contains("warnings")) {
