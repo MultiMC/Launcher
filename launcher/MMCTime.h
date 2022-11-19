@@ -21,5 +21,6 @@
 namespace Time {
 
 QString prettifyDuration(int64_t duration);
+QString prettifyDurationHours(int64_t duration);
 
 }

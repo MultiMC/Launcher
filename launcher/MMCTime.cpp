@@ -36,3 +36,7 @@ QString Time::prettifyDuration(int64_t duration) {
     }
     return QObject::tr("%1d %2h %3m").arg(days).arg(hours).arg(minutes);
 }
+
+QString Time::prettifyDurationHours(int64_t duration) {
+    return QString("%1").arg(duration / 3600.0, 0, 'f', 0);
+}

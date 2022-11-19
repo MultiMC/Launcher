@@ -2007,7 +2007,7 @@ void MainWindow::updateStatusCenter()
     int timePlayed = APPLICATION->instances()->getTotalPlayTime();
     if (timePlayed > 0) {
         if (APPLICATION->settings()->get("ShowGameTimeHours").toBool()) {
-            m_statusCenter->setText(tr("Total playtime: %1 hours").arg(timePlayed / 3600.0, 0, 'f', 1));
+            m_statusCenter->setText(tr("Total playtime: %1 hours").arg(Time::prettifyDurationHours(timePlayed)));
         } else {
             m_statusCenter->setText(tr("Total playtime: %1").arg(Time::prettifyDuration(timePlayed)));
         }
