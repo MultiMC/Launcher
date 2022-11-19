@@ -1,4 +1,5 @@
 /* Copyright 2013-2021 MultiMC Contributors
+ * Copyright 2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,6 +119,14 @@ public:
     QString getPreLaunchCommand();
     QString getPostExitCommand();
     QString getWrapperCommand();
+
+    bool isManagedPack();
+    QString getManagedPackType();
+    QString getManagedPackID();
+    QString getManagedPackName();
+    QString getManagedPackVersionID();
+    QString getManagedPackVersionName();
+    void setManagedPack(const QString& type, const QString& id, const QString& name, const QString& versionId, const QString& version);
 
     /// guess log level from a line of game log
     virtual MessageLevel::Enum guessLevel(const QString &line, MessageLevel::Enum level)
