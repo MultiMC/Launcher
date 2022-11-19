@@ -1,4 +1,5 @@
 /* Copyright 2020-2021 MultiMC Contributors
+ * Copyright 2021 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
 
 #include "TechnicModel.h"
 #include "Application.h"
+#include "BuildConfig.h"
 #include "Json.h"
 
 #include <QIcon>
@@ -94,13 +96,24 @@ void Technic::ListModel::performSearch()
     NetJob *netJob = new NetJob("Technic::Search", APPLICATION->network());
     QString searchUrl = "";
     if (currentSearchTerm.isEmpty()) {
-        searchUrl = "https://api.technicpack.net/trending?build=multimc";
+        searchUrl = QString("%1trending?build=%2")
+                .arg(BuildConfig.TECHNIC_API_BASE_URL, BuildConfig.TECHNIC_API_BUILD);
+        searchMode = List;
     }
-    else
-    {
+    else if (currentSearchTerm.startsWith("http://api.technicpack.net/modpack/")) {
+        searchUrl = QString("https://%1?build=%2")
+                .arg(currentSearchTerm.mid(7), BuildConfig.TECHNIC_API_BUILD);
+        searchMode = Single;
+    }
+    else if (currentSearchTerm.startsWith("https://api.technicpack.net/modpack/")) {
+        searchUrl = QString("%1?build=%2").arg(currentSearchTerm, BuildConfig.TECHNIC_API_BUILD);
+        searchMode = Single;
+    }
+    else {
         searchUrl = QString(
-            "https://api.technicpack.net/search?build=multimc&q=%1"
-        ).arg(currentSearchTerm);
+            "%1search?build=%2&q=%3"
+        ).arg(BuildConfig.TECHNIC_API_BASE_URL, BuildConfig.TECHNIC_API_BUILD, currentSearchTerm);
+        searchMode = List;
     }
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &response));
     jobPtr = netJob;
@@ -125,26 +138,58 @@ void Technic::ListModel::searchRequestFinished()
     QList<Modpack> newList;
     try {
         auto root = Json::requireObject(doc);
-        auto objs = Json::requireArray(root, "modpacks");
-        for (auto technicPack: objs) {
-            Modpack pack;
-            auto technicPackObject = Json::requireValueObject(technicPack);
-            pack.name = Json::requireString(technicPackObject, "name");
-            pack.slug = Json::requireString(technicPackObject, "slug");
-            if (pack.slug == "vanilla")
-                continue;
 
-            auto rawURL = Json::ensureString(technicPackObject, "iconUrl", "null");
-            if(rawURL == "null") {
-                pack.logoUrl = "null";
-                pack.logoName = "null";
+        switch (searchMode) {
+            case List: {
+                auto objs = Json::requireArray(root, "modpacks");
+                for (auto technicPack: objs) {
+                    Modpack pack;
+                    auto technicPackObject = Json::requireValueObject(technicPack);
+                    pack.name = Json::requireString(technicPackObject, "name");
+                    pack.slug = Json::requireString(technicPackObject, "slug");
+                    if (pack.slug == "vanilla")
+                        continue;
+
+                    auto rawURL = Json::ensureString(technicPackObject, "iconUrl", "null");
+                    if(rawURL == "null") {
+                        pack.logoUrl = "null";
+                        pack.logoName = "null";
+                    }
+                    else {
+                        pack.logoUrl = rawURL;
+                        pack.logoName = rawURL.section(QLatin1Char('/'), -1).section(QLatin1Char('.'), 0, 0);
+                    }
+                    pack.broken = false;
+                    newList.append(pack);
+                }
+                break;
             }
-            else {
-                pack.logoUrl = rawURL;
-                pack.logoName = rawURL.section(QLatin1Char('/'), -1).section(QLatin1Char('.'), 0, 0);
+            case Single: {
+                if (root.contains("error")) {
+                    // Invalid API url
+                    break;
+                }
+
+                Modpack pack;
+                pack.name = Json::requireString(root, "displayName");
+                pack.slug = Json::requireString(root, "name");
+
+                if (root.contains("icon")) {
+                    auto iconObj = Json::requireObject(root, "icon");
+                    auto iconUrl = Json::requireString(iconObj, "url");
+
+                    pack.logoUrl = iconUrl;
+                    pack.logoName = iconUrl.section(QLatin1Char('/'), -1).section(QLatin1Char('.'), 0, 0);
+                }
+                else {
+                    pack.logoUrl = "null";
+                    pack.logoName = "null";
+                }
+
+                pack.broken = false;
+                newList.append(pack);
+                break;
             }
-            pack.broken = false;
-            newList.append(pack);
         }
     }
     catch (const JSONValidationError &err)

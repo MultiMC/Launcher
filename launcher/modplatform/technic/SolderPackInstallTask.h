@@ -1,4 +1,5 @@
 /* Copyright 2013-2021 MultiMC Contributors
+ * Copyright 2021 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +28,7 @@ namespace Technic
     {
         Q_OBJECT
     public:
-        explicit SolderPackInstallTask(shared_qobject_ptr<QNetworkAccessManager> network, const QUrl &sourceUrl, const QString &minecraftVersion);
+        explicit SolderPackInstallTask(shared_qobject_ptr<QNetworkAccessManager> network, const QUrl &sourceUrl, const QString& version, const QString &minecraftVersion);
 
         bool canAbort() const override { return true; }
         bool abort() override;
@@ -37,7 +38,6 @@ namespace Technic
         virtual void executeTask() override;
 
     private slots:
-        void versionSucceeded();
         void fileListSucceeded();
         void downloadSucceeded();
         void downloadFailed(QString reason);
@@ -52,6 +52,7 @@ namespace Technic
 
         NetJob::Ptr m_filesNetJob;
         QUrl m_sourceUrl;
+        QString m_version;
         QString m_minecraftVersion;
         QByteArray m_response;
         QTemporaryDir m_outputDir;

@@ -1,4 +1,5 @@
 /* Copyright 2020-2021 MultiMC Contributors
+ * Copyright 2021 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +64,10 @@ private:
         ResetRequested,
         Finished
     } searchState = None;
+    enum SearchMode {
+        List,
+        Single,
+    } searchMode = List;
     NetJob::Ptr jobPtr;
     QByteArray response;
 };

@@ -1,5 +1,5 @@
-/* Copyright 2020-2021 MultiMC Contributors
- * Copyright 2021-2022 Jamie Mansfield <jmansfield@cadixdev.org>
+/*
+ * Copyright 2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,32 @@
 
 #pragma once
 
-#include <QList>
 #include <QString>
 #include <QVector>
+#include <QJsonObject>
 
-namespace Technic {
-struct Modpack {
-    QString slug;
+namespace TechnicSolder {
 
-    QString name;
-    QString logoUrl;
-    QString logoName;
-
-    bool broken = true;
-
-    QString url;
-    bool isSolder = false;
-    QString minecraftVersion;
-
-    bool metadataLoaded = false;
-    QString websiteUrl;
-    QString author;
-    QString description;
-    QString currentVersion;
-
-    bool versionsLoaded = false;
+struct Pack {
     QString recommended;
-    QVector<QString> versions;
+    QString latest;
+    QVector<QString> builds;
 };
-}
 
-Q_DECLARE_METATYPE(Technic::Modpack)
+void loadPack(Pack& v, QJsonObject& obj);
+
+struct PackBuildMod {
+    QString name;
+    QString version;
+    QString md5;
+    QString url;
+};
+
+struct PackBuild {
+    QString minecraft;
+    QVector<PackBuildMod> mods;
+};
+
+void loadPackBuild(PackBuild& v, QJsonObject& obj);
+
+}
