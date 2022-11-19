@@ -161,6 +161,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="showGameTimeHours">
+            <property name="text">
+             <string>Show time spent playing in hours only</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
