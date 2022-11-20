@@ -751,8 +751,6 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/modrinth/ModrinthData.h
     ui/pages/modplatform/modrinth/ModrinthModel.cpp
     ui/pages/modplatform/modrinth/ModrinthModel.h
-    ui/pages/modplatform/modrinth/ModrinthDocument.cpp
-    ui/pages/modplatform/modrinth/ModrinthDocument.h
     ui/pages/modplatform/modrinth/ModrinthPage.cpp
     ui/pages/modplatform/modrinth/ModrinthPage.h
 
@@ -760,6 +758,9 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/technic/TechnicModel.h
     ui/pages/modplatform/technic/TechnicPage.cpp
     ui/pages/modplatform/technic/TechnicPage.h
+
+    ui/pages/modplatform/DescriptionDocument.cpp
+    ui/pages/modplatform/DescriptionDocument.h
 
     ui/pages/modplatform/ImportPage.cpp
     ui/pages/modplatform/ImportPage.h

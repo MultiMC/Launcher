@@ -45,15 +45,15 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     }
     else if (role == Qt::ToolTipRole)
     {
-        if(pack.description.length() > 100)
+        if(pack.summary.length() > 100)
         {
             //some magic to prevent to long tooltips and replace html linebreaks
-            QString edit = pack.description.left(97);
+            QString edit = pack.summary.left(97);
             edit = edit.left(edit.lastIndexOf("<br>")).left(edit.lastIndexOf(" ")).append("...");
             return edit;
 
         }
-        return pack.description;
+        return pack.summary;
     }
     else if(role == Qt::DecorationRole)
     {
@@ -205,6 +205,7 @@ void CurseForge::ListModel::searchRequestFinished()
     jobPtr.reset();
 
     QJsonParseError parse_error;
+    qDebug() << response;
     QJsonDocument doc = QJsonDocument::fromJson(response, &parse_error);
     if(parse_error.error != QJsonParseError::NoError) {
         qWarning() << "Error while parsing JSON response from CurseForge at " << parse_error.offset << " reason: " << parse_error.errorString();

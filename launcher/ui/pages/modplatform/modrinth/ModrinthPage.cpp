@@ -17,7 +17,7 @@
 
 #include "ModrinthModel.h"
 #include "ModrinthPage.h"
-#include "ModrinthDocument.h"
+#include "../DescriptionDocument.h"
 #include "ui/dialogs/NewInstanceDialog.h"
 
 #include "ui_ModrinthPage.h"
@@ -163,8 +163,8 @@ void ModrinthPage::updateCurrentPackUI()
             break;
         }
         case Modrinth::LoadState::Loaded: {
-            auto document = new Modrinth::ModrinthDocument(current.body);
-            connect(document, &Modrinth::ModrinthDocument::layoutUpdateRequired, this, &ModrinthPage::forceDocumentLayout);
+            auto document = new Modplatform::DescriptionDocument(current.body);
+            connect(document, &Modplatform::DescriptionDocument::layoutUpdateRequired, this, &ModrinthPage::forceDocumentLayout);
             ui->packDescription->setDocument(document);
             break;
         }

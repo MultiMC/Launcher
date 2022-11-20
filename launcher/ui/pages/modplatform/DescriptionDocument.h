@@ -10,7 +10,7 @@
 #include <QTextDocument>
 #include <net/NetJob.h>
 
-namespace Modrinth {
+namespace Modplatform {
 
 using Callback = std::function<void(QString)>;
 struct ImageLoad {
@@ -20,10 +20,10 @@ struct ImageLoad {
     Callback handler;
 };
 
-class ModrinthDocument: public QTextDocument {
+class DescriptionDocument: public QTextDocument {
     Q_OBJECT
 public:
-    ModrinthDocument(const QString &markdown, QObject * parent = nullptr);
+    DescriptionDocument(const QString &markdown, QObject * parent = nullptr);
 
 signals:
     void layoutUpdateRequired();

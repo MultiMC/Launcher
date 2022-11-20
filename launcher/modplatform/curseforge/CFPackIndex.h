@@ -24,7 +24,7 @@ struct IndexedPack
 {
     int addonId;
     QString name;
-    QString description;
+    QString summary;
     QList<ModpackAuthor> authors;
 
     QString logoName;
@@ -34,6 +34,9 @@ struct IndexedPack
     QString issuesUrl;
     QString sourceUrl;
     QString wikiUrl;
+
+    bool descriptionLoaded = false;
+    QString description;
 
     bool versionsLoaded = false;
     QVector<IndexedVersion> versions;

@@ -64,17 +64,19 @@ public:
 
 private:
     void suggestCurrent();
+    void refreshRightPane();
 
 private slots:
     void triggerSearch();
     void onSelectionChanged(QModelIndex first, QModelIndex second);
     void onVersionSelectionChanged(QString data);
+    void forceDocumentLayout();
 
 private:
     Ui::CFPage *ui = nullptr;
     NewInstanceDialog* dialog = nullptr;
     CurseForge::ListModel* listModel = nullptr;
-    CurseForge::IndexedPack current;
+    CurseForge::IndexedPack m_current;
 
     QString selectedVersion;
 };

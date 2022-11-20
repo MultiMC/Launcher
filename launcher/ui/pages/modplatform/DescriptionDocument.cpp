@@ -5,7 +5,7 @@
  * Please see the COPYING.md file for more information.
  */
 
-#include "ModrinthDocument.h"
+#include "DescriptionDocument.h"
 
 #include <HoeDown.h>
 #include <QPixmapCache>
@@ -13,14 +13,14 @@
 #include <net/NetJob.h>
 #include <Application.h>
 
-Modrinth::ModrinthDocument::ModrinthDocument(const QString &markdown, QObject* parent) : QTextDocument(parent) {
+Modplatform::DescriptionDocument::DescriptionDocument(const QString &markdown, QObject* parent) : QTextDocument(parent) {
     HoeDown hoedown;
     // 100 MiB
     QPixmapCache::setCacheLimit(102400);
     setHtml(hoedown.process(markdown.toUtf8()));
 }
 
-QVariant Modrinth::ModrinthDocument::loadResource(int type, const QUrl& name) {
+QVariant Modplatform::DescriptionDocument::loadResource(int type, const QUrl& name) {
     if(type == QTextDocument::ResourceType::ImageResource) {
         auto pixmap = QPixmapCache::find(name.toString());
         if(!pixmap) {
@@ -32,18 +32,18 @@ QVariant Modrinth::ModrinthDocument::loadResource(int type, const QUrl& name) {
     return QTextDocument::loadResource(type, name);
 }
 
-void Modrinth::ModrinthDocument::downloadFinished(const QString& key, const QPixmap& out) {
+void Modplatform::DescriptionDocument::downloadFinished(const QString& key, const QPixmap& out) {
     m_loading.remove(key);
     QPixmapCache::insert(key, out);
     emit layoutUpdateRequired();
 }
 
-void Modrinth::ModrinthDocument::downloadFailed(const QString& key) {
+void Modplatform::DescriptionDocument::downloadFailed(const QString& key) {
     m_failed.append(key);
     m_loading.remove(key);
 }
 
-void Modrinth::ModrinthDocument::requestResource(const QUrl& url) {
+void Modplatform::DescriptionDocument::requestResource(const QUrl& url) {
     QString key = url.toString();
     if(m_loading.contains(key) || m_failed.contains(key))
     {
@@ -53,7 +53,7 @@ void Modrinth::ModrinthDocument::requestResource(const QUrl& url) {
     qDebug() << "Loading resource" << key;
 
     ImageLoad *load = new ImageLoad;
-    load->job = new NetJob(QString("Modrinth Image Download %1").arg(key), APPLICATION->network());
+    load->job = new NetJob(QString("Document Image Download %1").arg(key), APPLICATION->network());
     load->job->addNetAction(Net::Download::makeByteArray(url, &load->output));
     load->key = key;
 

@@ -6,8 +6,7 @@ void CurseForge::loadIndexedPack(CurseForge::IndexedPack & pack, QJsonObject & o
 {
     pack.addonId = Json::requireInteger(obj, "id");
     pack.name = Json::requireString(obj, "name");
-    pack.websiteUrl = Json::ensureString(obj, "websiteUrl", "");
-    pack.description = Json::ensureString(obj, "summary", "");
+    pack.summary = Json::ensureString(obj, "summary", "");
 
     auto logo = Json::requireObject(obj, "logo");
     pack.logoName = Json::requireString(logo, "title");

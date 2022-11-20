@@ -8,6 +8,7 @@
 #include "ui/dialogs/NewInstanceDialog.h"
 #include "InstanceImportTask.h"
 #include "CFModel.h"
+#include "../DescriptionDocument.h"
 
 CFPage::CFPage(NewInstanceDialog* dialog, QWidget *parent)
     : QWidget(parent), ui(new Ui::CFPage), dialog(dialog)
@@ -68,6 +69,51 @@ void CFPage::triggerSearch()
     listModel->searchWithTerm(ui->searchEdit->text(), ui->sortByBox->currentIndex());
 }
 
+void CFPage::refreshRightPane() {
+    QString text = "";
+    QString name = m_current.name;
+
+    if (m_current.websiteUrl.isEmpty())
+        text = name;
+    else
+        text = "<a href=\"" + m_current.websiteUrl + "\">" + name + "</a>";
+    if (!m_current.wikiUrl.isEmpty()) {
+        text += "<br>" + tr("<a href=\"%1\">Wiki</a>").arg(m_current.wikiUrl);
+    }
+    if (!m_current.issuesUrl.isEmpty()) {
+        text += "<br>" + tr("<a href=\"%1\">Bug tracker</a>").arg(m_current.issuesUrl);
+    }
+    if (!m_current.sourceUrl.isEmpty()) {
+        text += "<br>" + tr("<a href=\"%1\">Source code</a>").arg(m_current.sourceUrl);
+    }
+    if (!m_current.authors.empty()) {
+        auto authorToStr = [](CurseForge::ModpackAuthor & author) {
+            if(author.url.isEmpty()) {
+                return author.name;
+            }
+            return QString("<a href=\"%1\">%2</a>").arg(author.url, author.name);
+        };
+        QStringList authorStrs;
+        for(auto & author: m_current.authors) {
+            authorStrs.push_back(authorToStr(author));
+        }
+        text += "<br>" + tr(" by ") + authorStrs.join(", ");
+    }
+    text += "<br><br>";
+
+    if(!m_current.description.isEmpty()) {
+        text += m_current.description;
+    }
+    else {
+        text += m_current.summary;
+    }
+
+    auto document = new Modplatform::DescriptionDocument(text);
+    connect(document, &Modplatform::DescriptionDocument::layoutUpdateRequired, this, &CFPage::forceDocumentLayout);
+    ui->packDescription->setDocument(document);
+}
+
+
 void CFPage::onSelectionChanged(QModelIndex first, QModelIndex second)
 {
     ui->versionSelectionBox->clear();
@@ -81,53 +127,48 @@ void CFPage::onSelectionChanged(QModelIndex first, QModelIndex second)
         return;
     }
 
-    current = listModel->data(first, Qt::UserRole).value<CurseForge::IndexedPack>();
-    QString text = "";
-    QString name = current.name;
+    m_current = listModel->data(first, Qt::UserRole).value<CurseForge::IndexedPack>();
+    refreshRightPane();
 
-    if (current.websiteUrl.isEmpty())
-        text = name;
-    else
-        text = "<a href=\"" + current.websiteUrl + "\">" + name + "</a>";
-    if (!current.wikiUrl.isEmpty()) {
-        text += "<br>" + tr("<a href=\"%1\">Wiki</a>").arg(current.wikiUrl);
-    }
-    if (!current.issuesUrl.isEmpty()) {
-        text += "<br>" + tr("<a href=\"%1\">Bug tracker</a>").arg(current.issuesUrl);
-    }
-    if (!current.sourceUrl.isEmpty()) {
-        text += "<br>" + tr("<a href=\"%1\">Source code</a>").arg(current.sourceUrl);
-    }
-    if (!current.authors.empty()) {
-        auto authorToStr = [](CurseForge::ModpackAuthor & author) {
-            if(author.url.isEmpty()) {
-                return author.name;
+    if (m_current.descriptionLoaded == false) {
+        qDebug() << "Loading curseforge modpack description";
+        NetJob *netJob = new NetJob(QString("CurseForge::PackDescription(%1)").arg(m_current.name), APPLICATION->network());
+        std::shared_ptr<QByteArray> response = std::make_shared<QByteArray>();
+        int addonId = m_current.addonId;
+        auto download = Net::Download::makeByteArray(QString("https://api.curseforge.com/v1/mods/%1/description").arg(addonId), response.get());
+        download->setExtraHeader("x-api-key", APPLICATION->curseAPIKey());
+        netJob->addNetAction(download);
+        QObject::connect(netJob, &NetJob::succeeded, this, [this, response, addonId]
+        {
+            if (addonId != m_current.addonId) {
+                return;
             }
-            return QString("<a href=\"%1\">%2</a>").arg(author.url, author.name);
-        };
-        QStringList authorStrs;
-        for(auto & author: current.authors) {
-            authorStrs.push_back(authorToStr(author));
-        }
-        text += "<br>" + tr(" by ") + authorStrs.join(", ");
+            QJsonParseError parse_error;
+            QJsonDocument doc = QJsonDocument::fromJson(*response, &parse_error);
+            if(parse_error.error != QJsonParseError::NoError) {
+                qWarning() << "Error while parsing JSON response from CurseForge at " << parse_error.offset << " reason: " << parse_error.errorString();
+                qWarning() << *response;
+                return;
+            }
+            QString description = Json::ensureString(doc.object(), "data");
+            m_current.description = description;
+            refreshRightPane();
+        });
+        netJob->start();
     }
-    text += "<br><br>";
-
-    ui->packDescription->setHtml(text + current.description);
-
-    if (current.versionsLoaded == false)
+    if (m_current.versionsLoaded == false)
     {
         qDebug() << "Loading curseforge modpack versions";
-        NetJob *netJob = new NetJob(QString("CurseForge::PackVersions(%1)").arg(current.name), APPLICATION->network());
+        NetJob *netJob = new NetJob(QString("CurseForge::PackVersions(%1)").arg(m_current.name), APPLICATION->network());
         std::shared_ptr<QByteArray> response = std::make_shared<QByteArray>();
-        int addonId = current.addonId;
+        int addonId = m_current.addonId;
         auto download = Net::Download::makeByteArray(QString("https://api.curseforge.com/v1/mods/%1/files").arg(addonId), response.get());
         download->setExtraHeader("x-api-key", APPLICATION->curseAPIKey());
         netJob->addNetAction(download);
 
         QObject::connect(netJob, &NetJob::succeeded, this, [this, response, addonId]
         {
-            if (addonId != current.addonId) {
+            if (addonId != m_current.addonId) {
                 return;
             }
             QJsonParseError parse_error;
@@ -140,7 +181,7 @@ void CFPage::onSelectionChanged(QModelIndex first, QModelIndex second)
             QJsonArray arr = Json::ensureArray(doc.object(), "data");
             try
             {
-                CurseForge::loadIndexedPackVersions(current, arr);
+                CurseForge::loadIndexedPackVersions(m_current, arr);
             }
             catch(const JSONValidationError &e)
             {
@@ -148,7 +189,7 @@ void CFPage::onSelectionChanged(QModelIndex first, QModelIndex second)
                 qWarning() << "Error while reading curseforge modpack version: " << e.cause();
             }
 
-            for(auto version : current.versions) {
+            for(auto version : m_current.versions) {
                 ui->versionSelectionBox->addItem(version.version, QVariant(version.downloadUrl));
             }
 
@@ -158,7 +199,7 @@ void CFPage::onSelectionChanged(QModelIndex first, QModelIndex second)
     }
     else
     {
-        for(auto version : current.versions) {
+        for(auto version : m_current.versions) {
             ui->versionSelectionBox->addItem(version.version, QVariant(version.downloadUrl));
         }
 
@@ -179,10 +220,10 @@ void CFPage::suggestCurrent()
         return;
     }
 
-    dialog->setSuggestedPack(current.name, new InstanceImportTask(selectedVersion));
+    dialog->setSuggestedPack(m_current.name, new InstanceImportTask(selectedVersion));
     QString editedLogoName;
-    editedLogoName = "curseforge_" + current.logoName.section(".", 0, 0);
-    listModel->getLogo(current.logoName, current.logoUrl, [this, editedLogoName](QString logo)
+    editedLogoName = "curseforge_" + m_current.logoName.section(".", 0, 0);
+    listModel->getLogo(m_current.logoName, m_current.logoUrl, [this, editedLogoName](QString logo)
     {
         dialog->setSuggestedIconFromFile(logo, editedLogoName);
     });
@@ -197,4 +238,8 @@ void CFPage::onVersionSelectionChanged(QString data)
     }
     selectedVersion = ui->versionSelectionBox->currentData().toString();
     suggestCurrent();
+}
+
+void CFPage::forceDocumentLayout() {
+    ui->packDescription->document()->adjustSize();
 }
