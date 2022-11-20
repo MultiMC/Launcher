@@ -89,4 +89,5 @@ void MinecraftPage::loadSettings()
     ui->showGameTime->setChecked(s->get("ShowGameTime").toBool());
     ui->showGlobalGameTime->setChecked(s->get("ShowGlobalGameTime").toBool());
     ui->recordGameTime->setChecked(s->get("RecordGameTime").toBool());
+    ui->showGameTimeHours->setChecked(s->get("ShowGameTimeHours").toBool());
 }
