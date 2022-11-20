@@ -78,6 +78,14 @@ QJsonObject requireObject(const QJsonDocument &doc, const QString &what)
     }
     return doc.object();
 }
+QJsonObject requireObject(const QJsonValueRef &node, const QString &what)
+{
+    if (!node.isObject())
+    {
+        throw JsonException(what + " is not an object");
+    }
+    return node.toObject();
+}
 QJsonArray requireArray(const QJsonDocument &doc, const QString &what)
 {
     if (!doc.isArray())
