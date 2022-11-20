@@ -23,6 +23,11 @@ namespace CurseForge {
 typedef QMap<QString, QIcon> LogoMap;
 typedef std::function<void(QString)> LogoCallback;
 
+enum SortOrder {
+    Ascending,
+    Descending
+};
+
 class ListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -39,7 +44,7 @@ public:
     void fetchMore(const QModelIndex & parent) override;
 
     void getLogo(const QString &logo, const QString &logoUrl, LogoCallback callback);
-    void searchWithTerm(const QString & term, const int sort);
+    void searchWithTerm(const QString & term, const int sort, SortOrder sortOrder);
 
 private slots:
     void performPaginatedSearch();
@@ -62,6 +67,7 @@ private:
 
     QString currentSearchTerm;
     int currentSort = 0;
+    SortOrder currentSortOrder = SortOrder::Ascending;
     int nextSearchOffset = 0;
     enum SearchState {
         None,

@@ -159,16 +159,27 @@ void ListModel::fetchMore(const QModelIndex& parent)
 void ListModel::performPaginatedSearch()
 {
     NetJob *netJob = new NetJob("CurseForge::Search", APPLICATION->network());
+    QString textSortOrder;
+    switch (currentSortOrder) {
+        case SortOrder::Ascending: {
+            textSortOrder = "asc";
+            break;
+        }
+        case SortOrder::Descending: {
+            textSortOrder = "desc";
+            break;
+        }
+    }
     auto searchUrl = QString(
         "https://api.curseforge.com/v1/mods/search?"
-        "categoryId=0&"
         "gameId=432&"
+        "classId=4471&"
         "index=%1&"
         "pageSize=25&"
         "searchFilter=%2&"
-        "sectionId=4471&"
-        "sort=%3"
-    ).arg(nextSearchOffset).arg(currentSearchTerm).arg(currentSort);
+        "sortField=%3&"
+        "sortOrder=%4"
+    ).arg(nextSearchOffset).arg(currentSearchTerm).arg(currentSort + 1).arg(textSortOrder);
     auto download = Net::Download::makeByteArray(QUrl(searchUrl), &response);
     download->setExtraHeader("x-api-key", APPLICATION->curseAPIKey());
     netJob->addNetAction(download);
@@ -178,13 +189,14 @@ void ListModel::performPaginatedSearch()
     QObject::connect(netJob, &NetJob::failed, this, &ListModel::searchRequestFailed);
 }
 
-void ListModel::searchWithTerm(const QString& term, int sort)
+void ListModel::searchWithTerm(const QString& term, int sort, SortOrder sortOrder)
 {
     if(currentSearchTerm == term && currentSearchTerm.isNull() == term.isNull() && currentSort == sort) {
         return;
     }
     currentSearchTerm = term;
     currentSort = sort;
+    currentSortOrder = sortOrder;
     if(jobPtr) {
         jobPtr->abort();
         searchState = ResetRequested;

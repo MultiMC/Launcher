@@ -23,12 +23,12 @@ CFPage::CFPage(NewInstanceDialog* dialog, QWidget *parent)
     ui->versionSelectionBox->view()->parentWidget()->setMaximumHeight(300);
 
     // index is used to set the sorting with the curseforge api
-    ui->sortByBox->addItem(tr("Sort by featured"));
-    ui->sortByBox->addItem(tr("Sort by popularity"));
-    ui->sortByBox->addItem(tr("Sort by last updated"));
-    ui->sortByBox->addItem(tr("Sort by name"));
-    ui->sortByBox->addItem(tr("Sort by author"));
-    ui->sortByBox->addItem(tr("Sort by total downloads"));
+    ui->sortByBox->addItem(tr("Sort by featured"), CurseForge::SortOrder::Descending);
+    ui->sortByBox->addItem(tr("Sort by popularity"), CurseForge::SortOrder::Descending);
+    ui->sortByBox->addItem(tr("Sort by last updated"), CurseForge::SortOrder::Descending);
+    ui->sortByBox->addItem(tr("Sort by name"), CurseForge::SortOrder::Ascending);
+    ui->sortByBox->addItem(tr("Sort by author"), CurseForge::SortOrder::Ascending);
+    ui->sortByBox->addItem(tr("Sort by total downloads"), CurseForge::SortOrder::Descending);
 
     connect(ui->sortByBox, SIGNAL(currentIndexChanged(int)), this, SLOT(triggerSearch()));
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &CFPage::onSelectionChanged);
@@ -66,7 +66,7 @@ void CFPage::openedImpl()
 
 void CFPage::triggerSearch()
 {
-    listModel->searchWithTerm(ui->searchEdit->text(), ui->sortByBox->currentIndex());
+    listModel->searchWithTerm(ui->searchEdit->text(), ui->sortByBox->currentIndex(), (CurseForge::SortOrder) ui->sortByBox->currentData().toInt());
 }
 
 void CFPage::refreshRightPane() {
