@@ -5,4 +5,7 @@
 namespace Secrets {
 bool hasMSAClientID();
 QString getMSAClientID(uint8_t separator);
+
+bool hasCurseAPIKey();
+QString getCurseAPIKey();
 }

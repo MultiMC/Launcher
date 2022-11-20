@@ -23,6 +23,9 @@
         <!-- Modrinth logo icon -->
         <file>scalable/modrinth.svg</file>
 
+        <!-- CurseForge logo icon -->
+        <file>scalable/curseforge.svg</file>
+
         <!-- A proxy icon. Our own. SSSsss -->
         <file>scalable/proxy.svg</file>
 

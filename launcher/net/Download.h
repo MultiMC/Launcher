@@ -20,6 +20,8 @@
 #include "Validator.h"
 #include "Sink.h"
 
+#include <QMap>
+
 #include "QObjectPtr.h"
 
 namespace Net {

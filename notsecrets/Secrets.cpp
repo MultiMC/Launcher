@@ -29,6 +29,8 @@ namespace {
  */
 
 QString MSAClientID = "";
+
+QString CurseAPIKey = "";
 }
 
 namespace Secrets {
@@ -38,5 +40,13 @@ bool hasMSAClientID() {
 
 QString getMSAClientID(uint8_t separator) {
     return MSAClientID;
+}
+
+bool hasCurseAPIKey() {
+    return !CurseAPIKey.isEmpty();
+}
+
+QString getCurseAPIKey() {
+    return CurseAPIKey;
 }
 }

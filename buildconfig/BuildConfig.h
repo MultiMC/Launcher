@@ -96,6 +96,8 @@ public:
     QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";
     QString TRANSLATIONS_BASE_URL = "https://files.multimc.org/translations/";
 
+    QString MODPACKSCH_API_BASE_URL = "https://api.modpacks.ch/";
+
     QString LEGACY_FTB_CDN_BASE_URL = "https://dist.creeper.host/FTB2/";
 
     QString ATL_DOWNLOAD_SERVER_URL = "https://download.nodecdn.net/containers/atl/";

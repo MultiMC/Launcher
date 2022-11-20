@@ -97,6 +97,9 @@ void Download::startImpl()
     }
 
     request.setHeader(QNetworkRequest::UserAgentHeader, BuildConfig.USER_AGENT);
+    for(auto iter = m_extra_headers.begin(); iter != m_extra_headers.end(); iter++) {
+        request.setRawHeader(iter.key().toUtf8(), iter.value().toUtf8());
+    }
 
     QNetworkReply *rep = m_network->get(request);
 

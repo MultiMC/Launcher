@@ -106,6 +106,8 @@ public:
 
     QString msaClientId() const;
 
+    QString curseAPIKey() const;
+
     Status status() const {
         return m_status;
     }

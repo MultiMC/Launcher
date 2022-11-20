@@ -79,6 +79,14 @@ public:
     {
         return m_url;
     }
+    void setExtraHeader(const QString& key, const QString & value) {
+        if(value.isNull()) {
+            m_extra_headers.remove(key);
+        }
+        else {
+            m_extra_headers.insert(key, value);
+        }
+    }
 
 signals:
     void started(int index);
@@ -116,6 +124,8 @@ public:
 
     qint64 m_progress = 0;
     qint64 m_total_progress = 1;
+
+    QMap<QString, QString> m_extra_headers;
 
 protected:
     JobStatus m_status = Job_NotStarted;

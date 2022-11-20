@@ -898,7 +898,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_metacache->addBase("general", QDir("cache").absolutePath());
         m_metacache->addBase("ATLauncherPacks", QDir("cache/ATLauncherPacks").absolutePath());
         m_metacache->addBase("FTBPacks", QDir("cache/FTBPacks").absolutePath());
+        m_metacache->addBase("ModpacksCHPacks", QDir("cache/ModpacksCHPacks").absolutePath());
         m_metacache->addBase("TechnicPacks", QDir("cache/TechnicPacks").absolutePath());
+        m_metacache->addBase("CurseForgePacks", QDir("cache/CurseForgePacks").absolutePath());
         m_metacache->addBase("ModrinthPacks", QDir("cache/ModrinthPacks").absolutePath());
         m_metacache->addBase("root", QDir::currentPath());
         m_metacache->addBase("translations", QDir("translations").absolutePath());
@@ -1610,6 +1612,10 @@ void Application::on_windowClose()
 
 QString Application::msaClientId() const {
     return Secrets::getMSAClientID('-');
+}
+
+QString Application::curseAPIKey() const {
+    return Secrets::getCurseAPIKey();
 }
 
 void Application::updateProxySettings(QString proxyTypeStr, QString addr, int port, QString user, QString password)

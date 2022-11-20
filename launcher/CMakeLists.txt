@@ -504,6 +504,15 @@ set(FTB_SOURCES
     modplatform/legacy_ftb/PackHelpers.h
 )
 
+set(CURSEFORGE_SOURCES
+    modplatform/curseforge/CFPackIndex.cpp
+    modplatform/curseforge/CFPackIndex.h
+    modplatform/curseforge/PackManifest.h
+    modplatform/curseforge/PackManifest.cpp
+    modplatform/curseforge/FileResolvingTask.h
+    modplatform/curseforge/FileResolvingTask.cpp
+)
+
 set(TECHNIC_SOURCES
     modplatform/technic/SingleZipPackInstallTask.h
     modplatform/technic/SingleZipPackInstallTask.cpp
@@ -565,6 +574,7 @@ set(LOGIC_SOURCES
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
     ${MODRINTH_SOURCES}
+    ${CURSEFORGE_SOURCES}
 )
 
 SET(LAUNCHER_SOURCES
@@ -733,6 +743,11 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/import_ftb/FTBAPage.cpp
     ui/pages/modplatform/import_ftb/FTBAPage.h
 
+    ui/pages/modplatform/curseforge/CFModel.cpp
+    ui/pages/modplatform/curseforge/CFModel.h
+    ui/pages/modplatform/curseforge/CFPage.cpp
+    ui/pages/modplatform/curseforge/CFPage.h
+
     ui/pages/modplatform/modrinth/ModrinthData.h
     ui/pages/modplatform/modrinth/ModrinthModel.cpp
     ui/pages/modplatform/modrinth/ModrinthModel.h
@@ -864,6 +879,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/pages/modplatform/atlauncher/AtlOptionalModDialog.ui
     ui/pages/modplatform/atlauncher/AtlPage.ui
     ui/pages/modplatform/VanillaPage.ui
+    ui/pages/modplatform/curseforge/CFPage.ui
     ui/pages/modplatform/legacy_ftb/Page.ui
     ui/pages/modplatform/import_ftb/FTBAPage.ui
     ui/pages/modplatform/ImportPage.ui

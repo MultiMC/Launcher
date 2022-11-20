@@ -23,9 +23,11 @@
 #include "icons/IconUtils.h"
 #include <QtConcurrentRun>
 
-// FIXME: this does not belong here, it's Minecraft/Flame specific
+// FIXME: this does not belong here, it's Minecraft/CurseForge specific
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
+#include "modplatform/curseforge/FileResolvingTask.h"
+#include "modplatform/curseforge/PackManifest.h"
 #include "Json.h"
 #include <quazipdir.h>
 #include "modplatform/modrinth/ModrinthPackManifest.h"
@@ -103,6 +105,7 @@ void InstanceImportTask::processZipPack()
     QStringList blacklist = {"instance.cfg", "manifest.json"};
     QString mmcFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "instance.cfg");
     bool technicFound = QuaZipDir(m_packZip.get()).exists("/bin/modpack.jar") || QuaZipDir(m_packZip.get()).exists("/bin/version.json");
+    QString flameFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "manifest.json");
     QString modrinthFound = MMCZip::findFolderOfFileInZip(m_packZip.get(), "modrinth.index.json");
     QString root;
     if(!mmcFound.isNull())
@@ -119,6 +122,13 @@ void InstanceImportTask::processZipPack()
         extractDir.mkpath(".minecraft");
         extractDir.cd(".minecraft");
         m_modpackType = ModpackType::Technic;
+    }
+    else if(!flameFound.isNull())
+    {
+        // process as CurseForge pack
+        qDebug() << "CurseForge:" << flameFound;
+        root = flameFound;
+        m_modpackType = ModpackType::CurseForge;
     }
     else if(!modrinthFound.isNull())
     {
@@ -189,6 +199,9 @@ void InstanceImportTask::extractFinished()
         case ModpackType::Technic:
             processTechnic();
             return;
+        case ModpackType::CurseForge:
+            processCurseForge();
+            return;
         case ModpackType::Modrinth:
             processModrinth();
             return;
@@ -202,6 +215,215 @@ void InstanceImportTask::extractAborted()
 {
     emitFailed(tr("Instance import has been aborted."));
     return;
+}
+
+void InstanceImportTask::processCurseForge()
+{
+    const static QMap<QString,QString> forgemap = {
+        {"1.2.5", "3.4.9.171"},
+        {"1.4.2", "6.0.1.355"},
+        {"1.4.7", "6.6.2.534"},
+        {"1.5.2", "7.8.1.737"}
+    };
+    CurseForge::Manifest pack;
+    try
+    {
+        QString configPath = FS::PathCombine(m_stagingPath, "manifest.json");
+        CurseForge::loadManifest(pack, configPath);
+        QFile::remove(configPath);
+    }
+    catch (const JSONValidationError &e)
+    {
+        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
+        return;
+    }
+    if(!pack.overrides.isEmpty())
+    {
+        QString overridePath = FS::PathCombine(m_stagingPath, pack.overrides);
+        if (QFile::exists(overridePath))
+        {
+            QString mcPath = FS::PathCombine(m_stagingPath, "minecraft");
+            if (!QFile::rename(overridePath, mcPath))
+            {
+                emitFailed(tr("Could not rename the overrides folder:\n") + pack.overrides);
+                return;
+            }
+        }
+        else
+        {
+            logWarning(tr("The specified overrides folder (%1) is missing. Maybe the modpack was already used before?").arg(pack.overrides));
+        }
+    }
+
+    QString forgeVersion;
+    QString fabricVersion;
+    for(auto &loader: pack.minecraft.modLoaders)
+    {
+        auto id = loader.id;
+        if(id.startsWith("forge-"))
+        {
+            id.remove("forge-");
+            forgeVersion = id;
+            continue;
+        }
+        if(id.startsWith("fabric-"))
+        {
+            id.remove("fabric-");
+            fabricVersion = id;
+            continue;
+        }
+        logWarning(tr("Unknown mod loader in manifest: %1").arg(id));
+    }
+
+    QString configPath = FS::PathCombine(m_stagingPath, "instance.cfg");
+    auto instanceSettings = std::make_shared<INISettingsObject>(configPath);
+    instanceSettings->registerSetting("InstanceType", "Legacy");
+    instanceSettings->set("InstanceType", "OneSix");
+    MinecraftInstance instance(m_globalSettings, instanceSettings, m_stagingPath);
+    auto mcVersion = pack.minecraft.version;
+    // Hack to correct some 'special sauce'...
+    if(mcVersion.endsWith('.'))
+    {
+        mcVersion.remove(QRegExp("[.]+$"));
+        logWarning(tr("Mysterious trailing dots removed from Minecraft version while importing pack."));
+    }
+    auto components = instance.getPackProfile();
+    components->buildingFromScratch();
+    components->setComponentVersion("net.minecraft", mcVersion, true);
+    if(!forgeVersion.isEmpty())
+    {
+        // FIXME: dirty, nasty, hack. Proper solution requires dependency resolution and knowledge of the metadata.
+        if(forgeVersion == "recommended")
+        {
+            if(forgemap.contains(mcVersion))
+            {
+                forgeVersion = forgemap[mcVersion];
+            }
+            else
+            {
+                logWarning(tr("Could not map recommended forge version for Minecraft %1").arg(mcVersion));
+            }
+        }
+        components->setComponentVersion("net.minecraftforge", forgeVersion);
+    }
+    if(!fabricVersion.isEmpty())
+    {
+        components->setComponentVersion("net.fabricmc.fabric-loader", fabricVersion);
+    }
+    if (m_instIcon != "default")
+    {
+        instance.setIconKey(m_instIcon);
+    }
+    else
+    {
+        if(pack.name.contains("Direwolf20"))
+        {
+            instance.setIconKey("steve");
+        }
+        else if(pack.name.contains("FTB") || pack.name.contains("Feed The Beast"))
+        {
+            instance.setIconKey("ftb_logo");
+        }
+        else
+        {
+            // default to something other than the MultiMC default to distinguish these
+            instance.setIconKey("flame");
+        }
+    }
+    QString jarmodsPath = FS::PathCombine(m_stagingPath, "minecraft", "jarmods");
+    QFileInfo jarmodsInfo(jarmodsPath);
+    if(jarmodsInfo.isDir())
+    {
+        // install all the jar mods
+        qDebug() << "Found jarmods:";
+        QDir jarmodsDir(jarmodsPath);
+        QStringList jarMods;
+        for (auto info: jarmodsDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files))
+        {
+            qDebug() << info.fileName();
+            jarMods.push_back(info.absoluteFilePath());
+        }
+        auto profile = instance.getPackProfile();
+        profile->installJarMods(jarMods);
+        // nuke the original files
+        FS::deletePath(jarmodsPath);
+    }
+    instance.setName(m_instName);
+    m_modIdResolver = new CurseForge::FileResolvingTask(APPLICATION->network(), pack);
+    connect(m_modIdResolver.get(), &CurseForge::FileResolvingTask::succeeded, [&]()
+    {
+        auto results = m_modIdResolver->getResults();
+        m_filesNetJob = new NetJob(tr("Mod download"), APPLICATION->network());
+        for(auto result: results.files)
+        {
+            QString filename = result.fileName;
+            if(!result.required)
+            {
+                filename += ".disabled";
+            }
+
+            auto relpath = FS::PathCombine("minecraft", result.targetFolder, filename);
+            auto path = FS::PathCombine(m_stagingPath , relpath);
+
+            switch(result.type)
+            {
+                case CurseForge::File::Type::Folder:
+                {
+                    logWarning(tr("This 'Folder' may need extracting: %1").arg(relpath));
+                    // fall-through intentional, we treat these as plain old mods and dump them wherever.
+                }
+                case CurseForge::File::Type::SingleFile:
+                case CurseForge::File::Type::Mod:
+                {
+                    qDebug() << "Will download" << result.url << "to" << path;
+                    auto dl = Net::Download::makeFile(result.url, path);
+                    m_filesNetJob->addNetAction(dl);
+                    break;
+                }
+                case CurseForge::File::Type::Modpack:
+                    logWarning(tr("Nesting modpacks in modpacks is not implemented, nothing was downloaded: %1").arg(relpath));
+                    break;
+                case CurseForge::File::Type::Cmod2:
+                case CurseForge::File::Type::Ctoc:
+                case CurseForge::File::Type::Unknown:
+                    logWarning(tr("Unrecognized/unhandled PackageType for: %1").arg(relpath));
+                    break;
+            }
+        }
+        m_modIdResolver.reset();
+        connect(m_filesNetJob.get(), &NetJob::succeeded, this, [&]()
+        {
+            m_filesNetJob.reset();
+            emitSucceeded();
+        }
+        );
+        connect(m_filesNetJob.get(), &NetJob::failed, [&](QString reason)
+        {
+            m_filesNetJob.reset();
+            emitFailed(reason);
+        });
+        connect(m_filesNetJob.get(), &NetJob::progress, [&](qint64 current, qint64 total)
+        {
+            setProgress(current, total);
+        });
+        setStatus(tr("Downloading mods..."));
+        m_filesNetJob->start();
+    }
+    );
+    connect(m_modIdResolver.get(), &CurseForge::FileResolvingTask::failed, [&](QString reason)
+    {
+        m_modIdResolver.reset();
+        emitFailed(tr("Unable to resolve mod IDs:\n") + reason);
+    });
+    connect(m_modIdResolver.get(), &CurseForge::FileResolvingTask::progress, [&](qint64 current, qint64 total)
+    {
+        setProgress(current, total);
+    });
+    connect(m_modIdResolver.get(), &CurseForge::FileResolvingTask::status, [&](QString status)
+    {
+        setStatus(status);
+    });
+    m_modIdResolver->start();
 }
 
 void InstanceImportTask::processTechnic()

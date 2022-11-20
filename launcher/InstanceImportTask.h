@@ -26,7 +26,7 @@
 #include <nonstd/optional>
 
 class QuaZip;
-namespace Flame
+namespace CurseForge
 {
     class FileResolvingTask;
 }
@@ -45,7 +45,7 @@ private:
     void processZipPack();
     void processMultiMC();
     void processTechnic();
-    void processFlame();
+    void processCurseForge();
     void processModrinth();
 
 private slots:
@@ -57,7 +57,7 @@ private slots:
 
 private: /* data */
     NetJob::Ptr m_filesNetJob;
-    shared_qobject_ptr<Flame::FileResolvingTask> m_modIdResolver;
+    shared_qobject_ptr<CurseForge::FileResolvingTask> m_modIdResolver;
     QUrl m_sourceUrl;
     QString m_archivePath;
     bool m_downloadRequired = false;
@@ -68,6 +68,7 @@ private: /* data */
         Unknown,
         MultiMC,
         Technic,
+        CurseForge,
         Modrinth,
     } m_modpackType = ModpackType::Unknown;
 };

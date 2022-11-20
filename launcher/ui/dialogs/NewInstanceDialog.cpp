@@ -37,6 +37,7 @@
 #include "ui/pages/modplatform/atlauncher/AtlPage.h"
 #include "ui/pages/modplatform/legacy_ftb/Page.h"
 #include "ui/pages/modplatform/import_ftb/FTBAPage.h"
+#include "ui/pages/modplatform/curseforge/CFPage.h"
 #include "ui/pages/modplatform/ImportPage.h"
 #include "ui/pages/modplatform/modrinth/ModrinthPage.h"
 #include "ui/pages/modplatform/technic/TechnicPage.h"
@@ -133,6 +134,7 @@ QList<BasePage *> NewInstanceDialog::getPages()
         importPage,
         new ModrinthPage(this),
         new AtlPage(this),
+        new CFPage(this),
         new ImportFTB::FTBAPage(this),
         new LegacyFTB::Page(this),
         technicPage
