@@ -121,8 +121,7 @@ void LaunchController::login() {
         m_session->wants_online = m_online;
         m_accountToUse->fillSession(m_session);
 
-        //switch(m_accountToUse->accountState()) {
-        switch (AccountState::Expired) {
+        switch(m_accountToUse->accountState()) {
             case AccountState::Offline: {
                 m_session->wants_online = false;
                 // NOTE: fallthrough is intentional
@@ -268,7 +267,8 @@ void LaunchController::login() {
                         if (isDefault) {
                             accounts->setDefaultAccount(newAccount);
                         }
-                        m_accountToUse = newAccount;
+                        decideAccount();
+                        continue;
                     } else {
                         emitFailed(tr("Account expired and re-login attempt failed"));
                         return;
