@@ -250,6 +250,7 @@ void LaunchController::login() {
                                     ),
                                     QMessageBox::Warning
                             )->exec();
+                            emitFailed(tr("Attempted to re-login to a Microsoft account on an unsupported platform"));
                             return;
                         }
                         newAccount = MSALoginDialog::newAccount(
