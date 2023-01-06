@@ -268,6 +268,7 @@ void LaunchController::login() {
                         if (isDefault) {
                             accounts->setDefaultAccount(newAccount);
                         }
+                        m_accountToUse = nullptr;
                         decideAccount();
                         continue;
                     } else {
