@@ -318,6 +318,7 @@ void InstanceImportTask::processModrinth() {
                 if(simplifiedPath.startsWith("../") || simplifiedPath.contains("/../") || fileInfo.isAbsolute()) {
                     throw JSONValidationError("Invalid path found in modpack files:\n\n" + simplifiedPath);
                 }
+                file.path = simplifiedPath;
 
                 // env doesn't have to be present, in that case mod is required
                 auto env = Json::ensureObject(obj, "env");
