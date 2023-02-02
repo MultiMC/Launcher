@@ -43,7 +43,7 @@ static void loadManifestV1(CurseForge::Manifest & m, QJsonObject & manifest)
         auto obj = Json::requireObject(item);
         CurseForge::File file;
         loadFileV1(file, obj);
-        m.files.append(file);
+        m.files.insert(file.fileId, file);
     }
     m.overrides = Json::ensureString(manifest, "overrides", "overrides");
 }
@@ -65,62 +65,44 @@ void CurseForge::loadManifest(CurseForge::Manifest & m, const QString &filepath)
     loadManifestV1(m, obj);
 }
 
-bool CurseForge::File::parseFromBytes(const QByteArray& bytes)
-{
-    auto doc = Json::requireDocument(bytes);
-    auto obj = Json::requireObject(doc);
-    // result code signifies true failure.
-    if(obj.contains("code"))
-    {
-        qCritical() << "Resolving of" << projectId << fileId << "failed because of a negative result:";
-        qCritical() << bytes;
+bool CurseForge::File::parse(QJsonObject fileObject) {
+    try {
+        fileName = Json::requireString(fileObject, "fileName");
+        // FIXME: this is a terrible hack
+        if (fileName.endsWith(".zip")) {
+            targetFolder = "resourcepacks";
+        } else {
+            targetFolder = "mods";
+        }
+        auto hashes = Json::ensureArray(fileObject, "hashes");
+        for(QJsonValueRef item : hashes) {
+            auto hashesObj = Json::requireObject(item);
+            auto algo = Json::requireInteger(hashesObj, "algo");
+            auto value = Json::requireString(hashesObj, "value");
+            switch(algo) {
+                case 1: {
+                    sha1 = value;
+                    break;
+                }
+                case 2: {
+                    md5 = value;
+                    break;
+                }
+                default: {
+                    qWarning() << "Unknown curse hash type: " << value;
+                    break;
+                }
+            }
+        }
+        QString rawUrl = Json::ensureString(fileObject, "downloadUrl");
+        url = QUrl(rawUrl, QUrl::TolerantMode);
+        if(!url.isEmpty()) {
+            resolved = true;
+        }
+        return true;
+    }
+    catch (const Json::JsonException & error) {
+        qWarning() << "Error while parsing mod from CurseForge: " << error.what();
         return false;
     }
-    fileName = Json::requireString(obj, "FileNameOnDisk");
-    QString rawUrl = Json::requireString(obj, "DownloadURL");
-    url = QUrl(rawUrl, QUrl::TolerantMode);
-    if(!url.isValid())
-    {
-        throw JSONValidationError(QString("Invalid URL: %1").arg(rawUrl));
-    }
-    // This is a piece of a CurseForge project JSON pulled out into the file metadata (here) for convenience
-    // It is also optional
-    QJsonObject projObj = Json::ensureObject(obj, "_Project", {});
-    if(!projObj.isEmpty())
-    {
-        QString strType = Json::ensureString(projObj, "PackageType", "mod").toLower();
-        if(strType == "singlefile")
-        {
-            type = File::Type::SingleFile;
-        }
-        else if(strType == "ctoc")
-        {
-            type = File::Type::Ctoc;
-        }
-        else if(strType == "cmod2")
-        {
-            type = File::Type::Cmod2;
-        }
-        else if(strType == "mod")
-        {
-            type = File::Type::Mod;
-        }
-        else if(strType == "folder")
-        {
-            type = File::Type::Folder;
-        }
-        else if(strType == "modpack")
-        {
-            type = File::Type::Modpack;
-        }
-        else
-        {
-            qCritical() << "Resolving of" << projectId << fileId << "failed because of unknown file type:" << strType;
-            type = File::Type::Unknown;
-            return false;
-        }
-        targetFolder = Json::ensureString(projObj, "Path", "mods");
-    }
-    resolved = true;
-    return true;
 }

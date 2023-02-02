@@ -63,6 +63,17 @@ Download::Ptr Download::makeFile(QUrl url, QString path, Options options)
     return dl;
 }
 
+Download::Ptr Download::makePost(QUrl url, QByteArray input, QString contentType, QByteArray *output)
+{
+    Download * dl = new Download();
+    dl->m_url = url;
+    dl->m_sink.reset(new ByteArraySink(output));
+    dl->m_request_data = input;
+    dl->m_content_type = contentType;
+    dl->m_method = Method::Post;
+    return dl;
+}
+
 void Download::addValidator(Validator * v)
 {
     m_sink->addValidator(v);
@@ -97,14 +108,27 @@ void Download::startImpl()
     }
 
     request.setHeader(QNetworkRequest::UserAgentHeader, BuildConfig.USER_AGENT);
+    if(!m_content_type.isEmpty()) {
+        request.setHeader(QNetworkRequest::ContentTypeHeader, m_content_type.toUtf8());
+    }
     for(auto iter = m_extra_headers.begin(); iter != m_extra_headers.end(); iter++) {
         request.setRawHeader(iter.key().toUtf8(), iter.value().toUtf8());
     }
 
-    QNetworkReply *rep = m_network->get(request);
+    QNetworkReply *rep;
+    switch (m_method) {
+        case Method::Get: {
+            rep = m_network->get(request);
+            break;
+        }
+        case Method::Post: {
+            rep = m_network->post(request, m_request_data);
+            break;
+        }
+    }
 
     m_reply.reset(rep);
-    connect(rep, SIGNAL(downloadProgress(qint64, qint64)), SLOT(downloadProgress(qint64, qint64)));
+    connect(rep, &QNetworkReply::downloadProgress, this, &Download::downloadProgress);
     connect(rep, SIGNAL(finished()), SLOT(downloadFinished()));
     connect(rep, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(downloadError(QNetworkReply::NetworkError)));
     connect(rep, &QNetworkReply::sslErrors, this, &Download::sslErrors);

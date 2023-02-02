@@ -25,6 +25,7 @@
 #include "QObjectPtr.h"
 
 namespace Net {
+
 class Download : public NetAction
 {
     Q_OBJECT
@@ -39,6 +40,11 @@ public: /* types */
     };
     Q_DECLARE_FLAGS(Options, Option)
 
+    enum class Method {
+        Get,
+        Post
+    };
+
 protected: /* con/des */
     explicit Download();
 public:
@@ -46,6 +52,8 @@ public:
     static Download::Ptr makeCached(QUrl url, MetaEntryPtr entry, Options options = Option::NoOptions);
     static Download::Ptr makeByteArray(QUrl url, QByteArray *output, Options options = Option::NoOptions);
     static Download::Ptr makeFile(QUrl url, QString path, Options options = Option::NoOptions);
+
+    static Download::Ptr makePost(QUrl url, QByteArray input, QString inputContentType, QByteArray *output);
 
 public: /* methods */
     QString getTargetFilepath()
@@ -73,6 +81,9 @@ private: /* data */
     // FIXME: remove this, it has no business being here.
     QString m_target_path;
     std::unique_ptr<Sink> m_sink;
+    QByteArray m_request_data;
+    Method m_method = Method::Get;
+    QString m_content_type;
     Options m_options;
 };
 }

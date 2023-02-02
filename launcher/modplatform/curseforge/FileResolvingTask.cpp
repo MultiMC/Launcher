@@ -1,9 +1,7 @@
 #include "FileResolvingTask.h"
-#include "Json.h"
+#include "Application.h"
 
-namespace {
-    const char * metabase = "https://cursemeta.dries007.net";
-}
+#include "Json.h"
 
 CurseForge::FileResolvingTask::FileResolvingTask(shared_qobject_ptr<QNetworkAccessManager> network, CurseForge::Manifest& toProcess)
     : m_network(network), m_toProcess(toProcess)
@@ -13,19 +11,19 @@ CurseForge::FileResolvingTask::FileResolvingTask(shared_qobject_ptr<QNetworkAcce
 void CurseForge::FileResolvingTask::executeTask()
 {
     setStatus(tr("Resolving mod IDs..."));
-    setProgress(0, m_toProcess.files.size());
+    setProgress(0, 1);
     m_dljob = new NetJob("Mod id resolver", m_network);
-    results.resize(m_toProcess.files.size());
-    int index = 0;
+    QJsonObject object;
+    QJsonArray fileIds;
     for(auto & file: m_toProcess.files)
     {
-        auto projectIdStr = QString::number(file.projectId);
-        auto fileIdStr = QString::number(file.fileId);
-        QString metaurl = QString("%1/%2/%3.json").arg(metabase, projectIdStr, fileIdStr);
-        auto dl = Net::Download::makeByteArray(QUrl(metaurl), &results[index]);
-        m_dljob->addNetAction(dl);
-        index ++;
+        fileIds.append(file.fileId);
     }
+    object["fileIds"] = fileIds;
+    QByteArray data = Json::toText(object);
+    auto dl = Net::Download::makePost(QUrl("https://api.curseforge.com/v1/mods/files"), data, "application/json", &result);
+    dl->setExtraHeader("x-api-key", APPLICATION->curseAPIKey());
+    m_dljob->addNetAction(dl);
     connect(m_dljob.get(), &NetJob::finished, this, &CurseForge::FileResolvingTask::netJobFinished);
     m_dljob->start();
 }
@@ -33,31 +31,28 @@ void CurseForge::FileResolvingTask::executeTask()
 void CurseForge::FileResolvingTask::netJobFinished()
 {
     bool failed = false;
-    int index = 0;
-    for(auto & bytes: results)
-    {
-        auto & out = m_toProcess.files[index];
-        try
-        {
-            failed &= (!out.parseFromBytes(bytes));
-        }
-        catch (const JSONValidationError &e)
-        {
+    auto doc = Json::requireDocument(result);
+    auto obj = Json::requireObject(doc);
+    auto dataArray = Json::requireArray(obj, "data");
 
-            qCritical() << "Resolving of" << out.projectId << out.fileId << "failed because of a parsing error:";
-            qCritical() << e.cause();
-            qCritical() << "JSON:";
-            qCritical() << bytes;
+    for (QJsonValueRef file : dataArray) {
+        auto fileObj = Json::requireObject(file);
+        auto fileId = Json::requireInteger(fileObj, "id");
+        auto& current = m_toProcess.files[fileId];
+        if(!current.parse(fileObj)) {
             failed = true;
+            qCritical() << "Resolving of" << current.projectId << current.fileId << "failed because of an error!";
+            qCritical() << "JSON:";
+            qCritical() << Json::toText(fileObj);
         }
-        index++;
+        if(!current.resolved) {
+            qWarning() << "Failed to resolve " << current.projectId << current.fileId << ":" << current.fileName << current.sha1;
+        }
     }
-    if(!failed)
-    {
+    if(!failed) {
         emitSucceeded();
     }
-    else
-    {
+    else {
         emitFailed(tr("Some mod ID resolving tasks failed."));
     }
 }

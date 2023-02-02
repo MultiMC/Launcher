@@ -27,7 +27,7 @@ protected slots:
 private: /* data */
     shared_qobject_ptr<QNetworkAccessManager> m_network;
     CurseForge::Manifest m_toProcess;
-    QVector<QByteArray> results;
+    QByteArray result;
     NetJob::Ptr m_dljob;
 };
 }

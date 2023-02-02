@@ -365,30 +365,9 @@ void InstanceImportTask::processCurseForge()
             auto relpath = FS::PathCombine("minecraft", result.targetFolder, filename);
             auto path = FS::PathCombine(m_stagingPath , relpath);
 
-            switch(result.type)
-            {
-                case CurseForge::File::Type::Folder:
-                {
-                    logWarning(tr("This 'Folder' may need extracting: %1").arg(relpath));
-                    // fall-through intentional, we treat these as plain old mods and dump them wherever.
-                }
-                case CurseForge::File::Type::SingleFile:
-                case CurseForge::File::Type::Mod:
-                {
-                    qDebug() << "Will download" << result.url << "to" << path;
-                    auto dl = Net::Download::makeFile(result.url, path);
-                    m_filesNetJob->addNetAction(dl);
-                    break;
-                }
-                case CurseForge::File::Type::Modpack:
-                    logWarning(tr("Nesting modpacks in modpacks is not implemented, nothing was downloaded: %1").arg(relpath));
-                    break;
-                case CurseForge::File::Type::Cmod2:
-                case CurseForge::File::Type::Ctoc:
-                case CurseForge::File::Type::Unknown:
-                    logWarning(tr("Unrecognized/unhandled PackageType for: %1").arg(relpath));
-                    break;
-            }
+            qDebug() << "Will download" << result.url << "to" << path;
+            auto dl = Net::Download::makeFile(result.url, path);
+            m_filesNetJob->addNetAction(dl);
         }
         m_modIdResolver.reset();
         connect(m_filesNetJob.get(), &NetJob::succeeded, this, [&]()

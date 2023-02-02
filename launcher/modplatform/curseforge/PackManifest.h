@@ -3,34 +3,27 @@
 #include <QString>
 #include <QVector>
 #include <QUrl>
+#include <QJsonObject>
 
 namespace CurseForge
 {
 struct File
 {
-    // NOTE: throws JSONValidationError
-    bool parseFromBytes(const QByteArray &bytes);
+    bool parse(QJsonObject fileObject);
 
     int projectId = 0;
     int fileId = 0;
-    // NOTE: the opposite to 'optional'. This is at the time of writing unused.
+
     bool required = true;
+
+    QString sha1;
+    QString md5;
 
     // our
     bool resolved = false;
     QString fileName;
     QUrl url;
     QString targetFolder = QLatin1Literal("mods");
-    enum class Type
-    {
-        Unknown,
-        Folder,
-        Ctoc,
-        SingleFile,
-        Cmod2,
-        Modpack,
-        Mod
-    } type = Type::Mod;
 };
 
 struct Modloader
@@ -54,7 +47,7 @@ struct Manifest
     QString name;
     QString version;
     QString author;
-    QVector<CurseForge::File> files;
+    QMap<int, CurseForge::File> files;
     QString overrides;
 };
 
