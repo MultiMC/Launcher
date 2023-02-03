@@ -10,18 +10,13 @@
 #include "Application.h"
 
 NotificationChecker::NotificationChecker(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), m_appVersionChannel("develop")
 {
 }
 
 void NotificationChecker::setNotificationsUrl(const QUrl &notificationsUrl)
 {
     m_notificationsUrl = notificationsUrl;
-}
-
-void NotificationChecker::setApplicationChannel(QString channel)
-{
-    m_appVersionChannel = channel;
 }
 
 void NotificationChecker::setApplicationFullVersion(QString version)

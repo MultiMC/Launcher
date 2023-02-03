@@ -11,14 +11,13 @@
 UpdateDialog::UpdateDialog(bool hasUpdate, QWidget *parent) : QDialog(parent), ui(new Ui::UpdateDialog)
 {
     ui->setupUi(this);
-    auto channel = APPLICATION->settings()->get("UpdateChannel").toString();
     if(hasUpdate)
     {
-        ui->label->setText(tr("A new %1 update is available!").arg(channel));
+        ui->label->setText(tr("A new update is available!"));
     }
     else
     {
-        ui->label->setText(tr("No %1 updates found. You are running the latest version.").arg(channel));
+        ui->label->setText(tr("No updates found. You are running the latest version."));
         ui->btnUpdateNow->setHidden(true);
         ui->btnUpdateLater->setText(tr("Close"));
     }
@@ -33,19 +32,10 @@ UpdateDialog::~UpdateDialog()
 
 void UpdateDialog::loadChangelog()
 {
-    auto channel = APPLICATION->settings()->get("UpdateChannel").toString();
     dljob = new NetJob("Changelog", APPLICATION->network());
     QString url;
-    if(channel == "stable")
-    {
-        url = QString("https://raw.githubusercontent.com/MultiMC/Launcher/%1/changelog.md").arg(channel);
-        m_changelogType = CHANGELOG_MARKDOWN;
-    }
-    else
-    {
-        url = QString("https://api.github.com/repos/MultiMC/Launcher/compare/%1...%2").arg(BuildConfig.GIT_COMMIT, channel);
-        m_changelogType = CHANGELOG_COMMITS;
-    }
+    url = QString("https://api.github.com/repos/MultiMC/Launcher/compare/%1...develop").arg(BuildConfig.GIT_COMMIT);
+    m_changelogType = CHANGELOG_COMMITS;
     dljob->addNetAction(Net::Download::makeByteArray(QUrl(url), &changelogData));
     connect(dljob.get(), &NetJob::succeeded, this, &UpdateDialog::changelogLoaded);
     connect(dljob.get(), &NetJob::failed, this, &UpdateDialog::changelogFailed);
@@ -65,7 +55,6 @@ QString reprocessMarkdown(QByteArray markdown)
 
 QString reprocessCommits(QByteArray json)
 {
-    auto channel = APPLICATION->settings()->get("UpdateChannel").toString();
     try
     {
         QString result;
@@ -119,7 +108,7 @@ QString reprocessCommits(QByteArray json)
 
         if(status == "identical")
         {
-            return QObject::tr("<p>There are no code changes between your current version and latest %1.</p>").arg(channel);
+            return QObject::tr("<p>There are no code changes between your current version and the latest.</p>");
         }
         else if(status == "ahead")
         {

@@ -849,14 +849,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         // if automatic update checks are allowed, start one.
         if (APPLICATION->settings()->get("AutoUpdate").toBool() && updatesAllowed)
         {
-            updater->checkForUpdate(APPLICATION->settings()->get("UpdateChannel").toString(), false);
+            updater->checkForUpdate(false);
         }
     }
 
     {
         auto checker = new NotificationChecker();
         checker->setNotificationsUrl(QUrl(BuildConfig.NOTIFICATION_URL));
-        checker->setApplicationChannel(BuildConfig.VERSION_CHANNEL);
         checker->setApplicationPlatform(BuildConfig.BUILD_PLATFORM);
         checker->setApplicationFullVersion(BuildConfig.FULL_VERSION_STR);
         m_notificationChecker.reset(checker);
@@ -1639,7 +1638,7 @@ void MainWindow::checkForUpdates()
     if(BuildConfig.UPDATER_ENABLED)
     {
         auto updater = APPLICATION->updateChecker();
-        updater->checkForUpdate(APPLICATION->settings()->get("UpdateChannel").toString(), true);
+        updater->checkForUpdate(true);
     }
     else
     {

@@ -42,38 +42,32 @@ slots:
 
     void tst_ChannelListParsing_data()
     {
-        QTest::addColumn<QString>("channel");
         QTest::addColumn<QString>("channelUrl");
         QTest::addColumn<bool>("hasChannels");
         QTest::addColumn<bool>("valid");
         QTest::addColumn<QList<UpdateChecker::ChannelListEntry> >("result");
 
         QTest::newRow("garbage")
-                << QString()
                 << findTestDataUrl("data/garbageChannels.json")
                 << false
                 << false
                 << QList<UpdateChecker::ChannelListEntry>();
         QTest::newRow("errors")
-                << QString()
                 << findTestDataUrl("data/errorChannels.json")
                 << false
                 << true
                 << QList<UpdateChecker::ChannelListEntry>();
         QTest::newRow("no channels")
-                << QString()
                 << findTestDataUrl("data/noChannels.json")
                 << false
                 << true
                 << QList<UpdateChecker::ChannelListEntry>();
         QTest::newRow("one channel")
-                << QString("develop")
                 << findTestDataUrl("data/oneChannel.json")
                 << true
                 << true
                 << (QList<UpdateChecker::ChannelListEntry>() << UpdateChecker::ChannelListEntry{"develop", "Develop", "The channel called \"develop\"", "http://example.org/stuff"});
         QTest::newRow("several channels")
-                << QString("develop")
                 << findTestDataUrl("data/channels.json")
                 << true
                 << true
@@ -84,15 +78,13 @@ slots:
     }
     void tst_ChannelListParsing()
     {
-
-        QFETCH(QString, channel);
         QFETCH(QString, channelUrl);
         QFETCH(bool, hasChannels);
         QFETCH(bool, valid);
         QFETCH(QList<UpdateChecker::ChannelListEntry>, result);
 
         shared_qobject_ptr<QNetworkAccessManager> nam = new QNetworkAccessManager();
-        UpdateChecker checker(nam, channelUrl, channel, 0);
+        UpdateChecker checker(nam, channelUrl, 0);
 
         QSignalSpy channelListLoadedSpy(&checker, SIGNAL(channelListLoaded()));
         QVERIFY(channelListLoadedSpy.isValid());
@@ -116,12 +108,11 @@ slots:
 
     void tst_UpdateChecking()
     {
-        QString channel = "develop";
         QString channelUrl = findTestDataUrl("data/channels.json");
         int currentBuild = 2;
 
         shared_qobject_ptr<QNetworkAccessManager> nam = new QNetworkAccessManager();
-        UpdateChecker checker(nam, channelUrl, channel, currentBuild);
+        UpdateChecker checker(nam, channelUrl, currentBuild);
 
         QSignalSpy updateAvailableSpy(&checker, SIGNAL(updateAvailable(GoUpdate::Status)));
         QVERIFY(updateAvailableSpy.isValid());
@@ -133,7 +124,7 @@ slots:
 
         qDebug() << "CWD:" << QDir::current().absolutePath();
         checker.m_channels[0].url = findTestDataUrl("data/");
-        checker.checkForUpdate(channel, false);
+        checker.checkForUpdate(false);
 
         QVERIFY(updateAvailableSpy.wait());
 
