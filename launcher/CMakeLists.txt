@@ -36,6 +36,8 @@ set(CORE_SOURCES
     InstanceCopyTask.cpp
     InstanceImportTask.h
     InstanceImportTask.cpp
+    ModrinthInstanceExportTask.h
+    ModrinthInstanceExportTask.cpp
 
     # Use tracking separate from memory management
     Usable.h
@@ -784,6 +786,10 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/SkinUploadDialog.h
     ui/dialogs/CreateShortcutDialog.cpp
     ui/dialogs/CreateShortcutDialog.h
+    ui/dialogs/SelectInstanceExportFormatDialog.cpp
+    ui/dialogs/SelectInstanceExportFormatDialog.h
+    ui/dialogs/ModrinthExportDialog.cpp
+    ui/dialogs/ModrinthExportDialog.h
 
     # GUI - widgets
     ui/widgets/Common.cpp
@@ -882,6 +888,8 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/LoginDialog.ui
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
+    ui/dialogs/SelectInstanceExportFormatDialog.ui
+    ui/dialogs/ModrinthExportDialog.ui
 )
 
 qt5_add_resources(LAUNCHER_RESOURCES

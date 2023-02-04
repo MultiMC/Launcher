@@ -84,7 +84,7 @@
 #include "ui/dialogs/EditAccountDialog.h"
 #include "ui/dialogs/NotificationDialog.h"
 #include "ui/dialogs/CreateShortcutDialog.h"
-#include "ui/dialogs/ExportInstanceDialog.h"
+#include "ui/dialogs/SelectInstanceExportFormatDialog.h"
 
 #include "UpdateController.h"
 #include "KonamiCode.h"
@@ -1756,7 +1756,7 @@ void MainWindow::on_actionExportInstance_triggered()
 {
     if (m_selectedInstance)
     {
-        ExportInstanceDialog dlg(m_selectedInstance, this);
+        SelectInstanceExportFormatDialog dlg(m_selectedInstance, this);
         dlg.exec();
     }
 }
