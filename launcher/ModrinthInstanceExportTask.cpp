@@ -58,7 +58,8 @@ void ModrinthInstanceExportTask::executeTask()
 
     m_netJob = new NetJob(tr("Modrinth pack export"), APPLICATION->network());
 
-    for (QString filePath: filesToResolve) {
+    for (const QString &filePath: filesToResolve) {
+        qDebug() << "Attempting to resolve file hash from Modrinth API: " << filePath;
         QFile file(filePath);
 
         if (file.open(QFile::ReadOnly)) {
@@ -74,7 +75,8 @@ void ModrinthInstanceExportTask::executeTask()
 
             m_netJob->addNetAction(Net::Download::makeByteArray(
                     QString("https://api.modrinth.com/v2/version_file/%1?algorithm=sha512").arg(hash),
-                    &m_responses.last().response
+                    &m_responses.last().response,
+                    Net::Download::Options(Net::Download::Option::AllowNotFound)
             ));
         }
     }
@@ -114,7 +116,7 @@ void ModrinthInstanceExportTask::lookupSucceeded()
 
             resolvedFiles << fileData;
         } catch (const Json::JsonException &e) {
-            qDebug() << "File " << data.fileInfo.path() << " failed to process for reason " << e.cause() << ", adding to overrides";
+            qDebug() << "File " << data.fileInfo.absoluteFilePath() << " failed to process for reason " << e.cause() << ", adding to overrides";
             failedFiles << data.fileInfo;
         }
     }
@@ -178,7 +180,6 @@ void ModrinthInstanceExportTask::lookupSucceeded()
                 QString src = file.absoluteFilePath();
                 tmpDir.mkpath("overrides/" + gameDir.relativeFilePath(file.absolutePath()));
                 QString dest = tmpDir.path() + "/overrides/" + gameDir.relativeFilePath(src);
-                qDebug() << dest;
                 if (!QFile::copy(file.absoluteFilePath(), dest)) {
                     emitFailed(tr("Failed to copy file %1 to overrides").arg(src));
                     return;
@@ -206,13 +207,13 @@ void ModrinthInstanceExportTask::lookupSucceeded()
         return;
     }
 
+    qDebug() << "Successfully exported Modrinth pack to " << m_settings.exportPath;
     emitSucceeded();
 }
 
-void ModrinthInstanceExportTask::lookupFailed(const QString &)
+void ModrinthInstanceExportTask::lookupFailed(const QString &reason)
 {
-    lookupSucceeded(); // the NetJob will fail if some files were not found on Modrinth, we still want to continue in that case
-    // FIXME: the NetJob will retry each download 3 times if it fails, we should probably stop it from doing that
+    emitFailed(reason);
 }
 
 void ModrinthInstanceExportTask::lookupProgress(qint64 current, qint64 total)
