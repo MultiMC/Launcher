@@ -141,8 +141,6 @@ void InstanceExportTask::lookupSucceeded()
         }
     }
 
-    qDebug() << "Failed files: " << failedFiles;
-
     QJsonObject indexJson;
     indexJson.insert("formatVersion", QJsonValue(1));
     indexJson.insert("game", QJsonValue("minecraft"));
@@ -193,7 +191,7 @@ void InstanceExportTask::lookupSucceeded()
 
     QTemporaryDir tmp;
     if (tmp.isValid()) {
-        Json::write(indexJson, tmp.filePath("modrinth.index.json"));
+        Json::write(indexJson, tmp.path() + "/modrinth.index.json");
 
         if (!failedFiles.isEmpty()) {
             QDir tmpDir(tmp.path());
