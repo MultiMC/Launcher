@@ -12,7 +12,11 @@
 #include "net/NetJob.h"
 #include "ui/dialogs/ModrinthExportDialog.h"
 
-struct ModrinthExportSettings {
+namespace Modrinth
+{
+
+struct ExportSettings
+{
     QString version;
     QString name;
     QString description;
@@ -31,13 +35,14 @@ struct ModrinthExportSettings {
     QString exportPath;
 };
 
-struct ModrinthLookupData {
+struct HashLookupData
+{
     QFileInfo fileInfo;
     QByteArray response;
 };
 
 // Using the existing Modrinth::File struct from the importer doesn't actually make much sense here (doesn't support multiple hashes, hash is a byte array rather than a string, no file size, etc)
-struct ModrinthFile
+struct ExportFile
 {
     QString path;
     QString sha512;
@@ -46,12 +51,12 @@ struct ModrinthFile
     qint64 fileSize;
 };
 
-class ModrinthInstanceExportTask : public Task
+class InstanceExportTask : public Task
 {
 Q_OBJECT
 
 public:
-    explicit ModrinthInstanceExportTask(InstancePtr instance, ModrinthExportSettings settings);
+    explicit InstanceExportTask(InstancePtr instance, ExportSettings settings);
 
 protected:
     //! Entry point for tasks.
@@ -64,7 +69,9 @@ private slots:
 
 private:
     InstancePtr m_instance;
-    ModrinthExportSettings m_settings;
-    QList<ModrinthLookupData> m_responses;
+    ExportSettings m_settings;
+    QList<HashLookupData> m_responses;
     NetJob::Ptr m_netJob;
 };
+
+}

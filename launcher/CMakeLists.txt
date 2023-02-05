@@ -36,8 +36,6 @@ set(CORE_SOURCES
     InstanceCopyTask.cpp
     InstanceImportTask.h
     InstanceImportTask.cpp
-    ModrinthInstanceExportTask.h
-    ModrinthInstanceExportTask.cpp
 
     # Use tracking separate from memory management
     Usable.h
@@ -529,6 +527,8 @@ set(ATLAUNCHER_SOURCES
 set(MODRINTH_SOURCES
     modplatform/modrinth/ModrinthPackManifest.cpp
     modplatform/modrinth/ModrinthPackManifest.h
+    modplatform/modrinth/ModrinthInstanceExportTask.h
+    modplatform/modrinth/ModrinthInstanceExportTask.cpp
 )
 
 add_unit_test(Index

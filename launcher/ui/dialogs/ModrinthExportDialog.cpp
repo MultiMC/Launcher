@@ -12,7 +12,7 @@
 #include "ModrinthExportDialog.h"
 #include "ui_ModrinthExportDialog.h"
 #include "BaseInstance.h"
-#include "ModrinthInstanceExportTask.h"
+#include "modplatform/modrinth/ModrinthInstanceExportTask.h"
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 #include "ProgressDialog.h"
@@ -71,7 +71,7 @@ void ModrinthExportDialog::on_datapackPathBrowse_clicked()
 
 void ModrinthExportDialog::accept()
 {
-    ModrinthExportSettings settings;
+    Modrinth::ExportSettings settings;
 
     settings.name = ui->name->text();
     settings.version = ui->version->text();
@@ -109,11 +109,17 @@ void ModrinthExportDialog::accept()
 
     settings.exportPath = ui->file->text();
 
-    auto *task = new ModrinthInstanceExportTask(m_instance, settings);
+    auto *task = new Modrinth::InstanceExportTask(m_instance, settings);
 
     connect(task, &Task::failed, [this](QString reason)
         {
-            CustomMessageBox::selectable(parentWidget(), tr("Error"), reason, QMessageBox::Critical)->show();
+            QString text;
+            if (reason.length() > 1000) {
+                text = reason.left(1000) + "...";
+            } else {
+                text = reason;
+            }
+            CustomMessageBox::selectable(parentWidget(), tr("Error"), text, QMessageBox::Critical)->show();
         });
     connect(task, &Task::succeeded, [this, task]()
         {

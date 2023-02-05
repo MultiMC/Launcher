@@ -17,9 +17,12 @@
 #include "JlCompress.h"
 #include "FileSystem.h"
 
-ModrinthInstanceExportTask::ModrinthInstanceExportTask(InstancePtr instance, ModrinthExportSettings settings) : m_instance(instance), m_settings(settings) {}
+namespace Modrinth
+{
 
-void ModrinthInstanceExportTask::executeTask()
+InstanceExportTask::InstanceExportTask(InstancePtr instance, ExportSettings settings) : m_instance(instance), m_settings(settings) {}
+
+void InstanceExportTask::executeTask()
 {
     setStatus(tr("Finding files to look up on Modrinth..."));
 
@@ -83,9 +86,9 @@ void ModrinthInstanceExportTask::executeTask()
             hasher.addData(contents);
             QString hash = hasher.result().toHex();
 
-            m_responses.append(ModrinthLookupData {
-                QFileInfo(file),
-                QByteArray()
+            m_responses.append(HashLookupData{
+                    QFileInfo(file),
+                    QByteArray()
             });
 
             m_netJob->addNetAction(Net::Download::makeByteArray(
@@ -96,18 +99,18 @@ void ModrinthInstanceExportTask::executeTask()
         }
     }
 
-    connect(m_netJob.get(), &NetJob::succeeded, this, &ModrinthInstanceExportTask::lookupSucceeded);
-    connect(m_netJob.get(), &NetJob::failed, this, &ModrinthInstanceExportTask::lookupFailed);
-    connect(m_netJob.get(), &NetJob::progress, this, &ModrinthInstanceExportTask::lookupProgress);
+    connect(m_netJob.get(), &NetJob::succeeded, this, &InstanceExportTask::lookupSucceeded);
+    connect(m_netJob.get(), &NetJob::failed, this, &InstanceExportTask::lookupFailed);
+    connect(m_netJob.get(), &NetJob::progress, this, &InstanceExportTask::lookupProgress);
 
     m_netJob->start();
     setStatus(tr("Looking up files on Modrinth..."));
 }
 
-void ModrinthInstanceExportTask::lookupSucceeded()
+void InstanceExportTask::lookupSucceeded()
 {
     setStatus(tr("Creating modpack metadata..."));
-    QList<ModrinthFile> resolvedFiles;
+    QList<ExportFile> resolvedFiles;
     QFileInfoList failedFiles;
 
     for (const auto &data : m_responses) {
@@ -121,7 +124,7 @@ void ModrinthInstanceExportTask::lookupSucceeded()
             QString sha512Hash = Json::requireString(hashes, "sha512");
             QString sha1Hash = Json::requireString(hashes, "sha1");
 
-            ModrinthFile fileData;
+            ExportFile fileData;
 
             QDir gameDir(m_instance->gameRoot());
 
@@ -231,12 +234,14 @@ void ModrinthInstanceExportTask::lookupSucceeded()
     emitSucceeded();
 }
 
-void ModrinthInstanceExportTask::lookupFailed(const QString &reason)
+void InstanceExportTask::lookupFailed(const QString &reason)
 {
     emitFailed(reason);
 }
 
-void ModrinthInstanceExportTask::lookupProgress(qint64 current, qint64 total)
+void InstanceExportTask::lookupProgress(qint64 current, qint64 total)
 {
     setProgress(current, total);
+}
+
 }
