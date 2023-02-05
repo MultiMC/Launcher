@@ -89,23 +89,23 @@ void ModrinthExportDialog::accept()
     MinecraftInstancePtr minecraftInstance = std::dynamic_pointer_cast<MinecraftInstance>(m_instance);
     minecraftInstance->getPackProfile()->reload(Net::Mode::Offline);
 
-    auto minecraftComponent = minecraftInstance->getPackProfile()->getComponent("net.minecraft");
-    auto forgeComponent = minecraftInstance->getPackProfile()->getComponent("net.minecraftforge");
-    auto fabricComponent = minecraftInstance->getPackProfile()->getComponent("net.fabricmc.fabric-loader");
-    auto quiltComponent = minecraftInstance->getPackProfile()->getComponent("org.quiltmc.quilt-loader");
+    for (int i = 0; i < minecraftInstance->getPackProfile()->rowCount(); i++) {
+        auto component = minecraftInstance->getPackProfile()->getComponent(i);
+        if (component->isCustom()) {
+            CustomMessageBox::selectable(
+                    this,
+                    tr("Warning"),
+                    tr("Instance contains a custom component: %1\nThis cannot be exported to a Modrinth pack; the exported pack may not work correctly!")
+                        .arg(component->getName()),
+                    QMessageBox::Warning
+            )->exec();
+        }
+    }
 
-    if (minecraftComponent) {
-        settings.gameVersion = minecraftComponent->getVersion();
-    }
-    if (forgeComponent) {
-        settings.forgeVersion = forgeComponent->getVersion();
-    }
-    if (fabricComponent) {
-        settings.fabricVersion = fabricComponent->getVersion();
-    }
-    if (quiltComponent) {
-        settings.quiltVersion = quiltComponent->getVersion();
-    }
+    settings.gameVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraft");
+    settings.forgeVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraftforge");
+    settings.fabricVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.fabricmc.fabric-loader");
+    settings.forgeVersion = minecraftInstance->getPackProfile()->getComponentVersion("org.quiltmc.quilt-loader");
 
     settings.exportPath = ui->file->text();
 
