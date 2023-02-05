@@ -21,6 +21,8 @@ ModrinthInstanceExportTask::ModrinthInstanceExportTask(InstancePtr instance, Mod
 
 void ModrinthInstanceExportTask::executeTask()
 {
+    setStatus(tr("Finding files to look up on Modrinth..."));
+
     QDir modsDir(m_instance->gameRoot() + "/mods");
     modsDir.setFilter(QDir::Files);
     modsDir.setNameFilters(QStringList() << "*.jar");
@@ -99,10 +101,12 @@ void ModrinthInstanceExportTask::executeTask()
     connect(m_netJob.get(), &NetJob::progress, this, &ModrinthInstanceExportTask::lookupProgress);
 
     m_netJob->start();
+    setStatus(tr("Looking up files on Modrinth..."));
 }
 
 void ModrinthInstanceExportTask::lookupSucceeded()
 {
+    setStatus(tr("Creating modpack metadata..."));
     QList<ModrinthFile> resolvedFiles;
     QFileInfoList failedFiles;
 
@@ -182,6 +186,8 @@ void ModrinthInstanceExportTask::lookupSucceeded()
 
     indexJson.insert("dependencies", dependencies);
 
+    setStatus(tr("Copying files to modpack..."));
+
     QTemporaryDir tmp;
     if (tmp.isValid()) {
         Json::write(indexJson, tmp.filePath("modrinth.index.json"));
@@ -211,6 +217,7 @@ void ModrinthInstanceExportTask::lookupSucceeded()
             }
         }
 
+        setStatus(tr("Zipping modpack..."));
         if (!JlCompress::compressDir(m_settings.exportPath, tmp.path())) {
             emitFailed(tr("Failed to create zip file"));
             return;
