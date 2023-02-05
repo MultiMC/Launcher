@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,6 +121,13 @@ void Download::downloadError(QNetworkReply::NetworkError error)
     {
         qCritical() << "Aborted " << m_url.toString();
         m_status = Job_Aborted;
+    }
+    else if(error == QNetworkReply::ContentNotFoundError && (m_options & Option::AllowNotFound))
+    {
+        // The Modrinth API returns a 404 when a hash was not found when performing reverse hash lookup, we don't want to treat this as a failure
+        qDebug() << "Received 404 from " << m_url.toString() << ", continuing...";
+        m_status = Job_Finished;
+        return;
     }
     else
     {

@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Authors: Andrew Okin
  *          Peterix
@@ -85,6 +85,7 @@
 #include "ui/dialogs/NotificationDialog.h"
 #include "ui/dialogs/CreateShortcutDialog.h"
 #include "ui/dialogs/ExportInstanceDialog.h"
+#include "ui/dialogs/ModrinthExportDialog.h"
 
 #include "UpdateController.h"
 #include "KonamiCode.h"
@@ -974,6 +975,33 @@ void MainWindow::showInstanceContextMenu(const QPoint &pos)
 
 void MainWindow::updateToolsMenu()
 {
+    QToolButton *exportButton = dynamic_cast<QToolButton*>(ui->instanceToolBar->widgetForAction(ui->actionExportInstance));
+    exportButton->setPopupMode(QToolButton::MenuButtonPopup);
+
+    QMenu *exportMenu = ui->actionExportInstance->menu();
+
+    if (exportMenu) {
+        exportMenu->clear();
+    } else {
+        exportMenu = new QMenu();
+    }
+
+    exportMenu->addSeparator()->setText(tr("Format"));
+
+    QAction *mmcExport = exportMenu->addAction(BuildConfig.LAUNCHER_NAME);
+    QAction *modrinthExport = exportMenu->addAction(tr("Modrinth (WIP)"));
+
+    connect(mmcExport, &QAction::triggered, this, &MainWindow::on_actionExportInstance_triggered);
+    connect(modrinthExport, &QAction::triggered, [this]()
+    {
+        if (m_selectedInstance) {
+            ModrinthExportDialog dlg(m_selectedInstance, this);
+            dlg.exec();
+        }
+    });
+
+    ui->actionExportInstance->setMenu(exportMenu);
+
     QToolButton *launchButton = dynamic_cast<QToolButton*>(ui->instanceToolBar->widgetForAction(ui->actionLaunchInstance));
     QToolButton *launchOfflineButton = dynamic_cast<QToolButton*>(ui->instanceToolBar->widgetForAction(ui->actionLaunchInstanceOffline));
 
