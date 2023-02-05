@@ -16,6 +16,7 @@
 #include "ui/dialogs/ModrinthExportDialog.h"
 #include "JlCompress.h"
 #include "FileSystem.h"
+#include "ModrinthHashLookupRequest.h"
 
 namespace Modrinth
 {
@@ -76,6 +77,10 @@ void InstanceExportTask::executeTask()
 
     m_netJob = new NetJob(tr("Modrinth pack export"), APPLICATION->network());
 
+    QList<HashLookupData> hashes;
+
+    qint64 progress = 0;
+    setProgress(progress, filesToResolve.length());
     for (const QString &filePath: filesToResolve) {
         qDebug() << "Attempting to resolve file hash from Modrinth API: " << filePath;
         QFile file(filePath);
@@ -86,19 +91,19 @@ void InstanceExportTask::executeTask()
             hasher.addData(contents);
             QString hash = hasher.result().toHex();
 
-            m_responses.append(HashLookupData{
-                    QFileInfo(file),
-                    hash,
-                    QByteArray()
+            hashes.append(HashLookupData {
+                QFileInfo(file),
+                hash
             });
 
-            m_netJob->addNetAction(Net::Download::makeByteArray(
-                    QString("https://api.modrinth.com/v2/version_file/%1?algorithm=sha512").arg(hash),
-                    &m_responses.last().response,
-                    Net::Download::Options(Net::Download::Option::AllowNotFound)
-            ));
+            progress++;
+            setProgress(progress, filesToResolve.length());
         }
     }
+
+    m_response.reset(new QList<HashLookupResponseData>);
+
+    m_netJob->addNetAction(HashLookupRequest::make(hashes, m_response.get()));
 
     connect(m_netJob.get(), &NetJob::succeeded, this, &InstanceExportTask::lookupSucceeded);
     connect(m_netJob.get(), &NetJob::failed, this, &InstanceExportTask::lookupFailed);
@@ -114,43 +119,32 @@ void InstanceExportTask::lookupSucceeded()
     QList<ExportFile> resolvedFiles;
     QFileInfoList failedFiles;
 
-    for (const auto &data : m_responses) {
-        try {
-            auto document = Json::requireDocument(data.response);
-            auto object = Json::requireObject(document);
-            auto files = Json::requireIsArrayOf<QJsonObject>(object, "files");
+    for (const auto &file : *m_response) {
+        if (file.found) {
+            try {
+                auto url = Json::requireString(file.fileJson, "url");
+                auto hashes = Json::requireObject(file.fileJson, "hashes");
 
-            QJsonObject file;
+                QString sha512Hash = Json::requireString(hashes, "sha512");
+                QString sha1Hash = Json::requireString(hashes, "sha1");
 
-            for (const auto &fileJson : files) {
-                auto hashes = Json::requireObject(fileJson, "hashes");
-                QString sha512 = Json::requireString(hashes, "sha512");
+                ExportFile fileData;
 
-                if (sha512 == data.sha512) {
-                    file = fileJson;
-                }
+                QDir gameDir(m_instance->gameRoot());
+
+                fileData.path = gameDir.relativeFilePath(file.fileInfo.absoluteFilePath());
+                fileData.download = url;
+                fileData.sha512 = sha512Hash;
+                fileData.sha1 = sha1Hash;
+                fileData.fileSize = file.fileInfo.size();
+
+                resolvedFiles << fileData;
+            } catch (const Json::JsonException &e) {
+                qDebug() << "File " << file.fileInfo.absoluteFilePath() << " failed to process for reason " << e.cause() << ", adding to overrides";
+                failedFiles << file.fileInfo;
             }
-
-            auto url = Json::requireString(file, "url");
-            auto hashes = Json::requireObject(file, "hashes");
-
-            QString sha512Hash = Json::requireString(hashes, "sha512");
-            QString sha1Hash = Json::requireString(hashes, "sha1");
-
-            ExportFile fileData;
-
-            QDir gameDir(m_instance->gameRoot());
-
-            fileData.path = gameDir.relativeFilePath(data.fileInfo.absoluteFilePath());
-            fileData.download = url;
-            fileData.sha512 = sha512Hash;
-            fileData.sha1 = sha1Hash;
-            fileData.fileSize = data.fileInfo.size();
-
-            resolvedFiles << fileData;
-        } catch (const Json::JsonException &e) {
-            qDebug() << "File " << data.fileInfo.absoluteFilePath() << " failed to process for reason " << e.cause() << ", adding to overrides";
-            failedFiles << data.fileInfo;
+        } else {
+            failedFiles << file.fileInfo;
         }
     }
 
