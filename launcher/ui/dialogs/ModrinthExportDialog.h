@@ -28,6 +28,7 @@ public:
 
 private slots:
     void on_fileBrowseButton_clicked();
+    void on_datapackPathBrowse_clicked();
     void accept() override;
     void updateDialogState();
 

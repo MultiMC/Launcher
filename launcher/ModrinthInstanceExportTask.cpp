@@ -56,6 +56,19 @@ void ModrinthInstanceExportTask::executeTask()
         }
     }
 
+    if (!m_settings.datapacksPath.isEmpty()) {
+        QDir datapacksDir(m_instance->gameRoot() + "/" + m_settings.datapacksPath);
+        datapacksDir.setFilter(QDir::Files);
+        datapacksDir.setNameFilters(QStringList() << "*.zip");
+
+        if (datapacksDir.exists()) {
+            QDirIterator datapacksIterator(datapacksDir);
+            while (datapacksIterator.hasNext()) {
+                filesToResolve << datapacksIterator.next();
+            }
+        }
+    }
+
     m_netJob = new NetJob(tr("Modrinth pack export"), APPLICATION->network());
 
     for (const QString &filePath: filesToResolve) {

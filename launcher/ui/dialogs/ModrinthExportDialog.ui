@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>679</width>
+    <width>835</width>
     <height>559</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>661</width>
+     <width>821</width>
      <height>541</height>
     </rect>
    </property>
@@ -58,7 +58,7 @@
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>641</width>
+         <width>801</width>
          <height>151</height>
         </rect>
        </property>
@@ -111,7 +111,7 @@
         <rect>
          <x>9</x>
          <y>29</y>
-         <width>641</width>
+         <width>801</width>
          <height>221</height>
         </rect>
        </property>
@@ -173,6 +173,30 @@
            <string>Include shader packs</string>
           </property>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QCheckBox" name="includeDatapacks">
+            <property name="toolTip">
+             <string>Use this if your modpack contains a mod which adds global datapacks.</string>
+            </property>
+            <property name="text">
+             <string>Include global datapacks folder:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="datapacksPath"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="datapackPathBrowse">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -266,6 +290,38 @@
     </hint>
     <hint type="destinationlabel">
      <x>339</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>datapacksPath</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>532</x>
+     <y>472</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>417</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>includeDatapacks</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>183</x>
+     <y>472</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>417</x>
      <y>279</y>
     </hint>
    </hints>

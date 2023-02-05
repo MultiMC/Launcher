@@ -32,7 +32,11 @@ void ModrinthExportDialog::updateDialogState()
     ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(
             !ui->name->text().isEmpty()
             && !ui->version->text().isEmpty()
-            && !ui->file->text().isEmpty()
+            && ui->file->text().endsWith(".mrpack")
+            && (
+                    !ui->includeDatapacks->isChecked()
+                    || (!ui->datapacksPath->text().isEmpty() && QDir(m_instance->gameRoot() + "/" + ui->datapacksPath->text()).exists())
+            )
     );
 }
 
@@ -40,12 +44,26 @@ void ModrinthExportDialog::on_fileBrowseButton_clicked()
 {
     QFileDialog dialog(this, tr("Select modpack file"), QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
     dialog.setDefaultSuffix("mrpack");
+    dialog.setNameFilter("Modrinth modpacks (*.mrpack)");
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setFileMode(QFileDialog::AnyFile);
     dialog.selectFile(ui->name->text() + ".mrpack");
 
     if (dialog.exec()) {
         ui->file->setText(dialog.selectedFiles().at(0));
+    }
+
+    updateDialogState();
+}
+
+void ModrinthExportDialog::on_datapackPathBrowse_clicked()
+{
+    QFileDialog dialog(this, tr("Select global datapacks folder"), m_instance->gameRoot());
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
+    dialog.setFileMode(QFileDialog::DirectoryOnly);
+
+    if (dialog.exec()) {
+        ui->datapacksPath->setText(QDir(m_instance->gameRoot()).relativeFilePath(dialog.selectedFiles().at(0)));
     }
 
     updateDialogState();
@@ -63,6 +81,10 @@ void ModrinthExportDialog::accept()
     settings.includeModConfigs = ui->includeModConfigs->isChecked();
     settings.includeResourcePacks = ui->includeResourcePacks->isChecked();
     settings.includeShaderPacks = ui->includeShaderPacks->isChecked();
+
+    if (ui->includeDatapacks->isChecked()) {
+        settings.datapacksPath = ui->datapacksPath->text();
+    }
 
     MinecraftInstancePtr minecraftInstance = std::dynamic_pointer_cast<MinecraftInstance>(m_instance);
     minecraftInstance->getPackProfile()->reload(Net::Mode::Offline);

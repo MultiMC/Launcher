@@ -21,6 +21,7 @@ struct ModrinthExportSettings {
     bool includeModConfigs;
     bool includeResourcePacks;
     bool includeShaderPacks;
+    QString datapacksPath;
 
     QString gameVersion;
     QString forgeVersion;
