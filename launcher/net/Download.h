@@ -33,7 +33,7 @@ public: /* types */
     {
         NoOptions = 0,
         AcceptLocalFiles = 1,
-        AllowNotFound =2
+        AllowNotFound = 2
     };
     Q_DECLARE_FLAGS(Options, Option)
 

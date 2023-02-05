@@ -786,7 +786,7 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/SkinUploadDialog.h
     ui/dialogs/CreateShortcutDialog.cpp
     ui/dialogs/CreateShortcutDialog.h
-        ui/dialogs/ModrinthExportDialog.cpp
+    ui/dialogs/ModrinthExportDialog.cpp
     ui/dialogs/ModrinthExportDialog.h
 
     # GUI - widgets

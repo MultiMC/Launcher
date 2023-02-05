@@ -58,7 +58,7 @@ protected:
 
 private slots:
     void lookupSucceeded();
-    void lookupFailed(const QString &);
+    void lookupFailed(const QString &reason);
     void lookupProgress(qint64 current, qint64 total);
 
 private:
