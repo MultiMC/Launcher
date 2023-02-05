@@ -88,6 +88,7 @@ void InstanceExportTask::executeTask()
 
             m_responses.append(HashLookupData{
                     QFileInfo(file),
+                    hash,
                     QByteArray()
             });
 
@@ -117,7 +118,19 @@ void InstanceExportTask::lookupSucceeded()
         try {
             auto document = Json::requireDocument(data.response);
             auto object = Json::requireObject(document);
-            auto file = Json::requireIsArrayOf<QJsonObject>(object, "files").first();
+            auto files = Json::requireIsArrayOf<QJsonObject>(object, "files");
+
+            QJsonObject file;
+
+            for (const auto &fileJson : files) {
+                auto hashes = Json::requireObject(fileJson, "hashes");
+                QString sha512 = Json::requireString(hashes, "sha512");
+
+                if (sha512 == data.sha512) {
+                    file = fileJson;
+                }
+            }
+
             auto url = Json::requireString(file, "url");
             auto hashes = Json::requireObject(file, "hashes");
 

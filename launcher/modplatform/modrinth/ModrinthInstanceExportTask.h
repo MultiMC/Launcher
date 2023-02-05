@@ -38,6 +38,7 @@ struct ExportSettings
 struct HashLookupData
 {
     QFileInfo fileInfo;
+    QString sha512;
     QByteArray response;
 };
 
