@@ -105,7 +105,7 @@ void ModrinthExportDialog::accept()
     settings.gameVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraft");
     settings.forgeVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraftforge");
     settings.fabricVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.fabricmc.fabric-loader");
-    settings.forgeVersion = minecraftInstance->getPackProfile()->getComponentVersion("org.quiltmc.quilt-loader");
+    settings.quiltVersion = minecraftInstance->getPackProfile()->getComponentVersion("org.quiltmc.quilt-loader");
 
     settings.exportPath = ui->file->text();
 
