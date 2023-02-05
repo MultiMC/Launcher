@@ -986,8 +986,10 @@ void MainWindow::updateToolsMenu()
         exportMenu = new QMenu();
     }
 
+    exportMenu->addSeparator()->setText(tr("Format"));
+
     QAction *mmcExport = exportMenu->addAction(BuildConfig.LAUNCHER_NAME);
-    QAction *modrinthExport = exportMenu->addAction(tr("Modrinth"));
+    QAction *modrinthExport = exportMenu->addAction(tr("Modrinth (WIP)"));
 
     connect(mmcExport, &QAction::triggered, this, &MainWindow::on_actionExportInstance_triggered);
     connect(modrinthExport, &QAction::triggered, [this]()
