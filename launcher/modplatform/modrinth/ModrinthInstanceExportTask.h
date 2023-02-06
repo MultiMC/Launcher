@@ -11,6 +11,7 @@
 #include "BaseInstance.h"
 #include "net/NetJob.h"
 #include "ui/dialogs/ModrinthExportDialog.h"
+#include "ModrinthHashLookupRequest.h"
 
 namespace Modrinth
 {
@@ -33,13 +34,6 @@ struct ExportSettings
     QString quiltVersion;
 
     QString exportPath;
-};
-
-struct HashLookupData
-{
-    QFileInfo fileInfo;
-    QString sha512;
-    QByteArray response;
 };
 
 // Using the existing Modrinth::File struct from the importer doesn't actually make much sense here (doesn't support multiple hashes, hash is a byte array rather than a string, no file size, etc)
@@ -71,7 +65,7 @@ private slots:
 private:
     InstancePtr m_instance;
     ExportSettings m_settings;
-    QList<HashLookupData> m_responses;
+    std::shared_ptr<QList<HashLookupResponseData>> m_response;
     NetJob::Ptr m_netJob;
 };
 

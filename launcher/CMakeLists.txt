@@ -529,6 +529,8 @@ set(MODRINTH_SOURCES
     modplatform/modrinth/ModrinthPackManifest.h
     modplatform/modrinth/ModrinthInstanceExportTask.h
     modplatform/modrinth/ModrinthInstanceExportTask.cpp
+    modplatform/modrinth/ModrinthHashLookupRequest.h
+    modplatform/modrinth/ModrinthHashLookupRequest.cpp
 )
 
 add_unit_test(Index
