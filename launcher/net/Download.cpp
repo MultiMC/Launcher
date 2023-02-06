@@ -122,13 +122,6 @@ void Download::downloadError(QNetworkReply::NetworkError error)
         qCritical() << "Aborted " << m_url.toString();
         m_status = Job_Aborted;
     }
-    else if(error == QNetworkReply::ContentNotFoundError && (m_options & Option::AllowNotFound))
-    {
-        // The Modrinth API returns a 404 when a hash was not found when performing reverse hash lookup, we don't want to treat this as a failure
-        qDebug() << "Received 404 from " << m_url.toString() << ", continuing...";
-        m_status = Job_Finished;
-        return;
-    }
     else
     {
         if(m_options & Option::AcceptLocalFiles)
