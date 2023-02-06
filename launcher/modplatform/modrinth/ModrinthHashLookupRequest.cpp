@@ -43,7 +43,7 @@ void HashLookupRequest::startImpl()
     m_reply.reset(rep);
     connect(rep, &QNetworkReply::uploadProgress, this, &HashLookupRequest::downloadProgress);
     connect(rep, &QNetworkReply::finished, this, &HashLookupRequest::downloadFinished);
-    connect(rep, &QNetworkReply::errorOccurred, this, &HashLookupRequest::downloadError);
+    connect(rep, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(downloadError(QNetworkReply::NetworkError)));
 }
 
 void HashLookupRequest::downloadError(QNetworkReply::NetworkError error)
