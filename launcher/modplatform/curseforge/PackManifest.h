@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QUrl>
 #include <QJsonObject>
+#include <QMap>
 
 namespace CurseForge
 {
