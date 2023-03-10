@@ -110,6 +110,8 @@ public:
     /// Value used for instance window titles
     QString windowTitle() const;
 
+    QString instanceTitle() const;
+
     QString iconKey() const;
     void setIconKey(QString val);
 

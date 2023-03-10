@@ -313,6 +313,11 @@ QString BaseInstance::windowTitle() const
     return BuildConfig.LAUNCHER_NAME + ": " + name().replace(QRegExp("[ \n\r\t]+"), " ");
 }
 
+QString BaseInstance::instanceTitle() const
+{
+    return name().replace(QRegExp("[ \n\r\t]+"), " ");
+}
+
 // FIXME: why is this here? move it to MinecraftInstance!!!
 QStringList BaseInstance::extraArguments() const
 {

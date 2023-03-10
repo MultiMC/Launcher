@@ -42,6 +42,9 @@ public class OneSixLauncher implements Launcher
     private String windowTitle;
     private String windowParams;
 
+    private String instanceTitle;
+    private String instanceIconId;
+
     // secondary parameters
     private int winSizeW;
     private int winSizeH;
@@ -67,6 +70,13 @@ public class OneSixLauncher implements Launcher
         sessionId = params.first("sessionId");
         windowTitle = params.firstSafe("windowTitle", "Minecraft");
         windowParams = params.firstSafe("windowParams", "854x480");
+
+        instanceTitle = params.firstSafe("instanceTitle", "Minecraft");
+        instanceIconId = params.firstSafe("instanceIconId", "default");
+
+        // NOTE: this is included for the CraftPresence mod
+        System.setProperty("multimc.instance.title", instanceTitle);
+        System.setProperty("multimc.instance.icon", instanceIconId);
 
         serverAddress = params.firstSafe("serverAddress", null);
         serverPort = params.firstSafe("serverPort", null);

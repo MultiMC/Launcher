@@ -513,6 +513,8 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftS
                                .arg(settings()->get("MinecraftWinHeight").toInt());
         launchScript += "windowTitle " + windowTitle() + "\n";
         launchScript += "windowParams " + windowParams + "\n";
+        launchScript += "instanceTitle " + instanceTitle() + "\n";
+        launchScript += "instanceIconId " + iconKey() + "\n";
     }
 
     // legacy auth
