@@ -63,7 +63,7 @@ QuickPlayTarget QuickPlayTarget::parseMultiplayer(const QString &fullAddress) {
         }
     }
 
-    return QuickPlayTarget {realAddress, realPort };
+    return QuickPlayTarget { realAddress, realPort };
 }
 
 QuickPlayTarget QuickPlayTarget::parseSingleplayer(const QString &worldName)
