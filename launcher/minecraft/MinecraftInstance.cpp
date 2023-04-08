@@ -440,7 +440,7 @@ QStringList MinecraftInstance::processMinecraftArgs(
         }
     }
 
-    if (quickPlayTarget && quickPlayTarget->world.isEmpty())
+    if (quickPlayTarget && !quickPlayTarget->world.isEmpty())
     {
         args_pattern += " --quickPlaySingleplayer \"" + quickPlayTarget->world + "\"";
     }
