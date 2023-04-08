@@ -55,6 +55,8 @@ public class OneSixLauncher implements Launcher
     private String serverPort;
     private boolean useQuickPlay;
 
+    private String joinWorld;
+
     // the much abused system classloader, for convenience (for further abuse)
     private ClassLoader cl;
 
@@ -82,6 +84,7 @@ public class OneSixLauncher implements Launcher
         serverAddress = params.firstSafe("serverAddress", null);
         serverPort = params.firstSafe("serverPort", null);
         useQuickPlay = params.firstSafe("useQuickPlay").startsWith("1");
+        joinWorld = params.firstSafe("joinWorld", null);
 
         cwd = System.getProperty("user.dir");
 
@@ -183,6 +186,12 @@ public class OneSixLauncher implements Launcher
             mcparams.add(Integer.toString(winSizeW));
             mcparams.add("--height");
             mcparams.add(Integer.toString(winSizeH));
+        }
+
+        if (joinWorld != null)
+        {
+            mcparams.add("--quickPlaySingleplayer");
+            mcparams.add(joinWorld);
         }
 
         if (serverAddress != null)

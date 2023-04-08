@@ -33,7 +33,7 @@
 
 #include "net/Mode.h"
 
-#include "minecraft/launch/MinecraftServerTarget.h"
+#include "minecraft/launch/QuickPlayTarget.h"
 
 class QDir;
 class Task;
@@ -161,7 +161,7 @@ public:
 
     /// returns a valid launcher (task container)
     virtual shared_qobject_ptr<LaunchTask> createLaunchTask(
-            AuthSessionPtr account, MinecraftServerTargetPtr serverToJoin) = 0;
+            AuthSessionPtr account, QuickPlayTargetPtr quickPlayTarget) = 0;
 
     /// returns the current launch task (if any)
     shared_qobject_ptr<LaunchTask> getLaunchTask();
@@ -239,7 +239,7 @@ public:
     /**
      * 'print' a verbose description of the instance into a QStringList
      */
-    virtual QStringList verboseDescription(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) = 0;
+    virtual QStringList verboseDescription(AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget) = 0;
 
     Status currentStatus() const;
 

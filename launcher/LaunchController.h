@@ -3,7 +3,7 @@
 #include <BaseInstance.h>
 #include <tools/BaseProfiler.h>
 
-#include "minecraft/launch/MinecraftServerTarget.h"
+#include "minecraft/launch/QuickPlayTarget.h"
 #include "minecraft/auth/MinecraftAccount.h"
 
 class InstanceWindow;
@@ -40,8 +40,8 @@ public:
         m_parentWidget = widget;
     }
 
-    void setServerToJoin(MinecraftServerTargetPtr serverToJoin) {
-        m_serverToJoin = std::move(serverToJoin);
+    void setQuickPlayTarget(QuickPlayTargetPtr quickPlayTarget) {
+        m_quickPlayTarget = std::move(quickPlayTarget);
     }
 
     void setAccountToUse(MinecraftAccountPtr accountToUse) {
@@ -77,5 +77,5 @@ private:
     MinecraftAccountPtr m_accountToUse = nullptr;
     AuthSessionPtr m_session;
     shared_qobject_ptr<LaunchTask> m_launcher;
-    MinecraftServerTargetPtr m_serverToJoin;
+    QuickPlayTargetPtr m_quickPlayTarget;
 };

@@ -11,7 +11,7 @@
 
 #include <BaseInstance.h>
 
-#include "minecraft/launch/MinecraftServerTarget.h"
+#include "minecraft/launch/QuickPlayTarget.h"
 
 class LaunchController;
 class LocalPeer;
@@ -150,12 +150,12 @@ signals:
 
 public slots:
     bool launch(
-        InstancePtr instance,
-        bool online = true,
-        BaseProfilerFactory *profiler = nullptr,
-        MinecraftServerTargetPtr serverToJoin = nullptr,
-        MinecraftAccountPtr accountToUse = nullptr,
-        const QString &offlineName = QString()
+            InstancePtr instance,
+            bool online = true,
+            BaseProfilerFactory *profiler = nullptr,
+            QuickPlayTargetPtr quickPlayTarget = nullptr,
+            MinecraftAccountPtr accountToUse = nullptr,
+            const QString &offlineName = QString()
     );
     bool kill(InstancePtr instance);
 
@@ -234,6 +234,7 @@ private:
 public:
     QString m_instanceIdToLaunch;
     QString m_serverToJoin;
+    QString m_worldToJoin;
     QString m_profileToUse;
     bool m_offline = false;
     QString m_offlineName;

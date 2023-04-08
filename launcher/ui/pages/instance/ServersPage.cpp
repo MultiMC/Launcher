@@ -762,7 +762,8 @@ void ServersPage::on_actionMove_Down_triggered()
 void ServersPage::on_actionJoin_triggered()
 {
     const auto &address = m_model->at(currentServer)->m_address;
-    APPLICATION->launch(m_inst, true, nullptr, std::make_shared<MinecraftServerTarget>(MinecraftServerTarget::parse(address)));
+    APPLICATION->launch(m_inst, true, nullptr, std::make_shared<QuickPlayTarget>(
+            QuickPlayTarget::parseMultiplayer(address)));
 }
 
 #include "ServersPage.moc"

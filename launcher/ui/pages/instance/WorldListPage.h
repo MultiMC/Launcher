@@ -34,7 +34,7 @@ class WorldListPage : public QMainWindow, public BasePage
 
 public:
     explicit WorldListPage(
-        BaseInstance *inst,
+        InstancePtr inst,
         std::shared_ptr<WorldList> worlds,
         QWidget *parent = 0
     );
@@ -67,13 +67,14 @@ protected:
     QMenu * createPopupMenu() override;
 
 protected:
-    BaseInstance *m_inst;
+    InstancePtr m_inst;
 
 private:
     QModelIndex getSelectedWorld();
     bool isWorldSafe(QModelIndex index);
     bool worldSafetyNagQuestion();
     void mceditError();
+    void joinSelectedWorld(bool online);
 
 private:
     Ui::WorldListPage *ui;
@@ -92,6 +93,8 @@ private slots:
     void on_actionView_Folder_triggered();
     void on_actionDatapacks_triggered();
     void on_actionReset_Icon_triggered();
+    void on_actionJoin_triggered();
+    void on_actionJoinOffline_triggered();
     void worldChanged(const QModelIndex &current, const QModelIndex &previous);
     void mceditState(LoggedProcess::State state);
 

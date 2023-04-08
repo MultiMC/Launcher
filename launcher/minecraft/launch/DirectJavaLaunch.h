@@ -19,7 +19,7 @@
 #include <LoggedProcess.h>
 #include <minecraft/auth/AuthSession.h>
 
-#include "MinecraftServerTarget.h"
+#include "QuickPlayTarget.h"
 
 class DirectJavaLaunch: public LaunchStep
 {
@@ -41,9 +41,9 @@ public:
         m_session = session;
     }
 
-    void setServerToJoin(MinecraftServerTargetPtr serverToJoin)
+    void setQuickPlayTarget(QuickPlayTargetPtr quickPlayTarget)
     {
-        m_serverToJoin = std::move(serverToJoin);
+        m_quickPlayTarget = std::move(quickPlayTarget);
     }
 
 private slots:
@@ -53,6 +53,6 @@ private:
     LoggedProcess m_process;
     QString m_command;
     AuthSessionPtr m_session;
-    MinecraftServerTargetPtr m_serverToJoin;
+    QuickPlayTargetPtr m_quickPlayTarget;
 };
 

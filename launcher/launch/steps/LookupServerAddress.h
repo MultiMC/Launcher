@@ -19,7 +19,7 @@
 #include <QObjectPtr.h>
 #include <QDnsLookup>
 
-#include "minecraft/launch/MinecraftServerTarget.h"
+#include "minecraft/launch/QuickPlayTarget.h"
 
 class LookupServerAddress: public LaunchStep {
 Q_OBJECT
@@ -35,7 +35,7 @@ public:
     }
 
     void setLookupAddress(const QString &lookupAddress);
-    void setOutputAddressPtr(MinecraftServerTargetPtr output);
+    void setOutputAddressPtr(QuickPlayTargetPtr output);
 
 private slots:
     void on_dnsLookupFinished();
@@ -45,5 +45,5 @@ private:
 
     QDnsLookup *m_dnsLookup;
     QString m_lookupAddress;
-    MinecraftServerTargetPtr m_output;
+    QuickPlayTargetPtr m_output;
 };

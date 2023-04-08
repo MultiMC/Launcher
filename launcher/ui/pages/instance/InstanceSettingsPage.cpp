@@ -16,6 +16,10 @@
 #include "java/JavaInstallList.h"
 #include "FileSystem.h"
 
+#include "minecraft/MinecraftInstance.h"
+#include "minecraft/PackProfile.h"
+#include "minecraft/VersionFilterData.h"
+#include "minecraft/WorldList.h"
 
 InstanceSettingsPage::InstanceSettingsPage(BaseInstance *inst, QWidget *parent)
     : QWidget(parent), ui(new Ui::InstanceSettingsPage), m_instance(inst)
@@ -27,6 +31,23 @@ InstanceSettingsPage::InstanceSettingsPage(BaseInstance *inst, QWidget *parent)
     connect(ui->openGlobalJavaSettingsButton, &QCommandLinkButton::clicked, this, &InstanceSettingsPage::globalSettingsButtonClicked);
     connect(APPLICATION, &Application::globalSettingsAboutToOpen, this, &InstanceSettingsPage::applySettings);
     connect(APPLICATION, &Application::globalSettingsClosed, this, &InstanceSettingsPage::loadSettings);
+
+    auto *mcInst = dynamic_cast<MinecraftInstance *>(inst);
+    if (mcInst && mcInst->getPackProfile()->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
+    {
+        mcInst->worldList()->update();
+        for (const auto &world : mcInst->worldList()->allWorlds())
+        {
+            ui->worldsComboBox->addItem(world.folderName());
+        }
+    }
+    else
+    {
+        ui->worldRadioButton->setVisible(false);
+        ui->worldsComboBox->setVisible(false);
+        ui->serverAddressRadioButton->setChecked(true);
+    }
+
     loadSettings();
 }
 
@@ -195,8 +216,12 @@ void InstanceSettingsPage::applySettings()
     }
 
     // Join server on launch
-    bool joinServerOnLaunch = ui->serverJoinGroupBox->isChecked();
+    bool joinWorldOnLaunch = ui->quickPlayGroupBox->isChecked();
+    m_settings->set("JoinWorldOnLaunch", joinWorldOnLaunch);
+
+    bool joinServerOnLaunch = ui->serverAddressRadioButton->isChecked();
     m_settings->set("JoinServerOnLaunch", joinServerOnLaunch);
+
     if (joinServerOnLaunch)
     {
         m_settings->set("JoinServerOnLaunchAddress", ui->serverJoinAddress->text());
@@ -204,6 +229,18 @@ void InstanceSettingsPage::applySettings()
     else
     {
         m_settings->reset("JoinServerOnLaunchAddress");
+    }
+
+    bool joinSingleplayerWorldOnLaunch = ui->worldRadioButton->isChecked();
+    m_settings->set("JoinSingleplayerWorldOnLaunch", joinSingleplayerWorldOnLaunch);
+
+    if (joinSingleplayerWorldOnLaunch)
+    {
+        m_settings->set("JoinSingleplayerWorldOnLaunchName", ui->worldsComboBox->currentText());
+    }
+    else
+    {
+        m_settings->reset("JoinSingleplayerWorldOnLaunchName");
     }
 }
 
@@ -272,8 +309,23 @@ void InstanceSettingsPage::loadSettings()
     ui->showGameTime->setChecked(m_settings->get("ShowGameTime").toBool());
     ui->recordGameTime->setChecked(m_settings->get("RecordGameTime").toBool());
 
-    ui->serverJoinGroupBox->setChecked(m_settings->get("JoinServerOnLaunch").toBool());
-    ui->serverJoinAddress->setText(m_settings->get("JoinServerOnLaunchAddress").toString());
+    if (!m_settings->contains("JoinWorldOnLaunch"))
+    {
+        ui->quickPlayGroupBox->setChecked(m_settings->get("JoinServerOnLaunch").toBool());
+        ui->serverAddressRadioButton->setChecked(m_settings->get("JoinServerOnLaunch").toBool());
+        ui->worldRadioButton->setChecked(false);
+    }
+    else
+    {
+        ui->quickPlayGroupBox->setChecked(m_settings->get("JoinWorldOnLaunch").toBool());
+        ui->serverAddressRadioButton->setChecked(m_settings->get("JoinServerOnLaunch").toBool());
+        ui->serverJoinAddress->setEnabled(m_settings->get("JoinServerOnLaunch").toBool());
+        ui->serverJoinAddress->setText(m_settings->get("JoinServerOnLaunchAddress").toString());
+        ui->worldRadioButton->setChecked(m_settings->get("JoinSingleplayerWorldOnLaunch").toBool());
+        ui->worldsComboBox->setEnabled(m_settings->get("JoinSingleplayerWorldOnLaunch").toBool());
+        ui->worldsComboBox->setCurrentText(m_settings->get("JoinSingleplayerWorldOnLaunchName").toString());
+    }
+
 }
 
 void InstanceSettingsPage::on_javaDetectBtn_clicked()
@@ -332,6 +384,16 @@ void InstanceSettingsPage::on_javaTestBtn_clicked()
         ui->minMemSpinBox->value(), ui->maxMemSpinBox->value(), ui->permGenSpinBox->value()));
     connect(checker.get(), SIGNAL(finished()), SLOT(checkerFinished()));
     checker->run();
+}
+
+void InstanceSettingsPage::on_serverAddressRadioButton_toggled(bool checked)
+{
+    ui->serverJoinAddress->setEnabled(checked);
+}
+
+void InstanceSettingsPage::on_worldRadioButton_toggled(bool checked)
+{
+    ui->worldsComboBox->setEnabled(checked);
 }
 
 void InstanceSettingsPage::checkerFinished()

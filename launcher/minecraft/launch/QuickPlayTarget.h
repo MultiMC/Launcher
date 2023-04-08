@@ -19,11 +19,16 @@
 
 #include <QString>
 
-struct MinecraftServerTarget {
+struct QuickPlayTarget {
+    // Multiplayer
     QString address;
     quint16 port;
 
-    static MinecraftServerTarget parse(const QString &fullAddress);
+    // Singleplayer
+    QString world;
+
+    static QuickPlayTarget parseMultiplayer(const QString &fullAddress);
+    static QuickPlayTarget parseSingleplayer(const QString &worldName);
 };
 
-typedef std::shared_ptr<MinecraftServerTarget> MinecraftServerTargetPtr;
+typedef std::shared_ptr<QuickPlayTarget> QuickPlayTargetPtr;

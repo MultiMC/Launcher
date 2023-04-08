@@ -122,8 +122,11 @@ MinecraftInstance::MinecraftInstance(SettingsObjectPtr globalSettings, SettingsO
     m_settings->registerOverride(globalSettings->getSetting("RecordGameTime"), gameTimeOverride);
 
     // Join server on launch, this does not have a global override
+    m_settings->registerSetting("JoinWorldOnLaunch", false);
     m_settings->registerSetting("JoinServerOnLaunch", false);
     m_settings->registerSetting("JoinServerOnLaunchAddress", "");
+    m_settings->registerSetting("JoinSingleplayerWorldOnLaunch", false);
+    m_settings->registerSetting("JoinSingleplayerWorldOnLaunchName", "");
 
     // DEPRECATED: Read what versions the user configuration thinks should be used
     m_settings->registerSetting({"IntendedVersion", "MinecraftVersion"}, "");
@@ -415,7 +418,7 @@ static QString replaceTokensIn(QString text, QMap<QString, QString> with)
 }
 
 QStringList MinecraftInstance::processMinecraftArgs(
-        AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) const
+        AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget) const
 {
     auto profile = m_components->getProfile();
     QString args_pattern = profile->getMinecraftArguments();
@@ -424,17 +427,22 @@ QStringList MinecraftInstance::processMinecraftArgs(
         args_pattern += " --tweakClass " + tweaker;
     }
 
-    if (serverToJoin && !serverToJoin->address.isEmpty())
+    if (quickPlayTarget && !quickPlayTarget->address.isEmpty())
     {
         if (m_components->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
         {
-            args_pattern += " --quickPlayMultiplayer " + serverToJoin->address + ":" + QString::number(serverToJoin->port);
+            args_pattern += " --quickPlayMultiplayer " + quickPlayTarget->address + ":" + QString::number(quickPlayTarget->port);
         }
         else
         {
-            args_pattern += " --server " + serverToJoin->address;
-            args_pattern += " --port " + QString::number(serverToJoin->port);
+            args_pattern += " --server " + quickPlayTarget->address;
+            args_pattern += " --port " + QString::number(quickPlayTarget->port);
         }
+    }
+
+    if (quickPlayTarget && quickPlayTarget->world.isEmpty())
+    {
+        args_pattern += " --quickPlaySingleplayer \"" + quickPlayTarget->world + "\"";
     }
     
     QMap<QString, QString> token_mapping;
@@ -474,7 +482,7 @@ QStringList MinecraftInstance::processMinecraftArgs(
     return parts;
 }
 
-QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin)
+QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget)
 {
     QString launchScript;
 
@@ -495,17 +503,22 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftS
         launchScript += "appletClass " + appletClass + "\n";
     }
 
-    if (serverToJoin && !serverToJoin->address.isEmpty())
+    if (quickPlayTarget && !quickPlayTarget->address.isEmpty())
     {
         launchScript += "useQuickPlay " + QString::number(m_components->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate) + "\n";
-        launchScript += "serverAddress " + serverToJoin->address + "\n";
-        launchScript += "serverPort " + QString::number(serverToJoin->port) + "\n";
+        launchScript += "serverAddress " + quickPlayTarget->address + "\n";
+        launchScript += "serverPort " + QString::number(quickPlayTarget->port) + "\n";
+    }
+
+    if (quickPlayTarget && !quickPlayTarget->world.isEmpty())
+    {
+        launchScript += "joinWorld " + quickPlayTarget->world + "\n";
     }
 
     // generic minecraft params
     for (auto param : processMinecraftArgs(
             session,
-            nullptr /* When using a launch script, the server parameters are handled by it*/
+            nullptr /* When using a launch script, the server and world parameters are handled by it*/
     ))
     {
         launchScript += "param " + param + "\n";
@@ -558,7 +571,7 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftS
     return launchScript;
 }
 
-QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin)
+QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget)
 {
     QStringList out;
     out << "Main Class:" << "  " + getMainClass() << "";
@@ -673,7 +686,7 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, Minecr
         out << "";
     }
 
-    auto params = processMinecraftArgs(nullptr, serverToJoin);
+    auto params = processMinecraftArgs(nullptr, quickPlayTarget);
     out << "Params:";
     out << "  " + params.join(' ');
     out << "";
@@ -834,7 +847,7 @@ Task::Ptr MinecraftInstance::createUpdateTask(Net::Mode mode)
     return nullptr;
 }
 
-shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin)
+shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget)
 {
     // FIXME: get rid of shared_from_this ...
     auto process = LaunchTask::create(std::dynamic_pointer_cast<MinecraftInstance>(shared_from_this()));
@@ -866,18 +879,26 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         process->appendStep(new CreateGameFolders(pptr));
     }
 
-    if (!serverToJoin && m_settings->get("JoinServerOnLaunch").toBool())
+    if (!quickPlayTarget && m_settings->get("JoinWorldOnLaunch").toBool())
     {
-        QString fullAddress = m_settings->get("JoinServerOnLaunchAddress").toString();
-        serverToJoin.reset(new MinecraftServerTarget(MinecraftServerTarget::parse(fullAddress)));
+        if (m_settings->get("JoinServerOnLaunch").toBool())
+        {
+            QString fullAddress = m_settings->get("JoinServerOnLaunchAddress").toString();
+            quickPlayTarget.reset(new QuickPlayTarget(QuickPlayTarget::parseMultiplayer(fullAddress)));
+        }
+        else if (m_settings->get("JoinSingleplayerWorldOnLaunch").toBool())
+        {
+            QString worldName = m_settings->get("JoinSingleplayerWorldOnLaunchName").toString();
+            quickPlayTarget.reset(new QuickPlayTarget(QuickPlayTarget::parseSingleplayer(worldName)));
+        }
     }
 
-    if(serverToJoin && serverToJoin->port == 25565)
+    if(quickPlayTarget && quickPlayTarget->port == 25565)
     {
         // Resolve server address to join on launch
         auto *step = new LookupServerAddress(pptr);
-        step->setLookupAddress(serverToJoin->address);
-        step->setOutputAddressPtr(serverToJoin);
+        step->setLookupAddress(quickPlayTarget->address);
+        step->setOutputAddressPtr(quickPlayTarget);
         process->appendStep(step);
     }
 
@@ -914,7 +935,7 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
 
     // print some instance info here...
     {
-        process->appendStep(new PrintInstanceInfo(pptr, session, serverToJoin));
+        process->appendStep(new PrintInstanceInfo(pptr, session, quickPlayTarget));
     }
 
     // extract native jars if needed
@@ -940,7 +961,7 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
             auto step = new LauncherPartLaunch(pptr);
             step->setWorkingDirectory(gameRoot());
             step->setAuthSession(session);
-            step->setServerToJoin(serverToJoin);
+            step->setQuickPlayTarget(quickPlayTarget);
             process->appendStep(step);
         }
         else if (method == "DirectJava")
@@ -948,7 +969,7 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
             auto step = new DirectJavaLaunch(pptr);
             step->setWorkingDirectory(gameRoot());
             step->setAuthSession(session);
-            step->setServerToJoin(serverToJoin);
+            step->setQuickPlayTarget(quickPlayTarget);
             process->appendStep(step);
         }
     }
