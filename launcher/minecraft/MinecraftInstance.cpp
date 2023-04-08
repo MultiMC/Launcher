@@ -48,6 +48,7 @@
 #include "MinecraftLoadAndCheck.h"
 #include "minecraft/gameoptions/GameOptions.h"
 #include "minecraft/update/FoldersTask.h"
+#include "minecraft/VersionFilterData.h"
 
 #define IBUS "@im=ibus"
 
@@ -425,10 +426,17 @@ QStringList MinecraftInstance::processMinecraftArgs(
 
     if (serverToJoin && !serverToJoin->address.isEmpty())
     {
-        args_pattern += " --server " + serverToJoin->address;
-        args_pattern += " --port " + QString::number(serverToJoin->port);
+        if (m_components->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
+        {
+            args_pattern += " --quickPlayMultiplayer " + serverToJoin->address + ":" + QString::number(serverToJoin->port);
+        }
+        else
+        {
+            args_pattern += " --server " + serverToJoin->address;
+            args_pattern += " --port " + QString::number(serverToJoin->port);
+        }
     }
-
+    
     QMap<QString, QString> token_mapping;
     // yggdrasil!
     if(session) {
@@ -489,6 +497,7 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftS
 
     if (serverToJoin && !serverToJoin->address.isEmpty())
     {
+        launchScript += "useQuickPlay " + QString::number(m_components->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate) + "\n";
         launchScript += "serverAddress " + serverToJoin->address + "\n";
         launchScript += "serverPort " + QString::number(serverToJoin->port) + "\n";
     }
