@@ -81,9 +81,8 @@
    </attribute>
    <addaction name="actionAdd"/>
    <addaction name="separator"/>
-   <addaction name="actionJoin" />
-   <addaction name="actionJoinOffline" />
-   <addaction name="separator" />
+   <addaction name="actionJoin"/>
+   <addaction name="actionJoinOffline"/>
    <addaction name="actionRename"/>
    <addaction name="actionCopy"/>
    <addaction name="actionRemove"/>

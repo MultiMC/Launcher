@@ -20,7 +20,6 @@ private slots:
         setText(m_action->text());
         setIcon(m_action->icon());
         setToolTip(m_action->toolTip());
-        setHidden(!m_action->isVisible());
         setFocusPolicy(Qt::NoFocus);
     }
 private:
@@ -63,6 +62,9 @@ void WideBar::addAction(QAction* action)
 {
     auto entry = new BarEntry();
     entry->qAction = addWidget(new ActionButton(action, this));
+    connect(action, &QAction::changed, entry->qAction, [entry, action](){
+        entry->qAction->setVisible(action->isVisible());
+    });
     entry->wideAction = action;
     entry->type = BarEntry::Action;
     m_entries.push_back(entry);
