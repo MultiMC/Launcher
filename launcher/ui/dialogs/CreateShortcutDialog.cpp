@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 arthomnix
+ * Copyright 2022-2023 arthomnix
  *
  * This source is subject to the Microsoft Public License (MS-PL).
  * Please see the COPYING.md file for more information.
@@ -13,6 +13,8 @@
 #include "Application.h"
 #include "minecraft/auth/AccountList.h"
 #include "minecraft/MinecraftInstance.h"
+#include "minecraft/WorldList.h"
+#include "minecraft/VersionFilterData.h"
 #include "minecraft/PackProfile.h"
 #include "icons/IconList.h"
 
@@ -42,6 +44,23 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
     }
 
     // TODO: check if version is affected by crashing when joining servers on launch, ideally in meta
+
+    auto mcInstance = std::dynamic_pointer_cast<MinecraftInstance>(instance);
+    mcInstance->getPackProfile()->reload(Net::Mode::Offline);
+    if (mcInstance && mcInstance->getPackProfile()->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
+    {
+        mcInstance->worldList()->update();
+        for (const auto &world : mcInstance->worldList()->allWorlds())
+        {
+            ui->joinSingleplayer->addItem(world.folderName());
+        }
+    }
+    else
+    {
+        ui->joinServerRadioButton->setChecked(true);
+        ui->joinSingleplayerRadioButton->setVisible(false);
+        ui->joinSingleplayer->setVisible(false);
+    }
 
     // Macs don't have any concept of a desktop shortcut, so force-enable the option to generate a shell script instead
 #if defined(Q_OS_UNIX) && !defined(Q_OS_LINUX)
@@ -90,16 +109,16 @@ void CreateShortcutDialog::accept()
 
 void CreateShortcutDialog::updateDialogState()
 {
-
     ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(
             !ui->shortcutPath->text().isEmpty()
-            && (!ui->joinServerCheckBox->isChecked() || !ui->joinServer->text().isEmpty())
+            && (!ui->joinWorldCheckBox->isChecked() || ui->joinServerRadioButton->isChecked() || ui->joinSingleplayerRadioButton->isChecked())
+            && (!ui->joinServerRadioButton->isChecked() || !ui->joinServer->text().isEmpty())
+            && (!ui->joinSingleplayerRadioButton->isChecked() || !ui->joinSingleplayer->currentText().isEmpty())
             && (!ui->offlineUsernameCheckBox->isChecked() || !ui->offlineUsername->text().isEmpty())
             && (!ui->useProfileCheckBox->isChecked() || !ui->profileComboBox->currentText().isEmpty())
     );
-    ui->joinServer->setEnabled(ui->joinServerCheckBox->isChecked());
-    ui->profileComboBox->setEnabled(ui->useProfileCheckBox->isChecked());
-    ui->offlineUsernameCheckBox->setEnabled(ui->launchOfflineCheckBox->isChecked());
+    ui->joinServer->setEnabled(ui->joinWorldCheckBox->isChecked() && ui->joinServerRadioButton->isChecked());
+    ui->joinSingleplayer->setEnabled(ui->joinWorldCheckBox->isChecked() && ui->joinSingleplayerRadioButton->isChecked());
     ui->offlineUsername->setEnabled(ui->launchOfflineCheckBox->isChecked() && ui->offlineUsernameCheckBox->isChecked());
     if (!ui->launchOfflineCheckBox->isChecked())
     {
@@ -117,7 +136,8 @@ QString CreateShortcutDialog::getLaunchArgs(bool escapeQuotesTwice)
 {
     return " -d \"" + QDir::toNativeSeparators(QDir::currentPath()).replace('"', escapeQuotesTwice ? "\\\\\"" : "\\\"") + "\""
            + " -l \"" + m_instance->id() + "\""
-           + (ui->joinServerCheckBox->isChecked() ? " -s \"" + ui->joinServer->text() + "\"" : "")
+           + (ui->joinServerRadioButton->isChecked() ? " -s \"" + ui->joinServer->text() + "\"" : "")
+           + (ui->joinSingleplayerRadioButton->isChecked() ? " -w \"" + ui->joinSingleplayer->currentText() + "\"" : "")
            + (ui->useProfileCheckBox->isChecked() ? " -a \"" + ui->profileComboBox->currentText() + "\"" : "")
            + (ui->launchOfflineCheckBox->isChecked() ? " -o" : "")
            + (ui->offlineUsernameCheckBox->isChecked() ? " -n \"" + ui->offlineUsername->text() + "\"" : "");
