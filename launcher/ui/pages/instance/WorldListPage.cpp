@@ -318,8 +318,14 @@ void WorldListPage::worldChanged(const QModelIndex &current, const QModelIndex &
 
     QModelIndex index = getSelectedWorld();
     bool enable = index.isValid();
-    // FIXME: Hide the join buttons if the Minecraft version is too old instead of just disabling them.
-    // ui->actionJoin->setVisible(false) had no effect for some reason, at least on my machine -arthomnix
+    ui->actionJoin->setVisible(enableJoinActions);
+    ui->actionJoinOffline->setVisible(enableJoinActions);
+    // The above lines will only hide the actions from the right click menu, to hide them from the toolbar we need to do this.
+    // If any more actions are added above the Join/Join Offline actions, these indices will need to be updated!
+    ui->toolBar->actions().at(2)->setVisible(enableJoinActions);
+    ui->toolBar->actions().at(3)->setVisible(enableJoinActions);
+    // Also disable the separator so there aren't 2 separators in a row
+    ui->toolBar->actions().at(4)->setVisible(enableJoinActions);
     ui->actionJoin->setEnabled(enable && enableJoinActions);
     ui->actionJoinOffline->setEnabled(enable && enableJoinActions);
     ui->actionCopy_Seed->setEnabled(enable);
