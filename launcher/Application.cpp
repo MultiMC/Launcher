@@ -1197,6 +1197,7 @@ void Application::messageReceived(const QByteArray& message)
     {
         QString id = received.args["id"];
         QString server = received.args["server"];
+        QString world = received.args["world"];
         QString profile = received.args["profile"];
         bool offline = received.args["offline_enabled"] == "true";
         QString offlineName = received.args["offline_name"];
@@ -1214,9 +1215,11 @@ void Application::messageReceived(const QByteArray& message)
             return;
         }
 
-        QuickPlayTargetPtr serverObject = nullptr;
+        QuickPlayTargetPtr quickPlayTarget = nullptr;
         if(!server.isEmpty()) {
-            serverObject = std::make_shared<QuickPlayTarget>(QuickPlayTarget::parseMultiplayer(server));
+            quickPlayTarget = std::make_shared<QuickPlayTarget>(QuickPlayTarget::parseMultiplayer(server));
+        } else if(!world.isEmpty()) {
+            quickPlayTarget = std::make_shared<QuickPlayTarget>(QuickPlayTarget::parseSingleplayer(world));
         }
 
         MinecraftAccountPtr accountObject;
@@ -1232,7 +1235,7 @@ void Application::messageReceived(const QByteArray& message)
             instance,
             !offline,
             nullptr,
-            serverObject,
+            quickPlayTarget,
             accountObject,
             offlineName
         );
