@@ -71,8 +71,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_NO_DEPRECATED_WARNINGS=Y")
 set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetch Launcher's news RSS feed from.")
 
 ######## Set version numbers ########
-set(Launcher_VERSION_MAJOR    0)
-set(Launcher_VERSION_MINOR    7)
+set(Launcher_VERSION_MAJOR    6)
+set(Launcher_VERSION_MINOR    0)
 set(Launcher_VERSION_HOTFIX   0)
 
 # Build number
