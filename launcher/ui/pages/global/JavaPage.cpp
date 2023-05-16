@@ -140,10 +140,17 @@ void JavaPage::on_javaTestBtn_clicked()
     {
         return;
     }
-    checker.reset(new JavaCommon::TestCheck(
-        this, ui->javaPathTextBox->text(), ui->jvmArgsTextBox->text(),
-        ui->minMemSpinBox->value(), ui->maxMemSpinBox->value(), ui->permGenSpinBox->value()));
-    connect(checker.get(), SIGNAL(finished()), SLOT(checkerFinished()));
+    checker.reset(
+        new JavaCommon::TestCheck(
+            this,
+            ui->javaPathTextBox->text(),
+            ui->jvmArgsTextBox->text(),
+            ui->minMemSpinBox->value(),
+            ui->maxMemSpinBox->value(),
+            ui->permGenSpinBox->value()
+        )
+    );
+    connect(checker.get(), &JavaCommon::TestCheck::finished, this, &JavaPage::checkerFinished);
     checker->run();
 }
 

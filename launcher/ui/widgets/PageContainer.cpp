@@ -44,7 +44,6 @@ public:
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
     {
-        const QString pattern = filterRegExp().pattern();
         const auto model = static_cast<PageModel *>(sourceModel());
         const auto page = model->pages().at(sourceRow);
         if (!page->shouldDisplay())
@@ -80,8 +79,7 @@ PageContainer::PageContainer(BasePageProvider *pageProvider, QString defaultId,
     m_pageList->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_pageList->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     m_pageList->setModel(m_proxyModel);
-    connect(m_pageList->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-            this, SLOT(currentChanged(QModelIndex)));
+    connect(m_pageList->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &PageContainer::currentChanged);
     m_pageStack->setStackingMode(QStackedLayout::StackOne);
     m_pageList->setFocus();
     selectPage(defaultId);
@@ -149,7 +147,6 @@ void PageContainer::createUI()
     headerHLayout->addSpacerItem(new QSpacerItem(rightMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
     headerHLayout->setContentsMargins(0, 6, 0, 0);
 
-    m_pageStack->setMargin(0);
     m_pageStack->addWidget(new QWidget(this));
 
     m_layout = new QGridLayout;

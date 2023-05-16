@@ -27,8 +27,9 @@
 #include <QtCore/QFileInfo>
 
 #include <QtGui/QKeyEvent>
+#include <QtGui/QAction>
+#include <QtGui/QShortcut>
 
-#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHBoxLayout>
@@ -44,7 +45,6 @@
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QWidgetAction>
 #include <QtWidgets/QProgressDialog>
-#include <QtWidgets/QShortcut>
 
 #include <BaseInstance.h>
 #include <InstanceList.h>
@@ -701,7 +701,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     {
         // FIXME: This is kinda weird. and bad. We need some kind of managed shutdown.
         auto q = new QShortcut(QKeySequence::Quit, this);
-        connect(q, SIGNAL(activated()), qApp, SLOT(quit()));
+        connect(q, &QShortcut::activated, qApp, &QCoreApplication::quit);
     }
 
     // Konami Code
@@ -757,7 +757,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         bool cat_enable = APPLICATION->settings()->get("TheCat").toBool();
         ui->actionCAT->setChecked(cat_enable);
         // NOTE: calling the operator like that is an ugly hack to appease ancient gcc...
-        connect(ui->actionCAT.operator->(), SIGNAL(toggled(bool)), SLOT(onCatToggled(bool)));
+        connect(ui->actionCAT.operator->(), &QAction::toggled, this, &MainWindow::onCatToggled);
         setCatBackground(cat_enable);
     }
     // start instance when double-clicked
@@ -949,7 +949,7 @@ void MainWindow::showInstanceContextMenu(const QPoint &pos)
             actionCreateInstance->setData(data);
         }
 
-        connect(actionCreateInstance, SIGNAL(triggered(bool)), SLOT(on_actionAddInstance_triggered()));
+        connect(actionCreateInstance, &QAction::triggered, this, &MainWindow::on_actionAddInstance_triggered);
 
         actions.prepend(actionSep);
         actions.prepend(actionVoid);
@@ -960,7 +960,7 @@ void MainWindow::showInstanceContextMenu(const QPoint &pos)
             QVariantMap data;
             data["group"] = group;
             actionDeleteGroup->setData(data);
-            connect(actionDeleteGroup, SIGNAL(triggered(bool)), SLOT(deleteGroup()));
+            connect(actionDeleteGroup, &QAction::triggered, this, &MainWindow::deleteGroup);
             actions.append(actionDeleteGroup);
         }
     }
@@ -1123,7 +1123,7 @@ void MainWindow::repopulateAccountsMenu()
                 action->setIcon(APPLICATION->getThemedIcon("noaccount"));
             }
             accountMenu->addAction(action);
-            connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
+            connect(action, &QAction::triggered, this, &MainWindow::changeActiveAccount);
         }
     }
 
@@ -1138,7 +1138,7 @@ void MainWindow::repopulateAccountsMenu()
     }
 
     accountMenu->addAction(action);
-    connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
+    connect(action, &QAction::triggered, this, &MainWindow::changeActiveAccount);
 
     accountMenu->addSeparator();
     accountMenu->addAction(ui->actionManageAccounts);
@@ -1285,7 +1285,7 @@ void MainWindow::updateNotAvailable()
 
 QList<int> stringToIntList(const QString &string)
 {
-    QStringList split = string.split(',', QString::SkipEmptyParts);
+    QStringList split = string.split(',', Qt::SkipEmptyParts);
     QList<int> out;
     for (int i = 0; i < split.size(); ++i)
     {
@@ -1911,8 +1911,8 @@ void MainWindow::taskEnd()
 
 void MainWindow::startTask(Task *task)
 {
-    connect(task, SIGNAL(succeeded()), SLOT(taskEnd()));
-    connect(task, SIGNAL(failed(QString)), SLOT(taskEnd()));
+    connect(task, &Task::succeeded, this, &MainWindow::taskEnd);
+    connect(task, &Task::failed, this, &MainWindow::taskEnd);
     task->start();
 }
 

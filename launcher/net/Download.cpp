@@ -101,9 +101,9 @@ void Download::startImpl()
     QNetworkReply *rep = m_network->get(request);
 
     m_reply.reset(rep);
-    connect(rep, SIGNAL(downloadProgress(qint64, qint64)), SLOT(downloadProgress(qint64, qint64)));
-    connect(rep, SIGNAL(finished()), SLOT(downloadFinished()));
-    connect(rep, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(downloadError(QNetworkReply::NetworkError)));
+    connect(rep, &QNetworkReply::downloadProgress, this, &Download::downloadProgress);
+    connect(rep, &QNetworkReply::finished, this, &Download::downloadFinished);
+    connect(rep, &QNetworkReply::errorOccurred, this, &Download::downloadError);
     connect(rep, &QNetworkReply::sslErrors, this, &Download::sslErrors);
     connect(rep, &QNetworkReply::readyRead, this, &Download::downloadReadyRead);
 }

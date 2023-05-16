@@ -504,7 +504,7 @@ void PackInstallTask::extractConfigs()
         return;
     }
 
-    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractDir, archivePath, extractDir.absolutePath() + "/minecraft");
+    m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractArchiveToDir, archivePath, extractDir.absolutePath() + "/minecraft");
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, [&]()
     {
         downloadMods();
@@ -652,7 +652,7 @@ void PackInstallTask::onModsDownloaded() {
     jobPtr.reset();
 
     if(!modsToExtract.empty() || !modsToDecomp.empty() || !modsToCopy.empty()) {
-        m_modExtractFuture = QtConcurrent::run(QThreadPool::globalInstance(), this, &PackInstallTask::extractMods, modsToExtract, modsToDecomp, modsToCopy);
+        m_modExtractFuture = QtConcurrent::run(QThreadPool::globalInstance(), &PackInstallTask::extractMods, this, modsToExtract, modsToDecomp, modsToCopy);
         connect(&m_modExtractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, &PackInstallTask::onModsExtracted);
         connect(&m_modExtractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, [&]()
         {
@@ -704,11 +704,11 @@ bool PackInstallTask::extractMods(
         QString folderToExtract = "";
         if(mod.type == ModType::Extract) {
             folderToExtract = mod.extractFolder;
-            folderToExtract.remove(QRegExp("^/"));
+            folderToExtract.remove(QRegularExpression("^/"));
         }
 
         qDebug() << "Extracting " + mod.file + " to " + extractToDir;
-        if(!MMCZip::extractDir(modPath, folderToExtract, extractToPath)) {
+        if(!MMCZip::extractSubdirToDir(modPath, folderToExtract, extractToPath)) {
             // assume error
             return false;
         }

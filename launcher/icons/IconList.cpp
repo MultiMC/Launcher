@@ -46,9 +46,8 @@ IconList::IconList(const QStringList &builtinPaths, QString path, QObject *paren
 
     m_watcher.reset(new QFileSystemWatcher());
     is_watching = false;
-    connect(m_watcher.get(), SIGNAL(directoryChanged(QString)),
-            SLOT(directoryChanged(QString)));
-    connect(m_watcher.get(), SIGNAL(fileChanged(QString)), SLOT(fileChanged(QString)));
+    connect(m_watcher.get(), &QFileSystemWatcher::directoryChanged, this, &IconList::directoryChanged);
+    connect(m_watcher.get(), &QFileSystemWatcher::fileChanged, this, &IconList::fileChanged);
 
     directoryChanged(path);
 }
@@ -74,15 +73,16 @@ void IconList::directoryChanged(const QString &path)
         QString &foo = (*it);
         foo = m_dir.filePath(foo);
     }
-    auto new_set = new_list.toSet();
-    QList<QString> current_list;
+    auto new_set = QSet<QString>(new_list.begin(), new_list.end());
+
+    QSet<QString> current_set;
     for (auto &it : icons)
     {
         if (!it.has(IconType::FileBased))
             continue;
-        current_list.push_back(it.m_images[IconType::FileBased].filename);
+        current_set.insert(it.m_images[IconType::FileBased].filename);
     }
-    QSet<QString> current_set = current_list.toSet();
+
 
     QSet<QString> to_remove = current_set;
     to_remove -= new_set;

@@ -123,7 +123,7 @@ void Technic::SolderPackInstallTask::downloadSucceeded()
         while (m_modCount > i)
         {
             auto path = FS::PathCombine(m_outputDir.path(), QString("%1").arg(i));
-            if (!MMCZip::extractDir(path, extractDir))
+            if (!MMCZip::extractArchiveToDir(path, extractDir))
             {
                 return false;
             }

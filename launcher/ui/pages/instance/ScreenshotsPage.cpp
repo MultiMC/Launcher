@@ -106,7 +106,7 @@ public:
         m_thumbnailingPool.setMaxThreadCount(4);
         m_thumbnailCache = std::make_shared<SharedIconCache>();
         m_thumbnailCache->add("placeholder", APPLICATION->getThemedIcon("screenshot-placeholder"));
-        connect(&watcher, SIGNAL(fileChanged(QString)), SLOT(fileChanged(QString)));
+        connect(&watcher, &QFileSystemWatcher::fileChanged, this, &FilterModel::fileChanged);
         // FIXME: the watched file set is not updated when files are removed
     }
     virtual ~FilterModel() { m_thumbnailingPool.waitForDone(500); }
@@ -118,7 +118,7 @@ public:
         if (role == Qt::DisplayRole || role == Qt::EditRole)
         {
             QVariant result = sourceModel()->data(mapToSource(proxyIndex), role);
-            return result.toString().remove(QRegExp("\\.png$"));
+            return result.toString().remove(QRegularExpression("\\.png$"));
         }
         if (role == Qt::DecorationRole)
         {
@@ -164,10 +164,8 @@ private:
     void thumbnailImage(QString path)
     {
         auto runnable = new ThumbnailRunnable(path, m_thumbnailCache);
-        connect(&(runnable->m_resultEmitter), SIGNAL(resultsReady(QString)),
-                SLOT(thumbnailReady(QString)));
-        connect(&(runnable->m_resultEmitter), SIGNAL(resultsFailed(QString)),
-                SLOT(thumbnailFailed(QString)));
+        connect(&(runnable->m_resultEmitter), &ThumbnailingResult::resultsReady, this, &FilterModel::thumbnailReady);
+        connect(&(runnable->m_resultEmitter), &ThumbnailingResult::resultsFailed, this, &FilterModel::thumbnailFailed);
         ((QThreadPool &)m_thumbnailingPool).start(runnable);
     }
 private slots:
@@ -234,11 +232,11 @@ ScreenshotsPage::ScreenshotsPage(QString path, QWidget *parent)
     ui->listView->setViewMode(QListView::IconMode);
     ui->listView->setResizeMode(QListView::Adjust);
     ui->listView->installEventFilter(this);
-    ui->listView->setEditTriggers(0);
+    ui->listView->setEditTriggers(QListView::NoEditTriggers);
     ui->listView->setItemDelegate(new CenteredEditingDelegate(this));
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listView, &QListView::customContextMenuRequested, this, &ScreenshotsPage::ShowContextMenu);
-    connect(ui->listView, SIGNAL(activated(QModelIndex)), SLOT(onItemActivated(QModelIndex)));
+    connect(ui->listView, &QListView::activated, this, &ScreenshotsPage::onItemActivated);
 }
 
 bool ScreenshotsPage::eventFilter(QObject *obj, QEvent *evt)

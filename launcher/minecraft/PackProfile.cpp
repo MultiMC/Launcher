@@ -925,7 +925,7 @@ void PackProfile::move(const int index, const MoveDirection direction)
         return;
     }
     beginMoveRows(QModelIndex(), index, index, QModelIndex(), togap);
-    d->components.swap(index, theirIndex);
+    d->components.swapItemsAt(index, theirIndex);
     endMoveRows();
     invalidateLaunchProfile();
     scheduleSave();

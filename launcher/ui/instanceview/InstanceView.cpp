@@ -425,7 +425,8 @@ void InstanceView::mouseReleaseEvent(QMouseEvent *event)
         {
             emit clicked(index);
         }
-        QStyleOptionViewItem option = viewOptions();
+        QStyleOptionViewItem option;
+        initViewItemOption(&option);
         if (m_pressedAlreadySelected)
         {
             option.state |= QStyle::State_Selected;
@@ -461,7 +462,8 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent *event)
     QPersistentModelIndex persistent = index;
     emit doubleClicked(persistent);
 
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItem option;
+    initViewItemOption(&option);
     if ((model()->flags(index) & Qt::ItemIsEnabled) && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick, &option, this))
     {
         emit activated(index);
@@ -474,7 +476,8 @@ void InstanceView::paintEvent(QPaintEvent *event)
 
     QPainter painter(this->viewport());
 
-    QStyleOptionViewItem option(viewOptions());
+    QStyleOptionViewItem option;
+    initViewItemOption(&option);
     option.widget = this;
 
     int wpWidth = viewport()->width();
@@ -712,7 +715,9 @@ QRect InstanceView::geometryRect(const QModelIndex &index) const
     QRect out;
     out.setTop(cat->verticalPosition() + cat->headerHeight() + 5 + cat->rowTopOf(index));
     out.setLeft(m_spacing + x * (itemWidth() + m_spacing));
-    out.setSize(itemDelegate()->sizeHint(viewOptions(), index));
+    QStyleOptionViewItem option;
+    initViewItemOption(&option);
+    out.setSize(itemDelegate()->sizeHint(option, index));
     geometryCache.insert(row, new QRect(out));
     return out;
 }
@@ -759,7 +764,8 @@ QPixmap InstanceView::renderToPixmap(const QModelIndexList &indices, QRect *r) c
     QPixmap pixmap(r->size());
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItem option;
+    initViewItemOption(&option);
     option.state |= QStyle::State_Selected;
     for (int j = 0; j < paintPairs.count(); ++j)
     {
@@ -794,7 +800,7 @@ QPair<VisualGroup *, VisualGroup::HitResults> InstanceView::rowDropPos(const QPo
 {
     VisualGroup::HitResults hitresult;
     auto group = categoryAt(pos + offset(), hitresult);
-    return qMakePair<VisualGroup*, int>(group, hitresult);
+    return qMakePair(group, hitresult);
 }
 
 QPoint InstanceView::offset() const

@@ -410,7 +410,7 @@ void AccountData::invalidateClientToken() {
     if(type != AccountType::Mojang) {
         return;
     }
-    yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegExp("[{-}]"));
+    yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegularExpression("[{-}]"));
 }
 
 QString AccountData::profileId() const {

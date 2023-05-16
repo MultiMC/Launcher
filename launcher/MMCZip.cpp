@@ -261,7 +261,7 @@ bool MMCZip::extractRelFile(QuaZip *zip, const QString &file, const QString &tar
 }
 
 // ours
-nonstd::optional<QStringList> MMCZip::extractDir(QString fileCompressed, QString dir)
+nonstd::optional<QStringList> MMCZip::extractArchiveToDir(QString fileCompressed, QString dir)
 {
     QuaZip zip(fileCompressed);
     if (!zip.open(QuaZip::mdUnzip))
@@ -278,7 +278,7 @@ nonstd::optional<QStringList> MMCZip::extractDir(QString fileCompressed, QString
 }
 
 // ours
-nonstd::optional<QStringList> MMCZip::extractDir(QString fileCompressed, QString subdir, QString dir)
+nonstd::optional<QStringList> MMCZip::extractSubdirToDir(QString fileCompressed, QString subdir, QString dir)
 {
     QuaZip zip(fileCompressed);
     if (!zip.open(QuaZip::mdUnzip))

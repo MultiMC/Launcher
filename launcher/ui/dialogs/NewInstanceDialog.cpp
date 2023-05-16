@@ -53,14 +53,15 @@ NewInstanceDialog::NewInstanceDialog(const QString & initialGroup, const QString
     InstIconKey = "default";
     ui->iconButton->setIcon(APPLICATION->icons()->getIcon(InstIconKey));
 
-    auto groups = APPLICATION->instances()->getGroups().toSet();
-    auto groupList = QStringList(groups.toList());
-    groupList.sort(Qt::CaseInsensitive);
-    groupList.removeOne("");
-    groupList.push_front(initialGroup);
-    groupList.push_front("");
-    ui->groupBox->addItems(groupList);
-    int index = groupList.indexOf(initialGroup);
+    auto groupsListIn = APPLICATION->instances()->getGroups();
+    auto groupsSet = QSet<QString>(groupsListIn.begin(), groupsListIn.end());
+    auto groupsListOut = QStringList(groupsSet.begin(), groupsSet.end());
+    groupsListOut.sort(Qt::CaseInsensitive);
+    groupsListOut.removeOne("");
+    groupsListOut.push_front(initialGroup);
+    groupsListOut.push_front("");
+    ui->groupBox->addItems(groupsListOut);
+    int index = groupsListOut.indexOf(initialGroup);
     if(index == -1)
     {
         index = 0;

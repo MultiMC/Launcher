@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QRegularExpression>
 #include "DefaultVariable.h"
 
 struct GradleSpecifier
@@ -25,13 +26,14 @@ struct GradleSpecifier
          4 "jdk15"
          5 "jar"
         */
-        QRegExp matcher("([^:@]+):([^:@]+):([^:@]+)" "(?::([^:@]+))?" "(?:@([^:@]+))?");
-        m_valid = matcher.exactMatch(value);
+        QRegularExpression matcher("^([^:@]+):([^:@]+):([^:@]+)" "(?::([^:@]+))?" "(?:@([^:@]+))?$");
+        auto match = matcher.match(value);
+        m_valid = match.hasMatch();
         if(!m_valid) {
             m_invalidValue = value;
             return *this;
         }
-        auto elements = matcher.capturedTexts();
+        auto elements = match.capturedTexts();
         m_groupId = elements[1];
         m_artifactId = elements[2];
         m_version = elements[3];

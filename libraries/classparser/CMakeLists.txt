@@ -10,10 +10,7 @@ if(${BIGENDIAN})
 endif(${BIGENDIAN})
 
 # Find Qt
-find_package(Qt5Core REQUIRED)
-
-# Include Qt headers.
-include_directories(${Qt5Base_INCLUDE_DIRS})
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 set(CLASSPARSER_HEADERS
 # Public headers
@@ -38,4 +35,4 @@ add_definitions(-DCLASSPARSER_LIBRARY)
 
 add_library(Launcher_classparser STATIC ${CLASSPARSER_SOURCES} ${CLASSPARSER_HEADERS})
 target_include_directories(Launcher_classparser PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(Launcher_classparser Launcher_quazip Qt5::Core)
+target_link_libraries(Launcher_classparser Launcher_quazip Qt6::Core)

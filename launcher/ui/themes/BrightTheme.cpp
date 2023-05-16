@@ -1,4 +1,5 @@
 #include "BrightTheme.h"
+#include <QObject>
 
 QString BrightTheme::id()
 {

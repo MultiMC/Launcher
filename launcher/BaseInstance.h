@@ -16,6 +16,7 @@
 
 #pragma once
 #include <cassert>
+#include <memory>
 
 #include <QObject>
 #include "QObjectPtr.h"

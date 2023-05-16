@@ -32,7 +32,7 @@ ModFolderModel::ModFolderModel(const QString &dir) : QAbstractListModel(), m_dir
     m_dir.setFilter(QDir::Readable | QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
     m_dir.setSorting(QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
     m_watcher = new QFileSystemWatcher(this);
-    connect(m_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(directoryChanged(QString)));
+    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, &ModFolderModel::directoryChanged);
 }
 
 void ModFolderModel::startWatching()
@@ -89,9 +89,11 @@ bool ModFolderModel::update()
 
 void ModFolderModel::finishUpdate()
 {
-    QSet<QString> currentSet = modsIndex.keys().toSet();
+    auto currentSetKeys = modsIndex.keys();
+    auto currentSet = QSet<QString>(currentSetKeys.begin(), currentSetKeys.end());
     auto & newMods = m_update->mods;
-    QSet<QString> newSet = newMods.keys().toSet();
+    auto newSetKeys = newMods.keys();
+    auto newSet = QSet<QString>(newSetKeys.begin(), newSetKeys.end());
 
     // see if the kept mods changed in some way
     {
@@ -278,7 +280,7 @@ bool ModFolderModel::installMod(const QString &filename)
             return false;
         }
         FS::updateTimestamp(newpath);
-        installedMod.repath(newpath);
+        installedMod.repath(QFileInfo(newpath));
         update();
         return true;
     }
@@ -296,7 +298,8 @@ bool ModFolderModel::installMod(const QString &filename)
             qWarning() << "Copy of folder from" << originalPath << "to" << newpath << "has (potentially partially) failed.";
             return false;
         }
-        installedMod.repath(newpath);
+        QFileInfo newPathInfo(newpath);
+        installedMod.repath(newPathInfo);
         update();
         return true;
     }

@@ -116,7 +116,9 @@ void Page::openedImpl()
 
         ftbFetchTask->fetch();
         ftbPrivatePacks->load();
-        ftbFetchTask->fetchPrivate(ftbPrivatePacks->getCurrentPackCodes().toList());
+        auto packCodes = ftbPrivatePacks->getCurrentPackCodes();
+        auto packCodeList = QStringList(packCodes.begin(), packCodes.end());
+        ftbFetchTask->fetchPrivate(packCodeList);
         initialized = true;
     }
     suggestCurrent();

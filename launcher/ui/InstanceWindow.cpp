@@ -63,25 +63,25 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget *parent)
         auto btnHelp = new QPushButton();
         btnHelp->setText(tr("Help"));
         horizontalLayout->addWidget(btnHelp);
-        connect(btnHelp, SIGNAL(clicked(bool)), m_container, SLOT(help()));
+        connect(btnHelp, &QPushButton::clicked, m_container, &PageContainer::help);
 
         auto spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
         horizontalLayout->addSpacerItem(spacer);
 
         m_killButton = new QPushButton();
         horizontalLayout->addWidget(m_killButton);
-        connect(m_killButton, SIGNAL(clicked(bool)), SLOT(on_btnKillMinecraft_clicked()));
+        connect(m_killButton, &QPushButton::clicked, this, &InstanceWindow::on_btnKillMinecraft_clicked);
 
         m_launchOfflineButton = new QPushButton();
         horizontalLayout->addWidget(m_launchOfflineButton);
         m_launchOfflineButton->setText(tr("Launch Offline"));
         updateLaunchButtons();
-        connect(m_launchOfflineButton, SIGNAL(clicked(bool)), SLOT(on_btnLaunchMinecraftOffline_clicked()));
+        connect(m_launchOfflineButton, &QPushButton::clicked, this, &InstanceWindow::on_btnLaunchMinecraftOffline_clicked);
 
         m_closeButton = new QPushButton();
         m_closeButton->setText(tr("Close"));
         horizontalLayout->addWidget(m_closeButton);
-        connect(m_closeButton, SIGNAL(clicked(bool)), SLOT(on_closeButton_clicked()));
+        connect(m_closeButton, &QPushButton::clicked, this, &InstanceWindow::on_closeButton_clicked);
 
         m_container->addButtons(horizontalLayout);
     }

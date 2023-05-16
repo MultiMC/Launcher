@@ -76,8 +76,25 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
     ui->createScriptCheckBox->setChecked(true);
 #endif
 
-    connect(ui->joinWorldCheckBox, &QCheckBox::toggled, this, &CreateShortcutDialog::updateDialogState);
 
+    connect(ui->joinWorldCheckBox, &QCheckBox::toggled, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->joinServer, &QLineEdit::textChanged, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->launchOfflineCheckBox, &QCheckBox::stateChanged, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->offlineUsername, &QLineEdit::textChanged, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->offlineUsernameCheckBox, &QCheckBox::stateChanged, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->profileComboBox, &QComboBox::currentTextChanged, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->shortcutPath, &QLineEdit::textChanged, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->useProfileCheckBox, &QCheckBox::stateChanged, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->joinSingleplayer, &QComboBox::currentTextChanged, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->joinServerRadioButton, &QRadioButton::toggled, this, &CreateShortcutDialog::updateDialogState);
+    connect(ui->joinSingleplayerRadioButton, &QRadioButton::toggled, this, &CreateShortcutDialog::updateDialogState);
+
+    connect(ui->joinWorldCheckBox, &QCheckBox::toggled, ui->joinServerRadioButton, &QRadioButton::setEnabled);
+    connect(ui->joinWorldCheckBox, &QCheckBox::toggled, ui->joinSingleplayerRadioButton, &QRadioButton::setEnabled);
+    connect(ui->joinServerRadioButton, &QRadioButton::toggled, ui->joinServer, &QLineEdit::setEnabled);
+    connect(ui->joinSingleplayerRadioButton, &QRadioButton::toggled, ui->joinSingleplayer, &QComboBox::setEnabled);
+    connect(ui->useProfileCheckBox, &QCheckBox::toggled, ui->profileComboBox, &QComboBox::setEnabled);
+    connect(ui->launchOfflineCheckBox, &QCheckBox::toggled, ui->offlineUsernameCheckBox, &QCheckBox::setEnabled);
     updateDialogState();
 }
 

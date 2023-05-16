@@ -46,11 +46,11 @@ void JavaChecker::performCheck()
     process->setProcessEnvironment(CleanEnviroment());
     qDebug() << "Running java checker: " + m_path + args.join(" ");;
 
-    connect(process.get(), SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finished(int, QProcess::ExitStatus)));
-    connect(process.get(), SIGNAL(error(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
-    connect(process.get(), SIGNAL(readyReadStandardOutput()), this, SLOT(stdoutReady()));
-    connect(process.get(), SIGNAL(readyReadStandardError()), this, SLOT(stderrReady()));
-    connect(&killTimer, SIGNAL(timeout()), SLOT(timeout()));
+    connect(process.get(), &QProcess::finished, this, &JavaChecker::finished);
+    connect(process.get(), &QProcess::errorOccurred, this, &JavaChecker::error);
+    connect(process.get(), &QProcess::readyReadStandardError, this, &JavaChecker::stdoutReady);
+    connect(process.get(), &QProcess::readyReadStandardError, this, &JavaChecker::stderrReady);
+    connect(&killTimer, &QTimer::timeout, this, &JavaChecker::timeout);
     killTimer.setSingleShot(true);
     killTimer.start(15000);
     process->start();
@@ -99,7 +99,7 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
     bool success = true;
 
     QMap<QString, QString> results;
-    QStringList lines = m_stdout.split("\n", QString::SkipEmptyParts);
+    QStringList lines = m_stdout.split("\n", Qt::SkipEmptyParts);
     for(QString line : lines)
     {
         line = line.trimmed();
@@ -108,7 +108,7 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
             continue;
         }
 
-        auto parts = line.split('=', QString::SkipEmptyParts);
+        auto parts = line.split('=', Qt::SkipEmptyParts);
         if(parts.size() != 2 || parts[0].isEmpty() || parts[1].isEmpty())
         {
             continue;

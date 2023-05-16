@@ -22,10 +22,11 @@ void SkinUploadDialog::on_buttonBox_accepted()
 {
     QString fileName;
     QString input = ui->skinPathTextBox->text();
-    QRegExp urlPrefixMatcher("^([a-z]+)://.+$");
+    QRegularExpression urlPrefixMatcher("^([a-z]+)://.+$");
     bool isLocalFile = false;
     // it has an URL prefix -> it is an URL
-    if(urlPrefixMatcher.exactMatch(input))
+    auto match = urlPrefixMatcher.match(input);
+    if(match.hasMatch())
     {
         QUrl fileURL = input;
         if(fileURL.isValid())

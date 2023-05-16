@@ -252,7 +252,7 @@ public:
             return false;
         }
         beginMoveRows(QModelIndex(), row, row, QModelIndex(), row - 1);
-        m_servers.swap(row-1, row);
+        m_servers.swapItemsAt(row-1, row);
         endMoveRows();
         scheduleSave();
         return true;
@@ -270,7 +270,7 @@ public:
             return false;
         }
         beginMoveRows(QModelIndex(), row, row, QModelIndex(), row + 2);
-        m_servers.swap(row+1, row);
+        m_servers.swapItemsAt(row+1, row);
         endMoveRows();
         scheduleSave();
         return true;
@@ -582,7 +582,7 @@ ServersPage::ServersPage(InstancePtr inst, QWidget* parent)
     connect(m_inst.get(), &MinecraftInstance::runningStatusChanged, this, &ServersPage::on_RunningState_changed);
     connect(ui->nameLine, &QLineEdit::textEdited, this, &ServersPage::nameEdited);
     connect(ui->addressLine, &QLineEdit::textEdited, this, &ServersPage::addressEdited);
-    connect(ui->resourceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resourceIndexChanged(int)));
+    connect(ui->resourceComboBox, &QComboBox::currentIndexChanged, this, &ServersPage::resourceIndexChanged);
     connect(m_model, &QAbstractItemModel::rowsRemoved, this, &ServersPage::rowsRemoved);
 
     m_locked = m_inst->isRunning();

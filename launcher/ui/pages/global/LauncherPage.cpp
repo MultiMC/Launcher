@@ -67,8 +67,8 @@ LauncherPage::LauncherPage(QWidget *parent) : QWidget(parent), ui(new Ui::Launch
     {
         ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->analyticsTab));
     }
-    connect(ui->fontSizeBox, SIGNAL(valueChanged(int)), SLOT(refreshFontPreview()));
-    connect(ui->consoleFont, SIGNAL(currentFontChanged(QFont)), SLOT(refreshFontPreview()));
+    connect(ui->fontSizeBox, &QSpinBox::valueChanged, this, &LauncherPage::refreshFontPreview);
+    connect(ui->consoleFont, &QFontComboBox::currentFontChanged, this, &LauncherPage::refreshFontPreview);
 
     //move mac data button
     QFile file(QDir::current().absolutePath() + "/dontmovemacdata");

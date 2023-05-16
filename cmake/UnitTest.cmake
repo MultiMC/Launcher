@@ -1,4 +1,4 @@
-find_package(Qt5Test REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Test)
 
 set(TEST_RESOURCE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
@@ -40,7 +40,7 @@ function(add_unit_test name)
         endif()
     endif()
 
-    target_link_libraries(${name}_test Qt5::Test ${OPT_LIBS})
+    target_link_libraries(${name}_test Qt6::Test ${OPT_LIBS})
 
     target_include_directories(${name}_test PRIVATE "${TEST_RESOURCE_PATH}/UnitTest/")
 

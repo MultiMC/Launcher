@@ -112,18 +112,19 @@ public:
     QIconLoaderEngineFixed(const QString &iconName = QString());
     ~QIconLoaderEngineFixed();
 
-    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state);
-    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
-    QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
-    QIconEngine *clone() const;
-    bool read(QDataStream &in);
-    bool write(QDataStream &out) const;
+    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override;
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override;
+    QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state) override;
+    QList<QSize> availableSizes(QIcon::Mode mode, QIcon::State state) override;
+    QString iconName() override;
+    QIconEngine *clone() const override;
+    bool read(QDataStream &in) override;
+    bool write(QDataStream &out) const override;
 
 private:
-    QString key() const;
+    QString key() const override;
     bool hasIcon() const;
     void ensureLoaded();
-    void virtual_hook(int id, void *data);
     QIconLoaderEngineEntry *entryForSize(const QSize &size);
     QIconLoaderEngineFixed(const QIconLoaderEngineFixed &other);
     QThemeIconEntries m_entries;

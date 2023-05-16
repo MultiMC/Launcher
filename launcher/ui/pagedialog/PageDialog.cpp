@@ -43,8 +43,8 @@ PageDialog::PageDialog(BasePageProvider *pageProvider, QString defaultId, QWidge
     buttons->setContentsMargins(6, 0, 6, 0);
     m_container->addButtons(buttons);
 
-    connect(buttons->button(QDialogButtonBox::Close), SIGNAL(clicked()), this, SLOT(close()));
-    connect(buttons->button(QDialogButtonBox::Help), SIGNAL(clicked()), m_container, SLOT(help()));
+    connect(buttons->button(QDialogButtonBox::Close), &QPushButton::clicked, this, &PageDialog::close);
+    connect(buttons->button(QDialogButtonBox::Help), &QPushButton::clicked, m_container, &PageContainer::help);
 
     restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toByteArray()));
 }

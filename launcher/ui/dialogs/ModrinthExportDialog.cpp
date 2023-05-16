@@ -60,7 +60,7 @@ void ModrinthExportDialog::on_datapackPathBrowse_clicked()
 {
     QFileDialog dialog(this, tr("Select global datapacks folder"), m_instance->gameRoot());
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setFileMode(QFileDialog::DirectoryOnly);
+    dialog.setFileMode(QFileDialog::Directory);
 
     if (dialog.exec()) {
         ui->datapacksPath->setText(QDir(m_instance->gameRoot()).relativeFilePath(dialog.selectedFiles().at(0)));

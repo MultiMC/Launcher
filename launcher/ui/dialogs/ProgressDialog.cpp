@@ -75,11 +75,11 @@ int ProgressDialog::execWithTask(Task *task)
     }
 
     // Connect signals.
-    connect(task, SIGNAL(started()), SLOT(onTaskStarted()));
-    connect(task, SIGNAL(failed(QString)), SLOT(onTaskFailed(QString)));
-    connect(task, SIGNAL(succeeded()), SLOT(onTaskSucceeded()));
-    connect(task, SIGNAL(status(QString)), SLOT(changeStatus(const QString &)));
-    connect(task, SIGNAL(progress(qint64, qint64)), SLOT(changeProgress(qint64, qint64)));
+    connect(task, &Task::started, this, &ProgressDialog::onTaskStarted);
+    connect(task, &Task::failed, this, &ProgressDialog::onTaskFailed);
+    connect(task, &Task::succeeded, this, &ProgressDialog::onTaskSucceeded);
+    connect(task, &Task::status, this, &ProgressDialog::changeStatus);
+    connect(task, &Task::progress, this, &ProgressDialog::changeProgress);
 
     // if this didn't connect to an already running task, invoke start
     if(!task->isRunning())

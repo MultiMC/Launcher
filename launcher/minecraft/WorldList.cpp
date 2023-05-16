@@ -30,8 +30,7 @@ WorldList::WorldList(const QString &dir)
     m_dir.setSorting(QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
     m_watcher = new QFileSystemWatcher(this);
     is_watching = false;
-    connect(m_watcher, SIGNAL(directoryChanged(QString)), this,
-            SLOT(directoryChanged(QString)));
+    connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, &WorldList::directoryChanged);
 }
 
 void WorldList::startWatching()
@@ -197,7 +196,7 @@ QVariant WorldList::data(const QModelIndex &index, int role) const
     }
     case SeedRole:
     {
-        return qVariantFromValue<qlonglong>(world.seed());
+        return QVariant::fromValue<qlonglong>(world.seed());
     }
     case NameRole:
     {
@@ -274,7 +273,7 @@ public:
     }
 
 protected:
-    QVariant retrieveData(const QString &mimetype, QVariant::Type type) const
+    QVariant retrieveData(const QString &mimetype, QMetaType type) const
     {
         QList<QUrl> urls;
         for(auto &world: m_worlds)

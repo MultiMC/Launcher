@@ -67,7 +67,7 @@ namespace MMCZip
      * \param dir The directory to extract to, the current directory if left empty.
      * \return The list of the full paths of the files extracted, empty on failure.
      */
-    nonstd::optional<QStringList> extractDir(QString fileCompressed, QString dir);
+    nonstd::optional<QStringList> extractArchiveToDir(QString fileCompressed, QString dir);
 
     /**
      * Extract a subdirectory from an archive
@@ -77,7 +77,7 @@ namespace MMCZip
      * \param dir The directory to extract to, the current directory if left empty.
      * \return The list of the full paths of the files extracted, empty on failure.
      */
-    nonstd::optional<QStringList> extractDir(QString fileCompressed, QString subdir, QString dir);
+    nonstd::optional<QStringList> extractSubdirToDir(QString fileCompressed, QString subdir, QString dir);
 
     /**
      * Extract a single file from an archive into a directory

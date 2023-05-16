@@ -272,7 +272,7 @@ QJsonDocument OneSixVersionFormat::versionFileToJson(const VersionFilePtr &patch
     }
     writeString(root, "appletClass", patch->appletClass);
     writeStringList(root, "+tweakers", patch->addTweakers);
-    writeStringList(root, "+traits", patch->traits.toList());
+    writeStringList(root, "+traits", QStringList(patch->traits.begin(), patch->traits.end()));
     if (!patch->libraries.isEmpty())
     {
         QJsonArray array;

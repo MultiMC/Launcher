@@ -60,8 +60,8 @@ VersionSelectDialog::VersionSelectDialog(BaseVersionList *vlist, QString title, 
 
     retranslate();
 
-    QObject::connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    QObject::connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    QObject::connect(m_buttonBox, &QDialogButtonBox::accepted, this, &VersionSelectDialog::accept);
+    QObject::connect(m_buttonBox, &QDialogButtonBox::rejected, this, &VersionSelectDialog::reject);
 
     QMetaObject::connectSlotsByName(this);
     setWindowModality(Qt::WindowModal);

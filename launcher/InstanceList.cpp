@@ -133,7 +133,7 @@ QVariant InstanceList::data(const QModelIndex &index, int role) const
     {
     case InstancePointerRole:
     {
-        QVariant v = qVariantFromValue((void *)pdata);
+        QVariant v = QVariant::fromValue((void *)pdata);
         return v;
     }
     case InstanceIDRole:
@@ -249,7 +249,7 @@ void InstanceList::setInstanceGroup(const InstanceId& id, const GroupId& name)
 
 QStringList InstanceList::getGroups()
 {
-    return m_groupNameCache.toList();
+    return QStringList(m_groupNameCache.begin(), m_groupNameCache.end());
 }
 
 void InstanceList::deleteGroup(const QString& name)
@@ -350,7 +350,7 @@ QList< InstanceId > InstanceList::discoverInstances()
         out.append(id);
         qDebug() << "Found instance ID" << id;
     }
-    instanceSet = out.toSet();
+    instanceSet = QSet<QString>(out.begin(), out.end());
     m_instancesProbed = true;
     return out;
 }

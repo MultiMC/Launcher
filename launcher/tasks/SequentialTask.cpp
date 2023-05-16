@@ -29,10 +29,10 @@ void SequentialTask::startNext()
         return;
     }
     Task::Ptr next = m_queue[m_currentIndex];
-    connect(next.get(), SIGNAL(failed(QString)), this, SLOT(subTaskFailed(QString)));
-    connect(next.get(), SIGNAL(status(QString)), this, SLOT(subTaskStatus(QString)));
-    connect(next.get(), SIGNAL(progress(qint64, qint64)), this, SLOT(subTaskProgress(qint64, qint64)));
-    connect(next.get(), SIGNAL(succeeded()), this, SLOT(startNext()));
+    connect(next.get(), &Task::failed, this, &SequentialTask::subTaskFailed);
+    connect(next.get(), &Task::status, this, &SequentialTask::subTaskStatus);
+    connect(next.get(), &Task::progress, this, &SequentialTask::subTaskProgress);
+    connect(next.get(), &Task::succeeded, this, &SequentialTask::startNext);
     next->start();
 }
 

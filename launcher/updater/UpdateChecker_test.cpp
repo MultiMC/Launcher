@@ -86,7 +86,7 @@ slots:
         shared_qobject_ptr<QNetworkAccessManager> nam = new QNetworkAccessManager();
         UpdateChecker checker(nam, channelUrl, 0);
 
-        QSignalSpy channelListLoadedSpy(&checker, SIGNAL(channelListLoaded()));
+        QSignalSpy channelListLoadedSpy(&checker, &UpdateChecker::channelListLoaded);
         QVERIFY(channelListLoadedSpy.isValid());
 
         checker.updateChanList(false);
@@ -114,9 +114,9 @@ slots:
         shared_qobject_ptr<QNetworkAccessManager> nam = new QNetworkAccessManager();
         UpdateChecker checker(nam, channelUrl, currentBuild);
 
-        QSignalSpy updateAvailableSpy(&checker, SIGNAL(updateAvailable(GoUpdate::Status)));
+        QSignalSpy updateAvailableSpy(&checker, &UpdateChecker::updateAvailable);
         QVERIFY(updateAvailableSpy.isValid());
-        QSignalSpy channelListLoadedSpy(&checker, SIGNAL(channelListLoaded()));
+        QSignalSpy channelListLoadedSpy(&checker, &UpdateChecker::channelListLoaded);
         QVERIFY(channelListLoadedSpy.isValid());
 
         checker.updateChanList(false);

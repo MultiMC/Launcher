@@ -30,7 +30,7 @@ QString getCreditsHtml(QStringList patrons)
 {
     QString output;
     QTextStream stream(&output);
-    stream.setCodec(QTextCodec::codecForName("UTF-8"));
+    stream.setEncoding(QStringConverter::Utf8);
     stream << "<center>\n";
 
     stream << "<h3>" << QObject::tr("Original Author", "About Credits") << "</h3>\n";
@@ -120,10 +120,10 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
     QString urlText("<html><head/><body><p><a href=\"%1\">%1</a></p></body></html>");
     ui->urlLabel->setText(urlText.arg(BuildConfig.LAUNCHER_GIT));
 
-    QString copyText("© 2012-2021 %1");
+    QString copyText("© 2012-2023 %1");
     ui->copyLabel->setText(copyText.arg(BuildConfig.LAUNCHER_COPYRIGHT));
 
-    connect(ui->closeButton, SIGNAL(clicked()), SLOT(close()));
+    connect(ui->closeButton, &QPushButton::clicked, this, &QDialog::close);
 
     connect(ui->aboutQt, &QPushButton::clicked, &QApplication::aboutQt);
 
@@ -147,7 +147,7 @@ void AboutDialog::patronListLoaded()
 {
     QString patronListStr(dataSink);
     dataSink.clear();
-    QString html = getCreditsHtml(patronListStr.split("\n", QString::SkipEmptyParts));
+    QString html = getCreditsHtml(patronListStr.split("\n", Qt::SkipEmptyParts));
     ui->creditsText->setHtml(html);
 }
 

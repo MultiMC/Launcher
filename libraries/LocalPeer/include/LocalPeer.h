@@ -86,10 +86,10 @@ public:
     bool sendMessage(const QByteArray &message, int timeout);
     ApplicationId applicationId() const;
 
-Q_SIGNALS:
+signals:
     void messageReceived(const QByteArray &message);
 
-protected Q_SLOTS:
+protected slots:
     void receiveConnection();
 
 protected:

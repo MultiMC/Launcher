@@ -39,13 +39,14 @@ CopyInstanceDialog::CopyInstanceDialog(InstancePtr original, QWidget *parent)
     ui->iconButton->setIcon(APPLICATION->icons()->getIcon(InstIconKey));
     ui->instNameTextBox->setText(original->name());
     ui->instNameTextBox->setFocus();
-    auto groups = APPLICATION->instances()->getGroups().toSet();
-    auto groupList = QStringList(groups.toList());
-    groupList.sort(Qt::CaseInsensitive);
-    groupList.removeOne("");
-    groupList.push_front("");
-    ui->groupBox->addItems(groupList);
-    int index = groupList.indexOf(APPLICATION->instances()->getInstanceGroup(m_original->id()));
+    auto groupListIn = APPLICATION->instances()->getGroups();
+    auto groups = QSet<QString>(groupListIn.begin(), groupListIn.end());
+    auto groupListOut = QStringList(groups.begin(), groups.end());
+    groupListOut.sort(Qt::CaseInsensitive);
+    groupListOut.removeOne("");
+    groupListOut.push_front("");
+    ui->groupBox->addItems(groupListOut);
+    int index = groupListOut.indexOf(APPLICATION->instances()->getInstanceGroup(m_original->id()));
     if(index == -1)
     {
         index = 0;

@@ -42,7 +42,7 @@ ModrinthPage::ModrinthPage(NewInstanceDialog *dialog, QWidget *parent) : QWidget
     ui->sortByBox->addItem(tr("Sort by creation date"), QStringLiteral("newest"));
     ui->sortByBox->addItem(tr("Sort by last updated"), QStringLiteral("updated"));
 
-    connect(ui->sortByBox, SIGNAL(currentIndexChanged(int)), this, SLOT(triggerSearch()));
+    connect(ui->sortByBox, &QComboBox::currentIndexChanged, this, &ModrinthPage::triggerSearch);
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ModrinthPage::onSelectionChanged);
     connect(ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &ModrinthPage::onVersionSelectionChanged);
     connect(model, &Modrinth::ListModel::packDataChanged, this, &ModrinthPage::onPackDataChanged);

@@ -79,6 +79,9 @@ public: /* construction */
     //! Saves a MinecraftAccount to a JSON object and returns it.
     QJsonObject saveToJson() const;
 
+private:
+    shared_qobject_ptr<AccountTask> setCurrentTask(AccountTask *task);
+
 public: /* manipulation */
 
     /**

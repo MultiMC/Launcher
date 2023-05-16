@@ -21,6 +21,7 @@
 #include <QStringList>
 #include <QSaveFile>
 #include <QDebug>
+#include <QStringConverter>
 
 INIFile::INIFile()
 {
@@ -29,7 +30,7 @@ INIFile::INIFile()
 QString INIFile::unescape(QString orig)
 {
     QString out;
-    QChar prev = 0;
+    QChar prev = QChar(QChar::Null);
     for(auto c: orig)
     {
         if(prev == '\\')
@@ -42,7 +43,7 @@ QString INIFile::unescape(QString orig)
                 out += '#';
             else
                 out += c;
-            prev = 0;
+            prev = QChar(QChar::Null);
         }
         else
         {
@@ -52,7 +53,7 @@ QString INIFile::unescape(QString orig)
                 continue;
             }
             out += c;
-            prev = 0;
+            prev = QChar(QChar::Null);
         }
     }
     return out;
@@ -117,7 +118,7 @@ bool INIFile::loadFile(QString fileName)
 bool INIFile::loadFile(QByteArray file)
 {
     QTextStream in(file);
-    in.setCodec("UTF-8");
+    in.setEncoding(QStringConverter::Utf8);
 
     QStringList lines = in.readAll().split('\n');
     for (int i = 0; i < lines.count(); i++)

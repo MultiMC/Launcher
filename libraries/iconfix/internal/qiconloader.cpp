@@ -42,7 +42,6 @@
 #include <QtCore/QSettings>
 #include <QtGui/QPainter>
 #include <QApplication>
-#include <QLatin1Literal>
 
 #include "qhexstring_p.h"
 
@@ -651,38 +650,23 @@ QString QIconLoaderEngineFixed::key() const
     return QLatin1String("QIconLoaderEngineFixed");
 }
 
-void QIconLoaderEngineFixed::virtual_hook(int id, void *data)
+QList<QSize> QIconLoaderEngineFixed::availableSizes(QIcon::Mode mode, QIcon::State state)
 {
     ensureLoaded();
+    const int N = m_entries.size();
+    QList<QSize> sizes;
+    sizes.reserve(N);
+    for (int i = 0; i < N; ++i)
+    {
+        int size = m_entries.at(i)->dir.size;
+        sizes.append(QSize(size, size));
+    }
+    return sizes;
+}
 
-    switch (id)
-    {
-    case QIconEngine::AvailableSizesHook:
-    {
-        QIconEngine::AvailableSizesArgument &arg =
-            *reinterpret_cast<QIconEngine::AvailableSizesArgument *>(data);
-        const int N = m_entries.size();
-        QList<QSize> sizes;
-        sizes.reserve(N);
-
-        // Gets all sizes from the DirectoryInfo entries
-        for (int i = 0; i < N; ++i)
-        {
-            int size = m_entries.at(i)->dir.size;
-            sizes.append(QSize(size, size));
-        }
-        arg.sizes.swap(sizes); // commit
-    }
-    break;
-    case QIconEngine::IconNameHook:
-    {
-        QString &name = *reinterpret_cast<QString *>(data);
-        name = m_iconName;
-    }
-    break;
-    default:
-        QIconEngine::virtual_hook(id, data);
-    }
+QString QIconLoaderEngineFixed::iconName()
+{
+    return m_iconName;
 }
 
 } // QtXdg

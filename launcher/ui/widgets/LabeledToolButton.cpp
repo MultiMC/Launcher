@@ -79,9 +79,8 @@ QSize LabeledToolButton::sizeHint() const
     opt.rect.setSize(QSize(w, h)); // PM_MenuButtonIndicator depends on the height
     if (popupMode() == MenuButtonPopup)
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
-    
-    QSize rawSize = style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this);
-    QSize sizeHint = rawSize.expandedTo(QApplication::globalStrut());
+
+    QSize sizeHint = style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this);
     return sizeHint;
 }
 

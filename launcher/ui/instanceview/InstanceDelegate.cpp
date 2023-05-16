@@ -61,7 +61,7 @@ void drawSelectionRect(QPainter *painter, const QStyleOptionViewItem &option,
         painter->fillRect(rect, option.palette.brush(QPalette::Highlight));
     else
     {
-        QColor backgroundColor = option.palette.color(QPalette::Background);
+        QColor backgroundColor = option.palette.color(QPalette::Window);
         backgroundColor.setAlpha(160);
         painter->fillRect(rect, QBrush(backgroundColor));
     }

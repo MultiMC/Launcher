@@ -19,8 +19,8 @@ void SkinDelete::executeTask()
 
     setStatus(tr("Deleting skin"));
     connect(rep, &QNetworkReply::uploadProgress, this, &Task::setProgress);
-    connect(rep, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(downloadError(QNetworkReply::NetworkError)));
-    connect(rep, SIGNAL(finished()), this, SLOT(downloadFinished()));
+    connect(rep, &QNetworkReply::errorOccurred, this, &SkinDelete::downloadError);
+    connect(rep, &QNetworkReply::finished, this, &SkinDelete::downloadFinished);
 }
 
 void SkinDelete::downloadError(QNetworkReply::NetworkError error)

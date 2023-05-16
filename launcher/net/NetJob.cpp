@@ -139,11 +139,10 @@ void NetJob::startMoreParts()
         m_doing.insert(doThis);
         auto part = downloads[doThis];
         // connect signals :D
-        connect(part.get(), SIGNAL(succeeded(int)), SLOT(partSucceeded(int)));
-        connect(part.get(), SIGNAL(failed(int)), SLOT(partFailed(int)));
-        connect(part.get(), SIGNAL(aborted(int)), SLOT(partAborted(int)));
-        connect(part.get(), SIGNAL(netActionProgress(int, qint64, qint64)),
-                SLOT(partProgress(int, qint64, qint64)));
+        connect(part.get(), &NetAction::succeeded, this, &NetJob::partSucceeded);
+        connect(part.get(), &NetAction::failed, this, &NetJob::partFailed);
+        connect(part.get(), &NetAction::aborted, this, &NetJob::partAborted);
+        connect(part.get(), &NetAction::netActionProgress, this, &NetJob::partProgress);
         part->start(m_network);
     }
 }
@@ -182,11 +181,11 @@ bool NetJob::abort()
 {
     bool fullyAborted = true;
     // fail all waiting
-    m_failed.unite(m_todo.toSet());
+    QSet<int> todoSet(m_todo.begin(), m_todo.end());
+    m_failed.unite(todoSet);
     m_todo.clear();
     // abort active
-    auto toKill = m_doing.toList();
-    for(auto index: toKill)
+    for(auto index: m_doing)
     {
         auto part = downloads[index];
         fullyAborted &= part->abort();
@@ -204,9 +203,9 @@ bool NetJob::addNetAction(NetAction::Ptr action)
 
     if(action->isRunning())
     {
-        connect(action.get(), SIGNAL(succeeded(int)), SLOT(partSucceeded(int)));
-        connect(action.get(), SIGNAL(failed(int)), SLOT(partFailed(int)));
-        connect(action.get(), SIGNAL(netActionProgress(int, qint64, qint64)), SLOT(partProgress(int, qint64, qint64)));
+        connect(action.get(), &NetAction::succeeded, this, &NetJob::partSucceeded);
+        connect(action.get(), &NetAction::failed, this, &NetJob::partFailed);
+        connect(action.get(), &NetAction::netActionProgress, this, &NetJob::partProgress);
     }
     else
     {
