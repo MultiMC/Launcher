@@ -242,7 +242,7 @@ void LogPage::on_btnPaste_clicked()
     auto response = CustomMessageBox::selectable(
             this,
             tr("Log upload"),
-            tr("Are you sure you want to upload a log file?"),
+            tr("Are you sure you want to upload this log file?"),
             QMessageBox::Warning,
             QMessageBox::Yes | QMessageBox::No,
             QMessageBox::No
