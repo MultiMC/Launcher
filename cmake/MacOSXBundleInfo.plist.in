@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>NSPrincipalClass</key>
-    <string>NSApplication</string>
-    <key>NSHighResolutionCapable</key>
-    <string>True</string>
     <key>CFBundleDevelopmentRegion</key>
     <string>English</string>
     <key>CFBundleExecutable</key>
@@ -36,7 +32,9 @@
     <true/>
     <key>NSHumanReadableCopyright</key>
     <string>${MACOSX_BUNDLE_COPYRIGHT}</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>MultiMC does not need access to your microphone for itself. Likely it's requesting it on behalf of a Minecraft mod you installed, which needs to access your microphone in order to function properly.</string>
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+    <key>LSUIElement</key>
+    <string>${MACOSX_IS_UIELEMENT}</string>
 </dict>
 </plist>

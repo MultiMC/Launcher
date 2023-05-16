@@ -37,11 +37,10 @@ struct GradleSpecifier
         m_groupId = elements[1];
         m_artifactId = elements[2];
         m_version = elements[3];
-        m_classifier = elements[4];
-        if(!elements[5].isEmpty())
-        {
+        if(elements.size() >= 5)
+            m_classifier = elements[4];
+        if(elements.size() >= 6)
             m_extension = elements[5];
-        }
         return *this;
     }
     QString serialize() const
