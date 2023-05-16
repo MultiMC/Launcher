@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright 2022 arthomnix
+ Copyright 2022-2023 arthomnix
  This source is subject to the Microsoft Public License (MS-PL).
  Please see the COPYING.md file for more information.
 -->
@@ -12,7 +12,7 @@
     <x>0</x>
     <y>0</y>
     <width>796</width>
-    <height>232</height>
+    <height>330</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -30,17 +30,82 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <item row="3" column="0">
+     <item row="0" column="0">
+      <widget class="QLabel" name="shortcutPathLabel">
+       <property name="text">
+        <string>Shortcut path:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QCheckBox" name="useProfileCheckBox">
+       <property name="text">
+        <string>Use specific profile:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QComboBox" name="joinSingleplayer">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
       <widget class="QCheckBox" name="launchOfflineCheckBox">
        <property name="text">
         <string>Launch in offline mode</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="shortcutPathLabel">
+     <item row="6" column="1">
+      <widget class="QLineEdit" name="offlineUsername">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="joinWorldCheckBox">
        <property name="text">
-        <string>Shortcut path:</string>
+        <string>Join world on launch:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="joinServer">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QComboBox" name="profileComboBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="shortcutPath"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QCheckBox" name="offlineUsernameCheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Set offline mode username:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QRadioButton" name="joinSingleplayerRadioButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Singleplayer world:</string>
        </property>
       </widget>
      </item>
@@ -51,38 +116,15 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="shortcutPath"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="profileComboBox"/>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="offlineUsername"/>
-     </item>
-     <item row="4" column="0">
-      <widget class="QCheckBox" name="offlineUsernameCheckBox">
-       <property name="text">
-        <string>Set offline mode username:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="joinServerCheckBox">
-       <property name="text">
-        <string>Join server on launch:</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0">
-      <widget class="QCheckBox" name="useProfileCheckBox">
+      <widget class="QRadioButton" name="joinServerRadioButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
-        <string>Use specific profile:</string>
+        <string>Server address:</string>
        </property>
       </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="joinServer"/>
      </item>
     </layout>
    </item>
@@ -173,18 +215,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>joinServerCheckBox</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>CreateShortcutDialog</receiver>
-   <slot>updateDialogState()</slot>
+   <sender>joinWorldCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>joinServerRadioButton</receiver>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>122</x>
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>397</x>
-     <y>114</y>
+     <x>140</x>
+     <y>93</y>
     </hint>
    </hints>
   </connection>
@@ -284,5 +326,136 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>joinWorldCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>joinSingleplayerRadioButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>59</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>140</x>
+     <y>132</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinServerRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>joinServer</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>489</x>
+     <y>93</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinSingleplayerRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>joinSingleplayer</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>489</x>
+     <y>132</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useProfileCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>profileComboBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>171</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>489</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>launchOfflineCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>offlineUsernameCheckBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>140</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinSingleplayer</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>489</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinServerRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>joinSingleplayerRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CreateShortcutDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>397</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>updateDialogState()</slot>
+ </slots>
 </ui>

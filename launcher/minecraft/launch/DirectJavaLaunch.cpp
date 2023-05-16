@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ void DirectJavaLaunch::executeTask()
     // make detachable - this will keep the process running even if the object is destroyed
     m_process.setDetachable(true);
 
-    auto mcArgs = minecraftInstance->processMinecraftArgs(m_session, m_serverToJoin);
+    auto mcArgs = minecraftInstance->processMinecraftArgs(m_session, m_quickPlayTarget);
     args.append(mcArgs);
 
     QString wrapperCommandStr = instance->getWrapperCommand().trimmed();

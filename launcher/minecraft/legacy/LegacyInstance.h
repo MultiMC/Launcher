@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ public:
         return false;
     }
     shared_qobject_ptr<LaunchTask> createLaunchTask(
-            AuthSessionPtr account, MinecraftServerTargetPtr serverToJoin) override
+            AuthSessionPtr account, QuickPlayTargetPtr quickPlayTarget) override
     {
         return nullptr;
     }
@@ -126,7 +126,7 @@ public:
     }
 
     QString getStatusbarDescription() override;
-    QStringList verboseDescription(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) override;
+    QStringList verboseDescription(AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget) override;
 
     QProcessEnvironment createEnvironment() override
     {

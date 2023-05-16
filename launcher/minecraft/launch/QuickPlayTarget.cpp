@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-#include "MinecraftServerTarget.h"
+#include "QuickPlayTarget.h"
 
 #include <QStringList>
 
 // FIXME: the way this is written, it can't ever do any sort of validation and can accept total junk
-MinecraftServerTarget MinecraftServerTarget::parse(const QString &fullAddress) {
+QuickPlayTarget QuickPlayTarget::parseMultiplayer(const QString &fullAddress) {
     QStringList split = fullAddress.split(":");
 
     // The logic below replicates the exact logic minecraft uses for parsing server addresses.
@@ -63,5 +63,12 @@ MinecraftServerTarget MinecraftServerTarget::parse(const QString &fullAddress) {
         }
     }
 
-    return MinecraftServerTarget { realAddress, realPort };
+    return QuickPlayTarget { realAddress, realPort };
+}
+
+QuickPlayTarget QuickPlayTarget::parseSingleplayer(const QString &worldName)
+{
+    QuickPlayTarget target;
+    target.world = worldName;
+    return target;
 }

@@ -242,7 +242,11 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         // --server
         parser.addOption("server");
         parser.addShortOpt("server", 's');
-        parser.addDocumentation("server", "Join the specified server on launch (only valid in combination with --launch)");
+        parser.addDocumentation("server", "Join the specified server on launch (only valid in combination with --launch, mutually exclusive with --world)");
+        // --world
+        parser.addOption("world");
+        parser.addShortOpt("world", 'w');
+        parser.addDocumentation("world", "Join the singleplayer world with the specified folder name on launch (only valid in combination with --launch, mutually exclusive with --server, only works with Minecraft 23w14a and later)");
         // --profile
         parser.addOption("profile");
         parser.addShortOpt("profile", 'a');
@@ -297,6 +301,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     }
     m_instanceIdToLaunch = args["launch"].toString();
     m_serverToJoin = args["server"].toString();
+    m_worldToJoin = args["world"].toString();
     m_profileToUse = args["profile"].toString();
     if(args["offline"].toBool()) {
         m_offline = true;
@@ -367,11 +372,26 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         return;
     }
 
+    // --world and --server can't be used together
+    if(!m_worldToJoin.isEmpty() && !m_serverToJoin.isEmpty())
+    {
+        std::cerr << "--server and --world are mutually exclusive!" << std::endl;
+        m_status = Application::Failed;
+        return;
+    }
+
     // all the things invalid when NOT trying to --launch
     if(m_instanceIdToLaunch.isEmpty()) {
         if(!m_serverToJoin.isEmpty())
         {
             std::cerr << "--server can only be used in combination with --launch!" << std::endl;
+            m_status = Application::Failed;
+            return;
+        }
+
+        if(!m_worldToJoin.isEmpty())
+        {
+            std::cerr << "--world can only be used in combination with --launch!" << std::endl;
             m_status = Application::Failed;
             return;
         }
@@ -507,6 +527,10 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
                 {
                     launch.args["server"] = m_serverToJoin;
                 }
+                if(!m_worldToJoin.isEmpty())
+                {
+                    launch.args["world"] = m_worldToJoin;
+                }
                 if(!m_profileToUse.isEmpty())
                 {
                     launch.args["profile"] = m_profileToUse;
@@ -598,6 +622,10 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         if(!m_serverToJoin.isEmpty())
         {
             qDebug() << "Address of server to join  :" << m_serverToJoin;
+        }
+        if(!m_worldToJoin.isEmpty())
+        {
+            qDebug() << "Name of world to join      :" << m_worldToJoin;
         }
         qDebug() << "<> Paths set.";
     }
@@ -1070,7 +1098,7 @@ void Application::performMainStartupAction()
         auto inst = instances()->getInstanceById(m_instanceIdToLaunch);
         if(inst)
         {
-            MinecraftServerTargetPtr serverToJoin = nullptr;
+            QuickPlayTargetPtr serverOrWorldToJoin = nullptr;
             MinecraftAccountPtr accountToUse = nullptr;
             bool offline = m_offline;
 
@@ -1078,8 +1106,14 @@ void Application::performMainStartupAction()
             if(!m_serverToJoin.isEmpty())
             {
                 // FIXME: validate the server string
-                serverToJoin.reset(new MinecraftServerTarget(MinecraftServerTarget::parse(m_serverToJoin)));
+                serverOrWorldToJoin.reset(new QuickPlayTarget(QuickPlayTarget::parseMultiplayer(m_serverToJoin)));
                 qDebug() << "   Launching with server" << m_serverToJoin;
+            }
+
+            if(!m_worldToJoin.isEmpty())
+            {
+                serverOrWorldToJoin.reset(new QuickPlayTarget(QuickPlayTarget::parseSingleplayer(m_worldToJoin)));
+                qDebug() << "   Launching with world" << m_worldToJoin;
             }
 
             if(!m_profileToUse.isEmpty())
@@ -1091,7 +1125,7 @@ void Application::performMainStartupAction()
                 qDebug() << "   Launching with account" << m_profileToUse;
             }
 
-            launch(inst, !offline, nullptr, serverToJoin, accountToUse, m_offlineName);
+            launch(inst, !offline, nullptr, serverOrWorldToJoin, accountToUse, m_offlineName);
             return;
         }
     }
@@ -1163,6 +1197,7 @@ void Application::messageReceived(const QByteArray& message)
     {
         QString id = received.args["id"];
         QString server = received.args["server"];
+        QString world = received.args["world"];
         QString profile = received.args["profile"];
         bool offline = received.args["offline_enabled"] == "true";
         QString offlineName = received.args["offline_name"];
@@ -1180,9 +1215,11 @@ void Application::messageReceived(const QByteArray& message)
             return;
         }
 
-        MinecraftServerTargetPtr serverObject = nullptr;
+        QuickPlayTargetPtr quickPlayTarget = nullptr;
         if(!server.isEmpty()) {
-            serverObject = std::make_shared<MinecraftServerTarget>(MinecraftServerTarget::parse(server));
+            quickPlayTarget = std::make_shared<QuickPlayTarget>(QuickPlayTarget::parseMultiplayer(server));
+        } else if(!world.isEmpty()) {
+            quickPlayTarget = std::make_shared<QuickPlayTarget>(QuickPlayTarget::parseSingleplayer(world));
         }
 
         MinecraftAccountPtr accountObject;
@@ -1198,7 +1235,7 @@ void Application::messageReceived(const QByteArray& message)
             instance,
             !offline,
             nullptr,
-            serverObject,
+            quickPlayTarget,
             accountObject,
             offlineName
         );
@@ -1297,7 +1334,7 @@ bool Application::launch(
         InstancePtr instance,
         bool online,
         BaseProfilerFactory *profiler,
-        MinecraftServerTargetPtr serverToJoin,
+        QuickPlayTargetPtr quickPlayTarget,
         MinecraftAccountPtr accountToUse,
         const QString& offlineName
 ) {
@@ -1321,7 +1358,7 @@ bool Application::launch(
         controller->setInstance(instance);
         controller->setOnline(online);
         controller->setProfiler(profiler);
-        controller->setServerToJoin(serverToJoin);
+        controller->setQuickPlayTarget(quickPlayTarget);
         controller->setAccountToUse(accountToUse);
         controller->setOfflineName(offlineName);
         if(window)

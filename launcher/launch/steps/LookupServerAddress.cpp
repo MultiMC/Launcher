@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ void LookupServerAddress::setLookupAddress(const QString &lookupAddress)
     m_dnsLookup->setName(QString("_minecraft._tcp.%1").arg(lookupAddress));
 }
 
-void LookupServerAddress::setOutputAddressPtr(MinecraftServerTargetPtr output)
+void LookupServerAddress::setOutputAddressPtr(QuickPlayTargetPtr output)
 {
     m_output = std::move(output);
 }

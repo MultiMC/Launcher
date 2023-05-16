@@ -81,6 +81,8 @@
    </attribute>
    <addaction name="actionAdd"/>
    <addaction name="separator"/>
+   <addaction name="actionJoin"/>
+   <addaction name="actionJoinOffline"/>
    <addaction name="actionRename"/>
    <addaction name="actionCopy"/>
    <addaction name="actionRemove"/>
@@ -95,6 +97,22 @@
   <action name="actionAdd">
    <property name="text">
     <string>Add</string>
+   </property>
+  </action>
+  <action name="actionJoin">
+   <property name="text">
+    <string>Join</string>
+   </property>
+   <property name="toolTip">
+    <string>Launch the instance directly into the selected world</string>
+   </property>
+  </action>
+  <action name="actionJoinOffline">
+   <property name="text">
+    <string>Join offline</string>
+   </property>
+   <property name="toolTip">
+    <string>Launch the instance in offline mode directly into the selected world</string>
    </property>
   </action>
   <action name="actionRename">

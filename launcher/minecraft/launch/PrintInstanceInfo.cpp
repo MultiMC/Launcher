@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,6 +142,6 @@ void PrintInstanceInfo::executeTask()
 #endif
 
     logLines(log, MessageLevel::Launcher);
-    logLines(instance->verboseDescription(m_session, m_serverToJoin), MessageLevel::Launcher);
+    logLines(instance->verboseDescription(m_session, m_quickPlayTarget), MessageLevel::Launcher);
     emitSucceeded();
 }

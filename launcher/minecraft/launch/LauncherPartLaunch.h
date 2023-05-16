@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <LoggedProcess.h>
 #include <minecraft/auth/AuthSession.h>
 
-#include "MinecraftServerTarget.h"
+#include "QuickPlayTarget.h"
 
 class LauncherPartLaunch: public LaunchStep
 {
@@ -41,9 +41,9 @@ public:
         m_session = session;
     }
 
-    void setServerToJoin(MinecraftServerTargetPtr serverToJoin)
+    void setQuickPlayTarget(QuickPlayTargetPtr quickPlayTarget)
     {
-        m_serverToJoin = std::move(serverToJoin);
+        m_quickPlayTarget = std::move(quickPlayTarget);
     }
 
 private slots:
@@ -54,7 +54,7 @@ private:
     QString m_command;
     AuthSessionPtr m_session;
     QString m_launchScript;
-    MinecraftServerTargetPtr m_serverToJoin;
+    QuickPlayTargetPtr m_quickPlayTarget;
 
     bool mayProceed = false;
 };

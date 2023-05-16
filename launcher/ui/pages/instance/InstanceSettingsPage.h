@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <QObjectPtr.h>
 #include "ui/pages/BasePage.h"
 #include "JavaCommon.h"
+#include "minecraft/WorldList.h"
 #include "Application.h"
 
 class JavaChecker;
@@ -60,6 +61,8 @@ private slots:
     void on_javaDetectBtn_clicked();
     void on_javaTestBtn_clicked();
     void on_javaBrowseBtn_clicked();
+    void on_serverAddressRadioButton_toggled(bool checked);
+    void on_worldRadioButton_toggled(bool checked);
 
     void applySettings();
     void loadSettings();

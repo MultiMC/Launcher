@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -225,7 +225,7 @@ QString LegacyInstance::getStatusbarDescription()
     return tr("Instance from previous versions.");
 }
 
-QStringList LegacyInstance::verboseDescription(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin)
+QStringList LegacyInstance::verboseDescription(AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget)
 {
     QStringList out;
 

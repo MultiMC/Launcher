@@ -4,7 +4,7 @@
 #include "minecraft/mod/Mod.h"
 #include <QProcess>
 #include <QDir>
-#include "minecraft/launch/MinecraftServerTarget.h"
+#include "minecraft/launch/QuickPlayTarget.h"
 
 class ModFolderModel;
 class WorldList;
@@ -78,11 +78,11 @@ public:
 
     //////  Launch stuff //////
     Task::Ptr createUpdateTask(Net::Mode mode) override;
-    shared_qobject_ptr<LaunchTask> createLaunchTask(AuthSessionPtr account, MinecraftServerTargetPtr serverToJoin) override;
+    shared_qobject_ptr<LaunchTask> createLaunchTask(AuthSessionPtr account, QuickPlayTargetPtr quickPlayTarget) override;
     QStringList extraArguments() const override;
-    QStringList verboseDescription(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin) override;
+    QStringList verboseDescription(AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget) override;
     QList<Mod> getJarMods() const;
-    QString createLaunchScript(AuthSessionPtr session, MinecraftServerTargetPtr serverToJoin);
+    QString createLaunchScript(AuthSessionPtr session, QuickPlayTargetPtr quickPlayTarget);
     /// get arguments passed to java
     QStringList javaArguments() const;
 
@@ -109,7 +109,7 @@ public:
     virtual QString getMainClass() const;
 
     // FIXME: remove
-    virtual QStringList processMinecraftArgs(AuthSessionPtr account, MinecraftServerTargetPtr serverToJoin) const;
+    virtual QStringList processMinecraftArgs(AuthSessionPtr account, QuickPlayTargetPtr quickPlayTarget) const;
 
     virtual JavaVersion getJavaVersion() const;
 

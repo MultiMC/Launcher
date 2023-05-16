@@ -1,4 +1,4 @@
-/* Copyright 2015-2021 MultiMC Contributors
+/* Copyright 2015-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,15 @@
 #include <QMessageBox>
 #include <QTreeView>
 #include <QInputDialog>
-#include <QProcess>
 
 #include "tools/MCEditTool.h"
 #include "FileSystem.h"
 
 #include "ui/GuiUtil.h"
 #include "DesktopServices.h"
+
+#include "minecraft/PackProfile.h"
+#include "minecraft/VersionFilterData.h"
 
 #include "Application.h"
 
@@ -62,7 +64,7 @@ public:
 };
 
 
-WorldListPage::WorldListPage(BaseInstance *inst, std::shared_ptr<WorldList> worlds, QWidget *parent)
+WorldListPage::WorldListPage(InstancePtr inst, std::shared_ptr<WorldList> worlds, QWidget *parent)
     : QMainWindow(parent), m_inst(inst), ui(new Ui::WorldListPage), m_worlds(worlds)
 {
     ui->setupUi(this);
@@ -311,8 +313,15 @@ void WorldListPage::mceditState(LoggedProcess::State state)
 
 void WorldListPage::worldChanged(const QModelIndex &current, const QModelIndex &previous)
 {
+    auto mcInst = std::dynamic_pointer_cast<MinecraftInstance>(m_inst);
+    bool enableJoinActions = mcInst && mcInst->getPackProfile()->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate;
+
     QModelIndex index = getSelectedWorld();
     bool enable = index.isValid();
+    ui->actionJoin->setVisible(enableJoinActions);
+    ui->actionJoinOffline->setVisible(enableJoinActions);
+    ui->actionJoin->setEnabled(enable && enableJoinActions);
+    ui->actionJoinOffline->setEnabled(enable && enableJoinActions);
     ui->actionCopy_Seed->setEnabled(enable);
     ui->actionMCEdit->setEnabled(enable);
     ui->actionRemove->setEnabled(enable);
@@ -407,6 +416,31 @@ void WorldListPage::on_actionRename_triggered()
 void WorldListPage::on_actionRefresh_triggered()
 {
     m_worlds->update();
+}
+
+void WorldListPage::joinSelectedWorld(bool online)
+{
+    auto index = getSelectedWorld();
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    auto worldVariant = m_worlds->data(index, WorldList::ObjectRole);
+    auto world = (World *) worldVariant.value<void *>();
+    auto name = world->folderName();
+
+    APPLICATION->launch(m_inst, online, nullptr, std::make_shared<QuickPlayTarget>(QuickPlayTarget::parseSingleplayer(name)));
+}
+
+void WorldListPage::on_actionJoin_triggered()
+{
+    joinSelectedWorld(true);
+}
+
+void WorldListPage::on_actionJoinOffline_triggered()
+{
+    joinSelectedWorld(false);
 }
 
 #include "WorldListPage.moc"
