@@ -1,4 +1,5 @@
 /* Copyright 2020-2021 MultiMC Contributors
+ * Copyright 2021-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +18,7 @@
 
 #include <QList>
 #include <QString>
+#include <QVector>
 
 namespace Technic {
 struct Modpack {
@@ -36,6 +38,11 @@ struct Modpack {
     QString websiteUrl;
     QString author;
     QString description;
+    QString currentVersion;
+
+    bool versionsLoaded = false;
+    QString recommended;
+    QVector<QString> versions;
 };
 }
 

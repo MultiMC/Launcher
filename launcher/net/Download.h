@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,8 @@ public: /* types */
     enum class Option
     {
         NoOptions = 0,
-        AcceptLocalFiles = 1
+        AcceptLocalFiles = 1,
+        AllowNotFound = 2
     };
     Q_DECLARE_FLAGS(Options, Option)
 

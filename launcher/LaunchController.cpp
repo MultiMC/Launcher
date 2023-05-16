@@ -9,6 +9,8 @@
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/dialogs/EditAccountDialog.h"
 #include "ui/dialogs/ProfileSetupDialog.h"
+#include "ui/dialogs/LoginDialog.h"
+#include "ui/dialogs/MSALoginDialog.h"
 
 #include <QLineEdit>
 #include <QInputDialog>
@@ -223,16 +225,60 @@ void LaunchController::login() {
             }
             */
             case AccountState::Expired: {
-                auto errorString = tr("The account has expired and needs to be logged into manually again.");
-                QMessageBox::warning(
+                auto errorString = tr("The account has expired and needs to be logged into manually. Press OK to log in again.");
+                auto button = QMessageBox::warning(
                     m_parentWidget,
                     tr("Account refresh failed"),
                     errorString,
-                    QMessageBox::StandardButton::Ok,
+                    QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel,
                     QMessageBox::StandardButton::Ok
                 );
-                emitFailed(errorString);
-                return;
+                if (button == QMessageBox::StandardButton::Ok) {
+                    auto accounts = APPLICATION->accounts();
+                    bool isDefault = accounts->defaultAccount() == m_accountToUse;
+                    bool msa = m_accountToUse->isMSA();
+                    accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(m_accountToUse->profileId())));
+                    MinecraftAccountPtr newAccount = nullptr;
+                    if (msa) {
+                        if(BuildConfig.BUILD_PLATFORM == "osx64") {
+                            CustomMessageBox::selectable(
+                                    m_parentWidget,
+                                    tr("Microsoft Accounts not available"),
+                                    tr(
+                                            "Microsoft accounts are only usable on macOS 10.13 or newer, with fully updated MultiMC.\n\n"
+                                            "Please update both your operating system and MultiMC."
+                                    ),
+                                    QMessageBox::Warning
+                            )->exec();
+                            emitFailed(tr("Attempted to re-login to a Microsoft account on an unsupported platform"));
+                            return;
+                        }
+                        newAccount = MSALoginDialog::newAccount(
+                                m_parentWidget,
+                                tr("Please enter your Mojang account email and password to add your account.")
+                        );
+                    } else {
+                        newAccount = LoginDialog::newAccount(
+                                m_parentWidget,
+                                tr("Please enter your Mojang account email and password to add your account.")
+                        );
+                    }
+                    if (newAccount) {
+                        accounts->addAccount(newAccount);
+                        if (isDefault) {
+                            accounts->setDefaultAccount(newAccount);
+                        }
+                        m_accountToUse = nullptr;
+                        decideAccount();
+                        continue;
+                    } else {
+                        emitFailed(tr("Account expired and re-login attempt failed"));
+                        return;
+                    }
+                } else {
+                    emitFailed(errorString);
+                    return;
+                }
             }
             case AccountState::Gone: {
                 auto errorString = tr("The account no longer exists on the servers. It may have been migrated, in which case please add the new account you migrated this one to.");

@@ -1,4 +1,5 @@
 /* Copyright 2013-2021 MultiMC Contributors
+ * Copyright 2021-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +21,18 @@
 #include <QtConcurrentRun>
 #include <MMCZip.h>
 #include "TechnicPackProcessor.h"
+#include "SolderPackManifest.h"
+#include "net/ChecksumValidator.h"
 
 Technic::SolderPackInstallTask::SolderPackInstallTask(
     shared_qobject_ptr<QNetworkAccessManager> network,
     const QUrl &sourceUrl,
+    const QString &version,
     const QString &minecraftVersion
 ) {
     m_sourceUrl = sourceUrl;
     m_minecraftVersion = minecraftVersion;
+    m_version = version;
     m_network = network;
 }
 
@@ -41,34 +46,12 @@ bool Technic::SolderPackInstallTask::abort() {
 
 void Technic::SolderPackInstallTask::executeTask()
 {
-    setStatus(tr("Finding recommended version:\n%1").arg(m_sourceUrl.toString()));
-    m_filesNetJob = new NetJob(tr("Finding recommended version"), m_network);
-    m_filesNetJob->addNetAction(Net::Download::makeByteArray(m_sourceUrl, &m_response));
-    auto job = m_filesNetJob.get();
-    connect(job, &NetJob::succeeded, this, &Technic::SolderPackInstallTask::versionSucceeded);
-    connect(job, &NetJob::failed, this, &Technic::SolderPackInstallTask::downloadFailed);
-    m_filesNetJob->start();
-}
+    setStatus(tr("Resolving modpack files"));
 
-void Technic::SolderPackInstallTask::versionSucceeded()
-{
-    try
-    {
-        QJsonDocument doc = Json::requireDocument(m_response);
-        QJsonObject obj = Json::requireObject(doc);
-        QString version = Json::requireString(obj, "recommended", "__placeholder__");
-        m_sourceUrl = m_sourceUrl.toString() + '/' + version;
-    }
-    catch (const JSONValidationError &e)
-    {
-        emitFailed(e.cause());
-        m_filesNetJob.reset();
-        return;
-    }
-
-    setStatus(tr("Resolving modpack files:\n%1").arg(m_sourceUrl.toString()));
     m_filesNetJob = new NetJob(tr("Resolving modpack files"), m_network);
-    m_filesNetJob->addNetAction(Net::Download::makeByteArray(m_sourceUrl, &m_response));
+    auto sourceUrl = QString("%1/%2").arg(m_sourceUrl.toString(), m_version);
+    m_filesNetJob->addNetAction(Net::Download::makeByteArray(sourceUrl, &m_response));
+
     auto job = m_filesNetJob.get();
     connect(job, &NetJob::succeeded, this, &Technic::SolderPackInstallTask::fileListSucceeded);
     connect(job, &NetJob::failed, this, &Technic::SolderPackInstallTask::downloadFailed);
@@ -77,38 +60,47 @@ void Technic::SolderPackInstallTask::versionSucceeded()
 
 void Technic::SolderPackInstallTask::fileListSucceeded()
 {
-    setStatus(tr("Downloading modpack:"));
-    QStringList modUrls;
-    try
-    {
-        QJsonDocument doc = Json::requireDocument(m_response);
-        QJsonObject obj = Json::requireObject(doc);
-        QString minecraftVersion = Json::ensureString(obj, "minecraft", QString(), "__placeholder__");
-        if (!minecraftVersion.isEmpty())
-            m_minecraftVersion = minecraftVersion;
-        QJsonArray mods = Json::requireArray(obj, "mods", "'mods'");
-        for (auto mod: mods)
-        {
-            QJsonObject modObject = Json::requireValueObject(mod);
-            modUrls.append(Json::requireString(modObject, "url", "'url'"));
-        }
+    setStatus(tr("Downloading modpack"));
+
+    QJsonParseError parse_error {};
+    QJsonDocument doc = QJsonDocument::fromJson(m_response, &parse_error);
+    if (parse_error.error != QJsonParseError::NoError) {
+        qWarning() << "Error while parsing JSON response from Solder at " << parse_error.offset << " reason: " << parse_error.errorString();
+        qWarning() << m_response;
+        return;
     }
-    catch (const JSONValidationError &e)
-    {
-        emitFailed(e.cause());
+    auto obj = doc.object();
+
+    TechnicSolder::PackBuild build;
+    try {
+        TechnicSolder::loadPackBuild(build, obj);
+    }
+    catch (const JSONValidationError& e) {
+        emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
         m_filesNetJob.reset();
         return;
     }
+
+    if (!build.minecraft.isEmpty())
+        m_minecraftVersion = build.minecraft;
+
     m_filesNetJob = new NetJob(tr("Downloading modpack"), m_network);
     int i = 0;
-    for (auto &modUrl: modUrls)
+    for (const auto &mod : build.mods)
     {
         auto path = FS::PathCombine(m_outputDir.path(), QString("%1").arg(i));
-        m_filesNetJob->addNetAction(Net::Download::makeFile(modUrl, path));
+
+        auto dl = Net::Download::makeFile(mod.url, path);
+        if (!mod.md5.isEmpty()) {
+            auto rawMd5 = QByteArray::fromHex(mod.md5.toLatin1());
+            dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Md5, rawMd5));
+        }
+        m_filesNetJob->addNetAction(dl);
+
         i++;
     }
 
-    m_modCount = modUrls.size();
+    m_modCount = build.mods.size();
 
     connect(m_filesNetJob.get(), &NetJob::succeeded, this, &Technic::SolderPackInstallTask::downloadSucceeded);
     connect(m_filesNetJob.get(), &NetJob::progress, this, &Technic::SolderPackInstallTask::downloadProgressChanged);
@@ -206,6 +198,4 @@ void Technic::SolderPackInstallTask::extractFinished()
 void Technic::SolderPackInstallTask::extractAborted()
 {
     emitFailed(tr("Instance import has been aborted."));
-    return;
 }
-

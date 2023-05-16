@@ -195,7 +195,7 @@ if(Launcher_LAYOUT_REAL STREQUAL "mac-bundle")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
     set(MACOSX_BUNDLE_LONG_VERSION_STRING "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
     set(MACOSX_BUNDLE_ICON_FILE ${Launcher_Name}.icns)
-    set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2021 ${Launcher_Copyright}")
+    set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2023 ${Launcher_Copyright}")
 
     # directories to look for dependencies
     set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

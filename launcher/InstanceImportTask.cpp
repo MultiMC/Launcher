@@ -311,7 +311,14 @@ void InstanceImportTask::processModrinth() {
             auto jsonFiles = Json::requireIsArrayOf<QJsonObject>(obj, "files", "modrinth.index.json");
             for(auto & obj: jsonFiles) {
                 Modrinth::File file;
-                file.path = Json::requireString(obj, "path");
+                auto dirtyPath = Json::requireString(obj, "path");
+                dirtyPath.replace('\\', '/');
+                auto simplifiedPath = QDir::cleanPath(dirtyPath);
+                QFileInfo fileInfo (simplifiedPath);
+                if(simplifiedPath.startsWith("../") || simplifiedPath.contains("/../") || fileInfo.isAbsolute()) {
+                    throw JSONValidationError("Invalid path found in modpack files:\n\n" + simplifiedPath);
+                }
+                file.path = simplifiedPath;
 
                 // env doesn't have to be present, in that case mod is required
                 auto env = Json::ensureObject(obj, "env");

@@ -1,4 +1,4 @@
-/* Copyright 2012-2021 MultiMC Contributors
+/* Copyright 2012-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,9 @@ public class OneSixLauncher implements Launcher
     private String windowTitle;
     private String windowParams;
 
+    private String instanceTitle;
+    private String instanceIconId;
+
     // secondary parameters
     private int winSizeW;
     private int winSizeH;
@@ -50,6 +53,7 @@ public class OneSixLauncher implements Launcher
 
     private String serverAddress;
     private String serverPort;
+    private boolean useQuickPlay;
 
     // the much abused system classloader, for convenience (for further abuse)
     private ClassLoader cl;
@@ -68,8 +72,16 @@ public class OneSixLauncher implements Launcher
         windowTitle = params.firstSafe("windowTitle", "Minecraft");
         windowParams = params.firstSafe("windowParams", "854x480");
 
+        instanceTitle = params.firstSafe("instanceTitle", "Minecraft");
+        instanceIconId = params.firstSafe("instanceIconId", "default");
+
+        // NOTE: this is included for the CraftPresence mod
+        System.setProperty("multimc.instance.title", instanceTitle);
+        System.setProperty("multimc.instance.icon", instanceIconId);
+
         serverAddress = params.firstSafe("serverAddress", null);
         serverPort = params.firstSafe("serverPort", null);
+        useQuickPlay = params.firstSafe("useQuickPlay").startsWith("1");
 
         cwd = System.getProperty("user.dir");
 
@@ -175,10 +187,18 @@ public class OneSixLauncher implements Launcher
 
         if (serverAddress != null)
         {
-            mcparams.add("--server");
-            mcparams.add(serverAddress);
-            mcparams.add("--port");
-            mcparams.add(serverPort);
+            if (useQuickPlay)
+            {
+                mcparams.add("--quickPlayMultiplayer");
+                mcparams.add(serverAddress + ":" + serverPort);
+            }
+            else
+            {
+                mcparams.add("--server");
+                mcparams.add(serverAddress);
+                mcparams.add("--port");
+                mcparams.add(serverPort);
+            }
         }
 
         // Get the Minecraft Class.

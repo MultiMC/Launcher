@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2020-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  * Copyright 2021 Philip T <me@phit.link>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +25,8 @@
 #include "ui/dialogs/VersionSelectDialog.h"
 
 #include <BuildConfig.h>
+
+#include <QMessageBox>
 
 AtlPage::AtlPage(NewInstanceDialog* dialog, QWidget *parent)
         : QWidget(parent), ui(new Ui::AtlPage), dialog(dialog)
@@ -89,7 +91,7 @@ void AtlPage::suggestCurrent()
         return;
     }
 
-    dialog->setSuggestedPack(selected.name + " " + selectedVersion, new ATLauncher::PackInstallTask(this, selected.safeName, selectedVersion));
+    dialog->setSuggestedPack(selected.name + " " + selectedVersion, new ATLauncher::PackInstallTask(this, selected.name, selectedVersion));
     auto editedLogoName = selected.safeName;
     auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "launcher/images/%1.png").arg(selected.safeName.toLower());
     listModel->getLogo(selected.safeName, url, [this, editedLogoName](QString logo)
@@ -145,8 +147,8 @@ void AtlPage::onVersionSelectionChanged(QString data)
     suggestCurrent();
 }
 
-QVector<QString> AtlPage::chooseOptionalMods(QVector<ATLauncher::VersionMod> mods) {
-    AtlOptionalModDialog optionalModDialog(this, mods);
+QVector<QString> AtlPage::chooseOptionalMods(ATLauncher::PackVersion version, QVector<ATLauncher::VersionMod> mods) {
+    AtlOptionalModDialog optionalModDialog(this, version, mods);
     optionalModDialog.exec();
     return optionalModDialog.getResult();
 }
@@ -185,4 +187,9 @@ QString AtlPage::chooseVersion(Meta::VersionListPtr vlist, QString minecraftVers
 
     vselect.exec();
     return vselect.selectedVersion()->descriptor();
+}
+
+void AtlPage::displayMessage(QString message)
+{
+    QMessageBox::information(this, tr("Installing"), message);
 }

@@ -14,7 +14,6 @@ public:
 
     void setNotificationsUrl(const QUrl &notificationsUrl);
     void setApplicationPlatform(QString platform);
-    void setApplicationChannel(QString channel);
     void setApplicationFullVersion(QString version);
 
     struct NotificationEntry

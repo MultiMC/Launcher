@@ -27,5 +27,7 @@ struct VersionFilterData
     QDateTime java16BeginsDate;
     // release data of first version to require Java 17 (1.18 Pre Release 2)
     QDateTime java17BeginsDate;
+    // release date of first version to use --quickPlayMultiplayer instead of --server/--port for directly joining servers
+    QDateTime quickPlayBeginsDate;
 };
 extern VersionFilterData g_VersionFilterData;

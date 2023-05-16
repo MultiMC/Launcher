@@ -26,11 +26,11 @@
 #include "BuildConfig.h"
 #include "sys.h"
 
-UpdateChecker::UpdateChecker(shared_qobject_ptr<QNetworkAccessManager> nam, QString channelUrl, QString currentChannel, int currentBuild)
+UpdateChecker::UpdateChecker(shared_qobject_ptr<QNetworkAccessManager> nam, QString channelUrl, int currentBuild)
 {
     m_network = nam;
     m_channelUrl = channelUrl;
-    m_currentChannel = currentChannel;
+    m_currentChannel = "develop";
     m_currentBuild = currentBuild;
 }
 
@@ -44,9 +44,10 @@ bool UpdateChecker::hasChannels() const
     return !m_channels.isEmpty();
 }
 
-void UpdateChecker::checkForUpdate(QString updateChannel, bool notifyNoUpdate)
+void UpdateChecker::checkForUpdate(bool notifyNoUpdate)
 {
     qDebug() << "Checking for updates.";
+    QString updateChannel = "develop";
 
     // If the channel list hasn't loaded yet, load it and defer checking for updates until
     // later.
@@ -54,7 +55,6 @@ void UpdateChecker::checkForUpdate(QString updateChannel, bool notifyNoUpdate)
     {
         qDebug() << "Channel list isn't loaded yet. Loading channel list and deferring update check.";
         m_checkUpdateWaiting = true;
-        m_deferredUpdateChannel = updateChannel;
         updateChanList(notifyNoUpdate);
         return;
     }
@@ -67,13 +67,13 @@ void UpdateChecker::checkForUpdate(QString updateChannel, bool notifyNoUpdate)
 
     // Find the desired channel within the channel list and get its repo URL. If if cannot be
     // found, error.
-    QString stableUrl;
+    QString developUrl;
     m_newRepoUrl = "";
     for (ChannelListEntry entry : m_channels)
     {
         qDebug() << "channelEntry = " << entry.id;
-        if(entry.id == "stable") {
-            stableUrl = entry.url;
+        if(entry.id == "develop") {
+            developUrl = entry.url;
         }
         if (entry.id == updateChannel) {
             m_newRepoUrl = entry.url;
@@ -88,8 +88,8 @@ void UpdateChecker::checkForUpdate(QString updateChannel, bool notifyNoUpdate)
     qDebug() << "m_repoUrl = " << m_newRepoUrl;
 
     if (m_newRepoUrl.isEmpty()) {
-        qWarning() << "m_repoUrl was empty. defaulting to 'stable': " << stableUrl;
-        m_newRepoUrl = stableUrl;
+        qWarning() << "m_repoUrl was empty. defaulting to 'develop': " << developUrl;
+        m_newRepoUrl = developUrl;
     }
 
     // If nothing applies, error
@@ -255,7 +255,7 @@ void UpdateChecker::chanListDownloadFinished(bool notifyNoUpdate)
 
     // If we're waiting to check for updates, do that now.
     if (m_checkUpdateWaiting) {
-        checkForUpdate(m_deferredUpdateChannel, notifyNoUpdate);
+        checkForUpdate(notifyNoUpdate);
     }
 
     emit channelListLoaded();

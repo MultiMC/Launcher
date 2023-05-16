@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,31 @@
 #pragma once
 
 #include <QString>
+#include <QVector>
+#include <QJsonObject>
 
-namespace Time {
+namespace TechnicSolder {
 
-QString prettifyDuration(int64_t duration);
-QString prettifyDurationHours(int64_t duration);
+struct Pack {
+    QString recommended;
+    QString latest;
+    QVector<QString> builds;
+};
+
+void loadPack(Pack& v, QJsonObject& obj);
+
+struct PackBuildMod {
+    QString name;
+    QString version;
+    QString md5;
+    QString url;
+};
+
+struct PackBuild {
+    QString minecraft;
+    QVector<PackBuildMod> mods;
+};
+
+void loadPackBuild(PackBuild& v, QJsonObject& obj);
 
 }

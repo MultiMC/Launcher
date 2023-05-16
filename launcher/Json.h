@@ -41,6 +41,8 @@ QJsonDocument requireDocument(const QString &filename, const QString &what = "Do
 /// @throw JsonException
 QJsonObject requireObject(const QJsonDocument &doc, const QString &what = "Document");
 /// @throw JsonException
+QJsonObject requireObject(const QJsonValueRef &node, const QString &what = "Node");
+/// @throw JsonException
 QJsonArray requireArray(const QJsonDocument &doc, const QString &what = "Document");
 
 /////////////////// WRITING ////////////////////

@@ -1,0 +1,20 @@
+name: Dispatcher
+on:
+  push:
+    branches: ['6']
+jobs:
+  dispatch:
+    name: Dispatch
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >>$GITHUB_OUTPUT
+        id: extract_branch
+      - name: Dispatch to workflows
+        run: |
+            curl -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: token ${{ secrets.DISPATCH_TOKEN }}" \
+            --request POST \
+            --data '{"event_type": "push_to_main_repo", "client_payload": { "branch": "${{ steps.extract_branch.outputs.branch }}" }}' https://api.github.com/repos/MultiMC/Build/dispatches

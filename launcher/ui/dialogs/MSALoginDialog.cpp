@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2022 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 #include <QtWidgets/QPushButton>
 #include <QUrl>
+#include <QClipboard>
 
 MSALoginDialog::MSALoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::MSALoginDialog)
 {
@@ -34,6 +35,7 @@ MSALoginDialog::MSALoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::MS
 int MSALoginDialog::exec() {
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
+    ui->copyCodeButton->setVisible(false);
 
     // Setup the login task and start it
     m_account = MinecraftAccount::createBlankMSA();
@@ -68,6 +70,8 @@ void MSALoginDialog::externalLoginTick() {
 
 
 void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& code, int expiresIn) {
+    ui->copyCodeButton->setVisible(true);
+
     m_externalLoginElapsed = 0;
     m_externalLoginTimeout = expiresIn;
 
@@ -81,9 +85,12 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
     QString urlString = uri.toString();
     QString linkString = QString("<a href=\"%1\">%2</a>").arg(urlString, urlString);
     ui->label->setText(tr("<p>Please open up %1 in a browser and put in the code <b>%2</b> to proceed with login.</p>").arg(linkString, code));
+
+    m_code = code;
 }
 
 void MSALoginDialog::hideVerificationUriAndCode() {
+    ui->copyCodeButton->setVisible(false);
     m_externalLoginTimer.stop();
 }
 
@@ -138,4 +145,9 @@ MinecraftAccountPtr MSALoginDialog::newAccount(QWidget *parent, QString msg)
         return dlg.m_account;
     }
     return 0;
+}
+
+void MSALoginDialog::on_copyCodeButton_clicked()
+{
+    QApplication::clipboard()->setText(m_code);
 }

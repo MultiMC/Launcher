@@ -60,8 +60,11 @@ CreateShortcutDialog::~CreateShortcutDialog()
 void CreateShortcutDialog::on_shortcutPathBrowse_clicked()
 {
     QString linkExtension;
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     linkExtension = ui->createScriptCheckBox->isChecked() ? "sh" : "desktop";
+#endif
+#ifdef Q_OS_MAC
+    linkExtension = "command";
 #endif
 #ifdef Q_OS_WIN
     linkExtension = ui->createScriptCheckBox->isChecked() ? "bat" : "lnk";
@@ -104,20 +107,20 @@ void CreateShortcutDialog::updateDialogState()
     }
 }
 
-QString CreateShortcutDialog::getLaunchCommand()
+QString CreateShortcutDialog::getLaunchCommand(bool escapeQuotesTwice)
 {
-    return "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()) + "\""
-        + getLaunchArgs();
+    return "\"" + QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).replace('"', escapeQuotesTwice ? "\\\\\"" : "\\\"") + "\""
+        + getLaunchArgs(escapeQuotesTwice);
 }
 
-QString CreateShortcutDialog::getLaunchArgs()
+QString CreateShortcutDialog::getLaunchArgs(bool escapeQuotesTwice)
 {
-    return " -d \"" + QDir::toNativeSeparators(QDir::currentPath()) + "\""
-           + " -l " + m_instance->id()
-           + (ui->joinServerCheckBox->isChecked() ? " -s " + ui->joinServer->text() : "")
-           + (ui->useProfileCheckBox->isChecked() ? " -a " + ui->profileComboBox->currentText() : "")
+    return " -d \"" + QDir::toNativeSeparators(QDir::currentPath()).replace('"', escapeQuotesTwice ? "\\\\\"" : "\\\"") + "\""
+           + " -l \"" + m_instance->id() + "\""
+           + (ui->joinServerCheckBox->isChecked() ? " -s \"" + ui->joinServer->text() + "\"" : "")
+           + (ui->useProfileCheckBox->isChecked() ? " -a \"" + ui->profileComboBox->currentText() + "\"" : "")
            + (ui->launchOfflineCheckBox->isChecked() ? " -o" : "")
-           + (ui->offlineUsernameCheckBox->isChecked() ? " -n " + ui->offlineUsername->text() : "");
+           + (ui->offlineUsernameCheckBox->isChecked() ? " -n \"" + ui->offlineUsername->text() + "\"" : "");
 }
 
 void CreateShortcutDialog::createShortcut()
@@ -134,7 +137,7 @@ void CreateShortcutDialog::createShortcut()
         {
             shortcutText = "#!/bin/sh\n"
                            // FIXME: is there a way to use the launcher script instead of the raw binary here?
-                    "cd \"" + QDir::currentPath() + "\"\n"
+                    "cd \"" + QDir::currentPath().replace('"', "\\\"") + "\"\n"
                     + getLaunchCommand() + " &\n";
         } else
             // freedesktop.org desktop entry
@@ -149,7 +152,7 @@ void CreateShortcutDialog::createShortcut()
             shortcutText = "[Desktop Entry]\n"
                            "Type=Application\n"
                            "Name=" + m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "\n"
-                           + "Exec=" + getLaunchCommand() + "\n"
+                           + "Exec=" + getLaunchCommand(true) + "\n"
                            + "Path=" + QDir::currentPath() + "\n"
                            + "Icon=" + QDir::currentPath() + "/icons/shortcut-icon.png\n";
 
@@ -159,7 +162,7 @@ void CreateShortcutDialog::createShortcut()
         // Windows batch script implementation
         shortcutText = "@ECHO OFF\r\n"
                        "CD \"" + QDir::toNativeSeparators(QDir::currentPath()) + "\"\r\n"
-                       "START /B " + getLaunchCommand() + "\r\n";
+                       "START /B \"\" " + getLaunchCommand() + "\r\n";
 #endif
         QFile shortcutFile(ui->shortcutPath->text());
         if (shortcutFile.open(QIODevice::WriteOnly))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Jamie Mansfield <jmansfield@cadixdev.org>
+ * Copyright 2021-2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@
 #include "AtlOptionalModDialog.h"
 #include "ui_AtlOptionalModDialog.h"
 
-AtlOptionalModListModel::AtlOptionalModListModel(QWidget *parent, QVector<ATLauncher::VersionMod> mods)
-    : QAbstractListModel(parent), m_mods(mods) {
+#include <QMessageBox>
+
+AtlOptionalModListModel::AtlOptionalModListModel(QWidget *parent, ATLauncher::PackVersion version, QVector<ATLauncher::VersionMod> mods)
+    : QAbstractListModel(parent), m_version(version), m_mods(mods) {
 
     // fill mod index
     for (int i = 0; i < m_mods.size(); i++) {
@@ -69,6 +71,11 @@ QVariant AtlOptionalModListModel::data(const QModelIndex &index, int role) const
     else if (role == Qt::ToolTipRole) {
         if (index.column() == DescriptionColumn) {
             return mod.description;
+        }
+    }
+    else if (role == Qt::ForegroundRole) {
+        if (!mod.colour.isEmpty() && m_version.colours.contains(mod.colour)) {
+            return QColor(QString("#%1").arg(m_version.colours[mod.colour]));
         }
     }
     else if (role == Qt::CheckStateRole) {
@@ -134,7 +141,21 @@ void AtlOptionalModListModel::clearAll() {
 }
 
 void AtlOptionalModListModel::toggleMod(ATLauncher::VersionMod mod, int index) {
-    setMod(mod, index, !m_selection[mod.name]);
+    auto enable = !m_selection[mod.name];
+
+    // If there is a warning for the mod, display that first (if we would be enabling the mod)
+    if (enable && !mod.warning.isEmpty() && m_version.warnings.contains(mod.warning)) {
+        auto message = QString("%1<br><br>%2")
+                .arg(m_version.warnings[mod.warning], tr("Are you sure that you want to enable this mod?"));
+
+        // fixme: avoid casting here
+        auto result = QMessageBox::warning((QWidget*) this->parent(), tr("Warning"), message, QMessageBox::Yes | QMessageBox::No);
+        if (result != QMessageBox::Yes) {
+            return;
+        }
+    }
+
+    setMod(mod, index, enable);
 }
 
 void AtlOptionalModListModel::setMod(ATLauncher::VersionMod mod, int index, bool enable, bool shouldEmit) {
@@ -199,11 +220,11 @@ void AtlOptionalModListModel::setMod(ATLauncher::VersionMod mod, int index, bool
 }
 
 
-AtlOptionalModDialog::AtlOptionalModDialog(QWidget *parent, QVector<ATLauncher::VersionMod> mods)
+AtlOptionalModDialog::AtlOptionalModDialog(QWidget *parent, ATLauncher::PackVersion version, QVector<ATLauncher::VersionMod> mods)
     : QDialog(parent), ui(new Ui::AtlOptionalModDialog) {
     ui->setupUi(this);
 
-    listModel = new AtlOptionalModListModel(this, mods);
+    listModel = new AtlOptionalModListModel(this, version, mods);
     ui->treeView->setModel(listModel);
 
     ui->treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

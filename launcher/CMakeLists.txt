@@ -509,6 +509,8 @@ set(TECHNIC_SOURCES
     modplatform/technic/SingleZipPackInstallTask.cpp
     modplatform/technic/SolderPackInstallTask.h
     modplatform/technic/SolderPackInstallTask.cpp
+    modplatform/technic/SolderPackManifest.h
+    modplatform/technic/SolderPackManifest.cpp
     modplatform/technic/TechnicPackProcessor.h
     modplatform/technic/TechnicPackProcessor.cpp
 )
@@ -525,6 +527,10 @@ set(ATLAUNCHER_SOURCES
 set(MODRINTH_SOURCES
     modplatform/modrinth/ModrinthPackManifest.cpp
     modplatform/modrinth/ModrinthPackManifest.h
+    modplatform/modrinth/ModrinthInstanceExportTask.h
+    modplatform/modrinth/ModrinthInstanceExportTask.cpp
+    modplatform/modrinth/ModrinthHashLookupRequest.h
+    modplatform/modrinth/ModrinthHashLookupRequest.cpp
 )
 
 add_unit_test(Index
@@ -782,6 +788,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/SkinUploadDialog.h
     ui/dialogs/CreateShortcutDialog.cpp
     ui/dialogs/CreateShortcutDialog.h
+    ui/dialogs/ModrinthExportDialog.cpp
+    ui/dialogs/ModrinthExportDialog.h
 
     # GUI - widgets
     ui/widgets/Common.cpp
@@ -880,6 +888,7 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/LoginDialog.ui
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/CreateShortcutDialog.ui
+    ui/dialogs/ModrinthExportDialog.ui
 )
 
 qt5_add_resources(LAUNCHER_RESOURCES

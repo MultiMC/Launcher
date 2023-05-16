@@ -314,6 +314,20 @@ void ScreenshotsPage::on_actionUpload_triggered()
     if (selection.isEmpty())
         return;
 
+    auto uploadText = tr("Upload screenshot to imgur.com?");
+    if (selection.size() > 1)
+        uploadText = tr("Upload %1 screenshots to imgur.com?").arg(selection.size());
+
+    auto response = CustomMessageBox::selectable(
+        this,
+        tr("Upload?"),
+        uploadText,
+        QMessageBox::Question,
+        QMessageBox::Yes | QMessageBox::No
+    )->exec();
+    if (response == QMessageBox::No)
+        return;
+
     QList<ScreenShot::Ptr> uploaded;
     auto job = NetJob::Ptr(new NetJob("Screenshot Upload", APPLICATION->network()));
     if(selection.size() < 2)

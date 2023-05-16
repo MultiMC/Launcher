@@ -16,8 +16,10 @@
 
 #pragma once
 
+#include <QMap>
 #include <QString>
 #include <QVector>
+#include <QMap>
 #include <QJsonObject>
 
 namespace ATLauncher
@@ -109,6 +111,8 @@ struct VersionMod
     bool library;
     QString group;
     QVector<QString> depends;
+    QString colour;
+    QString warning;
 
     bool client;
 
@@ -134,6 +138,12 @@ struct PackVersionExtraArguments
     QString depends;
 };
 
+struct VersionMessages
+{
+    QString install;
+    QString update;
+};
+
 struct PackVersion
 {
     QString version;
@@ -146,6 +156,10 @@ struct PackVersion
     QVector<VersionLibrary> libraries;
     QVector<VersionMod> mods;
     VersionConfigs configs;
+
+    QMap<QString, QString> colours;
+    QMap<QString, QString> warnings;
+    VersionMessages messages;
 };
 
 void loadVersion(PackVersion & v, QJsonObject & obj);

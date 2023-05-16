@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ModrinthExportDialog</class>
+ <widget class="QDialog" name="ModrinthExportDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>835</width>
+    <height>559</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>ModrinthExportDialog</string>
+  </property>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>821</width>
+     <height>541</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>25</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Export Modrinth modpack</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="metadataGroupBox">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Metadata</string>
+      </property>
+      <widget class="QWidget" name="verticalLayoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>801</width>
+         <height>151</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="metadataVLayout">
+        <item>
+         <layout class="QFormLayout" name="metadataFormLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="nameLabel">
+            <property name="text">
+             <string>Name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="name"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="versionLabel">
+            <property name="text">
+             <string>Version</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="descriptionLabel">
+            <property name="text">
+             <string>Description</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="version"/>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="description"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="optionsGroupBox">
+      <property name="title">
+       <string>Export Options</string>
+      </property>
+      <widget class="QWidget" name="verticalLayoutWidget_3">
+       <property name="geometry">
+        <rect>
+         <x>9</x>
+         <y>29</y>
+         <width>801</width>
+         <height>221</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="optionsLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetFixedSize</enum>
+          </property>
+          <item>
+           <widget class="QLabel" name="fileLabel">
+            <property name="text">
+             <string>File</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="file"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="fileBrowseButton">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="includeGameConfig">
+          <property name="text">
+           <string>Include Minecraft config</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="includeModConfigs">
+          <property name="text">
+           <string>Include mod configs</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="includeResourcePacks">
+          <property name="text">
+           <string>Include resource packs</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="includeShaderPacks">
+          <property name="text">
+           <string>Include shader packs</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QCheckBox" name="includeDatapacks">
+            <property name="toolTip">
+             <string>Use this if your modpack contains a mod which adds global datapacks.</string>
+            </property>
+            <property name="text">
+             <string>Include global datapacks folder:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="datapacksPath"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="datapackPathBrowse">
+            <property name="text">
+             <string>Browse...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QDialogButtonBox" name="buttonBox">
+      <property name="standardButtons">
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>340</x>
+     <y>532</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>338</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>340</x>
+     <y>532</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>338</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>name</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>version</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>file</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>datapacksPath</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>532</x>
+     <y>472</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>417</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>includeDatapacks</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>ModrinthExportDialog</receiver>
+   <slot>updateDialogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>183</x>
+     <y>472</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>417</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>updateDialogState()</slot>
+ </slots>
+</ui>

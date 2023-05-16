@@ -178,6 +178,8 @@ static void loadVersionMod(ATLauncher::VersionMod & p, QJsonObject & obj) {
             p.depends.append(Json::requireValueString(depends));
         }
     }
+    p.colour = Json::ensureString(obj, QString("colour"), "");
+    p.warning = Json::ensureString(obj, QString("warning"), "");
 
     p.client = Json::ensureBoolean(obj, QString("client"), false);
 
@@ -195,6 +197,12 @@ static void loadVersionExtraArguments(ATLauncher::PackVersionExtraArguments & a,
 {
     a.arguments = Json::ensureString(obj, "arguments", "");
     a.depends = Json::ensureString(obj, "depends", "");
+}
+
+static void loadVersionMessages(ATLauncher::VersionMessages & m, QJsonObject & obj)
+{
+    m.install = Json::ensureString(obj, "install", "");
+    m.update = Json::ensureString(obj, "update", "");
 }
 
 void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
@@ -243,5 +251,26 @@ void ATLauncher::loadVersion(PackVersion & v, QJsonObject & obj)
     if(obj.contains("configs")) {
         auto configsObj = Json::requireObject(obj, "configs");
         loadVersionConfigs(v.configs, configsObj);
+    }
+
+    if(obj.contains("colours")) {
+        auto colourObj = Json::requireObject(obj, "colours");
+
+        for (const auto &key : colourObj.keys()) {
+            v.colours[key] = Json::requireValueString(colourObj.value(key), "colour");
+        }
+    }
+
+    if(obj.contains("warnings")) {
+        auto warningsObj = Json::requireObject(obj, "warnings");
+
+        for (const auto &key : warningsObj.keys()) {
+            v.warnings[key] = Json::requireValueString(warningsObj.value(key), "warning");
+        }
+    }
+
+    if(obj.contains("messages")) {
+        auto messages = Json::requireObject(obj, "messages");
+        loadVersionMessages(v.messages, messages);
     }
 }
