@@ -396,7 +396,7 @@ QProcessEnvironment MinecraftInstance::createEnvironment()
 static QString replaceTokensIn(QString text, QMap<QString, QString> with)
 {
     QString result;
-    QRegularExpression token_regexp("\\$\\{(.+?)\\}");
+    QRegularExpression token_regexp("\\$\\{([^}]+)\\}");
     int tail = 0;
     int head = 0;
     while (true) {
@@ -407,7 +407,7 @@ static QString replaceTokensIn(QString text, QMap<QString, QString> with)
         }
         head = match.capturedStart();
         result.append(text.mid(tail, head - tail));
-        auto key = match.captured();
+        auto key = match.captured(1);
         auto iter = with.find(key);
         if (iter != with.end())
         {
