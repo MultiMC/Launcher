@@ -686,7 +686,7 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, QuickP
         out << "";
     }
 
-    auto params = processMinecraftArgs(nullptr, quickPlayTarget);
+    auto params = processMinecraftArgs(session, quickPlayTarget);
     out << "Params:";
     out << "  " + params.join(' ');
     out << "";
