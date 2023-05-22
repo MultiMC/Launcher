@@ -46,7 +46,7 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
     // TODO: check if version is affected by crashing when joining servers on launch, ideally in meta
 
     auto mcInstance = std::dynamic_pointer_cast<MinecraftInstance>(instance);
-    mcInstance->getPackProfile()->reload(Net::Mode::Offline);
+    mcInstance->getPackProfile()->reload(Net::Mode::Online);
     if (mcInstance && mcInstance->getPackProfile()->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
     {
         mcInstance->worldList()->update();
