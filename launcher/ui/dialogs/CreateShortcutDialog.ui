@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright 2022-2023 arthomnix
+ This source is subject to the Microsoft Public License (MS-PL).
+ Please see the COPYING.md file for more information.
+-->
 <ui version="4.0">
  <class>CreateShortcutDialog</class>
  <widget class="QDialog" name="CreateShortcutDialog">
