@@ -111,9 +111,11 @@ void CreateShortcutDialog::updateDialogState()
 {
     ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(
             !ui->shortcutPath->text().isEmpty()
-            && (!ui->joinWorldCheckBox->isChecked() || ui->joinServerRadioButton->isChecked() || ui->joinSingleplayerRadioButton->isChecked())
-            && (!ui->joinServerRadioButton->isChecked() || !ui->joinServer->text().isEmpty())
-            && (!ui->joinSingleplayerRadioButton->isChecked() || !ui->joinSingleplayer->currentText().isEmpty())
+            && (
+                    !ui->joinWorldCheckBox->isChecked()
+                    || (ui->joinServerRadioButton->isChecked() && !ui->joinServer->text().isEmpty())
+                    || (ui->joinSingleplayerRadioButton->isChecked() && !ui->joinSingleplayer->currentText().isEmpty())
+                )
             && (!ui->offlineUsernameCheckBox->isChecked() || !ui->offlineUsername->text().isEmpty())
             && (!ui->useProfileCheckBox->isChecked() || !ui->profileComboBox->currentText().isEmpty())
     );
