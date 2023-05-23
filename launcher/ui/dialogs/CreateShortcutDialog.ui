@@ -454,22 +454,6 @@
     </hint>
    </hints>
   </connection>
-  <connection>
-   <sender>joinWorldCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>CreateShortcutDialog</receiver>
-   <slot>updateDialogState()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>140</x>
-     <y>59</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>397</x>
-     <y>164</y>
-    </hint>
-   </hints>
-  </connection>
  </connections>
  <slots>
   <slot>updateDialogState()</slot>

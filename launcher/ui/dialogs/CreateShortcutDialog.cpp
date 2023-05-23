@@ -72,6 +72,8 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
     ui->createScriptCheckBox->setChecked(true);
 #endif
 
+    connect(ui->joinWorldCheckBox, &QCheckBox::toggled, this, &CreateShortcutDialog::updateDialogState);
+
     updateDialogState();
 }
 
