@@ -112,7 +112,7 @@
          <x>9</x>
          <y>29</y>
          <width>801</width>
-         <height>221</height>
+         <height>227</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="optionsLayout">
@@ -171,6 +171,16 @@
          <widget class="QCheckBox" name="includeShaderPacks">
           <property name="text">
            <string>Include shader packs</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="treatDisabledAsOptional">
+          <property name="toolTip">
+           <string>If enabled, all mods, shaders and resource packs that are available on Modrinth will be treated as optional on both client and server. Files that are unavailable on Modrinth will simply retain the &quot;.disabled&quot; extension as Modrinth packs don't support optional overrides.</string>
+          </property>
+          <property name="text">
+           <string>Treat disabled mods, shaders and resource packs as optional</string>
           </property>
          </widget>
         </item>

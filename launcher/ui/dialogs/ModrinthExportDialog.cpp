@@ -81,6 +81,7 @@ void ModrinthExportDialog::accept()
     settings.includeModConfigs = ui->includeModConfigs->isChecked();
     settings.includeResourcePacks = ui->includeResourcePacks->isChecked();
     settings.includeShaderPacks = ui->includeShaderPacks->isChecked();
+    settings.treatDisabledAsOptional = ui->treatDisabledAsOptional->isChecked();
 
     if (ui->includeDatapacks->isChecked()) {
         settings.datapacksPath = ui->datapacksPath->text();
