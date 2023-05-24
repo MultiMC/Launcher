@@ -45,17 +45,25 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
 
     // TODO: check if version is affected by crashing when joining servers on launch, ideally in meta
 
+    bool instanceSupportsQuickPlay = false;
+
     auto mcInstance = std::dynamic_pointer_cast<MinecraftInstance>(instance);
-    mcInstance->getPackProfile()->reload(Net::Mode::Offline);
-    if (mcInstance && mcInstance->getPackProfile()->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
+    if (mcInstance)
     {
-        mcInstance->worldList()->update();
-        for (const auto &world : mcInstance->worldList()->allWorlds())
+        mcInstance->getPackProfile()->reload(Net::Mode::Online);
+
+        if (mcInstance->getPackProfile()->getComponent("net.minecraft")->getReleaseDateTime() >= g_VersionFilterData.quickPlayBeginsDate)
         {
-            ui->joinSingleplayer->addItem(world.folderName());
+            instanceSupportsQuickPlay = true;
+            mcInstance->worldList()->update();
+            for (const auto &world : mcInstance->worldList()->allWorlds())
+            {
+                ui->joinSingleplayer->addItem(world.folderName());
+            }
         }
     }
-    else
+
+    if (!instanceSupportsQuickPlay)
     {
         ui->joinServerRadioButton->setChecked(true);
         ui->joinSingleplayerRadioButton->setVisible(false);
@@ -67,6 +75,8 @@ CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance
     ui->createScriptCheckBox->setEnabled(false);
     ui->createScriptCheckBox->setChecked(true);
 #endif
+
+    connect(ui->joinWorldCheckBox, &QCheckBox::toggled, this, &CreateShortcutDialog::updateDialogState);
 
     updateDialogState();
 }
@@ -111,9 +121,11 @@ void CreateShortcutDialog::updateDialogState()
 {
     ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setEnabled(
             !ui->shortcutPath->text().isEmpty()
-            && (!ui->joinWorldCheckBox->isChecked() || ui->joinServerRadioButton->isChecked() || ui->joinSingleplayerRadioButton->isChecked())
-            && (!ui->joinServerRadioButton->isChecked() || !ui->joinServer->text().isEmpty())
-            && (!ui->joinSingleplayerRadioButton->isChecked() || !ui->joinSingleplayer->currentText().isEmpty())
+            && (
+                    !ui->joinWorldCheckBox->isChecked()
+                    || (ui->joinServerRadioButton->isChecked() && !ui->joinServer->text().isEmpty())
+                    || (ui->joinSingleplayerRadioButton->isChecked() && !ui->joinSingleplayer->currentText().isEmpty())
+                )
             && (!ui->offlineUsernameCheckBox->isChecked() || !ui->offlineUsername->text().isEmpty())
             && (!ui->useProfileCheckBox->isChecked() || !ui->profileComboBox->currentText().isEmpty())
     );
