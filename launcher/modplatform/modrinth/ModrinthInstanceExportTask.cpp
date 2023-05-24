@@ -29,15 +29,24 @@ void InstanceExportTask::executeTask()
 
     QDir modsDir(m_instance->gameRoot() + "/mods");
     modsDir.setFilter(QDir::Files);
-    modsDir.setNameFilters(QStringList() << "*.jar");
+    QStringList modsFilter = { "*.jar" };
+    if (m_settings.treatDisabledAsOptional) {
+        modsFilter << "*.jar.disabled";
+    }
+    modsDir.setNameFilters(modsFilter);
+
+    QStringList zipFilter = { "*.zip" };
+    if (m_settings.treatDisabledAsOptional) {
+        zipFilter << "*.zip.disabled";
+    }
 
     QDir resourcePacksDir(m_instance->gameRoot() + "/resourcepacks");
     resourcePacksDir.setFilter(QDir::Files);
-    resourcePacksDir.setNameFilters(QStringList() << "*.zip");
+    resourcePacksDir.setNameFilters(zipFilter);
 
     QDir shaderPacksDir(m_instance->gameRoot() + "/shaderpacks");
     shaderPacksDir.setFilter(QDir::Files);
-    shaderPacksDir.setNameFilters(QStringList() << "*.zip");
+    shaderPacksDir.setNameFilters(zipFilter);
 
     QStringList filesToResolve;
 
@@ -132,7 +141,13 @@ void InstanceExportTask::lookupSucceeded()
 
                 QDir gameDir(m_instance->gameRoot());
 
-                fileData.path = gameDir.relativeFilePath(file.fileInfo.absoluteFilePath());
+                QString path = file.fileInfo.absoluteFilePath();
+                if (path.endsWith(".disabled")) {
+                    fileData.optional = true;
+                    path = path.left(path.length() - QString(".disabled").length());
+                }
+
+                fileData.path = gameDir.relativeFilePath(path);
                 fileData.download = url;
                 fileData.sha512 = sha512Hash;
                 fileData.sha1 = sha1Hash;
@@ -174,6 +189,13 @@ void InstanceExportTask::lookupSucceeded()
         fileObj.insert("downloads", downloads);
 
         fileObj.insert("fileSize", QJsonValue(file.fileSize));
+
+        if (file.optional) {
+            QJsonObject env;
+            env.insert("client", "optional");
+            env.insert("server", "optional");
+            fileObj.insert("env", env);
+        }
 
         files.append(fileObj);
     }

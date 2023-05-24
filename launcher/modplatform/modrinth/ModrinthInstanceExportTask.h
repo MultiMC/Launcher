@@ -26,6 +26,7 @@ struct ExportSettings
     bool includeModConfigs;
     bool includeResourcePacks;
     bool includeShaderPacks;
+    bool treatDisabledAsOptional;
     QString datapacksPath;
 
     QString gameVersion;
@@ -44,6 +45,7 @@ struct ExportFile
     QString sha1;
     QString download;
     qint64 fileSize;
+    bool optional = false;
 };
 
 class InstanceExportTask : public Task
