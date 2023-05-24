@@ -32,8 +32,7 @@ public: /* types */
     enum class Option
     {
         NoOptions = 0,
-        AcceptLocalFiles = 1,
-        AllowNotFound = 2
+        AcceptLocalFiles = 1
     };
     Q_DECLARE_FLAGS(Options, Option)
 

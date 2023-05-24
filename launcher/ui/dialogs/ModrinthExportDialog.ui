@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>ModrinthExportDialog</string>
+   <string>Export Modrinth modpack</string>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
