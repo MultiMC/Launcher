@@ -6,6 +6,7 @@ const Config BuildConfig;
 Config::Config()
 {
     // Name and copyright
+    LAUNCHER_FSNAME = "@Launcher_FSName@";
     LAUNCHER_NAME = "@Launcher_Name@";
     LAUNCHER_DISPLAYNAME = "@Launcher_DisplayName@";
     LAUNCHER_COPYRIGHT = "@Launcher_Copyright@";

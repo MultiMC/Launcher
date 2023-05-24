@@ -8,6 +8,7 @@ class Config
 {
 public:
     Config();
+    QString LAUNCHER_FSNAME;
     QString LAUNCHER_NAME;
     QString LAUNCHER_DISPLAYNAME;
     QString LAUNCHER_COPYRIGHT;

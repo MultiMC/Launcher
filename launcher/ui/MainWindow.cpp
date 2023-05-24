@@ -665,12 +665,14 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
+        /*
         QString winTitle = tr("%1 - Version %2", "Launcher - Version X").arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString());
         if (!BuildConfig.BUILD_PLATFORM.isEmpty())
         {
             winTitle += tr(" on %1", "on platform, as in operating system").arg(BuildConfig.BUILD_PLATFORM);
         }
         MainWindow->setWindowTitle(winTitle);
+        */
         // all the actions
         for(auto * item: all_actions)
         {
@@ -1329,9 +1331,9 @@ void MainWindow::downloadUpdates(GoUpdate::Status status)
     }
     qDebug() << "Downloading updates.";
     ProgressDialog updateDlg(this);
-    status.rootPath = APPLICATION->root();
+    status.rootPath = APPLICATION->applicationRoot();
 
-    auto dlPath = FS::PathCombine(APPLICATION->root(), "update", "XXXXXX");
+    auto dlPath = FS::PathCombine(APPLICATION->applicationRoot(), "update", "XXXXXX");
     if (!FS::ensureFilePathExists(dlPath))
     {
         CustomMessageBox::selectable(this, tr("Error"), tr("Couldn't create folder for update downloads:\n%1").arg(dlPath), QMessageBox::Warning)->show();
@@ -1345,7 +1347,7 @@ void MainWindow::downloadUpdates(GoUpdate::Status status)
          * or the update fails (and the control leaves this scope).
          */
         APPLICATION->updateIsRunning(true);
-        UpdateController update(this, APPLICATION->root(), updateTask.updateFilesDir(), updateTask.operations());
+        UpdateController update(this, APPLICATION->applicationRoot(), updateTask.updateFilesDir(), updateTask.operations());
         update.installUpdates();
         APPLICATION->updateIsRunning(false);
     }

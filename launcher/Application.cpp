@@ -94,7 +94,7 @@ static const QLatin1String liveCheckFile("live.check");
 
 using namespace Commandline;
 
-#define MACOS_HINT "If you are on macOS Sierra, you might have to move the app to your /Applications or ~/Applications folder. "\
+#define MACOS_HINT "If you are on macOS Sierra or newer, you might have to move the app to your /Applications or ~/Applications folder. "\
     "This usually fixes the problem and you can move the application elsewhere afterwards.\n"\
     "\n"
 
@@ -315,6 +315,8 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     QString adjustedBy;
     QString dataPath;
     // change folder
+    // FIXME: Actually implement portable installs again in some way...
+    constexpr bool portableInstall = false;
     QString dirParam = args["dir"].toString();
     if (!dirParam.isEmpty())
     {
@@ -323,16 +325,20 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         adjustedBy += "Command line " + dirParam;
         dataPath = dirParam;
     }
-    else
+    else if(portableInstall)
     {
 #if defined(Q_OS_MAC)
         QDir foo(FS::PathCombine(applicationDirPath(), "../../Data"));
         dataPath = foo.absolutePath();
-        adjustedBy += "Fallback to special Mac location " + dataPath;
 #else
         dataPath = applicationDirPath();
-        adjustedBy += "Fallback to binary path " + dataPath;
 #endif
+        adjustedBy += "Portable binary path " + dataPath;
+    }
+    else {
+        auto dataLocation = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::GenericDataLocation);
+        dataPath = FS::PathCombine(dataLocation, BuildConfig.LAUNCHER_FSNAME);
+        adjustedBy += "Standard data path " + dataPath;
     }
 
     if (!FS::ensureFolderPathExists(dataPath))
@@ -426,69 +432,6 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
             return;
         }
     }
-
-#if defined(Q_OS_MAC)
-    // move user data to new location if on macOS and it still exists in Contents/MacOS
-    QDir fi(applicationDirPath());
-    QString originalData = fi.absolutePath();
-    // if the config file exists in Contents/MacOS, then user data is still there and needs to moved
-    if (QFileInfo::exists(FS::PathCombine(originalData, BuildConfig.LAUNCHER_CONFIGFILE)))
-    {
-        if (!QFileInfo::exists(FS::PathCombine(originalData, "dontmovemacdata")))
-        {
-            QMessageBox::StandardButton askMoveDialogue;
-            askMoveDialogue = QMessageBox::question(
-                nullptr,
-                BuildConfig.LAUNCHER_DISPLAYNAME,
-                "Would you like to move application data to a new data location? It will improve the launcher's performance, but if you switch to older versions it will look like instances have disappeared. If you select no, you can migrate later in settings. You should select yes unless you're commonly switching between different versions (eg. develop and stable).",
-                QMessageBox::Yes | QMessageBox::No,
-                QMessageBox::Yes
-            );
-            if (askMoveDialogue == QMessageBox::Yes)
-            {
-                qDebug() << "On macOS and found config file in old location, moving user data...";
-                QDir dir;
-                QStringList dataFiles {
-                    "*.log", // Launcher log files: ${Launcher_Name}-@.log
-                    "accounts.json",
-                    "accounts",
-                    "assets",
-                    "cache",
-                    "icons",
-                    "instances",
-                    "libraries",
-                    "meta",
-                    "metacache",
-                    "mods",
-                    BuildConfig.LAUNCHER_CONFIGFILE,
-                    "themes",
-                    "translations"
-                };
-                QDirIterator files(originalData, dataFiles);
-                while (files.hasNext()) {
-                    QString filePath(files.next());
-                    QString fileName(files.fileName());
-                    if (!dir.rename(filePath, FS::PathCombine(dataPath, fileName)))
-                    {
-                        qWarning() << "Failed to move " << fileName;
-                    }
-                }
-            }
-            else
-            {
-                dataPath = originalData;
-                QDir::setCurrent(dataPath);
-                QFile file(originalData + "/dontmovemacdata");
-                file.open(QIODevice::WriteOnly);
-            }
-        }
-        else
-        {
-            dataPath = originalData;
-            QDir::setCurrent(dataPath);
-        }
-    }
-#endif
 
     /*
      * Establish the mechanism for communication with an already running MultiMC that uses the same data path.

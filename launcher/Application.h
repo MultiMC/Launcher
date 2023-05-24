@@ -125,7 +125,7 @@ public:
     QString getJarsPath();
 
     /// this is the root of the 'installation'. Used for automatic updates
-    const QString &root() {
+    const QString &applicationRoot() {
         return m_rootPath;
     }
 
