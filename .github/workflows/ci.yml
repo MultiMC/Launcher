@@ -107,7 +107,7 @@ jobs:
       - name: "Generate bundle"
         run: |
           cd install
-          macdeployqt DevLauncher.app
+          ~/Qt/current/macos/bin/macdeployqt DevLauncher.app
 
       - name: "Package"
         env:
