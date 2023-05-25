@@ -11,7 +11,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # See: https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_ARCHITECTURES.html
 # See: https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html
 if(APPLE)
-    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "macOS architecture(s) to build for.")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64h;arm64" CACHE STRING "macOS architecture(s) to build for.")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "minimum macOS versions to build for.")
 endif()
 
