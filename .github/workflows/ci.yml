@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           submodules: 'recursive'
 
       - name: "Install Dependencies"
         run: |
           sudo apt update
-          sudo apt install libgl1-mesa-dev qt6-base-dev
+          sudo apt install libgl1-mesa-dev qt6-base-dev libqt6core5compat6-dev
 
       - name: "Configure"
         run: |
