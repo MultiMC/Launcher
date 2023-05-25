@@ -944,11 +944,22 @@ target_link_libraries(Launcher_logic secrets)
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
 target_link_libraries(${Launcher_Name} Launcher_logic)
 
-if(DEFINED Launcher_APP_BINARY_NAME)
-    set_target_properties(${Launcher_Name} PROPERTIES OUTPUT_NAME "${Launcher_APP_BINARY_NAME}")
+if (MSVC)
+    set_target_properties(${Launcher_Name} PROPERTIES
+        WIN32_EXECUTABLE YES
+        LINK_FLAGS "/ENTRY:mainCRTStartup /MANIFEST:NO"
+    )
 endif()
-if(DEFINED Launcher_BINARY_RPATH)
-    SET_TARGET_PROPERTIES(${Launcher_Name} PROPERTIES INSTALL_RPATH "${Launcher_BINARY_RPATH}")
+
+# NOTE fix up rpath so the macOS loader finds the frameworks
+if (APPLE)
+    set_target_properties(${Launcher_Name} PROPERTIES
+        INSTALL_RPATH "@executable_path/../Frameworks"
+    )
+elseif(UNIX)
+    set_target_properties(${Launcher_Name} PROPERTIES
+        INSTALL_RPATH "$ORIGIN/"
+    )
 endif()
 
 if(DEFINED Launcher_APP_BINARY_DEFS)

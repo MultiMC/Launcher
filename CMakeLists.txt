@@ -150,9 +150,6 @@ elseif(UNIX)
 
     set(BUNDLE_DEST_DIR ".")
 
-    # Set RPATH
-    SET(Launcher_BINARY_RPATH "$ORIGIN/")
-
     # Install basic runner script
     configure_file(launcher/Launcher.in "${CMAKE_CURRENT_BINARY_DIR}/LauncherScript" @ONLY)
     install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/LauncherScript" DESTINATION ${BUNDLE_DEST_DIR} RENAME ${Launcher_Name})
