@@ -64,7 +64,7 @@ jobs:
           path: install/DevLauncher-*.zip
 
   build-mac:
-    name: build-macos-amd64
+    name: build-macos
     runs-on: macos-11
 
     steps:
