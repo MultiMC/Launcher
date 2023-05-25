@@ -954,7 +954,7 @@ endif()
 # NOTE fix up rpath so the macOS loader finds the frameworks
 if (APPLE)
     set_target_properties(${Launcher_Name} PROPERTIES
-        INSTALL_RPATH "@executable_path/../Frameworks"
+        INSTALL_RPATH "@executable_path;@executable_path/../Frameworks"
     )
 elseif(UNIX)
     set_target_properties(${Launcher_Name} PROPERTIES
