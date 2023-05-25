@@ -71,24 +71,6 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: "Cache Qt"
-        id: cache-qt
-        uses: actions/cache@v1  # not v2!
-        with:
-          path: ../Qt
-          key: ${{ runner.os }}-QtCache
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          aqtversion: '==3.1.*'
-          version: '6.5.1'
-          host: 'mac'
-          target: 'desktop'
-          arch: 'clang_64'
-          modules: 'qt5compat'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-
       - name: "Configure"
         run: |
           mkdir -p build
