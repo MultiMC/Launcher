@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [ "6" ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    name: build-linux-amd64
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v2.4.0
+        with:
+          submodules: 'recursive'
+
+      - name: "Install Dependencies"
+        run: |
+          sudo apt update
+          sudo apt install libgl1-mesa-dev qt6-base-dev
+
+      - name: "Configure"
+        run: |
+          mkdir -p build
+          cd build
+          cmake \
+           -DCMAKE_BUILD_TYPE=Release \
+           -DCMAKE_INSTALL_PREFIX:PATH=../install/Launcher \
+           -DLauncher_VERSION_BUILD="$GITHUB_RUN_NUMBER" \
+           -DLauncher_BUILD_PLATFORM=lin64 \
+           -DLauncher_EMBED_SECRETS=Off \
+           ..
+
+      # This uses https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#setting-an-output-parameter
+      # ::set-output name=version::1.2.3.4
+      - name: "Get Version"
+        id: getversion
+        run: |
+          cd build
+          make ga_version
+
+      - name: "Build"
+        run: |
+          cd build
+          make -j$(nproc)
+
+      - name: "Install"
+        run: |
+          cd build
+          make install
+
+      - name: "Package"
+        env:
+          APP_VERSION: ${{ steps.getversion.outputs.version }}
+        run: |
+          cd install
+          zip -r Launcher-${APP_VERSION}-linux-amd64.zip Launcher
+
+      - name: "Upload Artifacts"
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: Launcher-linux-amd64
+          path: install/Launcher-*.zip
