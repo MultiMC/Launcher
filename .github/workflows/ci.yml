@@ -80,6 +80,7 @@ jobs:
            -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
            -DCMAKE_BUILD_TYPE=Release \
            -DCMAKE_INSTALL_PREFIX:PATH=../install/DevLauncher \
+           -DCMAKE_PREFIX_PATH="~/Qt/current/macos" \
            -DLauncher_VERSION_BUILD="$GITHUB_RUN_NUMBER" \
            -DLauncher_BUILD_PLATFORM=macos \
            -DLauncher_EMBED_SECRETS=Off \
