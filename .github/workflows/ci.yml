@@ -65,7 +65,7 @@ jobs:
 
   build-mac:
     name: build-macos
-    runs-on: macos-11
+    runs-on: macmini-m1
 
     steps:
       - uses: actions/checkout@v3
