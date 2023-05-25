@@ -26,7 +26,7 @@ jobs:
           cd build
           cmake \
            -DCMAKE_BUILD_TYPE=Release \
-           -DCMAKE_INSTALL_PREFIX:PATH=../install/Launcher \
+           -DCMAKE_INSTALL_PREFIX:PATH=../install/DevLauncher \
            -DLauncher_VERSION_BUILD="$GITHUB_RUN_NUMBER" \
            -DLauncher_BUILD_PLATFORM=lin64 \
            -DLauncher_EMBED_SECRETS=Off \
@@ -55,10 +55,85 @@ jobs:
           APP_VERSION: ${{ steps.getversion.outputs.version }}
         run: |
           cd install
-          zip -r Launcher-${APP_VERSION}-linux-amd64.zip Launcher
+          zip -r DevLauncher-${APP_VERSION}-linux-amd64.zip DevLauncher
 
       - name: "Upload Artifacts"
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: Launcher-linux-amd64
-          path: install/Launcher-*.zip
+          name: DevLauncher-linux-amd64
+          path: install/DevLauncher-*.zip
+
+  build-mac:
+    name: build-macos-amd64
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - name: "Cache Qt"
+        id: cache-qt
+        uses: actions/cache@v1  # not v2!
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          aqtversion: '==3.1.*'
+          version: '6.5.1'
+          host: 'mac'
+          target: 'desktop'
+          arch: 'clang_64'
+          modules: 'qt5compat'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - name: "Configure"
+        run: |
+          mkdir -p build
+          cd build
+          cmake \
+           -DCMAKE_C_COMPILER=/usr/bin/clang \
+           -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+           -DCMAKE_BUILD_TYPE=Release \
+           -DCMAKE_INSTALL_PREFIX:PATH=../install/DevLauncher \
+           -DLauncher_VERSION_BUILD="$GITHUB_RUN_NUMBER" \
+           -DLauncher_BUILD_PLATFORM=macos \
+           -DLauncher_EMBED_SECRETS=Off \
+           ..
+
+      # This uses https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#setting-an-output-parameter
+      # ::set-output name=version::1.2.3.4
+      - name: "Get Version"
+        id: getversion
+        run: |
+          cd build
+          make ga_version
+
+      - name: "Build"
+        run: |
+          cd build
+          make -j$(sysctl -n hw.logicalcpu)
+
+      - name: "Install"
+        run: |
+          cd build
+          make install
+
+      - name: "Generate bundle"
+        run: |
+          cd install
+          macdeployqt DevLauncher.app
+
+      - name: "Package"
+        env:
+          APP_VERSION: ${{ steps.getversion.outputs.version }}
+        run: ditto -V -c -k --keepParent "install/DevLauncher.app" "install/DevLauncher-${APP_VERSION}-macos.zip"
+
+      - name: "Upload Artifacts"
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: DevLauncher-macos
+          path: install/DevLauncher-*.zip

@@ -11,10 +11,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # See: https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_ARCHITECTURES.html
 # See: https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html
 if(APPLE)
-    # No M1 build with Qt 5
-    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "macOS architecture(s) to build for.")
-    # Target 10.14 for the improved theming support
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "minimum macOS versions to build for.")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "macOS architecture(s) to build for.")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "minimum macOS versions to build for.")
 endif()
 
 set(CMAKE_CXX_STANDARD_REQUIRED true)
