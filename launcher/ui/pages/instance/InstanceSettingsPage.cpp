@@ -46,6 +46,7 @@ InstanceSettingsPage::InstanceSettingsPage(BaseInstance *inst, QWidget *parent)
         ui->worldRadioButton->setVisible(false);
         ui->worldsComboBox->setVisible(false);
         ui->serverAddressRadioButton->setChecked(true);
+        connect(ui->quickPlayGroupBox, &QGroupBox::toggled, ui->serverJoinAddress, &QLineEdit::setEnabled);
     }
 
     loadSettings();
