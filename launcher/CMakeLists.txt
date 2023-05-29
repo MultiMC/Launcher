@@ -540,9 +540,6 @@ add_unit_test(Index
 
 ################################ COMPILE ################################
 
-# we need zlib
-find_package(ZLIB REQUIRED)
-
 set(LOGIC_SOURCES
     ${CORE_SOURCES}
     ${PATHMATCHER_SOURCES}
@@ -917,7 +914,7 @@ target_link_libraries(Launcher_logic
     Launcher_quazip
     Launcher_classparser
     ${NBT_NAME}
-    ${ZLIB_LIBRARIES}
+    zlibstatic
     optional-bare
     tomlc99
     BuildConfig
