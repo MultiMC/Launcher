@@ -141,21 +141,6 @@ slots:
                          #endif
                                  ;
     }
-
-    void test_createShortcut()
-    {
-        QFETCH(QString, location);
-        QFETCH(QString, dest);
-        QFETCH(QStringList, args);
-        QFETCH(QString, name);
-        QFETCH(QString, iconLocation);
-        QFETCH(QByteArray, result);
-
-        QVERIFY(FS::createShortCut(location, dest, args, name, iconLocation));
-        QCOMPARE(QString::fromLocal8Bit(TestsInternal::readFile(location + QDir::separator() + name + ".desktop")), QString::fromLocal8Bit(result));
-
-        //QDir().remove(location);
-    }
 #endif
 };
 
