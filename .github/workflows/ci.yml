@@ -3,6 +3,8 @@ name: CI
 on:
   push:
     branches: [ "6" ]
+  pull-request:
+    branches: [ "6" ]
 
 jobs:
   build-linux:
@@ -57,65 +59,7 @@ jobs:
           zip -r DevLauncher-${APP_VERSION}-linux-amd64.zip DevLauncher
 
       - name: "Upload Artifacts"
-        uses: actions/upload-artifact@v2.2.4
+        uses: actions/upload-artifact@v3
         with:
           name: DevLauncher-linux-amd64
-          path: install/DevLauncher-*.zip
-
-  build-mac:
-    name: build-macos
-    runs-on: macmini-m1
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: 'recursive'
-
-      - name: "Configure"
-        run: |
-          mkdir -p build
-          cd build
-          cmake \
-           -DCMAKE_C_COMPILER=/usr/bin/clang \
-           -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
-           -DCMAKE_BUILD_TYPE=Release \
-           -DCMAKE_INSTALL_PREFIX:PATH=../install \
-           -DCMAKE_PREFIX_PATH="~/Qt/current/macos" \
-           -DLauncher_VERSION_BUILD="$GITHUB_RUN_NUMBER" \
-           -DLauncher_BUILD_PLATFORM=macos \
-           -DLauncher_EMBED_SECRETS=Off \
-           ..
-
-      # This uses https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#setting-an-output-parameter
-      # ::set-output name=version::1.2.3.4
-      - name: "Get Version"
-        id: getversion
-        run: |
-          cd build
-          make ga_version
-
-      - name: "Build"
-        run: |
-          cd build
-          make -j$(sysctl -n hw.logicalcpu)
-
-      - name: "Install"
-        run: |
-          cd build
-          make install
-
-      - name: "Generate bundle"
-        run: |
-          cd install
-          ~/Qt/current/macos/bin/macdeployqt DevLauncher.app
-
-      - name: "Package"
-        env:
-          APP_VERSION: ${{ steps.getversion.outputs.version }}
-        run: ditto -V -c -k --keepParent "install/DevLauncher.app" "install/DevLauncher-${APP_VERSION}-macos.zip"
-
-      - name: "Upload Artifacts"
-        uses: actions/upload-artifact@v2.2.4
-        with:
-          name: DevLauncher-macos
           path: install/DevLauncher-*.zip
