@@ -28,7 +28,7 @@ jobs:
           cmake \
            -DCMAKE_BUILD_TYPE=Release \
            -DCMAKE_INSTALL_PREFIX:PATH=../install/DevLauncher \
-           -DLauncher_VERSION_BUILD="$GITHUB_RUN_NUMBER" \
+           -DBUILD_NUMBER="$GITHUB_RUN_NUMBER" \
            -DLauncher_BUILD_PLATFORM=lin64 \
            -DLauncher_EMBED_SECRETS=Off \
            ..
