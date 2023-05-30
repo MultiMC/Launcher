@@ -39,10 +39,9 @@ git submodule update
 Getting the project to build and run on Linux is easy if you use any modern and up-to-date linux distribution.
 
 ## Build dependencies
-* A C++ compiler capable of building C++11 code.
-* Qt 5.6+ Development tools (http://qt-project.org/downloads) ("Qt Online Installer for Linux (64 bit)") or the equivalent from your package manager. It is always better to use the Qt from your distribution, as long as it has a new enough version. (for example, `qttools5-dev`)
-* cmake 3.1 or newer
-* zlib (for example, `zlib1g-dev`)
+* A C++ compiler capable of building C++17 code.
+* Qt 6.2+ Development tools (http://qt-project.org/downloads) ("Qt Online Installer for Linux (64 bit)") or the equivalent from your package manager. It is always better to use the Qt from your distribution, as long as it has a new enough version.
+* cmake 3.22 or newer
 * Java JDK 8 (for example, `openjdk-8-jdk`)
 * GL headers (for example, `libgl1-mesa-dev`)
 
@@ -71,8 +70,9 @@ You can use IDEs like KDevelop or QtCreator to open the CMake project if you wan
 1. Run the Qt installer.
 2. Choose a place to install Qt.
 3. Choose the components you want to install.
-    - You need Qt 5.6.x 64-bit ticked.
+    - You need Qt 6.5.x 64-bit ticked.
     - You need Tools/Qt Creator ticked.
+    - You need The extra Core5Compat library ticked.
     - Other components are selected by default, you can untick them if you don't need them.
 4. Accept the license agreements.
 5. Double check the install details and then click "Install".
@@ -98,20 +98,11 @@ You can use IDEs like KDevelop or QtCreator to open the CMake project if you wan
 Getting the project to build and run on Windows is easy if you use Qt's IDE, Qt Creator. The project will simply not compile using Microsoft build tools, because that's not something we do. If it does compile, it is by chance only.
 
 ## Dependencies
-* [Qt 5.6+ Development tools](http://qt-project.org/downloads) -- Qt Online Installer for Windows
-    - http://download.qt.io/new_archive/qt/5.6/5.6.0/qt-opensource-windows-x86-mingw492-5.6.0.exe
-    - Download the MinGW version (MSVC version does not work).
-* [OpenSSL](https://github.com/IndySockets/OpenSSL-Binaries/tree/master/Archive/) -- Win32 OpenSSL, version 1.0.2g (from 2016)
-    - https://github.com/IndySockets/OpenSSL-Binaries/raw/master/Archive/openssl-1.0.2g-i386-win32.zip
-    - the usual OpenSSL for Windows (http://slproweb.com/products/Win32OpenSSL.html) only provides the newest version of OpenSSL, and we need the 1.0.2g version
-    - **Download the 32-bit version, not 64-bit.**
-    - Microsoft Visual C++ 2008 Redist is required for this, there's a link on the OpenSSL download page above next to the main download.
-    - We use a custom build of OpenSSL that doesn't have this dependency. For normal development, the custom build is not necessary though.
-* [zlib 1.2+](http://gnuwin32.sourceforge.net/packages/zlib.htm) - the Setup is fine
+* [Qt 6.5+ Development tools](http://qt-project.org/downloads) -- Qt Online Installer for Windows
 * [Java JDK 8](https://adoptium.net/releases.html?variant=openjdk8) - Use the MSI installer.
 * [CMake](http://www.cmake.org/cmake/resources/software.html) -- Windows (Win32 Installer)
 
-Ensure that OpenSSL, zlib, Java and CMake are on `PATH`.
+Ensure that Java and CMake are on `PATH`.
 
 ## Getting set up
 
@@ -119,16 +110,13 @@ Ensure that OpenSSL, zlib, Java and CMake are on `PATH`.
 1. Run the Qt installer
 2. Choose a place to install Qt (C:\Qt is the default),
 3. Choose the components you want to install
-    - You need Qt 5.6 (32 bit) ticked,
-    - You need Tools/Qt Creator ticked,
+    - You need Qt 6.5 ticked.
+    - You need Tools/Qt Creator ticked.
+    - You need The extra Core5Compat library ticked.
     - Other components are selected by default, you can untick them if you don't need them.
 4. Accept the license agreements,
 5. Double check the install details and then click "Install"
     - Installation can take a very long time, go grab a cup of tea or something and let it work.
-
-### Installing OpenSSL
-1. Download .zip file from the link above.
-2. Unzip and add the directory to PATH, so CMake can find it.
 
 ### Installing CMake
 1. Run the CMake installer,
@@ -151,41 +139,13 @@ Ensure that OpenSSL, zlib, Java and CMake are on `PATH`.
     - If the project builds successfully it will run and the Launcher window will pop up,
     - Test OpenSSL by making an instance and trying to log in. If Qt Creator couldn't find OpenSSL during the CMake stage, login will fail and you'll get an error.
 
-The following .dlls are needed for the app to run (copy them to build directory if you want to be able to move the build to another pc):
-```
-platforms/qwindows.dll
-libeay32.dll
-libgcc_s_dw2-1.dll
-libssp-0.dll
-libstdc++-6.dll
-libwinpthread-1.dll
-Qt5Core.dll
-Qt5Gui.dll
-Qt5Network.dll
-Qt5Svg.dll
-Qt5Widgets.dll
-Qt5Xml.dll
-ssleay32.dll
-zlib1.dll
-```
-
-**These build instructions worked for me (Drayshak) on a fresh Windows 8 x64 Professional install. If they don't work for you, let us know on IRC ([Esper/#MultiMC](http://webchat.esper.net/?nick=&channels=MultiMC))!**
-### Compile from command line on Windows
-1. If you installed Qt with the web installer, there should be a shortcut called `Qt 5.4 for Desktop (MinGW 4.9 32-bit)` in the Start menu on Windows 7 and 10. Best way to find it is to search for it. Do note you cannot just use cmd.exe, you have to use the shortcut, otherwise the proper MinGW software will not be on the PATH.
-2. Once that is open, change into your user directory, and clone MultiMC by doing `git clone --recursive https://github.com/MultiMC/Launcher.git`, and change directory to the folder you cloned to.
-3. Make a build directory, and change directory to the directory and do `cmake -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX=C:\Path\that\makes\sense\for\you`. By default, it will install to C:\Program Files (x86), which you might not want, if you want a local installation. If you want to install it to that directory, make sure to run the command window as administrator.
-3. Do `mingw32-make -jX`, where X is the number of cores your CPU has plus one.
-4. Now to wait for it to compile. This could take some time. Hopefully it compiles properly.
-5. Run the command `mingw32-make install`, and it should install MultiMC, to whatever the `-DCMAKE_INSTALL_PREFIX` was.
-6. In most cases, whenever compiling, the OpenSSL dll's aren't put into the directory to where MultiMC installs, meaning you cannot log in. The best way to fix this is just to do `copy C:\OpenSSL-Win32\*.dll C:\Where\you\installed\MultiMC\to`. This should copy the required OpenSSL dll's to log in.
-
 # macOS
 
 ### Install prerequisites:
 - Install XCode Command Line tools
 - Install the official build of CMake (https://cmake.org/download/)
 - Install JDK 8 (https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html)
-- Get Qt 5.6 and install it (https://download.qt.io/new_archive/qt/5.6/5.6.3/)
+- Get Qt 6.5 and install it
 
 ### XCode Command Line tools
 
@@ -209,10 +169,7 @@ cmake \
  -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
  -DCMAKE_BUILD_TYPE=Release \
  -DCMAKE_INSTALL_PREFIX:PATH="$(dirname $PWD)/dist/" \
- -DCMAKE_PREFIX_PATH="/path/to/Qt5.6/" \
- -DQt5_DIR="/path/to/Qt5.6/" \
- -DLauncher_LAYOUT=mac-bundle \
- -DCMAKE_OSX_DEPLOYMENT_TARGET=10.7 \
+ -DCMAKE_PREFIX_PATH="/path/to/Qt6.5/" \
  ..
 make install
 ```

@@ -154,6 +154,10 @@ QList<JavaInstallPtr> JavaUtils::FindJavaFromRegistryKey(DWORD keyType, QString 
 {
     QList<JavaInstallPtr> javas;
 
+    auto wKeyName = keyName.toStdWString();
+    auto wKeyJavaDir = keyJavaDir.toStdWString();
+    auto wSubkeySuffix = subkeySuffix.toStdWString();
+
     QString archType = "unknown";
     if (keyType == KEY_WOW64_64KEY)
         archType = "64";
@@ -161,26 +165,24 @@ QList<JavaInstallPtr> JavaUtils::FindJavaFromRegistryKey(DWORD keyType, QString 
         archType = "32";
 
     HKEY jreKey;
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, keyName.toStdString().c_str(), 0,
-                      KEY_READ | keyType | KEY_ENUMERATE_SUB_KEYS, &jreKey) == ERROR_SUCCESS)
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, wKeyName.c_str(), 0, KEY_READ | keyType | KEY_ENUMERATE_SUB_KEYS, &jreKey) == ERROR_SUCCESS)
     {
         // Read the current type version from the registry.
         // This will be used to find any key that contains the JavaHome value.
         char *value = new char[0];
         DWORD valueSz = 0;
-        if (RegQueryValueExA(jreKey, "CurrentVersion", NULL, NULL, (BYTE *)value, &valueSz) ==
+        if (RegQueryValueExW(jreKey, L"CurrentVersion", NULL, NULL, (BYTE *)value, &valueSz) ==
             ERROR_MORE_DATA)
         {
             value = new char[valueSz];
-            RegQueryValueExA(jreKey, "CurrentVersion", NULL, NULL, (BYTE *)value, &valueSz);
+            RegQueryValueExW(jreKey, L"CurrentVersion", NULL, NULL, (BYTE *)value, &valueSz);
         }
 
-        TCHAR subKeyName[255];
+        wchar_t subKeyName[255];
         DWORD subKeyNameSize, numSubKeys, retCode;
 
         // Get the number of subkeys
-        RegQueryInfoKey(jreKey, NULL, NULL, NULL, &numSubKeys, NULL, NULL, NULL, NULL, NULL,
-                        NULL, NULL);
+        RegQueryInfoKey(jreKey, NULL, NULL, NULL, &numSubKeys, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
         // Iterate until RegEnumKeyEx fails
         if (numSubKeys > 0)
@@ -188,34 +190,29 @@ QList<JavaInstallPtr> JavaUtils::FindJavaFromRegistryKey(DWORD keyType, QString 
             for (DWORD i = 0; i < numSubKeys; i++)
             {
                 subKeyNameSize = 255;
-                retCode = RegEnumKeyEx(jreKey, i, subKeyName, &subKeyNameSize, NULL, NULL, NULL,
-                                       NULL);
+                retCode = RegEnumKeyExW(jreKey, i, subKeyName, &subKeyNameSize, NULL, NULL, NULL, NULL);
                 if (retCode == ERROR_SUCCESS)
                 {
                     // Now open the registry key for the version that we just got.
-                    QString newKeyName = keyName + "\\" + subKeyName + subkeySuffix;
+                    std::wstring newKeyName = wKeyName + L"\\" + subKeyName + wSubkeySuffix;
 
                     HKEY newKey;
-                    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, newKeyName.toStdString().c_str(), 0,
-                                     KEY_READ | KEY_WOW64_64KEY, &newKey) == ERROR_SUCCESS)
+                    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, newKeyName.c_str(), 0, KEY_READ | KEY_WOW64_64KEY, &newKey) == ERROR_SUCCESS)
                     {
                         // Read the JavaHome value to find where Java is installed.
                         value = new char[0];
                         valueSz = 0;
-                        if (RegQueryValueEx(newKey, keyJavaDir.toStdString().c_str(), NULL, NULL, (BYTE *)value,
-                                            &valueSz) == ERROR_MORE_DATA)
+                        if (RegQueryValueExW(newKey, wKeyJavaDir.c_str(), NULL, NULL, (BYTE *)value, &valueSz) == ERROR_MORE_DATA)
                         {
                             value = new char[valueSz];
-                            RegQueryValueEx(newKey, keyJavaDir.toStdString().c_str(), NULL, NULL, (BYTE *)value,
-                                            &valueSz);
+                            RegQueryValueExW(newKey, wKeyJavaDir.c_str(), NULL, NULL, (BYTE *)value, &valueSz);
 
                             // Now, we construct the version object and add it to the list.
                             JavaInstallPtr javaVersion(new JavaInstall());
 
-                            javaVersion->id = subKeyName;
+                            javaVersion->id = QString::fromWCharArray(subKeyName, valueSz);
                             javaVersion->arch = archType;
-                            javaVersion->path =
-                                QDir(FS::PathCombine(value, "bin")).absoluteFilePath("javaw.exe");
+                            javaVersion->path = QDir(FS::PathCombine(value, "bin")).absoluteFilePath("javaw.exe");
                             javas.append(javaVersion);
                         }
 

@@ -21,6 +21,43 @@
 #ifdef Q_OS_WIN
 #include <shobjidl.h>
 #include <shlguid.h>
+
+static void createWindowsLink(QString target, QString workingDir, QString args, QString filename, QString desc, QString iconPath)
+{
+    HRESULT result;
+    IShellLink *link;
+
+    CoInitialize(nullptr);
+    result = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID *) &link);
+    if (SUCCEEDED(result))
+    {
+        IPersistFile *file;
+
+        auto wTarget = target.toStdWString();
+        auto wWorkingDir = workingDir.toStdWString();
+        auto wArgs = args.toStdWString();
+        auto wDesc = desc.toStdWString();
+        auto wIconPath = iconPath.toStdWString();
+
+        link->SetPath(wTarget.c_str());
+        link->SetWorkingDirectory(wWorkingDir.c_str());
+        link->SetArguments(wArgs.c_str());
+        link->SetDescription(wDesc.c_str());
+        link->SetIconLocation(wIconPath.c_str(), 0);
+
+        result = link->QueryInterface(IID_IPersistFile, (LPVOID *) &file);
+
+        if (SUCCEEDED(result))
+        {
+            auto wFilename = filename.toStdWString();
+            wchar_t path[MAX_PATH];
+            file->Save(path, TRUE);
+            file->Release();
+        }
+        link->Release();
+    }
+    CoUninitialize();
+}
 #endif
 
 CreateShortcutDialog::CreateShortcutDialog(QWidget *parent, InstancePtr instance)
@@ -218,8 +255,7 @@ void CreateShortcutDialog::createShortcut()
         {
             QTextStream stream(&shortcutFile);
             stream << shortcutText;
-            shortcutFile.setPermissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther
-                                        | QFile::WriteOwner | QFile::ExeOwner | QFile::ExeGroup);
+            shortcutFile.setPermissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther | QFile::WriteOwner | QFile::ExeOwner | QFile::ExeGroup);
             shortcutFile.close();
         }
 #ifdef Q_OS_WIN
@@ -232,48 +268,14 @@ void CreateShortcutDialog::createShortcut()
             iconPixmap.save(QDir::currentPath() + "/icons/shortcut-icon.ico");
         }
         
-        createWindowsLink(QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdString().c_str(),
-                          QDir::toNativeSeparators(QDir::currentPath()).toStdString().c_str(),
-                          getLaunchArgs().toStdString().c_str(),
-                          ui->shortcutPath->text().toStdString().c_str(),
-                          (m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME).toStdString().c_str(),
-                          QDir::toNativeSeparators(QDir::currentPath() + "/icons/shortcut-icon.ico").toStdString().c_str()
-                          );
+        createWindowsLink(
+            QDir::toNativeSeparators(QCoreApplication::applicationFilePath()),
+            QDir::toNativeSeparators(QDir::currentPath()),
+            getLaunchArgs(),
+            ui->shortcutPath->text(),
+            (m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME),
+            QDir::toNativeSeparators(QDir::currentPath() + "/icons/shortcut-icon.ico")
+        );
     }
 #endif
 }
-
-#ifdef Q_OS_WIN
-void CreateShortcutDialog::createWindowsLink(LPCSTR target, LPCSTR workingDir, LPCSTR args, LPCSTR filename,
-                                             LPCSTR desc, LPCSTR iconPath)
-{
-    HRESULT result;
-    IShellLink *link;
-
-    CoInitialize(nullptr);
-    result = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID *) &link);
-    if (SUCCEEDED(result))
-    {
-        IPersistFile *file;
-
-        link->SetPath(target);
-        link->SetWorkingDirectory(workingDir);
-        link->SetArguments(args);
-        link->SetDescription(desc);
-        link->SetIconLocation(iconPath, 0);
-
-        result = link->QueryInterface(IID_IPersistFile, (LPVOID *) &file);
-
-        if (SUCCEEDED(result))
-        {
-            WCHAR path[MAX_PATH];
-            MultiByteToWideChar(CP_ACP, 0, filename, -1, path, MAX_PATH);
-
-            file->Save(path, TRUE);
-            file->Release();
-        }
-        link->Release();
-    }
-    CoUninitialize();
-}
-#endif
