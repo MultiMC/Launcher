@@ -79,14 +79,6 @@
 #include <Secrets.h>
 
 
-#if defined Q_OS_WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#include <stdio.h>
-#endif
-
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -162,30 +154,6 @@ QString getIdealPlatform(QString currentPlatform) {
 
 Application::Application(int &argc, char **argv) : QApplication(argc, argv)
 {
-#if defined Q_OS_WIN32
-    // attach the parent console
-    if(AttachConsole(ATTACH_PARENT_PROCESS))
-    {
-        // if attach succeeds, reopen and sync all the i/o
-        if(freopen("CON", "w", stdout))
-        {
-            std::cout.sync_with_stdio();
-        }
-        if(freopen("CON", "w", stderr))
-        {
-            std::cerr.sync_with_stdio();
-        }
-        if(freopen("CON", "r", stdin))
-        {
-            std::cin.sync_with_stdio();
-        }
-        auto out = GetStdHandle (STD_OUTPUT_HANDLE);
-        DWORD written;
-        const char * endline = "\n";
-        WriteConsole(out, endline, strlen(endline), &written, NULL);
-        consoleAttached = true;
-    }
-#endif
     setOrganizationName(BuildConfig.LAUNCHER_NAME);
     setOrganizationDomain(BuildConfig.LAUNCHER_DOMAIN);
     setApplicationName(BuildConfig.LAUNCHER_NAME);
@@ -1096,17 +1064,6 @@ Application::~Application()
 {
     // Shut down logger by setting the logger function to nothing
     qInstallMessageHandler(nullptr);
-
-#if defined Q_OS_WIN32
-    // Detach from Windows console
-    if(consoleAttached)
-    {
-        fclose(stdout);
-        fclose(stdin);
-        fclose(stderr);
-        FreeConsole();
-    }
-#endif
 }
 
 void Application::messageReceived(const QByteArray& message)

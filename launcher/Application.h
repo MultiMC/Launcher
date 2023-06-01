@@ -206,11 +206,6 @@ private:
     QString m_rootPath;
     Status m_status = Application::StartingUp;
 
-#if defined Q_OS_WIN32
-    // used on Windows to attach the standard IO streams
-    bool consoleAttached = false;
-#endif
-
     // FIXME: attach to instances instead.
     struct InstanceXtras {
         InstanceWindow * window = nullptr;
