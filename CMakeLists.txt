@@ -114,6 +114,7 @@ add_custom_target(ga_version echo ::set-output name=version::${PROJECT_VERSION_M
 
 # Find the required Qt parts
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Concurrent Network Test Xml)
+SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ####################################### Secrets #######################################
 
