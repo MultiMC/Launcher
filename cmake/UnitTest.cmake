@@ -8,13 +8,14 @@ function(add_unit_test name)
     set(options "")
     set(oneValueArgs DATA)
     set(multiValueArgs SOURCES LIBS)
+    set(test_name "${name}_test")
 
     cmake_parse_arguments(OPT "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
     if(WIN32)
-        add_executable(${name}_test ${OPT_SOURCES} ${TEST_RESOURCE_PATH}/UnitTest/test.rc)
+        add_executable(${test_name} ${OPT_SOURCES} ${TEST_RESOURCE_PATH}/UnitTest/test.rc)
     else()
-        add_executable(${name}_test ${OPT_SOURCES})
+        add_executable(${test_name} ${OPT_SOURCES})
     endif()
 
     if(NOT "${OPT_DATA}" STREQUAL "")
@@ -31,7 +32,7 @@ function(add_unit_test name)
         endif()
         if(NOT TARGET "${DATA_TARGET_NAME}")
             add_custom_target(${DATA_TARGET_NAME})
-            add_dependencies(${name}_test ${DATA_TARGET_NAME})
+            add_dependencies(${test_name} ${DATA_TARGET_NAME})
             add_custom_command(
                 TARGET ${DATA_TARGET_NAME}
                 COMMAND ${CMAKE_COMMAND} "-DTEST_DATA_URL=${TEST_DATA_URL}" -DSOURCE=${TEST_DATA_PATH_SRC} -DDESTINATION=${TEST_DATA_PATH} -P ${TEST_RESOURCE_PATH}/UnitTest/generate_test_data.cmake
@@ -40,16 +41,16 @@ function(add_unit_test name)
         endif()
     endif()
 
-    target_link_libraries(${name}_test Qt6::Test ${OPT_LIBS})
+    target_link_libraries(${test_name} Qt6::Test ${OPT_LIBS})
 
-    target_include_directories(${name}_test PRIVATE "${TEST_RESOURCE_PATH}/UnitTest/")
+    target_include_directories(${test_name} PRIVATE "${TEST_RESOURCE_PATH}/UnitTest/")
 
-    add_test(NAME ${name} COMMAND ${name}_test WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    add_test(NAME ${name} COMMAND ${test_name} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     ######################################## Workarounds #########################################
     # NOTE tell MSVC to go away and stop putting its manifests and main functions into our executable
     if (MSVC)
-        set_target_properties(${name} PROPERTIES
+        set_target_properties(${test_name} PROPERTIES
             WIN32_EXECUTABLE NO
             LINK_FLAGS "/ENTRY:mainCRTStartup /MANIFEST:NO"
         )
