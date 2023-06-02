@@ -45,4 +45,13 @@ function(add_unit_test name)
     target_include_directories(${name}_test PRIVATE "${TEST_RESOURCE_PATH}/UnitTest/")
 
     add_test(NAME ${name} COMMAND ${name}_test WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    ######################################## Workarounds #########################################
+    # NOTE tell MSVC to go away and stop putting its manifests and main functions into our executable
+    if (MSVC)
+        set_target_properties(${name} PROPERTIES
+            WIN32_EXECUTABLE NO
+            LINK_FLAGS "/ENTRY:mainCRTStartup /MANIFEST:NO"
+        )
+    endif()
 endfunction()
