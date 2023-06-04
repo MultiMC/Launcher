@@ -16,7 +16,7 @@
 #include "inffast.h"
 
 /* function prototypes */
-local void fixedtables OF((struct inflate_state FAR *state));
+static void fixedtables OF((struct inflate_state FAR *state));
 
 /*
    strm provides memory allocation functions in zalloc and zfree, or
@@ -79,7 +79,7 @@ int stream_size;
    used for threaded applications, since the rewriting of the tables and virgin
    may not be thread-safe.
  */
-local void fixedtables(state)
+static void fixedtables(state)
 struct inflate_state FAR *state;
 {
 #ifdef BUILDFIXED

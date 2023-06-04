@@ -52,9 +52,9 @@ z_streamp strm;
 unsigned start;         /* inflate()'s starting value for strm->avail_out */
 {
     struct inflate_state FAR *state;
-    z_const unsigned char FAR *in;      /* local strm->next_in */
+    z_const unsigned char FAR *in;      /* static strm->next_in */
     z_const unsigned char FAR *last;    /* have enough input while in < last */
-    unsigned char FAR *out;     /* local strm->next_out */
+    unsigned char FAR *out;     /* static strm->next_out */
     unsigned char FAR *beg;     /* inflate()'s initial strm->next_out */
     unsigned char FAR *end;     /* while out < end, enough space available */
 #ifdef INFLATE_STRICT
@@ -64,10 +64,10 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
     unsigned whave;             /* valid bytes in the window */
     unsigned wnext;             /* window write index */
     unsigned char FAR *window;  /* allocated sliding window, if wsize != 0 */
-    unsigned long hold;         /* local strm->hold */
-    unsigned bits;              /* local strm->bits */
-    code const FAR *lcode;      /* local strm->lencode */
-    code const FAR *dcode;      /* local strm->distcode */
+    unsigned long hold;         /* static strm->hold */
+    unsigned bits;              /* static strm->bits */
+    code const FAR *lcode;      /* static strm->lencode */
+    code const FAR *dcode;      /* static strm->distcode */
     unsigned lmask;             /* mask for first level of length codes */
     unsigned dmask;             /* mask for first level of distance codes */
     code const *here;           /* retrieved table entry */
@@ -77,7 +77,7 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
     unsigned dist;              /* match distance */
     unsigned char FAR *from;    /* where to copy match from */
 
-    /* copy state to local variables */
+    /* copy state to static variables */
     state = (struct inflate_state FAR *)strm->state;
     in = strm->next_in;
     last = in + (strm->avail_in - 5);

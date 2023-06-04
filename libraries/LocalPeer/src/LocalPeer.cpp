@@ -76,7 +76,7 @@ ApplicationId ApplicationId::fromTraditionalApp()
     prefix.remove(QRegularExpression("[^a-zA-Z]"));
     prefix.truncate(6);
     QByteArray idc = protoId.toUtf8();
-    quint16 idNum = qChecksum(idc.constData(), idc.size());
+    quint16 idNum = qChecksum(idc);
     auto socketName = QLatin1String("qtsingleapp-") + prefix + QLatin1Char('-') + QString::number(idNum, 16);
 #if defined(Q_OS_WIN)
     if (!pProcessIdToSessionId)

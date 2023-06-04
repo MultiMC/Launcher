@@ -110,12 +110,12 @@
 #  define snprintf _snprintf
 #endif
 
-#ifndef local
-#  define local static
+#ifndef static
+#  define static static
 #endif
 /* since "static" is used to mean two completely different things in C, we
-   define "local" for the non-static meaning of "static", for readability
-   (compile with -Dlocal if your debugger can't find static symbols) */
+   define "static" for the non-static meaning of "static", for readability
+   (compile with -Dstatic if your debugger can't find static symbols) */
 
 /* gz* functions always use library allocation functions */
 #ifndef STDC

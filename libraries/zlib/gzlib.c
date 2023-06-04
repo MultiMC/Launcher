@@ -16,12 +16,12 @@
 #endif
 
 /* Local functions */
-local void gz_reset OF((gz_statep));
-local gzFile gz_open OF((const void *, int, const char *));
+static void gz_reset OF((gz_statep));
+static gzFile gz_open OF((const void *, int, const char *));
 
 #if defined UNDER_CE
 
-/* Map the Windows error number in ERROR to a locale-dependent error message
+/* Map the Windows error number in ERROR to a statice-dependent error message
    string and return a pointer to it.  Typically, the values for ERROR come
    from GetLastError.
 
@@ -72,7 +72,7 @@ char ZLIB_INTERNAL *gz_strwinerror (error)
 #endif /* UNDER_CE */
 
 /* Reset gzip file state */
-local void gz_reset(state)
+static void gz_reset(state)
     gz_statep state;
 {
     state->x.have = 0;              /* no output data available */
@@ -90,7 +90,7 @@ local void gz_reset(state)
 }
 
 /* Open a gzip file either by name or file descriptor. */
-local gzFile gz_open(path, fd, mode)
+static gzFile gz_open(path, fd, mode)
     const void *path;
     int fd;
     const char *mode;

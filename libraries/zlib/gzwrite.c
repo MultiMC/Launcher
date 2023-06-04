@@ -6,15 +6,15 @@
 #include "gzguts.h"
 
 /* Local functions */
-local int gz_init OF((gz_statep));
-local int gz_comp OF((gz_statep, int));
-local int gz_zero OF((gz_statep, z_off64_t));
-local z_size_t gz_write OF((gz_statep, voidpc, z_size_t));
+static int gz_init OF((gz_statep));
+static int gz_comp OF((gz_statep, int));
+static int gz_zero OF((gz_statep, z_off64_t));
+static z_size_t gz_write OF((gz_statep, voidpc, z_size_t));
 
 /* Initialize state for writing a gzip file.  Mark initialization by setting
    state->size to non-zero.  Return -1 on a memory allocation failure, or 0 on
    success. */
-local int gz_init(state)
+static int gz_init(state)
     gz_statep state;
 {
     int ret;
@@ -70,7 +70,7 @@ local int gz_init(state)
    deflate() flush value.  If flush is Z_FINISH, then the deflate() state is
    reset to start a new gzip stream.  If gz->direct is true, then simply write
    to the output file without compressing, and ignore flush. */
-local int gz_comp(state, flush)
+static int gz_comp(state, flush)
     gz_statep state;
     int flush;
 {
@@ -151,7 +151,7 @@ local int gz_comp(state, flush)
 
 /* Compress len zeros to output.  Return -1 on a write error or memory
    allocation failure by gz_comp(), or 0 on success. */
-local int gz_zero(state, len)
+static int gz_zero(state, len)
     gz_statep state;
     z_off64_t len;
 {
@@ -184,7 +184,7 @@ local int gz_zero(state, len)
 
 /* Write len bytes from buf to file.  Return the number of bytes written.  If
    the returned value is less than len, then there was an error. */
-local z_size_t gz_write(state, buf, len)
+static z_size_t gz_write(state, buf, len)
     gz_statep state;
     voidpc buf;
     z_size_t len;

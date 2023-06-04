@@ -92,17 +92,17 @@
 #endif
 
 /* function prototypes */
-local int inflateStateCheck OF((z_streamp strm));
-local void fixedtables OF((struct inflate_state FAR *state));
-local int updatewindow OF((z_streamp strm, const unsigned char FAR *end,
+static int inflateStateCheck OF((z_streamp strm));
+static void fixedtables OF((struct inflate_state FAR *state));
+static int updatewindow OF((z_streamp strm, const unsigned char FAR *end,
                            unsigned copy));
 #ifdef BUILDFIXED
    void makefixed OF((void));
 #endif
-local unsigned syncsearch OF((unsigned FAR *have, const unsigned char FAR *buf,
+static unsigned syncsearch OF((unsigned FAR *have, const unsigned char FAR *buf,
                               unsigned len));
 
-local int inflateStateCheck(strm)
+static int inflateStateCheck(strm)
 z_streamp strm;
 {
     struct inflate_state FAR *state;
@@ -276,7 +276,7 @@ int value;
    used for threaded applications, since the rewriting of the tables and virgin
    may not be thread-safe.
  */
-local void fixedtables(state)
+static void fixedtables(state)
 struct inflate_state FAR *state;
 {
 #ifdef BUILDFIXED
@@ -394,7 +394,7 @@ void makefixed()
    output will fall in the output data, making match copies simpler and faster.
    The advantage may be dependent on the size of the processor's data caches.
  */
-local int updatewindow(strm, end, copy)
+static int updatewindow(strm, end, copy)
 z_streamp strm;
 const Bytef *end;
 unsigned copy;
@@ -1398,7 +1398,7 @@ gz_headerp head;
    called again with more data and the *have state.  *have is initialized to
    zero for the first call.
  */
-local unsigned syncsearch(have, buf, len)
+static unsigned syncsearch(have, buf, len)
 unsigned FAR *have;
 const unsigned char FAR *buf;
 unsigned len;

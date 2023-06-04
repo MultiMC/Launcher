@@ -29,13 +29,6 @@
 #  include <stdlib.h>
 #endif
 
-#ifndef local
-#  define local static
-#endif
-/* since "static" is used to mean two completely different things in C, we
-   define "local" for the non-static meaning of "static", for readability
-   (compile with -Dlocal if your debugger can't find static symbols) */
-
 typedef unsigned char  uch;
 typedef uch FAR uchf;
 typedef unsigned short ush;

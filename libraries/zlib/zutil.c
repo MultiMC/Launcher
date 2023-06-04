@@ -199,14 +199,14 @@ void ZLIB_INTERNAL zmemzero(dest, len)
 #define MAX_PTR 10
 /* 10*64K = 640K */
 
-local int next_ptr = 0;
+static int next_ptr = 0;
 
 typedef struct ptr_table_s {
     voidpf org_ptr;
     voidpf new_ptr;
 } ptr_table;
 
-local ptr_table table[MAX_PTR];
+static ptr_table table[MAX_PTR];
 /* This table is used to remember the original form of pointers
  * to large buffers (64K). Such pointers are normalized with a zero offset.
  * Since MSDOS is not a preemptive multitasking OS, this table is not
