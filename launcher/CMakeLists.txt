@@ -959,11 +959,6 @@ elseif(UNIX)
     )
 endif()
 
-if(DEFINED Launcher_APP_BINARY_DEFS)
-    target_compile_definitions(${Launcher_Name} PRIVATE ${Launcher_APP_BINARY_DEFS})
-    target_compile_definitions(Launcher_logic PRIVATE ${Launcher_APP_BINARY_DEFS})
-endif()
-
 install(TARGETS ${Launcher_Name}
     BUNDLE DESTINATION ${BUNDLE_DEST_DIR} COMPONENT Runtime
     LIBRARY DESTINATION ${LIBRARY_DEST_DIR} COMPONENT Runtime

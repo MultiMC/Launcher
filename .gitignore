@@ -38,3 +38,6 @@ tags
 branding/
 secrets/
 run/
+
+notsecrets/windows_metafile.rc
+notsecrets/windows.manifest

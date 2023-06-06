@@ -9,27 +9,23 @@ macro(fix_project_version)
 endmacro()
 
 macro(add_project_meta FILES_TO_INCLUDE)
-    if (NOT RESOURCE_FOLDER)
-        set(RESOURCE_FOLDER branding)
-    endif()
-
     if (NOT ICON_NAME)
-        set(ICON_NAME ${PROJECT_NAME})
+        set(ICON_NAME ${Launcher_Name})
     endif()
 
     if (APPLE)
-        set(ICON_FILE branding/${ICON_NAME}.icns)
+        set(ICON_FILE ${ICON_NAME}.icns)
     elseif (WIN32)
-        set(ICON_FILE branding/${ICON_NAME}.ico)
+        set(ICON_FILE ${ICON_NAME}.ico)
     endif()
 
     if (WIN32)
-        set(WIN_MANIFEST_IDENTIFIER ${IDENTIFIER})
+        set(WIN_MANIFEST_IDENTIFIER ${Launcher_Identifier})
         configure_file("${PROJECT_SOURCE_DIR}/cmake/windows_metafile.rc.in"
-            "windows_metafile.rc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/windows_metafile.rc"
         )
         configure_file("${PROJECT_SOURCE_DIR}/cmake/windows.manifest.in"
-            "windows.manifest"
+            "${CMAKE_CURRENT_SOURCE_DIR}/windows.manifest"
         )
         set(RES_FILES "windows_metafile.rc")
         set(CMAKE_RC_COMPILER_INIT windres)
@@ -41,12 +37,12 @@ macro(add_project_meta FILES_TO_INCLUDE)
         set_source_files_properties(${ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
         # Identify MacOS bundle
-        set(MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME})
+        set(MACOSX_BUNDLE_BUNDLE_NAME ${Launcher_Name})
         set(MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
         set(MACOSX_BUNDLE_LONG_VERSION_STRING ${PROJECT_VERSION})
         set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
-        set(MACOSX_BUNDLE_COPYRIGHT ${COPYRIGHT})
-        set(MACOSX_BUNDLE_GUI_IDENTIFIER ${IDENTIFIER})
+        set(MACOSX_BUNDLE_COPYRIGHT ${Launcher_Copyright})
+        set(MACOSX_BUNDLE_GUI_IDENTIFIER ${Launcher_Identifier})
         set(MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
     endif()
 

@@ -3,7 +3,7 @@
 #endif
 #include <windows.h>
 
-IDI_ICON1 ICON        DISCARDABLE "@ICON_FILE@"
+IDI_ICON1 ICON        DISCARDABLE "@Launcher_Branding_ICO@"
 1         RT_MANIFEST             "windows.manifest"
 
 VS_VERSION_INFO VERSIONINFO
@@ -19,13 +19,13 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "CompanyName", "@COMPANY@"
-            VALUE "FileDescription", "@DESCRIPTION@"
+            VALUE "CompanyName", "@Launcher_Copyright@"
+            VALUE "FileDescription", "@Launcher_Description@"
             VALUE "FileVersion", "@PROJECT_VERSION@"
-            VALUE "LegalCopyright", "@COPYRIGHT@"
-            VALUE "InternalName", "@PROJECT_NAME@"
-            VALUE "OriginalFilename", "@PROJECT_NAME@.exe"
-            VALUE "ProductName", "@PROJECT_NAME@"
+            VALUE "LegalCopyright", "@Launcher_Copyright_Full@"
+            VALUE "InternalName", "@Launcher_Name@"
+            VALUE "OriginalFilename", "@Launcher_Name@.exe"
+            VALUE "ProductName", "@Launcher_Name@"
             VALUE "ProductVersion", "@PROJECT_VERSION@"
         END
     END

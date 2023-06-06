@@ -117,18 +117,11 @@ SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(Launcher_EMBED_SECRETS)
     add_subdirectory(secrets)
-    set(RESOURCE_FOLDER "secrets")
 else()
     add_subdirectory(notsecrets)
-    set(RESOURCE_FOLDER "notsecrets")
 endif()
 
 ####################################### Install layout #######################################
-
-set(COMPANY "${Launcher_Copyright}")
-set(COPYRIGHT "Copyright 2015-2023 ${Launcher_Copyright}")
-set(IDENTIFIER "org.multimc.${Launcher_Name}")
-set(DESCRIPTION "${Launcher_Name}:  Minecraft launcher and management utility.")
 
 # How to install the build results
 if(UNIX AND APPLE)
