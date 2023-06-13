@@ -63,14 +63,6 @@ endif()
 ######## Set URLs ########
 set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetch Launcher's news RSS feed from.")
 
-######## Set version numbers ########
-set(Launcher_VERSION_MAJOR    6)
-set(Launcher_VERSION_MINOR    0)
-set(Launcher_VERSION_HOTFIX   0)
-
-# Build number
-set(Launcher_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
-
 # Build platform.
 set(Launcher_BUILD_PLATFORM "" CACHE STRING "A short string identifying the platform that this build was built for. Only used by the notification system and to display in the about dialog.")
 
@@ -135,15 +127,11 @@ if(UNIX AND APPLE)
     install(FILES ${Launcher_Branding_ICNS} DESTINATION "${Launcher_Name}.app/Contents/Resources" RENAME ${Launcher_Name}.icns)
 
 elseif(UNIX)
-    set(BINARY_DEST_DIR "bin")
-    set(LIBRARY_DEST_DIR "bin")
-    set(JARS_DEST_DIR "bin/jars")
+    set(BINARY_DEST_DIR ".")
+    set(LIBRARY_DEST_DIR ".")
+    set(JARS_DEST_DIR "jars")
 
     set(BUNDLE_DEST_DIR ".")
-
-    # Install basic runner script
-    configure_file(launcher/Launcher.in "${CMAKE_CURRENT_BINARY_DIR}/LauncherScript" @ONLY)
-    install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/LauncherScript" DESTINATION ${BUNDLE_DEST_DIR} RENAME ${Launcher_Name})
 
 elseif(WIN32)
     set(BINARY_DEST_DIR ".")
