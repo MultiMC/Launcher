@@ -96,6 +96,9 @@ set(Launcher_SUBREDDIT_URL "" CACHE STRING "URL for the subreddit.")
 # Use the secrets library or a public stub?
 option(Launcher_EMBED_SECRETS "Determines whether to embed secrets. Secrets are separate and non-public." OFF)
 
+# Use development data folder(s)
+option(Launcher_DEV_DATA "Use separate, development data folders." ON)
+
 #### Custom target to feed the version to github actions.
 add_custom_target(ga_version echo ::set-output name=version::${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK})
 
