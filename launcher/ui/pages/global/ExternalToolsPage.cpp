@@ -33,11 +33,7 @@ ExternalToolsPage::ExternalToolsPage(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->tabWidget->tabBar()->hide();
-
-    #if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
     ui->jsonEditorTextBox->setClearButtonEnabled(true);
-    #endif
-
     ui->mceditLink->setOpenExternalLinks(true);
     ui->jvisualvmLink->setOpenExternalLinks(true);
     ui->jprofilerLink->setOpenExternalLinks(true);
