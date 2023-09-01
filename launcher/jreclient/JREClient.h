@@ -23,7 +23,7 @@ public:
 
     void refreshManifest();
 
-public signals:
+signals:
     void busyChanged(bool busy);
 
 private:
