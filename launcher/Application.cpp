@@ -727,6 +727,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting({"MinMemAlloc", "MinMemoryAlloc"}, 512);
         m_settings->registerSetting({"MaxMemAlloc", "MaxMemoryAlloc"}, 1024);
         m_settings->registerSetting("PermGen", 128);
+        m_settings->registerSetting("AllowSwap", false);
 
         // Java Settings
         m_settings->registerSetting("JavaPath", "");

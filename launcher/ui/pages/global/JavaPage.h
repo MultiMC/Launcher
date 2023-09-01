@@ -58,9 +58,11 @@ public:
 private:
     void applySettings();
     void loadSettings();
+    void updateMemMax();
 
 private
 slots:
+    void on_allowSwapCheckBox_clicked(bool clicked);
     void on_javaDetectBtn_clicked();
     void on_javaTestBtn_clicked();
     void on_javaBrowseBtn_clicked();

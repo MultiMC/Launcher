@@ -30,6 +30,11 @@ uint64_t Sys::getSystemRam()
     return (uint64_t)status.ullTotalPhys;
 }
 
+uint64_t Sys::getSystemSwap()
+{
+    return 0;
+}
+
 bool Sys::isSystem64bit()
 {
 #if defined(_WIN64)

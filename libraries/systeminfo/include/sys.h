@@ -57,6 +57,8 @@ DistributionInfo getDistributionInfo();
 
 uint64_t getSystemRam();
 
+uint64_t getSystemSwap();
+
 bool isSystem64bit();
 
 bool isCPU64bit();

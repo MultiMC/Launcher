@@ -82,6 +82,31 @@ uint64_t Sys::getSystemRam()
     return 0; // nothing found
 }
 
+uint64_t Sys::getSystemSwap()
+{
+    std::string token;
+#ifdef Q_OS_LINUX
+    std::ifstream file("/proc/meminfo");
+    while(file >> token)
+    {
+        if(token == "SwapTotal:")
+        {
+            uint64_t swap;
+            if(file >> swap)
+            {
+                return swap * 1024ull;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+#endif
+    return 0;
+}
+
 bool Sys::isCPU64bit()
 {
     return isSystem64bit();

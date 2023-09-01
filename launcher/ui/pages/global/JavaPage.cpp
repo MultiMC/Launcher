@@ -37,9 +37,13 @@ JavaPage::JavaPage(QWidget *parent) : QWidget(parent), ui(new Ui::JavaPage)
     ui->setupUi(this);
     ui->tabWidget->tabBar()->hide();
 
-    auto sysMiB = Sys::getSystemRam() / Sys::mebibyte;
-    ui->maxMemSpinBox->setMaximum(sysMiB);
+#if !defined(Q_OS_LINUX)
+    ui->allowSwapCheckBox->setEnabled(false);
+    ui->allowSwapCheckBox->setVisible(false);
+#endif
+
     loadSettings();
+    updateMemMax();
 }
 
 JavaPage::~JavaPage()
@@ -71,6 +75,7 @@ void JavaPage::applySettings()
         s->set("MaxMemAlloc", min);
     }
     s->set("PermGen", ui->permGenSpinBox->value());
+    s->set("AllowSwap", ui->allowSwapCheckBox->isChecked());
 
     // Java Settings
     s->set("JavaPath", ui->javaPathTextBox->text());
@@ -94,10 +99,25 @@ void JavaPage::loadSettings()
         ui->maxMemSpinBox->setValue(min);
     }
     ui->permGenSpinBox->setValue(s->get("PermGen").toInt());
+    ui->allowSwapCheckBox->setChecked(s->get("AllowSwap").toBool());
 
     // Java Settings
     ui->javaPathTextBox->setText(s->get("JavaPath").toString());
     ui->jvmArgsTextBox->setText(s->get("JvmArgs").toString());
+}
+
+void JavaPage::updateMemMax() {
+    auto sysMiB = Sys::getSystemRam() / Sys::mebibyte;
+
+    if (ui->allowSwapCheckBox->isChecked())
+        sysMiB += Sys::getSystemSwap() / Sys::mebibyte;
+    
+    ui->maxMemSpinBox->setMaximum(sysMiB);
+}
+
+void JavaPage::on_allowSwapCheckBox_clicked(bool checked)
+{
+    updateMemMax();
 }
 
 void JavaPage::on_javaDetectBtn_clicked()

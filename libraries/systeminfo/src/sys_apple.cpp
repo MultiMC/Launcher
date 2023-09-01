@@ -55,6 +55,11 @@ uint64_t Sys::getSystemRam()
     }
 }
 
+uint64_t Sys::getSystemSwap()
+{
+    return 0;
+}
+
 bool Sys::isCPU64bit()
 {
     // not even going to pretend I'm going to support anything else
