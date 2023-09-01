@@ -412,7 +412,7 @@ static void upgradeDeprecatedFiles(QString root, QString instanceName)
 
         Meta::Require needsLwjgl;
         needsLwjgl.uid = "org.lwjgl";
-        file->requires.insert(needsLwjgl);
+        file->depends.insert(needsLwjgl);
 
         if(!ProfileUtils::saveJsonFile(OneSixVersionFormat::versionFileToJson(file), mcJson))
         {
@@ -468,7 +468,7 @@ bool PackProfile::migratePreComponentConfig()
             // insert requirements if needed
             if(!req.uid.isEmpty())
             {
-                file->requires.insert(req);
+                file->depends.insert(req);
             }
             // insert conflicts if needed
             if(!conflict.uid.isEmpty())

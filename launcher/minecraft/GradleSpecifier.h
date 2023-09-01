@@ -125,7 +125,7 @@ struct GradleSpecifier
     }
     bool matchName(const GradleSpecifier & other) const
     {
-        return other.artifactId() == artifactId() && other.groupId() == groupId();
+        return other.artifactId() == artifactId() && other.groupId() == groupId() && other.classifier() == classifier();
     }
     bool operator==(const GradleSpecifier & other) const
     {
