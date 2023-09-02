@@ -730,8 +730,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         qDebug() << "<> Application theme set.";
     }
 
+    // TODO: rework analytics to not use google
     // Initialize analytics
-    initializeAnalytics();
+    // initializeAnalytics();
 
     if(createSetupWizard())
     {
@@ -821,18 +822,17 @@ bool Application::createSetupWizard()
         }
         return false;
     }();
-    bool analyticsRequired = [&]()
-    {
-        if(BuildConfig.ANALYTICS_ID.isEmpty())
-        {
+    bool analyticsRequired = [&]() {
+        if(!m_analytics) {
             return false;
         }
-        if (!settings()->get("Analytics").toBool())
-        {
+        if(BuildConfig.ANALYTICS_ID.isEmpty()) {
             return false;
         }
-        if (settings()->get("AnalyticsSeen").toInt() < analytics()->version())
-        {
+        if (!settings()->get("Analytics").toBool()) {
+            return false;
+        }
+        if (settings()->get("AnalyticsSeen").toInt() < analytics()->version()) {
             return true;
         }
         return false;
