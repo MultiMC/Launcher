@@ -94,3 +94,22 @@ bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &
 
     return hasCodeName || hasDescription;
 }
+
+Sys::Architecture Sys::systemArchitecture() {
+    SYSTEM_INFO info;
+    ZeroMemory(&info, sizeof(SYSTEM_INFO));
+    GetNativeSystemInfo(&info);
+    auto arch = info.wProcessorArchitecture;
+
+    QString qtArch = QSysInfo::currentCpuArchitecture();
+    switch (arch) {
+        case PROCESSOR_ARCHITECTURE_AMD64:
+            return { ArchitectureType::AMD64, "x86_64" };
+        case PROCESSOR_ARCHITECTURE_ARM64:
+            return { ArchitectureType::ARM64, "arm64" };
+        case PROCESSOR_ARCHITECTURE_INTEL:
+            return { ArchitectureType::I386, "i386" };
+        default:
+            return { ArchitectureType::Undetermined, qtArch };
+    }
+}

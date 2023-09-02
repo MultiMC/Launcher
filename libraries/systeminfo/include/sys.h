@@ -12,6 +12,18 @@ enum class KernelType {
     Linux
 };
 
+enum class ArchitectureType {
+    Undetermined,
+    I386,
+    AMD64,
+    ARM64
+};
+
+struct Architecture {
+    ArchitectureType type;
+    QString raw;
+};
+
 struct KernelInfo
 {
     QString kernelName;
@@ -56,6 +68,8 @@ struct DistributionInfo
 DistributionInfo getDistributionInfo();
 
 uint64_t getSystemRam();
+
+Architecture systemArchitecture();
 
 bool isSystem64bit();
 
