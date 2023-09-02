@@ -5,6 +5,10 @@
 
 #include "ntstatus/NtStatusNames.hpp"
 
+#ifndef PROCESSOR_ARCHITECTURE_ARM64
+#define PROCESSOR_ARCHITECTURE_ARM64 12
+#endif
+
 Sys::KernelInfo Sys::getKernelInfo()
 {
     Sys::KernelInfo out;
