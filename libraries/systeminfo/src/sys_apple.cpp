@@ -77,3 +77,21 @@ bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &
 {
     return false;
 }
+
+Sys::Architecture Sys::systemArchitecture() {
+    struct utsname buf;
+    uname(&buf);
+    QString arch = buf.machine;
+    if (arch == "x86_64") {
+        return { ArchitectureType::AMD64, arch };
+    }
+    else if (arch == "i386") {
+        return { ArchitectureType::I386, arch };
+    }
+    else if (arch == "arm64") {
+        return { ArchitectureType::ARM64, arch };
+    }
+    else {
+        return { ArchitectureType::Undetermined, arch };
+    }
+}

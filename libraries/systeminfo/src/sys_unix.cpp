@@ -117,6 +117,22 @@ Sys::DistributionInfo Sys::getDistributionInfo()
     return result;
 }
 
+Sys::Architecture Sys::systemArchitecture() {
+    QString qtArch = QSysInfo::currentCpuArchitecture();
+    if (qtArch == "x86_64") {
+        return { ArchitectureType::AMD64, qtArch };
+    }
+    else if (qtArch == "i386") {
+        return { ArchitectureType::I386, qtArch };
+    }
+    else if (qtArch == "arm64") {
+        return { ArchitectureType::ARM64, qtArch };
+    }
+    else {
+        return { ArchitectureType::Undetermined, qtArch };
+    }
+}
+
 bool Sys::lookupSystemStatusCode(uint64_t code, std::string &name, std::string &description)
 {
     return false;
