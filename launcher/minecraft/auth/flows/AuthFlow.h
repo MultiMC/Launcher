@@ -9,7 +9,6 @@
 
 #include <katabasis/DeviceFlow.h>
 
-#include "minecraft/auth/Yggdrasil.h"
 #include "minecraft/auth/AccountData.h"
 #include "minecraft/auth/AccountTask.h"
 #include "minecraft/auth/AuthStep.h"

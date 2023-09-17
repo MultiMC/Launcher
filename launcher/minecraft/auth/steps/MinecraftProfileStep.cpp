@@ -43,11 +43,6 @@ void MinecraftProfileStep::onRequestDone(
     qDebug() << data;
 #endif
     if (error == QNetworkReply::ContentNotFoundError) {
-        // NOTE: Succeed even if we do not have a profile. This is a valid account state.
-        if(m_data->type == AccountType::Mojang) {
-            m_data->minecraftEntitlement.canPlayMinecraft = false;
-            m_data->minecraftEntitlement.ownsMinecraft = false;
-        }
         m_data->minecraftProfile = MinecraftProfile();
         emit finished(
             AccountTaskState::STATE_SUCCEEDED,
@@ -79,11 +74,6 @@ void MinecraftProfileStep::onRequestDone(
         return;
     }
 
-    if(m_data->type == AccountType::Mojang) {
-        auto validProfile = m_data->minecraftProfile.validity == Katabasis::Validity::Certain;
-        m_data->minecraftEntitlement.canPlayMinecraft = validProfile;
-        m_data->minecraftEntitlement.ownsMinecraft = validProfile;
-    }
     emit finished(
         AccountTaskState::STATE_WORKING,
         tr("Minecraft Java profile acquisition succeeded.")

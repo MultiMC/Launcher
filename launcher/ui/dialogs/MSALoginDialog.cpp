@@ -38,7 +38,7 @@ int MSALoginDialog::exec() {
     ui->copyCodeButton->setVisible(false);
 
     // Setup the login task and start it
-    m_account = MinecraftAccount::createBlankMSA();
+    m_account = MinecraftAccount::createBlank();
     m_loginTask = m_account->loginMSA();
     connect(m_loginTask.get(), &Task::failed, this, &MSALoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &MSALoginDialog::onTaskSucceeded);

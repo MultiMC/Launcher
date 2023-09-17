@@ -28,7 +28,7 @@ struct AuthSession
 
     // client token
     QString client_token;
-    // account user name
+    // account user name FIXME: gone
     QString username;
     // combined session ID
     QString session;

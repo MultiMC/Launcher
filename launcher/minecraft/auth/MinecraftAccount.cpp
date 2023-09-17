@@ -29,20 +29,12 @@
 #include <QPainter>
 
 #include "flows/MSA.h"
-#include "flows/Mojang.h"
 
 MinecraftAccount::MinecraftAccount(QObject* parent) : QObject(parent) {
     data.internalId = QUuid::createUuid().toString().remove(QRegularExpression("[{-}]"));
 }
 
 
-MinecraftAccountPtr MinecraftAccount::loadFromJsonV2(const QJsonObject& json) {
-    MinecraftAccountPtr account(new MinecraftAccount());
-    if(account->data.resumeStateFromV2(json)) {
-        return account;
-    }
-    return nullptr;
-}
 
 MinecraftAccountPtr MinecraftAccount::loadFromJsonV3(const QJsonObject& json) {
     MinecraftAccountPtr account(new MinecraftAccount());
@@ -52,19 +44,9 @@ MinecraftAccountPtr MinecraftAccount::loadFromJsonV3(const QJsonObject& json) {
     return nullptr;
 }
 
-MinecraftAccountPtr MinecraftAccount::createFromUsername(const QString &username)
-{
-    MinecraftAccountPtr account = new MinecraftAccount();
-    account->data.type = AccountType::Mojang;
-    account->data.yggdrasilToken.extra["userName"] = username;
-    account->data.yggdrasilToken.extra["clientToken"] = QUuid::createUuid().toString().remove(QRegularExpression("[{-}]"));
-    return account;
-}
-
-MinecraftAccountPtr MinecraftAccount::createBlankMSA()
+MinecraftAccountPtr MinecraftAccount::createBlank()
 {
     MinecraftAccountPtr account(new MinecraftAccount());
-    account->data.type = AccountType::MSA;
     return account;
 }
 
@@ -99,13 +81,6 @@ shared_qobject_ptr<AccountTask> MinecraftAccount::setCurrentTask(AccountTask * t
     return m_currentTask;
 }
 
-
-shared_qobject_ptr<AccountTask> MinecraftAccount::login(QString password) {
-    Q_ASSERT(m_currentTask.get() == nullptr);
-
-    return setCurrentTask(new MojangLogin(&data, password));
-}
-
 shared_qobject_ptr<AccountTask> MinecraftAccount::loginMSA() {
     Q_ASSERT(m_currentTask.get() == nullptr);
 
@@ -117,12 +92,7 @@ shared_qobject_ptr<AccountTask> MinecraftAccount::refresh() {
         return m_currentTask;
     }
 
-    if(data.type == AccountType::MSA) {
-        return setCurrentTask(new MSASilent(&data));
-    }
-    else {
-        return setCurrentTask(new MojangRefresh(&data));
-    }
+    return setCurrentTask(new MSASilent(&data));
 }
 
 shared_qobject_ptr<AccountTask> MinecraftAccount::currentTask() {
@@ -147,17 +117,10 @@ void MinecraftAccount::authFailed(QString reason)
         }
         break;
         case AccountTaskState::STATE_FAILED_HARD: {
-            if(isMSA()) {
-                data.msaToken.token = QString();
-                data.msaToken.refresh_token = QString();
-                data.msaToken.validity = Katabasis::Validity::None;
-                data.validity_ = Katabasis::Validity::None;
-            }
-            else {
-                data.yggdrasilToken.token = QString();
-                data.yggdrasilToken.validity = Katabasis::Validity::None;
-                data.validity_ = Katabasis::Validity::None;
-            }
+            data.msaToken.token = QString();
+            data.msaToken.refresh_token = QString();
+            data.msaToken.validity = Katabasis::Validity::None;
+            data.validity_ = Katabasis::Validity::None;
             emit changed();
         }
         break;
@@ -230,16 +193,16 @@ void MinecraftAccount::fillSession(AuthSessionPtr session)
 
     // the user name. you have to have an user name
     // FIXME: not with MSA
-    session->username = data.userName();
+    // session->username = data.userName();
     // volatile auth token
     session->access_token = data.accessToken();
     // the semi-permanent client token
-    session->client_token = data.clientToken();
+    // session->client_token = data.clientToken();
     // profile name
     session->player_name = data.profileName();
     // profile ID
     session->uuid = data.profileId();
-    // 'legacy' or 'mojang', depending on account type
+    // 'msa' from september 19th 2023
     session->user_type = typeString();
     if (!session->access_token.isEmpty())
     {

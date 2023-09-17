@@ -54,20 +54,10 @@ enum class AccountState {
 
 struct AccountData {
     QJsonObject saveState() const;
-    bool resumeStateFromV2(QJsonObject data);
     bool resumeStateFromV3(QJsonObject data);
 
-    //! userName for Mojang accounts, gamertag for MSA
+    //! Xbox gamertag
     QString accountDisplayString() const;
-
-    //! Only valid for Mojang accounts. MSA does not preserve this information
-    QString userName() const;
-
-    //! Only valid for Mojang accounts.
-    QString clientToken() const;
-    void setClientToken(QString clientToken);
-    void invalidateClientToken();
-    void generateClientTokenIfMissing();
 
     //! Yggdrasil access token, as passed to the game.
     QString accessToken() const;
@@ -76,11 +66,6 @@ struct AccountData {
     QString profileName() const;
 
     QString lastError() const;
-
-    AccountType type = AccountType::MSA;
-    bool legacy = false;
-    bool canMigrateToMSA = false;
-    bool mustMigrateToMSA = false;
 
     Katabasis::Token msaToken;
     Katabasis::Token userToken;
