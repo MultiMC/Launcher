@@ -117,6 +117,11 @@ void LaunchController::login() {
 
     while (tryagain)
     {
+        // Force account refresh on the account used to launch the instance,
+        // updating the AccountState everytime between instance launch
+        auto accounts = APPLICATION->accounts();
+        accounts->requestRefresh(m_accountToUse->internalId());
+
         m_session = std::make_shared<AuthSession>();
         m_session->wants_online = m_online;
         m_accountToUse->fillSession(m_session);
