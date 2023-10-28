@@ -2,7 +2,6 @@
 
 #include <QNetworkRequest>
 #include <QJsonParseError>
-#include <QJsonDocument>
 
 #include "minecraft/auth/AuthRequest.h"
 #include "minecraft/auth/Parsers.h"
@@ -121,11 +120,33 @@ bool XboxAuthorizationStep::processSTSError(
             return true;
         }
         switch(errorCode) {
-            case 2148916233:{
+            case 2148916227: {
+                // NOTE: this is the error experienced by a number of people on Discord using dodgy alt accounts
+                emit finished(
+                    AccountTaskState::STATE_FAILED_SOFT,
+                    tr("Your XBox Live account has been banned by Microsoft for violating the XBox Community Standards.\nThis may happen if your account was shared or resold.")
+                );
+                return true;
+            }
+            case 2148916229: {
+                emit finished(
+                    AccountTaskState::STATE_FAILED_SOFT,
+                    tr("This Microsoft account is linked to a family and your parent or guardian has not given you permission to play online.")
+                );
+                return true;
+            }
+            case 2148916233: {
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
                     tr("This Microsoft account does not have an XBox Live profile. Buy the game on %1 first.")
                         .arg("<a href=\"https://www.minecraft.net/en-us/store/minecraft-java-edition\">minecraft.net</a>")
+                );
+                return true;
+            }
+            case 2148916234: {
+                emit finished(
+                    AccountTaskState::STATE_FAILED_SOFT,
+                    tr("This account has not accepted the XBox Terms of Service. Please log in online and accept them.")
                 );
                 return true;
             }
@@ -134,6 +155,21 @@ bool XboxAuthorizationStep::processSTSError(
                 emit finished(
                     AccountTaskState::STATE_FAILED_SOFT,
                     tr("XBox Live is not available in your country. You've been blocked.")
+                );
+                return true;
+            }
+            case 2148916236: {
+                emit finished(
+                    AccountTaskState::STATE_FAILED_SOFT,
+                    tr("This Microsoft account requires proof of age to play. Please login to %1 to provide proof of age.")
+                        .arg("<a href=\"https://login.live.com/login.srf\">login.live.com</a>")
+                );
+                return true;
+            }
+            case 2148916237: {
+                emit finished(
+                    AccountTaskState::STATE_FAILED_SOFT,
+                    tr("This Microsoft account has reached its playtime limit and has been blocked from logging in.")
                 );
                 return true;
             }
