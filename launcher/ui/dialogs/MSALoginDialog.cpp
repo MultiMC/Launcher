@@ -90,7 +90,7 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
 
     QString urlString = url.toString();
     QString linkString = QString("<a href=\"%1\">%2</a>").arg(urlString, urlString);
-    ui->label->setText(tr("<p>Please open up %1 in a browser to proceed with login.</p>").arg(linkString));
+    ui->label->setText(tr("<p>Please open up %1 in a browser to proceed with login. (Code: <b>%2</b>)</p>").arg(linkString, code));
 
     m_code = code;
 }
