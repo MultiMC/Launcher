@@ -1,4 +1,4 @@
-/* Copyright 2013-2022 MultiMC Contributors
+/* Copyright 2013-2023 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 #include <QtWidgets/QPushButton>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QClipboard>
 
 MSALoginDialog::MSALoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui::MSALoginDialog)
@@ -82,9 +83,13 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
     ui->progressBar->setMaximum(expiresIn);
     ui->progressBar->setValue(m_externalLoginElapsed);
 
-    QString urlString = uri.toString();
+    QUrl url = QUrl(uri);
+    QUrlQuery otcQuery = QUrlQuery(url);
+    otcQuery.addQueryItem(QString("otc"), code);
+
+    QString urlString = url.toString();
     QString linkString = QString("<a href=\"%1\">%2</a>").arg(urlString, urlString);
-    ui->label->setText(tr("<p>Please open up %1 in a browser and put in the code <b>%2</b> to proceed with login.</p>").arg(linkString, code));
+    ui->label->setText(tr("<p>Please open up %1 in a browser to proceed with login.</p>").arg(linkString));
 
     m_code = code;
 }
