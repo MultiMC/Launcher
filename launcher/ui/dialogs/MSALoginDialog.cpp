@@ -86,6 +86,7 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
     QUrl url = QUrl(uri);
     QUrlQuery otcQuery = QUrlQuery(url);
     otcQuery.addQueryItem(QString("otc"), code);
+    url.setQuery(otcQuery);
 
     QString urlString = url.toString();
     QString linkString = QString("<a href=\"%1\">%2</a>").arg(urlString, urlString);
