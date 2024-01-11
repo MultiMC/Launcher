@@ -33,7 +33,7 @@ struct VersionFilterData
     QDateTime liteLoaderEndsDate;
     // release date of first version supported by Fabric/Quilt (1.14)
     QDateTime fabricBeginsDate;
-    // release date of first version supported by NeoForge (1.20.2)
+    // release date of first version supported by NeoForge (1.20.1)
     QDateTime neoForgeBeginsDate;
 };
 extern VersionFilterData g_VersionFilterData;
