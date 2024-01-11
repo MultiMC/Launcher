@@ -39,6 +39,7 @@
 #include "minecraft/PackProfile.h"
 #include "minecraft/auth/AccountList.h"
 #include "minecraft/mod/Mod.h"
+#include "minecraft/VersionFilterData.h"
 #include "icons/IconList.h"
 #include "Exception.h"
 #include "Version.h"
@@ -209,15 +210,18 @@ void VersionPage::updateRunningStatus(bool running)
 
 void VersionPage::updateVersionControls()
 {
-    // FIXME: this is a dirty hack
-    auto minecraftVersion = Version(m_profile->getComponentVersion("net.minecraft"));
+    // FIXME: This is better than the broken stuff we had before, but it would probably be better to handle this in meta somehow
+    auto minecraftReleaseDate = m_profile->getComponent("net.minecraft")->getReleaseDateTime();
 
-    bool supportsFabric = minecraftVersion >= Version("1.14");
+    bool supportsFabric = minecraftReleaseDate >= g_VersionFilterData.fabricBeginsDate;
     ui->actionInstall_Fabric->setEnabled(controlsEnabled && supportsFabric);
     ui->actionInstall_Quilt->setEnabled((controlsEnabled) && supportsFabric);
 
-    bool supportsLiteLoader = minecraftVersion <= Version("1.12.2");
+    bool supportsLiteLoader = minecraftReleaseDate <= g_VersionFilterData.liteLoaderEndsDate;
     ui->actionInstall_LiteLoader->setEnabled(controlsEnabled && supportsLiteLoader);
+
+    bool supportsNeoForge = minecraftReleaseDate >= g_VersionFilterData.neoForgeBeginsDate;
+    ui->actionInstall_NeoForge->setEnabled(controlsEnabled && supportsNeoForge);
 
     updateButtons();
 }
