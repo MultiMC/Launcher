@@ -65,6 +65,8 @@ cmake -DCMAKE_INSTALL_PREFIX=../install ../src
 make -j8 install
 ```
 
+**NOTE:** If you want to treat all warnings as errors add -DCMAKE_BUILD_TYPE=Debug to the above cmake command
+
 You can use IDEs like KDevelop or QtCreator to open the CMake project if you want to work on the code.
 
 ### Installing Qt using the installer (optional)
