@@ -83,15 +83,16 @@ void MSALoginDialog::showVerificationUriAndCode(const QUrl& uri, const QString& 
     ui->progressBar->setMaximum(expiresIn);
     ui->progressBar->setValue(m_externalLoginElapsed);
 
-    QUrl url = QUrl(uri);
-    QUrlQuery otcQuery = QUrlQuery(url);
+    QUrl codeUrl = QUrl(uri);
+    QUrlQuery otcQuery = QUrlQuery(codeUrl);
     otcQuery.addQueryItem(QString("otc"), code);
-    url.setQuery(otcQuery);
+    codeUrl.setQuery(otcQuery);
 
-    QString urlString = url.toString();
-    QString linkString = QString("<a href=\"%1\">%2</a>").arg(urlString, urlString);
-    ui->label->setText(tr("<p>Please open up %1 in a browser to proceed with login. (Code: <b>%2</b>)</p>").arg(linkString, code));
+    QString urlString = uri.toString();
+    QString codeUrlString = codeUrl.toString();
 
+    QString linkString = QString("<a href=\"%1\">%2 in a browser and put in the code <b>%3</b></a>").arg(codeUrlString, urlString, code);
+    ui->label->setText(tr("<p>Please open up %1 to proceed with login.</p>").arg(linkString));
     m_code = code;
 }
 
