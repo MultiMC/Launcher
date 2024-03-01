@@ -106,6 +106,7 @@
    <addaction name="actionRevert"/>
    <addaction name="separator"/>
    <addaction name="actionInstall_Forge"/>
+   <addaction name="actionInstall_NeoForge"/>
    <addaction name="actionInstall_Fabric"/>
    <addaction name="actionInstall_Quilt"/>
    <addaction name="actionInstall_LiteLoader"/>
@@ -268,6 +269,14 @@
    </property>
    <property name="toolTip">
     <string>Open the instance's local libraries folder.</string>
+   </property>
+  </action>
+  <action name="actionInstall_NeoForge">
+   <property name="text">
+    <string>Install NeoForge</string>
+   </property>
+   <property name="toolTip">
+    <string>Install the NeoForge package.</string>
    </property>
   </action>
  </widget>

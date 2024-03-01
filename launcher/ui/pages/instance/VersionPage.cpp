@@ -39,6 +39,7 @@
 #include "minecraft/PackProfile.h"
 #include "minecraft/auth/AccountList.h"
 #include "minecraft/mod/Mod.h"
+#include "minecraft/VersionFilterData.h"
 #include "icons/IconList.h"
 #include "Exception.h"
 #include "Version.h"
@@ -209,15 +210,18 @@ void VersionPage::updateRunningStatus(bool running)
 
 void VersionPage::updateVersionControls()
 {
-    // FIXME: this is a dirty hack
-    auto minecraftVersion = Version(m_profile->getComponentVersion("net.minecraft"));
+    // FIXME: This is better than the broken stuff we had before, but it would probably be better to handle this in meta somehow
+    auto minecraftReleaseDate = m_profile->getComponent("net.minecraft")->getReleaseDateTime();
 
-    bool supportsFabric = minecraftVersion >= Version("1.14");
+    bool supportsFabric = minecraftReleaseDate >= g_VersionFilterData.fabricBeginsDate;
     ui->actionInstall_Fabric->setEnabled(controlsEnabled && supportsFabric);
     ui->actionInstall_Quilt->setEnabled((controlsEnabled) && supportsFabric);
 
-    bool supportsLiteLoader = minecraftVersion <= Version("1.12.2");
+    bool supportsLiteLoader = minecraftReleaseDate <= g_VersionFilterData.liteLoaderEndsDate;
     ui->actionInstall_LiteLoader->setEnabled(controlsEnabled && supportsLiteLoader);
+
+    bool supportsNeoForge = minecraftReleaseDate >= g_VersionFilterData.neoForgeBeginsDate;
+    ui->actionInstall_NeoForge->setEnabled(controlsEnabled && supportsNeoForge);
 
     updateButtons();
 }
@@ -437,6 +441,35 @@ void VersionPage::on_actionInstall_Forge_triggered()
     {
         auto vsn = vselect.selectedVersion();
         m_profile->setComponentVersion("net.minecraftforge", vsn->descriptor());
+        m_profile->resolve(Net::Mode::Online);
+        // m_profile->installVersion();
+        preselect(m_profile->rowCount(QModelIndex())-1);
+        m_container->refreshContainer();
+    }
+}
+
+void VersionPage::on_actionInstall_NeoForge_triggered()
+{
+    auto vlist = APPLICATION->metadataIndex()->get("net.neoforged");
+    if(!vlist)
+    {
+        return;
+    }
+    VersionSelectDialog vselect(vlist.get(), tr("Select NeoForge version"), this);
+    vselect.setExactFilter(BaseVersionList::ParentVersionRole, m_profile->getComponentVersion("net.minecraft"));
+    vselect.setEmptyString(tr("No NeoForge versions are currently available for Minecraft ") + m_profile->getComponentVersion("net.minecraft"));
+    vselect.setEmptyErrorString(tr("Couldn't load or download the NeoForge version lists!"));
+
+    auto currentVersion = m_profile->getComponentVersion("net.neoforged");
+    if(!currentVersion.isEmpty())
+    {
+        vselect.setCurrentVersion(currentVersion);
+    }
+
+    if (vselect.exec() && vselect.selectedVersion())
+    {
+        auto vsn = vselect.selectedVersion();
+        m_profile->setComponentVersion("net.neoforged", vsn->descriptor());
         m_profile->resolve(Net::Mode::Online);
         // m_profile->installVersion();
         preselect(m_profile->rowCount(QModelIndex())-1);

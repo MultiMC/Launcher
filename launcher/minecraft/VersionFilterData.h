@@ -29,5 +29,11 @@ struct VersionFilterData
     QDateTime java17BeginsDate;
     // release date of first version to use --quickPlayMultiplayer instead of --server/--port for directly joining servers
     QDateTime quickPlayBeginsDate;
+    // release date of last version to support LiteLoader (1.12.2)
+    QDateTime liteLoaderEndsDate;
+    // release date of first version supported by Fabric/Quilt (1.14)
+    QDateTime fabricBeginsDate;
+    // release date of first version supported by NeoForge (1.20.1)
+    QDateTime neoForgeBeginsDate;
 };
 extern VersionFilterData g_VersionFilterData;
