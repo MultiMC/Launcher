@@ -61,7 +61,7 @@ QString getCreditsHtml(QStringList patrons)
         }
     }
     stream << "<h3>" << QObject::tr("Assets", "About Credits") << "</h3>\n";
-    stream << "<p> Cat Meow.wav <a href='https://freesound.org/people/kklab5050/sounds/120017/'>by kklab5050</a></p>\n";
+    stream << "<p> Cat Meow.wav <a href='https://freesound.org/people/kklab5050/sounds/120017/'>by kklab5050 on freesound.org</a></p>\n";
     stream << "</center>\n";
     return output;
 }
