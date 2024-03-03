@@ -27,7 +27,6 @@
 #include <QtCore/QFileInfo>
 
 #include <QtMultimedia/QSound>
-#include <QtMultimedia/QMediaPlayer>
 
 #include <QtGui/QKeyEvent>
 
