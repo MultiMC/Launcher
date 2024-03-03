@@ -588,6 +588,7 @@ SET(LAUNCHER_SOURCES
     KonamiCode.cpp
 
     # Bundled resources
+    resources/audio/audio.qrc
     resources/backgrounds/backgrounds.qrc
     resources/multimc/multimc.qrc
     resources/pe_dark/pe_dark.qrc
@@ -892,6 +893,7 @@ qt5_wrap_ui(LAUNCHER_UI
 )
 
 qt5_add_resources(LAUNCHER_RESOURCES
+    resources/audio/audio.qrc
     resources/backgrounds/backgrounds.qrc
     resources/multimc/multimc.qrc
     resources/pe_dark/pe_dark.qrc
@@ -925,6 +927,7 @@ target_link_libraries(Launcher_logic
 )
 target_link_libraries(Launcher_logic
     Qt5::Core
+    Qt5::Multimedia
     Qt5::Xml
     Qt5::Network
     Qt5::Concurrent
