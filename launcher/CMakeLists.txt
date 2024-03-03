@@ -588,7 +588,6 @@ SET(LAUNCHER_SOURCES
     KonamiCode.cpp
 
     # Bundled resources
-    resources/audio/audio.qrc
     resources/backgrounds/backgrounds.qrc
     resources/multimc/multimc.qrc
     resources/pe_dark/pe_dark.qrc
@@ -599,6 +598,7 @@ SET(LAUNCHER_SOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
+    resources/audio/audio.qrc
     ../${Launcher_Branding_LogoQRC}
 
     # Icons
@@ -893,7 +893,6 @@ qt5_wrap_ui(LAUNCHER_UI
 )
 
 qt5_add_resources(LAUNCHER_RESOURCES
-    resources/audio/audio.qrc
     resources/backgrounds/backgrounds.qrc
     resources/multimc/multimc.qrc
     resources/pe_dark/pe_dark.qrc
@@ -904,6 +903,7 @@ qt5_add_resources(LAUNCHER_RESOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
+    resources/audio/audio.qrc
     ../${Launcher_Branding_LogoQRC}
 )
 

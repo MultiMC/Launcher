@@ -1,6 +1,6 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/audio">
-        <file>meow.wav</file>
+        <file alias="meow">meow.wav</file>
     </qresource>
 </RCC>

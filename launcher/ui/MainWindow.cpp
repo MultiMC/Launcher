@@ -1364,8 +1364,7 @@ void MainWindow::onCatToggled(bool state)
     APPLICATION->settings()->set("TheCat", state);
     if (state)
     {
-        QSound::play(":/audio/meow.wav");
-        qDebug() << QFile::exists(":/audio/meow.wav");
+        QSound::play(":/audio/meow");
     }
 }
 
