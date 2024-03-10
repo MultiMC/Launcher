@@ -62,6 +62,10 @@ void PackInstallTask::copyFinished() {
             components->setComponentVersion("net.minecraftforge", modloader.version, true);
             break;
         }
+        case ModLoaderType::NeoForge: {
+            components->setComponentVersion("net.neoforged", modloader.version, true);
+            break;
+        }
         case ModLoaderType::Fabric: {
             components->setComponentVersion("net.fabricmc.fabric-loader", modloader.version, true);
             break;

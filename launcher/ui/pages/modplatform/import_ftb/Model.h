@@ -25,6 +25,7 @@ enum class ModLoaderType {
     Unresolved,
     None,
     Forge,
+    NeoForge,
     Fabric,
     Quilt
 };

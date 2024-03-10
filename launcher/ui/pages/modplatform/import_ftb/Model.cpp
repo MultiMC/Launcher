@@ -186,6 +186,7 @@ void resolveModloader(QString mcVersion, ModLoader &loader) {
     {
         QJsonDocument doc = Json::requireDocument(data);
         QJsonObject root = Json::requireObject(doc, "version.json");
+        bool isProbablyNeoforge = false;
         for (auto library: Json::ensureArray(root, "libraries", {}))
         {
             if (!library.isObject())
@@ -197,6 +198,10 @@ void resolveModloader(QString mcVersion, ModLoader &loader) {
             GradleSpecifier name = Json::requireString(libraryObject, "name");
             auto artifactPrefix = name.artifactPrefix();
 
+            if(artifactPrefix.startsWith("net.neoforged.fancymodloader:")) {
+                isProbablyNeoforge = true;
+                break;
+            }
             if(artifactPrefix == "net.minecraftforge:forge") {
                 QString libraryVersion = name.version();
                 loader.type = ModLoaderType::Forge;
@@ -231,7 +236,12 @@ void resolveModloader(QString mcVersion, ModLoader &loader) {
         for (auto arg: gameArgs) {
             QString value = Json::ensureValueString(arg, QString());
             if(versionIsNext) {
-                loader.type = ModLoaderType::Forge;
+                if(isProbablyNeoforge) {
+                    loader.type = ModLoaderType::NeoForge;
+                }
+                else {
+                    loader.type = ModLoaderType::Forge;
+                }
                 loader.version = value;
                 return;
             }
