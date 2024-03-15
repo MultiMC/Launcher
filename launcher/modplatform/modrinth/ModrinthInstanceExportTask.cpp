@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 arthomnix
+ * Copyright 2023-2024 arthomnix
  *
  * This source is subject to the Microsoft Public License (MS-PL).
  * Please see the COPYING.md file for more information.
@@ -212,6 +212,9 @@ void InstanceExportTask::lookupSucceeded()
     }
     if (!m_settings.quiltVersion.isEmpty()) {
         dependencies.insert("quilt-loader", m_settings.quiltVersion);
+    }
+    if (!m_settings.neoforgeVersion.isEmpty()) {
+        dependencies.insert("neoforge", m_settings.neoforgeVersion);
     }
 
     indexJson.insert("dependencies", dependencies);

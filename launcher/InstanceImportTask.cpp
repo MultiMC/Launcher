@@ -1,4 +1,4 @@
-/* Copyright 2013-2021 MultiMC Contributors
+/* Copyright 2013-2024 MultiMC Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -293,7 +293,7 @@ bool mergeOverrides(const QString &fromDir, const QString &toDir) {
 
 void InstanceImportTask::processModrinth() {
     std::vector<Modrinth::File> files;
-    QString minecraftVersion, fabricVersion, quiltVersion, forgeVersion;
+    QString minecraftVersion, fabricVersion, quiltVersion, forgeVersion, neoforgeVersion;
     try
     {
         QString indexPath = FS::PathCombine(m_stagingPath, "modrinth.index.json");
@@ -392,6 +392,12 @@ void InstanceImportTask::processModrinth() {
                         throw JSONValidationError("Duplicate Forge version");
                     forgeVersion = Json::requireValueString(*it, "Forge version");
                 }
+                else if (name == "neoforge")
+                {
+                    if (!neoforgeVersion.isEmpty())
+                        throw JSONValidationError("Duplicate NeoForge version");
+                    neoforgeVersion = Json::requireValueString(*it, "NeoForge version");
+                }
                 else
                 {
                     throw JSONValidationError("Unknown dependency type: " + name);
@@ -446,6 +452,8 @@ void InstanceImportTask::processModrinth() {
         components->setComponentVersion("org.quiltmc.quilt-loader", quiltVersion, true);
     if (!forgeVersion.isEmpty())
         components->setComponentVersion("net.minecraftforge", forgeVersion, true);
+    if (!neoforgeVersion.isEmpty())
+        components->setComponentVersion("net.neoforged", neoforgeVersion, true);
     if (m_instIcon != "default")
     {
         instance.setIconKey(m_instIcon);

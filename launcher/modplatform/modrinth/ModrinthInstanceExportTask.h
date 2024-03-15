@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 arthomnix
+ * Copyright 2023-2024 arthomnix
  *
  * This source is subject to the Microsoft Public License (MS-PL).
  * Please see the COPYING.md file for more information.
@@ -33,6 +33,7 @@ struct ExportSettings
     QString forgeVersion;
     QString fabricVersion;
     QString quiltVersion;
+    QString neoforgeVersion;
 
     QString exportPath;
 };
