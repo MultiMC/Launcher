@@ -133,6 +133,7 @@ find_package(Qt5Concurrent REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5Test REQUIRED)
 find_package(Qt5Xml REQUIRED)
+find_package(Qt5Multimedia REQUIRED)
 
 # The Qt5 cmake files don't provide its install paths, so ask qmake.
 include(QMakeQuery)

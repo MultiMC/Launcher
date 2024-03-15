@@ -163,6 +163,7 @@ libstdc++-6.dll
 libwinpthread-1.dll
 Qt5Core.dll
 Qt5Gui.dll
+Qt5Multimedia.dll
 Qt5Network.dll
 Qt5Svg.dll
 Qt5Widgets.dll

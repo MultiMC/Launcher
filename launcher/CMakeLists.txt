@@ -598,6 +598,7 @@ SET(LAUNCHER_SOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
+    resources/audio/audio.qrc
     ../${Launcher_Branding_LogoQRC}
 
     # Icons
@@ -902,6 +903,7 @@ qt5_add_resources(LAUNCHER_RESOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
+    resources/audio/audio.qrc
     ../${Launcher_Branding_LogoQRC}
 )
 
@@ -925,6 +927,7 @@ target_link_libraries(Launcher_logic
 )
 target_link_libraries(Launcher_logic
     Qt5::Core
+    Qt5::Multimedia
     Qt5::Xml
     Qt5::Network
     Qt5::Concurrent

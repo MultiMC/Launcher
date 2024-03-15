@@ -26,6 +26,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
+#include <QtMultimedia/QSound>
+
 #include <QtGui/QKeyEvent>
 
 #include <QtWidgets/QAction>
@@ -1359,6 +1361,10 @@ void MainWindow::onCatToggled(bool state)
 {
     setCatBackground(state);
     APPLICATION->settings()->set("TheCat", state);
+    if (state)
+    {
+        QSound::play(":/audio/meow");
+    }
 }
 
 namespace {
