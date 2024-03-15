@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 arthomnix
+ * Copyright 2023-2024 arthomnix
  *
  * This source is subject to the Microsoft Public License (MS-PL).
  * Please see the COPYING.md file for more information.
@@ -107,6 +107,7 @@ void ModrinthExportDialog::accept()
     settings.forgeVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.minecraftforge");
     settings.fabricVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.fabricmc.fabric-loader");
     settings.quiltVersion = minecraftInstance->getPackProfile()->getComponentVersion("org.quiltmc.quilt-loader");
+    settings.neoforgeVersion = minecraftInstance->getPackProfile()->getComponentVersion("net.neoforged");
 
     settings.exportPath = ui->file->text();
 
