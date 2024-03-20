@@ -363,6 +363,11 @@ void VersionPage::on_actionChange_version_triggered()
         on_actionInstall_Forge_triggered();
         return;
     }
+    else if (uid == "net.neoforged")
+    {
+        on_actionInstall_NeoForge_triggered();
+        return;
+    }
     else if (uid == "com.mumfrey.liteloader")
     {
         on_actionInstall_LiteLoader_triggered();
