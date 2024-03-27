@@ -93,7 +93,7 @@ QString getFTBAPath() {
 #endif
 
 QString getFTBASettingsPath() {
-    return FS::PathCombine(getFTBAPath(), "bin/settings.json");
+    return FS::PathCombine(getFTBAPath(), "storage/settings.json");
 }
 
 QString getFTBAVersionPath(const QString& id) {
