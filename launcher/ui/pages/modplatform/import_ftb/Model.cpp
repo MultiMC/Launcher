@@ -93,6 +93,9 @@ QString getFTBAPath() {
 #endif
 
 QString getFTBASettingsPath() {
+    QString returnpath = FS::PathCombine(getFTBAPath(), "storage/settings.json");
+    if (QFileInfo::exists(returnpath))
+        return returnpath;
     return FS::PathCombine(getFTBAPath(), "bin/settings.json");
 }
 
