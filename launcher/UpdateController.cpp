@@ -90,15 +90,18 @@ void UpdateController::installUpdates()
     QStringList args;
     bool started = false;
 
-    qDebug() << "Installing updates.";
+	qDebug() << "Installing updates.";
+QString finishCmd;
 #ifdef Q_OS_WIN
-    QString finishCmd = QApplication::applicationFilePath();
+    finishCmd = QApplication::applicationFilePath();
 #elif defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
-    QString finishCmd = FS::PathCombine(m_root, BuildConfig.LAUNCHER_NAME);
+    finishCmd = FS::PathCombine(m_root, BuildConfig.LAUNCHER_NAME);
 #elif defined Q_OS_MAC
-    QString finishCmd = QApplication::applicationFilePath();
+    finishCmd = QApplication::applicationFilePath();
 #else
-#error Unsupported operating system.
+    // Заглушка для неподдерживаемых платформ, включая Haiku
+    qWarning() << "Updates are not supported on this platform.";
+    return; // Выходим из функции
 #endif
 
     QString backupPath = FS::PathCombine(m_root, "update", "backup");

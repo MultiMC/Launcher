@@ -5,19 +5,19 @@ if(WIN32)
     cmake_policy(SET CMP0020 OLD)
 endif()
 
-project(Launcher)
+project(HaikuMC)  #     Launcher  HaikuMC
 enable_testing()
 
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" IS_IN_SOURCE_BUILD)
 if(IS_IN_SOURCE_BUILD)
-    message(FATAL_ERROR "You are building the Launcher in-source. Please separate the build tree from the source tree.")
+    message(FATAL_ERROR "You are building HaikuMC in-source. Please separate the build tree from the source tree.")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if(CMAKE_HOST_SYSTEM_VERSION MATCHES ".*[Mm]icrosoft.*" OR
         CMAKE_HOST_SYSTEM_VERSION MATCHES ".*WSL.*"
     )
-        message(FATAL_ERROR "Building the Launcher is not supported in Linux-on-Windows distributions.")
+        message(FATAL_ERROR "Building HaikuMC is not supported in Linux-on-Windows distributions.")
     endif()
 endif()
 
@@ -68,8 +68,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_NO_DEPRECATED_WARNINGS=Y")
 ##################################### Set Application options #####################################
 
 ######## Set URLs ########
-set(Launcher_NEWS_URL "https://multimc.org/posts.html" CACHE STRING "URL to open Launcher's news.")
-set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetch Launcher's news RSS feed from.")
+set(Launcher_NEWS_URL "https://multimc.org/posts.html" CACHE STRING "URL to open MultiMC's news.")  #  URL
+set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetch MultiMC's news RSS feed from.")  #  URL
 
 ######## Set version numbers ########
 set(Launcher_VERSION_MAJOR    0)
@@ -126,28 +126,28 @@ endif()
 
 ####################################### Branding #######################################
 
-set(Launcher_CommonName "MultiMC")
+set(Launcher_CommonName "HaikuMC")  #  MultiMC  HaikuMC
 
-set(Launcher_Copyright "MultiMC Contributors")
-set(Launcher_Domain "multimc.org")
+set(Launcher_Copyright "HaikuMC Contributors")  #  
+set(Launcher_Domain "https://github.com/TimofeyLednev/HaikuMC")  #  
 set(Launcher_Name "${Launcher_CommonName}")
 set(Launcher_DisplayName "${Launcher_CommonName} 5")
 set(Launcher_UserAgent "${Launcher_CommonName}/5.0")
-set(Launcher_ConfigFile "multimc.cfg")
-set(Launcher_Git "https://github.com/MultiMC/Launcher")
+set(Launcher_ConfigFile "haikumc.cfg")  #   -
+set(Launcher_Git "https://github.com/TimofeyLednev/HaikuMC")  #    
 
 set(Launcher_Branding_ICNS "${PROJECT_SOURCE_DIR}/branding/${Launcher_CommonName}.icns")
-set(Launcher_Branding_WindowsRC "${PROJECT_SOURCE_DIR}/branding/multimc.rc")
+set(Launcher_Branding_WindowsRC "${PROJECT_SOURCE_DIR}/branding/haikumc.rc")  #  multimc.rc  haikumc.rc
 set(Launcher_Branding_LogoQRC "${PROJECT_SOURCE_DIR}/branding/logo.qrc")
 
-set(Launcher_META_URL "https://meta.multimc.org/v1/")
-set(Launcher_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ")
-set(Launcher_MSA_CLIENT_ID "499546d9-bbfe-4b9b-a086-eb3d75afb78f")
-set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3")
-set(Launcher_BUG_TRACKER_URL "https://github.com/MultiMC/Launcher/issues")
-set(Launcher_DISCORD_URL "https://discord.gg/multimc")
-set(Launcher_SUBREDDIT_URL "https://www.reddit.com/r/MultiMC/")
-set(Launcher_PATREON_URL "https://www.patreon.com/multimc")
+set(Launcher_META_URL "https://meta.multimc.org/v1/")  #  URL
+set(Launcher_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ")  #   ,   
+set(Launcher_MSA_CLIENT_ID "499546d9-bbfe-4b9b-a086-eb3d75afb78f")  #   
+set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3")  #   
+set(Launcher_BUG_TRACKER_URL "https://github.com/TimofeyLednev/HaikuMC/issues")  #    
+set(Launcher_DISCORD_URL "https://discord.gg/multimc")  #  URL
+set(Launcher_SUBREDDIT_URL "https://www.reddit.com/r/MultiMC/")  #  URL
+set(Launcher_PATREON_URL "https://www.patreon.com/MultiMC")  #  URL
 
 ####################################### Install layout #######################################
 
@@ -183,8 +183,8 @@ if(Launcher_LAYOUT_REAL STREQUAL "mac-bundle")
 
     # Mac bundle settings
     set(MACOSX_BUNDLE_BUNDLE_NAME "${Launcher_Name}")
-    set(MACOSX_BUNDLE_INFO_STRING "${Launcher_Name}:  Minecraft launcher and management utility.")
-    set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.multimc.${Launcher_Name}")
+    set(MACOSX_BUNDLE_INFO_STRING "${Launcher_Name}: Minecraft launcher and management utility.")
+    set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.haikumc.${Launcher_Name}")  #  org.multimc  org.haikumc
     set(MACOSX_BUNDLE_BUNDLE_VERSION "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
     set(MACOSX_BUNDLE_LONG_VERSION_STRING "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")

@@ -1821,8 +1821,8 @@ void MainWindow::on_actionViewSelectedModsFolder_triggered()
         if (!FS::ensureFilePathExists(str))
         {
             // TODO: report error
-            return;
-        }
+			return;
+		}
         DesktopServices::openDirectory(QDir(str).absolutePath());
     }
 }

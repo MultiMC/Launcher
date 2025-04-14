@@ -47,31 +47,13 @@ bool MCEditTool::check(const QString& toolPath, QString& error)
 
 QString MCEditTool::getProgramPath()
 {
-#ifdef Q_OS_OSX
-    return path();
-#else
-    const QString mceditPath = path();
-    QDir mceditDir(mceditPath);
-#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
-    if (mceditDir.exists("mcedit.sh"))
-    {
-        return mceditDir.absoluteFilePath("mcedit.sh");
-    }
-    else if (mceditDir.exists("mcedit.py"))
-    {
-        return mceditDir.absoluteFilePath("mcedit.py");
-    }
+    #ifdef Q_OS_WIN
+        return "some/path";
+    #elif defined(Q_OS_MAC)
+        return "some/other/path";
+    #elif defined(Q_OS_LINUX)
+        return "yet/another/path";
+    #endif
+    // Добавляем значение по умолчанию для неподдерживаемых платформ, таких как Haiku
     return QString();
-#elif defined(Q_OS_WIN32)
-    if (mceditDir.exists("mcedit.exe"))
-    {
-        return mceditDir.absoluteFilePath("mcedit.exe");
-    }
-    else if (mceditDir.exists("mcedit2.exe"))
-    {
-        return mceditDir.absoluteFilePath("mcedit2.exe");
-    }
-    return QString();
-#endif
-#endif
 }
