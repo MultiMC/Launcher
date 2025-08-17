@@ -26,12 +26,25 @@
 
 namespace MMCZip
 {
+    using FilterFunction = std::function<bool(const QString &)>;
+
+    /**
+     * Compress a directory, using a filter function
+     */
+    bool compressDir(QString fileCompressed, QString dir, QString prefix = QString(),
+                     const FilterFunction filter = nullptr);
+
+    /**
+     * Compress a subdirectory, using a filter function
+     */
+    bool compressSubDir(QuaZip *zip, QString dir, QString origDir, QSet<QString> &added, QString prefix = QString(),
+                        const FilterFunction filter = nullptr);
 
     /**
      * Merge two zip files, using a filter function
      */
     bool mergeZipFiles(QuaZip *into, QFileInfo from, QSet<QString> &contained,
-                                            const JlCompress::FilterFunction filter = nullptr);
+                                            const FilterFunction filter = nullptr);
 
     /**
      * take a source jar, add mods to it, resulting in target jar

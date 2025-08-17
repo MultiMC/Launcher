@@ -898,8 +898,8 @@ endif()
 add_library(Launcher_logic STATIC ${LOGIC_SOURCES} ${LAUNCHER_SOURCES} ${LAUNCHER_UI} ${LAUNCHER_RESOURCES})
 target_link_libraries(Launcher_logic
     systeminfo
-    Launcher_quazip
     Launcher_classparser
+    QuaZip::QuaZip
     ${NBT_NAME}
     ${ZLIB_LIBRARIES}
     optional-bare
