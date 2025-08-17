@@ -23,7 +23,7 @@
 #include <QDebug>
 
 // ours
-bool MMCZip::mergeZipFiles(QuaZip *into, QFileInfo from, QSet<QString> &contained, const JlCompress::FilterFunction filter)
+bool MMCZip::mergeZipFiles(QuaZip *into, QFileInfo from, QSet<QString> &contained, const FilterFunction filter)
 {
     QuaZip modZip(from.filePath());
     modZip.open(QuaZip::mdUnzip);
@@ -128,7 +128,7 @@ bool MMCZip::createModdedJar(QString sourceJarPath, QString targetJarPath, const
             QDir dir(what_to_zip);
             dir.cdUp();
             QString parent_dir = dir.absolutePath();
-            if (!JlCompress::compressSubDir(&zipOut, what_to_zip, parent_dir, addedFiles))
+            if (!compressSubDir(&zipOut, what_to_zip, parent_dir, addedFiles))
             {
                 zipOut.close();
                 QFile::remove(targetJarPath);
@@ -309,4 +309,113 @@ bool MMCZip::extractFile(QString fileCompressed, QString file, QString target)
         return false;
     }
     return MMCZip::extractRelFile(&zip, file, target);
+}
+
+bool MMCZip::compressDir(QString fileCompressed, QString dir, QString prefix, const FilterFunction filter)
+{
+    QuaZip zip(fileCompressed);
+    QDir().mkpath(QFileInfo(fileCompressed).absolutePath());
+    if(!zip.open(QuaZip::mdCreate))
+    {
+        QFile::remove(fileCompressed);
+        return false;
+    }
+
+    QSet<QString> added;
+    if (!compressSubDir(&zip, dir, dir, added, prefix, filter))
+    {
+        QFile::remove(fileCompressed);
+        return false;
+    }
+    zip.close();
+    if(zip.getZipError()!=0)
+    {
+        QFile::remove(fileCompressed);
+        return false;
+    }
+    return true;
+}
+
+bool MMCZip::compressSubDir(QuaZip *zip, QString dir, QString origDir, QSet<QString> &added, QString prefix,
+                            const FilterFunction filter)
+{
+    if (!zip) return false;
+    if (zip->getMode()!=QuaZip::mdCreate && zip->getMode()!=QuaZip::mdAppend && zip->getMode()!=QuaZip::mdAdd)
+    {
+        return false;
+    }
+
+    QDir directory(dir);
+    if (!directory.exists())
+    {
+        return false;
+    }
+
+    QDir origDirectory(origDir);
+    if (dir != origDir)
+    {
+        QString internalDirName = origDirectory.relativeFilePath(dir);
+        if(!filter || !filter(internalDirName))
+        {
+            QuaZipFile dirZipFile(zip);
+            QString dirPrefix;
+            if(prefix.isEmpty())
+            {
+                dirPrefix = origDirectory.relativeFilePath(dir) + "/";
+            }
+            else
+            {
+                dirPrefix = prefix + '/' + origDirectory.relativeFilePath(dir) + "/";
+            }
+            if (!dirZipFile.open(QIODevice::WriteOnly, QuaZipNewInfo(dirPrefix, dir), 0, 0, 0))
+            {
+                return false;
+            }
+            dirZipFile.close();
+        }
+    }
+
+    QFileInfoList files = directory.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Hidden);
+    for (auto file: files)
+    {
+        if(!file.isDir())
+        {
+            continue;
+        }
+        if(!compressSubDir(zip,file.absoluteFilePath(),origDir, added, prefix, filter))
+        {
+            return false;
+        }
+    }
+
+    files = directory.entryInfoList(QDir::Files | QDir::Hidden);
+    for (auto file: files)
+    {
+        if(!file.isFile())
+        {
+            continue;
+        }
+
+        if(file.absoluteFilePath()==zip->getZipName())
+        {
+            continue;
+        }
+
+        QString filename = origDirectory.relativeFilePath(file.absoluteFilePath());
+        if(filter && filter(filename))
+        {
+            continue;
+        }
+        if(prefix.size())
+        {
+            filename = prefix + '/' + filename;
+        }
+        added.insert(filename);
+        if (!JlCompress::compressFile(zip,file.absoluteFilePath(),filename))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
