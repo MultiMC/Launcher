@@ -37,7 +37,7 @@ export function Card({ title, subtitle, icon: Icon, status, onClick, className =
       {/* Icon */}
       <div className={`
         mb-4 flex items-center justify-center w-12 h-12 rounded-lg
-        ${isActive ? 'bg-sky-500/20 text-sky-400' : 'bg-slate-700/50 text-navy-400'}
+        ${isActive ? 'bg-sky-500/20 text-sky-400' : 'bg-slate-700/50 text-slate-400'}
       `}>
         <Icon size={24} />
       </div>

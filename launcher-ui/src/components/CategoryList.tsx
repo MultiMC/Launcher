@@ -52,7 +52,7 @@ export function CategoryList({ title, categories, activeCategory, onCategoryClic
               {category.count !== undefined && (
                 <span className={`
                   text-xs px-2 py-1 rounded-full
-                  ${isActive ? 'bg-sky-500/30 text-cyan-300' : 'bg-slate-700/50 text-gray-500'}
+                  ${isActive ? 'bg-sky-500/30 text-sky-300' : 'bg-slate-700/50 text-gray-500'}
                 `}>
                   {category.count}
                 </span>
