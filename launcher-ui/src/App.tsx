@@ -3,7 +3,6 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { DevicePanel } from './components/DevicePanel';
 import { CategoryList } from './components/CategoryList';
-import { StatusPanel } from './components/StatusPanel';
 import { NewInstanceDialog } from './components/NewInstanceDialog';
 import { InstanceDetailsDialog } from './components/InstanceDetailsDialog';
 import { SettingsDialog } from './components/SettingsDialog';
@@ -245,6 +244,7 @@ function App() {
         instance={selectedInstance}
         onLaunch={handleLaunchInstance}
         onDelete={handleDeleteInstance}
+        onUpdate={loadInstances}
       />
 
       <SettingsDialog

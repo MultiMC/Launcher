@@ -126,6 +126,174 @@ export class MinecraftAPI {
       return { available: false };
     }
   }
+
+  /**
+   * Open instance folder in file manager
+   */
+  static async openInstanceFolder(instanceId: string): Promise<boolean> {
+    try {
+      return await invoke('open_instance_folder', { instanceId });
+    } catch (error) {
+      console.error('Failed to open instance folder:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Copy/duplicate an instance
+   */
+  static async copyInstance(instanceId: string, newName: string): Promise<string | null> {
+    try {
+      return await invoke('copy_instance', { instanceId, newName });
+    } catch (error) {
+      console.error('Failed to copy instance:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Rename an instance
+   */
+  static async renameInstance(instanceId: string, newName: string): Promise<boolean> {
+    try {
+      return await invoke('rename_instance', { instanceId, newName });
+    } catch (error) {
+      console.error('Failed to rename instance:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get mods for an instance
+   */
+  static async getInstanceMods(instanceId: string): Promise<Array<{
+    id: string;
+    name: string;
+    version: string;
+    enabled: boolean;
+    fileName: string;
+  }>> {
+    try {
+      return await invoke('get_instance_mods', { instanceId });
+    } catch (error) {
+      console.error('Failed to get instance mods:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Toggle mod enabled/disabled
+   */
+  static async toggleMod(instanceId: string, modId: string, enabled: boolean): Promise<boolean> {
+    try {
+      return await invoke('toggle_mod', { instanceId, modId, enabled });
+    } catch (error) {
+      console.error('Failed to toggle mod:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Remove a mod from an instance
+   */
+  static async removeMod(instanceId: string, modId: string): Promise<boolean> {
+    try {
+      return await invoke('remove_mod', { instanceId, modId });
+    } catch (error) {
+      console.error('Failed to remove mod:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get resource packs for an instance
+   */
+  static async getInstanceResourcePacks(instanceId: string): Promise<Array<{
+    id: string;
+    name: string;
+    fileName: string;
+  }>> {
+    try {
+      return await invoke('get_instance_resource_packs', { instanceId });
+    } catch (error) {
+      console.error('Failed to get resource packs:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get shader packs for an instance
+   */
+  static async getInstanceShaderPacks(instanceId: string): Promise<Array<{
+    id: string;
+    name: string;
+    fileName: string;
+  }>> {
+    try {
+      return await invoke('get_instance_shader_packs', { instanceId });
+    } catch (error) {
+      console.error('Failed to get shader packs:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get worlds/saves for an instance
+   */
+  static async getInstanceWorlds(instanceId: string): Promise<Array<{
+    id: string;
+    name: string;
+    lastPlayed: Date;
+    gameMode: string;
+  }>> {
+    try {
+      return await invoke('get_instance_worlds', { instanceId });
+    } catch (error) {
+      console.error('Failed to get worlds:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get screenshots for an instance
+   */
+  static async getInstanceScreenshots(instanceId: string): Promise<Array<{
+    id: string;
+    fileName: string;
+    path: string;
+    timestamp: Date;
+  }>> {
+    try {
+      return await invoke('get_instance_screenshots', { instanceId });
+    } catch (error) {
+      console.error('Failed to get screenshots:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Install mod loader
+   */
+  static async installModLoader(instanceId: string, loaderType: 'forge' | 'fabric' | 'quilt' | 'liteloader', version: string): Promise<boolean> {
+    try {
+      return await invoke('install_mod_loader', { instanceId, loaderType, version });
+    } catch (error) {
+      console.error('Failed to install mod loader:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Get available mod loader versions
+   */
+  static async getModLoaderVersions(loaderType: string, minecraftVersion: string): Promise<string[]> {
+    try {
+      return await invoke('get_mod_loader_versions', { loaderType, minecraftVersion });
+    } catch (error) {
+      console.error('Failed to get mod loader versions:', error);
+      return [];
+    }
+  }
 }
 
 /**

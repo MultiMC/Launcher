@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { Modal } from './Modal';
-import { Play, Settings, Trash2, FolderOpen, Package, Loader2 } from 'lucide-react';
+import { Play, Settings, Trash2, FolderOpen, Package, Loader2, Copy, Image, Box, Globe } from 'lucide-react';
 import { Instance } from '../types';
 import { motion } from 'framer-motion';
+import { MinecraftAPI } from '../services/api';
+import { ModManagementDialog } from './ModManagementDialog';
+import { ResourcePacksDialog } from './ResourcePacksDialog';
+import { ShaderPacksDialog } from './ShaderPacksDialog';
+import { WorldsDialog } from './WorldsDialog';
+import { ScreenshotsDialog } from './ScreenshotsDialog';
+import { InstanceSettingsDialog } from './InstanceSettingsDialog';
 
 interface InstanceDetailsDialogProps {
   isOpen: boolean;
@@ -10,6 +17,7 @@ interface InstanceDetailsDialogProps {
   instance: Instance | null;
   onLaunch: (instanceId: string) => Promise<void>;
   onDelete: (instanceId: string) => Promise<void>;
+  onUpdate?: () => void;
 }
 
 export function InstanceDetailsDialog({
@@ -18,9 +26,16 @@ export function InstanceDetailsDialog({
   instance,
   onLaunch,
   onDelete,
+  onUpdate,
 }: InstanceDetailsDialogProps) {
   const [launching, setLaunching] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showModsDialog, setShowModsDialog] = useState(false);
+  const [showResourcePacksDialog, setShowResourcePacksDialog] = useState(false);
+  const [showShadersDialog, setShowShadersDialog] = useState(false);
+  const [showWorldsDialog, setShowWorldsDialog] = useState(false);
+  const [showScreenshotsDialog, setShowScreenshotsDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
 
   if (!instance) return null;
 
@@ -47,6 +62,20 @@ export function InstanceDetailsDialog({
       console.error('Failed to delete:', error);
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleOpenFolder = async () => {
+    await MinecraftAPI.openInstanceFolder(instance.id);
+  };
+
+  const handleCopyInstance = async () => {
+    const newName = prompt(`Enter a name for the copy of "${instance.name}":`, `${instance.name} (Copy)`);
+    if (!newName) return;
+
+    const newId = await MinecraftAPI.copyInstance(instance.id, newName);
+    if (newId) {
+      onUpdate?.();
     }
   };
 
@@ -103,12 +132,15 @@ export function InstanceDetailsDialog({
             )}
           </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleOpenFolder}
             className="flex items-center justify-center gap-2 px-6 py-4 rounded-lg bg-slate-700/50 text-gray-300 hover:bg-slate-700 hover:text-white transition-colors"
           >
             <FolderOpen size={20} />
             Open Folder
-          </button>
+          </motion.button>
         </div>
 
         {/* Stats */}
@@ -135,13 +167,54 @@ export function InstanceDetailsDialog({
 
         {/* Management Options */}
         <div className="space-y-2">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors">
+          <button
+            onClick={() => setShowModsDialog(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors"
+          >
             <Package size={20} />
             <span>Manage Mods</span>
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors">
+          <button
+            onClick={() => setShowResourcePacksDialog(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors"
+          >
+            <Box size={20} />
+            <span>Resource Packs</span>
+          </button>
+          <button
+            onClick={() => setShowShadersDialog(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors"
+          >
+            <Image size={20} />
+            <span>Shader Packs</span>
+          </button>
+          <button
+            onClick={() => setShowWorldsDialog(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors"
+          >
+            <Globe size={20} />
+            <span>Worlds</span>
+          </button>
+          <button
+            onClick={() => setShowScreenshotsDialog(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors"
+          >
+            <Image size={20} />
+            <span>Screenshots</span>
+          </button>
+          <button
+            onClick={() => setShowSettingsDialog(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors"
+          >
             <Settings size={20} />
             <span>Instance Settings</span>
+          </button>
+          <button
+            onClick={handleCopyInstance}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-800/30 hover:bg-slate-800/50 text-gray-300 hover:text-white transition-colors"
+          >
+            <Copy size={20} />
+            <span>Duplicate Instance</span>
           </button>
           <button
             onClick={handleDelete}
@@ -162,6 +235,57 @@ export function InstanceDetailsDialog({
           </button>
         </div>
       </div>
+
+      {/* Sub-Dialogs */}
+      {showModsDialog && instance && (
+        <ModManagementDialog
+          isOpen={showModsDialog}
+          onClose={() => setShowModsDialog(false)}
+          instanceId={instance.id}
+          instanceName={instance.name}
+          minecraftVersion={instance.version}
+        />
+      )}
+      {showResourcePacksDialog && instance && (
+        <ResourcePacksDialog
+          isOpen={showResourcePacksDialog}
+          onClose={() => setShowResourcePacksDialog(false)}
+          instanceId={instance.id}
+          instanceName={instance.name}
+        />
+      )}
+      {showShadersDialog && instance && (
+        <ShaderPacksDialog
+          isOpen={showShadersDialog}
+          onClose={() => setShowShadersDialog(false)}
+          instanceId={instance.id}
+          instanceName={instance.name}
+        />
+      )}
+      {showWorldsDialog && instance && (
+        <WorldsDialog
+          isOpen={showWorldsDialog}
+          onClose={() => setShowWorldsDialog(false)}
+          instanceId={instance.id}
+          instanceName={instance.name}
+        />
+      )}
+      {showScreenshotsDialog && instance && (
+        <ScreenshotsDialog
+          isOpen={showScreenshotsDialog}
+          onClose={() => setShowScreenshotsDialog(false)}
+          instanceId={instance.id}
+          instanceName={instance.name}
+        />
+      )}
+      {showSettingsDialog && instance && (
+        <InstanceSettingsDialog
+          isOpen={showSettingsDialog}
+          onClose={() => setShowSettingsDialog(false)}
+          instanceId={instance.id}
+          instanceName={instance.name}
+        />
+      )}
     </Modal>
   );
 }
