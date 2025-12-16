@@ -20,16 +20,16 @@ export function Header({ title, onSearch }: HeaderProps) {
             onChange={(e) => onSearch?.(e.target.value)}
             className="
               w-64 pl-10 pr-4 py-2 rounded-lg
-              bg-navy-800/50 border border-navy-700/50
+              bg-slate-800/50 border border-slate-700/50
               text-gray-200 placeholder-gray-500
-              focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50
+              focus:outline-none focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50
               transition-all duration-200
             "
           />
         </div>
 
         {/* User Profile */}
-        <button className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center text-white hover:shadow-glow transition-all duration-200">
+        <button className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center text-white hover:shadow-glow transition-all duration-200">
           <User size={20} />
         </button>
       </div>

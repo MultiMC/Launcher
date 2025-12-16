@@ -37,7 +37,7 @@ function App() {
   });
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-navy-950 via-navy-900 to-navy-950 overflow-hidden">
+    <div className="flex h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 overflow-hidden">
       {/* Sidebar */}
       <Sidebar activeItem={activeSection} onItemSelect={setActiveSection} />
 
@@ -66,7 +66,7 @@ function App() {
             whileTap={{ scale: 0.98 }}
             className="
               mb-6 px-6 py-3 rounded-xl
-              bg-gradient-to-r from-cyan-500 to-cyan-600
+              bg-gradient-to-r from-sky-500 to-sky-600
               text-white font-semibold
               shadow-lg hover:shadow-glow
               transition-all duration-200
