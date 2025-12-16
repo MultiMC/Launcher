@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        'navy': {
+        navy: {
           50: '#f0f4f8',
           100: '#d9e2ec',
           200: '#bcccdc',
@@ -20,7 +20,7 @@ export default {
           900: '#102a43',
           950: '#0a1929',
         },
-        'cyan': {
+        cyan: {
           400: '#22d3ee',
           500: '#06b6d4',
           600: '#0891b2',
