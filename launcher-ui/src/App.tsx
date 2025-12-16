@@ -182,7 +182,7 @@ function App() {
         </div>
 
         {/* Center Panel - Main Content */}
-        <div className="flex-1 p-8 overflow-y-auto">
+        <div className="flex-1 p-8 overflow-y-auto max-w-7xl mx-auto w-full">
           <Header
             title="Minecraft Launcher"
             onSearch={setSearchQuery}
@@ -229,11 +229,6 @@ function App() {
               onDeviceClick={handleInstanceClick}
             />
           )}
-        </div>
-
-        {/* Right Panel - Status & Controls */}
-        <div className="w-80 p-6 overflow-y-auto">
-          <StatusPanel />
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { LucideIcon, LayoutGrid, Lock, Settings, Home, Lightbulb, Camera, Wifi, Wind } from 'lucide-react';
+import { LucideIcon, LayoutGrid, Settings } from 'lucide-react';
 import { useState } from 'react';
 
 interface SidebarItem {
@@ -9,13 +9,7 @@ interface SidebarItem {
 }
 
 const sidebarItems: SidebarItem[] = [
-  { id: 'home', name: 'Home', icon: LayoutGrid },
-  { id: 'instances', name: 'Instances', icon: Home },
-  { id: 'lights', name: 'Lights', icon: Lightbulb },
-  { id: 'cameras', name: 'Cameras', icon: Camera },
-  { id: 'network', name: 'Network', icon: Wifi },
-  { id: 'climate', name: 'Climate', icon: Wind },
-  { id: 'security', name: 'Security', icon: Lock },
+  { id: 'instances', name: 'Instances', icon: LayoutGrid },
   { id: 'settings', name: 'Settings', icon: Settings },
 ];
 
