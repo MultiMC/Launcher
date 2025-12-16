@@ -4,3 +4,7 @@ export { Header } from './Header';
 export { DevicePanel } from './DevicePanel';
 export { CategoryList } from './CategoryList';
 export { StatusPanel } from './StatusPanel';
+export { Modal } from './Modal';
+export { NewInstanceDialog } from './NewInstanceDialog';
+export { InstanceDetailsDialog } from './InstanceDetailsDialog';
+export { SettingsDialog } from './SettingsDialog';
