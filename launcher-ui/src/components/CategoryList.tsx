@@ -42,8 +42,8 @@ export function CategoryList({ title, categories, activeCategory, onCategoryClic
                 w-full flex items-center gap-3 px-4 py-3 rounded-xl
                 transition-all duration-200
                 ${isActive
-                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-navy-800/50'
+                  ? 'bg-sky-500/20 text-sky-400 border border-sky-500/50'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/50'
                 }
               `}
             >
@@ -52,7 +52,7 @@ export function CategoryList({ title, categories, activeCategory, onCategoryClic
               {category.count !== undefined && (
                 <span className={`
                   text-xs px-2 py-1 rounded-full
-                  ${isActive ? 'bg-cyan-500/30 text-cyan-300' : 'bg-navy-700/50 text-gray-500'}
+                  ${isActive ? 'bg-sky-500/30 text-sky-300' : 'bg-slate-700/50 text-gray-500'}
                 `}>
                   {category.count}
                 </span>

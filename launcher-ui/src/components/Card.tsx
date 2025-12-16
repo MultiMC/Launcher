@@ -22,8 +22,8 @@ export function Card({ title, subtitle, icon: Icon, status, onClick, className =
         relative overflow-hidden rounded-2xl p-6 cursor-pointer
         transition-all duration-300
         ${isActive
-          ? 'bg-gradient-to-br from-navy-800/80 to-navy-900/80 border-2 border-cyan-500/50 card-glow-active'
-          : 'bg-navy-800/40 border border-navy-700/30 hover:border-navy-600/50'
+          ? 'bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-2 border-sky-500/50 card-glow-active'
+          : 'bg-slate-800/40 border border-slate-700/30 hover:border-slate-600/50'
         }
         backdrop-blur-sm
         ${className}
@@ -31,13 +31,13 @@ export function Card({ title, subtitle, icon: Icon, status, onClick, className =
     >
       {/* Glow effect for active cards */}
       {isActive && (
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent pointer-events-none" />
       )}
 
       {/* Icon */}
       <div className={`
         mb-4 flex items-center justify-center w-12 h-12 rounded-lg
-        ${isActive ? 'bg-cyan-500/20 text-cyan-400' : 'bg-navy-700/50 text-navy-400'}
+        ${isActive ? 'bg-sky-500/20 text-sky-400' : 'bg-slate-700/50 text-slate-400'}
       `}>
         <Icon size={24} />
       </div>
@@ -53,7 +53,7 @@ export function Card({ title, subtitle, icon: Icon, status, onClick, className =
         {subtitle && (
           <p className={`
             text-sm
-            ${isActive ? 'text-cyan-400' : 'text-gray-500'}
+            ${isActive ? 'text-sky-400' : 'text-gray-500'}
           `}>
             {subtitle}
           </p>
@@ -64,7 +64,7 @@ export function Card({ title, subtitle, icon: Icon, status, onClick, className =
       <div className="absolute top-4 right-4">
         <div className={`
           w-2 h-2 rounded-full
-          ${isActive ? 'bg-cyan-400 shadow-glow-sm animate-pulse' : 'bg-gray-600'}
+          ${isActive ? 'bg-sky-400 shadow-glow-sm animate-pulse' : 'bg-gray-600'}
         `} />
       </div>
     </motion.div>

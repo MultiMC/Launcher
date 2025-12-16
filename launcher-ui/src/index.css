@@ -4,14 +4,14 @@
 
 @layer base {
   body {
-    @apply bg-navy-950 text-gray-100 antialiased;
+    @apply bg-slate-950 text-gray-100 antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   }
 }
 
 @layer utilities {
   .glass-effect {
-    @apply bg-navy-900/40 backdrop-blur-xl border border-navy-700/50;
+    @apply bg-slate-900/40 backdrop-blur-xl border border-slate-700/50;
   }
 
   .card-glow {

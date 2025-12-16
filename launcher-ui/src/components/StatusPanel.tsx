@@ -35,7 +35,7 @@ export function StatusPanel() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setTemperature(Math.max(10, temperature - 1))}
-              className="w-12 h-12 rounded-xl bg-navy-800/50 border border-navy-700/50 flex items-center justify-center text-gray-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+              className="w-12 h-12 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center text-gray-400 hover:text-sky-400 hover:border-sky-500/50 transition-colors"
             >
               <Minus size={20} />
             </motion.button>
@@ -44,20 +44,20 @@ export function StatusPanel() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setTemperature(Math.min(35, temperature + 1))}
-              className="w-12 h-12 rounded-xl bg-navy-800/50 border border-navy-700/50 flex items-center justify-center text-gray-400 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+              className="w-12 h-12 rounded-xl bg-slate-800/50 border border-slate-700/50 flex items-center justify-center text-gray-400 hover:text-sky-400 hover:border-sky-500/50 transition-colors"
             >
               <Plus size={20} />
             </motion.button>
           </div>
 
           {/* Auto Mode Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-navy-800/30">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30">
             <span className="text-gray-300 text-sm">Automatic regulation</span>
             <button
               onClick={() => setAutoMode(!autoMode)}
               className={`
                 relative w-12 h-6 rounded-full transition-colors
-                ${autoMode ? 'bg-cyan-500' : 'bg-navy-700'}
+                ${autoMode ? 'bg-sky-500' : 'bg-slate-700'}
               `}
             >
               <motion.div
@@ -81,21 +81,21 @@ export function StatusPanel() {
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
             Energy
           </h3>
-          <span className="text-cyan-400 text-sm">12.4 kWh</span>
+          <span className="text-sky-400 text-sm">12.4 kWh</span>
         </div>
 
         <div className="space-y-3">
           {/* Solar Panels */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-navy-800/30">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30">
             <div className="flex items-center gap-3">
-              <Zap size={18} className={solarPanels ? 'text-cyan-400' : 'text-gray-500'} />
+              <Zap size={18} className={solarPanels ? 'text-sky-400' : 'text-gray-500'} />
               <span className="text-gray-300 text-sm">Solar panels</span>
             </div>
             <button
               onClick={() => setSolarPanels(!solarPanels)}
               className={`
                 relative w-12 h-6 rounded-full transition-colors
-                ${solarPanels ? 'bg-cyan-500' : 'bg-navy-700'}
+                ${solarPanels ? 'bg-sky-500' : 'bg-slate-700'}
               `}
             >
               <motion.div
@@ -107,16 +107,16 @@ export function StatusPanel() {
           </div>
 
           {/* Power Reserve */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-navy-800/30">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30">
             <div className="flex items-center gap-3">
-              <Battery size={18} className={powerReserve ? 'text-cyan-400' : 'text-gray-500'} />
+              <Battery size={18} className={powerReserve ? 'text-sky-400' : 'text-gray-500'} />
               <span className="text-gray-300 text-sm">Power reserve</span>
             </div>
             <button
               onClick={() => setPowerReserve(!powerReserve)}
               className={`
                 relative w-12 h-6 rounded-full transition-colors
-                ${powerReserve ? 'bg-cyan-500' : 'bg-navy-700'}
+                ${powerReserve ? 'bg-sky-500' : 'bg-slate-700'}
               `}
             >
               <motion.div
@@ -144,7 +144,7 @@ export function StatusPanel() {
           {['Instances', 'Mods', 'Resource Packs', 'Screenshots', 'Logs'].map((item) => (
             <button
               key={item}
-              className="w-full text-left px-4 py-3 rounded-xl text-gray-400 hover:text-gray-200 hover:bg-navy-800/50 transition-colors text-sm"
+              className="w-full text-left px-4 py-3 rounded-xl text-gray-400 hover:text-gray-200 hover:bg-slate-800/50 transition-colors text-sm"
             >
               {item}
             </button>

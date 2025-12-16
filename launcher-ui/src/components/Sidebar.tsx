@@ -33,9 +33,9 @@ export function Sidebar({ activeItem = 'home', onItemSelect }: SidebarProps) {
   };
 
   return (
-    <div className="w-20 h-screen bg-navy-900/80 backdrop-blur-xl border-r border-navy-700/50 flex flex-col items-center py-6 gap-6">
+    <div className="w-20 h-screen bg-slate-900/80 backdrop-blur-xl border-r border-slate-700/50 flex flex-col items-center py-6 gap-6">
       {/* Logo */}
-      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center text-white font-bold text-xl mb-4">
+      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center text-white font-bold text-xl mb-4">
         MC
       </div>
 
@@ -55,8 +55,8 @@ export function Sidebar({ activeItem = 'home', onItemSelect }: SidebarProps) {
                 relative w-12 h-12 rounded-xl flex items-center justify-center
                 transition-all duration-200
                 ${isSelected
-                  ? 'bg-cyan-500/20 text-cyan-400'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-navy-800/50'
+                  ? 'bg-sky-500/20 text-sky-400'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/50'
                 }
               `}
               title={item.name}
@@ -64,7 +64,7 @@ export function Sidebar({ activeItem = 'home', onItemSelect }: SidebarProps) {
               {isSelected && (
                 <motion.div
                   layoutId="sidebar-active"
-                  className="absolute inset-0 bg-cyan-500/20 rounded-xl border border-cyan-500/50"
+                  className="absolute inset-0 bg-sky-500/20 rounded-xl border border-sky-500/50"
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
               )}
