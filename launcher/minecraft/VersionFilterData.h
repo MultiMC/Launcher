@@ -30,7 +30,7 @@ struct VersionFilterData
     // Release data of the first version to require java 21 (24w14a)
     QDateTime java21BeginsDate;
     // Release data of the first version to require java 25 (26.1-snapshot-1)
-    QDataTime java25BeginsDate;
+    QDateTime java25BeginsDate;
     // release date of first version to use --quickPlayMultiplyer instead of --server/--port for directly joining servers
     QDateTime quickPlayBeginsDate;
     // release date of last version to support LiteLoader (1.12.2)
