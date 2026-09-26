@@ -334,6 +334,45 @@ QStringList MinecraftInstance::javaArguments() const
     }
 #endif
 
+    bool user_has_shadow_pages = false;
+    for(auto & arg: args)
+    {
+        if(arg.contains("-XX:StackShadowPages="))
+        {
+            user_has_shadow_pages = true;
+            break;
+        }
+    }
+    if(!user_has_shadow_pages)
+    {
+        bool has_shadow_pages = false;
+        int shadow_pages_size = 32;
+        for(const auto &item: traits_)
+        {
+            auto parts = item.split(QChar('='));
+            if(parts.size() != 2)
+            {
+                continue;
+            }
+            if(parts[0] != "StackShadowPages")
+            {
+                continue;
+            }
+            bool ok = true;
+            int value = parts[1].toInt(&ok, 10);
+            if(!ok)
+            {
+                continue;
+            }
+            shadow_pages_size = value;
+            has_shadow_pages = true;
+        }
+        if(has_shadow_pages)
+        {
+            args << QString("-XX:StackShadowPages=%1").arg(shadow_pages_size);
+        }
+    }
+
     // HACK: Stupid hack for Intel drivers. See: https://mojang.atlassian.net/browse/MCL-767
 #ifdef Q_OS_WIN32
     args << QString("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_"
