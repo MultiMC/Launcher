@@ -1,4 +1,4 @@
-project(application)
+project(skylith_mc LANGUAGES CXX C)
 
 ################################ FILES ################################
 
