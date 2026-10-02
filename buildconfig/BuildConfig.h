@@ -8,12 +8,12 @@ class Config
 {
 public:
     Config();
-    QString LAUNCHER_NAME;
-    QString LAUNCHER_DISPLAYNAME;
-    QString LAUNCHER_COPYRIGHT;
-    QString LAUNCHER_DOMAIN;
-    QString LAUNCHER_CONFIGFILE;
-    QString LAUNCHER_GIT;
+    QString "Skylith MC";
+    QString Skylith_DISPLAYNAME;
+    QString MULTI_COPYRIGHT;
+    QString MULTI_DOMAIN;
+    QString MULTI_CONFIGFILE;
+    QString Skylith_GIT;
 
     /// The major version number.
     int VERSION_MAJOR;
