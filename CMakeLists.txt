@@ -88,6 +88,9 @@ set(Launcher_UPDATER_BASE "" CACHE STRING "Base URL for the updater.")
 # Notification URL
 set(Launcher_NOTIFICATION_URL "" CACHE STRING "URL for checking for notifications.")
 
+# Translations URL (index_v2.json and the files it names)
+set(Launcher_TRANSLATIONS_BASE_URL "https://files.multimc.org/translations/" CACHE STRING "Base URL for downloading translations.")
+
 #### Check the current Git commit and branch
 include(GetGitRevisionDescription)
 get_git_head_revision(Launcher_GIT_REFSPEC Launcher_GIT_COMMIT)
