@@ -103,6 +103,9 @@ public:
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
         setItemDelegate(new PageViewDelegate(this));
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        // The view is as wide as its longest item: eliding would only cut names short
+        // (Breeze, seen with 6.8, leaves no slack in the text rect and elides seemingly at random)
+        setTextElideMode(Qt::ElideNone);
     }
 
     virtual QSize sizeHint() const
