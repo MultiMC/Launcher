@@ -387,6 +387,9 @@ QVariant ModFolderModel::data(const QModelIndex &index, int role) const
         switch (column)
         {
         case ActiveColumn:
+            // We don't know whether the mod loader looks inside folders, or whether it would respect `.disabled` on them
+            if (mods[row].type() == Mod::MOD_FOLDER)
+                return QVariant();
             return mods[row].enabled() ? Qt::Checked : Qt::Unchecked;
         default:
             return QVariant();
@@ -500,7 +503,7 @@ Qt::ItemFlags ModFolderModel::flags(const QModelIndex &index) const
     else
     {
         flags |= Qt::ItemIsDropEnabled;
-        if(index.isValid()) {
+        if(index.isValid() && mods[index.row()].type() != Mod::MOD_FOLDER) {
             flags |= Qt::ItemIsUserCheckable;
         }
     }
