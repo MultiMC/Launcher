@@ -71,7 +71,11 @@ private slots:
 
     void globalSettingsButtonClicked(bool checked);
 
+    void updateJavaTestButton();
+
 private:
+    QString javaPathToTest() const;
+
     Ui::InstanceSettingsPage *ui;
     BaseInstance *m_instance;
     SettingsObjectPtr m_settings;

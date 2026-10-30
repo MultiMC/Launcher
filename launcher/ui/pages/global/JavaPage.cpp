@@ -39,6 +39,11 @@ JavaPage::JavaPage(QWidget *parent) : QWidget(parent), ui(new Ui::JavaPage)
 
     auto sysMiB = Sys::getSystemRam() / Sys::mebibyte;
     ui->maxMemSpinBox->setMaximum(sysMiB);
+    // there is nothing to test without a path
+    ui->javaTestBtn->setEnabled(false);
+    connect(ui->javaPathTextBox, &QLineEdit::textChanged, this, [this](const QString &path) {
+        ui->javaTestBtn->setEnabled(!path.trimmed().isEmpty());
+    });
     loadSettings();
 }
 

@@ -37,6 +37,11 @@ JavaSettingsWidget::JavaSettingsWidget(QWidget* parent) : QWidget(parent)
     connect(m_javaBrowseBtn, &QPushButton::clicked, this, &JavaSettingsWidget::on_javaBrowseBtn_clicked);
     connect(m_javaPathTextBox, &QLineEdit::textEdited, this, &JavaSettingsWidget::javaPathEdited);
     connect(m_javaStatusBtn, &QToolButton::clicked, this, &JavaSettingsWidget::on_javaStatusBtn_clicked);
+    // there is nothing to test without a path; textChanged also covers picking a Java from the list or browsing
+    m_javaStatusBtn->setEnabled(false);
+    connect(m_javaPathTextBox, &QLineEdit::textChanged, this, [this](const QString &path) {
+        m_javaStatusBtn->setEnabled(!path.trimmed().isEmpty());
+    });
 }
 
 void JavaSettingsWidget::setupUi()

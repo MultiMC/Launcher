@@ -28,6 +28,9 @@ InstanceSettingsPage::InstanceSettingsPage(BaseInstance *inst, QWidget *parent)
     ui->setupUi(this);
     auto sysMB = Sys::getSystemRam() / Sys::mebibyte;
     ui->maxMemSpinBox->setMaximum(sysMB);
+    updateJavaTestButton();
+    connect(ui->javaPathTextBox, &QLineEdit::textChanged, this, &InstanceSettingsPage::updateJavaTestButton);
+    connect(ui->javaSettingsGroupBox, &QGroupBox::toggled, this, &InstanceSettingsPage::updateJavaTestButton);
     connect(ui->openGlobalJavaSettingsButton, &QCommandLinkButton::clicked, this, &InstanceSettingsPage::globalSettingsButtonClicked);
     connect(APPLICATION, &Application::globalSettingsAboutToOpen, this, &InstanceSettingsPage::applySettings);
     connect(APPLICATION, &Application::globalSettingsClosed, this, &InstanceSettingsPage::loadSettings);
@@ -390,11 +393,41 @@ void InstanceSettingsPage::on_javaTestBtn_clicked()
     {
         return;
     }
-    checker.reset(new JavaCommon::TestCheck(
-        this, ui->javaPathTextBox->text(), ui->jvmArgsTextBox->toPlainText().replace("\n", " "),
-        ui->minMemSpinBox->value(), ui->maxMemSpinBox->value(), ui->permGenSpinBox->value()));
+    // test with what the instance would use: the global settings where an override box is unticked
+    auto globalSettings = APPLICATION->settings();
+    QString javaPath = javaPathToTest();
+    QString jvmArgs = globalSettings->get("JvmArgs").toString();
+    if(ui->javaArgumentsGroupBox->isChecked())
+    {
+        jvmArgs = ui->jvmArgsTextBox->toPlainText().replace("\n", " ");
+    }
+    int minMem = globalSettings->get("MinMemAlloc").toInt();
+    int maxMem = globalSettings->get("MaxMemAlloc").toInt();
+    int permGen = globalSettings->get("PermGen").toInt();
+    if(ui->memoryGroupBox->isChecked())
+    {
+        minMem = ui->minMemSpinBox->value();
+        maxMem = ui->maxMemSpinBox->value();
+        permGen = ui->permGenSpinBox->value();
+    }
+    checker.reset(new JavaCommon::TestCheck(this, javaPath, jvmArgs, minMem, maxMem, permGen));
     connect(checker.get(), SIGNAL(finished()), SLOT(checkerFinished()));
     checker->run();
+}
+
+QString InstanceSettingsPage::javaPathToTest() const
+{
+    if(ui->javaSettingsGroupBox->isChecked())
+    {
+        return ui->javaPathTextBox->text();
+    }
+    return APPLICATION->settings()->get("JavaPath").toString();
+}
+
+void InstanceSettingsPage::updateJavaTestButton()
+{
+    // there is nothing to test without a path
+    ui->javaTestBtn->setEnabled(!javaPathToTest().trimmed().isEmpty());
 }
 
 void InstanceSettingsPage::on_serverAddressRadioButton_toggled(bool checked)
