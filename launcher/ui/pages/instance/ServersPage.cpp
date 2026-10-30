@@ -426,7 +426,7 @@ public:
         beginResetModel();
         QList<Server> servers;
         auto serversDat = parseServersDat(serversPath());
-        if(serversDat)
+        if(serversDat && serversDat->has_key("servers", nbt::tag_type::List))
         {
             auto &serversList = serversDat->at("servers").as<nbt::tag_list>();
             for(auto iter = serversList.begin(); iter != serversList.end(); iter++)
