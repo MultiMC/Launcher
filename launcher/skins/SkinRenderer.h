@@ -24,7 +24,7 @@ namespace Skins {
 #pragma pack(push, 0)
 
 struct Vertex {
-    Vertex(const QVector3D & position, float u, float v, GLuint texture, bool transparency)
+    Vertex(const QVector3D & position, float u, float v, int texture, bool transparency)
     {
         m_position[0] = position.x();
         m_position[1] = position.y();
@@ -32,13 +32,15 @@ struct Vertex {
         m_uv[0] = u;
         m_uv[1] = v;
         m_texture = texture;
-        m_transparency = transparency;
+        m_transparency = transparency ? 1.0f : 0.0f;
     }
 
     GLfloat m_position[3];
     GLfloat m_uv[2];
-    GLint m_texture; // 0 = skin, 1 = cape
-    GLint m_transparency; // 0 = opaque, 1 = transparent
+    // These are integers in meaning, but floats in the buffer. glVertexAttribPointer, the only thing Qt 5 offers,
+    // converts to float, and integer shader inputs fed by it are undefined.
+    GLfloat m_texture; // 0 = skin, 1 = cape
+    GLfloat m_transparency; // 0 = opaque, 1 = transparent
 };
 #pragma pack(pop)
 
@@ -68,6 +70,9 @@ public:
 
     std::vector<Vertex> m_vertexBuffer;
     std::vector<GLuint> m_elementBuffer;
+    // Triangles that can have partially transparent texels, three indices each. Sorted back to front every frame
+    // and drawn last, after the end of m_elementBuffer in the element buffer object.
+    std::vector<GLuint> m_translucentTriangles;
     unsigned int m_elementStartIndex;
 
     QOpenGLVertexArrayObject *m_vao = nullptr;
@@ -86,7 +91,8 @@ public:
 
     QOpenGLFunctions& GL;
 private:
-    bool initShader(QOpenGLShaderProgram* program, QList<Uniform>& uniforms, const QString& vertexShaderPath, const QString& fragmentShaderPath);
+    void sortTranslucentTriangles(const QMatrix4x4& viewMatrix);
+    bool initShader(QOpenGLShaderProgram* program, const QStringList& attributes, QList<Uniform>& uniforms, const QString& vertexShaderPath, const QString& fragmentShaderPath);
 };
 
 }

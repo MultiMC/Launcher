@@ -7,7 +7,10 @@
 #include "SkinRenderer.h"
 #include "SkinTypes.h"
 #include "TextureMappings.h"
+#include <algorithm>
 #include <array>
+
+#include <QVector4D>
 
 namespace Skins {
 
@@ -295,12 +298,13 @@ void RenderContext::init()
     m_uniforms.push_back(Skins::Uniform("worldToView"));
     m_uniforms.push_back(Skins::Uniform("skinTexture"));
     m_uniforms.push_back(Skins::Uniform("capeTexture"));
-    initShader(m_skinShader, m_uniforms, ":/skins/shaders/skin.vert", ":/skins/shaders/skin.frag");
+    m_uniforms.push_back(Skins::Uniform("renderPass"));
+    initShader(m_skinShader, {"position", "texcoords", "texnr", "transparency"}, m_uniforms, ":/skins/shaders/skin.vert", ":/skins/shaders/skin.frag");
 
     m_bgUniforms.push_back(Skins::Uniform("baseColor"));
     m_bgUniforms.push_back(Skins::Uniform("alternateColor"));
     m_bgUniforms.push_back(Skins::Uniform("fDevicePixelSize"));
-    initShader(m_bgShader, m_bgUniforms, ":/skins/shaders/bg.vert", ":/skins/shaders/bg.frag");
+    initShader(m_bgShader, {"position"}, m_bgUniforms, ":/skins/shaders/bg.vert", ":/skins/shaders/bg.frag");
 
     GL.glEnable(GL_BLEND);
     GL.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -320,9 +324,9 @@ void RenderContext::init()
         m_skinShader->enableAttributeArray(0);
         m_skinShader->setAttributeBuffer(1, GL_FLOAT, offsetof(Vertex, m_uv), 2, sizeof(Vertex));
         m_skinShader->enableAttributeArray(1);
-        m_skinShader->setAttributeBuffer(2, GL_INT, offsetof(Vertex, m_texture), 1, sizeof(Vertex));
+        m_skinShader->setAttributeBuffer(2, GL_FLOAT, offsetof(Vertex, m_texture), 1, sizeof(Vertex));
         m_skinShader->enableAttributeArray(2);
-        m_skinShader->setAttributeBuffer(3, GL_INT, offsetof(Vertex, m_transparency), 1, sizeof(Vertex));
+        m_skinShader->setAttributeBuffer(3, GL_FLOAT, offsetof(Vertex, m_transparency), 1, sizeof(Vertex));
         m_skinShader->enableAttributeArray(3);
 
         // NOTE: this crashes
@@ -373,7 +377,7 @@ void RenderContext::deinit()
     // TODO: do something here.
 }
 
-bool RenderContext::initShader(QOpenGLShaderProgram* program, QList<Uniform>& uniforms, const QString& vertexShaderPath, const QString& fragmentShaderPath)
+bool RenderContext::initShader(QOpenGLShaderProgram* program, const QStringList& attributes, QList<Uniform>& uniforms, const QString& vertexShaderPath, const QString& fragmentShaderPath)
 {
     // read the shader programs from the resource
     if (!program->addShaderFromSourceFile(QOpenGLShader::Vertex, vertexShaderPath))
@@ -386,6 +390,12 @@ bool RenderContext::initShader(QOpenGLShaderProgram* program, QList<Uniform>& un
     {
         qCritical() << "Error compiling fragment shader " << fragmentShaderPath << ": " << program->log();
         return false;
+    }
+
+    // The attribute buffers are set up by index, so pin the indexes. GLSL 1.50 has no layout(location) for inputs.
+    for (int i = 0; i < attributes.size(); i++)
+    {
+        program->bindAttributeLocation(attributes[i], i);
     }
 
     if (!program->link())
@@ -438,17 +448,63 @@ void RenderContext::regenerateGeometry(int skinVersion, Model skinModel)
 {
     m_vertexBuffer.clear();
     m_elementBuffer.clear();
+    m_translucentTriangles.clear();
     m_elementStartIndex = 0;
 
     RenderSkin(*this, skinVersion, skinModel);
+
+    for(size_t i = 0; i + 2 < m_elementBuffer.size(); i += 3)
+    {
+        if(m_vertexBuffer[m_elementBuffer[i]].m_transparency != 0.0f)
+        {
+            m_translucentTriangles.insert(m_translucentTriangles.end(), m_elementBuffer.begin() + i, m_elementBuffer.begin() + i + 3);
+        }
+    }
 
     m_vbo->bind();
     m_vbo->allocate(m_vertexBuffer.data(), m_vertexBuffer.size()*sizeof(Vertex));
     m_vbo->release();
 
+    // room for the sorted translucent triangles after the regular elements
     m_ebo->bind();
-    m_ebo->allocate(m_elementBuffer.data(), m_elementBuffer.size()*sizeof(GLuint));
+    m_ebo->setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    m_ebo->allocate((m_elementBuffer.size() + m_translucentTriangles.size())*sizeof(GLuint));
+    m_ebo->write(0, m_elementBuffer.data(), m_elementBuffer.size()*sizeof(GLuint));
     m_ebo->release();
+}
+
+void RenderContext::sortTranslucentTriangles(const QMatrix4x4& viewMatrix)
+{
+    struct SortEntry {
+        float distance;
+        size_t offset;
+    };
+    std::vector<SortEntry> entries;
+    entries.reserve(m_translucentTriangles.size() / 3);
+    for(size_t i = 0; i + 2 < m_translucentTriangles.size(); i += 3)
+    {
+        float distance = 0.0f;
+        for(size_t j = 0; j < 3; j++)
+        {
+            const auto& position = m_vertexBuffer[m_translucentTriangles[i + j]].m_position;
+            // w in clip space is the distance along the view direction
+            distance += (viewMatrix * QVector4D(position[0], position[1], position[2], 1.0f)).w();
+        }
+        entries.push_back({distance, i});
+    }
+    // farthest first
+    std::stable_sort(entries.begin(), entries.end(), [](const SortEntry& left, const SortEntry& right) {
+        return left.distance > right.distance;
+    });
+
+    std::vector<GLuint> sorted;
+    sorted.reserve(m_translucentTriangles.size());
+    for(const auto& entry: entries)
+    {
+        sorted.insert(sorted.end(), m_translucentTriangles.begin() + entry.offset, m_translucentTriangles.begin() + entry.offset + 3);
+    }
+    // the element buffer is part of the bound VAO
+    m_ebo->write(m_elementBuffer.size()*sizeof(GLuint), sorted.data(), sorted.size()*sizeof(GLuint));
 }
 
 void Skins::RenderContext::render(QMatrix4x4 viewMatrix, QVector3D baseColor, QVector3D alternateColor, float fDevicePixelSize)
@@ -486,7 +542,21 @@ void Skins::RenderContext::render(QMatrix4x4 viewMatrix, QVector3D baseColor, QV
         m_capeTexture->bind(1);
     }
     m_vao->bind();
+
+    // Opaque texels, with depth writes
+    m_skinShader->setUniformValue(m_uniforms[3].id, 0);
     GL.glDrawElements(GL_TRIANGLES, m_elementBuffer.size(), GL_UNSIGNED_INT, nullptr);
+
+    // Partially transparent texels, back to front, blended over everything behind them
+    if(!m_translucentTriangles.empty())
+    {
+        sortTranslucentTriangles(viewMatrix);
+        GL.glDepthMask(GL_FALSE);
+        m_skinShader->setUniformValue(m_uniforms[3].id, 1);
+        GL.glDrawElements(GL_TRIANGLES, m_translucentTriangles.size(), GL_UNSIGNED_INT, reinterpret_cast<const void*>(m_elementBuffer.size()*sizeof(GLuint)));
+        GL.glDepthMask(GL_TRUE);
+    }
+
     m_vao->release();
     m_skinShader->release();
     GL.glFinish();

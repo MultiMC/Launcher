@@ -7,7 +7,6 @@
  */
 
 out vec4 finalColor;
-in vec4 gl_FragCoord;
 
 uniform vec3 baseColor;
 uniform vec3 alternateColor;

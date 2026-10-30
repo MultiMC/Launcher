@@ -14,6 +14,8 @@ out vec4 finalColor;
 
 uniform sampler2D skinTexture;
 uniform sampler2D capeTexture;
+// 0 = opaque pass, 1 = translucent pass
+uniform int renderPass;
 
 float epsilon = 1.0 / 255.0;
 
@@ -44,6 +46,12 @@ void main() {
     {
         // full transparency -> discard
         if(color.w < epsilon)
+        {
+            discard;
+        }
+        // fully opaque texels go in the opaque pass, partially transparent ones in the sorted translucent pass
+        bool opaque = color.w > 1.0 - epsilon;
+        if(opaque != (renderPass == 0))
         {
             discard;
         }
