@@ -17,6 +17,8 @@
 #include <QDialog>
 #include <QItemSelection>
 
+class QPushButton;
+
 namespace Ui
 {
 class IconPickerDialog;
@@ -37,6 +39,9 @@ protected:
 
 private:
     Ui::IconPickerDialog *ui;
+    QPushButton *buttonRemove;
+
+    void updateRemoveButton();
 
 private
 slots:

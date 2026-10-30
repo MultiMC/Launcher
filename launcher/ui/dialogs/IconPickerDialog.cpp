@@ -63,7 +63,7 @@ IconPickerDialog::IconPickerDialog(QWidget *parent)
 
     // NOTE: ResetRole forces the button to be on the left, while the OK/Cancel ones are on the right. We win.
     auto buttonAdd = ui->buttonBox->addButton(tr("Add Icon"), QDialogButtonBox::ResetRole);
-    auto buttonRemove = ui->buttonBox->addButton(tr("Remove Icon"), QDialogButtonBox::ResetRole);
+    buttonRemove = ui->buttonBox->addButton(tr("Remove Icon"), QDialogButtonBox::ResetRole);
 
     connect(buttonAdd, SIGNAL(clicked(bool)), SLOT(addNewIcon()));
     connect(buttonRemove, SIGNAL(clicked(bool)), SLOT(removeSelectedIcon()));
@@ -71,6 +71,8 @@ IconPickerDialog::IconPickerDialog(QWidget *parent)
     connect(contentsWidget, SIGNAL(doubleClicked(QModelIndex)), SLOT(activated(QModelIndex)));
 
     connect(contentsWidget->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), SLOT(selectionChanged(QItemSelection, QItemSelection)));
+    // a file-based icon can turn into a built-in one when its file goes away
+    connect(APPLICATION->icons().get(), &QAbstractItemModel::dataChanged, this, &IconPickerDialog::updateRemoveButton);
 
     auto buttonFolder = ui->buttonBox->addButton(tr("Open Folder"), QDialogButtonBox::ResetRole);
     connect(buttonFolder, &QPushButton::clicked, this, &IconPickerDialog::openFolder);
@@ -123,12 +125,23 @@ void IconPickerDialog::activated(QModelIndex index)
 void IconPickerDialog::selectionChanged(QItemSelection selected, QItemSelection deselected)
 {
     if (selected.empty())
+    {
+        updateRemoveButton();
         return;
+    }
 
     QString key = selected.first().indexes().first().data(Qt::UserRole).toString();
     if (!key.isEmpty()) {
         selectedIconKey = key;
     }
+    updateRemoveButton();
+}
+
+void IconPickerDialog::updateRemoveButton()
+{
+    // only icons from the icons folder can be removed, built-in ones can't
+    auto icon = APPLICATION->icons()->icon(selectedIconKey);
+    buttonRemove->setEnabled(icon && icon->has(IconType::FileBased));
 }
 
 int IconPickerDialog::execWithSelection(QString selection)
@@ -136,6 +149,7 @@ int IconPickerDialog::execWithSelection(QString selection)
     auto list = APPLICATION->icons();
     auto contentsWidget = ui->iconView;
     selectedIconKey = selection;
+    updateRemoveButton();
 
     int index_nr = list->getIconIndex(selection);
     auto model_index = list->index(index_nr);
