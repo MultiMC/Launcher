@@ -188,7 +188,8 @@ bool Component::isCustomizable()
 }
 bool Component::isRemovable()
 {
-    return !m_important;
+    // dependencies get added back by the dependency resolution, and removed automatically when nothing needs them
+    return !m_important && !m_dependencyOnly;
 }
 bool Component::isRevertible()
 {
