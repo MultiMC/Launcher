@@ -141,6 +141,13 @@ BSD licensed, derived from [QtSingleApplication](https://github.com/qtproject/qt
 
 Changes are made to make the code more generic and useful in less usual conditions.
 
+## monocypher
+A small cryptography library. Used to check the Ed25519 signatures of update manifests, with the standard Ed25519 from its optional `monocypher-ed25519.c` (not Monocypher's default EdDSA with BLAKE2b).
+
+Version 4.0.3, unmodified: `src/monocypher.c`, `src/optional/monocypher-ed25519.c` and their headers from the release tarball, checked against its SHA-512 and BLAKE2b checksums and the GitHub mirror's `4.0.3` tag. See [monocypher.org](https://monocypher.org/).
+
+Dual-licensed under the 2-clause BSD licence and CC-0, see `LICENCE.md`.
+
 ## optional-bare
 
 A simple single-file header-only version of a C++17-like optional for default-constructible, copyable types, for C++98 and later.

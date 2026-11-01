@@ -158,6 +158,14 @@ set(UPDATE_SOURCES
     updater/DownloadTask.cpp
 )
 
+# New update system: not used by the update path yet
+set(NEW_UPDATE_SOURCES
+    updater/Signature.h
+    updater/Signature.cpp
+    updater/SystemRequirements.h
+    updater/SystemRequirements.cpp
+)
+
 add_unit_test(UpdateChecker
     SOURCES updater/UpdateChecker_test.cpp
     LIBS Launcher_logic
@@ -168,6 +176,17 @@ add_unit_test(DownloadTask
     SOURCES updater/DownloadTask_test.cpp
     LIBS Launcher_logic
     DATA updater/testdata
+    )
+
+add_unit_test(Signature
+    SOURCES updater/Signature_test.cpp
+    LIBS Launcher_logic
+    DATA updater/testdata
+    )
+
+add_unit_test(SystemRequirements
+    SOURCES updater/SystemRequirements_test.cpp
+    LIBS Launcher_logic
     )
 
 # Rarely used notifications
@@ -540,6 +559,7 @@ set(LOGIC_SOURCES
     ${NET_SOURCES}
     ${LAUNCH_SOURCES}
     ${UPDATE_SOURCES}
+    ${NEW_UPDATE_SOURCES}
     ${NOTIFICATIONS_SOURCES}
     ${NEWS_SOURCES}
     ${MINECRAFT_SOURCES}
@@ -904,6 +924,7 @@ target_link_libraries(Launcher_logic
     ${ZLIB_LIBRARIES}
     optional-bare
     tomlc99
+    monocypher
     BuildConfig
     Katabasis
     qrcode

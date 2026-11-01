@@ -58,6 +58,7 @@
 #include "java/JavaUtils.h"
 
 #include "updater/UpdateChecker.h"
+#include "updater/SystemRequirements.h"
 
 #include "tools/JProfiler.h"
 #include "tools/JVisualVM.h"
@@ -594,6 +595,17 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         qDebug() << "Version                    : " << BuildConfig.printableVersionString();
         qDebug() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
         qDebug() << "Git refspec                : " << BuildConfig.GIT_REFSPEC;
+        {
+            auto system = SystemRequirements::detect();
+            qDebug() << "Operating system           : " << system.os << system.osVersion;
+            qDebug() << "Machine architecture       : " << system.machineArch;
+            qDebug() << "Launcher architecture      : " << system.launcherArch;
+            if(!system.glibc.isEmpty() || !system.glibcxx.isEmpty())
+            {
+                qDebug() << "glibc, GLIBCXX             : " << system.glibc << system.glibcxx;
+            }
+            qDebug() << "Qt version                 : " << system.qt;
+        }
         if (adjustedBy.size())
         {
             qDebug() << "Work dir before adjustment : " << origcwdPath;
