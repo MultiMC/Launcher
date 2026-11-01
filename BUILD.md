@@ -5,6 +5,7 @@ Build Instructions
 
 * [Note](#note)
 * [Getting the source](#source)
+* [Building like the releases](#building-like-the-releases)
 * [Linux](#linux)
 * [Windows](#windows)
 * [macOS](#macos)
@@ -30,6 +31,16 @@ git clone https://github.com/MultiMC/Launcher.git
 git submodule init
 git submodule update
 ```
+
+# Building like the releases
+
+The releases are built in containers with old toolchains (Qt 5.6 for Linux and Windows,
+Windows XP and old glibc compatibility), by [hopper](https://github.com/MultiMC/hopper).
+The toolchain images are public, so on Linux with Docker you can build exactly what the
+releases build, for Linux and Windows. That also tells you early if a change uses something
+newer than Qt 5.6. See hopper's README, [Building one platform](https://github.com/MultiMC/hopper#building-one-platform).
+
+The rest of this guide is about building with your own tools.
 
 # Linux
 
