@@ -14,6 +14,8 @@
  */
 
 #include "InstanceImportTask.h"
+#include "modplatform/modrinth/PackUpdate.h"
+#include <QTemporaryDir>
 #include "BaseInstance.h"
 #include "FileSystem.h"
 #include "Application.h"
@@ -38,7 +40,8 @@
 #include <algorithm>
 #include <iterator>
 
-InstanceImportTask::InstanceImportTask(const QUrl sourceUrl)
+InstanceImportTask::InstanceImportTask(const QUrl sourceUrl, const QString &project, const QString &version)
+    : m_modrinthProject(project), m_modrinthVersion(version)
 {
     m_sourceUrl = sourceUrl;
 }
@@ -140,6 +143,17 @@ void InstanceImportTask::processZipPack()
         return;
     }
 
+    // Validate Modrinth archive entries before the generic extractor sees them.
+    if (m_modpackType == ModpackType::Modrinth) {
+        try {
+            QTemporaryDir validation(QDir(m_stagingPath).canonicalPath() + "/validate-pack-XXXXXX");
+            if (!validation.isValid()) throw Modrinth::Update::Error{tr("Cannot validate modpack archive")};
+            Modrinth::Update::validateArchive(m_archivePath, validation.path());
+        } catch (const Modrinth::Update::Error &error) {
+            emitFailed(error.message);
+            return;
+        }
+    }
     // make sure we extract just the pack
     m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractSubDir, m_packZip.get(), root, extractDir.absolutePath());
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, &InstanceImportTask::extractFinished);
@@ -480,6 +494,18 @@ void InstanceImportTask::processModrinth() {
     connect(m_filesNetJob.get(), &NetJob::succeeded, this, [&]()
     {
         m_filesNetJob.reset();
+        try {
+            auto root = QDir(m_stagingPath).canonicalPath();
+            QTemporaryDir overrides(root + "/update-baseline-XXXXXX");
+            if (!overrides.isValid()) throw Modrinth::Update::Error{tr("Cannot retain modpack baseline")};
+            auto pack = Modrinth::Update::readPack(m_archivePath, overrides.path());
+            auto metadata = Modrinth::Update::baseline(pack, root + "/.minecraft", m_modrinthProject, m_modrinthVersion);
+            Modrinth::Update::writeJson(root + "/modrinth-update.json", metadata);
+        } catch (const Modrinth::Update::Error &error) {
+            // Baseline capture must not make previously supported imports fail.
+            // Unsupported/modified packs can be linked explicitly by the updater.
+            qWarning() << "Modrinth update baseline unavailable:" << error.message;
+        }
         emitSucceeded();
     });
     connect(m_filesNetJob.get(), &NetJob::failed, [&](const QString &reason)

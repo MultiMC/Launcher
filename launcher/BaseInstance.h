@@ -85,6 +85,10 @@ public:
 
     void setRunning(bool running);
     bool isRunning() const;
+    bool isPackUpdateBusy() const { return m_packUpdateBusy; }
+    bool isLaunchPreparing() const { return m_launchPreparing; }
+    void setPackUpdateBusy(bool busy);
+    void setLaunchPreparing(bool preparing);
     int64_t totalTimePlayed() const;
     int64_t lastTimePlayed() const;
     void resetTimePlayed();
@@ -269,6 +273,8 @@ protected: /* data */
     SettingsObjectPtr m_settings;
     // InstanceFlags m_flags;
     bool m_isRunning = false;
+    bool m_packUpdateBusy = false;
+    bool m_launchPreparing = false;
     shared_qobject_ptr<LaunchTask> m_launchProcess;
     QDateTime m_timeStarted;
 

@@ -18,6 +18,7 @@
 
 #include <QFileInfo>
 #include <QDir>
+#include <QLockFile>
 #include <QDebug>
 
 #include "settings/INISettingsObject.h"
@@ -251,9 +252,30 @@ SettingsObjectPtr BaseInstance::settings() const
     return m_settings;
 }
 
+void BaseInstance::setPackUpdateBusy(bool busy)
+{
+    if (m_packUpdateBusy == busy) return;
+    m_packUpdateBusy = busy;
+    emit propertiesChanged(this);
+}
+
+void BaseInstance::setLaunchPreparing(bool preparing)
+{
+    if (m_launchPreparing == preparing) return;
+    m_launchPreparing = preparing;
+    emit propertiesChanged(this);
+}
+
 bool BaseInstance::canLaunch() const
 {
-    return (!hasVersionBroken() && !isRunning());
+    if (hasVersionBroken() || isRunning() || isPackUpdateBusy() || isLaunchPreparing() ||
+        QFileInfo::exists(QDir(instanceRoot()).filePath(".pack-update/journal.json"))) return false;
+    const auto lockPath = QDir(instanceRoot()).filePath(".pack-update/lock");
+    if (!QFileInfo::exists(lockPath)) return true;
+    // QLockFile checks the owning process and removes abandoned discovery locks.
+    QLockFile lock(lockPath);
+    lock.setStaleLockTime(0);
+    return lock.tryLock();
 }
 
 bool BaseInstance::reloadSettings()

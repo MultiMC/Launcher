@@ -37,6 +37,7 @@ struct Download {
 };
 
 struct Version {
+    QString id;
     QString name;
     Download download;
     QDateTime released;

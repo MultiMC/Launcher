@@ -516,6 +516,8 @@ set(ATLAUNCHER_SOURCES
 )
 
 set(MODRINTH_SOURCES
+    modplatform/modrinth/PackUpdate.cpp
+    modplatform/modrinth/PackUpdate.h
     modplatform/modrinth/ModrinthPackManifest.cpp
     modplatform/modrinth/ModrinthPackManifest.h
     modplatform/modrinth/ModrinthInstanceExportTask.h
@@ -771,6 +773,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/VersionSelectDialog.h
     ui/dialogs/CreateShortcutDialog.cpp
     ui/dialogs/CreateShortcutDialog.h
+    ui/dialogs/PackUpdateDialog.cpp
+    ui/dialogs/PackUpdateDialog.h
     ui/dialogs/ModrinthExportDialog.cpp
     ui/dialogs/ModrinthExportDialog.h
 
@@ -1034,3 +1038,13 @@ if(INSTALL_BUNDLE STREQUAL "full")
     )
     install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/install_prereqs.cmake" COMPONENT Runtime)
 endif()
+
+# The updater core is independent of launcher UI and live network services.
+add_unit_test(PackUpdate
+    SOURCES modplatform/modrinth/PackUpdate_test.cpp modplatform/modrinth/PackUpdate.cpp
+    LIBS Qt5::Core Launcher_quazip tomlc99
+)
+add_unit_test(PackDownload
+    SOURCES modplatform/modrinth/PackDownload_test.cpp
+    LIBS Launcher_logic
+)

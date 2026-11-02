@@ -89,6 +89,9 @@
 #include "KonamiCode.h"
 
 #include "InstanceImportTask.h"
+#include "ui/dialogs/PackUpdateDialog.h"
+#include "minecraft/MinecraftInstance.h"
+#include "modplatform/modrinth/PackUpdate.h"
 #include "InstanceCopyTask.h"
 
 #include "MMCTime.h"
@@ -219,6 +222,8 @@ public:
     TranslatedAction actionEditInstance;
     TranslatedAction actionWorlds;
     TranslatedAction actionMods;
+    TranslatedAction actionUpdateMods;
+    TranslatedAction actionRestorePack;
     TranslatedAction actionViewSelectedInstFolder;
     TranslatedAction actionViewSelectedMCFolder;
     TranslatedAction actionViewSelectedModsFolder;
@@ -556,6 +561,17 @@ public:
         actionMods.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "View the mods of this instance."));
         all_actions.append(&actionMods);
         instanceToolBar->addAction(actionMods);
+        actionUpdateMods = TranslatedAction(MainWindow);
+        actionUpdateMods->setObjectName(QStringLiteral("actionUpdateMods"));
+        actionUpdateMods.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Update mods"));
+        actionUpdateMods.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Update this Modrinth pack while preserving existing settings."));
+        all_actions.append(&actionUpdateMods);
+        instanceToolBar->addAction(actionUpdateMods);
+        actionRestorePack = TranslatedAction(MainWindow);
+        actionRestorePack->setObjectName(QStringLiteral("actionRestorePack"));
+        actionRestorePack.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Restore previous version"));
+        all_actions.append(&actionRestorePack);
+        instanceToolBar->addAction(actionRestorePack);
 
         actionWorlds = TranslatedAction(MainWindow);
         actionWorlds->setObjectName(QStringLiteral("actionWorlds"));
@@ -1698,6 +1714,22 @@ void MainWindow::on_actionWorlds_triggered()
     APPLICATION->showInstanceWindow(m_selectedInstance, "worlds");
 }
 
+void MainWindow::on_actionUpdateMods_triggered()
+{
+    auto instance = m_selectedInstance;
+    if (!instance) return;
+    PackUpdateDialog::run(this, dynamic_cast<MinecraftInstance *>(instance.get()));
+    instanceChanged(view->currentIndex(), QModelIndex());
+}
+
+void MainWindow::on_actionRestorePack_triggered()
+{
+    auto instance = m_selectedInstance;
+    if (!instance) return;
+    PackUpdateDialog::run(this, dynamic_cast<MinecraftInstance *>(instance.get()), true);
+    instanceChanged(view->currentIndex(), QModelIndex());
+}
+
 void MainWindow::on_actionMods_triggered()
 {
     APPLICATION->showInstanceWindow(m_selectedInstance, "mods");
@@ -1934,6 +1966,9 @@ void MainWindow::instanceChanged(const QModelIndex &current, const QModelIndex &
         }
         ui->actionLaunchInstanceOffline->setEnabled(m_selectedInstance->canLaunch());
         ui->actionExportInstance->setEnabled(m_selectedInstance->canExport());
+        bool canUpdate = dynamic_cast<MinecraftInstance *>(m_selectedInstance.get()) && !m_selectedInstance->isRunning() && !m_selectedInstance->isLaunchPreparing() && !m_selectedInstance->isPackUpdateBusy();
+        ui->actionUpdateMods->setEnabled(canUpdate);
+        ui->actionRestorePack->setEnabled(canUpdate && (Modrinth::Update::hasBackup(m_selectedInstance->instanceRoot()) || Modrinth::Update::pending(m_selectedInstance->instanceRoot())));
         ui->renameButton->setText(m_selectedInstance->name());
         m_statusLeft->setText(m_selectedInstance->getStatusbarDescription());
         updateStatusCenter();

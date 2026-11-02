@@ -116,7 +116,7 @@ void ModrinthPage::suggestCurrent()
         return;
     }
 
-    dialog->setSuggestedPack(current.name + " " + currentVersion.name, new InstanceImportTask(currentVersion.download.url));
+    dialog->setSuggestedPack(current.name + " " + currentVersion.name, new InstanceImportTask(currentVersion.download.url, current.id, currentVersion.id));
     MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("ModrinthPacks", QString("logos/%1").arg(current.id));
     dialog->setSuggestedIconFromFile(entry->getFullPath(), QString("modrinth-%1").arg(current.id));
 }

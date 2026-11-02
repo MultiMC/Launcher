@@ -14,7 +14,7 @@ public:
     void executeTask() override;
 
     LaunchController(QObject * parent = nullptr);
-    virtual ~LaunchController(){};
+    ~LaunchController() override;
 
     void setInstance(InstancePtr instance) {
         m_instance = instance;
@@ -70,6 +70,7 @@ private slots:
 private:
     BaseProfilerFactory *m_profiler = nullptr;
     bool m_userWantsOnline = true;
+    bool m_ownsLaunchGuard = false;
     QString m_offlineName;
     InstancePtr m_instance;
     QWidget * m_parentWidget = nullptr;
