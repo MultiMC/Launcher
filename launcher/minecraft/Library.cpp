@@ -3,6 +3,7 @@
 
 #include <net/Download.h>
 #include <net/ChecksumValidator.h>
+#include <net/SizeValidator.h>
 #include <FileSystem.h>
 #include <BuildConfig.h>
 
@@ -69,7 +70,7 @@ QList<NetAction::Ptr> Library::getDownloads(
         return true;
     };
 
-    auto add_download = [&](QString storage, QString url, QString sha1)
+    auto add_download = [&](QString storage, QString url, QString sha1, qint64 size)
     {
         if(local)
         {
@@ -93,6 +94,10 @@ QList<NetAction::Ptr> Library::getDownloads(
             auto rawSha1 = QByteArray::fromHex(sha1.toLatin1());
             auto dl = Net::Download::makeCached(url, entry, options);
             dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, rawSha1));
+            if(size >= 0)
+            {
+                dl->addValidator(new Net::SizeValidator(size));
+            }
             qDebug() << "Checksummed Download for:" << rawName().serialize() << "storage:" << storage << "url:" << url;
             out.append(dl);
         }
@@ -123,14 +128,14 @@ QList<NetAction::Ptr> Library::getDownloads(
                     {
                         auto cooked_storage = raw_storage;
                         cooked_storage.replace("${arch}", "32");
-                        add_download(cooked_storage, nat32info->url, nat32info->sha1);
+                        add_download(cooked_storage, nat32info->url, nat32info->sha1, nat32info->size);
                     }
                     auto nat64info = m_mojangDownloads->getDownloadInfo(nat64Classifier);
                     if(nat64info)
                     {
                         auto cooked_storage = raw_storage;
                         cooked_storage.replace("${arch}", "64");
-                        add_download(cooked_storage, nat64info->url, nat64info->sha1);
+                        add_download(cooked_storage, nat64info->url, nat64info->sha1, nat64info->size);
                     }
                 }
                 else
@@ -138,7 +143,7 @@ QList<NetAction::Ptr> Library::getDownloads(
                     auto info = m_mojangDownloads->getDownloadInfo(nativeClassifier);
                     if(info)
                     {
-                        add_download(raw_storage, info->url, info->sha1);
+                        add_download(raw_storage, info->url, info->sha1, info->size);
                     }
                 }
             }
@@ -152,7 +157,7 @@ QList<NetAction::Ptr> Library::getDownloads(
             if(m_mojangDownloads->artifact)
             {
                 auto artifact = m_mojangDownloads->artifact;
-                add_download(raw_storage, artifact->url, artifact->sha1);
+                add_download(raw_storage, artifact->url, artifact->sha1, artifact->size);
             }
             else
             {
@@ -187,14 +192,14 @@ QList<NetAction::Ptr> Library::getDownloads(
         {
             QString cooked_storage = raw_storage;
             QString cooked_dl = raw_dl;
-            add_download(cooked_storage.replace("${arch}", "32"), cooked_dl.replace("${arch}", "32"), QString());
+            add_download(cooked_storage.replace("${arch}", "32"), cooked_dl.replace("${arch}", "32"), QString(), -1);
             cooked_storage = raw_storage;
             cooked_dl = raw_dl;
-            add_download(cooked_storage.replace("${arch}", "64"), cooked_dl.replace("${arch}", "64"), QString());
+            add_download(cooked_storage.replace("${arch}", "64"), cooked_dl.replace("${arch}", "64"), QString(), -1);
         }
         else
         {
-            add_download(raw_storage, raw_dl, QString());
+            add_download(raw_storage, raw_dl, QString(), -1);
         }
     }
     return out;

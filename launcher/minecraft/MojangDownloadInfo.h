@@ -15,8 +15,8 @@ struct MojangDownloadInfo
     QString url;
     /// sha-1 checksum of the file
     QString sha1;
-    /// size of the file in bytes
-    int size;
+    /// size of the file in bytes, -1 when unknown
+    int size = -1;
 };
 
 

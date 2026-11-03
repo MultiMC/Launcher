@@ -34,6 +34,7 @@
 #include "icons/IconList.h"
 #include "Application.h"
 #include "net/ChecksumValidator.h"
+#include "net/SizeValidator.h"
 
 #include <algorithm>
 #include <iterator>
@@ -362,6 +363,10 @@ void InstanceImportTask::processModrinth() {
                 }
                 file.hash = QByteArray::fromHex(hash.toLatin1());
                 file.hashAlgorithm = hashAlgorithm;
+                if (obj.contains("fileSize"))
+                {
+                    file.size = Json::requireBoundedInteger(obj, "fileSize", 0, Json::MaxExactInteger);
+                }
                 // Do not use requireUrl, which uses StrictMode, instead use QUrl's default TolerantMode (as Modrinth seems to incorrectly handle spaces)
                 file.download = Json::requireValueString(Json::ensureArray(obj, "downloads").first(), "Download URL for " + file.path);
                 if (!file.download.isValid())
@@ -475,6 +480,10 @@ void InstanceImportTask::processModrinth() {
         qDebug() << "Will download" << file.download << "to" << path;
         auto dl = Net::Download::makeFile(file.download, path);
         dl->addValidator(new Net::ChecksumValidator(file.hashAlgorithm, file.hash));
+        if (file.size >= 0)
+        {
+            dl->addValidator(new Net::SizeValidator(file.size));
+        }
         m_filesNetJob->addNetAction(dl);
     }
     connect(m_filesNetJob.get(), &NetJob::succeeded, this, [&]()

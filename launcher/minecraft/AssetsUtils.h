@@ -28,7 +28,8 @@ struct AssetObject
     NetAction::Ptr getDownloadAction();
 
     QString hash;
-    qint64 size;
+    /// -1 when unknown
+    qint64 size = -1;
 };
 
 struct AssetsIndex

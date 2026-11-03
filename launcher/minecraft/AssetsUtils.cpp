@@ -27,6 +27,7 @@
 #include "FileSystem.h"
 #include "net/Download.h"
 #include "net/ChecksumValidator.h"
+#include "net/SizeValidator.h"
 #include "BuildConfig.h"
 
 #include "Application.h"
@@ -296,6 +297,10 @@ NetAction::Ptr AssetObject::getDownloadAction()
         {
             auto rawHash = QByteArray::fromHex(hash.toLatin1());
             objectDL->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, rawHash));
+        }
+        if(size >= 0)
+        {
+            objectDL->addValidator(new Net::SizeValidator(size));
         }
         objectDL->m_total_progress = size;
         return objectDL;

@@ -26,6 +26,8 @@ struct File
     QString path;
     QCryptographicHash::Algorithm hashAlgorithm;
     QByteArray hash;
+    /// -1 when the pack doesn't say
+    qint64 size = -1;
     // TODO: should this support multiple download URLs, like the JSON does?
     QUrl download;
 };

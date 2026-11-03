@@ -3,6 +3,7 @@
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 #include "net/ChecksumValidator.h"
+#include "net/SizeValidator.h"
 #include "minecraft/AssetsUtils.h"
 
 #include "Application.h"
@@ -37,6 +38,10 @@ void AssetUpdateTask::executeTask()
     auto dl = Net::Download::makeCached(indexUrl, entry);
     auto rawSha1 = QByteArray::fromHex(assets->sha1.toLatin1());
     dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, rawSha1));
+    if(assets->size >= 0)
+    {
+        dl->addValidator(new Net::SizeValidator(assets->size));
+    }
     job->addNetAction(dl);
 
     downloadJob.reset(job);

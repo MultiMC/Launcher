@@ -10,6 +10,7 @@
 #include "FileSystem.h"
 #include "net/NetJob.h"
 #include "net/ChecksumValidator.h"
+#include "net/SizeValidator.h"
 #include "BuildConfig.h"
 #include "Json.h"
 
@@ -622,6 +623,7 @@ void TranslationsModel::downloadTranslation(QString key)
     auto dl = Net::Download::makeCached(QUrl(BuildConfig.TRANSLATIONS_BASE_URL + lang->file_name), entry);
     auto rawHash = QByteArray::fromHex(lang->file_sha1.toLatin1());
     dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, rawHash));
+    dl->addValidator(new Net::SizeValidator(lang->file_size));
     dl->m_total_progress = lang->file_size;
 
     d->m_dl_job = new NetJob("Translation for " + key, APPLICATION->network());

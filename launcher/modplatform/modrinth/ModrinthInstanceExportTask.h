@@ -38,7 +38,7 @@ struct ExportSettings
     QString exportPath;
 };
 
-// Using the existing Modrinth::File struct from the importer doesn't actually make much sense here (doesn't support multiple hashes, hash is a byte array rather than a string, no file size, etc)
+// Using the existing Modrinth::File struct from the importer doesn't actually make much sense here (doesn't support multiple hashes, hash is a byte array rather than a string, etc)
 struct ExportFile
 {
     QString path;
