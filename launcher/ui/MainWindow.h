@@ -136,6 +136,8 @@ private slots:
     void on_actionEditInstNotes_triggered();
 
     void on_actionMods_triggered();
+    void on_actionUpdateMods_triggered();
+    void on_actionRestorePack_triggered();
 
     void on_actionWorlds_triggered();
 

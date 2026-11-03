@@ -10,13 +10,11 @@ InstanceCopyTask::InstanceCopyTask(InstancePtr origInstance, bool copySaves, boo
     m_origInstance = origInstance;
     m_keepPlaytime = keepPlaytime;
 
-    if(!copySaves)
-    {
-        // FIXME: get this from the original instance type...
-        auto matcherReal = new RegexpMatcher("[.]?minecraft/saves");
-        matcherReal->caseSensitive(false);
-        m_matcher.reset(matcherReal);
-    }
+    // Recovery snapshots can contain worlds even when copying saves is disabled.
+    auto pattern = QString("(^|/)\\.pack-update(/|$)");
+    if (!copySaves) pattern += "|(^|/)[.]?minecraft/saves(/|$)";
+    m_matcher.reset(new RegexpMatcher(pattern));
+
 }
 
 void InstanceCopyTask::executeTask()

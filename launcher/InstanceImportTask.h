@@ -35,7 +35,7 @@ class InstanceImportTask : public InstanceTask
 {
     Q_OBJECT
 public:
-    explicit InstanceImportTask(const QUrl sourceUrl);
+    explicit InstanceImportTask(const QUrl sourceUrl, const QString &project = QString(), const QString &version = QString());
 
 protected:
     //! Entry point for tasks.
@@ -59,6 +59,7 @@ private: /* data */
     NetJob::Ptr m_filesNetJob;
     shared_qobject_ptr<Flame::FileResolvingTask> m_modIdResolver;
     QUrl m_sourceUrl;
+    QString m_modrinthProject, m_modrinthVersion;
     QString m_archivePath;
     bool m_downloadRequired = false;
     std::unique_ptr<QuaZip> m_packZip;

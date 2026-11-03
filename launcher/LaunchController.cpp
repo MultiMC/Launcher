@@ -27,6 +27,12 @@
 
 LaunchController::LaunchController(QObject *parent) : Task(parent)
 {
+    connect(this, &Task::finished, this, [this]() { if (m_instance && m_ownsLaunchGuard) { m_ownsLaunchGuard = false; m_instance->setLaunchPreparing(false); } });
+}
+
+LaunchController::~LaunchController()
+{
+    if (m_instance && m_ownsLaunchGuard) m_instance->setLaunchPreparing(false);
 }
 
 void LaunchController::executeTask()
@@ -36,6 +42,13 @@ void LaunchController::executeTask()
         emitFailed(tr("No instance specified!"));
         return;
     }
+
+    if (!m_instance->canLaunch()) {
+        emitFailed(tr("The instance is busy or needs pack update recovery. Open Update mods to recover it."));
+        return;
+    }
+    m_ownsLaunchGuard = true;
+    m_instance->setLaunchPreparing(true);
 
     if(!JavaCommon::checkJVMArgs(m_instance->settings()->get("JvmArgs").toString(), m_parentWidget)) {
         emitFailed(tr("Invalid Java arguments specified. Please fix this first."));

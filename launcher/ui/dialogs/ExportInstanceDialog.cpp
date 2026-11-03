@@ -402,8 +402,11 @@ bool ExportInstanceDialog::doExport()
     SaveIcon(m_instance);
 
     auto & blocked = proxyModel->blockedPaths();
-    using std::placeholders::_1;
-    if (!JlCompress::compressDir(output, m_instance->instanceRoot(), name, std::bind(&SeparatorPrefixTree<'/'>::covers, blocked, _1)))
+    // Backups may contain private worlds and settings excluded from this export.
+    auto excluded = [&blocked](const QString &path) {
+        return path == ".pack-update" || path.startsWith(".pack-update/") || blocked.covers(path);
+    };
+    if (!JlCompress::compressDir(output, m_instance->instanceRoot(), name, excluded))
     {
         QMessageBox::warning(this, tr("Error"), tr("Unable to export instance"));
         return false;

@@ -23,7 +23,7 @@ QDebug operator<<(QDebug dbg, const UpdateChecker::ChannelListEntry &c)
 
 QString findTestDataUrl(const char *file)
 {
-    return QUrl::fromLocalFile(QFINDTESTDATA(file)).toString();
+    return QUrl::fromLocalFile(QFINDTESTDATA(file)).toString(QUrl::FullyEncoded);
 }
 
 class UpdateCheckerTest : public QObject

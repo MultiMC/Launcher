@@ -474,6 +474,7 @@ bool parseVersionsInto(QByteArray & input, Modrinth::Modpack& output) {
             {
                 if (Json::ensureString(packObj, "client_side", "required") == QStringLiteral("unsupported"))
                     continue;
+                version.id = Json::requireString(packObj, "id");
                 version.name = Json::requireString(packObj, "version_number");
                 version.released = Json::requireDateTime(packObj, "date_published");
                 version.featured = Json::requireBoolean(packObj, "featured");
