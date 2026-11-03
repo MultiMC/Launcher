@@ -142,6 +142,9 @@ private:
     bool installJarMods_internal(QStringList filepaths);
     bool installCustomJar_internal(QString filepath);
     bool removeComponent_internal(ComponentPtr patch);
+    bool removeAt(const int index);
+    /// remove a component that was only added as a dependency, for the dependency resolution
+    bool removeDependency(const QString uid);
 
     bool migratePreComponentConfig();
 

@@ -668,7 +668,12 @@ bool PackProfile::remove(const int index)
         qWarning() << "Patch" << patch->getID() << "is non-removable";
         return false;
     }
+    return removeAt(index);
+}
 
+bool PackProfile::removeAt(const int index)
+{
+    auto patch = getComponent(index);
     if(!removeComponent_internal(patch))
     {
         qCritical() << "Patch" << patch->getID() << "could not be removed";
@@ -692,6 +697,25 @@ bool PackProfile::remove(const QString id)
         if (patch->getID() == id)
         {
             return remove(i);
+        }
+        i++;
+    }
+    return false;
+}
+
+bool PackProfile::removeDependency(const QString uid)
+{
+    int i = 0;
+    for (auto patch : d->components)
+    {
+        if (patch->getID() == uid)
+        {
+            if (!patch->m_dependencyOnly)
+            {
+                qWarning() << "Patch" << uid << "is not a dependency";
+                return false;
+            }
+            return removeAt(i);
         }
         i++;
     }

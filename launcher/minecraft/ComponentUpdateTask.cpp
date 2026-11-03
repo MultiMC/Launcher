@@ -525,7 +525,11 @@ void ComponentUpdateTask::resolveDependencies(bool checkOnly)
             for(auto & remove : toRemove)
             {
                 qDebug() << "Removing" << remove;
-                d->m_list->remove(remove);
+                if(!d->m_list->removeDependency(remove))
+                {
+                    emitFailed(tr("Could not remove obsolete component %1.").arg(remove));
+                    return;
+                }
             }
         }
     } while (!toRemove.isEmpty());
