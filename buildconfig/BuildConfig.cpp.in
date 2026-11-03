@@ -23,9 +23,14 @@ Config::Config()
     VERSION_BUILD = @Launcher_VERSION_BUILD@;
 
     BUILD_PLATFORM = "@Launcher_BUILD_PLATFORM@";
-    UPDATER_BASE = "@Launcher_UPDATER_BASE@";
-    NOTIFICATION_URL = "@Launcher_NOTIFICATION_URL@";
-    TRANSLATIONS_BASE_URL = "@Launcher_TRANSLATIONS_BASE_URL@";
+    FILES_MIRRORS = QStringList{@Launcher_FILES_MIRRORS_LITERALS@};
+    META_MIRRORS = QStringList{@Launcher_META_MIRRORS_LITERALS@};
+    UPDATER_BASE = FILES_MIRRORS.first() + "update/";
+    NOTIFICATION_URL = FILES_MIRRORS.first() + "notifications.json";
+    TRANSLATIONS_BASE_URL = FILES_MIRRORS.first() + "translations/";
+    FMLLIBS_BASE_URL = FILES_MIRRORS.first() + "fmllibs/";
+    PATRONS_URL = FILES_MIRRORS.first() + "patrons.txt";
+    META_URL = META_MIRRORS.first() + "v1/";
     FULL_VERSION_STR = "@Launcher_VERSION_MAJOR@.@Launcher_VERSION_MINOR@.@Launcher_VERSION_BUILD@";
 
     GIT_COMMIT = "@Launcher_GIT_COMMIT@";
@@ -47,7 +52,6 @@ Config::Config()
     PASTE_EE_KEY = "@Launcher_PASTE_EE_API_KEY@";
     MSA_CLIENT_ID = "@Launcher_MSA_CLIENT_ID@";
     IMGUR_CLIENT_ID = "@Launcher_IMGUR_CLIENT_ID@";
-    META_URL = "@Launcher_META_URL@";
 
     BUG_TRACKER_URL = "@Launcher_BUG_TRACKER_URL@";
     DISCORD_URL = "@Launcher_DISCORD_URL@";

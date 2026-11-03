@@ -134,6 +134,8 @@ set(NET_SOURCES
     net/PasteUpload.h
     net/Sink.h
     net/SizeValidator.h
+    net/Mirrors.h
+    net/Mirrors.cpp
     net/Validator.h
 )
 

@@ -23,6 +23,7 @@
 #include "ChecksumValidator.h"
 #include "MetaCacheSink.h"
 #include "ByteArraySink.h"
+#include "Mirrors.h"
 
 #include "BuildConfig.h"
 
@@ -99,6 +100,19 @@ void Download::startImpl()
         emit aborted(m_index_within_job);
         return;
     }
+    // every attempt starts again from the first mirror of the URL it was made for
+    if(!m_requested_url.isValid())
+    {
+        m_requested_url = m_url;
+    }
+    m_mirrors = Mirrors::candidates(m_requested_url);
+    m_mirror = 0;
+    m_url = m_mirrors.first();
+    startRequest();
+}
+
+void Download::startRequest()
+{
     m_network_error = QNetworkReply::NoError;
     m_http_status = 0;
     QNetworkRequest request(m_url);
@@ -247,7 +261,26 @@ bool Download::handleRedirect()
 
     m_url = QUrl(redirect.toString());
     qDebug() << "Following redirect to " << m_url.toString();
-    start(m_network);
+    startRequest();
+    return true;
+}
+
+bool Download::tryNextMirror()
+{
+    // only failures to reach the host at all, not HTTP errors or refused data
+    if(m_network_error > QNetworkReply::NoError && m_network_error < QNetworkReply::ProxyConnectionRefusedError
+        && m_network_error != QNetworkReply::OperationCanceledError)
+    {
+        Mirrors::markUnreachable(m_url);
+    }
+    if(m_mirror + 1 >= m_mirrors.size())
+    {
+        return false;
+    }
+    m_mirror++;
+    m_url = m_mirrors[m_mirror];
+    qWarning() << "Trying the next mirror:" << m_url.toString();
+    startRequest();
     return true;
 }
 
@@ -279,7 +312,10 @@ void Download::downloadFinished()
         qDebug() << "Download failed in previous step:" << m_url.toString();
         m_sink->abort();
         m_reply.reset();
-        emit failed(m_index_within_job);
+        if(!tryNextMirror())
+        {
+            emit failed(m_index_within_job);
+        }
         return;
     }
     else if(m_status == Job_Aborted)
@@ -306,7 +342,10 @@ void Download::downloadFinished()
         qDebug() << "Download failed to finalize:" << m_url.toString();
         m_sink->abort();
         m_reply.reset();
-        emit failed(m_index_within_job);
+        if(!tryNextMirror())
+        {
+            emit failed(m_index_within_job);
+        }
         return;
     }
     m_reply.reset();

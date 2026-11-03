@@ -60,6 +60,10 @@ public: /* methods */
 private: /* methods */
     bool handleRedirect();
     void stop(QNetworkReply::NetworkError error);
+    /// starts a request for m_url, without going back to the first mirror
+    void startRequest();
+    /// after a failure, starts a request for the next mirror if there is one
+    bool tryNextMirror();
 
 protected slots:
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal) override;
@@ -77,6 +81,11 @@ private: /* data */
     std::unique_ptr<Sink> m_sink;
     Options m_options;
     QTimer m_stall_timer;
+    /// the URL the download was made for; m_url is the one being requested
+    QUrl m_requested_url;
+    /// the URLs to try, in order (Net::Mirrors), and which one is being tried
+    QList<QUrl> m_mirrors;
+    int m_mirror = 0;
 };
 }
 

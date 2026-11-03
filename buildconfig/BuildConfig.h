@@ -1,5 +1,6 @@
 #pragma once
 #include <QString>
+#include <QStringList>
 
 /**
  * \brief The Config class holds all the build-time information passed from the build system.
@@ -34,6 +35,13 @@ public:
 
     /// A short string identifying this build's platform. For example, "lin64" or "win32".
     QString BUILD_PLATFORM;
+
+    /**
+     * Our sites: the base URLs of each, the main server first, then its copies.
+     * Downloads from a site fall back to its other base URLs (Net::Mirrors).
+     */
+    QStringList FILES_MIRRORS;
+    QStringList META_MIRRORS;
 
     /// URL for the updater's channel
     QString UPDATER_BASE;
@@ -105,7 +113,8 @@ public:
     QString SESSION_BASE = "https://sessionserver.mojang.com";
     QString TEXTURE_BASE = "http://textures.minecraft.net";
     QString IMGUR_BASE_URL = "https://api.imgur.com/3/";
-    QString FMLLIBS_BASE_URL = "https://files.multimc.org/fmllibs/";
+    QString FMLLIBS_BASE_URL;
+    QString PATRONS_URL;
 
     QString TRANSLATIONS_BASE_URL;
 

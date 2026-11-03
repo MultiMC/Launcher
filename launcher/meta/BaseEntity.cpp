@@ -36,6 +36,8 @@ public: /* con/des */
 public: /* methods */
     bool init(QNetworkRequest &) override
     {
+        // a retry or the next mirror starts over
+        data.clear();
         return true;
     }
     bool write(QByteArray & data) override
