@@ -162,7 +162,7 @@ void Modrinth::ListModel::searchRequestFinished()
                 continue;
             pack.id = Json::requireString(packObj, "project_id");
             pack.name = Json::requireString(packObj, "title");
-            pack.iconUrl = Json::requireUrl(packObj, "icon_url");
+            pack.iconUrl = Json::ensureUrl(packObj, "icon_url");
             pack.author = Json::requireString(packObj, "author");
             pack.description = Json::requireString(packObj, "description");
             newList.append(pack);

@@ -3,9 +3,11 @@
 #include "Json.h"
 
 #include <QFile>
+#include <QRegularExpression>
 
 #include "FileSystem.h"
 #include <math.h>
+#include <limits>
 
 namespace Json
 {
@@ -42,6 +44,10 @@ QByteArray toText(const QJsonArray &array)
 static bool isBinaryJson(const QByteArray &data)
 {
     decltype(QJsonDocument::BinaryFormatTag) tag = QJsonDocument::BinaryFormatTag;
+    if (size_t(data.size()) < sizeof(tag))
+    {
+        return false;
+    }
     return memcmp(data.constData(), &tag, sizeof(QJsonDocument::BinaryFormatTag)) == 0;
 }
 QJsonDocument requireDocument(const QByteArray &data, const QString &what)
@@ -150,7 +156,7 @@ QJsonValue toJson<QVariant>(const QVariant &variant)
 
 template<> QByteArray requireIsType<QByteArray>(const QJsonValue &value, const QString &what)
 {
-    const QString string = ensureIsType<QString>(value, what);
+    const QString string = requireIsType<QString>(value, what);
     // ensure that the string can be safely cast to Latin1
     if (string != QString::fromLatin1(string.toLatin1()))
     {
@@ -203,6 +209,10 @@ template<> int requireIsType<int>(const QJsonValue &value, const QString &what)
     {
         throw JsonException(what + " is not an integer");
     }
+    if (doubl < std::numeric_limits<int>::min() || doubl > std::numeric_limits<int>::max())
+    {
+        throw JsonException(what + " is out of range");
+    }
     return int(doubl);
 }
 
@@ -219,10 +229,10 @@ template<> QDateTime requireIsType<QDateTime>(const QJsonValue &value, const QSt
 
 template<> QUrl requireIsType<QUrl>(const QJsonValue &value, const QString &what)
 {
-    const QString string = ensureIsType<QString>(value, what);
+    const QString string = requireIsType<QString>(value, what);
     if (string.isEmpty())
     {
-        return QUrl();
+        throw JsonException(what + " is an empty URL");
     }
     const QUrl url = QUrl(string, QUrl::StrictMode);
     if (!url.isValid())
@@ -275,6 +285,139 @@ template<> QJsonValue requireIsType<QJsonValue>(const QJsonValue &value, const Q
         throw JsonException(what + " is null or undefined");
     }
     return value;
+}
+
+static QJsonValue requireKey(const QJsonObject &parent, const QString &key, const QString &what, QString &localWhat)
+{
+    localWhat = QString(what).replace("__placeholder__", '\'' + key + '\'');
+    if (!parent.contains(key))
+    {
+        throw JsonException(localWhat + "s parent does not contain " + localWhat);
+    }
+    return parent.value(key);
+}
+
+QJsonDocument requireTextDocument(const QByteArray &data, const QString &what)
+{
+    if (isBinaryJson(data))
+    {
+        throw JsonException(what + " is binary JSON");
+    }
+    if (data.startsWith("\xEF\xBB\xBF"))
+    {
+        throw JsonException(what + " starts with a byte order mark");
+    }
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &error);
+    if (error.error != QJsonParseError::NoError)
+    {
+        throw JsonException(what + ": Error parsing JSON: " + error.errorString());
+    }
+    return doc;
+}
+
+void requireExactKeys(const QJsonObject &object, const QStringList &keys, const QString &what)
+{
+    for (const auto &key : keys)
+    {
+        if (!object.contains(key))
+        {
+            throw JsonException(what + " does not contain '" + key + "'");
+        }
+    }
+    for (auto iter = object.begin(); iter != object.end(); iter++)
+    {
+        if (!keys.contains(iter.key()))
+        {
+            throw JsonException(what + " contains an unknown key '" + iter.key() + "'");
+        }
+    }
+}
+
+qint64 requireValueBoundedInteger(const QJsonValue &value, qint64 minimum, qint64 maximum, const QString &what)
+{
+    const double doubl = requireIsType<double>(value, what);
+    if (fmod(doubl, 1) != 0)
+    {
+        throw JsonException(what + " is not an integer");
+    }
+    const qint64 lowest = qMax(minimum, -MaxExactInteger);
+    const qint64 highest = qMin(maximum, MaxExactInteger);
+    if (doubl < double(lowest) || doubl > double(highest))
+    {
+        throw JsonException(QString("%1 is not from %2 to %3").arg(what).arg(lowest).arg(highest));
+    }
+    return qint64(doubl);
+}
+qint64 requireBoundedInteger(const QJsonObject &parent, const QString &key, qint64 minimum, qint64 maximum, const QString &what)
+{
+    QString localWhat;
+    const auto value = requireKey(parent, key, what, localWhat);
+    return requireValueBoundedInteger(value, minimum, maximum, localWhat);
+}
+
+QByteArray requireValueHex(const QJsonValue &value, int bytes, const QString &what)
+{
+    const QString string = requireIsType<QString>(value, what);
+    if (string.size() != bytes * 2)
+    {
+        throw JsonException(QString("%1 is not %2 hex digits").arg(what).arg(bytes * 2));
+    }
+    for (const auto c : string)
+    {
+        if (!(c >= '0' && c <= '9') && !(c >= 'a' && c <= 'f'))
+        {
+            throw JsonException(what + " is not lowercase hex digits");
+        }
+    }
+    return QByteArray::fromHex(string.toLatin1());
+}
+QByteArray requireHex(const QJsonObject &parent, const QString &key, int bytes, const QString &what)
+{
+    QString localWhat;
+    const auto value = requireKey(parent, key, what, localWhat);
+    return requireValueHex(value, bytes, localWhat);
+}
+
+QDateTime requireValueUtcTime(const QJsonValue &value, const QString &what)
+{
+    static const QString format = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    const QString string = requireIsType<QString>(value, what);
+    QDateTime datetime = QDateTime::fromString(string, format);
+    datetime.setTimeSpec(Qt::UTC);
+    // anything that doesn't come back the same, like missing leading zeros, isn't exactly the format
+    if (!datetime.isValid() || datetime.toString(format) != string)
+    {
+        throw JsonException(what + " is not a UTC time written as YYYY-MM-DDTHH:MM:SSZ");
+    }
+    return datetime;
+}
+QDateTime requireUtcTime(const QJsonObject &parent, const QString &key, const QString &what)
+{
+    QString localWhat;
+    const auto value = requireKey(parent, key, what, localWhat);
+    return requireValueUtcTime(value, localWhat);
+}
+
+QString requireValueMatching(const QJsonValue &value, const QString &pattern, const QString &what)
+{
+    const QString string = requireIsType<QString>(value, what);
+    const QRegularExpression expression("\\A(?:" + pattern + ")\\z");
+    if (!expression.isValid())
+    {
+        throw JsonException(what + " can't be checked, the pattern is invalid: " + pattern);
+    }
+    if (!expression.match(string).hasMatch())
+    {
+        throw JsonException(what + " is not in the expected form");
+    }
+    return string;
+}
+QString requireMatching(const QJsonObject &parent, const QString &key, const QString &pattern, const QString &what)
+{
+    QString localWhat;
+    const auto value = requireKey(parent, key, what, localWhat);
+    return requireValueMatching(value, pattern, localWhat);
 }
 
 }

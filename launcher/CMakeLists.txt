@@ -97,6 +97,11 @@ add_unit_test(GZip
     LIBS Launcher_logic
     )
 
+add_unit_test(Json
+    SOURCES Json_test.cpp
+    LIBS Launcher_logic
+    )
+
 set(PATHMATCHER_SOURCES
     # Path matchers
     pathmatcher/FSTreeMatcher.h

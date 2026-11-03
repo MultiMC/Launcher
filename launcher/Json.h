@@ -247,5 +247,44 @@ JSON_HELPERFUNCTIONS(Variant, QVariant)
 
 #undef JSON_HELPERFUNCTIONS
 
+////////////////// STRICT READING ////////////////////
+// For documents of a fixed format that refuse anything they don't fully understand.
+
+/// The largest integer a JSON number holds exactly: 2^53 - 1
+const qint64 MaxExactInteger = 9007199254740991LL;
+
+/// Text JSON only: UTF-8 without a byte order mark, never Qt's binary JSON.
+/// Duplicate keys can't be detected, Qt's parser keeps one of them.
+/// @throw JsonException
+QJsonDocument requireTextDocument(const QByteArray &data, const QString &what = "Document");
+
+/// Exactly these keys, no others and none missing
+/// @throw JsonException
+void requireExactKeys(const QJsonObject &object, const QStringList &keys, const QString &what = "Object");
+
+/// An integer from minimum to maximum, both included. The range can't go past MaxExactInteger either way.
+/// @throw JsonException
+qint64 requireValueBoundedInteger(const QJsonValue &value, qint64 minimum, qint64 maximum, const QString &what = "Value");
+/// @throw JsonException
+qint64 requireBoundedInteger(const QJsonObject &parent, const QString &key, qint64 minimum, qint64 maximum, const QString &what = "__placeholder__");
+
+/// Lowercase hex digits encoding exactly the given number of bytes
+/// @throw JsonException
+QByteArray requireValueHex(const QJsonValue &value, int bytes, const QString &what = "Value");
+/// @throw JsonException
+QByteArray requireHex(const QJsonObject &parent, const QString &key, int bytes, const QString &what = "__placeholder__");
+
+/// A UTC time written exactly as YYYY-MM-DDTHH:MM:SSZ
+/// @throw JsonException
+QDateTime requireValueUtcTime(const QJsonValue &value, const QString &what = "Value");
+/// @throw JsonException
+QDateTime requireUtcTime(const QJsonObject &parent, const QString &key, const QString &what = "__placeholder__");
+
+/// A string matching the whole regular expression
+/// @throw JsonException
+QString requireValueMatching(const QJsonValue &value, const QString &pattern, const QString &what = "Value");
+/// @throw JsonException
+QString requireMatching(const QJsonObject &parent, const QString &key, const QString &pattern, const QString &what = "__placeholder__");
+
 }
 using JSONValidationError = Json::JsonException;
