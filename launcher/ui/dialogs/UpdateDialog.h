@@ -40,7 +40,8 @@ class UpdateDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UpdateDialog(bool hasUpdate = true, QWidget *parent = 0);
+    /// `target` is what the changelog compares this build with: a branch or a commit
+    explicit UpdateDialog(bool hasUpdate = true, QWidget *parent = 0, const QString &target = "develop");
     ~UpdateDialog();
 
 public slots:
@@ -64,4 +65,5 @@ private:
     QByteArray changelogData;
     NetJob::Ptr dljob;
     ChangelogType m_changelogType = CHANGELOG_MARKDOWN;
+    QString m_target;
 };

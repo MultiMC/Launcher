@@ -34,7 +34,10 @@ public: /* types */
     enum class Option
     {
         NoOptions = 0,
-        AcceptLocalFiles = 1
+        AcceptLocalFiles = 1,
+        /// only the URL given, without falling back to the copies of its site (for a caller that
+        /// goes through Net::Mirrors::candidates() itself, keeping files of one mirror together)
+        NoMirrors = 2
     };
     Q_DECLARE_FLAGS(Options, Option)
 
@@ -86,6 +89,8 @@ private: /* data */
     /// the URLs to try, in order (Net::Mirrors), and which one is being tried
     QList<QUrl> m_mirrors;
     int m_mirror = 0;
+    /// a mirror tried so far answered that the file isn't there
+    bool m_mirrorSaidNotFound = false;
 };
 }
 

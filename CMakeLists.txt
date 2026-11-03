@@ -99,6 +99,42 @@ foreach(site FILES META)
     string(REPLACE ";" "\", \"" Launcher_${site}_MIRRORS_LITERALS "\"${Launcher_${site}_MIRRORS}\"")
 endforeach()
 
+# Which updater a build uses: 1, the current one, or 2, the new one (Design/Updater.md in the
+# MultiMC repository). Both are built into every build.
+set(Launcher_UPDATER_VERSION "1" CACHE STRING "The updater this build uses: 1 or 2")
+# Updater v2: pinned root keys: Ed25519 public keys, 64 hex digits each
+set(Launcher_UPDATER_ROOT_KEYS "" CACHE STRING "Updater v2: pinned root public keys, a list")
+# Updater v2: the keys document compiled in as the floor; it must list exactly the pinned root keys
+set(Launcher_UPDATER_KEYS_FLOOR "" CACHE FILEPATH "Updater v2: the keys document compiled in")
+set(Launcher_UPDATER_SERIAL_FLOOR "0" CACHE STRING "Updater v2: the lowest tags serial accepted")
+# Updater v2: the variant ID this build is, e.g. linux-x86_64-qt5 (see Design/UpdaterFormats.md)
+set(Launcher_UPDATER_VARIANT "" CACHE STRING "Updater v2: this build's variant ID")
+if(NOT Launcher_UPDATER_VERSION MATCHES "^[12]$")
+    message(FATAL_ERROR "Launcher_UPDATER_VERSION must be 1 or 2, not '${Launcher_UPDATER_VERSION}'")
+endif()
+if(NOT Launcher_UPDATER_SERIAL_FLOOR MATCHES "^(0|[1-9][0-9]*)$")
+    message(FATAL_ERROR "Launcher_UPDATER_SERIAL_FLOOR must be a number, not '${Launcher_UPDATER_SERIAL_FLOOR}'")
+endif()
+foreach(key ${Launcher_UPDATER_ROOT_KEYS})
+    if(NOT key MATCHES "^[0-9a-f]+$")
+        message(FATAL_ERROR "Launcher_UPDATER_ROOT_KEYS: ${key} is not lowercase hex")
+    endif()
+endforeach()
+# as C++ string literals, one per key: "a", "b"
+if(Launcher_UPDATER_ROOT_KEYS)
+    string(REPLACE ";" "\", \"" Launcher_UPDATER_ROOT_KEYS_LITERALS "\"${Launcher_UPDATER_ROOT_KEYS}\"")
+endif()
+# The keys document as a string literal of its exact bytes
+set(Launcher_UPDATER_KEYS_FLOOR_BYTES "")
+if(Launcher_UPDATER_KEYS_FLOOR)
+    if(NOT EXISTS "${Launcher_UPDATER_KEYS_FLOOR}")
+        message(FATAL_ERROR "Launcher_UPDATER_KEYS_FLOOR: ${Launcher_UPDATER_KEYS_FLOOR} doesn't exist")
+    endif()
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${Launcher_UPDATER_KEYS_FLOOR}")
+    file(READ "${Launcher_UPDATER_KEYS_FLOOR}" floor_hex HEX)
+    string(REGEX REPLACE "([0-9a-f][0-9a-f])" "\\\\x\\1" Launcher_UPDATER_KEYS_FLOOR_BYTES "${floor_hex}")
+endif()
+
 #### Check the current Git commit and branch
 include(GetGitRevisionDescription)
 get_git_head_revision(Launcher_GIT_REFSPEC Launcher_GIT_COMMIT)

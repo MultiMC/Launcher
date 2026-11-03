@@ -24,9 +24,13 @@
 #include "BaseInstance.h"
 #include "minecraft/auth/MinecraftAccount.h"
 #include "net/NetJob.h"
-#include "updater/GoUpdate.h"
+#include "updater/v1/GoUpdate.h"
 
 class LaunchController;
+namespace UpdaterV2 {
+    struct CheckResult;
+    enum class Tier;
+}
 class NewsChecker;
 class NotificationChecker;
 class QToolButton;
@@ -166,7 +170,7 @@ private slots:
 
     void startTask(Task *task);
 
-    void updateAvailable(GoUpdate::Status status);
+    void updateAvailable(UpdaterV1::Status status);
 
     void updateNotAvailable();
 
@@ -183,7 +187,11 @@ private slots:
     /*!
      * Runs the DownloadTask and installs updates.
      */
-    void downloadUpdates(GoUpdate::Status status);
+    void downloadUpdates(UpdaterV1::Status status);
+
+    // updater v2: what a check found, and downloading and installing it
+    void updateCheckedV2(const UpdaterV2::CheckResult &result);
+    void downloadUpdateV2(const UpdaterV2::CheckResult &result);
 
     void konamiTriggered();
 
@@ -198,6 +206,8 @@ private:
     void updateInstanceToolIcon(QString new_icon);
     void setSelectedInstanceById(const QString &id);
     void updateStatusCenter();
+    // updater v2's tier, from the settings
+    UpdaterV2::Tier updateTier();
 
     void runModalTask(Task *task);
     void instanceFromInstanceTask(InstanceTask *task);

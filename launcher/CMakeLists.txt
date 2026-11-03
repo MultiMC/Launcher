@@ -161,45 +161,98 @@ set(LAUNCH_SOURCES
     launch/LogModel.h
 )
 
-# Old update system
+# Updater v1
 set(UPDATE_SOURCES
-    updater/GoUpdate.h
-    updater/GoUpdate.cpp
-    updater/UpdateChecker.h
-    updater/UpdateChecker.cpp
-    updater/DownloadTask.h
-    updater/DownloadTask.cpp
+    updater/v1/UpdateController.h
+    updater/v1/UpdateController.cpp
+    updater/v1/GoUpdate.h
+    updater/v1/GoUpdate.cpp
+    updater/v1/UpdateChecker.h
+    updater/v1/UpdateChecker.cpp
+    updater/v1/DownloadTask.h
+    updater/v1/DownloadTask.cpp
 )
 
-# New update system: not used by the update path yet
+# Updater v2 (Design/Updater.md in the MultiMC repository): used only by builds made with Launcher_UPDATER_VERSION 2
 set(NEW_UPDATE_SOURCES
-    updater/Signature.h
-    updater/Signature.cpp
-    updater/SystemRequirements.h
-    updater/SystemRequirements.cpp
+    updater/v2/Signature.h
+    updater/v2/Signature.cpp
+    updater/v2/SystemRequirements.h
+    updater/v2/SystemRequirements.cpp
+    updater/v2/Formats.h
+    updater/v2/Formats.cpp
+    updater/v2/State.h
+    updater/v2/State.cpp
+    updater/v2/Plan.h
+    updater/v2/Plan.cpp
+    updater/v2/Install.h
+    updater/v2/Install.cpp
+    updater/v2/InstallController.h
+    updater/v2/InstallController.cpp
+    updater/v2/Checker.h
+    updater/v2/Checker.cpp
+    updater/v2/DownloadTask.h
+    updater/v2/DownloadTask.cpp
 )
 
-add_unit_test(UpdateChecker
-    SOURCES updater/UpdateChecker_test.cpp
+add_unit_test(UpdaterV1UpdateChecker
+    SOURCES updater/v1/UpdateChecker_test.cpp
     LIBS Launcher_logic
-    DATA updater/testdata
+    DATA updater/v1/testdata
     )
 
-add_unit_test(DownloadTask
-    SOURCES updater/DownloadTask_test.cpp
+add_unit_test(UpdaterV1DownloadTask
+    SOURCES updater/v1/DownloadTask_test.cpp
     LIBS Launcher_logic
-    DATA updater/testdata
+    DATA updater/v1/testdata
     )
 
-add_unit_test(Signature
-    SOURCES updater/Signature_test.cpp
+add_unit_test(UpdaterV2Signature
+    SOURCES updater/v2/Signature_test.cpp
     LIBS Launcher_logic
-    DATA updater/testdata
+    DATA updater/v2/testdata
     )
 
-add_unit_test(SystemRequirements
-    SOURCES updater/SystemRequirements_test.cpp
+add_unit_test(UpdaterV2SystemRequirements
+    SOURCES updater/v2/SystemRequirements_test.cpp
     LIBS Launcher_logic
+    )
+
+# test trees made by updater/v2/make-test-trees.py
+add_unit_test(UpdaterV2Formats
+    SOURCES updater/v2/Formats_test.cpp
+    LIBS Launcher_logic
+    DATA updater/v2/testdata
+    )
+
+add_unit_test(UpdaterV2State
+    SOURCES updater/v2/State_test.cpp
+    LIBS Launcher_logic
+    DATA updater/v2/testdata
+    )
+
+add_unit_test(UpdaterV2Plan
+    SOURCES updater/v2/Plan_test.cpp
+    LIBS Launcher_logic
+    DATA updater/v2/testdata
+    )
+
+add_unit_test(UpdaterV2Install
+    SOURCES updater/v2/Install_test.cpp
+    LIBS Launcher_logic
+    DATA updater/v2/testdata
+    )
+
+add_unit_test(UpdaterV2Checker
+    SOURCES updater/v2/Checker_test.cpp
+    LIBS Launcher_logic
+    DATA updater/v2/testdata
+    )
+
+add_unit_test(UpdaterV2DownloadTask
+    SOURCES updater/v2/DownloadTask_test.cpp
+    LIBS Launcher_logic
+    DATA updater/v2/testdata
     )
 
 # Rarely used notifications
@@ -602,8 +655,6 @@ SET(LAUNCHER_SOURCES
     # Application base
     Application.h
     Application.cpp
-    UpdateController.cpp
-    UpdateController.h
     ApplicationMessage.h
     ApplicationMessage.cpp
 

@@ -255,6 +255,44 @@ slots:
         QCOMPARE(Net::Mirrors::candidates(QUrl("https://example.org/x")), QList<QUrl>({QUrl("https://example.org/x")}));
     }
 
+    // a signed mirror list: its groups in order, then the site's own base URLs it doesn't have
+    void test_mirrorList()
+    {
+        const auto reverse = [](QStringList &list) { std::reverse(list.begin(), list.end()); };
+        Net::Mirrors::setShuffle(reverse);
+        Net::Mirrors::setMirrorList(m_server->base(), {{"https://a.example/"}, {"https://b.example/", m_copy->base()}});
+        const QList<QUrl> expected{QUrl("https://a.example/x"), m_copy->url("/x"), QUrl("https://b.example/x"), m_server->url("/x")};
+        QCOMPARE(Net::Mirrors::candidates(m_server->url("/x")), expected);
+        // a URL on a mirror from the list is on the site too
+        QCOMPARE(Net::Mirrors::candidates(QUrl("https://b.example/x")), expected);
+
+        // a group keeps its place whatever the order within it
+        Net::Mirrors::setShuffle(nullptr);
+        for(int i = 0; i < 20; i++)
+        {
+            auto candidates = Net::Mirrors::candidates(m_server->url("/x"));
+            QCOMPARE(candidates.first(), QUrl("https://a.example/x"));
+            QCOMPARE(QSet<QUrl>({candidates[1], candidates[2]}), QSet<QUrl>({QUrl("https://b.example/x"), m_copy->url("/x")}));
+        }
+
+        // an empty list goes back to the site's own base URLs
+        Net::Mirrors::setMirrorList(m_server->base(), {});
+        QCOMPARE(Net::Mirrors::candidates(m_server->url("/x")), QList<QUrl>({m_server->url("/x"), m_copy->url("/x")}));
+        // a list for a site that doesn't exist does nothing
+        Net::Mirrors::setMirrorList("https://nowhere.example/", {{"https://a.example/"}});
+        QCOMPARE(Net::Mirrors::candidates(QUrl("https://a.example/x")), QList<QUrl>({QUrl("https://a.example/x")}));
+    }
+
+    void test_mirrorListUsed()
+    {
+        m_copy->serve("/file", "copy");
+        Net::Mirrors::setMirrorList(m_server->base(), {{m_copy->base()}});
+        QByteArray data;
+        QVERIFY(run(Net::Download::makeByteArray(m_server->url("/file"), &data)));
+        QCOMPARE(data, QByteArray("copy"));
+        QCOMPARE(m_server->requests(), 0);
+    }
+
     void test_mainServerFirst()
     {
         m_server->serve("/file", "main");
@@ -335,6 +373,17 @@ slots:
         // when the copy fails too, it is still tried
         QVERIFY(!run(Net::Download::makeByteArray(QUrl(down + "missing"), &data)));
         QCOMPARE(m_copy->requests(), 2);
+    }
+
+    // a mirror that answers knows better than one that can't be reached
+    void test_notFoundWhenOthersUnreachable()
+    {
+        Net::Mirrors::setSites({{m_server->base(), "http://127.0.0.1:1/"}});
+        QByteArray data;
+        auto download = Net::Download::makeByteArray(m_server->url("/missing"), &data);
+        QVERIFY(!run(download));
+        QCOMPARE(download->url(), QUrl("http://127.0.0.1:1/missing"));
+        QVERIFY(download->wasNotFound());
     }
 
     // NetJob retries a failed download by starting it again: from the first mirror again

@@ -57,8 +57,9 @@
 
 #include "java/JavaUtils.h"
 
-#include "updater/UpdateChecker.h"
-#include "updater/SystemRequirements.h"
+#include "updater/v1/UpdateChecker.h"
+#include "updater/v2/Checker.h"
+#include "updater/v2/SystemRequirements.h"
 
 #include "tools/JProfiler.h"
 #include "tools/JVisualVM.h"
@@ -659,6 +660,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_settings.reset(new INISettingsObject(BuildConfig.LAUNCHER_CONFIGFILE, this));
         // Updates
         m_settings->registerSetting("AutoUpdate", true);
+        // Updater v2's tier: latest, testing or stable. Not the old channel setting, which
+        // develop users have and would put them on Latest.
+        m_settings->registerSetting("UpdateTier", QString("stable"));
 
         // Theming
         m_settings->registerSetting("IconTheme", QString("pe_colored"));
@@ -832,12 +836,27 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     }
 
     // initialize the updater
-    if(BuildConfig.UPDATER_ENABLED)
+    if(BuildConfig.UPDATER_ENABLED && BuildConfig.UPDATER_VERSION == 2)
+    {
+        UpdaterV2::Config config;
+        config.site = BuildConfig.FILES_MIRRORS.first();
+        config.rootKeys = BuildConfig.UPDATER_ROOT_KEYS;
+        config.floorKeys = BuildConfig.UPDATER_KEYS_FLOOR;
+        config.serialFloor = BuildConfig.UPDATER_SERIAL_FLOOR;
+        config.variant = BuildConfig.UPDATER_VARIANT;
+        config.currentBuild = BuildConfig.VERSION_BUILD;
+        // next to the Launcher's settings
+        config.statePath = QDir("updater").absoluteFilePath("state.json");
+        config.system = SystemRequirements::detect();
+        m_updaterV2.reset(new UpdaterV2::Checker(m_network, config));
+        qDebug() << "<> Updater v2 started.";
+    }
+    else if(BuildConfig.UPDATER_ENABLED)
     {
         auto platform = getIdealPlatform(BuildConfig.BUILD_PLATFORM);
         auto channelUrl = BuildConfig.UPDATER_BASE + platform + "/channels.json";
         qDebug() << "Initializing updater with platform: " << platform << " -- " << channelUrl;
-        m_updateChecker.reset(new UpdateChecker(m_network, channelUrl, BuildConfig.VERSION_BUILD));
+        m_updateChecker.reset(new UpdaterV1::UpdateChecker(m_network, channelUrl, BuildConfig.VERSION_BUILD));
         qDebug() << "<> Updater started.";
     }
 

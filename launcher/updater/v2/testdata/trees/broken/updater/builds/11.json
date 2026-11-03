@@ -1,0 +1,135 @@
+{
+  "build": 11,
+  "built": "2026-10-12T12:00:00Z",
+  "commit": "0000000000000000000000000000000000c0fff9",
+  "format": 1,
+  "type": "build",
+  "variants": {
+    "linux-x86_64-qt5": {
+      "files": [
+        {
+          "executable": true,
+          "path": "MultiMC",
+          "sha256": "5ee572b060709a19621f5048b8e02469dd30330bbe2efa1fe2b44223f9f494a9",
+          "size": 26
+        },
+        {
+          "executable": true,
+          "path": "bin/MultiMC",
+          "sha256": "fdd9b6e38624f28011e70085c3137d50e641da44509d5c5d9de532cf37b4e876",
+          "size": 26
+        },
+        {
+          "executable": false,
+          "path": "bin/libfoo.so",
+          "sha256": "bf299a5ec6c74c0885a4e1d4d101411da367e9fd0859a1b9c15e3ad60e4cc19a",
+          "size": 29
+        },
+        {
+          "executable": false,
+          "path": "share/new.txt",
+          "sha256": "cad8a08013fffe085eaa11ebbb2938bf8d29ff233e50706a8cc214df9da5032c",
+          "size": 10
+        }
+      ],
+      "links": [],
+      "requires": {
+        "arch": "x86_64",
+        "glibc": "2.19",
+        "glibcxx": "3.4.21",
+        "os": "linux",
+        "qt": "5.6"
+      },
+      "supersedes": []
+    },
+    "macos-x86_64-qt5.15": {
+      "files": [
+        {
+          "executable": false,
+          "path": "MultiMC.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore",
+          "sha256": "96b4328f323a5994143d038ea15475a308a68ee88abade985ba15aa234e356b9",
+          "size": 12
+        },
+        {
+          "executable": true,
+          "path": "MultiMC.app/Contents/MacOS/MultiMC",
+          "sha256": "3c8269e75b29c00e94706529166f09d80c6da940a39d5568272c7f4f7be96d7d",
+          "size": 26
+        }
+      ],
+      "links": [
+        {
+          "path": "MultiMC.app/Contents/Frameworks/QtCore.framework/QtCore",
+          "target": "Versions/Current/QtCore"
+        },
+        {
+          "path": "MultiMC.app/Contents/Frameworks/QtCore.framework/Versions/Current",
+          "target": "5"
+        }
+      ],
+      "requires": {
+        "arch": "x86_64",
+        "os": "macos",
+        "os_version": "10.13"
+      },
+      "supersedes": [
+        "macos-x86_64-qt5.6"
+      ]
+    },
+    "macos-x86_64-qt5.6": {
+      "files": [
+        {
+          "executable": false,
+          "path": "MultiMC.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore",
+          "sha256": "3e61b41fd5405962698589f25b913fa2f66293a08f29e021430fbc70776edaa5",
+          "size": 11
+        },
+        {
+          "executable": true,
+          "path": "MultiMC.app/Contents/MacOS/MultiMC",
+          "sha256": "b5217437e035f26c8bed70839faf4a214896a32edab3016952170b784783503d",
+          "size": 25
+        }
+      ],
+      "links": [
+        {
+          "path": "MultiMC.app/Contents/Frameworks/QtCore.framework/QtCore",
+          "target": "Versions/Current/QtCore"
+        },
+        {
+          "path": "MultiMC.app/Contents/Frameworks/QtCore.framework/Versions/Current",
+          "target": "5"
+        }
+      ],
+      "requires": {
+        "arch": "x86_64",
+        "os": "macos",
+        "os_version": "10.7"
+      },
+      "supersedes": []
+    },
+    "windows-x86-qt5.6": {
+      "files": [
+        {
+          "executable": false,
+          "path": "MultiMC.exe",
+          "sha256": "2ee4d0a9778eb113211042e3cc97596d30eec794a284a0bdf9d894fb878722d6",
+          "size": 25
+        },
+        {
+          "executable": false,
+          "path": "jars/NewLaunch.jar",
+          "sha256": "fb8ce05502991565de98e3e21d9ab98151c1cd1715b14a3f7c349cba300cb2b9",
+          "size": 4
+        }
+      ],
+      "links": [],
+      "requires": {
+        "arch": "x86",
+        "os": "windows",
+        "os_version": "5.1"
+      },
+      "supersedes": []
+    }
+  }
+}

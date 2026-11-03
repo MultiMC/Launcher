@@ -1,4 +1,5 @@
 #pragma once
+#include <QByteArray>
 #include <QString>
 #include <QStringList>
 
@@ -45,6 +46,17 @@ public:
 
     /// URL for the updater's channel
     QString UPDATER_BASE;
+
+    /// The updater this build uses: 1, the current one, or 2 (Design/Updater.md in the MultiMC repository)
+    int UPDATER_VERSION = 1;
+    /// Updater v2: pinned root public keys (hex)
+    QStringList UPDATER_ROOT_KEYS;
+    /// Updater v2: the keys document trusted without a signature, as its exact bytes
+    QByteArray UPDATER_KEYS_FLOOR;
+    /// Updater v2: the lowest tags serial accepted
+    qint64 UPDATER_SERIAL_FLOOR = 0;
+    /// Updater v2: this build's variant ID
+    QString UPDATER_VARIANT;
 
 
     /// User-Agent to use.

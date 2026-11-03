@@ -1,0 +1,259 @@
+#include "InstallController.h"
+
+#include <QApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QMessageBox>
+#include <QProcess>
+#include <QTextStream>
+
+#include <chrono>
+#include <thread>
+
+#include <LocalPeer.h>
+
+#include "BuildConfig.h"
+#include "Exception.h"
+#include "FileSystem.h"
+
+namespace UpdaterV2
+{
+
+namespace {
+const QLatin1String liveCheckFile("live.check");
+
+QString backupDir(const QString &root)
+{
+    return FS::PathCombine(root, "update", "backup");
+}
+}
+
+InstallController::InstallController(QWidget *parent, const QString &root, const QString &stagingDir, const QList<Change> &changes)
+    : m_parent(parent), m_root(root), m_stagingDir(stagingDir), m_changes(changes), m_installer(root, backupDir(root))
+{
+}
+
+void InstallController::installUpdates()
+{
+    qDebug() << "Updater: installing" << m_changes.size() << "changes";
+#ifdef Q_OS_WIN
+    QString finishCmd = QApplication::applicationFilePath();
+#elif defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
+    QString finishCmd = FS::PathCombine(m_root, BuildConfig.LAUNCHER_NAME);
+#elif defined Q_OS_MAC
+    QString finishCmd = QApplication::applicationFilePath();
+#else
+#error Unsupported operating system.
+#endif
+
+    // the backup of the last update is of no use any more, and the Installer needs it gone
+    if(!FS::deletePath(backupDir(m_root)))
+    {
+        qWarning() << "Updater: couldn't remove the previous backup" << backupDir(m_root);
+        fail(QObject::tr("Couldn't remove the backup of the previous update:\n%1").arg(backupDir(m_root)), false);
+        return;
+    }
+
+    QList<Change> changes;
+    bool useXPHack = false;
+    QString exePath;
+    QString exeOrigin;
+    QString exeBackup;
+    for(auto change: m_changes)
+    {
+#ifdef Q_OS_WIN32
+        QString windowsExeName = BuildConfig.LAUNCHER_NAME + ".exe";
+        if(change.kind == Change::Place && change.path == windowsExeName)
+        {
+            // for people who renamed the .exe
+            change.path = QFileInfo(QApplication::applicationFilePath()).fileName();
+            // Windows XP can't move a running .exe: a script does it after this process quits
+            if(QSysInfo::windowsVersion() < QSysInfo::WV_VISTA)
+            {
+                QDir rootDir(m_root);
+                exeOrigin = rootDir.relativeFilePath(change.source);
+                exePath = change.path;
+                exeBackup = rootDir.relativeFilePath(FS::PathCombine(backupDir(m_root), change.path));
+                useXPHack = true;
+                continue;
+            }
+        }
+#endif
+        changes.append(change);
+    }
+
+    if(!m_installer.apply(changes))
+    {
+        fail(QObject::tr("Couldn't update %1. Changes will be reverted.\nSee the %2 log file for details.")
+                 .arg(m_installer.failedPath(), BuildConfig.LAUNCHER_NAME), false);
+        return;
+    }
+
+    // try to start the new binary
+    auto args = qApp->arguments();
+    args.removeFirst();
+
+    // on old Windows, do insane things... no error checking here, this is just to have something.
+    if(useXPHack)
+    {
+        QString script;
+        auto nativePath = QDir::toNativeSeparators(exePath);
+        auto nativeOriginPath = QDir::toNativeSeparators(exeOrigin);
+        auto nativeBackupPath = QDir::toNativeSeparators(exeBackup);
+
+        // so we write this vbscript thing...
+        QTextStream out(&script);
+        out << "WScript.Sleep 1000\n";
+        out << "Set fso=CreateObject(\"Scripting.FileSystemObject\")\n";
+        out << "Set shell=CreateObject(\"WScript.Shell\")\n";
+        out << "fso.MoveFile \"" << nativePath << "\", \"" << nativeBackupPath << "\"\n";
+        out << "fso.MoveFile \"" << nativeOriginPath << "\", \"" << nativePath << "\"\n";
+        out << "shell.Run \"" << nativePath << "\"\n";
+
+        // the script moves the old .exe into the backup
+        FS::ensureFolderPathExists(backupDir(m_root));
+        QString scriptPath = FS::PathCombine(m_root, "update", "update.vbs");
+
+        // we save it
+        QFile scriptFile(scriptPath);
+        scriptFile.open(QIODevice::WriteOnly);
+        scriptFile.write(script.toLocal8Bit().replace("\n", "\r\n"));
+        scriptFile.close();
+
+        // we run it
+        QProcess::startDetached("wscript", {scriptPath}, m_root);
+
+        // and we quit. conscious thought.
+        qApp->quit();
+        return;
+    }
+
+    bool doLiveCheck = true;
+    bool startFailed = false;
+
+    // remove live check file, if any
+    if(QFile::exists(liveCheckFile))
+    {
+        if(!QFile::remove(liveCheckFile))
+        {
+            qWarning() << "Couldn't remove the" << liveCheckFile << "file! We will proceed without :(";
+            doLiveCheck = false;
+        }
+    }
+
+    if(doLiveCheck)
+    {
+        if(!args.contains("--alive"))
+        {
+            args.append("--alive");
+        }
+    }
+
+    // a workaround for GH-1874: leave out the instance to launch
+    QStringList realargs;
+    int skip = 0;
+    for(auto &arg: args)
+    {
+        if(skip)
+        {
+            skip--;
+            continue;
+        }
+        if(arg == "-l")
+        {
+            skip = 1;
+            continue;
+        }
+        realargs.append(arg);
+    }
+
+    // start the updated application
+    qint64 pid = -1;
+    bool started = QProcess::startDetached(finishCmd, realargs, QDir::currentPath(), &pid);
+    if(!started || pid == -1)
+    {
+        qWarning() << "Couldn't start new process properly!";
+        startFailed = true;
+    }
+    if(!startFailed && doLiveCheck)
+    {
+        int attempts = 0;
+        while(attempts < 10)
+        {
+            attempts++;
+            QString key;
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            if(!QFile::exists(liveCheckFile))
+            {
+                qWarning() << "Couldn't find the" << liveCheckFile << "file!";
+                startFailed = true;
+                continue;
+            }
+            try
+            {
+                key = QString::fromUtf8(FS::read(liveCheckFile));
+                auto id = ApplicationId::fromRawString(key);
+                LocalPeer peer(nullptr, id);
+                if(peer.isClient())
+                {
+                    startFailed = false;
+                    qDebug() << "Found process started with key " << key;
+                    break;
+                }
+                else
+                {
+                    startFailed = true;
+                    qDebug() << "Process started with key " << key << "apparently died or is not reponding...";
+                    break;
+                }
+            }
+            catch (const Exception &e)
+            {
+                qWarning() << "Couldn't read the" << liveCheckFile << "file!";
+                startFailed = true;
+                continue;
+            }
+        }
+    }
+    if(startFailed)
+    {
+        fail(QObject::tr("The new version didn't start or is too old and doesn't respond to startup checks.\n"
+                         "\n"
+                         "Roll back to previous version?"), true);
+        return;
+    }
+    QDir(m_root).rmdir(m_stagingDir);
+    qApp->quit();
+}
+
+void InstallController::fail(const QString &message, bool ask)
+{
+    qWarning() << "Update failed!";
+    auto failTitle = QObject::tr("Update failed!");
+    bool doRollback = true;
+    if(ask)
+    {
+        auto result = QMessageBox::critical(m_parent, failTitle, message, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        doRollback = (result == QMessageBox::Yes);
+    }
+    else
+    {
+        QMessageBox::critical(m_parent, failTitle, message);
+    }
+    if(!doRollback)
+    {
+        qApp->quit();
+        return;
+    }
+    if(!m_installer.rollback())
+    {
+        auto msg = QObject::tr("The rollback failed too.\n"
+                               "You will have to repair %1 manually.\n"
+                               "Please let us know why and how this happened.").arg(BuildConfig.LAUNCHER_NAME);
+        QMessageBox::critical(m_parent, QObject::tr("Rollback failed!"), msg);
+        qApp->quit();
+    }
+}
+
+}

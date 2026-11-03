@@ -7,7 +7,7 @@
 #include <QIcon>
 #include <QDateTime>
 #include <QUrl>
-#include <updater/GoUpdate.h>
+#include <updater/v1/GoUpdate.h>
 
 #include <BaseInstance.h>
 
@@ -27,7 +27,12 @@ class AccountList;
 class IconList;
 class QNetworkAccessManager;
 class JavaInstallList;
-class UpdateChecker;
+namespace UpdaterV1 {
+    class UpdateChecker;
+}
+namespace UpdaterV2 {
+    class Checker;
+}
 class BaseProfilerFactory;
 class BaseDetachedToolFactory;
 class TranslationsModel;
@@ -77,8 +82,13 @@ public:
 
     void setApplicationTheme(const QString& name, bool initial);
 
-    shared_qobject_ptr<UpdateChecker> updateChecker() {
+    shared_qobject_ptr<UpdaterV1::UpdateChecker> updateChecker() {
         return m_updateChecker;
+    }
+
+    // updater v2, in place of updateChecker() when BuildConfig.UPDATER_VERSION is 2
+    shared_qobject_ptr<UpdaterV2::Checker> updaterV2() {
+        return m_updaterV2;
     }
 
     std::shared_ptr<TranslationsModel> translations();
@@ -188,7 +198,8 @@ private:
 
     shared_qobject_ptr<QNetworkAccessManager> m_network;
 
-    shared_qobject_ptr<UpdateChecker> m_updateChecker;
+    shared_qobject_ptr<UpdaterV1::UpdateChecker> m_updateChecker;
+    shared_qobject_ptr<UpdaterV2::Checker> m_updaterV2;
     shared_qobject_ptr<AccountList> m_accounts;
 
     shared_qobject_ptr<HttpMetaCache> m_metacache;

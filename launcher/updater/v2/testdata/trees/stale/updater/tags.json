@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "issued": "2026-10-31T12:00:00Z",
+  "serial": 3,
+  "tags": {
+    "latest": 10,
+    "stable": 10,
+    "testing": 10
+  },
+  "type": "tags",
+  "withdrawn": []
+}

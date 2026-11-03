@@ -105,8 +105,9 @@ void Download::startImpl()
     {
         m_requested_url = m_url;
     }
-    m_mirrors = Mirrors::candidates(m_requested_url);
+    m_mirrors = (m_options & Option::NoMirrors) ? QList<QUrl>{m_requested_url} : Mirrors::candidates(m_requested_url);
     m_mirror = 0;
+    m_mirrorSaidNotFound = false;
     m_url = m_mirrors.first();
     startRequest();
 }
@@ -268,13 +269,23 @@ bool Download::handleRedirect()
 bool Download::tryNextMirror()
 {
     // only failures to reach the host at all, not HTTP errors or refused data
-    if(m_network_error > QNetworkReply::NoError && m_network_error < QNetworkReply::ProxyConnectionRefusedError
-        && m_network_error != QNetworkReply::OperationCanceledError)
+    const bool unreachable = m_network_error > QNetworkReply::NoError && m_network_error < QNetworkReply::ProxyConnectionRefusedError
+        && m_network_error != QNetworkReply::OperationCanceledError;
+    if(unreachable)
     {
         Mirrors::markUnreachable(m_url);
     }
+    if(wasNotFound())
+    {
+        m_mirrorSaidNotFound = true;
+    }
     if(m_mirror + 1 >= m_mirrors.size())
     {
+        // a mirror that answered knows better than ones that couldn't be reached: the file isn't there
+        if(unreachable && m_mirrorSaidNotFound)
+        {
+            m_network_error = QNetworkReply::ContentNotFoundError;
+        }
         return false;
     }
     m_mirror++;
