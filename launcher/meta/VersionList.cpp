@@ -135,6 +135,7 @@ VersionPtr VersionList::getVersion(const QString &version)
     if(!out)
     {
         out = std::make_shared<Version>(m_uid, version);
+        out->setParentEntity(this);
         m_lookup[version] = out;
     }
     return out;
@@ -193,6 +194,7 @@ void VersionList::mergeFromIndex(const VersionListPtr &other)
     {
         setName(other->m_name);
     }
+    setSha256(other->sha256());
 }
 
 void VersionList::merge(const VersionListPtr &other)
@@ -211,19 +213,22 @@ void VersionList::merge(const VersionListPtr &other)
     }
     for (const VersionPtr &version : other->m_versions)
     {
-        // we already have the version. merge the contents
-        if (m_lookup.contains(version->version()))
+        // keep the versions handed out by getVersion(), and merge the contents into them
+        VersionPtr ours = m_lookup.value(version->version());
+        if (ours)
         {
-            m_lookup.value(version->version())->mergeFromList(version);
+            ours->mergeFromList(version);
         }
         else
         {
-            m_lookup.insert(version->uid(), version);
+            ours = version;
+            ours->setParentEntity(this);
+            m_lookup.insert(ours->version(), ours);
         }
         // connect it.
-        setupAddedVersion(m_versions.size(), version);
-        m_versions.append(version);
-        m_recommended = getBetterVersion(m_recommended, version);
+        setupAddedVersion(m_versions.size(), ours);
+        m_versions.append(ours);
+        m_recommended = getBetterVersion(m_recommended, ours);
     }
     endResetModel();
 }

@@ -29,6 +29,7 @@ Index::Index(const QVector<VersionListPtr> &lists, QObject *parent)
 {
     for (int i = 0; i < m_lists.size(); ++i)
     {
+        m_lists.at(i)->setParentEntity(this);
         m_uids.insert(m_lists.at(i)->uid(), m_lists.at(i));
         connectVersionList(i, m_lists.at(i));
     }
@@ -87,6 +88,7 @@ VersionListPtr Index::get(const QString &uid)
     if(!out)
     {
         out = std::make_shared<VersionList>(uid);
+        out->setParentEntity(this);
         m_uids[uid] = out;
     }
     return out;
@@ -105,35 +107,26 @@ void Index::parse(const QJsonObject& obj)
 
 void Index::merge(const std::shared_ptr<Index> &other)
 {
-    const QVector<VersionListPtr> lists = std::dynamic_pointer_cast<Index>(other)->m_lists;
-    // initial load, no need to merge
-    if (m_lists.isEmpty())
+    for (const VersionListPtr &list : other->m_lists)
     {
-        beginResetModel();
-        m_lists = lists;
-        for (int i = 0; i < lists.size(); ++i)
+        // keep the lists handed out by get(), whether they're listed yet or not
+        VersionListPtr ours = m_uids.value(list->uid());
+        if (ours)
         {
-            m_uids.insert(lists.at(i)->uid(), lists.at(i));
-            connectVersionList(i, lists.at(i));
+            ours->mergeFromIndex(list);
         }
-        endResetModel();
-    }
-    else
-    {
-        for (const VersionListPtr &list : lists)
+        else
         {
-            if (m_uids.contains(list->uid()))
-            {
-                m_uids[list->uid()]->mergeFromIndex(list);
-            }
-            else
-            {
-                beginInsertRows(QModelIndex(), m_lists.size(), m_lists.size());
-                connectVersionList(m_lists.size(), list);
-                m_lists.append(list);
-                m_uids.insert(list->uid(), list);
-                endInsertRows();
-            }
+            ours = list;
+            ours->setParentEntity(this);
+            m_uids.insert(ours->uid(), ours);
+        }
+        if (!m_lists.contains(ours))
+        {
+            beginInsertRows(QModelIndex(), m_lists.size(), m_lists.size());
+            connectVersionList(m_lists.size(), ours);
+            m_lists.append(ours);
+            endInsertRows();
         }
     }
 }

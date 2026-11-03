@@ -508,6 +508,8 @@ set(META_SOURCES
     meta/JsonFormat.h
     meta/BaseEntity.cpp
     meta/BaseEntity.h
+    meta/UpdateStep.cpp
+    meta/UpdateStep.h
     meta/VersionList.cpp
     meta/VersionList.h
     meta/Version.cpp
@@ -558,6 +560,11 @@ set(MODRINTH_SOURCES
 
 add_unit_test(Index
     SOURCES meta/Index_test.cpp
+    LIBS Launcher_logic
+    )
+
+add_unit_test(UpdateStep
+    SOURCES meta/UpdateStep_test.cpp
     LIBS Launcher_logic
     )
 

@@ -43,6 +43,7 @@ static std::shared_ptr<Index> parseIndexInternal(const QJsonObject &obj)
     {
         VersionListPtr list = std::make_shared<VersionList>(requireString(obj, "uid"));
         list->setName(ensureString(obj, "name", QString()));
+        list->setSha256(requireHex(obj, "sha256", 32));
         return list;
     });
     return std::make_shared<Index>(lists);
@@ -85,6 +86,7 @@ static std::shared_ptr<VersionList> parseVersionListInternal(const QJsonObject &
     {
         auto version = parseCommonVersion(uid, vObj);
         version->setProvidesRecommendations();
+        version->setSha256(requireHex(vObj, "sha256", 32));
         return version;
     });
 

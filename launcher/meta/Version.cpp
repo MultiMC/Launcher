@@ -83,6 +83,11 @@ void Meta::Version::mergeFromList(const Meta::VersionPtr& other)
     {
         setVolatile(other->m_volatile);
     }
+    // a version file doesn't list its own hash, only the list does
+    if(!other->sha256().isEmpty())
+    {
+        setSha256(other->sha256());
+    }
 }
 
 void Meta::Version::merge(const VersionPtr &other)

@@ -105,21 +105,18 @@ static LoadResult loadComponent(ComponentPtr component, Task::Ptr& loadTask, Net
     {
         auto metaVersion = APPLICATION->metadataIndex()->get(component->m_uid, component->m_version);
         component->m_metaVersion = metaVersion;
-        if(metaVersion->isLoaded())
+        // even when it's loaded: this asks only when the hashes say it's out of date
+        metaVersion->load(netmode);
+        loadTask = metaVersion->getCurrentTask();
+        if(loadTask)
+            result = LoadResult::RequiresRemote;
+        else if (metaVersion->isLoaded())
+            result = LoadResult::LoadedLocal;
+        else
+            result = LoadResult::Failed;
+        if(result == LoadResult::LoadedLocal)
         {
             component->m_loaded = true;
-            result = LoadResult::LoadedLocal;
-        }
-        else
-        {
-            metaVersion->load(netmode);
-            loadTask = metaVersion->getCurrentTask();
-            if(loadTask)
-                result = LoadResult::RequiresRemote;
-            else if (metaVersion->isLoaded())
-                result = LoadResult::LoadedLocal;
-            else
-                result = LoadResult::Failed;
         }
     }
     return result;
@@ -154,12 +151,7 @@ static LoadResult loadPackProfile(ComponentPtr component, Task::Ptr& loadTask, N
 
 static LoadResult loadIndex(Task::Ptr& loadTask, Net::Mode netmode)
 {
-    // FIXME: DECIDE. do we want to run the update task anyway?
-    if(APPLICATION->metadataIndex()->isLoaded())
-    {
-        qDebug() << "Index is already loaded";
-        return LoadResult::LoadedLocal;
-    }
+    // fetched again only when it's older than an hour or so
     APPLICATION->metadataIndex()->load(netmode);
     loadTask = APPLICATION->metadataIndex()->getCurrentTask();
     if(loadTask)
