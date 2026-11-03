@@ -22,6 +22,8 @@
 
 #include "QObjectPtr.h"
 
+#include <QTimer>
+
 namespace Net {
 class Download : public NetAction
 {
@@ -50,11 +52,14 @@ public: /* methods */
         return m_target_path;
     }
     void addValidator(Validator * v);
+    /// fail the download when no data arrives for this long; 0 (the default) waits forever
+    void setStallTimeout(int msecs);
     bool abort() override;
     bool canAbort() override;
 
 private: /* methods */
     bool handleRedirect();
+    void stop(QNetworkReply::NetworkError error);
 
 protected slots:
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal) override;
@@ -71,6 +76,7 @@ private: /* data */
     QString m_target_path;
     std::unique_ptr<Sink> m_sink;
     Options m_options;
+    QTimer m_stall_timer;
 };
 }
 

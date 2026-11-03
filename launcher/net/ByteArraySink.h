@@ -31,10 +31,11 @@ public:
 
     JobStatus write(QByteArray & data) override
     {
+        // the validators first, so refused data is never kept
+        if(!writeAllValidators(data))
+            return Job_Failed;
         m_output->append(data);
-        if(writeAllValidators(data))
-            return Job_InProgress;
-        return Job_Failed;
+        return Job_InProgress;
     }
 
     JobStatus abort() override
