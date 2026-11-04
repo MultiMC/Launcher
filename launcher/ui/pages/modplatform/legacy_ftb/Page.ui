@@ -35,7 +35,14 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QTextBrowser" name="publicPackDescription"/>
+        <widget class="QTextBrowser" name="publicPackDescription">
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+         <property name="openLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -45,7 +52,14 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="1">
-        <widget class="QTextBrowser" name="thirdPartyPackDescription"/>
+        <widget class="QTextBrowser" name="thirdPartyPackDescription">
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+         <property name="openLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="0" column="0">
         <widget class="QTreeView" name="thirdPartyPackList">
@@ -95,7 +109,14 @@
         </widget>
        </item>
        <item row="0" column="1" rowspan="3">
-        <widget class="QTextBrowser" name="privatePackDescription"/>
+        <widget class="QTextBrowser" name="privatePackDescription">
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+         <property name="openLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

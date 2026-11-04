@@ -31,7 +31,14 @@
     </widget>
    </item>
    <item>
-    <widget class="QTextBrowser" name="packDescription"/>
+    <widget class="QTextBrowser" name="packDescription">
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+     <property name="openLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
