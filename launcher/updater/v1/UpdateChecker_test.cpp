@@ -8,6 +8,9 @@ using UpdaterV1::UpdateChecker;
 
 Q_DECLARE_METATYPE(UpdateChecker::ChannelListEntry)
 
+// next to the type, so QTest's templates find them (argument-dependent lookup)
+namespace UpdaterV1
+{
 bool operator==(const UpdateChecker::ChannelListEntry &e1, const UpdateChecker::ChannelListEntry &e2)
 {
     qDebug() << e1.url << "vs" << e2.url;
@@ -21,6 +24,7 @@ QDebug operator<<(QDebug dbg, const UpdateChecker::ChannelListEntry &c)
 {
     dbg.nospace() << "ChannelListEntry(id=" << c.id << " name=" << c.name << " description=" << c.description << " url=" << c.url << ")";
     return dbg.maybeSpace();
+}
 }
 
 QString findTestDataUrl(const char *file)

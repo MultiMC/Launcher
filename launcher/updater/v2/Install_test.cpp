@@ -103,6 +103,17 @@ void download(const QList<Download> &downloads)
     }
 }
 
+// Windows has no executable bit (Qt says a file is executable by its name)
+bool executableBit(const QFileInfo &info)
+{
+#ifdef Q_OS_WIN
+    Q_UNUSED(info);
+    return false;
+#else
+    return info.isExecutable();
+#endif
+}
+
 // every entry under root: path -> content, or -> target for links
 QMap<QString, QString> snapshot(const QString &root)
 {
@@ -125,7 +136,7 @@ QMap<QString, QString> snapshot(const QString &root)
         }
         else
         {
-            out.insert(relative, QString::fromUtf8(read(path)) + (info.isExecutable() ? " (x)" : ""));
+            out.insert(relative, QString::fromUtf8(read(path)) + (executableBit(info) ? " (x)" : ""));
         }
     }
     return out;
@@ -259,7 +270,11 @@ slots:
         QVERIFY2(installer.apply(changes), qPrintable(installer.error()));
 
         QMap<QString, QString> expected;
+#ifdef Q_OS_WIN
+        expected.insert("MultiMC", "launcher 2\n");
+#else
         expected.insert("MultiMC", "launcher 2\n (x)");
+#endif
         expected.insert("lib", "/");
         expected.insert("lib/libfoo.so", "foo\n");
         expected.insert("share", "/");
