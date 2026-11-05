@@ -85,6 +85,8 @@ public:
 
     void setRunning(bool running);
     bool isRunning() const;
+    /// Stop counting play time and save it. The instance can still be running (post-exit command).
+    void recordTimePlayed();
     int64_t totalTimePlayed() const;
     int64_t lastTimePlayed() const;
     void resetTimePlayed();
@@ -271,6 +273,7 @@ protected: /* data */
     bool m_isRunning = false;
     shared_qobject_ptr<LaunchTask> m_launchProcess;
     QDateTime m_timeStarted;
+    bool m_countingTime = false;
 
 private: /* data */
     Status m_status = Status::Present;

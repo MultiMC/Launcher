@@ -27,6 +27,8 @@ PostLaunchCommand::PostLaunchCommand(LaunchTask *parent) : LaunchStep(parent)
 
 void PostLaunchCommand::executeTask()
 {
+    // the game has exited: save the play time before the command can look at instance.cfg
+    m_parent->instance()->recordTimePlayed();
     QString postlaunch_cmd = m_parent->substituteVariables(m_command);
     emit logLine(tr("Running Post-Launch command: %1").arg(postlaunch_cmd), MessageLevel::Launcher);
     m_process.start(postlaunch_cmd);
