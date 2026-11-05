@@ -322,7 +322,7 @@ QStringList MinecraftInstance::javaArguments() const
     // OSX dock icon and name
 #ifdef Q_OS_MAC
     args << "-Xdock:icon=icon.png";
-    args << QString("-Xdock:name=\"%1\"").arg(windowTitle());
+    args << QString("-Xdock:name=%1").arg(windowTitle());
 #endif
     auto traits_ = traits();
     // HACK: fix issues on macOS with 1.13 snapshots
