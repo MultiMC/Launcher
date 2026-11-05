@@ -106,8 +106,16 @@ public:
      */
     void check(Tier tier, bool tierSwitched, bool notify);
 
+    /**
+     * The tags of the last check that verified them (which build each tier is on). False
+     * before a check got that far.
+     */
+    bool lastTags(TagsDocument &tags) const;
+
 signals:
     void finished(const UpdaterV2::CheckResult &result);
+    // a check verified the tags; lastTags() has them
+    void tagsVerified();
 
 private:
     void nextKeys();
@@ -165,6 +173,9 @@ private:
     KeysDocument m_keys;
     QByteArray m_keysData;
     TagsDocument m_tags;
+    // the tags of the last check that verified them
+    TagsDocument m_verifiedTags;
+    bool m_haveVerifiedTags = false;
     TierDecision m_decision;
     BuildManifest m_build;
     CheckResult m_result;

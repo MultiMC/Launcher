@@ -299,9 +299,21 @@ void Checker::afterKeys()
             {
                 m_stateChanged = true;
             }
+            m_verifiedTags = m_tags;
+            m_haveVerifiedTags = true;
+            emit tagsVerified();
             afterTags();
         });
     });
+}
+
+bool Checker::lastTags(TagsDocument &tags) const
+{
+    if(m_haveVerifiedTags)
+    {
+        tags = m_verifiedTags;
+    }
+    return m_haveVerifiedTags;
 }
 
 void Checker::afterTags()

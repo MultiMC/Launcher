@@ -11,6 +11,7 @@
 #include "ui/pages/global/MinecraftPage.h"
 #include "ui/pages/global/JavaPage.h"
 #include "ui/pages/global/LanguagePage.h"
+#include "ui/pages/global/UpdatesPage.h"
 #include "ui/pages/global/ProxyPage.h"
 #include "ui/pages/global/ExternalToolsPage.h"
 #include "ui/pages/global/PasteEEPage.h"
@@ -25,6 +26,7 @@
 #include "ui/setupwizard/SetupWizard.h"
 #include "ui/setupwizard/LanguageWizardPage.h"
 #include "ui/setupwizard/JavaWizardPage.h"
+#include "ui/setupwizard/UpdatesWizardPage.h"
 
 #include "ui/dialogs/AccountsDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
@@ -661,8 +663,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         // Updates
         m_settings->registerSetting("AutoUpdate", true);
         // Updater v2's tier: latest, testing or stable. Not the old channel setting, which
-        // develop users have and would put them on Latest.
-        m_settings->registerSetting("UpdateTier", QString("stable"));
+        // develop users have and would put them on Latest. Empty until it is chosen (in the
+        // setup wizard, UpdatesWizardPage); until then it is Stable.
+        m_settings->registerSetting("UpdateTier", QString());
 
         // Theming
         m_settings->registerSetting("IconTheme", QString("pe_colored"));
@@ -799,6 +802,10 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         {
             m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
             m_globalSettingsProvider->addPage<LauncherPage>();
+            if(BuildConfig.UPDATER_ENABLED && BuildConfig.UPDATER_VERSION == 2)
+            {
+                m_globalSettingsProvider->addPage<UpdatesPage>();
+            }
             m_globalSettingsProvider->addPage<MinecraftPage>();
             m_globalSettingsProvider->addPage<JavaPage>();
             m_globalSettingsProvider->addPage<LanguagePage>();
@@ -1032,7 +1039,10 @@ bool Application::createSetupWizard()
             return true;
         return false;
     }();
-    bool wizardRequired = javaRequired || languageRequired;
+    // updater v2's tier, until it is chosen; existing installs choose once too
+    bool updatesRequired = BuildConfig.UPDATER_ENABLED && BuildConfig.UPDATER_VERSION == 2
+        && settings()->get("UpdateTier").toString().isEmpty();
+    bool wizardRequired = javaRequired || languageRequired || updatesRequired;
 
     if(wizardRequired)
     {
@@ -1040,6 +1050,10 @@ bool Application::createSetupWizard()
         if (languageRequired)
         {
             m_setupWizard->addPage(new LanguageWizardPage(m_setupWizard));
+        }
+        if (updatesRequired)
+        {
+            m_setupWizard->addPage(new UpdatesWizardPage(m_setupWizard));
         }
         if (javaRequired)
         {
