@@ -26,8 +26,11 @@ A local install wrapper for MultiMC
 
 %install
 mkdir -p %{buildroot}/opt/multimc
-install -m 0644 ../ubuntu/multimc/opt/multimc/icon.svg %{buildroot}/opt/multimc/icon.svg
 install -m 0755 ../ubuntu/multimc/opt/multimc/run.sh %{buildroot}/opt/multimc/run.sh
+mkdir -p %{buildroot}/%{_datadir}/icons/hicolor/48x48/apps
+install -m 0644 ../ubuntu/multimc/usr/share/icons/hicolor/48x48/apps/multimc.png %{buildroot}/%{_datadir}/icons/hicolor/48x48/apps/multimc.png
+mkdir -p %{buildroot}/%{_datadir}/icons/hicolor/scalable/apps
+install -m 0644 ../ubuntu/multimc/usr/share/icons/hicolor/scalable/apps/multimc.svg %{buildroot}/%{_datadir}/icons/hicolor/scalable/apps/multimc.svg
 mkdir -p %{buildroot}/%{_datadir}/applications
 desktop-file-install --dir=%{buildroot}%{_datadir}/applications ../ubuntu/multimc/usr/share/applications/multimc.desktop
 
@@ -41,8 +44,11 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/multimc.metain
 
 %files
 %dir /opt/multimc
-/opt/multimc/icon.svg
 /opt/multimc/run.sh
+%dir %{_datadir}/icons/hicolor/48x48/apps
+%{_datadir}/icons/hicolor/48x48/apps/multimc.png
+%dir %{_datadir}/icons/hicolor/scalable/apps
+%{_datadir}/icons/hicolor/scalable/apps/multimc.svg
 %{_datadir}/applications/multimc.desktop
 %{_metainfodir}/multimc.metainfo.xml
 %dir %{_mandir}/man1
