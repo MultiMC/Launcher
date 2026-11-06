@@ -29,7 +29,7 @@ TierLever::TierLever(int positions, QWidget *parent)
     m_animation->setEasingCurve(QEasingCurve::OutCubic);
     connect(m_animation, &QVariantAnimation::valueChanged, this, [this](const QVariant &value)
     {
-        m_handleY = value.toReal();
+        m_handle = value.toReal();
         update();
     });
 }
@@ -51,9 +51,14 @@ QSize TierLever::minimumSizeHint() const
 
 // The detents are at the middle of equal parts of the height, so they line up with rows of
 // equal height next to the lever
-qreal TierLever::detentY(int position) const
+qreal TierLever::detentY(qreal position) const
 {
     return height() * (position + 0.5) / m_positions;
+}
+
+qreal TierLever::positionAt(qreal y) const
+{
+    return y * m_positions / std::max(height(), 1) - 0.5;
 }
 
 int TierLever::nearest(qreal y) const
@@ -80,13 +85,13 @@ void TierLever::moveTo(int position, bool animated)
     m_animation->stop();
     if(animated && isVisible())
     {
-        m_animation->setStartValue(m_handleY);
-        m_animation->setEndValue(detentY(position));
+        m_animation->setStartValue(m_handle);
+        m_animation->setEndValue(qreal(position));
         m_animation->start();
     }
     else
     {
-        m_handleY = detentY(position);
+        m_handle = position;
         update();
     }
 }
@@ -108,6 +113,7 @@ void TierLever::paintEvent(QPaintEvent *)
     p.setRenderHint(QPainter::Antialiasing);
     auto pal = palette();
     auto slot = slotRect();
+    auto handleY = detentY(m_handle);
     // as in a selected list item: on macOS the plain Highlight is the pale text selection color
     auto highlight = QApplication::palette("QAbstractItemView").color(pal.currentColorGroup(), QPalette::Highlight);
 
@@ -115,7 +121,7 @@ void TierLever::paintEvent(QPaintEvent *)
     p.setPen(QPen(pal.color(QPalette::Mid), 1));
     p.setBrush(pal.color(QPalette::Base));
     p.drawRoundedRect(slot, SlotWidth / 2, SlotWidth / 2);
-    QRectF fill(slot.left(), m_handleY, slot.width(), slot.bottom() - m_handleY);
+    QRectF fill(slot.left(), handleY, slot.width(), slot.bottom() - handleY);
     QPainterPath slotPath;
     slotPath.addRoundedRect(slot.adjusted(1, 1, -1, -1), SlotWidth / 2 - 1, SlotWidth / 2 - 1);
     p.save();
@@ -133,7 +139,7 @@ void TierLever::paintEvent(QPaintEvent *)
     }
 
     // the handle, raised, with a grip; outlined in the highlight color while it has focus
-    auto handle = handleRect(m_handleY);
+    auto handle = handleRect(handleY);
     QLinearGradient gradient(handle.topLeft(), handle.bottomLeft());
     gradient.setColorAt(0, pal.color(QPalette::Light));
     gradient.setColorAt(1, pal.color(QPalette::Button));
@@ -155,11 +161,12 @@ void TierLever::mousePressEvent(QMouseEvent *event)
         QWidget::mousePressEvent(event);
         return;
     }
-    if(handleRect(m_handleY).contains(event->pos()))
+    auto handleY = detentY(m_handle);
+    if(handleRect(handleY).contains(event->pos()))
     {
         m_animation->stop();
         m_dragging = true;
-        m_dragOffset = event->pos().y() - m_handleY;
+        m_dragOffset = event->pos().y() - handleY;
     }
     else
     {
@@ -174,7 +181,7 @@ void TierLever::mouseMoveEvent(QMouseEvent *event)
         QWidget::mouseMoveEvent(event);
         return;
     }
-    m_handleY = std::max(detentY(0), std::min(event->pos().y() - m_dragOffset, detentY(m_positions - 1)));
+    m_handle = std::max(qreal(0), std::min(positionAt(event->pos().y() - m_dragOffset), qreal(m_positions - 1)));
     update();
 }
 
@@ -186,7 +193,7 @@ void TierLever::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
     m_dragging = false;
-    userMoveTo(nearest(m_handleY));
+    userMoveTo(qRound(m_handle));
 }
 
 void TierLever::keyPressEvent(QKeyEvent *event)
@@ -208,11 +215,4 @@ void TierLever::keyPressEvent(QKeyEvent *event)
         default:
             QWidget::keyPressEvent(event);
     }
-}
-
-void TierLever::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent(event);
-    m_animation->stop();
-    m_handleY = detentY(m_position);
 }

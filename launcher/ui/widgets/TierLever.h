@@ -36,10 +36,10 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
 
 private:
-    qreal detentY(int position) const;
+    qreal detentY(qreal position) const;
+    qreal positionAt(qreal y) const;
     int nearest(qreal y) const;
     QRectF slotRect() const;
     QRectF handleRect(qreal y) const;
@@ -49,8 +49,8 @@ private:
 private: /* data */
     int m_positions;
     int m_position = 0;
-    // where the handle's center is drawn; between detents while it moves
-    qreal m_handleY = 0;
+    // where the handle is, in positions, so resizing doesn't move it; between detents while it moves
+    qreal m_handle = 0;
     bool m_dragging = false;
     qreal m_dragOffset = 0;
     QVariantAnimation *m_animation = nullptr;

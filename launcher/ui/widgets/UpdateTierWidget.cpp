@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <functional>
 
 #include <rainbow.h>
@@ -103,9 +104,27 @@ private: /* data */
     bool m_selected = false;
 };
 
+/**
+ * Never lays its items out in less height than they need. When the description grows, Qt first
+ * lays out this widget at its old height, and only then do the parents make it taller. A plain
+ * layout would take the difference from the lever in between.
+ */
+class FullHeightLayout : public QVBoxLayout
+{
+public:
+    using QVBoxLayout::QVBoxLayout;
+
+    void setGeometry(const QRect &rect) override
+    {
+        QRect full = rect;
+        full.setHeight(std::max(rect.height(), heightForWidth(rect.width())));
+        QVBoxLayout::setGeometry(full);
+    }
+};
+
 UpdateTierWidget::UpdateTierWidget(QWidget *parent) : QWidget(parent)
 {
-    auto layout = new QVBoxLayout(this);
+    auto layout = new FullHeightLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
     auto leverLayout = new QHBoxLayout();
@@ -135,7 +154,8 @@ UpdateTierWidget::UpdateTierWidget(QWidget *parent) : QWidget(parent)
     m_description->setWordWrap(true);
     m_description->setTextFormat(Qt::RichText);
     frameLayout->addWidget(m_description);
-    layout->addWidget(frame);
+    // any spare height goes here, not to the lever
+    layout->addWidget(frame, 1);
 
     retranslate();
     select(int(UpdaterV2::Tier::Stable), false);
