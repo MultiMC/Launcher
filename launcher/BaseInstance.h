@@ -20,6 +20,7 @@
 #include <QObject>
 #include "QObjectPtr.h"
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QSet>
 #include <QProcess>
 
@@ -272,7 +273,7 @@ protected: /* data */
     // InstanceFlags m_flags;
     bool m_isRunning = false;
     shared_qobject_ptr<LaunchTask> m_launchProcess;
-    QDateTime m_timeStarted;
+    QElapsedTimer m_timeStarted; // monotonic: changing the system clock or timezone doesn't affect it
     bool m_countingTime = false;
 
 private: /* data */
