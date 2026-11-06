@@ -93,7 +93,7 @@ struct Language
             file_sha1 == other.file_sha1 &&
             translated == other.translated &&
             fuzzy == other.fuzzy &&
-            total == other.fuzzy &&
+            total == other.total &&
             localFileType == other.localFileType
         );
     }
