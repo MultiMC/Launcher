@@ -48,6 +48,13 @@ struct Language
         else if(key == "es_UY") {
             result = u8"español de Latinoamérica";
         }
+        // older Qt (5.6 on Windows) has no native name for these
+        else if(key == "eo") {
+            result = u8"esperanto";
+        }
+        else if(key == "jv") {
+            result = u8"Jawa";
+        }
         else {
             result = locale.nativeLanguageName();
         }
@@ -220,6 +227,11 @@ void readIndex(const QString & path, QMap<QString, Language>& languages)
                 Json::ensureInteger(langObj, "untranslated", 0),
                 Json::ensureInteger(langObj, "fuzzy", 0)
             );
+            // nothing translated yet, nothing to offer
+            if(lang.total > 0 && lang.translated == 0)
+            {
+                continue;
+            }
             lang.file_name = Json::requireString(langObj, "file");
             lang.file_sha1 = Json::requireString(langObj, "sha1");
             lang.file_size = Json::requireInteger(langObj, "size");
