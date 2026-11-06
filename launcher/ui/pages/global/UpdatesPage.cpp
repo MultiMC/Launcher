@@ -80,7 +80,6 @@ void UpdatesPage::retranslate()
 {
     m_autoUpdate->setText(tr("Check for updates on start"));
     m_tierBox->setTitle(tr("Update tier"));
-    m_tierWidget->retranslate();
 }
 
 void UpdatesPage::changeEvent(QEvent *event)

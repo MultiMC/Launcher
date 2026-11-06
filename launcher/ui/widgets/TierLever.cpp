@@ -1,5 +1,6 @@
 #include "TierLever.h"
 
+#include <QApplication>
 #include <QKeyEvent>
 #include <QLinearGradient>
 #include <QMouseEvent>
@@ -107,7 +108,8 @@ void TierLever::paintEvent(QPaintEvent *)
     p.setRenderHint(QPainter::Antialiasing);
     auto pal = palette();
     auto slot = slotRect();
-    auto highlight = pal.color(QPalette::Highlight);
+    // as in a selected list item: on macOS the plain Highlight is the pale text selection color
+    auto highlight = QApplication::palette("QAbstractItemView").color(pal.currentColorGroup(), QPalette::Highlight);
 
     // the slot, sunken, filled in the highlight color from the bottom up to the handle
     p.setPen(QPen(pal.color(QPalette::Mid), 1));

@@ -27,14 +27,18 @@ public:
     // without emitting tierChanged
     void setTier(UpdaterV2::Tier tier);
     void setTags(const UpdaterV2::TagsDocument &tags);
-    void retranslate();
 
 signals:
     void tierChanged(UpdaterV2::Tier tier);
 
+protected:
+    void changeEvent(QEvent *event) override;
+
 private:
     void select(int position, bool animated);
+    void retranslate();
     void updateBuilds();
+    void updateDescription();
 
 private: /* data */
     TierLever *m_lever = nullptr;

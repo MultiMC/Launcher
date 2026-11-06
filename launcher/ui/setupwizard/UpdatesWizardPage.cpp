@@ -28,5 +28,4 @@ void UpdatesWizardPage::retranslate()
 {
     setTitle(tr("Updates"));
     setSubTitle(tr("Choose how often %1 updates. You can change it later in the settings.").arg(BuildConfig.LAUNCHER_NAME));
-    m_tierWidget->retranslate();
 }

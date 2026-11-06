@@ -161,7 +161,7 @@ void UpdateTierWidget::select(int position, bool animated)
     {
         m_rows[i]->setSelected(i == position);
     }
-    retranslate();
+    updateDescription();
 }
 
 void UpdateTierWidget::setTags(const UpdaterV2::TagsDocument &tags)
@@ -201,6 +201,12 @@ void UpdateTierWidget::retranslate()
     m_rows[1]->summary->setText(tr("Builds being tested to become Stable."));
     m_rows[2]->title->setText(tr("Stable"));
     m_rows[2]->summary->setText(tr("Builds that were tested for a long time."));
+    updateBuilds();
+    updateDescription();
+}
+
+void UpdateTierWidget::updateDescription()
+{
     switch(tier())
     {
         case UpdaterV2::Tier::Latest:
@@ -222,5 +228,13 @@ void UpdateTierWidget::retranslate()
                 "Recommended for most people."));
             break;
     }
-    updateBuilds();
+}
+
+void UpdateTierWidget::changeEvent(QEvent *event)
+{
+    if(event->type() == QEvent::LanguageChange)
+    {
+        retranslate();
+    }
+    QWidget::changeEvent(event);
 }
