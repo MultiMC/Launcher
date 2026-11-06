@@ -4,9 +4,9 @@ INSTDIR="${XDG_DATA_HOME-$HOME/.local/share}/multimc"
 
 if [ `getconf LONG_BIT` = "64" ]
 then
-    PACKAGE="mmc-stable-lin64.tar.gz"
+    PACKAGE="mmc-develop-lin64.tar.gz"
 else
-    PACKAGE="mmc-stable-lin32.tar.gz"
+    PACKAGE="mmc-develop-lin32.tar.gz"
 fi
 
 deploy() {
