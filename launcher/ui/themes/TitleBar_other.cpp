@@ -4,3 +4,8 @@
 void TitleBar::apply(QWidget *, Style)
 {
 }
+
+bool TitleBar::setApplicationAppearance(Appearance)
+{
+    return false;
+}

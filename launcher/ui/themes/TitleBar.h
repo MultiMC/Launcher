@@ -8,14 +8,26 @@ namespace TitleBar
 {
 enum class Style
 {
-    Default, // the system's
-    Palette  // the window palette's colours: caption = Window, text = WindowText
+    Default,    // the system's
+    Brightness, // dark or light like the window's palette, the system's colours (and accent)
+    Palette     // the window palette's colours: caption = Window, text = WindowText
 };
 
 /// Set up the native title bar (and border) of a top-level window, as far as the system can:
 /// Windows 10 1809+ dark or light, Windows 11 any colour; macOS 10.14+ dark or light, the
 /// palette's colour through a transparent title bar. Elsewhere it's the window manager's.
 void apply(QWidget *window, Style style);
+
+enum class Appearance
+{
+    System,
+    Bright,
+    Dark
+};
+
+/// The whole application's appearance, where the system has one: macOS (NSApp.appearance),
+/// which native widgets, their palette and title bars follow. Elsewhere nothing: false.
+bool setApplicationAppearance(Appearance appearance);
 }
 
 /// Sets up each top-level window's title bar when it gets its native window, when it is

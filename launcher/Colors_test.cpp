@@ -85,6 +85,35 @@ slots:
         QColor translucent(255, 165, 0, 100);
         QCOMPARE(Colors::readable(translucent, Qt::white).alpha(), 100);
     }
+
+    void test_disabledTakesTheBackgroundsHue()
+    {
+        // a blue accent on a red window fades to red, not purple
+        QColor red(140, 28, 36);
+        QColor result = Colors::disabled(QColor(0, 120, 212), red, 0.6);
+        QVERIFY(qAbs(result.hslHue() - red.hslHue()) <= 2);
+        QCOMPARE(result.hslSaturation(), red.hslSaturation());
+    }
+
+    void test_disabledLightnessPartway()
+    {
+        QColor window(49, 54, 59);
+        QCOMPARE(Colors::disabled(Qt::white, window, 0.0).lightness(), 255);
+        QVERIFY(qAbs(Colors::disabled(Qt::white, window, 1.0).lightness() - window.lightness()) <= 1);
+        int half = Colors::disabled(Qt::white, window, 0.5).lightness();
+        QVERIFY(qAbs(half - (255 + window.lightness()) / 2) <= 1);
+    }
+
+    void test_accentFromColor()
+    {
+        QVERIFY(!Colors::Accent::fromColor(QColor()).isValid());
+        auto accent = Colors::Accent::fromColor(QColor(0, 120, 212));
+        QCOMPARE(accent.color, QColor(0, 120, 212));
+        QVERIFY(Colors::luminance(accent.light2) > Colors::luminance(accent.color));
+        QVERIFY(Colors::luminance(accent.dark2) < Colors::luminance(accent.color));
+        QVERIFY(accent == Colors::Accent::fromColor(QColor(0, 120, 212)));
+        QVERIFY(accent != Colors::Accent::fromColor(QColor(200, 0, 0)));
+    }
 };
 
 QTEST_GUILESS_MAIN(ColorsTest)

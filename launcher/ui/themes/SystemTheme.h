@@ -2,24 +2,22 @@
 
 #include "ITheme.h"
 
+class SystemAppearance;
+
+/// Bright or Dark with the system, in the system's own colours where we know them (Windows'
+/// dark mode, macOS), and the system's accent as its own
 class SystemTheme: public ITheme
 {
 public:
-    SystemTheme();
+    explicit SystemTheme(SystemAppearance *system);
     virtual ~SystemTheme() {}
-    void apply(bool initial) override;
 
     QString id() override;
     QString name() override;
-    QString qtTheme() override;
-    bool hasStyleSheet() override;
-    QString appStyleSheet() override;
-    bool hasColorScheme() override;
-    QPalette colorScheme() override;
-    double fadeAmount() override;
-    QColor fadeColor() override;
+    QPalette palette() override;
+    Colors::Accent accent() override;
     TitleBar::Style titleBarStyle() override;
-private:
-    QPalette systemPalette;
-    QString systemTheme;
+
+private: /* data */
+    SystemAppearance *m_system = nullptr;
 };

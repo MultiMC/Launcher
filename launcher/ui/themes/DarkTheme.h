@@ -1,18 +1,15 @@
 #pragma once
 
-#include "FusionTheme.h"
+#include "ITheme.h"
 
-class DarkTheme: public FusionTheme
+class DarkTheme: public ITheme
 {
 public:
     virtual ~DarkTheme() {}
 
     QString id() override;
     QString name() override;
-    bool hasStyleSheet() override;
-    QString appStyleSheet() override;
-    bool hasColorScheme() override;
-    QPalette colorScheme() override;
-    double fadeAmount() override;
-    QColor fadeColor() override;
+    QPalette palette() override;
+
+    static QPalette colors();
 };

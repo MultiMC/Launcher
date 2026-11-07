@@ -257,106 +257,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="themeBox">
-         <property name="title">
-          <string>Theme</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>&amp;Icons</string>
-            </property>
-            <property name="buddy">
-             <cstring>themeComboBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="themeComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <item>
-             <property name="text">
-              <string>Default</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Simple (Dark Icons)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Simple (Light Icons)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Simple (Blue Icons)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Simple (Colored Icons)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">OSX</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">iOS</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string notr="true">Flat</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Custom</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="themeComboBoxColors">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Colors</string>
-            </property>
-            <property name="buddy">
-             <cstring>themeComboBoxColors</cstring>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <spacer name="generalTabSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -528,8 +428,6 @@
   <tabstop>resetNotificationsBtn</tabstop>
   <tabstop>sortLastLaunchedBtn</tabstop>
   <tabstop>sortByNameBtn</tabstop>
-  <tabstop>themeComboBox</tabstop>
-  <tabstop>themeComboBoxColors</tabstop>
   <tabstop>showConsoleCheck</tabstop>
   <tabstop>autoCloseConsoleCheck</tabstop>
   <tabstop>showConsoleErrorCheck</tabstop>

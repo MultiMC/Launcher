@@ -41,6 +41,20 @@ QColor Colors::mix(const QColor &a, const QColor &b, qreal amount)
                             between(a.alphaF(), b.alphaF()));
 }
 
+QColor Colors::inHueOf(const QColor &background, qreal lightness)
+{
+    const QColor hsl = background.toHsl();
+    return QColor::fromHslF(qMax<qreal>(0.0, hsl.hslHueF()), hsl.hslSaturationF(), qBound<qreal>(0.0, lightness, 1.0))
+        .toRgb();
+}
+
+QColor Colors::disabled(const QColor &color, const QColor &background, qreal amount)
+{
+    const qreal from = color.toHsl().lightnessF();
+    const qreal to = background.toHsl().lightnessF();
+    return inHueOf(background, from + (to - from) * amount);
+}
+
 QColor Colors::readable(const QColor &color, const QColor &background, qreal minContrast)
 {
     if (contrastRatio(color, background) >= minContrast)
@@ -69,4 +83,25 @@ QColor Colors::readable(const QColor &color, const QColor &background, qreal min
             from = middle;
     }
     return withLightness(to);
+}
+
+bool Colors::Accent::operator==(const Accent &other) const
+{
+    return light3 == other.light3 && light2 == other.light2 && light1 == other.light1 && color == other.color
+        && dark1 == other.dark1 && dark2 == other.dark2 && dark3 == other.dark3;
+}
+
+Colors::Accent Colors::Accent::fromColor(const QColor &color)
+{
+    Accent accent;
+    if (!color.isValid())
+        return accent;
+    accent.color = color;
+    accent.light1 = mix(color, Qt::white, 0.25);
+    accent.light2 = mix(color, Qt::white, 0.5);
+    accent.light3 = mix(color, Qt::white, 0.7);
+    accent.dark1 = mix(color, Qt::black, 0.2);
+    accent.dark2 = mix(color, Qt::black, 0.4);
+    accent.dark3 = mix(color, Qt::black, 0.6);
+    return accent;
 }

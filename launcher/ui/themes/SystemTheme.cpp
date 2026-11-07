@@ -1,40 +1,10 @@
 #include "SystemTheme.h"
-#include <QApplication>
-#include <QStyle>
-#include <QStyleFactory>
-#include <QDebug>
+#include "SystemAppearance.h"
+#include "BrightTheme.h"
+#include "DarkTheme.h"
 
-SystemTheme::SystemTheme()
+SystemTheme::SystemTheme(SystemAppearance *system) : m_system(system)
 {
-    qDebug() << "Determining System Theme...";
-    const auto & style = QApplication::style();
-    systemPalette = style->standardPalette();
-    QString lowerThemeName = style->objectName();
-    qDebug() << "System theme seems to be:" << lowerThemeName;
-    QStringList styles = QStyleFactory::keys();
-    for(auto &st: styles)
-    {
-        qDebug() << "Considering theme from theme factory:" << st.toLower();
-        if(st.toLower() == lowerThemeName)
-        {
-            systemTheme = st;
-            qDebug() << "System theme has been determined to be:" << systemTheme;
-            return;
-        }
-    }
-    // fall back to fusion if we can't find the current theme.
-    systemTheme = "Fusion";
-    qDebug() << "System theme not found, defaulted to Fusion";
-}
-
-void SystemTheme::apply(bool initial)
-{
-    // if we are applying the system theme as the first theme, just don't touch anything. it's for the better...
-    if(initial)
-    {
-        return;
-    }
-    ITheme::apply(initial);
 }
 
 QString SystemTheme::id()
@@ -47,43 +17,24 @@ QString SystemTheme::name()
     return QObject::tr("System");
 }
 
-QString SystemTheme::qtTheme()
+QPalette SystemTheme::palette()
 {
-    return systemTheme;
+    QPalette p = m_system->palette();
+    if (p.resolve() == 0)
+    {
+        p = m_system->isDark() ? DarkTheme::colors() : BrightTheme::colors();
+    }
+    return p;
 }
 
-QPalette SystemTheme::colorScheme()
+Colors::Accent SystemTheme::accent()
 {
-    return systemPalette;
+    return m_system->accent();
 }
 
-QString SystemTheme::appStyleSheet()
-{
-    return QString();
-}
-
-double SystemTheme::fadeAmount()
-{
-    return 0.5;
-}
-
-QColor SystemTheme::fadeColor()
-{
-    return QColor(128,128,128);
-}
-
-bool SystemTheme::hasStyleSheet()
-{
-    return false;
-}
-
-bool SystemTheme::hasColorScheme()
-{
-    return true;
-}
-
-// the system's widgets and colours: its title bars match them
+// like other apps that follow the system: its colours, and on Windows its accent on title bars
+// when "Show accent color on title bars and window borders" is on
 TitleBar::Style SystemTheme::titleBarStyle()
 {
-    return TitleBar::Style::Default;
+    return TitleBar::Style::Brightness;
 }

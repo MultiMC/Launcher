@@ -64,7 +64,7 @@ void TitleBar::apply(QWidget *window, Style style)
     const QColor text = palette.color(QPalette::WindowText);
     const bool colored = style == Style::Palette;
     // Windows 10 only has the dark/light switch; on 11 it also picks the caption buttons' look
-    const DWORD dark = colored && Colors::isDark(caption);
+    const DWORD dark = style != Style::Default && Colors::isDark(caption);
     // a little darker than the caption, so overlapping windows don't merge
     const QColor border = caption.darker(140);
 
@@ -78,4 +78,10 @@ void TitleBar::apply(QWidget *window, Style style)
     }
     // Windows 10 doesn't redraw the title bar until something makes it; this nudges it
     SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+}
+
+// Windows has no application-wide appearance: windows are set up one by one
+bool TitleBar::setApplicationAppearance(Appearance)
+{
+    return false;
 }

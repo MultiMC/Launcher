@@ -726,22 +726,24 @@ SET(LAUNCHER_SOURCES
     ui/setupwizard/JavaWizardPage.h
     ui/setupwizard/LanguageWizardPage.cpp
     ui/setupwizard/LanguageWizardPage.h
+    ui/setupwizard/ThemeWizardPage.cpp
+    ui/setupwizard/ThemeWizardPage.h
     ui/setupwizard/UpdatesWizardPage.cpp
     ui/setupwizard/UpdatesWizardPage.h
 
     # GUI - themes
-    ui/themes/FusionTheme.cpp
-    ui/themes/FusionTheme.h
     ui/themes/BrightTheme.cpp
     ui/themes/BrightTheme.h
     ui/themes/CustomTheme.cpp
     ui/themes/CustomTheme.h
     ui/themes/DarkTheme.cpp
     ui/themes/DarkTheme.h
-    ui/themes/ITheme.cpp
     ui/themes/ITheme.h
     ui/themes/SystemTheme.cpp
     ui/themes/SystemTheme.h
+    ui/themes/SystemAppearance.h
+    ui/themes/ThemeManager.cpp
+    ui/themes/ThemeManager.h
     ui/themes/TitleBar.cpp
     ui/themes/TitleBar.h
 
@@ -797,6 +799,8 @@ SET(LAUNCHER_SOURCES
     ui/pages/global/JavaPage.h
     ui/pages/global/LanguagePage.cpp
     ui/pages/global/LanguagePage.h
+    ui/pages/global/AppearancePage.cpp
+    ui/pages/global/AppearancePage.h
     ui/pages/global/UpdatesPage.cpp
     ui/pages/global/UpdatesPage.h
     ui/pages/global/MinecraftPage.cpp
@@ -851,6 +855,8 @@ SET(LAUNCHER_SOURCES
 
     # GUI - dialogs
     ui/dialogs/AboutDialog.cpp
+    ui/dialogs/AccentColorDialog.cpp
+    ui/dialogs/AccentColorDialog.h
     ui/dialogs/AboutDialog.h
     ui/dialogs/AccountsDialog.cpp
     ui/dialogs/AccountsDialog.h
@@ -904,6 +910,14 @@ SET(LAUNCHER_SOURCES
     ui/widgets/LanguageSelectionWidget.h
     ui/widgets/TierLever.cpp
     ui/widgets/TierLever.h
+    ui/widgets/IconThemeSelectionWidget.cpp
+    ui/widgets/IconThemeSelectionWidget.h
+    ui/widgets/SelectionCard.cpp
+    ui/widgets/SelectionCard.h
+    ui/widgets/ThemePreview.cpp
+    ui/widgets/ThemePreview.h
+    ui/widgets/ThemeSelectionWidget.cpp
+    ui/widgets/ThemeSelectionWidget.h
     ui/widgets/UpdateTierWidget.cpp
     ui/widgets/UpdateTierWidget.h
     ui/widgets/LineSeparator.cpp
@@ -942,13 +956,15 @@ SET(LAUNCHER_SOURCES
     ui/instanceview/VisualGroup.h
 )
 
-# Native title bars that follow the theme
+# Native title bars that follow the theme, and the system's dark mode and accent
 if(WIN32)
-    list(APPEND LAUNCHER_SOURCES ui/themes/TitleBar_win.cpp)
+    list(APPEND LAUNCHER_SOURCES ui/themes/TitleBar_win.cpp ui/themes/SystemAppearance_win.cpp)
 elseif(APPLE)
-    list(APPEND LAUNCHER_SOURCES MacOS.h ui/themes/TitleBar_mac.mm)
+    list(APPEND LAUNCHER_SOURCES MacOS.h ui/themes/TitleBar_mac.mm ui/themes/SystemAppearance_mac.mm)
 else()
-    list(APPEND LAUNCHER_SOURCES ui/themes/TitleBar_other.cpp)
+    # the desktop portal, over D-Bus
+    find_package(Qt5DBus REQUIRED)
+    list(APPEND LAUNCHER_SOURCES ui/themes/TitleBar_other.cpp ui/themes/SystemAppearance_linux.cpp)
 endif()
 
 qt5_wrap_ui(LAUNCHER_UI
@@ -1048,6 +1064,8 @@ target_link_libraries(Launcher_logic
 )
 if(APPLE)
     target_link_libraries(Launcher_logic "-framework AppKit")
+elseif(NOT WIN32)
+    target_link_libraries(Launcher_logic Qt5::DBus)
 endif()
 
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})

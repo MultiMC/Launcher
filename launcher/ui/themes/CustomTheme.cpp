@@ -1,165 +1,127 @@
 #include "CustomTheme.h"
+#include "DarkTheme.h"
 #include <QDir>
 #include <Json.h>
 #include <FileSystem.h>
 
-const char * themeFile = "theme.json";
-const char * styleFile = "themeStyle.css";
+const char *themeFile = "theme.json";
+const char *styleFile = "themeStyle.css";
 
-static bool readThemeJson(const QString &path, QPalette &palette, double &fadeAmount, QColor &fadeColor, QString &name, QString &widgets)
+namespace {
+// the colours theme.json can set, by their names there
+const QList<QPair<QPalette::ColorRole, QString>> ROLES = {
+    {QPalette::Window, "Window"},
+    {QPalette::WindowText, "WindowText"},
+    {QPalette::Base, "Base"},
+    {QPalette::AlternateBase, "AlternateBase"},
+    {QPalette::ToolTipBase, "ToolTipBase"},
+    {QPalette::ToolTipText, "ToolTipText"},
+    {QPalette::Text, "Text"},
+    {QPalette::Button, "Button"},
+    {QPalette::ButtonText, "ButtonText"},
+    {QPalette::BrightText, "BrightText"},
+    {QPalette::Link, "Link"},
+    {QPalette::Highlight, "Highlight"},
+    {QPalette::HighlightedText, "HighlightedText"},
+};
+
+// What older versions wrote here on every start, whether anyone wanted a custom theme or
+// not: the Dark theme of the time and its tooltip stylesheet. Files like these aren't offered.
+const QMap<QPalette::ColorRole, QColor> OLD_DEFAULT_COLORS = {
+    {QPalette::Window, QColor("#31363b")},
+    {QPalette::WindowText, QColor("#ffffff")},
+    {QPalette::Base, QColor("#232629")},
+    {QPalette::AlternateBase, QColor("#31363b")},
+    {QPalette::ToolTipBase, QColor("#ffffff")},
+    {QPalette::ToolTipText, QColor("#ffffff")},
+    {QPalette::Text, QColor("#ffffff")},
+    {QPalette::Button, QColor("#31363b")},
+    {QPalette::ButtonText, QColor("#ffffff")},
+    {QPalette::BrightText, QColor("#ff0000")},
+    {QPalette::Link, QColor("#2a82da")},
+    {QPalette::Highlight, QColor("#2a82da")},
+    {QPalette::HighlightedText, QColor("#000000")},
+};
+const char *OLD_DEFAULT_CSS = "QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }";
+}
+
+// The colours theme.json sets, by role
+static bool readThemeJson(const QString &path, QMap<QPalette::ColorRole, QColor> &colors, QString &name)
 {
     QFileInfo pathInfo(path);
-    if(pathInfo.exists() && pathInfo.isFile())
-    {
-        try
-        {
-            auto doc = Json::requireDocument(path, "Theme JSON file");
-            const QJsonObject root = doc.object();
-            name = Json::requireString(root, "name", "Theme name");
-            widgets = Json::requireString(root, "widgets", "Qt widget theme");
-            auto colorsRoot = Json::requireObject(root, "colors", "colors object");
-            auto readColor = [&](QString colorName) -> QColor
-            {
-                auto colorValue = Json::ensureString(colorsRoot, colorName, QString());
-                if(!colorValue.isEmpty())
-                {
-                    QColor color(colorValue);
-                    if(!color.isValid())
-                    {
-                        qWarning() << "Color value" << colorValue << "for" << colorName << "was not recognized.";
-                        return QColor();
-                    }
-                    return color;
-                }
-                return QColor();
-            };
-            auto readAndSetColor = [&](QPalette::ColorRole role, QString colorName)
-            {
-                auto color = readColor(colorName);
-                if(color.isValid())
-                {
-                    palette.setColor(role, color);
-                }
-                else
-                {
-                    qDebug() << "Color value for" << colorName << "was not present.";
-                }
-            };
-
-            // palette
-            readAndSetColor(QPalette::Window, "Window");
-            readAndSetColor(QPalette::WindowText, "WindowText");
-            readAndSetColor(QPalette::Base, "Base");
-            readAndSetColor(QPalette::AlternateBase, "AlternateBase");
-            readAndSetColor(QPalette::ToolTipBase, "ToolTipBase");
-            readAndSetColor(QPalette::ToolTipText, "ToolTipText");
-            readAndSetColor(QPalette::Text, "Text");
-            readAndSetColor(QPalette::Button, "Button");
-            readAndSetColor(QPalette::ButtonText, "ButtonText");
-            readAndSetColor(QPalette::BrightText, "BrightText");
-            readAndSetColor(QPalette::Link, "Link");
-            readAndSetColor(QPalette::Highlight, "Highlight");
-            readAndSetColor(QPalette::HighlightedText, "HighlightedText");
-
-            //fade
-            fadeColor = readColor("fadeColor");
-            fadeAmount = Json::ensureDouble(colorsRoot, "fadeAmount", 0.5, "fade amount");
-
-        }
-        catch (const Exception &e)
-        {
-            qWarning() << "Couldn't load theme json: " << e.cause();
-            return false;
-        }
-    }
-    else
+    if(!pathInfo.exists() || !pathInfo.isFile())
     {
         qDebug() << "No theme json present.";
+        return false;
+    }
+    try
+    {
+        auto doc = Json::requireDocument(path, "Theme JSON file");
+        const QJsonObject root = doc.object();
+        name = Json::requireString(root, "name", "Theme name");
+        // the widget style is the one chosen in the settings, and disabled colours follow
+        // from the others (Design/Theming.md in the MultiMC repository)
+        if(root.contains("widgets"))
+        {
+            qDebug() << "Theme" << name << "chooses a widget style; ignored, the one from the settings is used.";
+        }
+        auto colorsRoot = Json::requireObject(root, "colors", "colors object");
+        if(colorsRoot.contains("fadeColor") || colorsRoot.contains("fadeAmount"))
+        {
+            qDebug() << "Theme" << name << "sets fadeColor or fadeAmount; ignored, disabled colours follow from the others.";
+        }
+        for(auto &role: ROLES)
+        {
+            auto colorValue = Json::ensureString(colorsRoot, role.second, QString());
+            if(colorValue.isEmpty())
+            {
+                qDebug() << "Color value for" << role.second << "was not present.";
+                continue;
+            }
+            QColor color(colorValue);
+            if(!color.isValid())
+            {
+                qWarning() << "Color value" << colorValue << "for" << role.second << "was not recognized.";
+                continue;
+            }
+            colors[role.first] = color;
+        }
+    }
+    catch (const Exception &e)
+    {
+        qWarning() << "Couldn't load theme json: " << e.cause();
         return false;
     }
     return true;
 }
 
-static bool writeThemeJson(const QString &path, const QPalette &palette, double fadeAmount, QColor fadeColor, QString name, QString widgets)
+// Every role set: the colours given over the Dark theme's, the shading roles derived from the
+// Button and Window colours, so a bright theme gets bright ones
+static QPalette fullPalette(const QMap<QPalette::ColorRole, QColor> &given)
 {
-    QJsonObject rootObj;
-    rootObj.insert("name", name);
-    rootObj.insert("widgets", widgets);
-
-    QJsonObject colorsObj;
-    auto insertColor = [&](QPalette::ColorRole role, QString colorName)
+    const QPalette base = DarkTheme::colors();
+    auto color = [&](QPalette::ColorRole role) { return given.value(role, base.color(role)); };
+    QPalette palette(color(QPalette::Button), color(QPalette::Window));
+    for(auto &role: ROLES)
     {
-        colorsObj.insert(colorName, palette.color(role).name());
-    };
-
-    // palette
-    insertColor(QPalette::Window, "Window");
-    insertColor(QPalette::WindowText, "WindowText");
-    insertColor(QPalette::Base, "Base");
-    insertColor(QPalette::AlternateBase, "AlternateBase");
-    insertColor(QPalette::ToolTipBase, "ToolTipBase");
-    insertColor(QPalette::ToolTipText, "ToolTipText");
-    insertColor(QPalette::Text, "Text");
-    insertColor(QPalette::Button, "Button");
-    insertColor(QPalette::ButtonText, "ButtonText");
-    insertColor(QPalette::BrightText, "BrightText");
-    insertColor(QPalette::Link, "Link");
-    insertColor(QPalette::Highlight, "Highlight");
-    insertColor(QPalette::HighlightedText, "HighlightedText");
-
-    // fade
-    colorsObj.insert("fadeColor", fadeColor.name());
-    colorsObj.insert("fadeAmount", fadeAmount);
-
-    rootObj.insert("colors", colorsObj);
-    try
-    {
-        Json::write(rootObj, path);
-        return true;
+        palette.setColor(role.first, color(role.first));
     }
-    catch (const Exception &e)
-    {
-        qWarning() << "Failed to write theme json to" << path;
-        return false;
-    }
+    palette.setColor(QPalette::LinkVisited, color(QPalette::Link));
+    return palette;
 }
 
-CustomTheme::CustomTheme(ITheme* baseTheme, QString folder)
+CustomTheme::CustomTheme(QString folder)
 {
     m_id = folder;
+    m_name = "Custom";
+    m_palette = DarkTheme::colors();
     QString path = FS::PathCombine("themes", m_id);
-    QString pathResources = FS::PathCombine("themes", m_id, "resources");
 
-    qDebug() << "Loading theme" << m_id;
-
-    if(!FS::ensureFolderPathExists(path) || !FS::ensureFolderPathExists(pathResources))
+    QMap<QPalette::ColorRole, QColor> colors;
+    if (readThemeJson(FS::PathCombine(path, themeFile), colors, m_name))
     {
-        qWarning() << "couldn't create folder for theme!";
-        m_palette = baseTheme->colorScheme();
-        m_styleSheet = baseTheme->appStyleSheet();
-        return;
-    }
-
-    auto themeFilePath = FS::PathCombine(path, themeFile);
-
-    m_palette = baseTheme->colorScheme();
-    if (!readThemeJson(themeFilePath, m_palette, m_fadeAmount, m_fadeColor, m_name, m_widgets))
-    {
-        m_name = "Custom";
-        m_palette = baseTheme->colorScheme();
-        m_fadeColor = baseTheme->fadeColor();
-        m_fadeAmount = baseTheme->fadeAmount();
-        m_widgets = baseTheme->qtTheme();
-
-        QFileInfo info(themeFilePath);
-        if(!info.exists())
-        {
-            writeThemeJson(themeFilePath, m_palette, m_fadeAmount, m_fadeColor, "Custom", m_widgets);
-        }
-    }
-    else
-    {
-        m_palette = fadeInactive(m_palette, m_fadeAmount, m_fadeColor);
+        m_palette = fullPalette(colors);
+        m_customized = colors != OLD_DEFAULT_COLORS;
     }
 
     auto cssFilePath = FS::PathCombine(path, styleFile);
@@ -170,33 +132,26 @@ CustomTheme::CustomTheme(ITheme* baseTheme, QString folder)
         {
             // TODO: validate css?
             m_styleSheet = QString::fromUtf8(FS::read(cssFilePath));
+            const QString css = m_styleSheet.trimmed();
+            m_customized = m_customized || (!css.isEmpty() && css != OLD_DEFAULT_CSS);
         }
         catch (const Exception &e)
         {
             qWarning() << "Couldn't load css:" << e.cause() << "from" << cssFilePath;
-            m_styleSheet = baseTheme->appStyleSheet();
         }
     }
-    else
-    {
-        qDebug() << "No theme css present.";
-        m_styleSheet = baseTheme->appStyleSheet();
-        try
-        {
-            FS::write(cssFilePath, m_styleSheet.toUtf8());
-        }
-        catch (const Exception &e)
-        {
-            qWarning() << "Couldn't write css:" << e.cause() << "to" << cssFilePath;
-        }
-    }
+    qDebug() << "Custom theme" << m_id << (m_customized ? "found" : "not customized: not offered");
+}
+
+bool CustomTheme::isCustomized() const
+{
+    return m_customized;
 }
 
 QStringList CustomTheme::searchPaths()
 {
     return { FS::PathCombine("themes", m_id, "resources") };
 }
-
 
 QString CustomTheme::id()
 {
@@ -208,37 +163,12 @@ QString CustomTheme::name()
     return m_name;
 }
 
-bool CustomTheme::hasColorScheme()
-{
-    return true;
-}
-
-QPalette CustomTheme::colorScheme()
+QPalette CustomTheme::palette()
 {
     return m_palette;
 }
 
-bool CustomTheme::hasStyleSheet()
-{
-    return true;
-}
-
-QString CustomTheme::appStyleSheet()
+QString CustomTheme::styleSheet()
 {
     return m_styleSheet;
-}
-
-double CustomTheme::fadeAmount()
-{
-    return m_fadeAmount;
-}
-
-QColor CustomTheme::fadeColor()
-{
-    return m_fadeColor;
-}
-
-QString CustomTheme::qtTheme()
-{
-    return m_widgets;
 }

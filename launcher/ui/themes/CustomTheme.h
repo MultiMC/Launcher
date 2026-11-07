@@ -2,30 +2,26 @@
 
 #include "ITheme.h"
 
+/// themes/<folder>/theme.json (colours) and themeStyle.css in the data folder, on top of the
+/// chosen widget style. Written by hand; offered only when there is something custom in it.
 class CustomTheme: public ITheme
 {
 public:
-    CustomTheme(ITheme * baseTheme, QString folder);
+    explicit CustomTheme(QString folder);
     virtual ~CustomTheme() {}
 
     QString id() override;
     QString name() override;
-    bool hasStyleSheet() override;
-    QString appStyleSheet() override;
-    bool hasColorScheme() override;
-    QPalette colorScheme() override;
-    double fadeAmount() override;
-    QColor fadeColor() override;
-    QString qtTheme() override;
+    QPalette palette() override;
+    QString styleSheet() override;
     QStringList searchPaths() override;
+
+    bool isCustomized() const;
 
 private: /* data */
     QPalette m_palette;
-    QColor m_fadeColor;
-    double m_fadeAmount;
     QString m_styleSheet;
     QString m_name;
     QString m_id;
-    QString m_widgets;
+    bool m_customized = false;
 };
-
