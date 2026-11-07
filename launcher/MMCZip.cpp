@@ -237,8 +237,17 @@ nonstd::optional<QStringList> MMCZip::extractSubDir(QuaZip *zip, const QString &
             continue;
         }
         name.remove(0, subdir.size());
-        QString absFilePath = directory.absoluteFilePath(name);
-        if(name.isEmpty())
+        // archives come from outside: an entry like '../../file' must not land outside the target
+        auto inside = FS::PathInside(directory.absolutePath(), name);
+        if(!inside)
+        {
+            qWarning() << "Refusing to extract" << zip->getZipName() << "- the entry" << name << "points outside of" << target;
+            JlCompress::removeFile(extracted);
+            return nonstd::nullopt;
+        }
+        QString absFilePath = *inside;
+        // folders keep their slash, so JlCompress makes them a folder
+        if(name.isEmpty() || name.endsWith('/'))
         {
             absFilePath += "/";
         }

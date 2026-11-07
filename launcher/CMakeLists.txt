@@ -106,6 +106,11 @@ add_unit_test(FileSystem
     DATA testdata
     )
 
+add_unit_test(MMCZip
+    SOURCES MMCZip_test.cpp
+    LIBS Launcher_logic
+    )
+
 add_unit_test(GZip
     SOURCES GZip_test.cpp
     LIBS Launcher_logic

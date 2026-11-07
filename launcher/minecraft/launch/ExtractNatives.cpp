@@ -66,7 +66,18 @@ static bool unzipNatives(QString source, QString targetFolder, bool applyJnilibH
         {
             name = replaceSuffix(name, ".jnilib", ".dylib");
         }
-        QString absFilePath = directory.absoluteFilePath(name);
+        // native jars come from library metadata: an entry like '../../file' must not land outside
+        auto inside = FS::PathInside(directory.absolutePath(), name);
+        if (!inside)
+        {
+            qWarning() << "Refusing to extract natives from" << source << "- the entry" << name << "points outside of" << targetFolder;
+            return false;
+        }
+        QString absFilePath = *inside;
+        if (name.endsWith('/'))
+        {
+            absFilePath += "/";
+        }
         if (!JlCompress::extractFile(&zip, "", absFilePath))
         {
             return false;

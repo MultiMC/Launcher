@@ -26,6 +26,43 @@ slots:
         QCOMPARE(QString("/foo/foo/foo"), FS::PathCombine(leadingSlash, leadingSlash, leadingSlash));
     }
 
+    void test_PathInside_data()
+    {
+        QTest::addColumn<QString>("relative");
+        QTest::addColumn<QString>("inside");
+
+        QTest::newRow("file") << "a.txt" << "a.txt";
+        QTest::newRow("nested") << "a/b/c.txt" << "a/b/c.txt";
+        QTest::newRow("folder entry") << "a/b/" << "a/b";
+        QTest::newRow("up and back in") << "a/../b.txt" << "b.txt";
+        QTest::newRow("the folder itself") << "" << "";
+        QTest::newRow("dot") << "./a.txt" << "a.txt";
+        QTest::newRow("up") << "../a.txt" << QString();
+        QTest::newRow("up from nested") << "a/../../a.txt" << QString();
+        QTest::newRow("up a lot") << "a/b/../../../../../a.txt" << QString();
+        QTest::newRow("absolute") << "/etc/passwd" << QString();
+        // a folder next to it whose name starts the same: /tmp/abc vs /tmp/abc-sibling
+        QTest::newRow("sibling with the same start") << "../%ROOT%-sibling/a.txt" << QString();
+    }
+    void test_PathInside()
+    {
+        QFETCH(QString, relative);
+        QFETCH(QString, inside);
+
+        QTemporaryDir tempDir;
+        QVERIFY(tempDir.isValid());
+        const QString root = QDir::cleanPath(QDir(tempDir.path()).absolutePath());
+        relative.replace("%ROOT%", QFileInfo(root).fileName());
+        auto result = FS::PathInside(tempDir.path(), relative);
+        if (inside.isNull())
+        {
+            QVERIFY(!result);
+            return;
+        }
+        QVERIFY(bool(result));
+        QCOMPARE(*result, inside.isEmpty() ? root : root + "/" + inside);
+    }
+
     void test_PathCombine1_data()
     {
         QTest::addColumn<QString>("result");

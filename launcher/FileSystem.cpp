@@ -257,6 +257,19 @@ QString AbsolutePath(QString path)
     return QFileInfo(path).absolutePath();
 }
 
+nonstd::optional<QString> PathInside(const QString &folder, const QString &relative)
+{
+    // cleanPath resolves '..' (and on Windows turns '\' into '/'); an absolute path stays itself
+    const QString root = QDir::cleanPath(QDir(folder).absolutePath());
+    const QString path = QDir::cleanPath(QDir(root).absoluteFilePath(relative));
+    const QString prefix = root.endsWith('/') ? root : root + '/';
+    if (path != root && !path.startsWith(prefix))
+    {
+        return nonstd::nullopt;
+    }
+    return path;
+}
+
 QString ResolveExecutable(QString path)
 {
     if (path.isEmpty())

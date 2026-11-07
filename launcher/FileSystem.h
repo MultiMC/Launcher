@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Exception.h"
+#include <nonstd/optional>
 #include "pathmatcher/IPathMatcher.h"
 
 #include <QDir>
@@ -87,6 +88,13 @@ QString PathCombine(const QString &path1, const QString &path2, const QString &p
 QString PathCombine(const QString &path1, const QString &path2, const QString &path3, const QString &path4);
 
 QString AbsolutePath(QString path);
+
+/**
+ * Where a relative path from outside (an archive entry, a name from metadata) ends up inside a
+ * folder: the full path, clean. Nothing when it would end up outside the folder: '..' going
+ * above it, an absolute path, a drive on Windows.
+ */
+nonstd::optional<QString> PathInside(const QString &folder, const QString &relative);
 
 /**
  * Resolve an executable
