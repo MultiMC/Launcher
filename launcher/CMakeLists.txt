@@ -84,7 +84,16 @@ set(CORE_SOURCES
     # Time
     MMCTime.h
     MMCTime.cpp
+
+    # Colour arithmetic (luminance, contrast, mixing)
+    Colors.h
+    Colors.cpp
 )
+
+add_unit_test(Colors
+    SOURCES Colors_test.cpp
+    LIBS Launcher_logic
+    )
 
 add_unit_test(Download
     SOURCES net/Download_test.cpp
@@ -1019,7 +1028,6 @@ target_link_libraries(Launcher_logic
     Launcher_iconfix
     ${QUAZIP_LIBRARIES}
     hoedown
-    Launcher_rainbow
     LocalPeer
 )
 

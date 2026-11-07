@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <functional>
 
-#include <rainbow.h>
+#include "Colors.h"
 
 #include "BuildConfig.h"
 #include "TierLever.h"
@@ -93,7 +93,7 @@ private:
     // light and dark schemes alike (unlike the Mid role, which is frame shading)
     void updateBuildColor()
     {
-        auto dimmed = Rainbow::mix(palette().color(QPalette::WindowText), palette().color(QPalette::Window), 0.4);
+        auto dimmed = Colors::mix(palette().color(QPalette::WindowText), palette().color(QPalette::Window), 0.4);
         auto buildPalette = build->palette();
         buildPalette.setColor(QPalette::WindowText, dimmed);
         build->setPalette(buildPalette);

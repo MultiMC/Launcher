@@ -1,6 +1,5 @@
 #pragma once
 #include <QtGui/QColor>
-#include <rainbow.h>
 #include <MessageLevel.h>
 #include <QMap>
 
@@ -17,24 +16,6 @@ public:
     void addColor(int key, QColor color)
     {
         m_colors[key] = {color, blend(color), blendBackground(color)};
-    }
-
-    void setForeground(QColor front)
-    {
-        if(m_front != front)
-        {
-            m_front = front;
-            recolorAll();
-        }
-    }
-
-    void setBackground(QColor back)
-    {
-        if(m_back != back)
-        {
-            m_back = back;
-            recolorAll();
-        }
     }
 
     QColor getFront(int key)
@@ -58,7 +39,7 @@ public:
     }
 
     /**
-     * Blend the color with the front color, adapting to the back color
+     * Make the color readable on the back color, then blend it with the front color
      */
     QColor blend(QColor color);
 
@@ -66,9 +47,6 @@ public:
      * Blend the color with the back color
      */
     QColor blendBackground(QColor color);
-
-protected:
-    void recolorAll();
 
 protected:
     struct ColorEntry

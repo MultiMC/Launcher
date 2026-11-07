@@ -13,7 +13,6 @@
 #include <QVector3D>
 #include <QVBoxLayout>
 
-#include <rainbow.h>
 
 SkinWidget::SkinWidget(QWidget* parent): QFrame(parent)
 {
