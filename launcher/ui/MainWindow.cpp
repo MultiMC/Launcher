@@ -2134,6 +2134,7 @@ void MainWindow::checkInstancePathForProblems()
     if (FS::checkProblemticPathJava(QDir(instanceFolder)))
     {
         QMessageBox warning(this);
+        warning.setIcon(QMessageBox::Warning);
         warning.setText(tr("Your instance folder contains \'!\' and this is known to cause Java problems!"));
         warning.setInformativeText(
             tr(
@@ -2152,6 +2153,7 @@ void MainWindow::checkInstancePathForProblems()
     if (pathfoldername.contains("Rar$", Qt::CaseInsensitive))
     {
         QMessageBox warning(this);
+        warning.setIcon(QMessageBox::Warning);
         warning.setText(tr("Your instance folder contains \'Rar$\' - that means you haven't extracted the launcher archive!"));
         warning.setInformativeText(tempFolderText);
         warning.setDefaultButton(QMessageBox::Ok);
@@ -2160,6 +2162,7 @@ void MainWindow::checkInstancePathForProblems()
     else if (pathfoldername.startsWith(QDir::tempPath()) || pathfoldername.contains("/TempState/"))
     {
         QMessageBox warning(this);
+        warning.setIcon(QMessageBox::Warning);
         warning.setText(tr("Your instance folder is in a temporary folder: \'%1\'!").arg(QDir::tempPath()));
         warning.setInformativeText(tempFolderText);
         warning.setDefaultButton(QMessageBox::Ok);

@@ -11,6 +11,7 @@
 
 #include "BrightTheme.h"
 #include "FileSystem.h"
+#include "FusionStyle.h"
 #include "CustomTheme.h"
 #include "DarkTheme.h"
 #include "SystemAppearance.h"
@@ -387,7 +388,7 @@ void ThemeManager::apply(const Choice &choice)
 
 void ThemeManager::applyFusion(ITheme *theme, const Choice &choice)
 {
-    QApplication::setStyle(QStyleFactory::create("Fusion"));
+    QApplication::setStyle(new FusionStyle(m_nativeStyle));
     qApp->setProperty(KDE_SCHEME_PROPERTY, QVariant());
     // before the System theme reads the system's colours: in the system's appearance
     TitleBar::setApplicationAppearance(TitleBar::Appearance::System);

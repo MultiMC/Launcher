@@ -738,6 +738,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/CustomTheme.h
     ui/themes/DarkTheme.cpp
     ui/themes/DarkTheme.h
+    ui/themes/FusionStyle.cpp
+    ui/themes/FusionStyle.h
     ui/themes/ITheme.h
     ui/themes/SystemTheme.cpp
     ui/themes/SystemTheme.h
