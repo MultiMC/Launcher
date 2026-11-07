@@ -322,6 +322,7 @@ public:
         foldersMenu->addAction(actionViewCentralModsFolder);
 
         foldersMenuButton = TranslatedToolButton(MainWindow);
+        foldersMenuButton->setObjectName(QStringLiteral("foldersMenuButton"));
         foldersMenuButton.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Folders"));
         foldersMenuButton.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open one of the folders shared between instances."));
         foldersMenuButton->setMenu(foldersMenu);
@@ -386,6 +387,7 @@ public:
         helpMenu->addAction(actionAbout);
 
         helpMenuButton = TranslatedToolButton(MainWindow);
+        helpMenuButton->setObjectName(QStringLiteral("helpMenuButton"));
         helpMenuButton.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Help"));
         helpMenuButton.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Get help with %1 or Minecraft."));
         helpMenuButton->setMenu(helpMenu);
@@ -725,6 +727,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     {
         m_newsChecker.reset(new NewsChecker(APPLICATION->network(), BuildConfig.NEWS_RSS_URL));
         newsLabel = new QToolButton();
+        newsLabel->setObjectName(QStringLiteral("newsLabel"));
         newsLabel->setIcon(APPLICATION->getThemedIcon("news"));
         newsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         newsLabel->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -738,6 +741,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // Create the instance list widget
     {
         view = new InstanceView(ui->centralWidget);
+        view->setObjectName(QStringLiteral("instanceView"));
 
         view->setSelectionMode(QAbstractItemView::SingleSelection);
         // FIXME: leaks ListViewDelegate
@@ -790,7 +794,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     connect(APPLICATION, &Application::globalSettingsClosed, this, &MainWindow::globalSettingsClosed);
 
     m_statusLeft = new QLabel(tr("No instance selected"), this);
+    m_statusLeft->setObjectName(QStringLiteral("statusLeft"));
     m_statusCenter = new QLabel(tr("Total playtime: 0s"), this);
+    m_statusCenter->setObjectName(QStringLiteral("statusCenter"));
     statusBar()->addPermanentWidget(m_statusLeft, 1);
     statusBar()->addPermanentWidget(m_statusCenter, 0);
 
@@ -804,6 +810,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     repopulateAccountsMenu();
 
     accountMenuButton = new QToolButton(this);
+    accountMenuButton->setObjectName(QStringLiteral("accountMenuButton"));
     accountMenuButton->setMenu(accountMenu);
     accountMenuButton->setPopupMode(QToolButton::InstantPopup);
     accountMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -813,6 +820,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     accountMenuButtonAction->setDefaultWidget(accountMenuButton);
 
     ui->mainToolBar->addAction(accountMenuButtonAction);
+
+    // Tool bars make the buttons for their actions: name them after the actions, so custom
+    // themes' stylesheets can pick them out (QToolButton#actionLaunchInstance)
+    for(QToolBar *toolBar: QList<QToolBar *>{ui->mainToolBar, ui->instanceToolBar, ui->newsToolBar})
+    {
+        for(QAction *action: toolBar->actions())
+        {
+            QWidget *button = toolBar->widgetForAction(action);
+            if(button && button->objectName().isEmpty() && !action->objectName().isEmpty())
+            {
+                button->setObjectName(action->objectName());
+            }
+        }
+    }
 
     // Update the menu when the active account changes.
     connect(APPLICATION->accounts().get(), &AccountList::defaultAccountChanged, this, &MainWindow::defaultAccountChanged);
