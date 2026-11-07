@@ -57,7 +57,9 @@ public:
     void closeEvent(QCloseEvent *event) override;
     void changeEvent(QEvent * event) override;
 
-    void checkInstancePathForProblems();
+    // The warnings about the instance folder, then the automatic update check. Run from the
+    // main event loop: an update ends with qApp->quit(), which does nothing before it runs.
+    void startupChecks();
 
     void updatesAllowedChanged(bool allowed);
 
@@ -206,6 +208,8 @@ private:
     void updateInstanceToolIcon(QString new_icon);
     void setSelectedInstanceById(const QString &id);
     void updateStatusCenter();
+    void checkInstancePathForProblems();
+    void autoCheckForUpdates();
     // updater v2's tier, from the settings
     UpdaterV2::Tier updateTier();
 

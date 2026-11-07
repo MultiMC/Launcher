@@ -830,8 +830,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
     if(BuildConfig.UPDATER_ENABLED)
     {
-        bool updatesAllowed = APPLICATION->updatesAreAllowed();
-        updatesAllowedChanged(updatesAllowed);
+        updatesAllowedChanged(APPLICATION->updatesAreAllowed());
 
         // NOTE: calling the operator like that is an ugly hack to appease ancient gcc...
         connect(ui->actionCheckUpdate.operator->(), &QAction::triggered, this, &MainWindow::checkForUpdates);
@@ -840,10 +839,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         {
             auto updater = APPLICATION->updaterV2();
             connect(updater.get(), &UpdaterV2::Checker::finished, this, &MainWindow::updateCheckedV2);
-            if (APPLICATION->settings()->get("AutoUpdate").toBool() && updatesAllowed)
-            {
-                updater->check(updateTier(), false, false);
-            }
         }
         else
         {
@@ -851,11 +846,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
             auto updater = APPLICATION->updateChecker();
             connect(updater.get(), &UpdaterV1::UpdateChecker::updateAvailable, this, &MainWindow::updateAvailable);
             connect(updater.get(), &UpdaterV1::UpdateChecker::noUpdateFound, this, &MainWindow::updateNotAvailable);
-            // if automatic update checks are allowed, start one.
-            if (APPLICATION->settings()->get("AutoUpdate").toBool() && updatesAllowed)
-            {
-                updater->checkForUpdate(false);
-            }
         }
     }
 
@@ -2114,6 +2104,28 @@ void MainWindow::selectionBad()
 
     // ...and then see if we can enable the previously selected instance
     setSelectedInstanceById(APPLICATION->settings()->get("SelectedInstance").toString());
+}
+
+void MainWindow::startupChecks()
+{
+    checkInstancePathForProblems();
+    autoCheckForUpdates();
+}
+
+void MainWindow::autoCheckForUpdates()
+{
+    if(!BuildConfig.UPDATER_ENABLED || !APPLICATION->updatesAreAllowed() || !APPLICATION->settings()->get("AutoUpdate").toBool())
+    {
+        return;
+    }
+    if(BuildConfig.UPDATER_VERSION == 2)
+    {
+        APPLICATION->updaterV2()->check(updateTier(), false, false);
+    }
+    else
+    {
+        APPLICATION->updateChecker()->checkForUpdate(false);
+    }
 }
 
 void MainWindow::checkInstancePathForProblems()

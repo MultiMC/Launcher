@@ -41,6 +41,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QNetworkAccessManager>
+#include <QTimer>
 #include <QTranslator>
 #include <QLibraryInfo>
 #include <QList>
@@ -1501,7 +1502,7 @@ MainWindow* Application::showMainWindow(bool minimized)
             m_mainWindow->show();
         }
 
-        m_mainWindow->checkInstancePathForProblems();
+        QTimer::singleShot(0, m_mainWindow, &MainWindow::startupChecks);
         connect(this, &Application::updateAllowedChanged, m_mainWindow, &MainWindow::updatesAllowedChanged);
         connect(m_mainWindow, &MainWindow::isClosing, this, &Application::on_windowClose);
         m_openWindows++;
