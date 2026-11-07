@@ -1,11 +1,16 @@
 #include "ITheme.h"
 #include "Colors.h"
 #include <QStyleFactory>
+#include <QPixmapCache>
 #include <QDir>
 #include "Application.h"
 
 void ITheme::apply(bool)
 {
+    // Fusion (Qt 5.6) caches painted buttons, combo boxes, spin boxes... in QPixmapCache by
+    // state and size, not palette: without this, they keep the old theme's colours. Newer Qt
+    // has the palette in the key; drop this after checking the version we upgrade to.
+    QPixmapCache::clear();
     QApplication::setStyle(QStyleFactory::create(qtTheme()));
     if(hasColorScheme())
     {
