@@ -737,6 +737,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/ITheme.h
     ui/themes/SystemTheme.cpp
     ui/themes/SystemTheme.h
+    ui/themes/TitleBar.cpp
+    ui/themes/TitleBar.h
 
     # Processes
     LaunchController.h
@@ -935,6 +937,15 @@ SET(LAUNCHER_SOURCES
     ui/instanceview/VisualGroup.h
 )
 
+# Native title bars that follow the theme
+if(WIN32)
+    list(APPEND LAUNCHER_SOURCES ui/themes/TitleBar_win.cpp)
+elseif(APPLE)
+    list(APPEND LAUNCHER_SOURCES MacOS.h ui/themes/TitleBar_mac.mm)
+else()
+    list(APPEND LAUNCHER_SOURCES ui/themes/TitleBar_other.cpp)
+endif()
+
 qt5_wrap_ui(LAUNCHER_UI
     ui/dialogs/AboutDialog.ui
     ui/dialogs/AccountsDialog.ui
@@ -1030,6 +1041,9 @@ target_link_libraries(Launcher_logic
     hoedown
     LocalPeer
 )
+if(APPLE)
+    target_link_libraries(Launcher_logic "-framework AppKit")
+endif()
 
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
 target_link_libraries(${Launcher_Name} Launcher_logic)

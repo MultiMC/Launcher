@@ -25,6 +25,7 @@ void ITheme::apply(bool)
         APPLICATION->setStyleSheet(QString());
     }
     QDir::setSearchPaths("theme", searchPaths());
+    TitleBarWatcher::setStyle(titleBarStyle());
 }
 
 QPalette ITheme::fadeInactive(QPalette in, qreal bias, QColor color)

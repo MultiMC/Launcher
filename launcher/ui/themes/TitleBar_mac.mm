@@ -1,0 +1,46 @@
+#include "TitleBar.h"
+#include "Colors.h"
+
+#include <QPalette>
+#include <QWidget>
+
+#include "MacOS.h"
+
+#import <AppKit/AppKit.h>
+
+// 10.14 APIs are used behind macOSAtLeast(10, 14) (see MacOS.h)
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+#pragma clang diagnostic ignored "-Wunguarded-availability-new"
+
+// Dark aqua exists from macOS 10.14; on 10.13 title bars only get the palette's colour.
+namespace {
+NSColor *nsColor(const QColor &color)
+{
+    return [NSColor colorWithSRGBRed:color.redF() green:color.greenF() blue:color.blueF() alpha:1.0];
+}
+}
+
+void TitleBar::apply(QWidget *window, Style style)
+{
+    if (!window || !window->isWindow())
+        return;
+    NSView *view = reinterpret_cast<NSView *>(window->winId());
+    NSWindow *nsWindow = view.window;
+    if (!nsWindow)
+        return;
+    const QColor caption = window->palette().color(QPalette::Window);
+    const bool colored = style == Style::Palette;
+
+    if (macOSAtLeast(10, 14))
+    {
+        // nil: the system's appearance; else dark or light like the palette, which also
+        // gives the title text and buttons the right look
+        NSAppearance *appearance = nil;
+        if (colored)
+            appearance = [NSAppearance appearanceNamed:Colors::isDark(caption) ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua];
+        nsWindow.appearance = appearance;
+    }
+    // The palette's colour: a transparent title bar shows the window's background colour
+    nsWindow.titlebarAppearsTransparent = colored;
+    nsWindow.backgroundColor = colored ? nsColor(caption) : [NSColor windowBackgroundColor];
+}

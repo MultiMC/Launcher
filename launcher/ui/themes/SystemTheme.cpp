@@ -81,3 +81,9 @@ bool SystemTheme::hasColorScheme()
 {
     return true;
 }
+
+// the system's widgets and colours: its title bars match them
+TitleBar::Style SystemTheme::titleBarStyle()
+{
+    return TitleBar::Style::Default;
+}

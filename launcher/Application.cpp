@@ -22,6 +22,7 @@
 #include "ui/themes/DarkTheme.h"
 #include "ui/themes/BrightTheme.h"
 #include "ui/themes/CustomTheme.h"
+#include "ui/themes/TitleBar.h"
 
 #include "ui/setupwizard/SetupWizard.h"
 #include "ui/setupwizard/LanguageWizardPage.h"
@@ -907,6 +908,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         insertTheme(darkTheme);
         insertTheme(new BrightTheme());
         insertTheme(new CustomTheme(darkTheme, "custom"));
+        installEventFilter(new TitleBarWatcher(this));
         qDebug() << "<> Widget themes initialized.";
     }
 

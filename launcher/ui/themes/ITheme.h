@@ -1,6 +1,7 @@
 #pragma once
 #include <QString>
 #include <QPalette>
+#include "TitleBar.h"
 
 class QStyle;
 
@@ -21,6 +22,10 @@ public:
     virtual QStringList searchPaths()
     {
         return {};
+    }
+    virtual TitleBar::Style titleBarStyle()
+    {
+        return TitleBar::Style::Palette;
     }
 
     static QPalette fadeInactive(QPalette in, qreal bias, QColor color);

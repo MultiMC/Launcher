@@ -18,6 +18,7 @@ public:
     QPalette colorScheme() override;
     double fadeAmount() override;
     QColor fadeColor() override;
+    TitleBar::Style titleBarStyle() override;
 private:
     QPalette systemPalette;
     QString systemTheme;
