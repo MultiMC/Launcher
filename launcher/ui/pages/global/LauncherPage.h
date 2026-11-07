@@ -21,7 +21,6 @@
 #include "java/JavaChecker.h"
 #include "ui/pages/BasePage.h"
 #include <Application.h>
-#include "ui/ColorCache.h"
 #include <translations/TranslationsModel.h>
 
 class QTextCharFormat;
@@ -79,18 +78,8 @@ slots:
 
     void on_migrateDataFolderMacBtn_clicked();
 
-    /*!
-     * Updates the font preview
-     */
-    void refreshFontPreview();
-
 private:
     Ui::LauncherPage *ui;
-
-    // default format for the font preview...
-    QTextCharFormat *defaultFormat;
-
-    std::unique_ptr<LogColorCache> m_colors;
 
     std::shared_ptr<TranslationsModel> m_languageModel;
 };

@@ -5,13 +5,18 @@
 #include "ui/pages/BasePage.h"
 #include <Application.h>
 
-class QGroupBox;
 class IconThemeSelectionWidget;
+class QFontComboBox;
+class QLabel;
+class QSpinBox;
+class QTabWidget;
+class QTextEdit;
 class ThemeSelectionWidget;
 
 /**
- * How the launcher looks: the theme, accent and style (ThemeSelectionWidget), and the icons
- * (IconThemeSelectionWidget). Choices apply at once.
+ * How the launcher looks, in tabs: the theme, accent and style (ThemeSelectionWidget), the
+ * icons (IconThemeSelectionWidget), and the console's font, with a preview in the theme's log
+ * colours. Choices apply at once.
  */
 class AppearancePage : public QWidget, public BasePage
 {
@@ -40,12 +45,20 @@ public:
     void changeEvent(QEvent *) override;
 
 private:
+    QWidget *makeConsoleTab();
+    void consoleFontChanged();
+    void updateConsolePreview();
     void loadSettings();
     void retranslate();
 
 private: /* data */
-    QGroupBox *m_themeBox = nullptr;
+    QTabWidget *m_tabs = nullptr;
     ThemeSelectionWidget *m_themeWidget = nullptr;
-    QGroupBox *m_iconsBox = nullptr;
     IconThemeSelectionWidget *m_iconsWidget = nullptr;
+    QWidget *m_consoleTab = nullptr;
+    QLabel *m_fontLabel = nullptr;
+    QFontComboBox *m_consoleFont = nullptr;
+    QSpinBox *m_fontSize = nullptr;
+    QTextEdit *m_consolePreview = nullptr;
+    bool m_loading = false;
 };

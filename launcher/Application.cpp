@@ -1065,8 +1065,6 @@ bool Application::createSetupWizard()
             m_setupWizard->addPage(new JavaWizardPage(m_setupWizard));
         }
         connect(m_setupWizard, &QDialog::finished, this, &Application::setupWizardFinished);
-        // big enough for the biggest page (Appearance's previews)
-        m_setupWizard->resize(m_setupWizard->size().expandedTo(m_setupWizard->sizeHint()));
         m_setupWizard->show();
         return true;
     }

@@ -72,6 +72,7 @@ private slots:
     void onInstanceLaunchTaskChanged(shared_qobject_ptr<LaunchTask> proc);
 
 private:
+    void updateColors();
     void modelStateToUI();
     void UIToModelState();
     void setInstanceLaunchTaskChanged(shared_qobject_ptr<LaunchTask> proc, bool initial);

@@ -12,10 +12,11 @@
 #include "BrightTheme.h"
 #include "FileSystem.h"
 #include "FusionStyle.h"
-#include "CustomTheme.h"
 #include "DarkTheme.h"
 #include "SystemAppearance.h"
 #include "SystemTheme.h"
+#include "IconThemeList.h"
+#include "ThemeList.h"
 #include "TitleBar.h"
 
 namespace {
@@ -204,12 +205,32 @@ ThemeManager::ThemeManager(SettingsObjectPtr settings, QObject *parent) : QObjec
     m_paletteResetWorks = QVersionNumber::fromString(qVersion()) >= QVersionNumber(5, 15);
 
     m_system = new SystemAppearance(this);
-    auto insertTheme = [this](ITheme *theme) { m_themes[theme->id()] = std::unique_ptr<ITheme>(theme); };
-    insertTheme(new SystemTheme(m_system));
-    insertTheme(new BrightTheme());
-    insertTheme(new DarkTheme());
-    m_custom = new CustomTheme("custom");
-    insertTheme(m_custom);
+    m_builtIn.emplace_back(new SystemTheme(m_system));
+    m_builtIn.emplace_back(new BrightTheme());
+    m_builtIn.emplace_back(new DarkTheme());
+    QList<ITheme *> listed;
+    for (auto &theme : m_builtIn)
+    {
+        // System where there's something to follow
+        if (theme->id() != "system" || canFollowSystem())
+            listed.append(theme.get());
+    }
+    m_themeList = new ThemeList(listed, "themes", this);
+    m_iconThemeList = new IconThemeList("iconthemes", this);
+    // the current theme changed on disk: show it at once (theme authors edit and watch)
+    connect(m_themeList, &ThemeList::themeReloaded, this, [this](const QString &id) {
+        if (!m_current.theme.isEmpty() && m_current.theme == id)
+        {
+            apply(m_current);
+        }
+    });
+    // or it went away, or broke: whatever applies instead
+    connect(m_themeList, &QAbstractItemModel::modelReset, this, [this]() {
+        if (!m_current.theme.isEmpty() && !theme(m_current.theme))
+        {
+            apply(m_current);
+        }
+    });
 
     connect(m_system, &SystemAppearance::changed, this, [this]() {
         // nothing applied yet: the start applies it
@@ -277,27 +298,31 @@ ThemeManager::Choice ThemeManager::current() const
     return m_current;
 }
 
-QList<ITheme *> ThemeManager::themes() const
+ThemeList *ThemeManager::themeList() const
 {
-    QList<ITheme *> out;
-    for (auto id : {"system", "bright", "dark", "custom"})
-    {
-        if (QString(id) == "system" && !canFollowSystem())
-            continue;
-        // made by hand: only where someone did
-        if (QString(id) == "custom" && !m_custom->isCustomized())
-            continue;
-        out.append(theme(id));
-    }
-    return out;
+    return m_themeList;
+}
+
+IconThemeList *ThemeManager::iconThemeList() const
+{
+    return m_iconThemeList;
+}
+
+QMap<QString, QColor> ThemeManager::logColors() const
+{
+    ITheme *current = theme(effective(m_current).theme);
+    return current ? current->logColors() : QMap<QString, QColor>();
 }
 
 ITheme *ThemeManager::theme(const QString &id) const
 {
-    auto iter = m_themes.find(id);
-    if (iter == m_themes.end())
-        return nullptr;
-    return iter->second.get();
+    // System also where it isn't listed: effective() replaces it there
+    for (auto &builtIn : m_builtIn)
+    {
+        if (builtIn->id() == id)
+            return builtIn.get();
+    }
+    return m_themeList->theme(id);
 }
 
 ThemeManager::Choice ThemeManager::effective(Choice choice) const
@@ -379,11 +404,15 @@ void ThemeManager::apply(const Choice &choice)
     {
         applyFusion(chosen, now);
     }
-    qApp->setStyleSheet(chosen->styleSheet());
+    // the stylesheet's theme: paths are this theme's resources, before the stylesheet loads them:
+    // the other way round, themes using the same file names (a theme family) got the last
+    // theme's images
     QDir::setSearchPaths("theme", chosen->searchPaths());
+    qApp->setStyleSheet(chosen->styleSheet());
     // also when the palette stays the same: Dark -> System in a dark Windows gives the same
     // palette, but the title bars go from the palette's colours to the system's
     TitleBarWatcher::setStyle(now.style == Style::Native ? TitleBar::Style::Default : chosen->titleBarStyle());
+    emit applied();
 }
 
 void ThemeManager::applyFusion(ITheme *theme, const Choice &choice)

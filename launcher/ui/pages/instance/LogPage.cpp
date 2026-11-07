@@ -12,6 +12,7 @@
 
 #include "ui/GuiUtil.h"
 #include "ui/ColorCache.h"
+#include "ui/themes/ThemeManager.h"
 #include "ui/dialogs/CustomMessageBox.h"
 
 #include <BuildConfig.h>
@@ -48,9 +49,12 @@ public:
         m_font = font;
     }
 
+    // the view shows everything again in the new colours
     void setColors(LogColorCache* colors)
     {
+        beginResetModel();
         m_colors.reset(colors);
+        endResetModel();
     }
 
     QModelIndex find(const QModelIndex &start, const QString &value, bool reverse) const
@@ -112,6 +116,13 @@ private:
     std::unique_ptr<LogColorCache> m_colors;
 };
 
+void LogPage::updateColors()
+{
+    auto origForeground = ui->text->palette().color(ui->text->foregroundRole());
+    auto origBackground = ui->text->palette().color(ui->text->backgroundRole());
+    m_proxy->setColors(new LogColorCache(origForeground, origBackground, APPLICATION->themeManager()->logColors()));
+}
+
 LogPage::LogPage(InstancePtr instance, QWidget *parent)
     : QWidget(parent), ui(new Ui::LogPage), m_instance(instance)
 {
@@ -119,12 +130,9 @@ LogPage::LogPage(InstancePtr instance, QWidget *parent)
     ui->tabWidget->tabBar()->hide();
 
     m_proxy = new LogFormatProxyModel(this);
-    // set up text colors in the log proxy and adapt them to the current theme foreground and background
-    {
-        auto origForeground = ui->text->palette().color(ui->text->foregroundRole());
-        auto origBackground = ui->text->palette().color(ui->text->backgroundRole());
-        m_proxy->setColors(new LogColorCache(origForeground, origBackground));
-    }
+    // set up text colors in the log proxy and adapt them to the current theme, again when it changes
+    updateColors();
+    connect(APPLICATION->themeManager(), &ThemeManager::applied, this, &LogPage::updateColors);
 
     // set up fonts in the log proxy
     {

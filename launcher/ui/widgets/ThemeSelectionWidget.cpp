@@ -2,23 +2,21 @@
 
 #include <QButtonGroup>
 #include <QEvent>
-#include <QGroupBox>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QMap>
+#include <QListView>
 #include <QPainter>
 #include <QRadioButton>
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include <functional>
-
 #include "Application.h"
 #include "Colors.h"
-#include "ui/dialogs/AccentColorDialog.h"
-#include "ui/themes/ITheme.h"
-#include "SelectionCard.h"
+#include "DetailRowDelegate.h"
 #include "ThemePreview.h"
+#include "ui/dialogs/AccentColorDialog.h"
+#include "ui/themes/ThemeList.h"
 
 namespace {
 // A small square of a colour, for the accent choices
@@ -33,35 +31,11 @@ QIcon swatch(const QColor &color)
     p.drawRoundedRect(QRectF(0.5, 0.5, 15, 15), 3, 3);
     return QIcon(pixmap);
 }
+
+// ThemePreview draws for 132 x 84; the rows show it smaller
+const QSize PREVIEW_SIZE(99, 63);
+const qreal PREVIEW_SCALE = 0.75;
 }
-
-/**
- * One theme: a small window in its colours (title bar, a list with a selected row, a field,
- * a button and a link)
- */
-class ThemeCard : public SelectionCard
-{
-public:
-    ThemeCard(const QString &id, std::function<void()> clicked, QWidget *parent)
-        : SelectionCard(id, QSize(132, 84), clicked, parent)
-    {
-    }
-
-    void setPreview(const QString &name, const QPalette &preview)
-    {
-        m_preview = preview;
-        setName(name);
-    }
-
-protected:
-    void paintPicture(QPainter &p, const QRectF &r) override
-    {
-        ThemePreview::paint(p, r, m_preview);
-    }
-
-private: /* data */
-    QPalette m_preview;
-};
 
 ThemeSelectionWidget::ThemeSelectionWidget(QWidget *parent) : QWidget(parent)
 {
@@ -69,33 +43,41 @@ ThemeSelectionWidget::ThemeSelectionWidget(QWidget *parent) : QWidget(parent)
     m_choice = m_manager->savedChoice();
 
     auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
 
-    auto cards = new QHBoxLayout();
-    cards->addStretch(1);
-    for(auto theme: m_manager->themes())
-    {
-        auto id = theme->id();
-        auto card = new ThemeCard(id, [this, id]() { selectTheme(id); }, this);
-        m_cards.append(card);
-        cards->addWidget(card);
-    }
-    cards->addStretch(1);
-    layout->addLayout(cards);
-    m_themeNote = new QLabel(this);
-    m_themeNote->setWordWrap(true);
-    m_themeNote->setAlignment(Qt::AlignHCenter);
-    layout->addWidget(m_themeNote);
+    // the style and the accent on top, one row each
+    auto choices = new QFormLayout();
+    m_styleLabel = new QLabel(this);
+    m_styleRow = new QWidget(this);
+    auto styleLayout = new QHBoxLayout(m_styleRow);
+    styleLayout->setContentsMargins(0, 0, 0, 0);
+    styleLayout->setSpacing(16);
+    m_styleGroup = new QButtonGroup(this);
+    m_fusion = new QRadioButton(m_styleRow);
+    m_native = new QRadioButton(m_styleRow);
+    m_styleGroup->addButton(m_fusion, int(ThemeManager::Style::Fusion));
+    m_styleGroup->addButton(m_native, int(ThemeManager::Style::Native));
+    styleLayout->addWidget(m_fusion);
+    styleLayout->addWidget(m_native);
+    styleLayout->addStretch(1);
+    choices->addRow(m_styleLabel, m_styleRow);
+    connect(m_styleGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [this](int id) {
+        m_choice.style = ThemeManager::Style(id);
+        userChanged();
+    });
+    m_styleLabel->setVisible(m_manager->hasNativeStyleChoice());
+    m_styleRow->setVisible(m_manager->hasNativeStyleChoice());
 
-    m_accentBox = new QGroupBox(this);
-    // centred, the choices well apart, each swatch right next to its own choice
-    auto accentLayout = new QHBoxLayout(m_accentBox);
-    accentLayout->setSpacing(24);
+    m_accentLabel = new QLabel(this);
+    m_accentRow = new QWidget(this);
+    // each swatch right next to its own choice, the choices well apart
+    auto accentLayout = new QHBoxLayout(m_accentRow);
+    accentLayout->setContentsMargins(0, 0, 0, 0);
+    accentLayout->setSpacing(16);
     m_accentGroup = new QButtonGroup(this);
-    m_themeAccent = new QRadioButton(m_accentBox);
-    m_systemAccent = new QRadioButton(m_accentBox);
-    m_customAccent = new QRadioButton(m_accentBox);
-    m_customColor = new QToolButton(m_accentBox);
+    m_themeAccent = new QRadioButton(m_accentRow);
+    m_systemAccent = new QRadioButton(m_accentRow);
+    m_customAccent = new QRadioButton(m_accentRow);
+    m_customColor = new QToolButton(m_accentRow);
     m_accentGroup->addButton(m_themeAccent, int(ThemeManager::AccentSource::Theme));
     m_accentGroup->addButton(m_systemAccent, int(ThemeManager::AccentSource::System));
     m_accentGroup->addButton(m_customAccent, int(ThemeManager::AccentSource::Custom));
@@ -103,46 +85,54 @@ ThemeSelectionWidget::ThemeSelectionWidget(QWidget *parent) : QWidget(parent)
     custom->setSpacing(4);
     custom->addWidget(m_customAccent);
     custom->addWidget(m_customColor);
-    accentLayout->addStretch(1);
     accentLayout->addWidget(m_themeAccent);
     accentLayout->addWidget(m_systemAccent);
     accentLayout->addLayout(custom);
     accentLayout->addStretch(1);
-    layout->addWidget(m_accentBox);
+    choices->addRow(m_accentLabel, m_accentRow);
     connect(m_accentGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [this](int id) {
         m_choice.accentSource = ThemeManager::AccentSource(id);
         userChanged();
     });
     connect(m_customColor, &QToolButton::clicked, this, &ThemeSelectionWidget::pickCustomAccent);
+    layout->addLayout(choices);
 
-    m_styleBox = new QGroupBox(this);
-    auto styleLayout = new QVBoxLayout(m_styleBox);
-    auto styleButtons = new QHBoxLayout();
-    styleButtons->setSpacing(24);
-    m_styleGroup = new QButtonGroup(this);
-    m_fusion = new QRadioButton(m_styleBox);
-    m_native = new QRadioButton(m_styleBox);
-    m_styleGroup->addButton(m_fusion, int(ThemeManager::Style::Fusion));
-    m_styleGroup->addButton(m_native, int(ThemeManager::Style::Native));
-    styleButtons->addStretch(1);
-    styleButtons->addWidget(m_fusion);
-    styleButtons->addWidget(m_native);
-    styleButtons->addStretch(1);
-    styleLayout->addLayout(styleButtons);
-    m_styleDescription = new QLabel(m_styleBox);
-    m_styleDescription->setWordWrap(true);
-    m_styleDescription->setAlignment(Qt::AlignHCenter);
-    // windows don't get taller for wrapped text: two lines, whichever description it is
-    m_styleDescription->setMinimumHeight(2 * m_styleDescription->fontMetrics().lineSpacing());
-    styleLayout->addWidget(m_styleDescription);
-    layout->addWidget(m_styleBox);
-    m_styleBox->setVisible(m_manager->hasNativeStyleChoice());
-    connect(m_styleGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [this](int id) {
-        m_choice.style = ThemeManager::Style(id);
-        userChanged();
+    m_themeNote = new QLabel(this);
+    m_themeNote->setWordWrap(true);
+    layout->addWidget(m_themeNote);
+
+    // the themes: a small window in each one's colours, with the accent and style chosen
+    m_list = m_manager->themeList();
+    m_view = new QListView(this);
+    m_view->setUniformItemSizes(true);
+    m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    auto paintPreview = [this](QPainter &p, const QRectF &r, const QModelIndex &index) {
+        p.save();
+        p.translate(r.topLeft());
+        p.scale(PREVIEW_SCALE, PREVIEW_SCALE);
+        ThemePreview::paint(p, QRectF(QPointF(0, 0), QSizeF(PREVIEW_SIZE) / PREVIEW_SCALE),
+                            m_manager->previewPalette(index.data(ThemeList::IdRole).toString(), m_choice));
+        p.restore();
+    };
+    m_view->setItemDelegate(new DetailRowDelegate(PREVIEW_SIZE, ThemeList::DetailsRole, paintPreview, m_view));
+    m_view->setModel(m_list);
+    layout->addWidget(m_view, 1);
+    connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged, this, [this](const QModelIndex &current) {
+        if(m_updating || !current.isValid())
+            return;
+        const QString id = current.data(ThemeList::IdRole).toString();
+        // with a style that can't take our themes, only the platform's look applies
+        if(!themeSelectable(id))
+        {
+            updateControls();
+            return;
+        }
+        selectTheme(id);
     });
+    // themes that come and go keep the selection where it was
+    connect(m_list, &QAbstractItemModel::modelReset, this, &ThemeSelectionWidget::updateControls);
 
-    // the System card and the system's accent show the system's current look
+    // the System theme and the system's accent show the system's current look
     connect(m_manager, &ThemeManager::systemChanged, this, &ThemeSelectionWidget::updateControls);
 
     retranslate();
@@ -158,6 +148,12 @@ void ThemeSelectionWidget::setChoice(const ThemeManager::Choice &choice)
 {
     m_choice = choice;
     updateControls();
+}
+
+bool ThemeSelectionWidget::themeSelectable(const QString &id) const
+{
+    const auto style = m_manager->hasNativeStyleChoice() ? m_choice.style : ThemeManager::Style::Fusion;
+    return m_manager->themeChoiceAvailable(style) || id == "system";
 }
 
 void ThemeSelectionWidget::selectTheme(const QString &id)
@@ -195,24 +191,19 @@ void ThemeSelectionWidget::updateControls()
 {
     const auto style = m_manager->hasNativeStyleChoice() ? m_choice.style : ThemeManager::Style::Fusion;
     const bool themesAvailable = m_manager->themeChoiceAvailable(style);
-    QMap<QString, QString> names;
-    for(auto theme: m_manager->themes())
-    {
-        names[theme->id()] = theme->name();
-    }
-    for(auto card: m_cards)
-    {
-        card->setPreview(names.value(card->id()), m_manager->previewPalette(card->id(), m_choice));
-        card->setSelected(card->id() == m_choice.theme);
-        // with a style that can't take our themes, only the platform's look applies
-        card->setEnabled(themesAvailable || card->id() == "system");
-    }
+    m_updating = true;
+    const QModelIndex current = m_list->indexOf(m_choice.theme);
+    m_view->selectionModel()->setCurrentIndex(current, QItemSelectionModel::ClearAndSelect);
+    m_view->scrollTo(current);
+    m_updating = false;
+    // the previews show the accent and the style
+    m_view->viewport()->update();
     m_themeNote->setVisible(!themesAvailable);
 
     const bool accentsAvailable = m_manager->accentChoiceAvailable(style);
     const auto systemAccent = m_manager->systemAccent();
-    m_accentBox->setEnabled(accentsAvailable);
-    m_accentBox->setToolTip(accentsAvailable ? QString() : tr("The %1 style uses the system's own accent.").arg(m_manager->nativeStyleName()));
+    m_accentRow->setEnabled(accentsAvailable);
+    m_accentRow->setToolTip(accentsAvailable ? QString() : tr("The %1 style uses the system's own accent.").arg(m_manager->nativeStyleName()));
     m_systemAccent->setEnabled(systemAccent.isValid());
     m_systemAccent->setIcon(systemAccent.isValid() ? swatch(systemAccent.color) : QIcon());
     const bool customAvailable = m_manager->customAccentAvailable(style);
@@ -233,26 +224,20 @@ void ThemeSelectionWidget::updateControls()
     {
         styleButton->setChecked(true);
     }
-    if(style == ThemeManager::Style::Native)
-    {
-        m_styleDescription->setText(tr("Looks like other applications on this system. Layouts may fit less well, and what the themes and accents can change depends on the style."));
-    }
-    else
-    {
-        m_styleDescription->setText(tr("Looks the same on every system, with every theme and accent."));
-    }
 }
 
 void ThemeSelectionWidget::retranslate()
 {
     m_themeNote->setText(tr("The %1 style only shows the system's own colors.").arg(m_manager->nativeStyleName()));
-    m_accentBox->setTitle(tr("Accent color"));
+    m_styleLabel->setText(tr("Style:"));
+    m_fusion->setText(tr("Same everywhere (Fusion)"));
+    m_fusion->setToolTip(tr("Looks the same on every system, with every theme and accent."));
+    m_native->setText(tr("Native (%1)").arg(m_manager->nativeStyleName()));
+    m_native->setToolTip(tr("Looks like other applications on this system. Layouts may fit less well, and what the themes and accents can change depends on the style."));
+    m_accentLabel->setText(tr("Accent color:"));
     m_themeAccent->setText(tr("Theme's own"));
     m_systemAccent->setText(tr("System"));
     m_customAccent->setText(tr("Custom"));
-    m_styleBox->setTitle(tr("Style"));
-    m_fusion->setText(tr("Same everywhere (Fusion)"));
-    m_native->setText(tr("Native (%1)").arg(m_manager->nativeStyleName()));
     updateControls();
 }
 
@@ -261,6 +246,8 @@ void ThemeSelectionWidget::changeEvent(QEvent *event)
     if(event->type() == QEvent::LanguageChange)
     {
         retranslate();
+        // the built-in themes' names
+        m_view->viewport()->update();
     }
     QWidget::changeEvent(event);
 }

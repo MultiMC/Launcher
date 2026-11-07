@@ -2,6 +2,7 @@
 #include <QString>
 #include <QStringList>
 #include <QPalette>
+#include <QMap>
 #include "Colors.h"
 #include "TitleBar.h"
 
@@ -27,6 +28,12 @@ public:
         return {};
     }
     virtual QStringList searchPaths()
+    {
+        return {};
+    }
+    /// Colours for log levels, by name (Launcher, Message, Debug, Warning, Error, Fatal,
+    /// FatalHighlight); the ones missing are the log's own
+    virtual QMap<QString, QColor> logColors()
     {
         return {};
     }

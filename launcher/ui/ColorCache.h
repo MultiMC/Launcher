@@ -1,7 +1,9 @@
 #pragma once
 #include <QtGui/QColor>
 #include <MessageLevel.h>
+#include "Colors.h"
 #include <QMap>
+#include <QString>
 
 class ColorCache
 {
@@ -66,15 +68,18 @@ protected:
 class LogColorCache : public ColorCache
 {
 public:
-    LogColorCache(QColor front, QColor back)
+    /// themeColors: the theme's own, by level name (ITheme::logColors); still made readable
+    LogColorCache(QColor front, QColor back, const QMap<QString, QColor> &themeColors = {})
         : ColorCache(front, back, 1.0)
     {
-        addColor((int)MessageLevel::Launcher, QColor("purple"));
-        addColor((int)MessageLevel::Debug, QColor("green"));
-        addColor((int)MessageLevel::Warning, QColor("orange"));
-        addColor((int)MessageLevel::Error, QColor("red"));
-        addColor((int)MessageLevel::Fatal, QColor("red"));
-        addColor((int)MessageLevel::Message, front);
+        auto color = [&themeColors](const char *level, QColor ours) { return themeColors.value(level, ours); };
+        addColor((int)MessageLevel::Launcher, color("Launcher", QColor("purple")));
+        addColor((int)MessageLevel::Debug, color("Debug", QColor("green")));
+        addColor((int)MessageLevel::Warning, color("Warning", QColor("orange")));
+        addColor((int)MessageLevel::Error, color("Error", QColor("red")));
+        addColor((int)MessageLevel::Fatal, color("Fatal", QColor("red")));
+        addColor((int)MessageLevel::Message, color("Message", front));
+        m_fatalHighlight = color("FatalHighlight", QColor(Qt::black));
     }
 
     QColor getFront(MessageLevel::Enum level)
@@ -83,6 +88,11 @@ public:
         {
             return ColorCache::getFront((int)MessageLevel::Message);
         }
+        // fatal lines have a background of their own: readable on that
+        if(level == MessageLevel::Fatal)
+        {
+            return Colors::readable(m_colors[(int)level].original, m_fatalHighlight);
+        }
         return ColorCache::getFront((int)level);
     }
 
@@ -90,8 +100,11 @@ public:
     {
         if(level == MessageLevel::Fatal)
         {
-            return QColor(Qt::black);
+            return m_fatalHighlight;
         }
         return QColor(Qt::transparent);
     }
+
+private:
+    QColor m_fatalHighlight;
 };

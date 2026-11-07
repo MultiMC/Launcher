@@ -5,17 +5,18 @@
 #include "ui/themes/ThemeManager.h"
 
 class QButtonGroup;
-class QGroupBox;
 class QLabel;
+class QListView;
 class QRadioButton;
 class QToolButton;
-class ThemeCard;
+class ThemeList;
 
 /**
- * Choosing the theme, accent and widget style (ThemeManager): a card for each theme with a
- * small window painted in its colours, the accent below (the theme's own, the system's, or a
- * custom colour), and Fusion or Native where Native is offered. Choices a style can't take
- * are disabled, not lost. Shared by the Appearance settings page and the setup wizard.
+ * Choosing the theme, accent and widget style (ThemeManager): the style (Fusion or Native,
+ * where Native is offered) and the accent (the theme's own, the system's, or a custom colour)
+ * on top, the themes below, each with a small window in its colours, who made it and its
+ * license. Choices a style can't take are disabled, not lost. Shared by the Appearance
+ * settings page and the setup wizard.
  */
 class ThemeSelectionWidget : public QWidget
 {
@@ -36,6 +37,7 @@ protected:
     void changeEvent(QEvent *event) override;
 
 private:
+    bool themeSelectable(const QString &id) const;
     void selectTheme(const QString &id);
     void pickCustomAccent();
     void userChanged();
@@ -45,17 +47,20 @@ private:
 private: /* data */
     ThemeManager *m_manager = nullptr;
     ThemeManager::Choice m_choice;
-    QList<ThemeCard *> m_cards;
+    ThemeList *m_list = nullptr;
+    QListView *m_view = nullptr;
+    bool m_updating = false;
     QLabel *m_themeNote = nullptr;
-    QGroupBox *m_accentBox = nullptr;
+    QLabel *m_styleLabel = nullptr;
+    QWidget *m_styleRow = nullptr;
+    QButtonGroup *m_styleGroup = nullptr;
+    QRadioButton *m_fusion = nullptr;
+    QRadioButton *m_native = nullptr;
+    QLabel *m_accentLabel = nullptr;
+    QWidget *m_accentRow = nullptr;
     QButtonGroup *m_accentGroup = nullptr;
     QRadioButton *m_themeAccent = nullptr;
     QRadioButton *m_systemAccent = nullptr;
     QRadioButton *m_customAccent = nullptr;
     QToolButton *m_customColor = nullptr;
-    QGroupBox *m_styleBox = nullptr;
-    QButtonGroup *m_styleGroup = nullptr;
-    QRadioButton *m_fusion = nullptr;
-    QRadioButton *m_native = nullptr;
-    QLabel *m_styleDescription = nullptr;
 };

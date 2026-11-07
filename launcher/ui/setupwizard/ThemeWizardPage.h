@@ -3,7 +3,7 @@
 #include "BaseWizardPage.h"
 
 class IconThemeSelectionWidget;
-class QGroupBox;
+class QTabWidget;
 class ThemeSelectionWidget;
 
 /**
@@ -23,8 +23,7 @@ protected:
     void retranslate() override;
 
 private: /* data */
-    QGroupBox *m_themeBox = nullptr;
+    QTabWidget *m_tabs = nullptr;
     ThemeSelectionWidget *m_themeWidget = nullptr;
-    QGroupBox *m_iconsBox = nullptr;
     IconThemeSelectionWidget *m_iconsWidget = nullptr;
 };

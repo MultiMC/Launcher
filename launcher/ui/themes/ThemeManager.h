@@ -3,14 +3,16 @@
 #include <QColor>
 #include <QObject>
 #include <QPalette>
-#include <map>
+#include <QMap>
+#include <vector>
 #include <memory>
 
 #include "Colors.h"
 #include "settings/SettingsObject.h"
 
-class CustomTheme;
 class ITheme;
+class IconThemeList;
+class ThemeList;
 class SystemAppearance;
 
 /**
@@ -65,8 +67,12 @@ public:
     void apply(const Choice &choice);
     Choice current() const;
 
-    /// Bright, Dark, and System where the system can be followed, Custom where it's customized
-    QList<ITheme *> themes() const;
+    /// System (where the system can be followed), Bright, Dark, then the ones in themes/
+    ThemeList *themeList() const;
+    /// The built-in icon sets, then the ones in iconthemes/
+    IconThemeList *iconThemeList() const;
+    /// The current theme's colours for log levels (see ITheme::logColors)
+    QMap<QString, QColor> logColors() const;
     /// The choice's theme palette as it would look with Fusion, accent and all: for previews
     QPalette previewPalette(const QString &themeId, const Choice &choice) const;
 
@@ -84,6 +90,8 @@ public:
 signals:
     /// The system's dark mode or accent changed (after it was applied, if it matters)
     void systemChanged();
+    /// A theme was applied: a choice, or the current theme changed on disk
+    void applied();
 
 private:
     struct NativeAbilities
@@ -106,8 +114,9 @@ private:
 private: /* data */
     SettingsObjectPtr m_settings;
     SystemAppearance *m_system = nullptr;
-    std::map<QString, std::unique_ptr<ITheme>> m_themes;
-    CustomTheme *m_custom = nullptr;
+    std::vector<std::unique_ptr<ITheme>> m_builtIn;
+    ThemeList *m_themeList = nullptr;
+    IconThemeList *m_iconThemeList = nullptr;
     Choice m_current;
     // the platform's style and palette, before we set any
     QString m_nativeStyle;

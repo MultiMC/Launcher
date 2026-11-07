@@ -2,12 +2,13 @@
 
 #include <QWidget>
 
-class IconCard;
+class IconThemeList;
+class QListView;
 
 /**
- * Choosing the icon theme: a card for each set with a few of its icons. Custom (icons in
- * iconthemes/custom in the data folder) only where it exists. Shared by the Appearance
- * settings page and the setup wizard.
+ * Choosing the icon theme: a row for each set (IconThemeList), built-in and in iconthemes/,
+ * with a few of its icons, its description, who made it and its license. Shared by the
+ * Appearance settings page and the setup wizard.
  */
 class IconThemeSelectionWidget : public QWidget
 {
@@ -28,10 +29,11 @@ protected:
     void changeEvent(QEvent *event) override;
 
 private:
-    void select(const QString &id);
-    void retranslate();
+    void showSelection();
 
 private: /* data */
-    QList<IconCard *> m_cards;
+    IconThemeList *m_list = nullptr;
+    QListView *m_view = nullptr;
     QString m_iconTheme;
+    bool m_updating = false;
 };

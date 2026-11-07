@@ -741,9 +741,15 @@ SET(LAUNCHER_SOURCES
     ui/themes/FusionStyle.cpp
     ui/themes/FusionStyle.h
     ui/themes/ITheme.h
+    ui/themes/ReuseInfo.cpp
+    ui/themes/ReuseInfo.h
     ui/themes/SystemTheme.cpp
     ui/themes/SystemTheme.h
     ui/themes/SystemAppearance.h
+    ui/themes/IconThemeList.cpp
+    ui/themes/IconThemeList.h
+    ui/themes/ThemeList.cpp
+    ui/themes/ThemeList.h
     ui/themes/ThemeManager.cpp
     ui/themes/ThemeManager.h
     ui/themes/TitleBar.cpp
@@ -914,8 +920,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/TierLever.h
     ui/widgets/IconThemeSelectionWidget.cpp
     ui/widgets/IconThemeSelectionWidget.h
-    ui/widgets/SelectionCard.cpp
-    ui/widgets/SelectionCard.h
+    ui/widgets/DetailRowDelegate.cpp
+    ui/widgets/DetailRowDelegate.h
     ui/widgets/ThemePreview.cpp
     ui/widgets/ThemePreview.h
     ui/widgets/ThemeSelectionWidget.cpp
