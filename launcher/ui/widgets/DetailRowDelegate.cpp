@@ -32,6 +32,7 @@ void DetailRowDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     const bool selected = option.state & QStyle::State_Selected;
     const QRect r = option.rect.adjusted(MARGIN, MARGIN, -MARGIN, -MARGIN);
 
+    // the picture on the left, vertically centred, faded when the row can't be chosen
     p.save();
     if (!enabled)
     {
@@ -41,6 +42,7 @@ void DetailRowDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     m_paintPicture(p, picture, index);
     p.restore();
 
+    // the text to the right of the picture: two lines, centred together in the row
     const QPalette::ColorGroup group = enabled ? QPalette::Active : QPalette::Disabled;
     const QColor text = option.palette.color(group, selected ? QPalette::HighlightedText : QPalette::Text);
     QColor details = text;
@@ -50,6 +52,7 @@ void DetailRowDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     const int lineHeight = option.fontMetrics.height();
     const int top = r.top() + (r.height() - 2 * lineHeight - MARGIN / 2) / 2;
 
+    // first line: the name, in bold
     QFont bold = option.font;
     bold.setBold(true);
     p.setFont(bold);
@@ -57,6 +60,7 @@ void DetailRowDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     const QFontMetrics boldMetrics(bold);
     p.drawText(QRect(textLeft, top, textWidth, lineHeight), Qt::AlignLeft | Qt::AlignVCenter,
                boldMetrics.elidedText(index.data(Qt::DisplayRole).toString(), Qt::ElideRight, textWidth));
+    // second line: the details, dimmed
     p.setFont(option.font);
     p.setPen(details);
     p.drawText(QRect(textLeft, top + lineHeight + MARGIN / 2, textWidth, lineHeight), Qt::AlignLeft | Qt::AlignVCenter,

@@ -27,13 +27,14 @@ QIcon swatch(const QColor &color, int size)
     pixmap.fill(Qt::transparent);
     QPainter p(&pixmap);
     p.setRenderHint(QPainter::Antialiasing);
+    // a disc of the colour, its edge a little darker
     p.setPen(QPen(color.darker(150), 1));
     p.setBrush(color);
     p.drawEllipse(QRectF(0.5, 0.5, size - 1, size - 1));
     return QIcon(pixmap);
 }
 
-// a ring that shows on any colour under it
+// a ring that shows on any colour under it: a white ring inside a black one
 void paintMarker(QPainter &p, const QPointF &at)
 {
     p.setBrush(Qt::NoBrush);
@@ -105,6 +106,7 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
+        // the bar: every hue, left to right
         const QRectF bar = barRect();
         QLinearGradient gradient(bar.topLeft(), bar.topRight());
         for(int i = 0; i <= 6; i++)
@@ -114,7 +116,9 @@ protected:
         p.setPen(Qt::NoPen);
         p.setBrush(gradient);
         p.drawRoundedRect(bar, bar.height() / 2, bar.height() / 2);
+        // the marker at the current hue
         paintMarker(p, QPointF(bar.left() + bar.width() * m_hue / 359.0, bar.center().y()));
+        // the focus frame around the whole strip
         if(hasFocus())
         {
             p.setPen(QPen(palette().color(QPalette::Highlight), 1, Qt::DotLine));
@@ -214,6 +218,7 @@ protected:
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
+        // the field: white to the full hue across, then darkened toward black downwards
         const QRectF field = fieldRect();
         QPainterPath shape;
         shape.addRoundedRect(field, 4, 4);
@@ -227,7 +232,9 @@ protected:
         value.setColorAt(1, Qt::black);
         p.fillRect(field, value);
         p.setClipping(false);
+        // the marker at the current saturation and brightness
         paintMarker(p, QPointF(field.left() + field.width() * m_saturation, field.bottom() - field.height() * m_value));
+        // the focus frame around the whole field
         if(hasFocus())
         {
             p.setPen(QPen(palette().color(QPalette::Highlight), 1, Qt::DotLine));

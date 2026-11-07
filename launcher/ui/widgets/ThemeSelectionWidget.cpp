@@ -19,7 +19,7 @@
 #include "ui/themes/ThemeList.h"
 
 namespace {
-// A small square of a colour, for the accent choices
+// A small square of a colour, for the accent choices: a rounded square, its edge a little darker
 QIcon swatch(const QColor &color)
 {
     QPixmap pixmap(16, 16);
