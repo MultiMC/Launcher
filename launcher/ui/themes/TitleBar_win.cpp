@@ -78,6 +78,16 @@ void TitleBar::apply(QWidget *window, Style style)
     }
     // Windows 10 doesn't redraw the title bar until something makes it; this nudges it
     SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    // ...but not the active window's: that one is only drawn again when activation changes
+    // (another window opening over it). Telling it it's inactive, then what it really is,
+    // draws its frame twice without changing which window is active. Windows 11 redraws
+    // on its own.
+    if (windowsBuild() < 22000)
+    {
+        const bool active = GetActiveWindow() == hwnd;
+        SendMessageW(hwnd, WM_NCACTIVATE, !active, 0);
+        SendMessageW(hwnd, WM_NCACTIVATE, active, 0);
+    }
 }
 
 // Windows has no application-wide appearance: windows are set up one by one
