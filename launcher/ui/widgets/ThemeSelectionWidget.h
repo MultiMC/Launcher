@@ -66,5 +66,4 @@ private: /* data */
     QRadioButton *m_themeAccent = nullptr;
     QRadioButton *m_systemAccent = nullptr;
     QRadioButton *m_customAccent = nullptr;
-    QToolButton *m_customColor = nullptr;
 };
