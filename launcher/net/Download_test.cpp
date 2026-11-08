@@ -83,6 +83,13 @@ private:
             socket->write("HTTP/1.1 200 OK\r\nContent-Length: 2000000\r\n\r\n");
             socket->write(QByteArray(1000000, 'x'));
         }
+        else if(path == "/missing-page")
+        {
+            // a 404 with a large error page, as R2's custom domains send
+            const QByteArray page(27000, 'x');
+            socket->write("HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: " + QByteArray::number(page.size()) + "\r\nConnection: close\r\n\r\n" + page);
+            socket->disconnectFromHost();
+        }
         else
         {
             socket->write("HTTP/1.1 404 Not Found\r\nContent-Length: 9\r\nConnection: close\r\n\r\nnot found");
@@ -159,6 +166,18 @@ slots:
         QVERIFY(!run(download));
         QVERIFY(download->wasNotFound());
         QCOMPARE(download->httpStatus(), 404);
+    }
+
+    // the error page doesn't count against a size limit: the download is not found, not too large
+    void test_notFoundWithALargeErrorPage()
+    {
+        QByteArray data;
+        auto download = Net::Download::makeByteArray(m_server->url("/missing-page"), &data, Net::Download::Option::NoMirrors);
+        download->addValidator(new Net::SizeValidator(100));
+        QVERIFY(!run(download));
+        QVERIFY(download->wasNotFound());
+        QCOMPARE(download->httpStatus(), 404);
+        QVERIFY(data.isEmpty());
     }
 
     void test_localFileNotFound()

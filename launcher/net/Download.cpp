@@ -369,6 +369,13 @@ void Download::downloadReadyRead()
     if(m_status == Job_InProgress)
     {
         auto data = m_reply->readAll();
+        // an error page (some servers send a large HTML one with a 404) isn't the file: the
+        // error that follows decides, not the validators
+        auto status = m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+        if(status.isValid() && status.toInt() >= 400)
+        {
+            return;
+        }
         m_status = m_sink->write(data);
         if(m_status == Job_Failed)
         {
