@@ -490,7 +490,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
      * If there is one, tell it what the user actually wanted to do and exit.
      * We want to initialize this before logging to avoid messing with the log of a potential already running copy.
      */
-    auto appID = ApplicationId::fromPathAndVersion(QDir::currentPath(), BuildConfig.printableVersionString());
+    // with the platform: switching variants installs the same build for another one, and the new
+    // process must not take the old one, still waiting for it to start, for itself
+    auto appID = ApplicationId::fromPathAndVersion(QDir::currentPath(), BuildConfig.printableVersionString() + " on " + BuildConfig.BUILD_PLATFORM);
     {
         // FIXME: you can run the same binaries with multiple data dirs and they won't clash. This could cause issues for updates.
         m_peerInstance = new LocalPeer(this, appID);
