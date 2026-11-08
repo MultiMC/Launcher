@@ -1,6 +1,7 @@
 #include "ThemeManager.h"
 
 #include <QApplication>
+#include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>
 #include <QGuiApplication>
@@ -479,11 +480,22 @@ void ThemeManager::applyNative(ITheme *theme, const Choice &choice)
         const QPalette ours = finished(theme, choice);
         if (m_nativeStyle.toLower() == "breeze")
         {
-            const QString scheme = QDir("cache").absoluteFilePath("breeze.colors");
+            // named by what it holds: KWin colours the title bars from the scheme the window
+            // names, and reads it again only when that name changes
+            const QByteArray contents = kdeColorScheme(ours);
+            const QString hash = QCryptographicHash::hash(contents, QCryptographicHash::Sha1).toHex().left(12);
+            QDir cache("cache");
+            const QString scheme = cache.absoluteFilePath(QString("breeze-%1.colors").arg(hash));
             try
             {
-                FS::write(scheme, kdeColorScheme(ours));
+                FS::write(scheme, contents);
                 qApp->setProperty(KDE_SCHEME_PROPERTY, scheme);
+                // the ones written before
+                for (auto &old : cache.entryInfoList({"breeze*.colors"}, QDir::Files))
+                {
+                    if (old.absoluteFilePath() != scheme)
+                        QFile::remove(old.absoluteFilePath());
+                }
             }
             catch (const Exception &e)
             {
