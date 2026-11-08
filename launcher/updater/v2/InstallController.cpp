@@ -8,14 +8,9 @@
 #include <QProcess>
 #include <QTextStream>
 
-#include <chrono>
-#include <thread>
-
-#include <LocalPeer.h>
-
 #include "BuildConfig.h"
-#include "Exception.h"
 #include "FileSystem.h"
+#include "updater/LiveCheck.h"
 
 namespace UpdaterV2
 {
@@ -178,43 +173,7 @@ void InstallController::installUpdates()
     }
     if(!startFailed && doLiveCheck)
     {
-        int attempts = 0;
-        while(attempts < 10)
-        {
-            attempts++;
-            QString key;
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
-            if(!QFile::exists(liveCheckFile))
-            {
-                qWarning() << "Couldn't find the" << liveCheckFile << "file!";
-                startFailed = true;
-                continue;
-            }
-            try
-            {
-                key = QString::fromUtf8(FS::read(liveCheckFile));
-                auto id = ApplicationId::fromRawString(key);
-                LocalPeer peer(nullptr, id);
-                if(peer.isClient())
-                {
-                    startFailed = false;
-                    qDebug() << "Found process started with key " << key;
-                    break;
-                }
-                else
-                {
-                    startFailed = true;
-                    qDebug() << "Process started with key " << key << "apparently died or is not reponding...";
-                    break;
-                }
-            }
-            catch (const Exception &e)
-            {
-                qWarning() << "Couldn't read the" << liveCheckFile << "file!";
-                startFailed = true;
-                continue;
-            }
-        }
+        startFailed = !LiveCheck::waitFor(liveCheckFile, LiveCheck::DEFAULT_TIMEOUT_MS);
     }
     if(startFailed)
     {
