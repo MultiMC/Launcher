@@ -36,6 +36,14 @@ public:
     QStringList files() const;
     /// Who made it and its license, from theme.json.license (the community themes have one)
     ReuseInfo reuse() const;
+    QString folder() const;
+
+    /// The palette roles theme.json can set, by their names there
+    static QList<QPair<QPalette::ColorRole, QString>> colorRoles();
+    /// The log levels theme.json can colour, by their names there
+    static QStringList logLevels();
+    /// Every role set from the ones given: the rest from Bright or Dark, whichever is closer
+    static QPalette paletteFrom(const QMap<QPalette::ColorRole, QColor> &given);
 
 private: /* data */
     QString m_folder;

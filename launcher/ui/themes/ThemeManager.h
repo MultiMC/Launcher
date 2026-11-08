@@ -59,6 +59,9 @@ public:
 
     /// What the settings say, with the defaults for what isn't set yet
     Choice savedChoice() const;
+    /// A theme's palette finished as with Fusion and the theme's own accent (the disabled
+    /// colours derived): for the theme editor's preview
+    QPalette finishedPalette(const QPalette &themePalette) const;
     /// The theme when none was chosen, or the chosen one is gone
     QString defaultTheme() const;
     void save(const Choice &choice);

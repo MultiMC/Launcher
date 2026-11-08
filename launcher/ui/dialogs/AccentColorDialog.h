@@ -23,11 +23,16 @@ public:
     /// preview gives the theme's palette with a colour as its accent
     AccentColorDialog(const QColor &initial, const QColor &systemAccent, std::function<QPalette(const QColor &)> preview,
                       QWidget *parent = nullptr);
+    /// For any colour of a theme: preview gives the palette with it, suggestions are offered
+    /// first (the theme's other colours), title says which colour it is
+    AccentColorDialog(const QColor &initial, const QList<QColor> &suggestions, std::function<QPalette(const QColor &)> preview,
+                      const QString &title, QWidget *parent = nullptr);
     virtual ~AccentColorDialog() {};
 
     QColor color() const;
 
 private:
+    void build(const QColor &initial, const QList<QPair<QColor, QString>> &suggestions);
     // from anything but the hue strip and the field: they keep their own hue for greys
     void setColor(const QColor &color);
     void colorChanged(bool updateHex);

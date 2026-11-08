@@ -301,12 +301,40 @@ AccentColorDialog::AccentColorDialog(const QColor &initial, const QColor &system
     : QDialog(parent), m_preview(preview)
 {
     setWindowTitle(tr("Accent color"));
+    // the system's accent first
+    QList<QPair<QColor, QString>> suggestions;
+    if(systemAccent.isValid())
+    {
+        suggestions.append({systemAccent, tr("The system's accent color")});
+    }
+    for(auto name: SUGGESTED)
+    {
+        suggestions.append({QColor(name), QString(name)});
+    }
+    build(initial, suggestions);
+}
+
+AccentColorDialog::AccentColorDialog(const QColor &initial, const QList<QColor> &suggestions,
+                                     std::function<QPalette(const QColor &)> preview, const QString &title, QWidget *parent)
+    : QDialog(parent), m_preview(preview)
+{
+    setWindowTitle(title);
+    QList<QPair<QColor, QString>> named;
+    for(auto &color : suggestions)
+    {
+        named.append({color, color.name()});
+    }
+    build(initial, named);
+}
+
+void AccentColorDialog::build(const QColor &initial, const QList<QPair<QColor, QString>> &suggestions)
+{
     auto layout = new QVBoxLayout(this);
 
     m_previewWidget = new AccentPreview(this);
     layout->addWidget(m_previewWidget);
 
-    // suggestions, the system's accent first
+    // the suggestions in a row
     auto swatches = new QHBoxLayout();
     swatches->addStretch(1);
     auto addSwatch = [this, swatches](const QColor &color, const QString &tip) {
@@ -319,13 +347,9 @@ AccentColorDialog::AccentColorDialog(const QColor &initial, const QColor &system
         connect(button, &QToolButton::clicked, this, [this, color]() { setColor(color); });
         swatches->addWidget(button);
     };
-    if(systemAccent.isValid())
+    for(auto &suggestion : suggestions)
     {
-        addSwatch(systemAccent, tr("The system's accent color"));
-    }
-    for(auto name: SUGGESTED)
-    {
-        addSwatch(QColor(name), QString(name));
+        addSwatch(suggestion.first, suggestion.second);
     }
     swatches->addStretch(1);
     layout->addLayout(swatches);

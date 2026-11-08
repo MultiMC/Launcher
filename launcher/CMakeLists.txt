@@ -116,6 +116,11 @@ add_unit_test(ThemeArchive
     LIBS Launcher_logic
     )
 
+add_unit_test(ThemeWriter
+    SOURCES ui/themes/ThemeWriter_test.cpp
+    LIBS Launcher_logic
+    )
+
 add_unit_test(GZip
     SOURCES GZip_test.cpp
     LIBS Launcher_logic
@@ -754,6 +759,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/IconThemeList.cpp
     ui/themes/IconThemeList.h
     ui/themes/ThemeArchive.cpp
+    ui/themes/ThemeWriter.cpp
+    ui/themes/ThemeWriter.h
     ui/themes/ThemeArchive.h
     ui/themes/ThemeList.cpp
     ui/themes/ThemeList.h
@@ -871,6 +878,8 @@ SET(LAUNCHER_SOURCES
     # GUI - dialogs
     ui/dialogs/AboutDialog.cpp
     ui/dialogs/AccentColorDialog.cpp
+    ui/dialogs/ThemeEditorDialog.cpp
+    ui/dialogs/ThemeEditorDialog.h
     ui/dialogs/AccentColorDialog.h
     ui/dialogs/AboutDialog.h
     ui/dialogs/AccountsDialog.cpp
@@ -925,6 +934,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/LanguageSelectionWidget.h
     ui/widgets/TierLever.cpp
     ui/widgets/TierLever.h
+    ui/widgets/ConsolePreview.cpp
+    ui/widgets/ConsolePreview.h
     ui/widgets/IconThemeSelectionWidget.cpp
     ui/widgets/IconThemeSelectionWidget.h
     ui/widgets/DetailRowDelegate.cpp

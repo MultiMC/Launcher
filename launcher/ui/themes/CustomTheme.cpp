@@ -169,6 +169,26 @@ void CustomTheme::reload()
     m_oldDefault = m_id == "custom" && colors == OLD_DEFAULT_COLORS && (css.isEmpty() || css == OLD_DEFAULT_CSS);
 }
 
+QString CustomTheme::folder() const
+{
+    return m_folder;
+}
+
+QList<QPair<QPalette::ColorRole, QString>> CustomTheme::colorRoles()
+{
+    return ROLES;
+}
+
+QStringList CustomTheme::logLevels()
+{
+    return LOG_LEVELS;
+}
+
+QPalette CustomTheme::paletteFrom(const QMap<QPalette::ColorRole, QColor> &given)
+{
+    return fullPalette(given);
+}
+
 QString CustomTheme::error() const
 {
     return m_error;

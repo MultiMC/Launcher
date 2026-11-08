@@ -12,17 +12,17 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QTabWidget>
-#include <QTextEdit>
 #include <QVBoxLayout>
 
 #include "DesktopServices.h"
 #include "FileSystem.h"
-#include "MessageLevel.h"
 #include "settings/SettingsObject.h"
-#include "ui/ColorCache.h"
+#include "ui/dialogs/ThemeEditorDialog.h"
+#include "ui/themes/CustomTheme.h"
 #include "ui/themes/IconThemeList.h"
 #include "ui/themes/ThemeList.h"
 #include "ui/themes/ThemeManager.h"
+#include "ui/widgets/ConsolePreview.h"
 #include "ui/widgets/IconThemeSelectionWidget.h"
 #include "ui/widgets/ThemeSelectionWidget.h"
 
@@ -95,6 +95,15 @@ QWidget *AppearancePage::makeListTab(QWidget *list, FileButtons &buttons, Kind k
     row->addWidget(buttons.importButton);
     row->addWidget(buttons.openFolder);
     row->addStretch(1);
+    if(kind == Kind::Colors)
+    {
+        buttons.customize = new QPushButton(tab);
+        row->addWidget(buttons.customize);
+        connect(buttons.customize, &QPushButton::clicked, this, [this]() {
+            const QModelIndex index = indexOf(Kind::Colors, currentId(Kind::Colors));
+            editTheme(index, isUserTheme(index));
+        });
+    }
     row->addWidget(buttons.exportButton);
     row->addWidget(buttons.deleteButton);
     layout->addLayout(row);
@@ -174,11 +183,24 @@ void AppearancePage::updateFileButtons()
         buttons.exportButton->setEnabled(user);
         buttons.deleteButton->setEnabled(user);
     }
+    // a user theme is edited, a built-in one copied first
+    const bool user = isUserTheme(indexOf(Kind::Colors, currentId(Kind::Colors)));
+    m_themeButtons.customize->setText(user ? tr("Ed&it...") : tr("&Customize..."));
+    m_themeButtons.customize->setToolTip(user ? tr("Change the chosen theme's colors") : tr("Make a theme of your own from the chosen one"));
 }
 
 void AppearancePage::showRowMenu(Kind kind, const QModelIndex &index, const QPoint &globalPos)
 {
     QMenu menu(this);
+    // any theme that reads can be copied; user themes edited too
+    const bool readable = index.isValid() && index.data(ThemeList::ErrorRole).toString().isEmpty();
+    if(kind == Kind::Colors && readable)
+    {
+        menu.addAction(tr("Customize..."), this, [this, index]() { editTheme(index, false); });
+        if(isUserTheme(index))
+            menu.addAction(tr("Edit..."), this, [this, index]() { editTheme(index, true); });
+        menu.addSeparator();
+    }
     if(isUserTheme(index))
     {
         const QString id = index.data(ThemeList::IdRole).toString();
@@ -307,6 +329,52 @@ void AppearancePage::deleteTheme(Kind kind, const QModelIndex &index)
     }
 }
 
+void AppearancePage::editTheme(const QModelIndex &index, bool inPlace)
+{
+    if(!index.isValid() || !index.data(ThemeList::ErrorRole).toString().isEmpty())
+    {
+        return;
+    }
+    auto manager = APPLICATION->themeManager();
+    const QString id = index.data(ThemeList::IdRole).toString();
+    const bool user = isUserTheme(index);
+
+    // the theme as it looks with its own accent, every role
+    ThemeManager::Choice own;
+    own.theme = id;
+    const QPalette palette = manager->previewPalette(id, own);
+    ThemeWriter::Theme theme;
+    const QString name = index.data(Qt::DisplayRole).toString();
+    theme.name = inPlace ? name : tr("%1 (copy)").arg(name);
+    for(auto &role : CustomTheme::colorRoles())
+    {
+        theme.colors[role.first] = palette.color(QPalette::Active, role.first);
+    }
+    if(auto source = manager->themeList()->theme(id))
+    {
+        theme.logColors = source->logColors();
+    }
+
+    // a copy can't take a built-in theme's id
+    QStringList reserved;
+    auto list = manager->themeList();
+    for(int row = 0; row < list->rowCount(); row++)
+    {
+        const QModelIndex other = list->index(row);
+        if(other.data(ThemeList::BuiltInRole).toBool())
+            reserved.append(other.data(ThemeList::IdRole).toString());
+    }
+    const QString themeFolder = user ? FS::PathCombine(folder(Kind::Colors), id) : QString();
+    ThemeEditorDialog dialog(folder(Kind::Colors), inPlace ? id : QString(), themeFolder, theme, reserved, this);
+    if(dialog.exec() != QDialog::Accepted)
+    {
+        return;
+    }
+    // in the list at once, and chosen, so it shows
+    list->rescan();
+    select(Kind::Colors, dialog.savedId());
+}
+
 void AppearancePage::dragEnterEvent(QDragEnterEvent *event)
 {
     // one zip file at a time
@@ -343,10 +411,7 @@ QWidget *AppearancePage::makeConsoleTab()
     fontRow->addWidget(m_consoleFont, 1);
     fontRow->addWidget(m_fontSize);
     layout->addLayout(fontRow);
-    m_consolePreview = new QTextEdit(tab);
-    m_consolePreview->setReadOnly(true);
-    m_consolePreview->setUndoRedoEnabled(false);
-    m_consolePreview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_consolePreview = new ConsolePreview(tab);
     layout->addWidget(m_consolePreview, 1);
 
     connect(m_consoleFont, &QFontComboBox::currentFontChanged, this, &AppearancePage::consoleFontChanged);
@@ -369,37 +434,8 @@ void AppearancePage::consoleFontChanged()
 
 void AppearancePage::updateConsolePreview()
 {
-    const QColor front = m_consolePreview->palette().color(m_consolePreview->foregroundRole());
-    const QColor back = m_consolePreview->palette().color(m_consolePreview->backgroundRole());
-    LogColorCache colors(front, back, APPLICATION->themeManager()->logColors());
-    const QFont font(m_consoleFont->currentFont().family(), m_fontSize->value());
-    m_consolePreview->clear();
-    auto cursor = m_consolePreview->textCursor();
-    // a line for each kind of message, in the colours the console uses
-    const QList<QPair<MessageLevel::Enum, QString>> lines = {
-        {MessageLevel::Launcher, tr("Launcher: preparing the instance...")},
-        {MessageLevel::Message, tr("[Test/INFO] A harmless message...")},
-        {MessageLevel::Debug, tr("[Test/DEBUG] Details for the curious.")},
-        {MessageLevel::Warning, tr("[Something/WARN] A not so spooky warning.")},
-        {MessageLevel::Error, tr("[Something/ERROR] A spooky error!")},
-        {MessageLevel::Fatal, tr("[Something/FATAL] The game crashed.")},
-    };
-    for(auto &line : lines)
-    {
-        QTextCharFormat format;
-        format.setFont(font);
-        format.setForeground(colors.getFront(line.first));
-        const QColor background = colors.getBack(line.first);
-        if(background.alpha() > 0)
-        {
-            format.setBackground(background);
-        }
-        cursor.insertText(line.second, format);
-        if(line.first != MessageLevel::Fatal)
-        {
-            cursor.insertBlock();
-        }
-    }
+    m_consolePreview->setConsoleFont(m_consoleFont->currentFont().family(), m_fontSize->value());
+    m_consolePreview->setLogColors(APPLICATION->themeManager()->logColors());
 }
 
 void AppearancePage::loadSettings()

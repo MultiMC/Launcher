@@ -374,6 +374,13 @@ QPalette ThemeManager::finished(ITheme *theme, const Choice &choice) const
     return p;
 }
 
+QPalette ThemeManager::finishedPalette(const QPalette &themePalette) const
+{
+    QPalette p = themePalette;
+    deriveDisabled(p);
+    return p;
+}
+
 QPalette ThemeManager::previewPalette(const QString &themeId, const Choice &choice) const
 {
     Choice preview = choice;
