@@ -41,6 +41,8 @@ public:
 
     static QString themeName();
     static void setThemeName(const QString &themeName);
+    /// Where icons the current theme doesn't have come from, whatever it inherits from
+    static void setFallbackThemeName(const QString &themeName);
 
 protected:
     explicit XdgIcon();

@@ -395,13 +395,19 @@ Bug: https://bugreports.qt.nokia.com/browse/QTBUG-12874
 
 QThemeIconEntries QIconLoader::loadIcon(const QString &name) const
 {
+    QThemeIconEntries entries;
+    QStringList visited;
     if (!themeName().isEmpty())
     {
-        QStringList visited;
-        return findIconHelper(themeName(), name, visited);
+        entries = findIconHelper(themeName(), name, visited);
     }
-
-    return QThemeIconEntries();
+    // what the theme and the themes it inherits from don't have comes from the fallback
+    // theme; visited keeps it from being searched twice
+    if (entries.isEmpty() && !m_fallbackTheme.isEmpty() && !visited.contains(m_fallbackTheme))
+    {
+        entries = findIconHelper(m_fallbackTheme, name, visited);
+    }
+    return entries;
 }
 
 // -------- Icon Loader Engine -------- //

@@ -898,6 +898,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         auto searchPaths = QIcon::themeSearchPaths();
         searchPaths.append("iconthemes");
         QIcon::setThemeSearchPaths(searchPaths);
+        // custom icon themes needn't have every icon (the mod platforms' logos, say), and
+        // often inherit from themes the launcher doesn't have: the rest come from ours
+        XdgIcon::setFallbackThemeName("multimc");
         qDebug() << "<> Icon themes initialized.";
     }
 

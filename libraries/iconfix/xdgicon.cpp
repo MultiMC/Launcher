@@ -90,6 +90,11 @@ void XdgIcon::setThemeName(const QString &themeName)
     QtXdg::QIconLoader::instance()->updateSystemTheme();
 }
 
+void XdgIcon::setFallbackThemeName(const QString &themeName)
+{
+    QtXdg::QIconLoader::instance()->setFallbackThemeName(themeName);
+}
+
 /************************************************
  Returns the QIcon corresponding to name in the current icon theme. If no such icon
  is found in the current theme fallback is return instead.

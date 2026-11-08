@@ -184,6 +184,11 @@ public:
         return m_userTheme.isEmpty() ? m_systemTheme : m_userTheme;
     }
     void setThemeName(const QString &themeName);
+    void setFallbackThemeName(const QString &themeName)
+    {
+        m_fallbackTheme = themeName;
+        invalidateKey();
+    }
     QIconTheme theme()
     {
         return themeList.value(themeName());
@@ -208,6 +213,7 @@ private:
 
     mutable QString m_userTheme;
     mutable QString m_systemTheme;
+    QString m_fallbackTheme;
     mutable QStringList m_iconDirs;
     mutable QHash<QString, QIconTheme> themeList;
 };
