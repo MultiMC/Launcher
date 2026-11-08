@@ -58,6 +58,13 @@ namespace MMCZip
      */
     nonstd::optional<QStringList> extractSubDir(QuaZip *zip, const QString & subdir, const QString &target);
 
+    /**
+     * Extract a subdirectory from an archive, at most maxBytes of it. For archives people bring
+     * in themselves (themes): the sizes in an archive can lie, so the limit counts what is
+     * actually written. Fails, removing what was extracted, when there is more.
+     */
+    nonstd::optional<QStringList> extractSubDirLimited(QuaZip *zip, const QString & subdir, const QString &target, qint64 maxBytes);
+
     bool extractRelFile(QuaZip *zip, const QString & file, const QString &target);
 
     /**

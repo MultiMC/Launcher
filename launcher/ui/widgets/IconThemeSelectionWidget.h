@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QModelIndex>
 #include <QWidget>
 
 class IconThemeList;
@@ -22,11 +23,14 @@ public:
     void setIconTheme(const QString &id);
 
 signals:
+    // a right click on a row (any row, also those that can't be chosen), at globalPos
+    void rowMenuRequested(const QModelIndex &index, const QPoint &globalPos);
     // the user chose another set
     void iconThemeChanged(const QString &id);
 
 protected:
     void changeEvent(QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     void showSelection();

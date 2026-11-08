@@ -106,6 +106,11 @@ QModelIndex IconThemeList::indexOf(const QString &id) const
     return QModelIndex();
 }
 
+QString IconThemeList::folder() const
+{
+    return m_folder;
+}
+
 QList<QPixmap> IconThemeList::samples(const QModelIndex &index) const
 {
     if (index.row() < 0 || index.row() >= m_entries.size())

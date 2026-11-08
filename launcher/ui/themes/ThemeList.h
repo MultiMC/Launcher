@@ -38,6 +38,8 @@ public:
     ITheme *theme(const QString &id) const;
     QModelIndex indexOf(const QString &id) const;
     QString folder() const;
+    /// Reads the folder again now, without waiting for the watcher (after an import)
+    void rescan();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -53,7 +55,6 @@ private:
     void directoryChanged(const QString &path);
     void fileChanged(const QString &path);
     void processChanges();
-    void rescan();
     void updateWatcher();
 
 private: /* data */

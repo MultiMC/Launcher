@@ -59,6 +59,8 @@ public:
 
     /// What the settings say, with the defaults for what isn't set yet
     Choice savedChoice() const;
+    /// The theme when none was chosen, or the chosen one is gone
+    QString defaultTheme() const;
     void save(const Choice &choice);
     /// Whether a theme was ever chosen (the setup wizard asks until then)
     bool themeChosen() const;

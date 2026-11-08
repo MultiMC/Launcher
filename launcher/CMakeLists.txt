@@ -111,6 +111,11 @@ add_unit_test(MMCZip
     LIBS Launcher_logic
     )
 
+add_unit_test(ThemeArchive
+    SOURCES ui/themes/ThemeArchive_test.cpp
+    LIBS Launcher_logic
+    )
+
 add_unit_test(GZip
     SOURCES GZip_test.cpp
     LIBS Launcher_logic
@@ -748,6 +753,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/SystemAppearance.h
     ui/themes/IconThemeList.cpp
     ui/themes/IconThemeList.h
+    ui/themes/ThemeArchive.cpp
+    ui/themes/ThemeArchive.h
     ui/themes/ThemeList.cpp
     ui/themes/ThemeList.h
     ui/themes/ThemeManager.cpp

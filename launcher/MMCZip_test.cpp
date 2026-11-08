@@ -69,6 +69,66 @@ slots:
         // what was extracted before it is removed again
         QVERIFY(!QFileInfo(target + "/fine.txt").exists());
     }
+
+    void test_extractSubDirLimited()
+    {
+        QTemporaryDir temp;
+        QVERIFY(temp.isValid());
+        const QString zipPath = QDir(temp.path()).filePath("theme.zip");
+        makeZip(zipPath, {"theme/", "theme/theme.json", "theme/resources/", "theme/resources/a.svg", "other.txt"});
+        const QString target = QDir(temp.path()).filePath("target");
+
+        QuaZip zip(zipPath);
+        QVERIFY(zip.open(QuaZip::mdUnzip));
+        auto extracted = MMCZip::extractSubDirLimited(&zip, "theme/", target, 1024);
+        QVERIFY(extracted.has_value());
+        QCOMPARE(extracted->size(), 2);
+        QVERIFY(QFileInfo(target + "/theme.json").isFile());
+        QVERIFY(QFileInfo(target + "/resources/a.svg").isFile());
+        QVERIFY(!QFileInfo(target + "/other.txt").exists());
+    }
+
+    // what is written counts, whatever the archive says about the sizes
+    void test_extractSubDirLimitedRefusesMore()
+    {
+        QTemporaryDir temp;
+        QVERIFY(temp.isValid());
+        const QString zipPath = QDir(temp.path()).filePath("big.zip");
+        {
+            QuaZip zip(zipPath);
+            QVERIFY(zip.open(QuaZip::mdCreate));
+            QuaZipFile file(&zip);
+            QVERIFY(file.open(QIODevice::WriteOnly, QuaZipNewInfo("first.txt")));
+            file.write("small");
+            file.close();
+            QVERIFY(file.open(QIODevice::WriteOnly, QuaZipNewInfo("zeros.bin")));
+            file.write(QByteArray(200 * 1024, '\0'));
+            file.close();
+            zip.close();
+        }
+        const QString target = QDir(temp.path()).filePath("target");
+
+        QuaZip zip(zipPath);
+        QVERIFY(zip.open(QuaZip::mdUnzip));
+        QVERIFY(!MMCZip::extractSubDirLimited(&zip, "", target, 100 * 1024).has_value());
+        QVERIFY(!QFileInfo(target + "/first.txt").exists());
+        QVERIFY(!QFileInfo(target + "/zeros.bin").exists());
+    }
+
+    void test_extractSubDirLimitedRefusesEntriesOutside()
+    {
+        QTemporaryDir temp;
+        QVERIFY(temp.isValid());
+        const QString zipPath = QDir(temp.path()).filePath("evil.zip");
+        makeZip(zipPath, {"fine.txt", "../escaped.txt"});
+        const QString target = QDir(temp.path()).filePath("deep/target");
+
+        QuaZip zip(zipPath);
+        QVERIFY(zip.open(QuaZip::mdUnzip));
+        QVERIFY(!MMCZip::extractSubDirLimited(&zip, "", target, 1024).has_value());
+        QVERIFY(!QFileInfo(QDir(temp.path()).filePath("deep/escaped.txt")).exists());
+        QVERIFY(!QFileInfo(target + "/fine.txt").exists());
+    }
 };
 
 QTEST_GUILESS_MAIN(MMCZipTest)

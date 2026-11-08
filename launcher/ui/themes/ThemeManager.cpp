@@ -248,13 +248,18 @@ ThemeManager::~ThemeManager()
 {
 }
 
+QString ThemeManager::defaultTheme() const
+{
+    return canFollowSystem() ? "system" : "bright";
+}
+
 ThemeManager::Choice ThemeManager::savedChoice() const
 {
     Choice choice;
     choice.theme = m_settings->get("Theme").toString();
     if (choice.theme.isEmpty())
     {
-        choice.theme = canFollowSystem() ? "system" : "bright";
+        choice.theme = defaultTheme();
     }
     const QString style = m_settings->get("ThemeStyle").toString();
     if (style == "native")

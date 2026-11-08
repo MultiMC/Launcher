@@ -1,13 +1,17 @@
 #pragma once
 
+#include <QModelIndex>
 #include <QWidget>
 
 #include "ui/pages/BasePage.h"
+#include "ui/themes/ThemeArchive.h"
 #include <Application.h>
 
 class IconThemeSelectionWidget;
+class QAbstractItemModel;
 class QFontComboBox;
 class QLabel;
+class QPushButton;
 class QSpinBox;
 class QTabWidget;
 class QTextEdit;
@@ -16,7 +20,9 @@ class ThemeSelectionWidget;
 /**
  * How the launcher looks, in tabs: the theme, accent and style (ThemeSelectionWidget), the
  * icons (IconThemeSelectionWidget), and the console's font, with a preview in the theme's log
- * colours. Choices apply at once.
+ * colours. Choices apply at once. Themes and icon themes come in as zips (Import…, or dropped
+ * on the page) and go out as zips (Export…); user themes can be opened in the file manager or
+ * deleted, from the buttons for the chosen one or from any row's menu.
  */
 class AppearancePage : public QWidget, public BasePage
 {
@@ -44,17 +50,49 @@ public:
     }
     void changeEvent(QEvent *) override;
 
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+
 private:
+    using Kind = ThemeArchive::Kind;
+    // the buttons under a tab's list
+    struct FileButtons
+    {
+        QPushButton *importButton = nullptr;
+        QPushButton *openFolder = nullptr;
+        QPushButton *exportButton = nullptr;
+        QPushButton *deleteButton = nullptr;
+    };
+
+    QWidget *makeListTab(QWidget *list, FileButtons &buttons, Kind kind);
     QWidget *makeConsoleTab();
     void consoleFontChanged();
     void updateConsolePreview();
     void loadSettings();
     void retranslate();
 
+    QAbstractItemModel *model(Kind kind) const;
+    QString folder(Kind kind) const;
+    QModelIndex indexOf(Kind kind, const QString &id) const;
+    QString currentId(Kind kind) const;
+    bool isUserTheme(const QModelIndex &index) const;
+    void select(Kind kind, const QString &id);
+    void updateFileButtons();
+    void showRowMenu(Kind kind, const QModelIndex &index, const QPoint &globalPos);
+    void importClicked();
+    void importZip(const QString &path);
+    void exportTheme(Kind kind, const QModelIndex &index);
+    void deleteTheme(Kind kind, const QModelIndex &index);
+
 private: /* data */
     QTabWidget *m_tabs = nullptr;
     ThemeSelectionWidget *m_themeWidget = nullptr;
+    QWidget *m_themeTab = nullptr;
+    FileButtons m_themeButtons;
     IconThemeSelectionWidget *m_iconsWidget = nullptr;
+    QWidget *m_iconsTab = nullptr;
+    FileButtons m_iconsButtons;
     QWidget *m_consoleTab = nullptr;
     QLabel *m_fontLabel = nullptr;
     QFontComboBox *m_consoleFont = nullptr;

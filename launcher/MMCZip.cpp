@@ -264,6 +264,101 @@ nonstd::optional<QStringList> MMCZip::extractSubDir(QuaZip *zip, const QString &
 }
 
 // ours
+nonstd::optional<QStringList> MMCZip::extractSubDirLimited(QuaZip *zip, const QString & subdir, const QString &target, qint64 maxBytes)
+{
+    QDir directory(target);
+    QStringList extracted;
+    auto fail = [&extracted]() {
+        JlCompress::removeFile(extracted);
+        return nonstd::nullopt;
+    };
+
+    qDebug() << "Extracting subdir" << subdir << "from" << zip->getZipName() << "to" << target << "- at most" << maxBytes << "bytes";
+    if(!zip->goToFirstFile())
+    {
+        // an empty archive has nothing to extract
+        return zip->getZipError() == UNZ_OK ? nonstd::optional<QStringList>(extracted) : fail();
+    }
+
+    qint64 written = 0;
+    do
+    {
+        QString name = zip->getCurrentFileName();
+        if(!name.startsWith(subdir))
+        {
+            continue;
+        }
+        name.remove(0, subdir.size());
+        auto inside = FS::PathInside(directory.absolutePath(), name);
+        if(!inside)
+        {
+            qWarning() << "Refusing to extract" << zip->getZipName() << "- the entry" << name << "points outside of" << target;
+            return fail();
+        }
+        if(name.isEmpty() || name.endsWith('/'))
+        {
+            if(!directory.mkpath(*inside))
+            {
+                qWarning() << "Failed to create folder" << *inside;
+                return fail();
+            }
+            continue;
+        }
+        if(!directory.mkpath(QFileInfo(*inside).absolutePath()))
+        {
+            qWarning() << "Failed to create folder for" << *inside;
+            return fail();
+        }
+
+        QuaZipFile in(zip);
+        if(!in.open(QIODevice::ReadOnly))
+        {
+            qWarning() << "Failed to read" << name << "from" << zip->getZipName();
+            return fail();
+        }
+        QFile out(*inside);
+        if(!out.open(QIODevice::WriteOnly))
+        {
+            qWarning() << "Failed to write" << *inside;
+            return fail();
+        }
+        extracted.append(*inside);
+        char buffer[64 * 1024];
+        qint64 read;
+        bool tooMuch = false, writeFailed = false;
+        while((read = in.read(buffer, sizeof(buffer))) > 0)
+        {
+            written += read;
+            tooMuch = written > maxBytes;
+            writeFailed = !tooMuch && out.write(buffer, read) != read;
+            if(tooMuch || writeFailed)
+            {
+                break;
+            }
+        }
+        // closed before anything is removed: Windows can't delete open files
+        out.close();
+        in.close();
+        if(tooMuch)
+        {
+            qWarning() << "Refusing to extract" << zip->getZipName() << "- it holds more than" << maxBytes << "bytes";
+            return fail();
+        }
+        if(writeFailed)
+        {
+            qWarning() << "Failed to write" << *inside;
+            return fail();
+        }
+        // closing checks the entry's checksum
+        if(read < 0 || in.getZipError() != UNZ_OK)
+        {
+            qWarning() << "Failed to read" << name << "from" << zip->getZipName();
+            return fail();
+        }
+    } while(zip->goToNextFile());
+    return extracted;
+}
+
 bool MMCZip::extractRelFile(QuaZip *zip, const QString &file, const QString &target)
 {
     return JlCompress::extractFile(zip, file, target);

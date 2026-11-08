@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListView>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QRadioButton>
 #include <QToolButton>
@@ -116,6 +117,12 @@ ThemeSelectionWidget::ThemeSelectionWidget(QWidget *parent) : QWidget(parent)
     };
     m_view->setItemDelegate(new DetailRowDelegate(PREVIEW_SIZE, ThemeList::DetailsRole, paintPreview, m_view));
     m_view->setModel(m_list);
+    // a right click opens the row's menu without choosing the row (eventFilter)
+    m_view->viewport()->installEventFilter(this);
+    m_view->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_view, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos) {
+        emit rowMenuRequested(m_view->indexAt(pos), m_view->viewport()->mapToGlobal(pos));
+    });
     layout->addWidget(m_view, 1);
     connect(m_view->selectionModel(), &QItemSelectionModel::currentChanged, this, [this](const QModelIndex &current) {
         if(m_updating || !current.isValid())
@@ -239,6 +246,16 @@ void ThemeSelectionWidget::retranslate()
     m_systemAccent->setText(tr("System"));
     m_customAccent->setText(tr("Custom"));
     updateControls();
+}
+
+bool ThemeSelectionWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    if(watched == m_view->viewport() && (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick)
+       && static_cast<QMouseEvent *>(event)->button() == Qt::RightButton)
+    {
+        return true;
+    }
+    return QWidget::eventFilter(watched, event);
 }
 
 void ThemeSelectionWidget::changeEvent(QEvent *event)

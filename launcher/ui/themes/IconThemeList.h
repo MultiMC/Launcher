@@ -28,6 +28,9 @@ public:
     virtual ~IconThemeList();
 
     QModelIndex indexOf(const QString &id) const;
+    QString folder() const;
+    /// Reads the folder again now, without waiting for the watcher (after an import)
+    void rescan();
     /// A few of the theme's icons, as the selector shows them
     QList<QPixmap> samples(const QModelIndex &index) const;
 
@@ -44,7 +47,6 @@ private:
         QList<QPixmap> samples;
         QString details;
     };
-    void rescan();
     QList<QPixmap> renderSamples(const QString &id) const;
     void updateWatcher();
 

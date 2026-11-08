@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QModelIndex>
 #include <QWidget>
 
 #include "ui/themes/ThemeManager.h"
@@ -30,11 +31,14 @@ public:
     void setChoice(const ThemeManager::Choice &choice);
 
 signals:
+    // a right click on a row (any row, also those that can't be chosen), at globalPos
+    void rowMenuRequested(const QModelIndex &index, const QPoint &globalPos);
     // the user changed something
     void choiceChanged(const ThemeManager::Choice &choice);
 
 protected:
     void changeEvent(QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     bool themeSelectable(const QString &id) const;
