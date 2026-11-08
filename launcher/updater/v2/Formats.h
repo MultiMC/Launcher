@@ -73,6 +73,8 @@ struct LinkEntry
 struct Variant
 {
     QString id;
+    // shown to users
+    QString name;
     QStringList supersedes;
     SystemRequirements::Requirements requirements;
     QList<FileEntry> files;

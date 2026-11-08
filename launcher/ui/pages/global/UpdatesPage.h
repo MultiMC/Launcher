@@ -6,11 +6,14 @@
 #include <Application.h>
 
 class QCheckBox;
+class QComboBox;
 class QGroupBox;
+class QLabel;
 class UpdateTierWidget;
 
 /**
- * Updater v2's settings: checking for updates on start, and the tier (UpdateTierWidget).
+ * Updater v2's settings: checking for updates on start, the tier (UpdateTierWidget), and which
+ * variant to run when this computer can run several.
  * Only in builds with updater v2; builds with updater v1 keep their update settings on the
  * Launcher page.
  */
@@ -46,9 +49,14 @@ private:
     void applySettings();
     void loadSettings();
     void retranslate();
+    // the variants of the tier's build that run here, from the last check
+    void updateVariants();
 
 private: /* data */
     QCheckBox *m_autoUpdate = nullptr;
     QGroupBox *m_tierBox = nullptr;
     UpdateTierWidget *m_tierWidget = nullptr;
+    QGroupBox *m_variantBox = nullptr;
+    QLabel *m_variantLabel = nullptr;
+    QComboBox *m_variant = nullptr;
 };

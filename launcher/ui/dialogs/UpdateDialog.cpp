@@ -30,6 +30,24 @@ UpdateDialog::~UpdateDialog()
 {
 }
 
+void UpdateDialog::offerVariantMove(const QString &text)
+{
+    ui->variantCheck->setText(text);
+    ui->variantCheck->setChecked(true);
+    ui->variantCheck->setVisible(true);
+}
+
+void UpdateDialog::announceVariantMove(const QString &text)
+{
+    ui->variantLabel->setText(text);
+    ui->variantLabel->setVisible(true);
+}
+
+bool UpdateDialog::variantMoveAccepted() const
+{
+    return ui->variantCheck->isChecked();
+}
+
 void UpdateDialog::loadChangelog()
 {
     dljob = new NetJob("Changelog", APPLICATION->network());

@@ -48,6 +48,26 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="variantLabel">
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="variantCheck">
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QPushButton" name="btnUpdateNow">

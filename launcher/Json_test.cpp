@@ -92,6 +92,15 @@ slots:
         QVERIFY_EXCEPTION_THROWN(Json::requireExactKeys(object, {"a", "c"}), Json::JsonException);
     }
 
+    void test_keys()
+    {
+        auto object = Json::requireTextDocument("{\"a\": 1, \"b\": null}").object();
+        Json::requireKeys(object, {"a", "b"});
+        Json::requireKeys(object, {"a"});
+        Json::requireKeys(object, {});
+        QVERIFY_EXCEPTION_THROWN(Json::requireKeys(object, {"a", "c"}), Json::JsonException);
+    }
+
     void test_boundedInteger()
     {
         QCOMPARE(Json::requireValueBoundedInteger(QJsonValue(0), 0, 10), qint64(0));

@@ -307,6 +307,21 @@ void Checker::afterKeys()
     });
 }
 
+void Checker::setPreferredVariant(const QString &variant)
+{
+    m_preferred = variant;
+}
+
+bool Checker::lastVariants(QList<Variant> &runnable, QString &recommended) const
+{
+    if(m_haveVariants)
+    {
+        runnable = m_lastRunnable;
+        recommended = m_lastRecommended;
+    }
+    return m_haveVariants;
+}
+
 bool Checker::lastTags(TagsDocument &tags) const
 {
     if(m_haveVerifiedTags)
@@ -325,31 +340,53 @@ void Checker::afterTags()
     }
     m_decision = decideTier(m_tags, m_tier, m_config.currentBuild, m_tierSwitched);
     m_result.build = m_decision.build;
-    if(m_decision.kind == TierDecision::NoUpdate)
-    {
-        done(CheckResult::NoUpdate);
-        return;
-    }
-    if(m_decision.kind == TierDecision::BehindInstalled)
-    {
-        done(CheckResult::BehindInstalled);
-        return;
-    }
 
+    // the tier's build even when it's the installed one: which variants it has decides on a switch
     auto acceptBuild = [this](const QByteArray &data, QString &error)
     {
         return parseBuild(data, m_decision.build, m_build, error);
     };
     fetchSigned(QString("builds/%1.json").arg(m_decision.build), MaxManifestSize, m_keys.onlineKeys, false, acceptBuild, [this](bool)
     {
-        auto choice = chooseVariant(m_build, m_config.variant, m_config.system);
+        m_result.ownVariantDropped = !m_build.variants.contains(m_config.variant);
+        m_result.runnable = runnableVariants(m_build, m_config.system);
+        auto recommended = chooseVariant(m_build, m_config.variant, QString(), m_config.system);
+        if(recommended.found)
+        {
+            m_result.recommended = recommended.variant.id;
+        }
+        m_lastRunnable = m_result.runnable;
+        m_lastRecommended = m_result.recommended;
+        m_haveVariants = true;
+        emit variantsKnown();
+
+        auto choice = chooseVariant(m_build, m_config.variant, m_preferred, m_config.system);
+        m_result.commit = m_build.commit;
+        if(m_decision.kind == TierDecision::BehindInstalled)
+        {
+            done(CheckResult::BehindInstalled);
+            return;
+        }
+        if(m_decision.kind == TierDecision::NoUpdate)
+        {
+            // the installed build is the tier's, so it has this variant
+            if(!choice.found || choice.variant.id == m_config.variant)
+            {
+                done(CheckResult::NoUpdate);
+                return;
+            }
+            m_result.variant = choice.variant;
+            m_result.haveCurrent = true;
+            m_result.current = m_build.variants.value(m_config.variant);
+            done(CheckResult::Switch);
+            return;
+        }
         if(!choice.found)
         {
             done(CheckResult::NotForThisMachine, choice.unmet);
             return;
         }
         m_result.variant = choice.variant;
-        m_result.commit = m_build.commit;
 
         // the installed build's files and links, to know what to remove; it may be gone (withdrawn or purged)
         auto current = std::make_shared<BuildManifest>();
@@ -385,6 +422,7 @@ void Checker::done(CheckResult::Kind kind, const QStringList &messages)
     m_result.tierSwitched = m_tierSwitched;
     m_result.notify = m_notify;
     m_result.currentBuild = m_config.currentBuild;
+    m_result.ownVariant = m_config.variant;
     m_result.messages.append(messages);
     if(m_stateChanged && !m_config.statePath.isEmpty() && !m_state.save(m_config.statePath))
     {

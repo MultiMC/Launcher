@@ -65,9 +65,20 @@ TierDecision decideTier(const TagsDocument &tags, Tier tier, qint64 currentBuild
     return out;
 }
 
-VariantChoice chooseVariant(const BuildManifest &build, const QString &ownVariant, const SystemRequirements::System &system)
+VariantChoice chooseVariant(const BuildManifest &build, const QString &ownVariant, const QString &preferred,
+                            const SystemRequirements::System &system)
 {
     VariantChoice out;
+    if(!preferred.isEmpty() && build.variants.contains(preferred))
+    {
+        auto chosen = build.variants.value(preferred);
+        if(SystemRequirements::unmetRequirements(chosen.requirements, system).isEmpty())
+        {
+            out.found = true;
+            out.variant = chosen;
+            return out;
+        }
+    }
     QMap<QString, QString> successor;
     for(auto &v: build.variants)
     {
@@ -120,6 +131,19 @@ VariantChoice chooseVariant(const BuildManifest &build, const QString &ownVarian
         return out;
     }
     out.unmet.append(QObject::tr("Build %1 has no version for this installation (%2).").arg(build.build).arg(ownVariant));
+    return out;
+}
+
+QList<Variant> runnableVariants(const BuildManifest &build, const SystemRequirements::System &system)
+{
+    QList<Variant> out;
+    for(auto &v: build.variants)
+    {
+        if(SystemRequirements::unmetRequirements(v.requirements, system).isEmpty())
+        {
+            out.append(v);
+        }
+    }
     return out;
 }
 

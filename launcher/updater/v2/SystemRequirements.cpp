@@ -347,6 +347,10 @@ QStringList SystemRequirements::unmetRequirements(const Requirements &requiremen
         auto arch = requirementArch(system);
         out.append(QObject::tr("The build needs a %1 processor, this computer has %2.").arg(requirements.arch, arch.isEmpty() ? QObject::tr("an unknown one") : arch));
     }
+    for(auto &key: requirements.unknown)
+    {
+        incomplete(key);
+    }
 
     // a minimum version: `what` names the requirement, `describe` makes a version readable
     auto checkMinimum = [&](const QString &what, const QString &required, const QString &found, std::function<QString(const QString &)> describe)

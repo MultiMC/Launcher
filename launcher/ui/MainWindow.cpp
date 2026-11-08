@@ -97,6 +97,23 @@
 #include "MMCTime.h"
 
 namespace {
+// a variant's name from the tier's build or the installed one; its ID when neither has it
+QString variantName(const UpdaterV2::CheckResult &result, const QString &id)
+{
+    for(auto &v: result.runnable)
+    {
+        if(v.id == id)
+        {
+            return v.name;
+        }
+    }
+    if(result.haveCurrent && result.current.id == id)
+    {
+        return result.current.name;
+    }
+    return id;
+}
+
 QString profileInUseFilter(const QString& profileName, const QString& accountName, bool used)
 {
     QString displayString;
@@ -1396,7 +1413,83 @@ void MainWindow::updateCheckedV2(const UpdaterV2::CheckResult &result)
                 break;
             }
             UpdateDialog dlg(true, this, result.commit);
-            if(dlg.exec() == UPDATE_NOW)
+            auto update = result;
+            bool canStay = false;
+            if(result.variant.id != result.ownVariant)
+            {
+                for(auto &v: result.runnable)
+                {
+                    if(v.id == result.ownVariant)
+                    {
+                        canStay = true;
+                        update.variant = v;
+                    }
+                }
+                if(canStay)
+                {
+                    dlg.offerVariantMove(tr("Switch to %1, which replaces %2").arg(result.variant.name, variantName(result, result.ownVariant)));
+                }
+                else
+                {
+                    dlg.announceVariantMove(tr("%1 isn't made for this computer any more, so this update switches to %2.")
+                                                .arg(variantName(result, result.ownVariant), result.variant.name));
+                }
+            }
+            auto answer = dlg.exec();
+            if(canStay && !dlg.variantMoveAccepted())
+            {
+                // the user objects to the move: this variant stays, until they change it in the settings
+                APPLICATION->settings()->set("UpdateVariant", result.ownVariant);
+            }
+            else
+            {
+                update.variant = result.variant;
+            }
+            if(answer == UPDATE_NOW)
+            {
+                if(result.ownVariantDropped && APPLICATION->settings()->get("UpdateVariant").toString() == result.ownVariant)
+                {
+                    // staying on it is no longer possible
+                    APPLICATION->settings()->set("UpdateVariant", QString());
+                }
+                downloadUpdateV2(update);
+            }
+            return;
+        }
+        case CheckResult::Switch:
+        {
+            if(!APPLICATION->updatesAreAllowed())
+            {
+                break;
+            }
+            auto own = variantName(result, result.ownVariant);
+            if(APPLICATION->settings()->get("UpdateVariant").toString().isEmpty())
+            {
+                // a move along `supersedes`: the user may object
+                QMessageBox box(QMessageBox::Question, tr("Switch version"),
+                                tr("%1 is available for this computer. It replaces %2, which this installation runs now.\n\n"
+                                   "Switch now? If you keep %2, you can switch later in Settings, Updates.").arg(result.variant.name, own),
+                                QMessageBox::NoButton, this);
+                auto now = box.addButton(tr("Switch now"), QMessageBox::AcceptRole);
+                auto keep = box.addButton(tr("Keep %1").arg(own), QMessageBox::DestructiveRole);
+                box.addButton(tr("Ask me later"), QMessageBox::RejectRole);
+                box.setDefaultButton(now);
+                box.exec();
+                if(box.clickedButton() == keep)
+                {
+                    APPLICATION->settings()->set("UpdateVariant", result.ownVariant);
+                }
+                else if(box.clickedButton() == now)
+                {
+                    downloadUpdateV2(result);
+                }
+                return;
+            }
+            // the user chose it in the settings
+            auto answer = CustomMessageBox::selectable(
+                this, tr("Switch version"), tr("Switch this installation from %1 to %2 now?").arg(own, result.variant.name),
+                QMessageBox::Question, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)->exec();
+            if(answer == QMessageBox::Yes)
             {
                 downloadUpdateV2(result);
             }
@@ -1424,7 +1517,13 @@ void MainWindow::updateCheckedV2(const UpdaterV2::CheckResult &result)
         default:
             break;
     }
-    if(!result.notify)
+    auto settings = APPLICATION->settings();
+    if(result.kind == CheckResult::NotForThisMachine && !result.notify && settings->get("UpdateNotPossibleBuild").toLongLong() != result.build)
+    {
+        // nothing more can be installed here: said once for each build, even when the user didn't ask
+        settings->set("UpdateNotPossibleBuild", result.build);
+    }
+    else if(!result.notify)
     {
         return;
     }
@@ -1432,6 +1531,7 @@ void MainWindow::updateCheckedV2(const UpdaterV2::CheckResult &result)
     {
         case CheckResult::NoUpdate:
         case CheckResult::Update:
+        case CheckResult::Switch:
         case CheckResult::Downgrade:
             if(result.currentWithdrawn)
             {
@@ -1450,11 +1550,15 @@ void MainWindow::updateCheckedV2(const UpdaterV2::CheckResult &result)
                 QMessageBox::Information)->show();
             break;
         case CheckResult::NotForThisMachine:
-            CustomMessageBox::selectable(
-                this, tr("Update not possible"),
-                tr("Build %1 is available, but it can't be installed here:").arg(result.build) + "\n\n" + details,
-                QMessageBox::Warning)->show();
+        {
+            auto text = tr("Build %1 is available, but it can't be installed here:").arg(result.build) + "\n\n" + details;
+            if(result.ownVariantDropped)
+            {
+                text = tr("Builds are no longer made of %1, the version this installation runs.").arg(variantName(result, result.ownVariant)) + "\n\n" + text;
+            }
+            CustomMessageBox::selectable(this, tr("Update not possible"), text, QMessageBox::Warning)->show();
             break;
+        }
         case CheckResult::Failed:
             CustomMessageBox::selectable(this, tr("Update check failed"), tr("Could not check for updates:") + "\n\n" + details, QMessageBox::Warning)->show();
             break;

@@ -334,6 +334,17 @@ void requireExactKeys(const QJsonObject &object, const QStringList &keys, const 
     }
 }
 
+void requireKeys(const QJsonObject &object, const QStringList &keys, const QString &what)
+{
+    for (const auto &key : keys)
+    {
+        if (!object.contains(key))
+        {
+            throw JsonException(what + " does not contain '" + key + "'");
+        }
+    }
+}
+
 qint64 requireValueBoundedInteger(const QJsonValue &value, qint64 minimum, qint64 maximum, const QString &what)
 {
     const double doubl = requireIsType<double>(value, what);

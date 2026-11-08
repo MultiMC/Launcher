@@ -54,10 +54,16 @@ struct VariantChoice
 };
 
 /**
- * Which variant of a build this machine installs: following the chain of successors from the
- * Launcher's own variant, the furthest one whose requirements the machine meets; otherwise its
- * own variant, if the build has it and the machine meets it.
+ * Which variant of a build this machine installs. `preferred` is the one the user chose to stay
+ * on or go back to (empty: none); while the build has it and the machine meets it, it's that one.
+ * Otherwise, following the chain of successors from the Launcher's own variant, the furthest one
+ * whose requirements the machine meets; otherwise its own variant, if the build has it and the
+ * machine meets it.
  */
-VariantChoice chooseVariant(const BuildManifest &build, const QString &ownVariant, const SystemRequirements::System &system);
+VariantChoice chooseVariant(const BuildManifest &build, const QString &ownVariant, const QString &preferred,
+                            const SystemRequirements::System &system);
+
+// the variants of a build the machine meets the requirements of, in ID order
+QList<Variant> runnableVariants(const BuildManifest &build, const SystemRequirements::System &system);
 
 }

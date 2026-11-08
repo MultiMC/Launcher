@@ -262,6 +262,10 @@ QJsonDocument requireTextDocument(const QByteArray &data, const QString &what = 
 /// @throw JsonException
 void requireExactKeys(const QJsonObject &object, const QStringList &keys, const QString &what = "Object");
 
+/// All of these keys; others are allowed
+/// @throw JsonException
+void requireKeys(const QJsonObject &object, const QStringList &keys, const QString &what = "Object");
+
 /// An integer from minimum to maximum, both included. The range can't go past MaxExactInteger either way.
 /// @throw JsonException
 qint64 requireValueBoundedInteger(const QJsonValue &value, qint64 minimum, qint64 maximum, const QString &what = "Value");

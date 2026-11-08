@@ -50,9 +50,10 @@ class UpdaterV2CheckerTest : public QObject
         return out;
     }
 
-    CheckResult run(const Config &config, Tier tier, bool tierSwitched = false)
+    CheckResult run(const Config &config, Tier tier, bool tierSwitched = false, const QString &preferred = QString())
     {
         Checker checker(m_network, config);
+        checker.setPreferredVariant(preferred);
         CheckResult out;
         bool done = false;
         connect(&checker, &Checker::finished, [&](const CheckResult &result)
@@ -166,6 +167,46 @@ slots:
         QCOMPARE(result.variant.id, QString("macos-x86_64-qt5.15"));
         QCOMPARE(result.variant.links.size(), 2);
         QCOMPARE(result.current.id, QString("macos-x86_64-qt5.6"));
+    }
+
+    // on the tier's build in a superseded variant: the successor is offered without a newer build
+    void test_switchOnTheSameBuild()
+    {
+        auto cfg = config({"main"}, 11);
+        cfg.variant = "macos-x86_64-qt5.6";
+        cfg.system.os = "macos";
+        cfg.system.osVersion = "10.15.7";
+        auto result = run(cfg, Tier::Testing);
+        QCOMPARE(int(result.kind), int(CheckResult::Switch));
+        QCOMPARE(result.build, qint64(11));
+        QCOMPARE(result.variant.id, QString("macos-x86_64-qt5.15"));
+        QVERIFY(result.haveCurrent);
+        QCOMPARE(result.current.id, QString("macos-x86_64-qt5.6"));
+        QCOMPARE(result.recommended, QString("macos-x86_64-qt5.15"));
+        QCOMPARE(result.runnable.size(), 2);
+        QVERIFY(!result.ownVariantDropped);
+
+        // the user stays on it
+        result = run(cfg, Tier::Testing, false, "macos-x86_64-qt5.6");
+        QCOMPARE(int(result.kind), int(CheckResult::NoUpdate));
+
+        // and goes back to it from the successor
+        cfg.variant = "macos-x86_64-qt5.15";
+        result = run(cfg, Tier::Testing, true, "macos-x86_64-qt5.6");
+        QCOMPARE(int(result.kind), int(CheckResult::Switch));
+        QCOMPARE(result.variant.id, QString("macos-x86_64-qt5.6"));
+        QCOMPARE(result.current.id, QString("macos-x86_64-qt5.15"));
+    }
+
+    // a build without this variant: said so, with what runs here
+    void test_ownVariantDropped()
+    {
+        auto cfg = config({"main"});
+        cfg.variant = "linux-x86-qt5";
+        auto result = run(cfg, Tier::Latest);
+        QCOMPARE(int(result.kind), int(CheckResult::NotForThisMachine));
+        QVERIFY(result.ownVariantDropped);
+        QCOMPARE(result.runnable.size(), 1);
     }
 
     // the first mirror's tags don't verify: they come from the next one

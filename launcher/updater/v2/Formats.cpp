@@ -21,6 +21,7 @@ const int MaxMirrors = 16;
 const int MaxSignatureLines = 8;
 const int MaxPath = 512;
 const int MaxVariantId = 64;
+const int MaxVariantName = 64;
 // following links further than this counts as a loop
 const int MaxLinkDepth = 40;
 
@@ -31,7 +32,11 @@ const int MaxLinkDepth = 40;
 
 const char *Commit = "[0-9a-f]{40}";
 const char *Version = "(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*))*";
-const char *VariantId = "(windows|macos|linux)-(x86_64|x86|arm64)-[a-z0-9.]+(-[a-z0-9.]+)*";
+// os and arch may be ones this Launcher doesn't know: such a variant is not for this machine
+const char *Word = "[a-z0-9_]+";
+const char *VariantId = "([a-z0-9_]+)-([a-z0-9_]+)-[a-z0-9.]+(-[a-z0-9.]+)*";
+// printable ASCII, not starting or ending with a space
+const char *VariantName = "[\\x21-\\x7e]([\\x20-\\x7e]*[\\x21-\\x7e])?";
 const char *BaseUrl = "https://[\\x21-\\x7e]+/";
 
 QString at(const QString &where, const QString &key)
@@ -98,7 +103,7 @@ void header(const QJsonObject &doc, const QString &type, QStringList names)
         fail("format isn't supported (only 1)");
     }
     names << "type" << "format";
-    Json::requireExactKeys(doc, names, type);
+    Json::requireKeys(doc, names, type);
 }
 
 void path(const QJsonValue &value, const QString &where, bool dotdot = false)
@@ -113,30 +118,35 @@ void path(const QJsonValue &value, const QString &where, bool dotdot = false)
 SystemRequirements::Requirements requirements(const QJsonValue &value, const QString &where)
 {
     auto req = Json::requireIsType<QJsonObject>(value, where);
-    auto os = req.value("os").toString();
+    SystemRequirements::Requirements out;
+    auto os = Json::requireValueMatching(req.value("os"), Word, at(where, "os"));
+    out.os = os;
+    out.arch = Json::requireValueMatching(req.value("arch"), Word, at(where, "arch"));
+    QStringList known = {"os", "arch"};
     if(os == "windows" || os == "macos")
     {
-        Json::requireExactKeys(req, {"os", "arch", "os_version"}, where);
+        known << "os_version";
     }
     else if(os == "linux")
     {
-        Json::requireExactKeys(req, {"os", "arch", "glibc", "glibcxx", "qt"}, where);
+        known << "glibc" << "glibcxx" << "qt";
     }
-    else
+    Json::requireKeys(req, known, where);
+    // a requirement this Launcher doesn't know can't be checked, so it isn't met (unmetRequirements)
+    for(auto &key: req.keys())
     {
-        fail(QString("%1: os must be one of linux, macos, windows").arg(where));
+        if(!known.contains(key))
+        {
+            out.unknown.append(key);
+        }
     }
-
-    SystemRequirements::Requirements out;
-    out.os = os;
-    out.arch = Json::requireValueMatching(req.value("arch"), "x86|x86_64|arm64", at(where, "arch"));
     if(os == "linux")
     {
         out.glibc = Json::requireValueMatching(req.value("glibc"), Version, at(where, "glibc"));
         out.glibcxx = Json::requireValueMatching(req.value("glibcxx"), Version, at(where, "glibcxx"));
         out.qt = Json::requireValueMatching(req.value("qt"), Version, at(where, "qt"));
     }
-    else
+    else if(os == "windows" || os == "macos")
     {
         out.osVersion = Json::requireValueMatching(req.value("os_version"), Version, at(where, "os_version"));
     }
@@ -180,10 +190,15 @@ QString resolveLink(const QString &linkPath, const QMap<QString, QString> &links
 Variant variant(const QString &id, const QJsonValue &value, const QString &where)
 {
     auto obj = Json::requireIsType<QJsonObject>(value, where);
-    Json::requireExactKeys(obj, {"supersedes", "requires", "files", "links"}, where);
+    Json::requireKeys(obj, {"name", "supersedes", "requires", "files", "links"}, where);
 
     Variant out;
     out.id = id;
+    out.name = Json::requireValueMatching(obj.value("name"), VariantName, at(where, "name"));
+    if(out.name.size() > MaxVariantName)
+    {
+        fail(QString("%1: longer than %2 characters").arg(at(where, "name")).arg(MaxVariantName));
+    }
     out.requirements = requirements(obj.value("requires"), at(where, "requires"));
     QRegularExpression idParts(QString("\\A(?:%1)\\z").arg(VariantId));
     auto m = idParts.match(id);
@@ -218,7 +233,7 @@ Variant variant(const QString &id, const QJsonValue &value, const QString &where
     {
         auto w = at(at(where, "files"), i);
         auto entry = Json::requireIsType<QJsonObject>(files[i], w);
-        Json::requireExactKeys(entry, {"path", "sha256", "size", "executable"}, w);
+        Json::requireKeys(entry, {"path", "sha256", "size", "executable"}, w);
         FileEntry file;
         path(entry.value("path"), at(w, "path"));
         file.path = entry.value("path").toString();
@@ -240,7 +255,7 @@ Variant variant(const QString &id, const QJsonValue &value, const QString &where
     {
         auto w = at(at(where, "links"), i);
         auto entry = Json::requireIsType<QJsonObject>(linkList[i], w);
-        Json::requireExactKeys(entry, {"path", "target"}, w);
+        Json::requireKeys(entry, {"path", "target"}, w);
         LinkEntry link;
         path(entry.value("path"), at(w, "path"));
         path(entry.value("target"), at(w, "target"), true);
@@ -396,7 +411,7 @@ bool parseTags(const QByteArray &data, TagsDocument &out, QString &error)
         tags.serial = Json::requireBoundedInteger(doc, "serial", 1, Json::MaxExactInteger, "serial");
         tags.issued = Json::requireUtcTime(doc, "issued", "issued");
         auto tagObj = Json::requireIsType<QJsonObject>(doc.value("tags"), "tags");
-        Json::requireExactKeys(tagObj, {"latest", "testing", "stable"}, "tags");
+        Json::requireKeys(tagObj, {"latest", "testing", "stable"}, "tags");
         tags.latest = Json::requireBoundedInteger(tagObj, "latest", 1, Json::MaxExactInteger, "tags.latest");
         tags.testing = Json::requireBoundedInteger(tagObj, "testing", 1, Json::MaxExactInteger, "tags.testing");
         tags.stable = Json::requireBoundedInteger(tagObj, "stable", 1, Json::MaxExactInteger, "tags.stable");

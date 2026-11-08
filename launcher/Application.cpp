@@ -666,6 +666,11 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         // develop users have and would put them on Latest. Empty until it is chosen (in the
         // setup wizard, UpdatesWizardPage); until then it is Stable.
         m_settings->registerSetting("UpdateTier", QString());
+        // Updater v2's variant the user chose to stay on or go back to; empty: none, the
+        // Launcher moves along `supersedes` (Design/UpdaterFormats.md)
+        m_settings->registerSetting("UpdateVariant", QString());
+        // the last build an automatic check said can't be installed here, so it's said once
+        m_settings->registerSetting("UpdateNotPossibleBuild", 0);
 
         // Theming
         m_settings->registerSetting("IconTheme", QString("pe_colored"));
@@ -862,6 +867,12 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         config.statePath = QDir("updater").absoluteFilePath("state.json");
         config.system = SystemRequirements::detect();
         m_updaterV2.reset(new UpdaterV2::Checker(m_network, config));
+        auto setting = m_settings->getSetting("UpdateVariant");
+        m_updaterV2->setPreferredVariant(setting->get().toString());
+        connect(setting.get(), &Setting::SettingChanged, [&](const Setting &, QVariant value)
+        {
+            m_updaterV2->setPreferredVariant(value.toString());
+        });
         qDebug() << "<> Updater v2 started.";
     }
     else if(BuildConfig.UPDATER_ENABLED)

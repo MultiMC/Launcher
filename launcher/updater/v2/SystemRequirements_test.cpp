@@ -287,6 +287,10 @@ slots:
         unknownOs.os = "freebsd";
         QCOMPARE(SystemRequirements::unmetRequirements(unknownOs, linuxSystem()).size(), 1);
 
+        auto unknownRequirement = linuxRequirements();
+        unknownRequirement.unknown << "gpu";
+        QCOMPARE(SystemRequirements::unmetRequirements(unknownRequirement, linuxSystem()).size(), 1);
+
         auto noArch = linuxRequirements();
         noArch.arch.clear();
         QCOMPARE(SystemRequirements::unmetRequirements(noArch, linuxSystem()).size(), 1);

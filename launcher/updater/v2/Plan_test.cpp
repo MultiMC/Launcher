@@ -105,41 +105,68 @@ slots:
     void test_variantFollowsSuccessors()
     {
         // 11 has macos-x86_64-qt5.15, which supersedes qt5.6, from 10.13
-        auto choice = chooseVariant(build(11), "macos-x86_64-qt5.6", mac("10.15.7"));
+        auto choice = chooseVariant(build(11), "macos-x86_64-qt5.6", QString(), mac("10.15.7"));
         QVERIFY(choice.found);
         QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.15"));
         // too old for the successor: its own variant
-        choice = chooseVariant(build(11), "macos-x86_64-qt5.6", mac("10.12.6"));
+        choice = chooseVariant(build(11), "macos-x86_64-qt5.6", QString(), mac("10.12.6"));
         QVERIFY(choice.found);
         QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.6"));
         // already on the successor
-        choice = chooseVariant(build(11), "macos-x86_64-qt5.15", mac("10.15.7"));
+        choice = chooseVariant(build(11), "macos-x86_64-qt5.15", QString(), mac("10.15.7"));
         QVERIFY(choice.found);
         QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.15"));
         // 10 has no successor yet
-        choice = chooseVariant(build(10), "macos-x86_64-qt5.6", mac("10.15.7"));
+        choice = chooseVariant(build(10), "macos-x86_64-qt5.6", QString(), mac("10.15.7"));
         QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.6"));
+    }
+
+    void test_preferredVariant()
+    {
+        // staying on qt5.6, which 11 still has
+        auto choice = chooseVariant(build(11), "macos-x86_64-qt5.6", "macos-x86_64-qt5.6", mac("10.15.7"));
+        QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.6"));
+        // going back from qt5.15
+        choice = chooseVariant(build(11), "macos-x86_64-qt5.15", "macos-x86_64-qt5.6", mac("10.15.7"));
+        QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.6"));
+        // the chosen one doesn't run here: as if none was chosen
+        choice = chooseVariant(build(11), "macos-x86_64-qt5.6", "linux-x86_64-qt5", mac("10.15.7"));
+        QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.15"));
+        // a build without the chosen one: as if none was chosen
+        choice = chooseVariant(build(11), "macos-x86_64-qt5.6", "macos-x86_64-qt5.4", mac("10.15.7"));
+        QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.15"));
+    }
+
+    void test_runnableVariants()
+    {
+        QStringList ids;
+        for(auto &v: runnableVariants(build(11), mac("10.15.7")))
+        {
+            ids << v.id;
+        }
+        QCOMPARE(ids, QStringList() << "macos-x86_64-qt5.15" << "macos-x86_64-qt5.6");
+        QCOMPARE(runnableVariants(build(11), mac("10.6.8")).size(), 0);
     }
 
     void test_variantNotForThisMachine()
     {
         // the successor isn't met and the old variant needs 10.7
-        auto choice = chooseVariant(build(11), "macos-x86_64-qt5.6", mac("10.6.8"));
+        auto choice = chooseVariant(build(11), "macos-x86_64-qt5.6", QString(), mac("10.6.8"));
         QVERIFY(!choice.found);
         QVERIFY2(choice.unmet.join(" ").contains("10.7"), qPrintable(choice.unmet.join(" ")));
 
         // on the successor, too old for it, and the build doesn't go back
-        choice = chooseVariant(build(11), "macos-x86_64-qt5.15", mac("10.12"));
+        choice = chooseVariant(build(11), "macos-x86_64-qt5.15", QString(), mac("10.12"));
         QVERIFY(!choice.found);
         QVERIFY(choice.unmet.join(" ").contains("10.13"));
 
         auto system = TestTrees::linuxSystem();
         system.glibc = "2.23";
-        choice = chooseVariant(build(12), "linux-x86_64-qt5", system);
+        choice = chooseVariant(build(12), "linux-x86_64-qt5", QString(), system);
         QVERIFY(!choice.found);
         QVERIFY(choice.unmet.join(" ").contains("glibc 2.27"));
 
-        choice = chooseVariant(build(12), "linux-arm64-qt5", TestTrees::linuxSystem());
+        choice = chooseVariant(build(12), "linux-arm64-qt5", QString(), TestTrees::linuxSystem());
         QVERIFY(!choice.found);
         QVERIFY(choice.unmet.join(" ").contains("linux-arm64-qt5"));
     }
