@@ -2,11 +2,11 @@
   "expires": "2027-06-01T00:00:00Z",
   "format": 1,
   "online_keys": [
-    "adfeb778f7229d13b3a9ece80c5a2896a5a91eeb40179a8db5ed03fd63f972da"
+    "4777a4c2b294298d273713dd847c9f9a0bcdf61e6e3c5d7dadce1c40b71376b2"
   ],
   "root_keys": [
-    "0b936bef17a07aebe5bc190a441f9eb062d1f5c27309e52d28890bee5f6970f8",
-    "dcf4626b02fea7054d2b4c22bb02aefa84838e9a66744ebf6b8ae8304513d3cb"
+    "60430d84c9fbee87060b4a624bb6e1cae0fda38408a1a25e41c04c02eee009d2",
+    "2178e810149ea0a86f193e5906b36cc1994d3ec44a942ef1589738bc5d62523d"
   ],
   "type": "keys",
   "version": 2

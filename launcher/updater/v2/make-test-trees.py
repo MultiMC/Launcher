@@ -113,7 +113,7 @@ MAC_LINKS = [
 ]
 
 
-def variant(root, requires, files, links=(), supersedes=()):
+def variant(root, name, requires, files, links=(), supersedes=()):
     """files: {path: (text, executable)}; writes the content files."""
     entries = []
     for path in sorted(files):
@@ -122,7 +122,7 @@ def variant(root, requires, files, links=(), supersedes=()):
         sha256 = hashlib.sha256(data).hexdigest()
         write(root, formats.content_path(sha256), data)
         entries.append({"path": path, "sha256": sha256, "size": len(data), "executable": executable})
-    return {"supersedes": list(supersedes), "requires": requires, "files": entries, "links": list(links)}
+    return {"name": name, "supersedes": list(supersedes), "requires": requires, "files": entries, "links": list(links)}
 
 
 def build_doc(root, build, variants, signer):
@@ -156,12 +156,12 @@ def windows_files(build):
 def builds(root, numbers, signer):
     for build in numbers:
         variants = {
-            "linux-x86_64-qt5": variant(root, dict(LINUX, glibc="2.27") if build == 12 else LINUX, linux_files(build)),
-            "windows-x86-qt5.6": variant(root, WINDOWS, windows_files(build)),
-            "macos-x86_64-qt5.6": variant(root, MAC_OLD, mac_files(build, "5.6"), MAC_LINKS),
+            "linux-x86_64-qt5": variant(root, "Linux, 64-bit", dict(LINUX, glibc="2.27") if build == 12 else LINUX, linux_files(build)),
+            "windows-x86-qt5.6": variant(root, "Windows, Qt 5.6", WINDOWS, windows_files(build)),
+            "macos-x86_64-qt5.6": variant(root, "macOS, Qt 5.6", MAC_OLD, mac_files(build, "5.6"), MAC_LINKS),
         }
         if build >= 11:
-            variants["macos-x86_64-qt5.15"] = variant(root, MAC_NEW, mac_files(build, "5.15"), MAC_LINKS, ["macos-x86_64-qt5.6"])
+            variants["macos-x86_64-qt5.15"] = variant(root, "macOS, Qt 5.15", MAC_NEW, mac_files(build, "5.15"), MAC_LINKS, ["macos-x86_64-qt5.6"])
         build_doc(root, build, variants, signer)
 
 
