@@ -211,7 +211,14 @@ void LocalPeer::receiveConnection()
 
     while (socket->bytesAvailable() < (int)sizeof(quint32))
     {
-        socket->waitForReadyRead();
+        // the sender may be gone already (it stops waiting for the ack after a while), and then
+        // this fails right away every time: give up instead of spinning here forever
+        if (!socket->waitForReadyRead(2000))
+        {
+            qWarning("QtLocalPeer: no message on the connection: %s", socket->errorString().toLatin1().constData());
+            delete socket;
+            return;
+        }
     }
     QDataStream ds(socket);
     QByteArray uMsg;

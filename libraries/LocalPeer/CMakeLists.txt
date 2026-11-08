@@ -26,3 +26,9 @@ add_library(LocalPeer STATIC ${SINGLE_SOURCES})
 target_include_directories(LocalPeer PUBLIC include)
 
 target_link_libraries(LocalPeer Qt5::Core Qt5::Network)
+
+include (UnitTest)
+add_unit_test(LocalPeer
+    SOURCES src/LocalPeer_test.cpp
+    LIBS LocalPeer
+)
