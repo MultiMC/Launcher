@@ -409,6 +409,10 @@ void ThemeManager::apply(const Choice &choice)
     // state and size, not palette: without this, they keep the old theme's colours. Newer Qt
     // has the palette in the key; drop this after checking the version we upgrade to.
     QPixmapCache::clear();
+    // the old theme's stylesheet goes before the style changes: replacing the style under an
+    // application stylesheet crashed in QApplication::setStyle (a theme with a stylesheet,
+    // then any other theme, with Breeze)
+    qApp->setStyleSheet(QString());
     if (now.style == Style::Native)
     {
         applyNative(chosen, now);
