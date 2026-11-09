@@ -175,6 +175,7 @@ void LauncherPage::applySettings()
     if (ui->resetNotificationsBtn->isChecked())
     {
         s->set("ShownNotifications", QString());
+        s->set("ConfirmLogClear", true);
     }
 
     // Updates (updater v2's are on UpdatesPage)

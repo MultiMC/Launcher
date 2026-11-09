@@ -3,6 +3,7 @@
 
 #include "Application.h"
 
+#include <QCheckBox>
 #include <QIcon>
 #include <QScrollBar>
 #include <QShortcut>
@@ -299,6 +300,21 @@ void LogPage::on_btnClear_clicked()
 {
     if(!m_model)
         return;
+    auto settings = APPLICATION->settings();
+    if(settings->get("ConfirmLogClear").toBool())
+    {
+        QMessageBox question(QMessageBox::Question, tr("Clear"),
+                             tr("Do you really want to clear the log? What it shows now can't be brought back."),
+                             QMessageBox::Yes | QMessageBox::No, this);
+        question.setDefaultButton(QMessageBox::No);
+        auto dontAsk = new QCheckBox(tr("Don't ask again"));
+        question.setCheckBox(dontAsk);
+        if(question.exec() != QMessageBox::Yes)
+            return;
+        // only with a yes: a "no" doesn't turn the question off
+        if(dontAsk->isChecked())
+            settings->set("ConfirmLogClear", false);
+    }
     m_model->clear();
     m_container->refreshContainer();
 }

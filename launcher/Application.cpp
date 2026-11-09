@@ -685,6 +685,8 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
 
         // Notifications
         m_settings->registerSetting("ShownNotifications", QString());
+        // questions with a "Don't ask again" (brought back by "Reset hidden notifications")
+        m_settings->registerSetting("ConfirmLogClear", true);
 
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());
