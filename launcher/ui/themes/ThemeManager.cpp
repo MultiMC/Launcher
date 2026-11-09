@@ -8,6 +8,9 @@
 #include <QPixmapCache>
 #include <QStyle>
 #include <QStyleFactory>
+#include <QStyleOption>
+#include <QToolBar>
+#include <QToolButton>
 #include <QVersionNumber>
 
 #include "BrightTheme.h"
@@ -110,6 +113,27 @@ QColor followPlatform(const QColor &ours, const QColor &platformActive, const QC
 const char *const THEMED_CLASSES[] = {"QToolButton", "QAbstractButton", "QCheckBox", "QRadioButton", "QHeaderView",
                                       "QAbstractItemView", "QMessageBoxLabel", "QTabBar", "QLabel", "QGroupBox",
                                       "QMenu", "QMenuBar", "QTextEdit", "QTextControl", "QLineEdit"};
+
+// The toolbars' overflow buttons (QToolBarExtension) ask the style for their arrow only when
+// they're made, so they kept the arrow of the style the Launcher started with: give them the
+// current style's (GH-5665)
+void refreshToolBarExtensions()
+{
+    for (QWidget *widget : QApplication::allWidgets())
+    {
+        auto toolBar = qobject_cast<QToolBar *>(widget);
+        if (!toolBar)
+            continue;
+        auto button = toolBar->findChild<QToolButton *>("qt_toolbar_ext_button", Qt::FindDirectChildrenOnly);
+        if (!button)
+            continue;
+        QStyleOption option;
+        option.initFrom(button);
+        const auto arrow = toolBar->orientation() == Qt::Horizontal ? QStyle::SP_ToolBarHorizontalExtensionButton
+                                                                     : QStyle::SP_ToolBarVerticalExtensionButton;
+        button->setIcon(button->style()->standardIcon(arrow, &option));
+    }
+}
 
 // A custom accent on the platform's palette (Native, System theme): our colours where the
 // platform has its accent, in every group the way the platform makes its own (on KDE an
@@ -426,6 +450,7 @@ void ThemeManager::apply(const Choice &choice)
     // theme's images
     QDir::setSearchPaths("theme", chosen->searchPaths());
     qApp->setStyleSheet(chosen->styleSheet());
+    refreshToolBarExtensions();
     // also when the palette stays the same: Dark -> System in a dark Windows gives the same
     // palette, but the title bars go from the palette's colours to the system's
     TitleBarWatcher::setStyle(now.style == Style::Native ? TitleBar::Style::Default : chosen->titleBarStyle());

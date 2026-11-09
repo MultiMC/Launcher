@@ -7,6 +7,7 @@
  * question): Fusion's are old, low resolution pixmaps (GH-1791). They come from the platform's
  * style: Windows' and macOS' system icons, Breeze's on KDE. Where that style is Fusion too
  * (most Linux desktops), Fusion's.
+ * And a toolbar extension arrow in the palette's colours: Fusion's is black (GH-5665).
  */
 class FusionStyle : public QProxyStyle
 {
