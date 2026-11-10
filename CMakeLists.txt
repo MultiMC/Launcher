@@ -72,12 +72,24 @@ set(Launcher_NEWS_URL "https://multimc.org/posts.html" CACHE STRING "URL to open
 set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetch Launcher's news RSS feed from.")
 
 ######## Set version numbers ########
-set(Launcher_VERSION_MAJOR    0)
-set(Launcher_VERSION_MINOR    7)
-set(Launcher_VERSION_HOTFIX   0)
+# The version is <major>.<minor>.<build>: major and minor change here, by hand, when a change
+# deserves it; the build number comes from the release pipeline and only goes up. Tagging a
+# build (Testing, Stable) never changes its version (the Design repo's Updater.md, Versions).
+set(Launcher_VERSION_MAJOR    1)
+set(Launcher_VERSION_MINOR    0)
 
 # Build number
 set(Launcher_VERSION_BUILD -1 CACHE STRING "Build number. -1 for no build number.")
+# Windows version resources hold each part in 16 bits
+if(Launcher_VERSION_BUILD GREATER 65535)
+    message(FATAL_ERROR "Build number ${Launcher_VERSION_BUILD} doesn't fit a Windows version resource (at most 65535)")
+endif()
+if(Launcher_VERSION_BUILD LESS 0)
+    set(Launcher_VERSION_BUILD_PART 0)
+else()
+    set(Launcher_VERSION_BUILD_PART ${Launcher_VERSION_BUILD})
+endif()
+set(Launcher_VERSION_NAME "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_BUILD_PART}")
 
 # Build platform.
 set(Launcher_BUILD_PLATFORM "" CACHE STRING "A short string identifying the platform that this build was built for. Only used by the notification system and to display in the about dialog.")
@@ -142,7 +154,7 @@ get_git_head_revision(Launcher_GIT_REFSPEC Launcher_GIT_COMMIT)
 message(STATUS "Git commit: ${Launcher_GIT_COMMIT}")
 message(STATUS "Git refspec: ${Launcher_GIT_REFSPEC}")
 
-set(Launcher_RELEASE_VERSION_NAME "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}")
+set(Launcher_RELEASE_VERSION_NAME "${Launcher_VERSION_NAME}")
 
 #### Custom target to just print the version.
 add_custom_target(version echo "Version: ${Launcher_RELEASE_VERSION_NAME}")
@@ -181,7 +193,10 @@ set(Launcher_ConfigFile "multimc.cfg")
 set(Launcher_Git "https://github.com/MultiMC/Launcher")
 
 set(Launcher_Branding_ICNS "${PROJECT_SOURCE_DIR}/branding/${Launcher_CommonName}.icns")
-set(Launcher_Branding_WindowsRC "${PROJECT_SOURCE_DIR}/branding/multimc.rc")
+# with the version filled in (major,minor,build,0: the Microsoft Store keeps the fourth part)
+set(Launcher_Branding_SourceDir "${PROJECT_SOURCE_DIR}/branding")
+configure_file("${PROJECT_SOURCE_DIR}/branding/multimc.rc.in" "${PROJECT_BINARY_DIR}/branding/multimc.rc" @ONLY)
+set(Launcher_Branding_WindowsRC "${PROJECT_BINARY_DIR}/branding/multimc.rc")
 set(Launcher_Branding_LogoQRC "${PROJECT_SOURCE_DIR}/branding/logo.qrc")
 
 set(Launcher_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ")
@@ -228,9 +243,10 @@ if(Launcher_LAYOUT_REAL STREQUAL "mac-bundle")
     set(MACOSX_BUNDLE_BUNDLE_NAME "${Launcher_Name}")
     set(MACOSX_BUNDLE_INFO_STRING "${Launcher_Name}:  Minecraft launcher and management utility.")
     set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.multimc.${Launcher_Name}")
-    set(MACOSX_BUNDLE_BUNDLE_VERSION "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
-    set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
-    set(MACOSX_BUNDLE_LONG_VERSION_STRING "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.${Launcher_VERSION_HOTFIX}.${Launcher_VERSION_BUILD}")
+    # three integers, as the App Store wants; the build part only goes up
+    set(MACOSX_BUNDLE_BUNDLE_VERSION "${Launcher_VERSION_NAME}")
+    set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${Launcher_VERSION_NAME}")
+    set(MACOSX_BUNDLE_LONG_VERSION_STRING "${Launcher_VERSION_NAME}")
     set(MACOSX_BUNDLE_ICON_FILE ${Launcher_Name}.icns)
     set(MACOSX_BUNDLE_COPYRIGHT "Copyright 2015-2024 ${Launcher_Copyright}")
 

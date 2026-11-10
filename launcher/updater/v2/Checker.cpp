@@ -348,7 +348,12 @@ void Checker::afterTags()
     };
     fetchSigned(QString("builds/%1.json").arg(m_decision.build), MaxManifestSize, m_keys.onlineKeys, false, acceptBuild, [this](bool)
     {
-        m_result.ownVariantDropped = !m_build.variants.contains(m_config.variant);
+        for(auto it = m_build.unreadable.begin(); it != m_build.unreadable.end(); it++)
+        {
+            qDebug() << "Updater: build" << m_build.build << "has a variant this version can't read, left out:" << it.key() << it.value();
+        }
+        // a variant this version can't read is still in the build: not dropped
+        m_result.ownVariantDropped = !m_build.variants.contains(m_config.variant) && !m_build.unreadable.contains(m_config.variant);
         m_result.runnable = runnableVariants(m_build, m_config.system);
         auto recommended = chooseVariant(m_build, m_config.variant, QString(), m_config.system);
         if(recommended.found)

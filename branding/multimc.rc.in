@@ -3,11 +3,13 @@
 #endif
 #include <windows.h>
 
-IDI_ICON1               ICON    DISCARDABLE     "MultiMC.ico"
-1 RT_MANIFEST "MultiMC.manifest"
+// configured by CMake into the build directory, so the files next to it are named in full
+IDI_ICON1               ICON    DISCARDABLE     "@Launcher_Branding_SourceDir@/MultiMC.ico"
+1 RT_MANIFEST "@Launcher_Branding_SourceDir@/MultiMC.manifest"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION     1,0,0,0
+FILEVERSION     @Launcher_VERSION_MAJOR@,@Launcher_VERSION_MINOR@,@Launcher_VERSION_BUILD_PART@,0
+PRODUCTVERSION  @Launcher_VERSION_MAJOR@,@Launcher_VERSION_MINOR@,@Launcher_VERSION_BUILD_PART@,0
 FILEOS          VOS_NT_WINDOWS32
 FILETYPE        VFT_APP
 BEGIN
@@ -17,9 +19,9 @@ BEGIN
                 BEGIN
                         VALUE "CompanyName", "MultiMC Contributors"
                         VALUE "FileDescription", "MultiMC Launcher"
-                        VALUE "FileVersion", "1.0.0.0"
+                        VALUE "FileVersion", "@Launcher_VERSION_NAME@"
                         VALUE "ProductName", "MultiMC"
-                        VALUE "ProductVersion", "5"
+                        VALUE "ProductVersion", "@Launcher_VERSION_NAME@"
                 END
         END
         BLOCK "VarFileInfo"

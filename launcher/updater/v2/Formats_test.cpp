@@ -344,6 +344,7 @@ slots:
         QVERIFY(!parseMirrors(data, mirrors, error));
     }
 
+    // the build as a whole: nothing in it can be used
     void test_invalidBuild_data()
     {
         QTest::addColumn<QByteArray>("data");
@@ -351,6 +352,25 @@ slots:
         QTest::newRow("another build") << changed(manifest, "\"build\": 5", "\"build\": 6") << "build is 6";
         QTest::newRow("short commit") << changed(manifest, "01234567\"", "\"") << "commit";
         QTest::newRow("no variants") << changed(manifest, "\"variants\": {", "\"variants\": {}, \"x\": {") << "variants";
+        QTest::newRow("superseded twice") << changed(manifest, "\"supersedes\": [],", "\"supersedes\": [\"macos-x86_64-qt5.6\"],") << "both";
+        QTest::newRow("loop") << changed(manifest, "\"supersedes\": [],", "\"supersedes\": [\"macos-x86_64-qt5.15\"],").replace("[\"macos-x86_64-qt5.6\"]", "[\"linux-x86_64-qt5\"]") << "loops";
+    }
+    void test_invalidBuild()
+    {
+        QFETCH(QByteArray, data);
+        QFETCH(QString, message);
+        BuildManifest build;
+        QString error;
+        QVERIFY(!parseBuild(data, 5, build, error));
+        QVERIFY2(error.contains(message), qPrintable(error));
+    }
+
+    // one variant this Launcher can't read is left out, with why; the build and its other
+    // variants stay usable, so a later format can't cut Launchers off from updates
+    void test_unreadableVariant_data()
+    {
+        QTest::addColumn<QByteArray>("data");
+        QTest::addColumn<QString>("message");
         QTest::newRow("bad variant ID") << changed(manifest, "\"linux-x86_64-qt5\"", "\"linux-x86_64\"") << "variant ID";
         QTest::newRow("ID doesn't match") << changed(manifest, "\"linux-x86_64-qt5\"", "\"linux-x86-qt5\"") << "doesn't match";
         QTest::newRow("bad os") << changed(manifest, "\"os\": \"linux\"", "\"os\": \"Linux\"") << "os";
@@ -370,7 +390,7 @@ slots:
         QTest::newRow("backslash") << changed(manifest, "bin/MultiMC", "bin\\\\MultiMC") << "path";
         QTest::newRow("colon") << changed(manifest, "bin/MultiMC", "C:/MultiMC") << "path";
         QTest::newRow("not ASCII") << changed(manifest, "bin/MultiMC", "bin/M\xc3\xbcltiMC") << "path";
-        QTest::newRow("executable as a number") << changed(manifest, "\"executable\": true}\n      ]", "\"executable\": 1}\n      ]") << "executable";
+        QTest::newRow("executable as a number") << changed(manifest, "\"executable\": true}\n      ],\n      \"links\": []", "\"executable\": 1}\n      ],\n      \"links\": []") << "executable";
         QTest::newRow("unsorted") << changed(manifest, "A.app/Contents/MacOS/A", "A.app/Contents/Frameworks/A") << "sorted";
         QTest::newRow("case") << changed(manifest, "A.app/Contents/MacOS/A", "A.app/contents/MacOS/A") << "case";
         QTest::newRow("file is a directory") << changed(manifest, "A.app/Contents/Frameworks/Q.framework/Versions/5/Q\", \"sha256\"", "A.app/Contents/Frameworks\", \"sha256\"") << "directory";
@@ -380,17 +400,34 @@ slots:
         QTest::newRow("link loop") << changed(manifest, "\"target\": \"5\"", "\"target\": \"Current\"") << "loops";
         QTest::newRow("windows links") << changed(changed(manifest, "\"os\": \"macos\"", "\"os\": \"windows\""), "macos-x86_64-qt5.15", "windows-x86_64-qt5.15") << "Windows";
         QTest::newRow("supersedes itself") << changed(manifest, "[\"macos-x86_64-qt5.6\"]", "[\"macos-x86_64-qt5.15\"]") << "itself";
-        QTest::newRow("superseded twice") << changed(manifest, "\"supersedes\": [],", "\"supersedes\": [\"macos-x86_64-qt5.6\"],") << "both";
-        QTest::newRow("loop") << changed(manifest, "\"supersedes\": [],", "\"supersedes\": [\"macos-x86_64-qt5.15\"],").replace("[\"macos-x86_64-qt5.6\"]", "[\"linux-x86_64-qt5\"]") << "loops";
     }
-    void test_invalidBuild()
+    void test_unreadableVariant()
     {
         QFETCH(QByteArray, data);
         QFETCH(QString, message);
         BuildManifest build;
         QString error;
-        QVERIFY(!parseBuild(data, 5, build, error));
-        QVERIFY2(error.contains(message), qPrintable(error));
+        QVERIFY2(parseBuild(data, 5, build, error), qPrintable(error));
+        QCOMPARE(build.variants.size(), 1);
+        QCOMPARE(build.unreadable.size(), 1);
+        auto why = build.unreadable.first();
+        QVERIFY2(why.contains(message), qPrintable(why));
+    }
+
+    // a Qt 6 variant described in a way this Launcher doesn't know: the Qt 5 one is still used,
+    // and the new one is no successor here
+    void test_laterVariantFormat()
+    {
+        QString error;
+        BuildManifest build;
+        auto data = changed(manifest, "\"macos-x86_64-qt5.15\": {", "\"linux-x86_64-qt6\": {\"name\": \"Linux, Qt 6\", \"supersedes\": [\"linux-x86_64-qt5\"], "
+                            "\"requires\": {\"os\": \"linux\", \"arch\": \"x86_64\", \"glibc\": \"2.35\", \"libs\": [{\"soname\": \"libQt6Core.so.6\", \"version\": \"Qt_6.8\"}]}, "
+                            "\"files\": [{\"path\": \"bin/MultiMC\", \"sha256\": \"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08\", \"size\": 4, \"executable\": true}], \"links\": []},\n"
+                            "    \"macos-x86_64-qt5.15\": {");
+        QVERIFY2(parseBuild(data, 5, build, error), qPrintable(error));
+        QCOMPARE(QStringList(build.variants.keys()), QStringList() << "linux-x86_64-qt5" << "macos-x86_64-qt5.15");
+        QCOMPARE(QStringList(build.unreadable.keys()), QStringList() << "linux-x86_64-qt6");
+        QVERIFY2(build.unreadable.first().contains("requires"), qPrintable(build.unreadable.first()));
     }
 
     void test_paths()

@@ -121,6 +121,22 @@ slots:
         QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.6"));
     }
 
+    // a successor this Launcher can't read isn't one: it stays on what it can read
+    void test_unreadableVariants()
+    {
+        auto b = build(11);
+        auto successor = b.variants.take("macos-x86_64-qt5.15");
+        b.unreadable.insert(successor.id, "requires: some later requirement");
+        auto choice = chooseVariant(b, "macos-x86_64-qt5.6", QString(), mac("10.15.7"));
+        QVERIFY(choice.found);
+        QCOMPARE(choice.variant.id, QString("macos-x86_64-qt5.6"));
+        // its own variant unreadable: says so, rather than that the build doesn't have it
+        choice = chooseVariant(b, "macos-x86_64-qt5.15", QString(), mac("10.15.7"));
+        QVERIFY(!choice.found);
+        QCOMPARE(choice.unmet.size(), 1);
+        QVERIFY2(choice.unmet.first().contains("can't read"), qPrintable(choice.unmet.first()));
+    }
+
     void test_preferredVariant()
     {
         // staying on qt5.6, which 11 still has

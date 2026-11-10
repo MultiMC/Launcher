@@ -499,13 +499,26 @@ bool parseBuild(const QByteArray &data, qint64 expected, BuildManifest &out, QSt
         }
         auto variantObj = variants.toObject();
         QRegularExpression variantId(QString("\\A(?:%1)\\z").arg(VariantId));
+        // Each variant on its own: one this Launcher can't read is left out, so later builds
+        // can add variants described in ways it doesn't know (a Qt 6 variant with library
+        // requirements, say) without cutting it off from updates.
         for(auto it = variantObj.begin(); it != variantObj.end(); it++)
         {
             if(!variantId.match(it.key()).hasMatch() || it.key().size() > MaxVariantId)
             {
-                fail(QString("variants: '%1' isn't a valid variant ID").arg(it.key()));
+                // the ID isn't trusted text: shown only shortened, and kept under a fixed name
+                manifest.unreadable.insert(QString("#%1").arg(manifest.unreadable.size() + 1),
+                                           QString("'%1' isn't a valid variant ID").arg(it.key().left(MaxVariantId)));
+                continue;
             }
-            manifest.variants.insert(it.key(), variant(it.key(), it.value(), at("variants", it.key())));
+            try
+            {
+                manifest.variants.insert(it.key(), variant(it.key(), it.value(), at("variants", it.key())));
+            }
+            catch(const Json::JsonException &e)
+            {
+                manifest.unreadable.insert(it.key(), e.cause());
+            }
         }
 
         // a single chain of successors from every variant: each superseded at most once, no cycles

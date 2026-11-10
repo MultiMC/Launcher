@@ -130,6 +130,12 @@ VariantChoice chooseVariant(const BuildManifest &build, const QString &ownVarian
         out.unmet = firstUnmet;
         return out;
     }
+    if(build.unreadable.contains(ownVariant))
+    {
+        out.unmet.append(QObject::tr("Build %1 describes the version for this installation (%2) in a way this version can't read.")
+                             .arg(build.build).arg(ownVariant));
+        return out;
+    }
     out.unmet.append(QObject::tr("Build %1 has no version for this installation (%2).").arg(build.build).arg(ownVariant));
     return out;
 }

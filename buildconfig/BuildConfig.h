@@ -21,9 +21,7 @@ public:
     int VERSION_MAJOR;
     /// The minor version number.
     int VERSION_MINOR;
-    /// The hotfix number.
-    int VERSION_HOTFIX;
-    /// The build number.
+    /// The build number, -1 for a build without one. The version is major.minor.build.
     int VERSION_BUILD;
 
     /**

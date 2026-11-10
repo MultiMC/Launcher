@@ -19,7 +19,6 @@ Config::Config()
     // Version information
     VERSION_MAJOR = @Launcher_VERSION_MAJOR@;
     VERSION_MINOR = @Launcher_VERSION_MINOR@;
-    VERSION_HOTFIX = @Launcher_VERSION_HOTFIX@;
     VERSION_BUILD = @Launcher_VERSION_BUILD@;
 
     BUILD_PLATFORM = "@Launcher_BUILD_PLATFORM@";
@@ -71,18 +70,13 @@ Config::Config()
 
 QString Config::printableVersionString() const
 {
-    QString vstr = QString("%1.%2.%3").arg(QString::number(VERSION_MAJOR), QString::number(VERSION_MINOR), QString::number(VERSION_HOTFIX));
+    // major.minor.build, as in the binaries' version resources; 0 for a build without a number
+    QString vstr = QString("%1.%2.%3").arg(QString::number(VERSION_MAJOR), QString::number(VERSION_MINOR), QString::number(VERSION_BUILD >= 0 ? VERSION_BUILD : 0));
 
     // If the build is not a main release, append the channel
     if(VERSION_CHANNEL != "develop")
     {
         vstr += "-" + VERSION_CHANNEL;
-    }
-
-    // if a build number is set, also add it to the end
-    if(VERSION_BUILD >= 0)
-    {
-        vstr += "-" + QString::number(VERSION_BUILD);
     }
     return vstr;
 }
