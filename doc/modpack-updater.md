@@ -1,5 +1,12 @@
 # Updating a Modrinth instance
 
+This document describes the experimental implementation in PR #5793, not an
+accepted feature or design. Following maintainer feedback, start with the
+[behavior proposal](modpack-update-proposal.md) and
+[implementation rationale](modpack-update-rationale.md). The proposal contains
+open decisions and differs from the prototype in places; the instructions below
+describe only the prototype's current behavior.
+
 Select an instance and click **Update mods**, next to **View Mods**. The launcher
 checks for a newer stable release of its Modrinth modpack. Minecraft's version
 and loader family stay fixed; a required loader-version change appears in the
