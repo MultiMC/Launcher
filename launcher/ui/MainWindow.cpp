@@ -695,12 +695,6 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        QString winTitle = tr("%1 - Version %2", "Launcher - Version X").arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString());
-        if (!BuildConfig.BUILD_PLATFORM.isEmpty())
-        {
-            winTitle += tr(" on %1", "on platform, as in operating system").arg(BuildConfig.BUILD_PLATFORM);
-        }
-        MainWindow->setWindowTitle(winTitle);
         // all the actions
         for(auto * item: all_actions)
         {
@@ -816,6 +810,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     m_statusCenter->setObjectName(QStringLiteral("statusCenter"));
     statusBar()->addPermanentWidget(m_statusLeft, 1);
     statusBar()->addPermanentWidget(m_statusCenter, 0);
+    QFrame *vSeparator = new QFrame(this);
+    vSeparator->setFrameShape(QFrame::VLine);
+    vSeparator->setFrameShadow(QFrame::Sunken);
+    statusBar()->addPermanentWidget(vSeparator, 0);
+    QString versionText = BuildConfig.printableVersionString();
+    if (!BuildConfig.BUILD_PLATFORM.isEmpty())
+    {
+        versionText += " " + BuildConfig.BUILD_PLATFORM;
+    }
+    m_statusVersion = new QLabel(versionText, this);
+    m_statusVersion->setObjectName(QStringLiteral("statusVersion"));
+    m_statusVersion->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    statusBar()->addPermanentWidget(m_statusVersion, 0);
 
     // Add "manage accounts" button, right align
     QWidget *spacer = new QWidget();
