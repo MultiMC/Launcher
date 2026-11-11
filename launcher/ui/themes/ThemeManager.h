@@ -115,6 +115,7 @@ private:
     void applyFusion(ITheme *theme, const Choice &choice);
     void applyNative(ITheme *theme, const Choice &choice);
     void setOurPalette(const QPalette &palette);
+    void forgetStyleSheetFonts();
 
 private: /* data */
     SettingsObjectPtr m_settings;

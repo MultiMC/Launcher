@@ -436,7 +436,11 @@ void ThemeManager::apply(const Choice &choice)
     // the old theme's stylesheet goes before the style changes: replacing the style under an
     // application stylesheet crashed in QApplication::setStyle (a theme with a stylesheet,
     // then any other theme, with Breeze)
-    qApp->setStyleSheet(QString());
+    if (!qApp->styleSheet().isEmpty())
+    {
+        qApp->setStyleSheet(QString());
+        forgetStyleSheetFonts();
+    }
     if (now.style == Style::Native)
     {
         applyNative(chosen, now);
@@ -455,6 +459,24 @@ void ThemeManager::apply(const Choice &choice)
     // palette, but the title bars go from the palette's colours to the system's
     TitleBarWatcher::setStyle(now.style == Style::Native ? TitleBar::Style::Default : chosen->titleBarStyle());
     emit applied();
+}
+
+// Workaround for a Qt 5 bug (seen with 5.15; QTBUG-58221 is one case of it): a stylesheet's
+// fonts (Renoise: "QWidget { font: bold 8pt ... }") are written into the widgets' own fonts,
+// and Qt gives back the old ones only for widgets it styles again when the stylesheet goes:
+// the rest (lists, viewports, spin box editors, widgets on hidden pages) kept them, in the next
+// theme too. Fonts set in the code mark the widget (WA_SetFont) and stay; every other widget
+// goes back to the font it inherits. The next stylesheet sets its own fonts after this.
+// Check again with Qt 6, and drop this if it is fixed there.
+void ThemeManager::forgetStyleSheetFonts()
+{
+    for (auto widget : QApplication::allWidgets())
+    {
+        if (!widget->testAttribute(Qt::WA_SetFont))
+        {
+            widget->setFont(QFont());
+        }
+    }
 }
 
 void ThemeManager::applyFusion(ITheme *theme, const Choice &choice)
