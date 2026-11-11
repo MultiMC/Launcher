@@ -36,5 +36,7 @@ public:
     virtual QSize sizeHint() const;
 protected:
     void resizeEvent(QResizeEvent * event);
+    bool event(QEvent * event) override;
     void resetIcon();
+    void keepWholeIcon();
 };

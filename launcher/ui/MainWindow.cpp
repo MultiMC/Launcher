@@ -1013,10 +1013,25 @@ void MainWindow::showInstanceContextMenu(const QPoint &pos)
     myMenu.exec(view->mapToGlobal(pos));
 }
 
+namespace {
+// Stylesheets can style tool buttons by popup mode (QToolButton[popupMode="1"]: room for the
+// menu part), but Qt reads such properties only when it polishes a widget: one changed later
+// kept the old look, the menu part over the text
+void setPopupMode(QToolButton *button, QToolButton::ToolButtonPopupMode mode)
+{
+    if (button->popupMode() == mode)
+        return;
+    button->setPopupMode(mode);
+    button->style()->unpolish(button);
+    button->style()->polish(button);
+    button->updateGeometry();
+}
+}
+
 void MainWindow::updateToolsMenu()
 {
     QToolButton *exportButton = dynamic_cast<QToolButton*>(ui->instanceToolBar->widgetForAction(ui->actionExportInstance));
-    exportButton->setPopupMode(QToolButton::MenuButtonPopup);
+    setPopupMode(exportButton, QToolButton::MenuButtonPopup);
 
     QMenu *exportMenu = ui->actionExportInstance->menu();
 
@@ -1049,15 +1064,15 @@ void MainWindow::updateToolsMenu()
     {
         ui->actionLaunchInstance->setMenu(nullptr);
         ui->actionLaunchInstanceOffline->setMenu(nullptr);
-        launchButton->setPopupMode(QToolButton::InstantPopup);
-        launchOfflineButton->setPopupMode(QToolButton::InstantPopup);
+        setPopupMode(launchButton, QToolButton::InstantPopup);
+        setPopupMode(launchOfflineButton, QToolButton::InstantPopup);
         return;
     }
 
     QMenu *launchMenu = ui->actionLaunchInstance->menu();
     QMenu *launchOfflineMenu = ui->actionLaunchInstanceOffline->menu();
-    launchButton->setPopupMode(QToolButton::MenuButtonPopup);
-    launchOfflineButton->setPopupMode(QToolButton::MenuButtonPopup);
+    setPopupMode(launchButton, QToolButton::MenuButtonPopup);
+    setPopupMode(launchOfflineButton, QToolButton::MenuButtonPopup);
     if (launchMenu)
     {
         launchMenu->clear();

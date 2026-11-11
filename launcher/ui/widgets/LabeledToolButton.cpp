@@ -97,6 +97,25 @@ void LabeledToolButton::resizeEvent(QResizeEvent * event)
     QWidget::resizeEvent(event);
 }
 
+bool LabeledToolButton::event(QEvent * event)
+{
+    const bool result = QToolButton::event(event);
+    // after a stylesheet had its say (it polishes the button, then the style changes)
+    if (event->type() == QEvent::Polish || event->type() == QEvent::StyleChange)
+    {
+        keepWholeIcon();
+    }
+    return result;
+}
+
+// A stylesheet's min-height on tool buttons (Ore UI has one) is an explicit minimum, which
+// layouts take over the size hint: a crowded tool bar squeezed the button and the label cut the
+// icon off, more or less with the window's height. Never smaller than the icon and text.
+void LabeledToolButton::keepWholeIcon()
+{
+    setMinimumHeight(sizeHint().height());
+}
+
 void LabeledToolButton::resetIcon()
 {
     auto iconSz = m_icon.actualSize(QSize(160, 80));
