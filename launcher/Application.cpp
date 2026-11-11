@@ -673,6 +673,12 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("UpdateVariant", QString());
         // the last build an automatic check said can't be installed here, so it's said once
         m_settings->registerSetting("UpdateNotPossibleBuild", 0);
+        // updater v2's checks, to notice that they keep failing (UpdaterV2::CheckHistory):
+        // when one last got a verified answer, when they started failing, and how many have
+        // failed since (times in seconds since 1970, 0 for none)
+        m_settings->registerSetting("UpdateLastSuccess", 0);
+        m_settings->registerSetting("UpdateFailingSince", 0);
+        m_settings->registerSetting("UpdateFailedChecks", 0);
 
         // Theming
         m_settings->registerSetting("IconTheme", QString("pe_colored"));

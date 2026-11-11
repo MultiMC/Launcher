@@ -13,6 +13,8 @@ bool TitleBarWatcher::eventFilter(QObject *watched, QEvent *event)
     case QEvent::WinIdChange:
     case QEvent::Show:
     case QEvent::PaletteChange:
+    // the active window's title bar can differ from the others' (Windows' accent title bars)
+    case QEvent::ActivationChange:
     {
         auto widget = qobject_cast<QWidget *>(watched);
         // only windows that have a native window already: winId() would create one
@@ -29,6 +31,11 @@ bool TitleBarWatcher::eventFilter(QObject *watched, QEvent *event)
 void TitleBarWatcher::setStyle(TitleBar::Style style)
 {
     s_style = style;
+    refresh();
+}
+
+void TitleBarWatcher::refresh()
+{
     for (auto widget : QApplication::topLevelWidgets())
     {
         if (widget->testAttribute(Qt::WA_WState_Created))

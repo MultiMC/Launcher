@@ -219,6 +219,8 @@ set(NEW_UPDATE_SOURCES
     updater/v2/InstallController.cpp
     updater/v2/Checker.h
     updater/v2/Checker.cpp
+    updater/v2/CheckHistory.h
+    updater/v2/CheckHistory.cpp
     updater/v2/DownloadTask.h
     updater/v2/DownloadTask.cpp
 )
@@ -280,6 +282,11 @@ add_unit_test(UpdaterV2Checker
     SOURCES updater/v2/Checker_test.cpp
     LIBS Launcher_logic
     DATA updater/v2/testdata
+    )
+
+add_unit_test(UpdaterV2CheckHistory
+    SOURCES updater/v2/CheckHistory_test.cpp
+    LIBS Launcher_logic
     )
 
 add_unit_test(UpdaterV2DownloadTask

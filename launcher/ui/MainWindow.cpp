@@ -63,6 +63,7 @@
 #include <updater/v1/DownloadTask.h>
 #include <updater/v1/UpdateChecker.h>
 #include <updater/v2/Checker.h>
+#include <updater/v2/CheckHistory.h>
 #include <updater/v2/DownloadTask.h>
 #include <updater/v2/InstallController.h>
 #include <DesktopServices.h>
@@ -1426,6 +1427,20 @@ void MainWindow::updateCheckedV2(const UpdaterV2::CheckResult &result)
     using UpdaterV2::CheckResult;
     auto tierName = UpdaterV2::tierName(result.tier);
     auto details = result.messages.join("\n");
+    auto settings = APPLICATION->settings();
+
+    // Every check counts, asked for or not, shown or not: whether checks still get a verified
+    // answer at all. When they haven't for weeks, the user is told even about an automatic
+    // check, since this installation may never update again on its own.
+    UpdaterV2::CheckHistory history;
+    history.lastSuccess = settings->get("UpdateLastSuccess").toLongLong();
+    history.failingSince = settings->get("UpdateFailingSince").toLongLong();
+    history.failedChecks = settings->get("UpdateFailedChecks").toInt();
+    auto failingSince = history.failingSince;
+    bool checksKeepFailing = history.record(result.kind != CheckResult::Failed, QDateTime::currentMSecsSinceEpoch() / 1000);
+    settings->set("UpdateLastSuccess", history.lastSuccess);
+    settings->set("UpdateFailingSince", history.failingSince);
+    settings->set("UpdateFailedChecks", history.failedChecks);
     switch(result.kind)
     {
         case CheckResult::Update:
@@ -1539,13 +1554,12 @@ void MainWindow::updateCheckedV2(const UpdaterV2::CheckResult &result)
         default:
             break;
     }
-    auto settings = APPLICATION->settings();
     if(result.kind == CheckResult::NotForThisMachine && !result.notify && settings->get("UpdateNotPossibleBuild").toLongLong() != result.build)
     {
         // nothing more can be installed here: said once for each build, even when the user didn't ask
         settings->set("UpdateNotPossibleBuild", result.build);
     }
-    else if(!result.notify)
+    else if(!result.notify && !checksKeepFailing)
     {
         return;
     }
@@ -1582,8 +1596,35 @@ void MainWindow::updateCheckedV2(const UpdaterV2::CheckResult &result)
             break;
         }
         case CheckResult::Failed:
-            CustomMessageBox::selectable(this, tr("Update check failed"), tr("Could not check for updates:") + "\n\n" + details, QMessageBox::Warning)->show();
+        {
+            if(!checksKeepFailing)
+            {
+                CustomMessageBox::selectable(this, tr("Update check failed"), tr("Could not check for updates:") + "\n\n" + details, QMessageBox::Warning)->show();
+                break;
+            }
+            // not a passing problem any more: say since when, and where to get a build that works
+            auto date = [](qint64 seconds)
+            {
+                return QLocale().toString(QDateTime::fromMSecsSinceEpoch(seconds * 1000).date(), QLocale::LongFormat);
+            };
+            auto text = tr("%1 has not been able to check for updates since %2.").arg(BuildConfig.LAUNCHER_NAME, date(failingSince)) + " "
+                + (history.lastSuccess > 0 ? tr("The last check that worked was on %1.").arg(date(history.lastSuccess))
+                                           : tr("No check has worked on this installation yet."))
+                + "\n\n" + tr("The last attempt failed with:") + "\n\n" + details + "\n\n"
+                + tr("If this goes on, this installation may not be able to update itself any more. "
+                     "You can get the current version from %1.").arg(BuildConfig.WEBSITE_URL);
+            QMessageBox box(QMessageBox::Warning, tr("Updates are not working"), text, QMessageBox::NoButton, this);
+            box.setTextInteractionFlags(Qt::TextSelectableByMouse);
+            auto website = box.addButton(tr("Open the website"), QMessageBox::ActionRole);
+            box.addButton(QMessageBox::Close);
+            box.setDefaultButton(QMessageBox::Close);
+            box.exec();
+            if(box.clickedButton() == website)
+            {
+                DesktopServices::openUrl(QUrl(BuildConfig.WEBSITE_URL));
+            }
             break;
+        }
     }
 }
 

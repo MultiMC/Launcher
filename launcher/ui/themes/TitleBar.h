@@ -9,9 +9,12 @@ namespace TitleBar
 enum class Style
 {
     Default,    // the system's
-    Brightness, // dark or light like the window's palette, the system's colours (and accent)
+    Brightness, // dark or light like the window's palette, the system's colours
     Palette     // the window palette's colours: caption = Window, text = WindowText
 };
+// Windows 11 with "Show accent color on title bars and window borders" on: with Brightness and
+// Palette, the active window's caption and border are the palette's accent (Highlight), as
+// Windows draws its own windows' in the system accent.
 
 /// Set up the native title bar (and border) of a top-level window, as far as the system can:
 /// Windows 10 1809+ dark or light, Windows 11 any colour; macOS 10.14+ dark or light, the
@@ -42,6 +45,8 @@ public:
     /// The style for all windows from now on, applied to the open ones at once: a theme
     /// change doesn't always change the palette, so PaletteChange alone isn't enough
     static void setStyle(TitleBar::Style style);
+    /// The same style again, for all open windows: after a system setting it reads changed
+    static void refresh();
 
 private:
     static TitleBar::Style s_style;
