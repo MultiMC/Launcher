@@ -468,11 +468,37 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
+void InstanceView::setBackground(const QPixmap &pixmap, Qt::Alignment alignment, int margin)
+{
+    m_background = pixmap;
+    m_backgroundAlignment = alignment;
+    m_backgroundMargin = margin;
+    viewport()->update();
+}
+
 void InstanceView::paintEvent(QPaintEvent *event)
 {
     executeDelayedItemsLayout();
 
     QPainter painter(this->viewport());
+
+    // the background picture, placed and fitted in the view, on the view's own background
+    if (!m_background.isNull())
+    {
+        const QRect area = viewport()->rect().adjusted(m_backgroundMargin, m_backgroundMargin, -m_backgroundMargin, -m_backgroundMargin);
+        QSize size = m_background.size() / m_background.devicePixelRatio();
+        if (size.width() > area.width() || size.height() > area.height())
+        {
+            size.scale(area.size(), Qt::KeepAspectRatio);
+        }
+        if (!size.isEmpty())
+        {
+            painter.save();
+            painter.setRenderHint(QPainter::SmoothPixmapTransform);
+            painter.drawPixmap(QStyle::alignedRect(layoutDirection(), m_backgroundAlignment, size, area), m_background);
+            painter.restore();
+        }
+    }
 
     QStyleOptionViewItem option(viewOptions());
     option.widget = this;
@@ -965,6 +991,12 @@ int InstanceView::verticalOffset() const
 void InstanceView::scrollContentsBy(int dx, int dy)
 {
     scrollDirtyRegion(dx, dy);
+    // the background picture stays where it is: all of it is painted again
+    if (!m_background.isNull())
+    {
+        viewport()->update();
+        return;
+    }
     viewport()->scroll(dx, dy);
 }
 

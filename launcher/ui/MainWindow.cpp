@@ -1628,20 +1628,12 @@ void MainWindow::setCatBackground(bool enabled)
         else {
             cat = "kitteh";
         }
-        view->setStyleSheet(QString(R"(
-InstanceView
-{
-    background-image: url(:/backgrounds/%1);
-    background-attachment: fixed;
-    background-clip: padding;
-    background-position: top right;
-    background-repeat: none;
-    background-color:palette(base);
-})").arg(cat));
+        // standing on the bottom of the view, in the corner away from where instances start
+        view->setBackground(QPixmap(QString(":/backgrounds/%1").arg(cat)), Qt::AlignRight | Qt::AlignBottom, 8);
     }
     else
     {
-        view->setStyleSheet(QString());
+        view->setBackground(QPixmap());
     }
 }
 

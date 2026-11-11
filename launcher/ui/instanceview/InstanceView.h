@@ -49,6 +49,15 @@ public:
 
     /// return geometry rectangle occupied by the specified model item
     QRect geometryRect(const QModelIndex &index) const;
+
+    /**
+     * A picture behind the instances, staying put as they scroll (the cat); a null pixmap for
+     * none. Placed by alignment (an edge or a corner, or centred) margin pixels from the edges
+     * it is aligned to; smaller, keeping its proportions, where the view is too small for it,
+     * never larger. Painted by the view, not a stylesheet: one on the view would keep the
+     * palette of the theme it was set in, and draw the labels differently.
+     */
+    void setBackground(const QPixmap &pixmap, Qt::Alignment alignment = Qt::AlignRight | Qt::AlignBottom, int margin = 0);
     /// return visual rectangle occupied by the specified model item
     virtual QRect visualRect(const QModelIndex &index) const override;
     /// get the model index at the specified visual point
@@ -127,6 +136,9 @@ private:
     VisualGroup *m_pressedCategory;
     QItemSelectionModel::SelectionFlag m_ctrlDragSelectionFlag;
     QPoint m_lastDragPosition;
+    QPixmap m_background;
+    Qt::Alignment m_backgroundAlignment = Qt::AlignRight | Qt::AlignBottom;
+    int m_backgroundMargin = 0;
 
     VisualGroup *category(const QModelIndex &index) const;
     VisualGroup *category(const QString &cat) const;
