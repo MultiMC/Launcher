@@ -1239,6 +1239,26 @@ QString PackProfile::getComponentVersion(const QString& uid) const
     {
         return (*iter)->getVersion();
     }
+    if(d->components.isEmpty())
+    {
+        // Not loaded yet (that happens on launch or edit): read the version from the file
+        try
+        {
+            auto doc = Json::requireDocument(componentsFilePath(), "Components file");
+            auto components = Json::requireArray(Json::requireObject(doc), "components");
+            for(auto item: components)
+            {
+                auto obj = Json::requireObject(item);
+                if(Json::requireString(obj, "uid") == uid)
+                {
+                    return Json::ensureString(obj, "version");
+                }
+            }
+        }
+        catch (const Exception &)
+        {
+        }
+    }
     return QString();
 }
 

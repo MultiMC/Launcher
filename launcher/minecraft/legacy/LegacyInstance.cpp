@@ -215,11 +215,6 @@ std::shared_ptr<WorldList> LegacyInstance::worldList() const
     return m_world_list;
 }
 
-QString LegacyInstance::typeName() const
-{
-    return tr("Legacy");
-}
-
 QString LegacyInstance::getStatusbarDescription()
 {
     return tr("Instance from previous versions.");

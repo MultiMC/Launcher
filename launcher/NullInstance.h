@@ -51,10 +51,6 @@ public:
     {
         return instanceRoot();
     }
-    QString typeName() const override
-    {
-        return "Null";
-    }
     bool canExport() const override
     {
         return false;

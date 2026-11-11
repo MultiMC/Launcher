@@ -192,8 +192,6 @@ public:
     /// get variables this instance exports
     virtual QMap<QString, QString> getVariables() const = 0;
 
-    virtual QString typeName() const = 0;
-
     bool hasVersionBroken() const
     {
         return m_hasBrokenVersion;

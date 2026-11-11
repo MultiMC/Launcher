@@ -226,6 +226,8 @@ private:
     QToolButton *newsLabel = nullptr;
     QLabel *m_statusLeft = nullptr;
     QLabel *m_statusCenter = nullptr;
+    // the version and platform, so they show in users' screenshots
+    QLabel *m_statusVersion = nullptr;
     QMenu *accountMenu = nullptr;
     QToolButton *accountMenuButton = nullptr;
     KonamiCode * secretEventFilter = nullptr;

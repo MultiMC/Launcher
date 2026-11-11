@@ -21,8 +21,6 @@ public:
     virtual void saveNow() override;
 
     // FIXME: remove
-    QString typeName() const override;
-    // FIXME: remove
     QSet<QString> traits() const override;
 
     bool canEdit() const override

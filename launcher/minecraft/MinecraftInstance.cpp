@@ -147,11 +147,6 @@ void MinecraftInstance::saveNow()
     m_components->saveNow();
 }
 
-QString MinecraftInstance::typeName() const
-{
-    return "Minecraft";
-}
-
 std::shared_ptr<PackProfile> MinecraftInstance::getPackProfile() const
 {
     return m_components;
@@ -848,7 +843,7 @@ QString MinecraftInstance::getStatusbarDescription()
     }
 
     QString description;
-    description.append(tr("Minecraft %1 (%2)").arg(m_components->getComponentVersion("net.minecraft")).arg(typeName()));
+    description.append(tr("Minecraft %1").arg(m_components->getComponentVersion("net.minecraft")));
     if(m_settings->get("ShowGameTime").toBool())
     {
         if (lastTimePlayed() > 0) {
