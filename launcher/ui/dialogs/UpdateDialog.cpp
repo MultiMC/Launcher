@@ -11,6 +11,8 @@
 UpdateDialog::UpdateDialog(bool hasUpdate, QWidget *parent, const QString &target) : QDialog(parent), ui(new Ui::UpdateDialog), m_target(target)
 {
     ui->setupUi(this);
+    // no "What's this?" help here
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     if(hasUpdate)
     {
         ui->label->setText(tr("A new update is available!"));
