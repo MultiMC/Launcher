@@ -1,6 +1,7 @@
 #include "DownloadTask.h"
 
 #include <QDebug>
+#include <QFileInfo>
 
 #include "net/ChecksumValidator.h"
 #include "net/Download.h"
@@ -38,6 +39,7 @@ void DownloadTask::executeTask()
         emitFailed(tr("Couldn't create a folder for the update's files."));
         return;
     }
+    removeOldStaging(QFileInfo(m_stagingDir.path()).absolutePath(), m_stagingDir.path());
     setStatus(tr("Comparing the installed files with build %1...").arg(m_update.build));
     QList<Download> downloads;
     QList<Change> changes;

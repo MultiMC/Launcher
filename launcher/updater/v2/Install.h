@@ -62,6 +62,13 @@ void planInstall(const Variant &next, const Variant *current, const QString &roo
                  QList<Download> &downloads, QList<Change> &changes);
 
 /**
+ * Delete what earlier updates left in `updateDir`: every directory in it but the backup and
+ * `keep`. A download or an install that failed keeps its staging directory, a full copy of
+ * the changed files each time; updater v1 uses the same directory.
+ */
+void removeOldStaging(const QString &updateDir, const QString &keep);
+
+/**
  * Where a symbolic link points, exactly as it was made (Qt only gives absolute paths).
  * Return false when `path` isn't a link.
  */

@@ -216,6 +216,23 @@ void planInstall(const Variant &next, const Variant *current, const QString &roo
     }
 }
 
+void removeOldStaging(const QString &updateDir, const QString &keep)
+{
+    auto entries = QDir(updateDir).entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+    for(auto &entry: entries)
+    {
+        if(entry.isSymLink() || entry.fileName() == "backup" || QDir(entry.absoluteFilePath()) == QDir(keep))
+        {
+            continue;
+        }
+        qDebug() << "Updater: removing what an earlier update left in" << entry.absoluteFilePath();
+        if(!FS::deletePath(entry.absoluteFilePath()))
+        {
+            qWarning() << "Updater: couldn't remove" << entry.absoluteFilePath();
+        }
+    }
+}
+
 Installer::Installer(const QString &root, const QString &backupDir) : m_root(root), m_backupDir(backupDir)
 {
 }

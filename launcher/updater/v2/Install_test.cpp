@@ -445,6 +445,23 @@ slots:
 #endif
     }
 
+    void test_removeOldStaging()
+    {
+        QTemporaryDir update;
+        write(FS::PathCombine(update.path(), "backup/MultiMC"), "launcher 1\n");
+        write(FS::PathCombine(update.path(), "aB3xYz/MultiMC"), "launcher 2\n");
+        write(FS::PathCombine(update.path(), "Qw12er/lib/libfoo.so"), "foo\n");
+        FS::ensureFolderPathExists(FS::PathCombine(update.path(), "current"));
+        write(FS::PathCombine(update.path(), "update.vbs"), "script\n");
+        removeOldStaging(update.path(), FS::PathCombine(update.path(), "current"));
+        QMap<QString, QString> expected;
+        expected.insert("backup", "/");
+        expected.insert("backup/MultiMC", "launcher 1\n");
+        expected.insert("current", "/");
+        expected.insert("update.vbs", "script\n");
+        QCOMPARE(snapshot(update.path()), expected);
+    }
+
 #ifndef Q_OS_WIN
     void test_danglingLink()
     {
