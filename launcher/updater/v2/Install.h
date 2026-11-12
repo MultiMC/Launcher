@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QList>
 #include <QString>
+#include <QStringList>
 
 #include "Formats.h"
 
@@ -54,6 +55,8 @@ struct Change
  *   that `next` doesn't have are removed.
  * Whatever is in the way of a file or a link (another kind of entry, a directory, a file that
  * can't be read) is replaced.
+ * A file or link of `next` whose path differs only in case from one being removed is always
+ * placed again: on a file system that ignores case, the removal takes away what is there.
  */
 void planInstall(const Variant &next, const Variant *current, const QString &root, const QString &stagingDir,
                  QList<Download> &downloads, QList<Change> &changes);
@@ -67,7 +70,8 @@ bool readLink(const QString &path, QString &target);
 /**
  * Makes planned changes under `root`. Everything it replaces or removes is moved to the same
  * path under `backupDir` (on the same file system, so moving is renaming), which must be
- * empty or not exist yet.
+ * empty or not exist yet. A directory in the way that holds nothing but directories, as the
+ * removals leave them, is deleted instead, and made again by rollback().
  */
 class Installer
 {
@@ -99,7 +103,7 @@ public:
 
 private:
     bool applyOne(const Change &change);
-    bool backUp(const QString &path, QString &backup);
+    bool backUp(const QString &path, QString &backup, QStringList &emptied);
     bool fail(const Change &change, const QString &error);
 
     struct Done
@@ -107,6 +111,8 @@ private:
         Change change;
         // where what was there went, empty when nothing was there
         QString backup;
+        // the empty directories deleted instead, deepest first
+        QStringList emptied;
         QFile::Permissions permissions;
     };
 

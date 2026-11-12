@@ -103,6 +103,17 @@ void download(const QList<Download> &downloads)
     }
 }
 
+// what the downloads would have written, by path
+void download(const QList<Download> &downloads, const QMap<QString, QByteArray> &contents)
+{
+    for(auto &d: downloads)
+    {
+        QVERIFY(contents.contains(d.file.path));
+        QCOMPARE(d.file.sha256, entry(d.file.path, contents[d.file.path]).sha256);
+        write(d.target, contents[d.file.path]);
+    }
+}
+
 // Windows has no executable bit (Qt says a file is executable by its name)
 bool executableBit(const QFileInfo &info)
 {
@@ -333,6 +344,105 @@ slots:
         QCOMPARE(read(FS::PathCombine(root.path(), "MultiMC")), QByteArray("launcher 2\n"));
         QVERIFY(installer.rollback());
         QCOMPARE(snapshot(root.path()), before);
+    }
+
+    void test_directoryBecomesFile()
+    {
+        // what the removals leave of a directory is in the way of a file of the same name
+        QTemporaryDir root, staging, backups;
+        Variant current;
+        current.files << entry("a/b/c.txt", "c\n") << entry("a/d.txt", "d\n");
+        write(FS::PathCombine(root.path(), "a/b/c.txt"), "c\n");
+        write(FS::PathCombine(root.path(), "a/d.txt"), "d\n");
+        auto before = snapshot(root.path());
+        Variant v;
+        v.files << entry("a", "a\n");
+        QList<Download> downloads;
+        QList<Change> changes;
+        planInstall(v, &current, root.path(), staging.path(), downloads, changes);
+        download(downloads, {{"a", "a\n"}});
+
+        auto backupDir = FS::PathCombine(backups.path(), "backup");
+        Installer installer(root.path(), backupDir);
+        QVERIFY2(installer.apply(changes), qPrintable(installer.error()));
+        QMap<QString, QString> expected;
+        expected.insert("a", "a\n");
+        QCOMPARE(snapshot(root.path()), expected);
+        QCOMPARE(read(FS::PathCombine(backupDir, "a/b/c.txt")), QByteArray("c\n"));
+        QCOMPARE(read(FS::PathCombine(backupDir, "a/d.txt")), QByteArray("d\n"));
+
+        QVERIFY(installer.rollback());
+        QCOMPARE(snapshot(root.path()), before);
+    }
+
+    void test_fileBecomesDirectory()
+    {
+        QTemporaryDir root, staging, backups;
+        Variant current;
+        current.files << entry("a", "a\n");
+        write(FS::PathCombine(root.path(), "a"), "a\n");
+        auto before = snapshot(root.path());
+        Variant v;
+        v.files << entry("a/b/c.txt", "c\n");
+        QList<Download> downloads;
+        QList<Change> changes;
+        planInstall(v, &current, root.path(), staging.path(), downloads, changes);
+        download(downloads, {{"a/b/c.txt", "c\n"}});
+
+        Installer installer(root.path(), FS::PathCombine(backups.path(), "backup"));
+        QVERIFY2(installer.apply(changes), qPrintable(installer.error()));
+        QCOMPARE(read(FS::PathCombine(root.path(), "a/b/c.txt")), QByteArray("c\n"));
+
+        // the directories made for the new file are in the way of the old one
+        QVERIFY(installer.rollback());
+        QCOMPARE(snapshot(root.path()), before);
+    }
+
+    void test_caseOnlyRename()
+    {
+        // Foo.txt becomes foo.txt and Lib/ becomes lib/, with the same content. A file system
+        // that ignores case shows the old entries at the new paths too: both are written here.
+        QTemporaryDir root, staging;
+        Variant current;
+        current.files << entry("Foo.txt", "foo\n") << entry("Lib/x.txt", "x\n") << entry("same.txt", "same\n");
+        Variant v;
+        v.files << entry("foo.txt", "foo\n") << entry("lib/x.txt", "x\n") << entry("same.txt", "same\n");
+#ifndef Q_OS_WIN
+        current.links << link("Lib/current", "x.txt");
+        v.links << link("lib/current", "x.txt");
+#endif
+        for(auto *variant: {&current, &v})
+        {
+            for(auto &file: variant->files)
+            {
+                write(FS::PathCombine(root.path(), file.path), file.path.endsWith("x.txt") ? "x\n" : file.path == "same.txt" ? "same\n" : "foo\n");
+            }
+#ifndef Q_OS_WIN
+            for(auto &l: variant->links)
+            {
+                QFile::link(l.target, FS::PathCombine(root.path(), l.path));
+            }
+#endif
+        }
+        QList<Download> downloads;
+        QList<Change> changes;
+        planInstall(v, &current, root.path(), staging.path(), downloads, changes);
+
+        // the old ones are removed, and the new ones placed although they look right
+        QStringList placed, removed, linked;
+        for(auto &change: changes)
+        {
+            (change.kind == Change::Place ? placed : change.kind == Change::Remove ? removed : linked).append(change.path);
+        }
+        QCOMPARE(placed, QStringList({"foo.txt", "lib/x.txt"}));
+        QCOMPARE(downloads.size(), 2);
+#ifdef Q_OS_WIN
+        QCOMPARE(removed, QStringList({"Foo.txt", "Lib/x.txt"}));
+        QVERIFY(linked.isEmpty());
+#else
+        QCOMPARE(removed, QStringList({"Foo.txt", "Lib/x.txt", "Lib/current"}));
+        QCOMPARE(linked, QStringList({"lib/current"}));
+#endif
     }
 
 #ifndef Q_OS_WIN

@@ -62,6 +62,46 @@ bool sameContent(const QString &path, const FileEntry &file)
     return QString::fromLatin1(hash.result().toHex()) == file.sha256;
 }
 
+// Collect `path` and the directories under it, deepest first, when there is nothing but
+// directories in it. Links count as something, even to a directory.
+bool onlyDirectories(const QString &path, QStringList &directories)
+{
+    QFileInfo info(path);
+    if(info.isSymLink() || !info.isDir())
+    {
+        return false;
+    }
+    QStringList found;
+    auto entries = QDir(path).entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+    for(auto &entry: entries)
+    {
+        if(!onlyDirectories(entry.filePath(), found))
+        {
+            return false;
+        }
+    }
+    found.append(path);
+    directories.append(found);
+    return true;
+}
+
+// Delete the directories, deepest first. On failure, make the deleted ones again.
+bool removeDirectories(const QStringList &directories)
+{
+    for(int i = 0; i < directories.size(); i++)
+    {
+        if(!QDir().rmdir(directories[i]))
+        {
+            for(int j = i - 1; j >= 0; j--)
+            {
+                QDir().mkpath(directories[j]);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 }
 
 bool readLink(const QString &path, QString &target)
@@ -100,6 +140,9 @@ void planInstall(const Variant &next, const Variant *current, const QString &roo
         nextPaths.insert(link.path);
     }
 
+    // the removed paths, case folded: on a file system that ignores case, a removal takes away
+    // what is at a path of `next` that differs only in case, so that path can't be skipped
+    QSet<QString> removed;
     if(current)
     {
         QStringList currentPaths;
@@ -115,6 +158,7 @@ void planInstall(const Variant &next, const Variant *current, const QString &roo
         {
             if(!nextPaths.contains(path) && present(QFileInfo(FS::PathCombine(root, path))))
             {
+                removed.insert(path.toCaseFolded());
                 Change change;
                 change.kind = Change::Remove;
                 change.path = path;
@@ -128,7 +172,7 @@ void planInstall(const Variant &next, const Variant *current, const QString &roo
     {
         auto path = FS::PathCombine(root, file.path);
         QFileInfo info(path);
-        if(info.isFile() && !info.isSymLink() && sameContent(path, file))
+        if(!removed.contains(file.path.toCaseFolded()) && info.isFile() && !info.isSymLink() && sameContent(path, file))
         {
 #ifndef Q_OS_WIN
             // Windows has no executable bit: Qt says .exe files are executable, whatever the manifest says
@@ -160,7 +204,7 @@ void planInstall(const Variant &next, const Variant *current, const QString &roo
     for(auto &link: next.links)
     {
         QString target;
-        if(readLink(FS::PathCombine(root, link.path), target) && target == link.target)
+        if(!removed.contains(link.path.toCaseFolded()) && readLink(FS::PathCombine(root, link.path), target) && target == link.target)
         {
             continue;
         }
@@ -184,12 +228,25 @@ bool Installer::fail(const Change &change, const QString &error)
     return false;
 }
 
-bool Installer::backUp(const QString &path, QString &backup)
+bool Installer::backUp(const QString &path, QString &backup, QStringList &emptied)
 {
     backup.clear();
+    emptied.clear();
     auto full = FS::PathCombine(m_root, path);
     if(!present(QFileInfo(full)))
     {
+        return true;
+    }
+    // What the removals left of a directory that becomes a file: its directories are already
+    // in the backup, so moving it there would fail. Nothing in it needs keeping.
+    QStringList directories;
+    if(onlyDirectories(full, directories))
+    {
+        if(!removeDirectories(directories))
+        {
+            return false;
+        }
+        emptied = directories;
         return true;
     }
     auto destination = FS::PathCombine(m_backupDir, path);
@@ -219,7 +276,7 @@ bool Installer::applyOne(const Change &change)
         return true;
     }
 
-    if(!backUp(change.path, done.backup))
+    if(!backUp(change.path, done.backup, done.emptied))
     {
         return fail(change, QString("Couldn't move %1 out of the way").arg(full));
     }
@@ -310,10 +367,29 @@ bool Installer::rollback()
             default:
                 break;
         }
-        if(!done.backup.isEmpty() && !move(done.backup, full))
+        if(!done.backup.isEmpty())
         {
-            qWarning() << "Updater: couldn't restore" << full << "from" << done.backup;
-            ok = false;
+            // A file that became a directory leaves the directory behind, empty once what
+            // was placed in it is back where it came from. Take it away first.
+            QStringList directories;
+            if(onlyDirectories(full, directories) && !removeDirectories(directories))
+            {
+                qWarning() << "Updater: couldn't remove the empty directory" << full;
+            }
+            if(!FS::ensureFilePathExists(full) || !move(done.backup, full))
+            {
+                qWarning() << "Updater: couldn't restore" << full << "from" << done.backup;
+                ok = false;
+            }
+        }
+        // deepest first: making them again goes the other way
+        for(int i = done.emptied.size() - 1; i >= 0; i--)
+        {
+            if(!QDir().mkpath(done.emptied[i]))
+            {
+                qWarning() << "Updater: couldn't make the directory" << done.emptied[i] << "again";
+                ok = false;
+            }
         }
     }
     return ok;
