@@ -34,7 +34,7 @@ struct System
 };
 
 /**
- * Finds out what the Launcher runs on.
+ * Finds out what the Launcher runs on, once; later calls return the same.
  */
 System detect();
 

@@ -18,6 +18,12 @@
 #include <sys/sysctl.h>
 #endif
 
+#if defined(Q_OS_WIN)
+#include <windows.h>
+#endif
+
+#include <QDebug>
+
 namespace {
 
 bool parseVersion(const QString &version, QVector<uint> &parts)
@@ -261,18 +267,132 @@ int SystemRequirements::compareVersions(const QString &a, const QString &b)
     return 0;
 }
 
+namespace {
+
+#if defined(Q_OS_WIN)
+// Compatibility mode makes Windows report the version it emulates to GetVersionEx (and so to
+// Sys::getKernelInfo), whatever the manifest says, and to the registry's CurrentBuildNumber
+// (tried 2026-11-12 on Windows 11 in XP, 7 and 8 modes). These two give the real version;
+// they are tried in order, and the log lists them when they disagree.
+
+// The kernel's own numbers, from the page it shares read-only with every process
+// (KUSER_SHARED_DATA, laid out in the WDK's ntddk.h). 0x7FFE0000 is its user-mode address,
+// the same in 32-bit and 64-bit Windows; the kernel's own addresses (0xFFDF0000,
+// 0xFFFFF78000000000) differ, but aren't ours. ARM64 is believed to be the same and not
+// checked yet, so detect() only uses this when it agrees with ntdll. The build number is
+// only there since Windows 10.
+QString kernelSharedVersion()
+{
+    auto shared = reinterpret_cast<const volatile BYTE *>(0x7FFE0000);
+    auto value = [shared](int offset)
+    {
+        return *reinterpret_cast<const volatile ULONG *>(shared + offset);
+    };
+    ULONG build = value(0x260);
+    ULONG major = value(0x26C);
+    ULONG minor = value(0x270);
+    if(major < 10 || build == 0)
+    {
+        return QString();
+    }
+    return QString("%1.%2.%3").arg(major).arg(minor).arg(build);
+}
+
+// ntdll's numbers, compiled into it (the build number's top bits say what kind of build it is)
+QString ntdllVersion()
+{
+    typedef void(WINAPI * Numbers)(DWORD *, DWORD *, DWORD *);
+    auto ntdll = GetModuleHandleW(L"ntdll.dll");
+    auto numbers = ntdll ? reinterpret_cast<Numbers>(GetProcAddress(ntdll, "RtlGetNtVersionNumbers")) : nullptr;
+    if(!numbers)
+    {
+        return QString();
+    }
+    DWORD major = 0;
+    DWORD minor = 0;
+    DWORD build = 0;
+    numbers(&major, &minor, &build);
+    build &= 0xFFFF;
+    if(major == 0 || build == 0)
+    {
+        return QString();
+    }
+    return QString("%1.%2.%3").arg(major).arg(minor).arg(build);
+}
+#endif
+
+#if defined(Q_OS_MAC)
+// macOS 11 and later tell a program built with an older SDK that they are 10.16, through
+// what Qt asks. This sysctl (macOS 10.13.4 and later) has the real version.
+QString realMacOSVersion()
+{
+    char buffer[64] = {};
+    size_t size = sizeof(buffer) - 1;
+    if(sysctlbyname("kern.osproductversion", buffer, &size, nullptr, 0) != 0)
+    {
+        return QString();
+    }
+    return QString::fromLatin1(buffer).trimmed();
+}
+#endif
+
+}
+
+namespace {
+SystemRequirements::System detectNow();
+}
+
 SystemRequirements::System SystemRequirements::detect()
 {
+    // the system doesn't change while the Launcher runs
+    static const System system = detectNow();
+    return system;
+}
+
+namespace {
+SystemRequirements::System detectNow()
+{
+    using namespace SystemRequirements;
     System out;
     auto kernel = Sys::getKernelInfo();
 #if defined(Q_OS_WIN)
     out.os = "windows";
-    // GetVersionEx, truthful since the manifest declares the Windows versions we support
+    // GetVersionEx: truthful thanks to the manifest, except in compatibility mode
     out.osVersion = QString("%1.%2.%3").arg(kernel.kernelMajor).arg(kernel.kernelMinor).arg(kernel.kernelPatch);
+    {
+        auto reported = out.osVersion;
+        auto shared = kernelSharedVersion();
+        auto ntdll = ntdllVersion();
+        // the shared page only when its major.minor is ntdll's: a wrong address or layout
+        // (a new architecture) then can't make up a version
+        auto majorMinor = [](const QString &version)
+        {
+            return version.section('.', 0, 1);
+        };
+        if(isValidVersion(shared) && isValidVersion(ntdll) && majorMinor(shared) == majorMinor(ntdll))
+        {
+            out.osVersion = shared;
+        }
+        else if(isValidVersion(ntdll))
+        {
+            out.osVersion = ntdll;
+        }
+        if(out.osVersion != reported || (!shared.isEmpty() && shared != ntdll))
+        {
+            qDebug() << "Windows version: reported" << reported << "kernel" << shared << "ntdll" << ntdll
+                     << "(compatibility mode?), using" << out.osVersion;
+        }
+    }
     out.machineArch = archName(Sys::systemArchitecture());
 #elif defined(Q_OS_MAC)
     out.os = "macos";
     out.osVersion = QSysInfo::productVersion();
+    auto real = realMacOSVersion();
+    if(isValidVersion(real) && real != out.osVersion)
+    {
+        qDebug() << "macOS reports version" << out.osVersion << "but kern.osproductversion says" << real << ", using" << real;
+        out.osVersion = real;
+    }
     out.machineArch = archName(Sys::systemArchitecture());
     // under Rosetta, uname says x86_64
     int translated = 0;
@@ -307,6 +427,7 @@ SystemRequirements::System SystemRequirements::detect()
 
     out.qt = QString::fromLatin1(qVersion());
     return out;
+}
 }
 
 QString SystemRequirements::requirementArch(const System &system)
