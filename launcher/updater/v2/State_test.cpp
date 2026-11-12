@@ -1,3 +1,6 @@
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QTest>
 #include <QTemporaryDir>
 
@@ -117,8 +120,10 @@ slots:
         QTest::newRow("garbage") << QByteArray("\x00\x01garbage", 9);
         QTest::newRow("not an object") << QByteArray("[1, 2]");
         QTest::newRow("other format") << QByteArray("{\"format\": 2, \"serial\": 100}");
-        QTest::newRow("broken keys") << QByteArray("{\"format\": 1, \"keys\": \"{\\\"type\\\": \\\"keys\\\"}\"}");
-        QTest::newRow("bad serial") << QByteArray("{\"format\": 1, \"serial\": \"100\"}");
+        // these two have the right root keys: each broken part falls back on its own
+        auto roots = QJsonDocument(QJsonArray::fromStringList(TestTrees::rootKeys())).toJson(QJsonDocument::Compact);
+        QTest::newRow("broken keys") << QByteArray("{\"format\": 1, \"root_keys\": " + roots + ", \"keys\": \"{\\\"type\\\": \\\"keys\\\"}\"}");
+        QTest::newRow("bad serial") << QByteArray("{\"format\": 1, \"root_keys\": " + roots + ", \"serial\": \"100\"}");
     }
     void test_brokenStateFallsBackToFloors()
     {
@@ -134,6 +139,41 @@ slots:
         QCOMPARE(state.serial(), qint64(3));
         QCOMPARE(state.keys().version, qint64(1));
         QVERIFY(!state.hasMirrors());
+    }
+
+    void test_otherRootKeys()
+    {
+        // written by a build of the main tree, read by one pinned to the rotated tree's keys
+        QTemporaryDir dir;
+        auto path = dir.path() + "/state.json";
+        {
+            State state(TestTrees::floor(), TestTrees::rootKeys(), 0);
+            state.acceptSerial(7);
+            state.acceptKeys(keys2(), TestTrees::read("main", "keys/2.json"));
+            state.acceptMirrors(mirrors(), TestTrees::read("main", "mirrors.json"));
+            QVERIFY(state.save(path));
+        }
+        auto otherFloor = TestTrees::read("rotated", "keys/3.json");
+        QStringList otherRoots;
+        for(auto key: QJsonDocument::fromJson(otherFloor).object().value("root_keys").toArray())
+        {
+            otherRoots.append(key.toString());
+        }
+        State other(otherFloor, otherRoots, 2);
+        QVERIFY2(other.error().isEmpty(), qPrintable(other.error()));
+        other.load(path);
+        QCOMPARE(other.serial(), qint64(2));
+        QCOMPARE(other.keys().version, qint64(3));
+        QVERIFY(!other.hasMirrors());
+
+        // a state without root keys, as written before they were stored, is ignored too
+        QFile file(path);
+        QVERIFY(file.open(QFile::WriteOnly));
+        file.write("{\"format\": 1, \"serial\": 100}");
+        file.close();
+        State same(TestTrees::floor(), TestTrees::rootKeys(), 3);
+        same.load(path);
+        QCOMPARE(same.serial(), qint64(3));
     }
 
     void test_missingState()

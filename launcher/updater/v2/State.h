@@ -13,7 +13,9 @@ namespace UpdaterV2
  * document and a serial); when the stored state is lost or broken, the floors take its place.
  *
  * The stored file is the Launcher's own, not part of the tree. It holds the documents as the
- * bytes that were verified, and is only written after they were.
+ * bytes that were verified, and is only written after they were. It also holds the pinned root
+ * keys it was written with: a stored state from a build pinned to other root keys (another
+ * tree, such as a test setup's) is ignored, or its serial and keys would fail every check.
  */
 class State
 {
@@ -65,6 +67,7 @@ public:
 private:
     QString m_error;
     KeysDocument m_floorKeys;
+    QStringList m_pinnedRootKeys;
     qint64 m_serialFloor = 0;
 
     KeysDocument m_keys;

@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSaveFile>
@@ -35,6 +36,8 @@ State::State(const QByteArray &floorKeys, const QStringList &pinnedRootKeys, qin
         m_error = "the compiled-in keys document doesn't list exactly the pinned root keys";
         return;
     }
+    m_pinnedRootKeys = pinnedRootKeys;
+    m_pinnedRootKeys.sort();
     m_serialFloor = serialFloor;
     m_keys = m_floorKeys;
     m_keysData = floorKeys;
@@ -66,6 +69,17 @@ void State::load(const QString &path)
     catch(const Json::JsonException &e)
     {
         qWarning() << "Updater state" << path << "isn't valid, using the compiled-in floors:" << e.cause();
+        return;
+    }
+    QStringList storedRootKeys;
+    for(auto key: obj.value("root_keys").toArray())
+    {
+        storedRootKeys.append(key.toString());
+    }
+    storedRootKeys.sort();
+    if(storedRootKeys != m_pinnedRootKeys)
+    {
+        qWarning() << "Updater state" << path << "was written by a build pinned to other root keys, using the compiled-in floors";
         return;
     }
 
@@ -115,6 +129,7 @@ bool State::save(const QString &path) const
     }
     QJsonObject obj;
     obj.insert("format", 1);
+    obj.insert("root_keys", QJsonArray::fromStringList(m_pinnedRootKeys));
     obj.insert("serial", double(m_serial));
     obj.insert("keys", QString::fromUtf8(m_keysData));
     if(hasMirrors())
