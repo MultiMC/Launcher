@@ -445,6 +445,36 @@ slots:
 #endif
     }
 
+    void test_prepareBackupDir()
+    {
+        QTemporaryDir update;
+        auto backup = FS::PathCombine(update.path(), "backup");
+        write(FS::PathCombine(backup, "MultiMC"), "launcher 1\n");
+        // the previous backup is deleted, and its place used again
+        QCOMPARE(prepareBackupDir(update.path()), backup);
+        QVERIFY(!QFileInfo::exists(backup));
+
+#ifndef Q_OS_WIN
+        // a backup that can't be deleted: a file in a directory without write permission
+        auto stuck = FS::PathCombine(backup, "lib");
+        write(FS::PathCombine(stuck, "libfoo.so"), "foo\n");
+        auto permissions = QFile::permissions(stuck);
+        QVERIFY(QFile::setPermissions(stuck, QFile::ReadOwner | QFile::ExeOwner));
+        auto fresh = prepareBackupDir(update.path());
+        QFile::setPermissions(stuck, permissions);
+        QVERIFY(!fresh.isEmpty());
+        QVERIFY(fresh != backup);
+        QCOMPARE(QFileInfo(fresh).absolutePath(), QFileInfo(update.path()).absoluteFilePath());
+        QVERIFY(QFileInfo(fresh).isDir());
+        QVERIFY(QDir(fresh).entryList(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden).isEmpty());
+
+        // the next download clears the new one away, and the stuck one once it can be deleted
+        removeOldStaging(update.path(), QString());
+        QVERIFY(!QFileInfo::exists(fresh));
+        QCOMPARE(prepareBackupDir(update.path()), backup);
+#endif
+    }
+
     void test_removeOldStaging()
     {
         QTemporaryDir update;

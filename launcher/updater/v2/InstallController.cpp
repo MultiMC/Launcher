@@ -17,15 +17,10 @@ namespace UpdaterV2
 
 namespace {
 const QLatin1String liveCheckFile("live.check");
-
-QString backupDir(const QString &root)
-{
-    return FS::PathCombine(root, "update", "backup");
-}
 }
 
 InstallController::InstallController(QWidget *parent, const QString &root, const QString &stagingDir, const QList<Change> &changes)
-    : m_parent(parent), m_root(root), m_stagingDir(stagingDir), m_changes(changes), m_installer(root, backupDir(root))
+    : m_parent(parent), m_root(root), m_stagingDir(stagingDir), m_changes(changes)
 {
 }
 
@@ -42,13 +37,13 @@ void InstallController::installUpdates()
 #error Unsupported operating system.
 #endif
 
-    // the backup of the last update is of no use any more, and the Installer needs it gone
-    if(!FS::deletePath(backupDir(m_root)))
+    m_backupDir = prepareBackupDir(FS::PathCombine(m_root, "update"));
+    if(m_backupDir.isEmpty())
     {
-        qWarning() << "Updater: couldn't remove the previous backup" << backupDir(m_root);
-        fail(QObject::tr("Couldn't remove the backup of the previous update:\n%1").arg(backupDir(m_root)), false);
+        fail(QObject::tr("Couldn't make a folder for the backup of this update in:\n%1").arg(FS::PathCombine(m_root, "update")), false);
         return;
     }
+    m_installer.reset(new Installer(m_root, m_backupDir));
 
     QList<Change> changes;
     bool useXPHack = false;
@@ -69,7 +64,7 @@ void InstallController::installUpdates()
                 QDir rootDir(m_root);
                 exeOrigin = rootDir.relativeFilePath(change.source);
                 exePath = change.path;
-                exeBackup = rootDir.relativeFilePath(FS::PathCombine(backupDir(m_root), change.path));
+                exeBackup = rootDir.relativeFilePath(FS::PathCombine(m_backupDir, change.path));
                 useXPHack = true;
                 continue;
             }
@@ -78,10 +73,10 @@ void InstallController::installUpdates()
         changes.append(change);
     }
 
-    if(!m_installer.apply(changes))
+    if(!m_installer->apply(changes))
     {
         fail(QObject::tr("Couldn't update %1. Changes will be reverted.\nSee the %2 log file for details.")
-                 .arg(m_installer.failedPath(), BuildConfig.LAUNCHER_NAME), false);
+                 .arg(m_installer->failedPath(), BuildConfig.LAUNCHER_NAME), false);
         return;
     }
 
@@ -107,7 +102,7 @@ void InstallController::installUpdates()
         out << "shell.Run \"" << nativePath << "\"\n";
 
         // the script moves the old .exe into the backup
-        FS::ensureFolderPathExists(backupDir(m_root));
+        FS::ensureFolderPathExists(m_backupDir);
         QString scriptPath = FS::PathCombine(m_root, "update", "update.vbs");
 
         // we save it
@@ -205,7 +200,8 @@ void InstallController::fail(const QString &message, bool ask)
         qApp->quit();
         return;
     }
-    if(!m_installer.rollback())
+    // nothing was changed before the Installer was made
+    if(m_installer && !m_installer->rollback())
     {
         auto msg = QObject::tr("The rollback failed too.\n"
                                "You will have to repair %1 manually.\n"

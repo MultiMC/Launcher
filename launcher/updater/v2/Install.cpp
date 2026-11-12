@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QSet>
+#include <QTemporaryDir>
 
 #include "FileSystem.h"
 
@@ -214,6 +215,25 @@ void planInstall(const Variant &next, const Variant *current, const QString &roo
         change.target = link.target;
         changes.append(change);
     }
+}
+
+QString prepareBackupDir(const QString &updateDir)
+{
+    auto backup = FS::PathCombine(updateDir, "backup");
+    // the backup of the last update is of no use any more, and the Installer needs it gone
+    if(FS::deletePath(backup))
+    {
+        return backup;
+    }
+    qWarning() << "Updater: couldn't remove the previous backup" << backup << "- using a new folder for this one";
+    QTemporaryDir fresh(FS::PathCombine(updateDir, "backup-XXXXXX"));
+    if(!fresh.isValid())
+    {
+        qWarning() << "Updater: couldn't make a new backup folder in" << updateDir;
+        return QString();
+    }
+    fresh.setAutoRemove(false);
+    return fresh.path();
 }
 
 void removeOldStaging(const QString &updateDir, const QString &keep)

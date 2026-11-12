@@ -62,8 +62,17 @@ void planInstall(const Variant &next, const Variant *current, const QString &roo
                  QList<Download> &downloads, QList<Change> &changes);
 
 /**
- * Delete what earlier updates left in `updateDir`: every directory in it but the backup and
- * `keep`. A download or an install that failed keeps its staging directory, a full copy of
+ * Get a backup directory in `updateDir` for the Installer: `backup`, after deleting the
+ * previous update's backup in it. When that can't be deleted (a file in it held open, or
+ * not allowed), a new empty `backup-XXXXXX` is used instead, so one stuck backup doesn't
+ * stop every update after it; removeOldStaging() tries again later. Return an empty string
+ * when there is no usable directory either way.
+ */
+QString prepareBackupDir(const QString &updateDir);
+
+/**
+ * Delete what earlier updates left in `updateDir`: every directory in it but `backup` and
+ * `keep`, older backups that couldn't be deleted in time included. A download or an install that failed keeps its staging directory, a full copy of
  * the changed files each time; updater v1 uses the same directory.
  */
 void removeOldStaging(const QString &updateDir, const QString &keep);

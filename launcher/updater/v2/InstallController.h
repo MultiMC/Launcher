@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <QList>
 #include <QString>
 
@@ -29,7 +31,9 @@ private:
     QString m_root;
     QString m_stagingDir;
     QList<Change> m_changes;
-    Installer m_installer;
+    QString m_backupDir;
+    // made once the backup directory is known
+    std::unique_ptr<Installer> m_installer;
 };
 
 }
