@@ -183,6 +183,8 @@ private slots:
 
 private:
     bool createSetupWizard();
+    // the --update mode, in place of the setup wizard and main window
+    void startHeadlessUpdate();
     void performMainStartupAction();
 
     // sets the fatal error message and m_status to Failed.
@@ -259,4 +261,6 @@ public:
     bool m_liveCheck = false;
     QUrl m_zipToImport;
     std::unique_ptr<QFile> logFile;
+    // --update: the tier to update to without any window (UpdaterV2::HeadlessUpdate)
+    QString m_headlessUpdateTier;
 };

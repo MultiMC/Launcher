@@ -223,6 +223,8 @@ set(NEW_UPDATE_SOURCES
     updater/v2/CheckHistory.cpp
     updater/v2/DownloadTask.h
     updater/v2/DownloadTask.cpp
+    updater/v2/HeadlessUpdate.h
+    updater/v2/HeadlessUpdate.cpp
 )
 
 add_unit_test(UpdaterLiveCheck

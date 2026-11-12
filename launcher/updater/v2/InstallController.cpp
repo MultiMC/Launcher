@@ -19,8 +19,9 @@ namespace {
 const QLatin1String liveCheckFile("live.check");
 }
 
-InstallController::InstallController(QWidget *parent, const QString &root, const QString &stagingDir, const QList<Change> &changes)
-    : m_parent(parent), m_root(root), m_stagingDir(stagingDir), m_changes(changes)
+InstallController::InstallController(QWidget *parent, const QString &root, const QString &stagingDir, const QList<Change> &changes,
+                                     bool interactive)
+    : m_parent(parent), m_root(root), m_stagingDir(stagingDir), m_changes(changes), m_interactive(interactive)
 {
 }
 
@@ -172,23 +173,36 @@ void InstallController::installUpdates()
     }
     if(startFailed)
     {
-        fail(QObject::tr("The new version didn't start or is too old and doesn't respond to startup checks.\n"
-                         "\n"
-                         "Roll back to previous version?"), true);
+        fail(QObject::tr("The new version didn't start or is too old and doesn't respond to startup checks."), true);
         return;
     }
     QDir(m_root).rmdir(m_stagingDir);
-    qApp->quit();
+    m_succeeded = true;
+    if(m_interactive)
+    {
+        qApp->quit();
+    }
 }
 
 void InstallController::fail(const QString &message, bool ask)
 {
-    qWarning() << "Update failed!";
+    qWarning() << "Update failed!" << message;
+    m_error = message;
+    if(!m_interactive)
+    {
+        // nothing to ask: always back to what was there
+        if(m_installer && !m_installer->rollback())
+        {
+            m_error += "\nThe rollback failed too.";
+        }
+        return;
+    }
     auto failTitle = QObject::tr("Update failed!");
     bool doRollback = true;
     if(ask)
     {
-        auto result = QMessageBox::critical(m_parent, failTitle, message, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        auto question = message + "\n\n" + QObject::tr("Roll back to previous version?");
+        auto result = QMessageBox::critical(m_parent, failTitle, question, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
         doRollback = (result == QMessageBox::Yes);
     }
     else

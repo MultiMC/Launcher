@@ -61,6 +61,7 @@
 
 #include "updater/v1/UpdateChecker.h"
 #include "updater/v2/Checker.h"
+#include "updater/v2/HeadlessUpdate.h"
 #include "updater/v2/SystemRequirements.h"
 
 #include "tools/JProfiler.h"
@@ -257,6 +258,11 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         // --alive
         parser.addSwitch("alive");
         parser.addDocumentation("alive", "Write a small '" + liveCheckFile + "' file after the launcher starts");
+        // --update
+        parser.addOption("update");
+        parser.addDocumentation("update", "Switch to the given tier (latest, testing, stable) and install its build, newer or older, without any window, and exit: "
+                                          "0 updated, 1 failed, 2 nothing to do, 3 not for this machine. "
+                                          "With --alive, only start and exit. For testing updates");
         // --import
         parser.addOption("import");
         parser.addShortOpt("import", 'I');
@@ -303,6 +309,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_offlineName = args["name"].toString();
     }
     m_liveCheck = args["alive"].toBool();
+    m_headlessUpdateTier = args["update"].toString();
     m_zipToImport = args["import"].toUrl();
 
     QString origcwdPath = QDir::currentPath();
@@ -1030,11 +1037,50 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         qDebug() << "<> Application theme set.";
     }
 
+    if(!m_headlessUpdateTier.isEmpty())
+    {
+        startHeadlessUpdate();
+        return;
+    }
     if(createSetupWizard())
     {
         return;
     }
     performMainStartupAction();
+}
+
+void Application::startHeadlessUpdate()
+{
+    if(m_liveCheck)
+    {
+        // Restarted by the installer of a headless update: having started is all it waits
+        // for. It also checks that this process still runs (LiveCheck::waitFor, every 250 ms),
+        // so stay a while before exiting.
+        qDebug() << "Update (headless): started with --alive, exiting in 5 seconds";
+        m_status = Application::Initialized;
+        QTimer::singleShot(5000, this, []() { QCoreApplication::exit(0); });
+        return;
+    }
+    UpdaterV2::Tier tier;
+    if(!UpdaterV2::parseTier(m_headlessUpdateTier, tier))
+    {
+        std::cerr << "Update (headless): unknown tier " << m_headlessUpdateTier.toStdString() << std::endl;
+        m_status = Application::Failed;
+        return;
+    }
+    if(!m_updaterV2)
+    {
+        // a build that can't update itself with updater 2: exactly what this mode must catch
+        qWarning() << "Update (headless): this build doesn't use updater 2 (enabled:" << BuildConfig.UPDATER_ENABLED << "version:"
+                   << BuildConfig.UPDATER_VERSION << ")";
+        std::cerr << "Update (headless): this build doesn't use updater 2" << std::endl;
+        m_status = Application::Failed;
+        return;
+    }
+    m_status = Application::Initialized;
+    auto update = new UpdaterV2::HeadlessUpdate(m_updaterV2.get(), m_network, BuildConfig.FILES_MIRRORS.first(), root(), tier, this);
+    // once the event loop runs, so that exiting works even when the check ends right away
+    QTimer::singleShot(0, update, &UpdaterV2::HeadlessUpdate::start);
 }
 
 bool Application::createSetupWizard()
