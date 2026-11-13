@@ -23,8 +23,8 @@ class ThemeSelectionWidget;
  * colours. Choices apply at once. Themes and icon themes come in as zips (Import…, or dropped
  * on the page) and go out as zips (Export…); user themes can be opened in the file manager or
  * deleted, from the buttons for the chosen one or from any row's menu. Colour themes are made
- * one's own in the theme editor (ThemeEditorDialog): Customize… copies any theme, Edit…
- * changes a user theme.
+ * one's own in the theme editor (ThemeEditorDialog), opened with Edit… on any theme: it saves
+ * a user theme in place, and any theme as a new one (Save as).
  */
 class AppearancePage : public QWidget, public BasePage
 {
@@ -63,7 +63,7 @@ private:
     {
         QPushButton *importButton = nullptr;
         QPushButton *openFolder = nullptr;
-        QPushButton *customize = nullptr; // colour themes only
+        QPushButton *edit = nullptr; // colour themes only
         QPushButton *exportButton = nullptr;
         QPushButton *deleteButton = nullptr;
     };
@@ -88,7 +88,7 @@ private:
     void exportTheme(Kind kind, const QModelIndex &index);
     void deleteTheme(Kind kind, const QModelIndex &index);
     /// The colour theme in the editor: in place when edit, else a copy
-    void editTheme(const QModelIndex &index, bool inPlace);
+    void editTheme(const QModelIndex &index);
 
 private: /* data */
     QTabWidget *m_tabs = nullptr;

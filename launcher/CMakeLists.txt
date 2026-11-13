@@ -954,6 +954,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/TierLever.h
     ui/widgets/ConsolePreview.cpp
     ui/widgets/ConsolePreview.h
+    ui/widgets/ThemeSampleWidget.cpp
+    ui/widgets/ThemeSampleWidget.h
     ui/widgets/IconThemeSelectionWidget.cpp
     ui/widgets/IconThemeSelectionWidget.h
     ui/widgets/DetailRowDelegate.cpp

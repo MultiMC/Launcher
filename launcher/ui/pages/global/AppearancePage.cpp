@@ -97,12 +97,9 @@ QWidget *AppearancePage::makeListTab(QWidget *list, FileButtons &buttons, Kind k
     row->addStretch(1);
     if(kind == Kind::Colors)
     {
-        buttons.customize = new QPushButton(tab);
-        row->addWidget(buttons.customize);
-        connect(buttons.customize, &QPushButton::clicked, this, [this]() {
-            const QModelIndex index = indexOf(Kind::Colors, currentId(Kind::Colors));
-            editTheme(index, isUserTheme(index));
-        });
+        buttons.edit = new QPushButton(tab);
+        row->addWidget(buttons.edit);
+        connect(buttons.edit, &QPushButton::clicked, this, [this]() { editTheme(indexOf(Kind::Colors, currentId(Kind::Colors))); });
     }
     row->addWidget(buttons.exportButton);
     row->addWidget(buttons.deleteButton);
@@ -183,22 +180,19 @@ void AppearancePage::updateFileButtons()
         buttons.exportButton->setEnabled(user);
         buttons.deleteButton->setEnabled(user);
     }
-    // a user theme is edited, a built-in one copied first
-    const bool user = isUserTheme(indexOf(Kind::Colors, currentId(Kind::Colors)));
-    m_themeButtons.customize->setText(user ? tr("Ed&it...") : tr("&Customize..."));
-    m_themeButtons.customize->setToolTip(user ? tr("Change the chosen theme's colors") : tr("Make a theme of your own from the chosen one"));
+    // any theme: a user theme is saved in place, any as a new one
+    m_themeButtons.edit->setText(tr("Ed&it..."));
+    m_themeButtons.edit->setToolTip(tr("Change the chosen theme's colors, or make a theme of your own from them"));
 }
 
 void AppearancePage::showRowMenu(Kind kind, const QModelIndex &index, const QPoint &globalPos)
 {
     QMenu menu(this);
-    // any theme that reads can be copied; user themes edited too
+    // any theme that reads can be edited (a built-in one saved as a new one)
     const bool readable = index.isValid() && index.data(ThemeList::ErrorRole).toString().isEmpty();
     if(kind == Kind::Colors && readable)
     {
-        menu.addAction(tr("Customize..."), this, [this, index]() { editTheme(index, false); });
-        if(isUserTheme(index))
-            menu.addAction(tr("Edit..."), this, [this, index]() { editTheme(index, true); });
+        menu.addAction(tr("Edit..."), this, [this, index]() { editTheme(index); });
         menu.addSeparator();
     }
     if(isUserTheme(index))
@@ -329,7 +323,7 @@ void AppearancePage::deleteTheme(Kind kind, const QModelIndex &index)
     }
 }
 
-void AppearancePage::editTheme(const QModelIndex &index, bool inPlace)
+void AppearancePage::editTheme(const QModelIndex &index)
 {
     if(!index.isValid() || !index.data(ThemeList::ErrorRole).toString().isEmpty())
     {
@@ -345,7 +339,7 @@ void AppearancePage::editTheme(const QModelIndex &index, bool inPlace)
     const QPalette palette = manager->previewPalette(id, own);
     ThemeWriter::Theme theme;
     const QString name = index.data(Qt::DisplayRole).toString();
-    theme.name = inPlace ? name : tr("%1 (copy)").arg(name);
+    theme.name = name;
     for(auto &role : CustomTheme::colorRoles())
     {
         theme.colors[role.first] = palette.color(QPalette::Active, role.first);
@@ -365,7 +359,8 @@ void AppearancePage::editTheme(const QModelIndex &index, bool inPlace)
             reserved.append(other.data(ThemeList::IdRole).toString());
     }
     const QString themeFolder = user ? FS::PathCombine(folder(Kind::Colors), id) : QString();
-    ThemeEditorDialog dialog(folder(Kind::Colors), inPlace ? id : QString(), themeFolder, theme, reserved, this);
+    // a user theme can be saved where it is; any, built-in ones too, as a new one
+    ThemeEditorDialog dialog(folder(Kind::Colors), user ? id : QString(), themeFolder, theme, reserved, this);
     if(dialog.exec() != QDialog::Accepted)
     {
         return;
