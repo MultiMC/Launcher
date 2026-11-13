@@ -686,6 +686,8 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("UpdateLastSuccess", 0);
         m_settings->registerSetting("UpdateFailingSince", 0);
         m_settings->registerSetting("UpdateFailedChecks", 0);
+        // when the deprecation notice for this installation's variant was last shown (seconds)
+        m_settings->registerSetting("UpdateDeprecationNotice", 0);
 
         // Theming
         m_settings->registerSetting("IconTheme", QString("pe_colored"));

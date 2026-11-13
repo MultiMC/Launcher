@@ -354,6 +354,7 @@ void Checker::afterTags()
         }
         // a variant this version can't read is still in the build: not dropped
         m_result.ownVariantDropped = !m_build.variants.contains(m_config.variant) && !m_build.unreadable.contains(m_config.variant);
+        m_result.ownVariantDeprecated = m_build.variants.value(m_config.variant).deprecated;
         m_result.runnable = runnableVariants(m_build, m_config.system);
         auto recommended = chooseVariant(m_build, m_config.variant, QString(), m_config.system);
         if(recommended.found)

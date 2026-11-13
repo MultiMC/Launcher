@@ -1,5 +1,6 @@
 #include "Formats.h"
 
+#include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -225,6 +226,18 @@ Variant variant(const QString &id, const QJsonValue &value, const QString &where
             fail(QString("%1.supersedes: a variant is listed twice").arg(where));
         }
         out.supersedes.append(other);
+    }
+
+    // Optional (added 2026-11-13): the last day builds of the variant are made. One that
+    // can't be read is left out, not the variant: it only decides a notice.
+    auto deprecated = obj.value("deprecated");
+    if(!deprecated.isUndefined())
+    {
+        out.deprecated = QDate::fromString(deprecated.toString(), "yyyy-MM-dd");
+        if(!out.deprecated.isValid())
+        {
+            qWarning() << "Updater:" << at(where, "deprecated") << "isn't a date, ignored";
+        }
     }
 
     QStringList paths;

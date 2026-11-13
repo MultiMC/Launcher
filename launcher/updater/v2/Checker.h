@@ -69,6 +69,8 @@ struct CheckResult
     // the variant of this build, and whether the tier's build no longer has it
     QString ownVariant;
     bool ownVariantDropped = false;
+    // the last day the tier's build says builds of this variant are made (invalid: not deprecated)
+    QDate ownVariantDeprecated;
     // the variants of the tier's build this machine can run, and the one it moves to when the
     // user hasn't chosen one (empty when none runs here); known unless the check failed
     QList<Variant> runnable;

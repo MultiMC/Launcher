@@ -430,6 +430,28 @@ slots:
         QVERIFY2(build.unreadable.first().contains("requires"), qPrintable(build.unreadable.first()));
     }
 
+    // deprecated (added 2026-11-13): the last day builds of a variant are made; a date that
+    // can't be read is ignored, the variant isn't
+    void test_deprecated()
+    {
+        QString error;
+        BuildManifest build;
+        QVERIFY2(parseBuild(manifest, 5, build, error), qPrintable(error));
+        QVERIFY(!build.variants.value("macos-x86_64-qt5.15").deprecated.isValid());
+
+        auto data = changed(manifest, "\"macos-x86_64-qt5.15\": {", "\"macos-x86_64-qt5.15\": {\"deprecated\": \"2027-03-01\", ");
+        QVERIFY2(parseBuild(data, 5, build, error), qPrintable(error));
+        QCOMPARE(build.variants.value("macos-x86_64-qt5.15").deprecated, QDate(2027, 3, 1));
+
+        for(auto bad: {"\"2027-02-30\"", "\"March 2027\"", "20270301"})
+        {
+            data = changed(manifest, "\"macos-x86_64-qt5.15\": {", QString("\"macos-x86_64-qt5.15\": {\"deprecated\": %1, ").arg(bad));
+            QVERIFY2(parseBuild(data, 5, build, error), qPrintable(error));
+            QVERIFY(build.variants.contains("macos-x86_64-qt5.15"));
+            QVERIFY(!build.variants.value("macos-x86_64-qt5.15").deprecated.isValid());
+        }
+    }
+
     void test_paths()
     {
         QVERIFY(isValidPath("a"));

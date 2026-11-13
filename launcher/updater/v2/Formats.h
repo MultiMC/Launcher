@@ -1,4 +1,5 @@
 #pragma once
+#include <QDate>
 #include <QByteArray>
 #include <QDateTime>
 #include <QList>
@@ -76,6 +77,8 @@ struct Variant
     // shown to users
     QString name;
     QStringList supersedes;
+    // the last day builds of it are made, when it is deprecated (invalid otherwise)
+    QDate deprecated;
     SystemRequirements::Requirements requirements;
     QList<FileEntry> files;
     QList<LinkEntry> links;

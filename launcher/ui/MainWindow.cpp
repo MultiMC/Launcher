@@ -1441,6 +1441,28 @@ void MainWindow::updateCheckedV2(const UpdaterV2::CheckResult &result)
     settings->set("UpdateLastSuccess", history.lastSuccess);
     settings->set("UpdateFailingSince", history.failingSince);
     settings->set("UpdateFailedChecks", history.failedChecks);
+
+    // The variant this installation runs is deprecated: say until when, at most every 14
+    // days, unless the installation moves on along `supersedes` by itself anyway.
+    if(result.kind != CheckResult::Failed && result.ownVariantDeprecated.isValid())
+    {
+        auto now = QDateTime::currentMSecsSinceEpoch() / 1000;
+        bool successorRuns = !result.recommended.isEmpty() && result.recommended != result.ownVariant;
+        bool staying = settings->get("UpdateVariant").toString() == result.ownVariant;
+        if((!successorRuns || staying) && now - settings->get("UpdateDeprecationNotice").toLongLong() >= 14 * 24 * 3600)
+        {
+            settings->set("UpdateDeprecationNotice", now);
+            auto text = tr("Builds of %1, the version this installation runs, are made until %2. "
+                           "After that, it keeps working, but gets no more updates.")
+                            .arg(variantName(result, result.ownVariant), QLocale().toString(result.ownVariantDeprecated, QLocale::LongFormat));
+            if(successorRuns)
+            {
+                text += "\n\n" + tr("%1 runs on this computer and keeps getting updates. You can switch to it in Settings, Updates.")
+                                      .arg(variantName(result, result.recommended));
+            }
+            CustomMessageBox::selectable(this, tr("Updates ending"), text, QMessageBox::Information)->show();
+        }
+    }
     switch(result.kind)
     {
         case CheckResult::Update:
