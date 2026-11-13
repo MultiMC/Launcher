@@ -6,6 +6,22 @@
 #include "Colors.h"
 #include "TitleBar.h"
 
+/// Where a theme's accent comes from
+enum class AccentMode
+{
+    System, // the system's, followed live; the theme's own where the system has none
+    Custom  // the theme's own
+};
+
+/// What a theme's title bars look like (with Fusion)
+enum class TitleBarMode
+{
+    System, // the system's: only dark or light from us (Windows draws its accent, if set so)
+    Window, // the window's colours (Window, WindowText)
+    Accent, // the active window's in the accent, the others the window's (Windows 11)
+    Custom  // colours of the theme's own (titleBarColor, titleBarTextColor)
+};
+
 /// A theme: colours for the widget style, which ThemeManager finishes (the accent, then the
 /// disabled colours) and applies. Design/Theming.md in the MultiMC repository.
 class ITheme
@@ -37,9 +53,23 @@ public:
     {
         return {};
     }
-    /// With Fusion; the native style leaves title bars to the system
-    virtual TitleBar::Style titleBarStyle()
+    /// The accent: the system's (where it has one; else accent()), or the theme's own
+    virtual AccentMode accentMode()
     {
-        return TitleBar::Style::Palette;
+        return AccentMode::System;
+    }
+    /// With Fusion; the native style leaves title bars to the system
+    virtual TitleBarMode titleBarMode()
+    {
+        return TitleBarMode::System;
+    }
+    /// The title bar's colours with TitleBarMode::Custom
+    virtual QColor titleBarColor()
+    {
+        return {};
+    }
+    virtual QColor titleBarTextColor()
+    {
+        return {};
     }
 };

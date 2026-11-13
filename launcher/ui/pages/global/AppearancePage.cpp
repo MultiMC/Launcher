@@ -339,7 +339,7 @@ void AppearancePage::editTheme(const QModelIndex &index, bool inPlace)
     const QString id = index.data(ThemeList::IdRole).toString();
     const bool user = isUserTheme(index);
 
-    // the theme as it looks with its own accent, every role
+    // the theme as it looks, every role (with the system's accent, where it follows that)
     ThemeManager::Choice own;
     own.theme = id;
     const QPalette palette = manager->previewPalette(id, own);
@@ -353,6 +353,12 @@ void AppearancePage::editTheme(const QModelIndex &index, bool inPlace)
     if(auto source = manager->themeList()->theme(id))
     {
         theme.logColors = source->logColors();
+        // the accent and the title bar as the theme has them (a copy of System follows the
+        // system), for the editor to show and change
+        theme.accent = CustomTheme::accentModeName(source->accentMode());
+        theme.titleBar = CustomTheme::titleBarModeName(source->titleBarMode());
+        theme.titleBarColor = source->titleBarColor();
+        theme.titleBarTextColor = source->titleBarTextColor();
     }
 
     // a copy can't take a built-in theme's id

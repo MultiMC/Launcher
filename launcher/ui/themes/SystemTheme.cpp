@@ -31,11 +31,3 @@ Colors::Accent SystemTheme::accent()
 {
     return m_system->accent();
 }
-
-// like other apps that follow the system: its colours, and on Windows 11 the accent on title
-// bars when "Show accent color on title bars and window borders" is on (ours, which may be a
-// custom one: TitleBar_win.cpp)
-TitleBar::Style SystemTheme::titleBarStyle()
-{
-    return TitleBar::Style::Brightness;
-}

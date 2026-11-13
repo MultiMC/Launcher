@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "Colors.h"
+#include "TitleBar.h"
 #include "settings/SettingsObject.h"
 
 class ITheme;
@@ -18,8 +19,9 @@ class SystemAppearance;
 /**
  * The widget style, theme and accent (Design/Theming.md in the MultiMC repository): our
  * palettes on Fusion by default, the platform's own style (Native) where it is good, the
- * System theme and accent following the system live. Reads and writes the Theme, ThemeStyle,
- * AccentSource and AccentColor settings.
+ * System theme and accent following the system live. The accent and the title bars are the
+ * theme's (ITheme::accentMode, titleBarMode). Reads and writes the Theme and ThemeStyle
+ * settings.
  */
 class ThemeManager : public QObject
 {
@@ -31,20 +33,11 @@ public:
         Native  // the platform's style: macintosh, Breeze, Kvantum, whatever the desktop gives
     };
 
-    enum class AccentSource
-    {
-        Theme,  // the theme's own (the System theme's is the system's)
-        System, // the system's, followed when it changes
-        Custom  // one picked by the user
-    };
-
     /// Everything the settings choose
     struct Choice
     {
         QString theme;
         Style style = Style::Fusion;
-        AccentSource accentSource = AccentSource::Theme;
-        QColor accentColor;
 
         bool operator==(const Choice &other) const;
         bool operator!=(const Choice &other) const
@@ -59,7 +52,7 @@ public:
 
     /// What the settings say, with the defaults for what isn't set yet
     Choice savedChoice() const;
-    /// A theme's palette finished as with Fusion and the theme's own accent (the disabled
+    /// A theme's palette finished as with Fusion and the theme's own colours (the disabled
     /// colours derived): for the theme editor's preview
     QPalette finishedPalette(const QPalette &themePalette) const;
     /// The theme when none was chosen, or the chosen one is gone
@@ -112,6 +105,7 @@ private:
     Choice effective(Choice choice) const;
     Colors::Accent accentFor(const Choice &choice) const;
     QPalette finished(ITheme *theme, const Choice &choice) const;
+    TitleBar::Look titleBarLook(ITheme *theme, const Choice &choice) const;
     void applyFusion(ITheme *theme, const Choice &choice);
     void applyNative(ITheme *theme, const Choice &choice);
     void setOurPalette(const QPalette &palette);

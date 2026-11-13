@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QColor>
 #include <QObject>
 
 class QWidget;
@@ -12,14 +13,24 @@ enum class Style
     Brightness, // dark or light like the window's palette, the system's colours
     Palette     // the window palette's colours: caption = Window, text = WindowText
 };
-// Windows 11 with "Show accent color on title bars and window borders" on: with Brightness and
-// Palette, the active window's caption and border are the palette's accent (Highlight), as
-// Windows draws its own windows' in the system accent.
+
+/// How title bars look
+struct Look
+{
+    Style style = Style::Default;
+    /// With Palette: the active window's title bar (and border) in the application palette's
+    /// accent (Highlight, text HighlightedText), where the system lets us (Windows 11)
+    bool accent = false;
+    /// The plain look with Palette; invalid: the window palette's Window and WindowText
+    QColor caption;
+    QColor text;
+};
 
 /// Set up the native title bar (and border) of a top-level window, as far as the system can:
-/// Windows 10 1809+ dark or light, Windows 11 any colour; macOS 10.14+ dark or light, the
-/// palette's colour through a transparent title bar. Elsewhere it's the window manager's.
-void apply(QWidget *window, Style style);
+/// Windows 10 1809+ dark or light, Windows 11 any colour and the accent; macOS 10.14+ dark or
+/// light, the palette's colour through a transparent title bar. Elsewhere it's the window
+/// manager's.
+void apply(QWidget *window, const Look &look);
 
 enum class Appearance
 {
@@ -42,12 +53,12 @@ public:
     using QObject::QObject;
     bool eventFilter(QObject *watched, QEvent *event) override;
 
-    /// The style for all windows from now on, applied to the open ones at once: a theme
+    /// The look for all windows from now on, applied to the open ones at once: a theme
     /// change doesn't always change the palette, so PaletteChange alone isn't enough
-    static void setStyle(TitleBar::Style style);
-    /// The same style again, for all open windows: after a system setting it reads changed
-    static void refresh();
+    static void setLook(const TitleBar::Look &look);
 
 private:
-    static TitleBar::Style s_style;
+    static void refresh();
+
+    static TitleBar::Look s_look;
 };

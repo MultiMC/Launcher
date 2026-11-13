@@ -40,6 +40,10 @@ bool writeThemeFile(const QString &folder, const ThemeWriter::Theme &theme, QStr
         }
     }
     root["name"] = theme.name;
+    if (!theme.accent.isEmpty())
+        root["accent"] = theme.accent;
+    if (!theme.titleBar.isEmpty())
+        root["titleBar"] = theme.titleBar;
     // the widget style and the disabled colours are ours to choose (CustomTheme)
     root.remove("widgets");
 
@@ -53,6 +57,17 @@ bool writeThemeFile(const QString &folder, const ThemeWriter::Theme &theme, QStr
             colors[role.second] = color.name();
         else
             colors.remove(role.second);
+    }
+    if (!theme.titleBar.isEmpty())
+    {
+        auto setOrRemove = [&colors](const QString &key, const QColor &color) {
+            if (color.isValid())
+                colors[key] = color.name();
+            else
+                colors.remove(key);
+        };
+        setOrRemove("TitleBar", theme.titleBarColor);
+        setOrRemove("TitleBarText", theme.titleBarTextColor);
     }
     root["colors"] = colors;
 

@@ -18,7 +18,7 @@ class QTabWidget;
 class ThemeSelectionWidget;
 
 /**
- * How the launcher looks, in tabs: the theme, accent and style (ThemeSelectionWidget), the
+ * How the launcher looks, in tabs: the theme and style (ThemeSelectionWidget), the
  * icons (IconThemeSelectionWidget), and the console's font, with a preview in the theme's log
  * colours. Choices apply at once. Themes and icon themes come in as zips (Import…, or dropped
  * on the page) and go out as zips (Export…); user themes can be opened in the file manager or

@@ -1,13 +1,9 @@
 #include "TitleBar.h"
 #include "Colors.h"
 
-#include <QAbstractNativeEventFilter>
 #include <QApplication>
 #include <QColor>
-#include <QCoreApplication>
-#include <QDebug>
 #include <QPalette>
-#include <QTimer>
 #include <QVariant>
 #include <QWidget>
 
@@ -59,105 +55,46 @@ void set(HWND hwnd, DWORD attribute, DWORD value)
     dwmSetWindowAttribute()(hwnd, attribute, &value, sizeof(value));
 }
 
-// "Show accent color on title bars and window borders"
-bool readAccentOnTitleBars()
-{
-    HKEY key;
-    if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\DWM", 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS)
-        return false;
-    DWORD type = 0, value = 0, size = sizeof(value);
-    LONG result = RegQueryValueExW(key, L"ColorPrevalence", nullptr, &type, reinterpret_cast<BYTE *>(&value), &size);
-    RegCloseKey(key);
-    return result == ERROR_SUCCESS && type == REG_DWORD && value != 0;
 }
 
-// Not in the toolchain's headers (Vista+)
-const UINT WM_DWMCOLORIZATIONCOLORCHANGED_ = 0x0320;
-
-// The setting, kept up to date: switching it sends WM_DWMCOLORIZATIONCOLORCHANGED and
-// WM_SETTINGCHANGE "ImmersiveColorSet" to the top-level windows, then they're set up again
-class AccentOnTitleBars : public QAbstractNativeEventFilter
+void TitleBar::apply(QWidget *window, const Look &look)
 {
-public:
-    AccentOnTitleBars() : m_on(readAccentOnTitleBars())
-    {
-        QCoreApplication::instance()->installNativeEventFilter(this);
-    }
-
-    bool on() const
-    {
-        return m_on;
-    }
-
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *) override
-    {
-        if (eventType != "windows_generic_MSG")
-            return false;
-        auto msg = static_cast<MSG *>(message);
-        bool settingChange = msg->message == WM_SETTINGCHANGE && msg->lParam
-            && wcscmp(reinterpret_cast<const wchar_t *>(msg->lParam), L"ImmersiveColorSet") == 0;
-        if (!settingChange && msg->message != WM_DWMCOLORIZATIONCOLORCHANGED_)
-            return false;
-        const bool now = readAccentOnTitleBars();
-        if (now != m_on)
-        {
-            m_on = now;
-            qDebug() << "Accent on title bars:" << m_on;
-            TitleBarWatcher::refresh();
-            // and once more when Windows is done with its own title bars, which can take
-            // their colours back (the text colour of ours) after this message
-            QTimer::singleShot(500, []() { TitleBarWatcher::refresh(); });
-        }
-        return false;
-    }
-
-private:
-    bool m_on;
-};
-
-bool accentOnTitleBars()
-{
-    // made with the first window: there is an application by then
-    static AccentOnTitleBars *setting = new AccentOnTitleBars();
-    return setting->on();
-}
-}
-
-void TitleBar::apply(QWidget *window, Style style)
-{
+    const Style style = look.style;
     if (!window || !window->isWindow() || !dwmSetWindowAttribute())
         return;
     HWND hwnd = reinterpret_cast<HWND>(window->winId());
     const QPalette palette = window->palette();
-    const QColor windowColor = palette.color(QPalette::Window);
-    // Windows 10 only has the dark/light switch; on 11 it also picks the caption buttons' look
-    const DWORD dark = style != Style::Default && Colors::isDark(windowColor);
+    // The plain look: the theme's title bar colours, else the window's
+    const QColor plainCaption = look.caption.isValid() ? look.caption : palette.color(QPalette::Window);
+    const QColor plainText = look.text.isValid() ? look.text : palette.color(QPalette::WindowText);
+    // As Windows does with its accent title bars: the active window's only, the others plain.
+    // From the application's palette: a theme's stylesheet can give the window's own palette
+    // other selection colours (Borest: a translucent white, white text on it).
+    const bool accent = windowsBuild() >= 22000 && style == Style::Palette && look.accent && window->isActiveWindow();
+    const QPalette theme = QApplication::palette();
+    const QColor accentCaption = theme.color(QPalette::Active, QPalette::Highlight);
+
+    // Windows 10 only has the dark/light switch; on 11 it also picks the caption buttons' look,
+    // so it goes with the caption shown
+    const DWORD dark = style != Style::Default && Colors::isDark(accent ? accentCaption : plainCaption);
     // Windows 11: the colours, or DWMWA_COLOR_DEFAULT for the system's. The border is the
     // system's unless it's the accent: its grey edge, a little lighter than a dark caption,
     // keeps windows apart; a darker one of ours vanished against dark windows behind.
     DWORD caption = DWMWA_COLOR_DEFAULT, text = DWMWA_COLOR_DEFAULT, border = DWMWA_COLOR_DEFAULT;
-    if (windowsBuild() >= 22000 && style != Style::Default)
+    if (accent)
     {
-        // as Windows does with its accent title bars: the active window's only, the others
-        // as if the setting were off. Our accent, not the system's: it may be a custom one.
-        // The application's palette: a theme's stylesheet can give the window's own palette
-        // other selection colours (Borest: a translucent white, white text on it).
-        if (accentOnTitleBars() && window->isActiveWindow())
-        {
-            const QPalette theme = QApplication::palette();
-            caption = border = colorRef(theme.color(QPalette::Active, QPalette::Highlight));
-            text = colorRef(theme.color(QPalette::Active, QPalette::HighlightedText));
-        }
-        else if (style == Style::Palette)
-        {
-            caption = colorRef(windowColor);
-            text = colorRef(palette.color(QPalette::WindowText));
-        }
+        caption = border = colorRef(accentCaption);
+        text = colorRef(theme.color(QPalette::Active, QPalette::HighlightedText));
+    }
+    else if (windowsBuild() >= 22000 && style == Style::Palette)
+    {
+        caption = colorRef(plainCaption);
+        text = colorRef(plainText);
     }
 
     set(hwnd, windowsBuild() >= 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE : DWMWA_USE_IMMERSIVE_DARK_MODE_OLD, dark);
-    // also with the system's colours: back from the palette's. Set every time: Windows sets
-    // its own again when the accent title bar setting changes, maybe after we did.
+    // also with the system's colours: back from the palette's. Set every time: cheap, and
+    // Windows may have put its own back (its accent title bar setting changed)
     if (windowsBuild() >= 22000)
     {
         set(hwnd, DWMWA_CAPTION_COLOR, caption);

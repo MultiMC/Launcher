@@ -16,7 +16,6 @@ public:
     QString name() override;
     QPalette palette() override;
     Colors::Accent accent() override;
-    TitleBar::Style titleBarStyle() override;
 
 private: /* data */
     SystemAppearance *m_system = nullptr;

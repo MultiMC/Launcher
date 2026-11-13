@@ -65,6 +65,45 @@ QColor readColor(const QJsonObject &object, const QString &key, const QString &t
     return color;
 }
 
+QString modeName(AccentMode mode)
+{
+    return mode == AccentMode::System ? "system" : "custom";
+}
+
+QString modeName(TitleBarMode mode)
+{
+    switch(mode)
+    {
+    case TitleBarMode::System:
+        return "system";
+    case TitleBarMode::Window:
+        return "window";
+    case TitleBarMode::Accent:
+        return "accent";
+    case TitleBarMode::Custom:
+        return "custom";
+    }
+    return "window";
+}
+
+// One of modes by its name in theme.json, fallback when it isn't there or isn't one of them
+template <typename Mode>
+Mode readMode(const QJsonObject &object, const QString &key, std::initializer_list<Mode> modes, Mode fallback, const QString &themeId)
+{
+    const QString value = Json::ensureString(object, key, QString());
+    if(value.isEmpty())
+        return fallback;
+    QStringList names;
+    for(auto mode : modes)
+    {
+        if(modeName(mode) == value)
+            return mode;
+        names.append(modeName(mode));
+    }
+    qWarning() << "Theme" << themeId << "-" << key << value << "was not recognized:" << names.join(", ");
+    return fallback;
+}
+
 // Every role set: the colours given over Bright's or Dark's, whichever is closer to the
 // theme's window colour, and the shading roles derived from the Button and Window colours
 QPalette fullPalette(const QMap<QPalette::ColorRole, QColor> &given)
@@ -96,6 +135,10 @@ void CustomTheme::reload()
     m_styleSheet.clear();
     m_styleSheetPath = QDir(m_folder).absoluteFilePath(DEFAULT_STYLE_FILE);
     m_logColors.clear();
+    m_accentMode = AccentMode::Custom;
+    m_titleBarMode = TitleBarMode::Window;
+    m_titleBarColor = QColor();
+    m_titleBarTextColor = QColor();
     m_oldDefault = false;
 
     const QString themeFile = QDir(m_folder).absoluteFilePath(THEME_FILE);
@@ -125,6 +168,13 @@ void CustomTheme::reload()
                 colors[role.first] = color;
             }
         }
+        // the accent and the title bar. Themes from before these keys keep their look: their
+        // own accent, title bars in their window's colours.
+        m_accentMode = readMode(root, "accent", {AccentMode::System, AccentMode::Custom}, AccentMode::Custom, m_id);
+        m_titleBarMode = readMode(root, "titleBar", {TitleBarMode::System, TitleBarMode::Window, TitleBarMode::Accent, TitleBarMode::Custom},
+                                  TitleBarMode::Window, m_id);
+        m_titleBarColor = readColor(colorsRoot, "TitleBar", m_id);
+        m_titleBarTextColor = readColor(colorsRoot, "TitleBarText", m_id);
         auto logRoot = Json::ensureObject(root, "logColors");
         for(auto &level: LOG_LEVELS)
         {
@@ -177,6 +227,16 @@ QString CustomTheme::folder() const
 QList<QPair<QPalette::ColorRole, QString>> CustomTheme::colorRoles()
 {
     return ROLES;
+}
+
+QString CustomTheme::accentModeName(AccentMode mode)
+{
+    return modeName(mode);
+}
+
+QString CustomTheme::titleBarModeName(TitleBarMode mode)
+{
+    return modeName(mode);
 }
 
 QStringList CustomTheme::logLevels()
@@ -237,4 +297,24 @@ QString CustomTheme::styleSheet()
 QMap<QString, QColor> CustomTheme::logColors()
 {
     return m_logColors;
+}
+
+AccentMode CustomTheme::accentMode()
+{
+    return m_accentMode;
+}
+
+TitleBarMode CustomTheme::titleBarMode()
+{
+    return m_titleBarMode;
+}
+
+QColor CustomTheme::titleBarColor()
+{
+    return m_titleBarColor;
+}
+
+QColor CustomTheme::titleBarTextColor()
+{
+    return m_titleBarTextColor;
 }

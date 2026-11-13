@@ -17,24 +17,9 @@
 #include "Colors.h"
 #include "DetailRowDelegate.h"
 #include "ThemePreview.h"
-#include "ui/dialogs/AccentColorDialog.h"
 #include "ui/themes/ThemeList.h"
 
 namespace {
-// A small square of a colour, for the accent choices: a rounded square, its edge a little
-// darker, and a gap on the right so the button's text doesn't touch it
-QIcon swatch(const QColor &color)
-{
-    QPixmap pixmap(32, 36);
-    pixmap.fill(Qt::transparent);
-    QPainter p(&pixmap);
-    p.setRenderHint(QPainter::Antialiasing);
-    p.setPen(QPen(color.darker(150), 1));
-    p.setBrush(color);
-    p.drawRoundedRect(QRectF(0.5, 0.5, 31, 31), 3, 3);
-    return QIcon(pixmap);
-}
-
 // ThemePreview draws for 132 x 84; the rows show it smaller
 const QSize PREVIEW_SIZE(99, 63);
 const qreal PREVIEW_SCALE = 0.75;
@@ -47,7 +32,7 @@ ThemeSelectionWidget::ThemeSelectionWidget(QWidget *parent) : QWidget(parent)
 
     auto layout = new QVBoxLayout(this);
 
-    // the style and the accent on top, one row each
+    // the style on top
     auto choices = new QFormLayout();
     m_styleLabel = new QLabel(this);
     m_styleRow = new QWidget(this);
@@ -70,42 +55,13 @@ ThemeSelectionWidget::ThemeSelectionWidget(QWidget *parent) : QWidget(parent)
     m_styleLabel->setVisible(m_manager->hasNativeStyleChoice());
     m_styleRow->setVisible(m_manager->hasNativeStyleChoice());
 
-    m_accentLabel = new QLabel(this);
-    m_accentRow = new QWidget(this);
-    // three buttons, one pressed, each with the colour it gives
-    auto accentLayout = new QHBoxLayout(m_accentRow);
-    accentLayout->setContentsMargins(0, 0, 0, 0);
-    m_accentGroup = new QButtonGroup(this);
-    auto accentButton = [this, accentLayout](ThemeManager::AccentSource source) {
-        auto button = new QRadioButton(m_accentRow);
-        button->setCheckable(true);
-        m_accentGroup->addButton(button, int(source));
-        accentLayout->addWidget(button);
-        return button;
-    };
-    m_themeAccent = accentButton(ThemeManager::AccentSource::Theme);
-    m_systemAccent = accentButton(ThemeManager::AccentSource::System);
-    m_customAccent = accentButton(ThemeManager::AccentSource::Custom);
-    accentLayout->addStretch(1);
-    choices->addRow(m_accentLabel, m_accentRow);
-    connect(m_accentGroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, [this](int id) {
-        const auto source = ThemeManager::AccentSource(id);
-        // Custom is a colour to choose, every time it is clicked
-        if(source == ThemeManager::AccentSource::Custom)
-        {
-            pickCustomAccent();
-            return;
-        }
-        m_choice.accentSource = source;
-        userChanged();
-    });
     layout->addLayout(choices);
 
     m_themeNote = new QLabel(this);
     m_themeNote->setWordWrap(true);
     layout->addWidget(m_themeNote);
 
-    // the themes: a small window in each one's colours, with the accent and style chosen
+    // the themes: a small window in each one's colours, with the style chosen
     m_list = m_manager->themeList();
     m_view = new QListView(this);
     m_view->setUniformItemSizes(true);
@@ -142,7 +98,7 @@ ThemeSelectionWidget::ThemeSelectionWidget(QWidget *parent) : QWidget(parent)
     // themes that come and go keep the selection where it was
     connect(m_list, &QAbstractItemModel::modelReset, this, &ThemeSelectionWidget::updateControls);
 
-    // the System theme and the system's accent show the system's current look
+    // the System theme and themes with the system's accent show the system's current look
     connect(m_manager, &ThemeManager::systemChanged, this, &ThemeSelectionWidget::updateControls);
 
     retranslate();
@@ -172,27 +128,6 @@ void ThemeSelectionWidget::selectTheme(const QString &id)
     userChanged();
 }
 
-void ThemeSelectionWidget::pickCustomAccent()
-{
-    // the chosen theme with the colour as its custom accent
-    auto preview = [this](const QColor &color) {
-        ThemeManager::Choice choice = m_choice;
-        choice.accentSource = ThemeManager::AccentSource::Custom;
-        choice.accentColor = color;
-        return m_manager->previewPalette(choice.theme, choice);
-    };
-    AccentColorDialog dialog(m_choice.accentColor, m_manager->systemAccent().color, preview, this);
-    if(dialog.exec() != QDialog::Accepted)
-    {
-        // the button pressed before stays pressed
-        updateControls();
-        return;
-    }
-    m_choice.accentColor = dialog.color();
-    m_choice.accentSource = ThemeManager::AccentSource::Custom;
-    userChanged();
-}
-
 void ThemeSelectionWidget::userChanged()
 {
     updateControls();
@@ -208,30 +143,9 @@ void ThemeSelectionWidget::updateControls()
     m_view->selectionModel()->setCurrentIndex(current, QItemSelectionModel::ClearAndSelect);
     m_view->scrollTo(current);
     m_updating = false;
-    // the previews show the accent and the style
+    // the previews show the style (and the system's accent, with themes that follow it)
     m_view->viewport()->update();
     m_themeNote->setVisible(!themesAvailable);
-
-    const bool accentsAvailable = m_manager->accentChoiceAvailable(style);
-    const auto systemAccent = m_manager->systemAccent();
-    m_accentRow->setEnabled(accentsAvailable);
-    m_accentRow->setToolTip(accentsAvailable ? QString() : tr("The %1 style uses the system's own accent.").arg(m_manager->nativeStyleName()));
-    // the chosen theme's own accent, as it shows with the theme's own accent chosen
-    ThemeManager::Choice themeOwn = m_choice;
-    themeOwn.accentSource = ThemeManager::AccentSource::Theme;
-    m_themeAccent->setIcon(swatch(m_manager->previewPalette(m_choice.theme, themeOwn).color(QPalette::Active, QPalette::Highlight)));
-    m_systemAccent->setEnabled(systemAccent.isValid());
-    m_systemAccent->setIcon(swatch(systemAccent.isValid() ? systemAccent.color : QColor(Qt::transparent)));
-    const bool customAvailable = m_manager->customAccentAvailable(style);
-    m_customAccent->setEnabled(customAvailable);
-    m_customAccent->setToolTip(customAvailable ? tr("Choose a color of your own")
-                                               : tr("The %1 style draws its controls in the system's accent; a custom accent applies with Fusion.").arg(m_manager->nativeStyleName()));
-    m_customAccent->setIcon(swatch(m_choice.accentColor));
-    auto accentButton = m_accentGroup->button(int(m_choice.accentSource));
-    if(accentButton)
-    {
-        accentButton->setChecked(true);
-    }
 
     auto styleButton = m_styleGroup->button(int(style));
     if(styleButton)
@@ -248,10 +162,6 @@ void ThemeSelectionWidget::retranslate()
     m_fusion->setToolTip(tr("Looks the same on every system, with every theme and accent."));
     m_native->setText(tr("Native (%1)").arg(m_manager->nativeStyleName()));
     m_native->setToolTip(tr("Looks like other applications on this system. Layouts may fit less well, and what the themes and accents can change depends on the style."));
-    m_accentLabel->setText(tr("Accent color:"));
-    m_themeAccent->setText(tr("Theme's own"));
-    m_systemAccent->setText(tr("System"));
-    m_customAccent->setText(tr("Custom..."));
     updateControls();
 }
 

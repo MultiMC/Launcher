@@ -123,6 +123,64 @@ slots:
         QCOMPARE(root.value("logColors").toObject().keys(), QStringList{"Error"});
     }
 
+    // the accent and the title bar: themes from before the keys keep their look (their own
+    // accent, the window's colours on title bars); the keys are read, kept when the editor
+    // saves without them, and written when it gives them
+    void test_accentAndTitleBar()
+    {
+        QTemporaryDir temp;
+        QVERIFY(temp.isValid());
+        const QString themes = QDir(temp.path()).filePath("themes");
+        QVERIFY(QDir().mkpath(themes + "/Old"));
+        FS::write(themes + "/Old/theme.json", "{\"name\": \"Old\", \"colors\": {\"Window\": \"#282828\"}}");
+        CustomTheme old(themes + "/Old");
+        QCOMPARE(old.accentMode(), AccentMode::Custom);
+        QCOMPARE(old.titleBarMode(), TitleBarMode::Window);
+        QVERIFY(!old.titleBarColor().isValid());
+
+        QVERIFY(QDir().mkpath(themes + "/New"));
+        FS::write(themes + "/New/theme.json",
+                  "{\"name\": \"New\", \"accent\": \"system\", \"titleBar\": \"custom\","
+                  " \"colors\": {\"TitleBar\": \"#102030\", \"TitleBarText\": \"#f0f0f0\"}}");
+        CustomTheme fresh(themes + "/New");
+        QCOMPARE(fresh.accentMode(), AccentMode::System);
+        QCOMPARE(fresh.titleBarMode(), TitleBarMode::Custom);
+        QCOMPARE(fresh.titleBarColor(), QColor("#102030"));
+        QCOMPARE(fresh.titleBarTextColor(), QColor("#f0f0f0"));
+
+        // saved without the modes: they stay, with the title bar's colours
+        QString error;
+        QVERIFY2(ThemeWriter::save(themes, "New", purple(), QString(), error), qPrintable(error));
+        fresh.reload();
+        QCOMPARE(fresh.accentMode(), AccentMode::System);
+        QCOMPARE(fresh.titleBarMode(), TitleBarMode::Custom);
+        QCOMPARE(fresh.titleBarColor(), QColor("#102030"));
+
+        // saved with them: as given; the title bar's colours go with a mode that has none
+        ThemeWriter::Theme edited = purple();
+        edited.accent = CustomTheme::accentModeName(AccentMode::Custom);
+        edited.titleBar = CustomTheme::titleBarModeName(TitleBarMode::Accent);
+        QVERIFY2(ThemeWriter::save(themes, "New", edited, QString(), error), qPrintable(error));
+        fresh.reload();
+        QCOMPARE(fresh.accentMode(), AccentMode::Custom);
+        QCOMPARE(fresh.titleBarMode(), TitleBarMode::Accent);
+        QVERIFY(!fresh.titleBarColor().isValid());
+
+        // a copy of a built-in theme: what that theme does
+        ThemeWriter::Theme copy = purple();
+        copy.accent = CustomTheme::accentModeName(AccentMode::System);
+        copy.titleBar = CustomTheme::titleBarModeName(TitleBarMode::System);
+        QVERIFY2(ThemeWriter::save(themes, "Copy", copy, QString(), error), qPrintable(error));
+        QCOMPARE(CustomTheme(themes + "/Copy").accentMode(), AccentMode::System);
+        QCOMPARE(CustomTheme(themes + "/Copy").titleBarMode(), TitleBarMode::System);
+
+        // something else: the old look
+        QVERIFY(QDir().mkpath(themes + "/Odd"));
+        FS::write(themes + "/Odd/theme.json", "{\"name\": \"Odd\", \"accent\": \"maybe\", \"titleBar\": \"purple\"}");
+        QCOMPARE(CustomTheme(themes + "/Odd").accentMode(), AccentMode::Custom);
+        QCOMPARE(CustomTheme(themes + "/Odd").titleBarMode(), TitleBarMode::Window);
+    }
+
     void test_freeId()
     {
         QTemporaryDir temp;

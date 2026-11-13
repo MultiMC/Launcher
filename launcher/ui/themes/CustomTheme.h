@@ -8,7 +8,7 @@
 
 /**
  * A theme from a folder in themes/ in the data folder: theme.json (name, colours, log colours,
- * the stylesheet's name), the stylesheet (themeStyle.css by default) and resources/. The same
+ * the accent's and title bar's modes, the stylesheet's name), the stylesheet (themeStyle.css by default) and resources/. The same
  * format as MultiMC's custom themes always had, and Prism Launcher's (Design/Theming.md in the
  * MultiMC repository). Read again with reload(); a broken one keeps the reason in error().
  */
@@ -25,6 +25,10 @@ public:
     QString styleSheet() override;
     QStringList searchPaths() override;
     QMap<QString, QColor> logColors() override;
+    AccentMode accentMode() override;
+    TitleBarMode titleBarMode() override;
+    QColor titleBarColor() override;
+    QColor titleBarTextColor() override;
 
     /// Read the folder again
     void reload();
@@ -42,6 +46,9 @@ public:
     static QList<QPair<QPalette::ColorRole, QString>> colorRoles();
     /// The log levels theme.json can colour, by their names there
     static QStringList logLevels();
+    /// theme.json's "accent" and "titleBar" values
+    static QString accentModeName(AccentMode mode);
+    static QString titleBarModeName(TitleBarMode mode);
     /// Every role set from the ones given: the rest from Bright or Dark, whichever is closer
     static QPalette paletteFrom(const QMap<QPalette::ColorRole, QColor> &given);
 
@@ -54,6 +61,10 @@ private: /* data */
     QString m_styleSheet;
     QString m_styleSheetPath;
     QMap<QString, QColor> m_logColors;
+    AccentMode m_accentMode = AccentMode::Custom;
+    TitleBarMode m_titleBarMode = TitleBarMode::Window;
+    QColor m_titleBarColor;
+    QColor m_titleBarTextColor;
     bool m_oldDefault = false;
     ReuseInfo m_reuse;
 };

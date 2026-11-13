@@ -693,8 +693,6 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         // defaults apply. Not the old ApplicationTheme, whose System was the platform's style.
         m_settings->registerSetting("Theme", QString());
         m_settings->registerSetting("ThemeStyle", QString());
-        m_settings->registerSetting("AccentSource", QString());
-        m_settings->registerSetting("AccentColor", QString());
 
         // Notifications
         m_settings->registerSetting("ShownNotifications", QString());

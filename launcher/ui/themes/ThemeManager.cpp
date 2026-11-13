@@ -24,26 +24,9 @@
 #include "TitleBar.h"
 
 namespace {
-// Windows' default blue
-const QColor DEFAULT_ACCENT(0x00, 0x78, 0xd4);
-
 QString styleName(ThemeManager::Style style)
 {
     return style == ThemeManager::Style::Native ? "native" : "fusion";
-}
-
-QString accentSourceName(ThemeManager::AccentSource source)
-{
-    switch (source)
-    {
-    case ThemeManager::AccentSource::Theme:
-        return "theme";
-    case ThemeManager::AccentSource::System:
-        return "system";
-    case ThemeManager::AccentSource::Custom:
-        return "custom";
-    }
-    return "theme";
 }
 
 // The accent as the desktops use it: selections filled with the accent itself, their text
@@ -92,22 +75,6 @@ void deriveDisabled(QPalette &p)
     flatten(QPalette::Button, 0.6);
 }
 
-// What the platform does to its own colour in another group (inactive window, disabled
-// widget), done to ours: the same change in HSL saturation and lightness, keeping our hue.
-// Desktops have their own effects for this (KDE's colour schemes change intensity and
-// contrast, not just mix), and this follows them without knowing them.
-QColor followPlatform(const QColor &ours, const QColor &platformActive, const QColor &platformOther)
-{
-    const QColor a = platformActive.toHsl(), o = platformOther.toHsl(), c = ours.toHsl();
-    auto scaled = [](qreal value, qreal from, qreal to) {
-        // no ratio from nothing: take the platform's value as it is
-        return from > 0.001 ? qBound<qreal>(0.0, value * to / from, 1.0) : to;
-    };
-    const qreal saturation = scaled(c.hslSaturationF(), a.hslSaturationF(), o.hslSaturationF());
-    const qreal lightness = scaled(c.lightnessF(), a.lightnessF(), o.lightnessF());
-    return QColor::fromHslF(qMax<qreal>(0.0, c.hslHueF()), saturation, lightness).toRgb();
-}
-
 // The widget classes the platform theme can give palettes of their own (Qt 5.15,
 // QApplicationPrivate::initializeWidgetPalettesFromTheme)
 const char *const THEMED_CLASSES[] = {"QToolButton", "QAbstractButton", "QCheckBox", "QRadioButton", "QHeaderView",
@@ -133,42 +100,6 @@ void refreshToolBarExtensions()
                                                                      : QStyle::SP_ToolBarVerticalExtensionButton;
         button->setIcon(button->style()->standardIcon(arrow, &option));
     }
-}
-
-// A custom accent on the platform's palette (Native, System theme): our colours where the
-// platform has its accent, in every group the way the platform makes its own (on KDE an
-// inactive window's selection goes dim and greyish, a disabled one almost disappears). Only
-// these roles are set, so everything else keeps following the platform. Put on p: by default
-// nothing (a palette with no roles set), or a class palette (see applyNative).
-QPalette accentOnPlatform(const QPalette &platform, const Colors::Accent &accent, QPalette p = QPalette())
-{
-    QPalette withBase = p;
-    withBase.setColor(QPalette::Base, platform.color(QPalette::Base));
-    applyAccent(withBase, accent);
-    for (auto role : {QPalette::Highlight, QPalette::Link, QPalette::LinkVisited})
-    {
-        const QColor active = withBase.color(QPalette::Active, role);
-        p.setColor(QPalette::Active, role, active);
-        // inactive: dimmed like the desktop dims its own, our hue kept
-        p.setColor(QPalette::Inactive, role,
-                   followPlatform(active, platform.color(QPalette::Active, role), platform.color(QPalette::Inactive, role)));
-        // disabled: faded to the window's hue (see deriveDisabled), as light as the desktop's
-        // own disabled colour for this role
-        p.setColor(QPalette::Disabled, role,
-                   Colors::inHueOf(platform.color(QPalette::Disabled, QPalette::Window),
-                                   platform.color(QPalette::Disabled, role).toHsl().lightnessF()));
-    }
-    // selected text: black or white, whichever reads better on each group's selection; a grey
-    // when disabled
-    for (auto group : {QPalette::Active, QPalette::Inactive, QPalette::Disabled})
-    {
-        const QColor highlight = p.color(group, QPalette::Highlight);
-        QColor text = Colors::isDark(highlight) ? Qt::white : Qt::black;
-        if (group == QPalette::Disabled)
-            text = Colors::disabled(text, highlight, 0.5);
-        p.setColor(group, QPalette::HighlightedText, text);
-    }
-    return p;
 }
 
 // Breeze draws tool bars ("tools area") in the KDE colour scheme's Header colours, from the
@@ -214,8 +145,7 @@ QByteArray kdeColorScheme(const QPalette &p)
 
 bool ThemeManager::Choice::operator==(const Choice &other) const
 {
-    return theme == other.theme && style == other.style && accentSource == other.accentSource
-        && accentColor == other.accentColor;
+    return theme == other.theme && style == other.style;
 }
 
 ThemeManager::ThemeManager(SettingsObjectPtr settings, QObject *parent) : QObject(parent), m_settings(settings)
@@ -260,7 +190,7 @@ ThemeManager::ThemeManager(SettingsObjectPtr settings, QObject *parent) : QObjec
     connect(m_system, &SystemAppearance::changed, this, [this]() {
         // nothing applied yet: the start applies it
         const Choice now = effective(m_current);
-        if (!m_current.theme.isEmpty() && (now.theme == "system" || now.accentSource == AccentSource::System))
+        if (!m_current.theme.isEmpty() && (now.theme == "system" || theme(now.theme)->accentMode() == AccentMode::System))
         {
             apply(m_current);
         }
@@ -293,20 +223,6 @@ ThemeManager::Choice ThemeManager::savedChoice() const
         choice.style = Style::Fusion;
     else
         choice.style = nativeByDefault() ? Style::Native : Style::Fusion;
-    const QString source = m_settings->get("AccentSource").toString();
-    if (source == "theme")
-        choice.accentSource = AccentSource::Theme;
-    else if (source == "system")
-        choice.accentSource = AccentSource::System;
-    else if (source == "custom")
-        choice.accentSource = AccentSource::Custom;
-    else
-        choice.accentSource = systemAccent().isValid() ? AccentSource::System : AccentSource::Theme;
-    choice.accentColor = QColor(m_settings->get("AccentColor").toString());
-    if (!choice.accentColor.isValid())
-    {
-        choice.accentColor = DEFAULT_ACCENT;
-    }
     return choice;
 }
 
@@ -314,8 +230,6 @@ void ThemeManager::save(const Choice &choice)
 {
     m_settings->set("Theme", choice.theme);
     m_settings->set("ThemeStyle", styleName(choice.style));
-    m_settings->set("AccentSource", accentSourceName(choice.accentSource));
-    m_settings->set("AccentColor", choice.accentColor.name());
 }
 
 bool ThemeManager::themeChosen() const
@@ -374,19 +288,16 @@ Colors::Accent ThemeManager::accentFor(const Choice &choice) const
     // a native style that does its own: nothing from us
     if (!accentChoiceAvailable(choice.style))
         return Colors::Accent();
-    switch (choice.accentSource)
+    ITheme *chosen = theme(choice.theme);
+    // the system's where it has one, and where the style can't take the theme's own
+    if (chosen->accentMode() == AccentMode::System || !customAccentAvailable(choice.style))
     {
-    case AccentSource::Theme:
-        return theme(choice.theme)->accent();
-    case AccentSource::System:
-        return systemAccent();
-    case AccentSource::Custom:
-        // kept as the choice, but where it can't apply, the system's
-        if (!customAccentAvailable(choice.style))
-            return systemAccent();
-        return Colors::Accent::fromColor(choice.accentColor);
+        const Colors::Accent system = systemAccent();
+        if (system.isValid())
+            return system;
     }
-    return Colors::Accent();
+    // invalid: the palette's own
+    return chosen->accent();
 }
 
 // Our palettes, finished: the accent on top, then the disabled colours from the result
@@ -410,14 +321,9 @@ QPalette ThemeManager::previewPalette(const QString &themeId, const Choice &choi
     Choice preview = choice;
     preview.theme = themeId;
     preview = effective(preview);
-    // the platform's look: the colours it started with, and a custom accent on them where the
-    // style takes one (see applyNative)
+    // the platform's look: the colours it started with (see applyNative)
     if (preview.style == Style::Native && (preview.theme == "system" || !nativeAbilities().themes))
     {
-        if (preview.accentSource == AccentSource::Custom && customAccentAvailable(preview.style))
-        {
-            return accentOnPlatform(m_platformPalette, accentFor(preview), m_platformPalette);
-        }
         return m_platformPalette;
     }
     preview.style = Style::Fusion;
@@ -457,8 +363,35 @@ void ThemeManager::apply(const Choice &choice)
     refreshToolBarExtensions();
     // also when the palette stays the same: Dark -> System in a dark Windows gives the same
     // palette, but the title bars go from the palette's colours to the system's
-    TitleBarWatcher::setStyle(now.style == Style::Native ? TitleBar::Style::Default : chosen->titleBarStyle());
+    TitleBarWatcher::setLook(titleBarLook(chosen, now));
     emit applied();
+}
+
+TitleBar::Look ThemeManager::titleBarLook(ITheme *theme, const Choice &choice) const
+{
+    TitleBar::Look look;
+    // the native style leaves title bars to the system
+    if (choice.style == Style::Native)
+        return look;
+    switch (theme->titleBarMode())
+    {
+    case TitleBarMode::System:
+        look.style = TitleBar::Style::Brightness;
+        break;
+    case TitleBarMode::Window:
+        look.style = TitleBar::Style::Palette;
+        break;
+    case TitleBarMode::Accent:
+        look.style = TitleBar::Style::Palette;
+        look.accent = true;
+        break;
+    case TitleBarMode::Custom:
+        look.style = TitleBar::Style::Palette;
+        look.caption = theme->titleBarColor();
+        look.text = theme->titleBarTextColor();
+        break;
+    }
+    return look;
 }
 
 // Workaround for a Qt 5 bug (seen with 5.15; QTBUG-58221 is one case of it): a stylesheet's
@@ -580,26 +513,6 @@ void ThemeManager::applyNative(ITheme *theme, const Choice &choice)
         {
             QApplication::setPalette(c.second, c.first);
         }
-    }
-    // The platform palette has the system's accent already. A custom one goes on top as the
-    // only roles set, so everything else keeps following the platform. Setting an application
-    // palette with roles clears the class palettes for good, though (and theirs would hide the
-    // accent: the item views' has its own Highlight), so they're taken first and put back
-    // with the accent in them.
-    if (choice.accentSource == AccentSource::Custom && customAccentAvailable(choice.style))
-    {
-        const Colors::Accent accent = accentFor(choice);
-        const QPalette app = QApplication::palette();
-        QList<QPair<const char *, QPalette>> classes;
-        for (const char *name : THEMED_CLASSES)
-        {
-            const QPalette palette = QApplication::palette(name);
-            if (!(palette == app))
-                classes.append(qMakePair(name, palette));
-        }
-        QApplication::setPalette(accentOnPlatform(app, accent));
-        for (const auto &c : classes)
-            QApplication::setPalette(accentOnPlatform(c.second, accent, c.second), c.first);
     }
 }
 

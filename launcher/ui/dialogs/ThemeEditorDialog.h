@@ -8,6 +8,7 @@
 #include "ui/themes/ThemeWriter.h"
 
 class ConsolePreview;
+class QComboBox;
 class QDialogButtonBox;
 class QLineEdit;
 class QToolButton;
@@ -18,7 +19,9 @@ class ThemePreviewWidget;
  * Making a colour theme one's own: its name, its colours and its log colours, with a preview
  * of a window and the console in them. The colours two ways: Quick, three colours (background,
  * text, accent) that every other follows from (ThemeWriter::quickColors), and Every color, each
- * on its own to dial it in. Save writes theme.json (ThemeWriter::save): a new theme for a
+ * on its own to dial it in. Where the accent comes from (the system's, or the theme's own) and
+ * what the title bars look like (the system's, the window's colours, the accent, or colours of
+ * their own) are the theme's too. Save writes theme.json (ThemeWriter::save): a new theme for a
  * copy, or the theme being edited, which the theme list then reloads and, if it is the current
  * one, applies. The stylesheet isn't edited here: Open folder for that.
  */
@@ -43,6 +46,7 @@ private:
     QWidget *makeQuickTab();
     QWidget *makeColorsTab();
     QWidget *makeConsoleTab();
+    QWidget *makeTitleBarTab();
     QToolButton *colorButton(QWidget *parent);
     void showColor(QToolButton *button, const QColor &color, const QString &unset = QString());
     QColor pick(const QColor &initial, const QString &title, std::function<void(QPalette &, const QColor &)> apply);
@@ -67,6 +71,10 @@ private: /* data */
     QToolButton *m_background = nullptr;
     QToolButton *m_text = nullptr;
     QToolButton *m_accent = nullptr;
+    QComboBox *m_accentMode = nullptr;
+    QComboBox *m_titleBarMode = nullptr;
+    QToolButton *m_titleBarColor = nullptr;
+    QToolButton *m_titleBarText = nullptr;
     QMap<QPalette::ColorRole, QToolButton *> m_roleButtons;
     QMap<QString, QToolButton *> m_logButtons;
     QMap<QString, QToolButton *> m_logResets;

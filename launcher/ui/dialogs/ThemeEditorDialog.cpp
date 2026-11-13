@@ -1,5 +1,6 @@
 #include "ThemeEditorDialog.h"
 
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -146,6 +147,7 @@ ThemeEditorDialog::ThemeEditorDialog(const QString &themesFolder, const QString 
     auto tabs = new QTabWidget(this);
     tabs->addTab(makeQuickTab(), tr("&Quick"));
     tabs->addTab(makeColorsTab(), tr("&Every color"));
+    tabs->addTab(makeTitleBarTab(), tr("&Title bar"));
     tabs->addTab(makeConsoleTab(), tr("&Console"));
     body->addWidget(tabs);
     auto previews = new QVBoxLayout();
@@ -188,6 +190,16 @@ QWidget *ThemeEditorDialog::makeQuickTab()
     form->addRow(tr("Background:"), m_background);
     form->addRow(tr("Text:"), m_text);
     form->addRow(tr("Accent:"), m_accent);
+    // the accent: the system's, followed, or the colour above (also where the system has none)
+    m_accentMode = new QComboBox(tab);
+    m_accentMode->addItem(tr("The system"), CustomTheme::accentModeName(AccentMode::System));
+    m_accentMode->addItem(tr("The color above"), CustomTheme::accentModeName(AccentMode::Custom));
+    m_accentMode->setToolTip(tr("Following the system, the color above is used where the system has no accent color."));
+    form->addRow(tr("Accent from:"), m_accentMode);
+    connect(m_accentMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this](int index) {
+        m_theme.accent = m_accentMode->itemData(index).toString();
+        changed();
+    });
     layout->addLayout(form);
     layout->addStretch(1);
 
@@ -285,6 +297,51 @@ QWidget *ThemeEditorDialog::makeConsoleTab()
     return tab;
 }
 
+QWidget *ThemeEditorDialog::makeTitleBarTab()
+{
+    auto tab = new QWidget(this);
+    auto layout = new QVBoxLayout(tab);
+    auto form = new QFormLayout();
+    m_titleBarMode = new QComboBox(tab);
+    m_titleBarMode->addItem(tr("The system's"), CustomTheme::titleBarModeName(TitleBarMode::System));
+    m_titleBarMode->addItem(tr("The window's colors"), CustomTheme::titleBarModeName(TitleBarMode::Window));
+    m_titleBarMode->addItem(tr("The accent color"), CustomTheme::titleBarModeName(TitleBarMode::Accent));
+    m_titleBarMode->addItem(tr("Custom colors"), CustomTheme::titleBarModeName(TitleBarMode::Custom));
+    form->addRow(tr("Title bar:"), m_titleBarMode);
+    m_titleBarColor = colorButton(tab);
+    m_titleBarText = colorButton(tab);
+    form->addRow(tr("Background:"), m_titleBarColor);
+    form->addRow(tr("Text:"), m_titleBarText);
+    layout->addLayout(form);
+    auto note = new QLabel(tr("The system's: dark or light like the window, in the system's colors (on Windows, its accent color when "
+                              "\"Show accent color on title bars\" is on). The accent color: the active window's title bar, on Windows 11. "
+                              "Where the title bars can't be colored, they are the system's."),
+                           tab);
+    note->setWordWrap(true);
+    layout->addWidget(note);
+    layout->addStretch(1);
+
+    connect(m_titleBarMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, [this](int index) {
+        m_theme.titleBar = m_titleBarMode->itemData(index).toString();
+        changed();
+    });
+    // the custom colours start from the window's
+    auto titleBarColor = [this](QToolButton *button, QColor ThemeWriter::Theme::*field, QPalette::ColorRole fallback, const QString &title) {
+        connect(button, &QToolButton::clicked, this, [this, field, fallback, title]() {
+            const QColor current = m_theme.*field;
+            const QColor picked = pick(current.isValid() ? current : previewPalette().color(fallback), title, nullptr);
+            if(picked.isValid())
+            {
+                m_theme.*field = picked;
+                changed();
+            }
+        });
+    };
+    titleBarColor(m_titleBarColor, &ThemeWriter::Theme::titleBarColor, QPalette::Window, tr("Title bar background"));
+    titleBarColor(m_titleBarText, &ThemeWriter::Theme::titleBarTextColor, QPalette::WindowText, tr("Title bar text"));
+    return tab;
+}
+
 QToolButton *ThemeEditorDialog::colorButton(QWidget *parent)
 {
     auto button = new QToolButton(parent);
@@ -370,6 +427,14 @@ void ThemeEditorDialog::updateControls()
         }
         m_logResets[it.key()]->setEnabled(color.isValid());
     }
+    // the accent's and title bar's modes, and the title bar's own colours (the window's until set)
+    m_accentMode->setCurrentIndex(qMax(0, m_accentMode->findData(m_theme.accent)));
+    m_titleBarMode->setCurrentIndex(qMax(0, m_titleBarMode->findData(m_theme.titleBar)));
+    const bool customTitleBar = m_theme.titleBar == CustomTheme::titleBarModeName(TitleBarMode::Custom);
+    m_titleBarColor->setEnabled(customTitleBar);
+    m_titleBarText->setEnabled(customTitleBar);
+    showColor(m_titleBarColor, m_theme.titleBarColor.isValid() ? m_theme.titleBarColor : palette.color(QPalette::Window));
+    showColor(m_titleBarText, m_theme.titleBarTextColor.isValid() ? m_theme.titleBarTextColor : palette.color(QPalette::WindowText));
     m_preview->setPreview(palette);
     m_console->setPalette(palette);
     m_console->setLogColors(m_theme.logColors);
@@ -384,6 +449,14 @@ void ThemeEditorDialog::save()
     for(auto &role : CustomTheme::colorRoles())
     {
         theme.colors[role.first] = palette.color(QPalette::Active, role.first);
+    }
+    // custom title bar colours as shown: the window's until picked
+    if(theme.titleBar == CustomTheme::titleBarModeName(TitleBarMode::Custom))
+    {
+        if(!theme.titleBarColor.isValid())
+            theme.titleBarColor = palette.color(QPalette::Window);
+        if(!theme.titleBarTextColor.isValid())
+            theme.titleBarTextColor = palette.color(QPalette::WindowText);
     }
     const QString id = m_id.isEmpty() ? ThemeWriter::freeId(m_folder, theme.name, m_reserved) : m_id;
     QString error;

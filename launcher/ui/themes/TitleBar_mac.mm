@@ -21,15 +21,17 @@ NSColor *nsColor(const QColor &color)
 }
 }
 
-void TitleBar::apply(QWidget *window, Style style)
+void TitleBar::apply(QWidget *window, const Look &look)
 {
+    // the accent look isn't done here yet: the plain one
+    const Style style = look.style;
     if (!window || !window->isWindow())
         return;
     NSView *view = reinterpret_cast<NSView *>(window->winId());
     NSWindow *nsWindow = view.window;
     if (!nsWindow)
         return;
-    const QColor caption = window->palette().color(QPalette::Window);
+    const QColor caption = look.caption.isValid() ? look.caption : window->palette().color(QPalette::Window);
     const bool colored = style == Style::Palette;
 
     if (macOSAtLeast(10, 14))

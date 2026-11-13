@@ -8,7 +8,7 @@
 
 /**
  * Writing colour themes, for the editor: theme.json with a name, the palette's roles and the
- * log colours. What else theme.json holds (the stylesheet's name, keys of other launchers)
+ * log colours (and the accent's and title bar's modes, when given). What else theme.json holds (the stylesheet's name, keys of other launchers)
  * stays as it was; the keys we ignore (widgets, fadeColor, fadeAmount) go. A new theme is
  * written next to the themes' folder and moved in at once, as an import is, so the list never
  * sees half of it.
@@ -20,6 +20,13 @@ struct Theme
     QString name;
     QMap<QPalette::ColorRole, QColor> colors;
     QMap<QString, QColor> logColors; // by level name; the missing ones are the log's own
+    /// theme.json's accent and titleBar modes (CustomTheme::accentModeName, titleBarModeName);
+    /// empty leaves them as they are. With a title bar mode, the title bar's colours are
+    /// written too (TitleBar, TitleBarText), or removed when invalid.
+    QString accent;
+    QString titleBar;
+    QColor titleBarColor;
+    QColor titleBarTextColor;
 };
 
 /**
