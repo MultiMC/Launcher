@@ -46,6 +46,12 @@ public:
 public:
     void reset(T * wrap)
     {
+        if(!wrap)
+        {
+            // a shared_ptr given a deleter calls it even for null: deleteLater() on null
+            m_ptr.reset();
+            return;
+        }
         using namespace std::placeholders;
         m_ptr.reset(wrap, std::bind(&QObject::deleteLater, _1));
     }
