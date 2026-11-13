@@ -5,9 +5,11 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
+#include <QKeyEvent>
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPushButton>
@@ -15,6 +17,7 @@
 #include <QStackedWidget>
 #include <QTabWidget>
 #include <QToolButton>
+#include <QUndoStack>
 #include <QVBoxLayout>
 
 #include "AccentColorDialog.h"
@@ -25,6 +28,7 @@
 #include "ui/ColorCache.h"
 #include "ui/themes/CustomTheme.h"
 #include "ui/themes/ThemeManager.h"
+#include "ui/widgets/ColorEdit.h"
 #include "ui/widgets/ConsolePreview.h"
 #include "ui/widgets/ThemePreview.h"
 #include "ui/widgets/ThemeSampleWidget.h"
@@ -33,24 +37,6 @@ namespace {
 QString tr(const char *text)
 {
     return QCoreApplication::translate("ThemeEditorDialog", text);
-}
-
-// A colour button's picture: a rounded square of the colour, its edge a little darker, and a
-// gap on the right so the button's text doesn't touch it; empty for an unset colour
-QIcon swatch(const QColor &color)
-{
-    QPixmap pixmap(20, 16);
-    pixmap.fill(Qt::transparent);
-    if(!color.isValid())
-    {
-        return QIcon(pixmap);
-    }
-    QPainter p(&pixmap);
-    p.setRenderHint(QPainter::Antialiasing);
-    p.setPen(QPen(color.darker(150), 1));
-    p.setBrush(color);
-    p.drawRoundedRect(QRectF(0.5, 0.5, 15, 15), 3, 3);
-    return QIcon(pixmap);
 }
 
 // The roles in the order the editor shows them, with what they colour
@@ -133,12 +119,56 @@ private: /* data */
     QPalette m_palette;
 };
 
+/**
+ * One change to the theme: the theme before and after it, put back with undo and redo. The
+ * name's typing is one change until something else changes (mergeWith).
+ */
+class ThemeChange : public QUndoCommand
+{
+public:
+    // ids for changes that merge: the name's typing
+    static const int NAME = 1;
+
+    ThemeChange(ThemeEditorDialog *editor, const ThemeWriter::Theme &before, const ThemeWriter::Theme &after, const QString &text,
+                int id = -1)
+        : QUndoCommand(text), m_editor(editor), m_before(before), m_after(after), m_id(id)
+    {
+    }
+
+    void undo() override
+    {
+        m_editor->setTheme(m_before);
+    }
+    void redo() override
+    {
+        m_editor->setTheme(m_after);
+    }
+    int id() const override
+    {
+        return m_id;
+    }
+    bool mergeWith(const QUndoCommand *other) override
+    {
+        // the same id: the typing goes on
+        m_after = static_cast<const ThemeChange *>(other)->m_after;
+        return true;
+    }
+
+private: /* data */
+    ThemeEditorDialog *m_editor;
+    ThemeWriter::Theme m_before;
+    ThemeWriter::Theme m_after;
+    int m_id;
+};
+
 ThemeEditorDialog::ThemeEditorDialog(const QString &themesFolder, const QString &id, const QString &copyFrom,
                                      const ThemeWriter::Theme &initial, const QStringList &reserved, QWidget *parent)
     : QDialog(parent), m_folder(themesFolder), m_id(id), m_copyFrom(copyFrom), m_reserved(reserved), m_theme(initial)
 {
     m_manager = APPLICATION->themeManager();
-    m_history.append(m_theme);
+    m_original = m_theme;
+    m_applied = m_theme;
+    m_undoStack = new QUndoStack(this);
     setWindowTitle(m_id.isEmpty() ? tr("Edit theme (built in)") : tr("Edit theme"));
     auto layout = new QVBoxLayout(this);
 
@@ -149,11 +179,11 @@ ThemeEditorDialog::ThemeEditorDialog(const QString &themesFolder, const QString 
     nameRow->addWidget(nameLabel);
     nameRow->addWidget(m_name, 1);
     layout->addLayout(nameRow);
-    // the name isn't an undo step: the field has its own
+    // typing the name is a change like any other, merged until something else changes
+    m_name->installEventFilter(this);
     connect(m_name, &QLineEdit::textEdited, this, [this](const QString &text) {
         m_theme.name = text.trimmed();
-        m_modified = true;
-        updateControls();
+        changed(tr("Name"), ThemeChange::NAME);
     });
 
     // the colours on the left, what they colour on the right: each tab its own
@@ -185,12 +215,12 @@ ThemeEditorDialog::ThemeEditorDialog(const QString &themesFolder, const QString 
         buttons->addWidget(openFolder);
     }
     buttons->addStretch(1);
-    m_undo = new QPushButton(tr("&Undo"), this);
-    m_redo = new QPushButton(tr("&Redo"), this);
-    connect(m_undo, &QPushButton::clicked, this, &ThemeEditorDialog::undo);
-    connect(m_redo, &QPushButton::clicked, this, &ThemeEditorDialog::redo);
+    // undo and redo a step, or from their menus, back or forward to any
+    m_undo = historyButton(tr("&Undo"), true);
+    m_redo = historyButton(tr("&Redo"), false);
     buttons->addWidget(m_undo);
     buttons->addWidget(m_redo);
+    connect(m_undoStack, &QUndoStack::indexChanged, this, &ThemeEditorDialog::updateHistoryButtons);
     m_save = new QPushButton(tr("&Save"), this);
     connect(m_save, &QPushButton::clicked, this, &ThemeEditorDialog::save);
     if(m_id.isEmpty())
@@ -207,13 +237,13 @@ ThemeEditorDialog::ThemeEditorDialog(const QString &themesFolder, const QString 
     buttons->addWidget(saveAs);
     buttons->addWidget(close);
     // Enter doesn't save: it's easy to press while picking colours and typing the name
-    for(auto button : {m_undo, m_redo, m_save, saveAs, close})
+    for(auto button : {m_save, saveAs, close})
     {
         button->setAutoDefault(false);
     }
     layout->addLayout(buttons);
 
-    // the usual keys too; in the name field, they undo its typing
+    // the usual keys too, in the text fields as well (eventFilter)
     connect(new QShortcut(QKeySequence::Undo, this), &QShortcut::activated, this, &ThemeEditorDialog::undo);
     connect(new QShortcut(QKeySequence::Redo, this), &QShortcut::activated, this, &ThemeEditorDialog::redo);
     // the platforms' redo keys differ (Ctrl+Shift+Z here, Ctrl+Y there): both everywhere
@@ -224,6 +254,7 @@ ThemeEditorDialog::ThemeEditorDialog(const QString &themesFolder, const QString 
     }
 
     updateControls();
+    updateHistoryButtons();
     // the console's lines on one line each
     resize(qMax(sizeHint().width(), 860), sizeHint().height());
 }
@@ -243,23 +274,17 @@ QWidget *ThemeEditorDialog::makeWidgetsTab()
     auto grid = new QFormLayout();
     for(auto &role : roleLabels())
     {
-        auto button = colorButton(tab);
-        m_roleButtons[role.first] = button;
-        grid->addRow(role.second + ":", button);
         const QPalette::ColorRole which = role.first;
-        const QString title = role.second;
-        connect(button, &QToolButton::clicked, this, [this, which, title]() {
-            const QColor picked = pick(this, paletteOf(m_theme.colors).color(QPalette::Active, which), title, [this, which](const QColor &color) {
+        auto edit = colorEdit(
+            tab, role.second, [this, which]() { return paletteOf(m_theme.colors).color(QPalette::Active, which); },
+            [this, which](const QColor &color) {
                 ThemeWriter::Theme tried = m_theme;
                 tried.colors[which] = color;
                 return tried;
-            });
-            if(picked.isValid())
-            {
-                m_theme.colors[which] = picked;
-                changed();
-            }
-        });
+            },
+            [this, which](const QColor &color) { m_theme.colors[which] = color; });
+        m_roleEdits[which] = edit;
+        grid->addRow(role.second + ":", edit);
     }
     layout->addLayout(grid);
     layout->addStretch(1);
@@ -276,32 +301,31 @@ QWidget *ThemeEditorDialog::makeConsoleTab()
     {
         const QString name = level.first;
         const QString title = level.second;
-        auto button = colorButton(tab);
-        auto reset = new QToolButton(tab);
-        reset->setText(tr("Reset"));
-        reset->setToolTip(tr("Use the console's own color"));
-        m_logButtons[name] = button;
-        m_logResets[name] = reset;
-        grid->addWidget(new QLabel(title + ":", tab), row, 0);
-        grid->addWidget(button, row, 1);
-        grid->addWidget(reset, row, 2);
-        row++;
-        connect(button, &QToolButton::clicked, this, [this, name, title]() {
-            const QColor current = m_theme.logColors.value(name);
-            const QColor picked = pick(this, current.isValid() ? current : defaultLogColor(name), title, [this, name](const QColor &color) {
+        auto edit = colorEdit(
+            tab, title,
+            [this, name]() {
+                const QColor current = m_theme.logColors.value(name);
+                return current.isValid() ? current : defaultLogColor(name);
+            },
+            [this, name](const QColor &color) {
                 ThemeWriter::Theme tried = m_theme;
                 tried.logColors[name] = color;
                 return tried;
-            });
-            if(picked.isValid())
-            {
-                m_theme.logColors[name] = picked;
-                changed();
-            }
-        });
-        connect(reset, &QToolButton::clicked, this, [this, name]() {
+            },
+            [this, name](const QColor &color) { m_theme.logColors[name] = color; });
+        edit->setPlaceholderText(tr("Default"));
+        auto reset = new QToolButton(tab);
+        reset->setText(tr("Reset"));
+        reset->setToolTip(tr("Use the console's own color"));
+        m_logEdits[name] = edit;
+        m_logResets[name] = reset;
+        grid->addWidget(new QLabel(title + ":", tab), row, 0);
+        grid->addWidget(edit, row, 1);
+        grid->addWidget(reset, row, 2);
+        row++;
+        connect(reset, &QToolButton::clicked, this, [this, name, title]() {
             m_theme.logColors.remove(name);
-            changed();
+            changed(tr("Reset %1").arg(title));
         });
     }
     grid->setColumnStretch(3, 1);
@@ -310,19 +334,123 @@ QWidget *ThemeEditorDialog::makeConsoleTab()
     return tab;
 }
 
-QToolButton *ThemeEditorDialog::colorButton(QWidget *parent)
+ColorEdit *ThemeEditorDialog::colorEdit(QWidget *parent, const QString &title, std::function<QColor()> current,
+                                        std::function<ThemeWriter::Theme(const QColor &)> tried, std::function<void(const QColor &)> set)
 {
-    auto button = new QToolButton(parent);
-    button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    // wide enough for the colour's name, so the column doesn't jump
-    button->setMinimumWidth(button->fontMetrics().width("#0000000") + 40);
+    auto edit = new ColorEdit(parent);
+    // typed: shown as it comes, set when done; picked: set when the picker is closed with it
+    connect(edit, &ColorEdit::colorTried, this, [this, tried](const QColor &color) { showSamples(tried(color)); });
+    connect(edit, &ColorEdit::editingAbandoned, this, [this]() { showSamples(m_theme); });
+    connect(edit, &ColorEdit::colorEdited, this, [this, set, title](const QColor &color) {
+        set(color);
+        changed(title);
+    });
+    connect(edit, &ColorEdit::pickRequested, this, [this, title, current, tried, set]() {
+        const QColor picked = pick(this, current(), title, tried);
+        if(picked.isValid())
+        {
+            set(picked);
+            changed(title);
+        }
+    });
+    edit->lineEdit()->installEventFilter(this);
+    return edit;
+}
+
+bool ThemeEditorDialog::eventFilter(QObject *watched, QEvent *event)
+{
+    // The text fields have no undo of their own: one history for the whole editor
+    auto field = qobject_cast<QLineEdit *>(watched);
+    if(field && event->type() == QEvent::ShortcutOverride)
+    {
+        auto key = static_cast<QKeyEvent *>(event);
+        const QKeySequence pressed(key->modifiers() | key->key());
+        const bool undo = key->matches(QKeySequence::Undo);
+        const bool redo = key->matches(QKeySequence::Redo) || pressed == QKeySequence(Qt::CTRL + Qt::Key_Y)
+            || pressed == QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
+        if(undo || redo)
+        {
+            // not overridden: the dialog's shortcut gets it
+            event->ignore();
+            return true;
+        }
+    }
+    // their menus' Undo and Redo are the editor's too
+    if(field && event->type() == QEvent::ContextMenu)
+    {
+        QMenu *menu = field->createStandardContextMenu();
+        for(auto action : menu->actions())
+        {
+            const bool undo = action->objectName() == "edit-undo";
+            if(undo || action->objectName() == "edit-redo")
+            {
+                auto ours = new QAction(action->text(), menu);
+                ours->setShortcut(action->shortcut());
+                ours->setEnabled(undo ? m_undoStack->canUndo() : m_undoStack->canRedo());
+                connect(ours, &QAction::triggered, this, undo ? &ThemeEditorDialog::undo : &ThemeEditorDialog::redo);
+                menu->insertAction(action, ours);
+                menu->removeAction(action);
+            }
+        }
+        menu->exec(static_cast<QContextMenuEvent *>(event)->globalPos());
+        delete menu;
+        return true;
+    }
+    return QDialog::eventFilter(watched, event);
+}
+
+QToolButton *ThemeEditorDialog::historyButton(const QString &text, bool undo)
+{
+    auto button = new QToolButton(this);
+    button->setText(text);
+    button->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    button->setPopupMode(QToolButton::MenuButtonPopup);
+    // as tall as the push buttons next to it
+    button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    connect(button, &QToolButton::clicked, this, undo ? &ThemeEditorDialog::undo : &ThemeEditorDialog::redo);
+    // the steps it can go through, the nearest first; one picked goes back (or forward) to it,
+    // the ones in between too
+    auto menu = new QMenu(button);
+    connect(menu, &QMenu::aboutToShow, this, [this, menu, undo]() {
+        menu->clear();
+        settleTyping();
+        const int index = m_undoStack->index();
+        if(undo)
+        {
+            for(int step = index - 1; step >= 0; step--)
+            {
+                menu->addAction(m_undoStack->text(step), this, [this, step]() { m_undoStack->setIndex(step); });
+            }
+        }
+        else
+        {
+            for(int step = index; step < m_undoStack->count(); step++)
+            {
+                menu->addAction(m_undoStack->text(step), this, [this, step]() { m_undoStack->setIndex(step + 1); });
+            }
+        }
+    });
+    button->setMenu(menu);
     return button;
 }
 
-void ThemeEditorDialog::showColor(QToolButton *button, const QColor &color, const QString &unset)
+void ThemeEditorDialog::updateHistoryButtons()
 {
-    button->setIcon(swatch(color));
-    button->setText(color.isValid() ? color.name() : unset);
+    m_undo->setEnabled(m_undoStack->canUndo());
+    m_redo->setEnabled(m_undoStack->canRedo());
+    m_undo->setToolTip(m_undoStack->canUndo() ? tr("Undo: %1").arg(m_undoStack->undoText()) : QString());
+    m_redo->setToolTip(m_undoStack->canRedo() ? tr("Redo: %1").arg(m_undoStack->redoText()) : QString());
+}
+
+bool ThemeEditorDialog::settleTyping()
+{
+    // a colour typed and not set yet goes, rather than be undone around
+    bool abandoned = false;
+    for(auto edit : findChildren<ColorEdit *>())
+    {
+        abandoned |= edit->abandonEditing();
+    }
+    return abandoned;
 }
 
 void ThemeEditorDialog::placeAside(QWidget *dialog)
@@ -380,12 +508,12 @@ void ThemeEditorDialog::quickSetup()
     layout->addWidget(note);
     auto row = new QHBoxLayout();
     auto form = new QFormLayout();
-    auto backgroundButton = colorButton(&dialog);
-    auto textButton = colorButton(&dialog);
-    auto accentButton = colorButton(&dialog);
-    form->addRow(tr("Background:"), backgroundButton);
-    form->addRow(tr("Text:"), textButton);
-    form->addRow(tr("Accent:"), accentButton);
+    auto backgroundEdit = new ColorEdit(&dialog);
+    auto textEdit = new ColorEdit(&dialog);
+    auto accentEdit = new ColorEdit(&dialog);
+    form->addRow(tr("Background:"), backgroundEdit);
+    form->addRow(tr("Text:"), textEdit);
+    form->addRow(tr("Accent:"), accentEdit);
     row->addLayout(form);
     auto preview = new ThemePreviewWidget(&dialog);
     row->addWidget(preview, 1);
@@ -396,34 +524,44 @@ void ThemeEditorDialog::quickSetup()
     layout->addWidget(buttons);
 
     // the three, what follows from them in the dialog, and in the samples behind it
-    auto update = [&]() {
-        showColor(backgroundButton, background);
-        showColor(textButton, text);
-        showColor(accentButton, accent);
-        const ThemeWriter::Theme derived = theme(background, text, accent);
+    // (typed colours show as they come, like picked ones)
+    auto show = [&](const ThemeWriter::Theme &derived) {
         preview->setPreview(paletteOf(derived.colors));
         showSamples(derived);
     };
-    auto pickInto = [&](QToolButton *button, QColor &color, int which, const QString &title) {
-        connect(button, &QToolButton::clicked, &dialog, [&, which, title]() {
-            const QColor picked = pick(&dialog, color, title, [&, which](const QColor &tried) {
-                return theme(which == 0 ? tried : background, which == 1 ? tried : text, which == 2 ? tried : accent);
-            });
+    auto update = [&]() {
+        backgroundEdit->setColor(background);
+        textEdit->setColor(text);
+        accentEdit->setColor(accent);
+        show(theme(background, text, accent));
+    };
+    auto connectEdit = [&](ColorEdit *edit, QColor &color, int which, const QString &title) {
+        auto tried = [&, which](const QColor &one) {
+            return theme(which == 0 ? one : background, which == 1 ? one : text, which == 2 ? one : accent);
+        };
+        connect(edit, &ColorEdit::colorTried, &dialog, [&, tried](const QColor &typed) { show(tried(typed)); });
+        connect(edit, &ColorEdit::editingAbandoned, &dialog, [&]() { update(); });
+        connect(edit, &ColorEdit::colorEdited, &dialog, [&](const QColor &typed) {
+            color = typed;
+            update();
+        });
+        connect(edit, &ColorEdit::pickRequested, &dialog, [&, title, tried]() {
+            const QColor picked = pick(&dialog, color, title, tried);
             if(picked.isValid())
                 color = picked;
             update();
         });
     };
-    pickInto(backgroundButton, background, 0, tr("Background"));
-    pickInto(textButton, text, 1, tr("Text"));
-    pickInto(accentButton, accent, 2, tr("Accent"));
+    connectEdit(backgroundEdit, background, 0, tr("Background"));
+    connectEdit(textEdit, text, 1, tr("Text"));
+    connectEdit(accentEdit, accent, 2, tr("Accent"));
     update();
     placeAside(&dialog);
 
     if(dialog.exec() == QDialog::Accepted)
     {
         m_theme.colors = theme(background, text, accent).colors;
-        changed();
+        changed(tr("Quick setup"));
         return;
     }
     showSamples(m_theme);
@@ -455,63 +593,54 @@ void ThemeEditorDialog::showSamples(const ThemeWriter::Theme &theme)
     m_console->setLogColors(theme.logColors);
 }
 
-void ThemeEditorDialog::changed()
+void ThemeEditorDialog::changed(const QString &text, int mergeId)
 {
-    // a new step after the one shown; the ones undone before it are gone
-    m_history.resize(m_step + 1);
-    m_history.append(m_theme);
-    m_step++;
-    m_modified = true;
+    // m_theme changed: from what was shown to it (pushing it runs redo, which shows it)
+    m_undoStack->push(new ThemeChange(this, m_applied, m_theme, text, mergeId));
+}
+
+void ThemeEditorDialog::setTheme(const ThemeWriter::Theme &theme)
+{
+    m_theme = theme;
+    m_applied = theme;
+    // the field as it is while it's being typed in
+    if(m_name->text().trimmed() != m_theme.name)
+    {
+        m_name->setText(m_theme.name);
+    }
     updateControls();
 }
 
 void ThemeEditorDialog::undo()
 {
-    if(m_step == 0)
+    // a colour being typed is undone first: back to what it was
+    if(settleTyping())
         return;
-    m_step--;
-    // the name stays as typed
-    const QString name = m_theme.name;
-    m_theme = m_history[m_step];
-    m_theme.name = name;
-    m_modified = true;
-    updateControls();
+    m_undoStack->undo();
 }
 
 void ThemeEditorDialog::redo()
 {
-    if(m_step + 1 >= m_history.size())
-        return;
-    m_step++;
-    const QString name = m_theme.name;
-    m_theme = m_history[m_step];
-    m_theme.name = name;
-    m_modified = true;
-    updateControls();
+    settleTyping();
+    m_undoStack->redo();
 }
 
 void ThemeEditorDialog::updateControls()
 {
     // what the theme looks like: every role, even ones theme.json leaves out
     const QPalette palette = paletteOf(m_theme.colors);
-    for(auto it = m_roleButtons.begin(); it != m_roleButtons.end(); ++it)
+    for(auto it = m_roleEdits.begin(); it != m_roleEdits.end(); ++it)
     {
-        showColor(it.value(), palette.color(QPalette::Active, it.key()));
+        it.value()->setColor(palette.color(QPalette::Active, it.key()));
     }
     // the theme's log colours, or the console's own as they show on this theme
-    for(auto it = m_logButtons.begin(); it != m_logButtons.end(); ++it)
+    for(auto it = m_logEdits.begin(); it != m_logEdits.end(); ++it)
     {
         const QColor color = m_theme.logColors.value(it.key());
-        showColor(it.value(), color.isValid() ? color : defaultLogColor(it.key()));
-        if(!color.isValid())
-        {
-            it.value()->setText(tr("Default"));
-        }
+        it.value()->setColor(color, defaultLogColor(it.key()));
         m_logResets[it.key()]->setEnabled(color.isValid());
     }
     showSamples(m_theme);
-    m_undo->setEnabled(m_step > 0);
-    m_redo->setEnabled(m_step + 1 < m_history.size());
     m_save->setEnabled(!m_id.isEmpty() && !m_theme.name.isEmpty());
 }
 
@@ -527,7 +656,7 @@ void ThemeEditorDialog::save()
 void ThemeEditorDialog::saveAs()
 {
     // the name as typed, or for an unchanged one, a copy's
-    const QString original = m_history.first().name;
+    const QString original = m_original.name;
     const QString suggested = m_theme.name.isEmpty() || m_theme.name == original ? tr("%1 (copy)").arg(original) : m_theme.name;
     bool ok = false;
     const QString name = QInputDialog::getText(this, tr("Save as"), tr("Name of the new theme:"), QLineEdit::Normal, suggested, &ok).trimmed();
@@ -556,7 +685,7 @@ void ThemeEditorDialog::write(const QString &id, ThemeWriter::Theme theme, const
         return;
     }
     m_savedId = id;
-    m_modified = false;
+    m_undoStack->setClean();
     accept();
 }
 
@@ -567,7 +696,8 @@ QString ThemeEditorDialog::savedId() const
 
 void ThemeEditorDialog::reject()
 {
-    if(m_modified)
+    // undone back to where it started: nothing to lose
+    if(!m_undoStack->isClean())
     {
         auto answer = QMessageBox::question(this, tr("Discard changes?"), tr("The theme has changes that aren't saved. Discard them?"),
                                             QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel);
