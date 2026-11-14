@@ -138,5 +138,5 @@ void Technic::SingleZipPackInstallTask::extractFinished()
 
 void Technic::SingleZipPackInstallTask::extractAborted()
 {
-    emitFailed(tr("Instance import has been aborted."));
+    emitFailed(tr("Instance import has been stopped."));
 }

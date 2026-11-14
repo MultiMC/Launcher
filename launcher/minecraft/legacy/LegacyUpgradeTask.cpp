@@ -132,7 +132,7 @@ void LegacyUpgradeTask::copyFinished()
 
 void LegacyUpgradeTask::copyAborted()
 {
-    emitFailed(tr("Instance folder copy has been aborted."));
+    emitFailed(tr("Instance folder copy has been stopped."));
     return;
 }
 

@@ -197,5 +197,5 @@ void Technic::SolderPackInstallTask::extractFinished()
 
 void Technic::SolderPackInstallTask::extractAborted()
 {
-    emitFailed(tr("Instance import has been aborted."));
+    emitFailed(tr("Instance import has been stopped."));
 }

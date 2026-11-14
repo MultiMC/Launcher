@@ -1737,7 +1737,7 @@ void MainWindow::runModalTask(Task *task)
             }
         });
     ProgressDialog loadDialog(this);
-    loadDialog.setSkipButton(true, tr("Abort"));
+    loadDialog.setSkipButton(true, tr("Stop"));
     loadDialog.execWithTask(task);
 }
 
@@ -1779,7 +1779,7 @@ void MainWindow::finalizeInstance(InstancePtr inst)
                 });
         if(update)
         {
-            loadDialog.setSkipButton(true, tr("Abort"));
+            loadDialog.setSkipButton(true, tr("Stop"));
             loadDialog.execWithTask(update.get());
         }
     }

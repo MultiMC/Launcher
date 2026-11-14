@@ -132,7 +132,7 @@ void ModrinthExportDialog::accept()
             }
         });
     ProgressDialog loadDialog(this);
-    loadDialog.setSkipButton(true, tr("Abort"));
+    loadDialog.setSkipButton(true, tr("Stop"));
     loadDialog.execWithTask(task);
 
     QDialog::accept();

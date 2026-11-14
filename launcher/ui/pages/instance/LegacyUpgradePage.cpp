@@ -27,7 +27,7 @@ void LegacyUpgradePage::runModalTask(Task *task)
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Warning)->show();
         });
     ProgressDialog loadDialog(this);
-    loadDialog.setSkipButton(true, tr("Abort"));
+    loadDialog.setSkipButton(true, tr("Stop"));
     if(loadDialog.execWithTask(task) == QDialog::Accepted)
     {
         m_container->requestClose();
