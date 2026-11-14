@@ -70,6 +70,16 @@ void InstanceImportTask::executeTask()
     }
 }
 
+bool InstanceImportTask::abort()
+{
+    if (!m_filesNetJob)
+    {
+        return false;
+    }
+    m_stopped = true;
+    return m_filesNetJob->abort();
+}
+
 void InstanceImportTask::downloadSucceeded()
 {
     processZipPack();
@@ -78,7 +88,7 @@ void InstanceImportTask::downloadSucceeded()
 
 void InstanceImportTask::downloadFailed(QString reason)
 {
-    emitFailed(reason);
+    emitFailed(m_stopped ? tr("Instance import was stopped.") : reason);
     m_filesNetJob.reset();
 }
 
@@ -494,7 +504,7 @@ void InstanceImportTask::processModrinth() {
     connect(m_filesNetJob.get(), &NetJob::failed, [&](const QString &reason)
     {
         m_filesNetJob.reset();
-        emitFailed(reason);
+        emitFailed(m_stopped ? tr("Instance import was stopped.") : reason);
     });
     connect(m_filesNetJob.get(), &NetJob::progress, [&](qint64 current, qint64 total)
     {

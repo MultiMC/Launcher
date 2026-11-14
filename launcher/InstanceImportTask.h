@@ -37,6 +37,11 @@ class InstanceImportTask : public InstanceTask
 public:
     explicit InstanceImportTask(const QUrl sourceUrl);
 
+    // the downloads can stop: the modpack's and the mods some formats download afterwards; the
+    // extraction can't (GH-5177)
+    bool canAbort() const override { return true; }
+    bool abort() override;
+
 protected:
     //! Entry point for tasks.
     virtual void executeTask() override;
@@ -61,6 +66,8 @@ private: /* data */
     QUrl m_sourceUrl;
     QString m_archivePath;
     bool m_downloadRequired = false;
+    // a download failed because the user stopped it
+    bool m_stopped = false;
     std::unique_ptr<QuaZip> m_packZip;
     QFuture<nonstd::optional<QStringList>> m_extractFuture;
     QFutureWatcher<nonstd::optional<QStringList>> m_extractFutureWatcher;
