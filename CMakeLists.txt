@@ -72,10 +72,12 @@ set(Launcher_NEWS_URL "https://multimc.org/posts.html" CACHE STRING "URL to open
 set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetch Launcher's news RSS feed from.")
 
 ######## Set version numbers ########
-# The version is <major>.<minor>.<build>: major and minor change here, by hand, when a change
-# deserves it; the build number comes from the release pipeline and only goes up. Tagging a
-# build (Testing, Stable) never changes its version (the Design repo's Updater.md, Versions).
-set(Launcher_VERSION_MAJOR    1)
+# The version is 5.<minor>.<build> (the Design repo's Updater.md, Versions): the minor version
+# goes up here, by hand, when work on a bigger user-facing change starts, so the builds working
+# towards it carry it, and Stable gets it when one of them is promoted. The major version
+# changes only for a break (the data layout move, say). The build number comes from the release
+# pipeline and only goes up. Tagging a build (Testing, Stable) never changes its version.
+set(Launcher_VERSION_MAJOR    5)
 set(Launcher_VERSION_MINOR    0)
 
 # Build number
@@ -187,7 +189,8 @@ set(Launcher_CommonName "MultiMC")
 set(Launcher_Copyright "MultiMC Contributors")
 set(Launcher_Domain "multimc.org")
 set(Launcher_Name "${Launcher_CommonName}")
-set(Launcher_DisplayName "${Launcher_CommonName} 5")
+# the 5 is in the version now (5.<minor>.<build>), not in the name
+set(Launcher_DisplayName "${Launcher_CommonName}")
 set(Launcher_UserAgent "${Launcher_CommonName}/5.0")
 set(Launcher_ConfigFile "multimc.cfg")
 set(Launcher_Git "https://github.com/MultiMC/Launcher")
