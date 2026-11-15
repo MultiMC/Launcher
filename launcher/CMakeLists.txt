@@ -942,6 +942,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ThemeSelectionWidget.h
     ui/widgets/UpdateTierWidget.cpp
     ui/widgets/UpdateTierWidget.h
+    ui/widgets/ElidedLabel.cpp
+    ui/widgets/ElidedLabel.h
     ui/widgets/LineSeparator.cpp
     ui/widgets/LineSeparator.h
     ui/widgets/LogView.cpp

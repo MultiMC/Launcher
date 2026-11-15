@@ -75,6 +75,7 @@
 #include "ui/instanceview/InstanceProxyModel.h"
 #include "ui/instanceview/InstanceView.h"
 #include "ui/instanceview/InstanceDelegate.h"
+#include "ui/widgets/ElidedLabel.h"
 #include "ui/widgets/LabeledToolButton.h"
 #include "ui/dialogs/NewInstanceDialog.h"
 #include "ui/dialogs/ProgressDialog.h"
@@ -837,9 +838,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // When the global settings page closes, we want to know about it and update our state
     connect(APPLICATION, &Application::globalSettingsClosed, this, &MainWindow::globalSettingsClosed);
 
-    m_statusLeft = new QLabel(tr("No instance selected"), this);
+    m_statusLeft = new ElidedLabel(tr("No instance selected"), this);
     m_statusLeft->setObjectName(QStringLiteral("statusLeft"));
-    m_statusCenter = new QLabel(tr("Total playtime: 0s"), this);
+    m_statusCenter = new ElidedLabel(tr("Total playtime: 0s"), this);
     m_statusCenter->setObjectName(QStringLiteral("statusCenter"));
     statusBar()->addPermanentWidget(m_statusLeft, 1);
     statusBar()->addPermanentWidget(m_statusCenter, 0);
