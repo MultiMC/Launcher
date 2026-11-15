@@ -78,6 +78,8 @@ public:
     {
         return m_spacing;
     };
+    /// How wide an item is, for icons of this size: at least room for a short name
+    static int itemWidthFor(int iconSize);
 
 public slots:
     virtual void updateGeometries() override;
@@ -92,6 +94,8 @@ protected slots:
 
 signals:
     void droppedURLs(QList<QUrl> urls);
+    /// Ctrl and the mouse wheel: bigger (positive) or smaller icons, by steps
+    void zoomRequested(int steps);
     void groupStateChanged(QString group, bool collapsed);
 
 protected:
@@ -100,6 +104,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
@@ -124,7 +130,6 @@ private:
     int m_bottomMargin = 5;
     int m_categoryMargin = 5;
     int m_spacing = 5;
-    int m_itemWidth = 100;
     int m_currentItemsPerRow = -1;
     int m_currentCursorColumn= -1;
     mutable QCache<int, QRect> geometryCache;
@@ -139,6 +144,8 @@ private:
     QPixmap m_background;
     Qt::Alignment m_backgroundAlignment = Qt::AlignRight | Qt::AlignBottom;
     int m_backgroundMargin = 0;
+    // the item under the mouse, drawn hovered
+    QPersistentModelIndex m_hovered;
 
     VisualGroup *category(const QModelIndex &index) const;
     VisualGroup *category(const QString &cat) const;
@@ -152,6 +159,7 @@ private:
 
 private: /* methods */
     int itemWidth() const;
+    void setHovered(const QModelIndex &index);
     int calculateItemsPerRow() const;
     int verticalScrollToValue(const QModelIndex &index, const QRect &rect, QListView::ScrollHint hint) const;
     QPixmap renderToPixmap(const QModelIndexList &indices, QRect *r) const;

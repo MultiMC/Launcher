@@ -804,6 +804,8 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("TheCat", false);
 
         m_settings->registerSetting("InstSortMode", "Name");
+        // the main window's instance icons, in pixels (MainWindow's zoom)
+        m_settings->registerSetting("InstanceIconSize", 48);
         m_settings->registerSetting("SelectedInstance", QString());
 
         // Window state and geometry

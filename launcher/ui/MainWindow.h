@@ -37,6 +37,7 @@ class QToolButton;
 class InstanceProxyModel;
 class LabeledToolButton;
 class QLabel;
+class QSlider;
 class MinecraftLauncher;
 class BaseProfilerFactory;
 class InstanceView;
@@ -205,6 +206,8 @@ private:
     void addInstance(QString url = QString());
     void activateInstance(InstancePtr instance);
     void setCatBackground(bool enabled);
+    /// The instance icons' size, one of ICON_SIZES by its place there; saved
+    void setIconSizeStep(int step);
     void updateInstanceToolIcon(QString new_icon);
     void setSelectedInstanceById(const QString &id);
     void updateStatusCenter();
@@ -228,6 +231,8 @@ private:
     QLabel *m_statusCenter = nullptr;
     // the version and platform, so they show in users' screenshots
     QLabel *m_statusVersion = nullptr;
+    QLabel *m_zoomLabel = nullptr;
+    QSlider *m_zoom = nullptr;
     QMenu *accountMenu = nullptr;
     QToolButton *accountMenuButton = nullptr;
     KonamiCode * secretEventFilter = nullptr;

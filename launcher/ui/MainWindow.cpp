@@ -21,6 +21,8 @@
 
 #include "MainWindow.h"
 
+#include <QShortcut>
+#include <QSlider>
 #include <QtCore/QVariant>
 #include <QtCore/QUrl>
 #include <QtCore/QDir>
@@ -96,6 +98,12 @@
 #include "InstanceCopyTask.h"
 
 #include "MMCTime.h"
+
+namespace {
+// The instance icons' sizes, as file managers step them (KDE's Dolphin): the zoom goes through
+// these. 48 was the only one before.
+const QVector<int> ICON_SIZES = {16, 22, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256};
+}
 
 namespace {
 // a variant's name from the tier's build or the installed one; its ID when neither has it
@@ -787,6 +795,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         connect(ui->actionCAT.operator->(), SIGNAL(toggled(bool)), SLOT(onCatToggled(bool)));
         setCatBackground(cat_enable);
     }
+    // the icons' size: a slider in the status bar, Ctrl and the wheel, Ctrl + and -
+    {
+        auto zoomLabel = new QLabel(tr("Zoom:"), this);
+        m_zoom = new QSlider(Qt::Horizontal, this);
+        m_zoom->setRange(0, ICON_SIZES.size() - 1);
+        m_zoom->setPageStep(1);
+        m_zoom->setFixedWidth(120);
+        m_zoom->setFocusPolicy(Qt::NoFocus);
+        // (put in the status bar with the rest of it, at its end)
+        m_zoomLabel = zoomLabel;
+        connect(m_zoom, &QSlider::valueChanged, this, &MainWindow::setIconSizeStep);
+        connect(view, &InstanceView::zoomRequested, this, [this](int steps) { m_zoom->setValue(m_zoom->value() + steps); });
+        auto zoomIn = new QShortcut(QKeySequence::ZoomIn, this);
+        connect(zoomIn, &QShortcut::activated, this, [this]() { m_zoom->setValue(m_zoom->value() + 1); });
+        auto zoomOut = new QShortcut(QKeySequence::ZoomOut, this);
+        connect(zoomOut, &QShortcut::activated, this, [this]() { m_zoom->setValue(m_zoom->value() - 1); });
+        // the saved size, or the nearest step to it
+        const int saved = APPLICATION->settings()->get("InstanceIconSize").toInt();
+        int step = 0;
+        for (int i = 0; i < ICON_SIZES.size(); i++)
+        {
+            if (qAbs(ICON_SIZES[i] - saved) < qAbs(ICON_SIZES[step] - saved))
+                step = i;
+        }
+        m_zoom->setValue(step);
+        setIconSizeStep(step);
+    }
     // start instance when double-clicked
     connect(view, &InstanceView::activated, this, &MainWindow::instanceActivated);
 
@@ -824,6 +859,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     m_statusVersion->setObjectName(QStringLiteral("statusVersion"));
     m_statusVersion->setTextInteractionFlags(Qt::TextSelectableByMouse);
     statusBar()->addPermanentWidget(m_statusVersion, 0);
+    QFrame *zoomSeparator = new QFrame(this);
+    zoomSeparator->setFrameShape(QFrame::VLine);
+    zoomSeparator->setFrameShadow(QFrame::Sunken);
+    statusBar()->addPermanentWidget(zoomSeparator, 0);
+    statusBar()->addPermanentWidget(m_zoomLabel, 0);
+    statusBar()->addPermanentWidget(m_zoom, 0);
 
     // Add "manage accounts" button, right align
     QWidget *spacer = new QWidget();
@@ -1259,6 +1300,14 @@ void MainWindow::defaultAccountChanged()
     else {
         accountMenuButton->setIcon(face);
     }
+}
+
+void MainWindow::setIconSizeStep(int step)
+{
+    const int size = ICON_SIZES.value(qBound(0, step, ICON_SIZES.size() - 1), 48);
+    APPLICATION->settings()->set("InstanceIconSize", size);
+    view->setIconSize(QSize(size, size));
+    m_zoom->setToolTip(tr("Size: %1 pixels").arg(size));
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *ev)

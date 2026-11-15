@@ -22,6 +22,7 @@
 #include <QListView>
 #include <QPersistentModelIndex>
 #include <QDrag>
+#include <QWheelEvent>
 #include <QMimeData>
 #include <QCache>
 #include <QScrollBar>
@@ -53,6 +54,20 @@ InstanceView::InstanceView(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setAcceptDrops(true);
     setAutoScroll(true);
+    // the item under the mouse is drawn hovered
+    setMouseTracking(true);
+    viewport()->setMouseTracking(true);
+    // Items are as big as their icons: a new size is the one change that moves every item, so
+    // only then is everything laid out again (as a resize does when the columns change)
+    connect(this, &QAbstractItemView::iconSizeChanged, this, [this]() {
+        // (before the first resize there's no width to fit them in: that resize does it)
+        if (m_currentItemsPerRow > 0)
+        {
+            m_currentCursorColumn = -1;
+            m_currentItemsPerRow = qMax(1, calculateItemsPerRow());
+        }
+        updateGeometries();
+    });
 }
 
 InstanceView::~InstanceView()
@@ -264,7 +279,45 @@ int InstanceView::contentWidth() const
 
 int InstanceView::itemWidth() const
 {
-    return m_itemWidth;
+    return itemWidthFor(iconSize().isValid() ? iconSize().width() : 48);
+}
+
+int InstanceView::itemWidthFor(int iconSize)
+{
+    // 100 fits a name of a few words under 48 pixel icons; bigger icons get a little more. And
+    // the frame's padding around it (ListViewDelegate).
+    return qMax(100, iconSize + iconSize / 4) + 8;
+}
+
+void InstanceView::setHovered(const QModelIndex &index)
+{
+    if (index == m_hovered)
+        return;
+    if (m_hovered.isValid())
+        viewport()->update(visualRect(m_hovered));
+    m_hovered = index;
+    if (m_hovered.isValid())
+        viewport()->update(visualRect(m_hovered));
+}
+
+void InstanceView::leaveEvent(QEvent *event)
+{
+    setHovered(QModelIndex());
+    QAbstractItemView::leaveEvent(event);
+}
+
+void InstanceView::wheelEvent(QWheelEvent *event)
+{
+    // Ctrl and the wheel: icon size, a step per notch
+    if (event->modifiers() & Qt::ControlModifier)
+    {
+        const int delta = event->angleDelta().y();
+        if (delta != 0)
+            emit zoomRequested(delta > 0 ? 1 : -1);
+        event->accept();
+        return;
+    }
+    QAbstractItemView::wheelEvent(event);
 }
 
 void InstanceView::mousePressEvent(QMouseEvent *event)
@@ -319,6 +372,7 @@ void InstanceView::mousePressEvent(QMouseEvent *event)
 void InstanceView::mouseMoveEvent(QMouseEvent *event)
 {
     executeDelayedItemsLayout();
+    setHovered(indexAt(event->pos()));
 
     QPoint topLeft;
     QPoint visualPos = event->pos();
@@ -521,6 +575,8 @@ void InstanceView::paintEvent(QPaintEvent *event)
         option.rect = backup;
     }
 
+    // each item from the same options, its own state on them
+    const QStyleOptionViewItem itemBase = option;
     for (int i = 0; i < model()->rowCount(); ++i)
     {
         const QModelIndex index = model()->index(i, 0);
@@ -529,7 +585,12 @@ void InstanceView::paintEvent(QPaintEvent *event)
             continue;
         }
         Qt::ItemFlags flags = index.flags();
+        option = itemBase;
         option.rect = visualRect(index);
+        if (index == m_hovered)
+        {
+            option.state |= QStyle::State_MouseOver;
+        }
         option.features |= QStyleOptionViewItem::WrapText;
         if (flags & Qt::ItemIsSelectable && selectionModel()->isSelected(index))
         {
