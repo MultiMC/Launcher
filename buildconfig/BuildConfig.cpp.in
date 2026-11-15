@@ -24,7 +24,6 @@ Config::Config()
     BUILD_PLATFORM = "@Launcher_BUILD_PLATFORM@";
     FILES_MIRRORS = QStringList{@Launcher_FILES_MIRRORS_LITERALS@};
     META_MIRRORS = QStringList{@Launcher_META_MIRRORS_LITERALS@};
-    UPDATER_BASE = FILES_MIRRORS.first() + "update/";
     NOTIFICATION_URL = FILES_MIRRORS.first() + "notifications.json";
     TRANSLATIONS_BASE_URL = FILES_MIRRORS.first() + "translations/";
     FMLLIBS_BASE_URL = FILES_MIRRORS.first() + "fmllibs/";
@@ -32,15 +31,12 @@ Config::Config()
     META_URL = META_MIRRORS.first() + "v1/";
     FULL_VERSION_STR = "@Launcher_VERSION_MAJOR@.@Launcher_VERSION_MINOR@.@Launcher_VERSION_BUILD@";
 
-    UPDATER_VERSION = @Launcher_UPDATER_VERSION@;
     UPDATER_ROOT_KEYS = QStringList{@Launcher_UPDATER_ROOT_KEYS_LITERALS@};
     static const char keysFloor[] = "@Launcher_UPDATER_KEYS_FLOOR_BYTES@";
     UPDATER_KEYS_FLOOR = QByteArray(keysFloor, sizeof(keysFloor) - 1);
     UPDATER_SERIAL_FLOOR = @Launcher_UPDATER_SERIAL_FLOOR@;
     UPDATER_VARIANT = "@Launcher_UPDATER_VARIANT@";
-    bool updaterConfigured = UPDATER_VERSION == 2
-        ? !UPDATER_ROOT_KEYS.isEmpty() && !UPDATER_KEYS_FLOOR.isEmpty() && !UPDATER_VARIANT.isEmpty()
-        : !UPDATER_BASE.isEmpty();
+    bool updaterConfigured = !UPDATER_ROOT_KEYS.isEmpty() && !UPDATER_KEYS_FLOOR.isEmpty() && !UPDATER_VARIANT.isEmpty();
 
     GIT_COMMIT = "@Launcher_GIT_COMMIT@";
     GIT_REFSPEC = "@Launcher_GIT_REFSPEC@";

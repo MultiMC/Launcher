@@ -24,7 +24,6 @@
 #include "BaseInstance.h"
 #include "minecraft/auth/MinecraftAccount.h"
 #include "net/NetJob.h"
-#include "updater/v1/GoUpdate.h"
 
 class LaunchController;
 namespace UpdaterV2 {
@@ -173,8 +172,6 @@ private slots:
 
     void startTask(Task *task);
 
-    void updateAvailable(UpdaterV1::Status status);
-
     void updateNotAvailable();
 
     void notificationsChanged();
@@ -187,12 +184,8 @@ private slots:
 
     void updateNewsLabel();
 
-    /*!
-     * Runs the DownloadTask and installs updates.
-     */
-    void downloadUpdates(UpdaterV1::Status status);
-
     // updater v2: what a check found, and downloading and installing it
+
     void updateCheckedV2(const UpdaterV2::CheckResult &result);
     void downloadUpdateV2(const UpdaterV2::CheckResult &result);
 

@@ -16,6 +16,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QSortFilterProxyModel>
 
 #include "minecraft/MinecraftInstance.h"
 #include "ui/pages/BasePage.h"

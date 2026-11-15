@@ -185,24 +185,11 @@ set(LAUNCH_SOURCES
     launch/LogModel.h
 )
 
-# Updater v1
+# The updater (Design/Updater.md in the MultiMC repository)
 set(UPDATE_SOURCES
-    updater/v1/UpdateController.h
-    updater/v1/UpdateController.cpp
-    updater/v1/GoUpdate.h
-    updater/v1/GoUpdate.cpp
-    updater/v1/UpdateChecker.h
-    updater/v1/UpdateChecker.cpp
-    updater/v1/DownloadTask.h
-    updater/v1/DownloadTask.cpp
-
-    # both updaters: waiting for the new build to start
+    # waiting for the new build to start
     updater/LiveCheck.h
     updater/LiveCheck.cpp
-)
-
-# Updater v2 (Design/Updater.md in the MultiMC repository): used only by builds made with Launcher_UPDATER_VERSION 2
-set(NEW_UPDATE_SOURCES
     updater/v2/Signature.h
     updater/v2/Signature.cpp
     updater/v2/SystemRequirements.h
@@ -230,18 +217,6 @@ set(NEW_UPDATE_SOURCES
 add_unit_test(UpdaterLiveCheck
     SOURCES updater/LiveCheck_test.cpp
     LIBS Launcher_logic
-    )
-
-add_unit_test(UpdaterV1UpdateChecker
-    SOURCES updater/v1/UpdateChecker_test.cpp
-    LIBS Launcher_logic
-    DATA updater/v1/testdata
-    )
-
-add_unit_test(UpdaterV1DownloadTask
-    SOURCES updater/v1/DownloadTask_test.cpp
-    LIBS Launcher_logic
-    DATA updater/v1/testdata
     )
 
 add_unit_test(UpdaterV2Signature
@@ -674,7 +649,6 @@ set(LOGIC_SOURCES
     ${NET_SOURCES}
     ${LAUNCH_SOURCES}
     ${UPDATE_SOURCES}
-    ${NEW_UPDATE_SOURCES}
     ${NOTIFICATIONS_SOURCES}
     ${NEWS_SOURCES}
     ${MINECRAFT_SOURCES}

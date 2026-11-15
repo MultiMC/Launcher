@@ -113,9 +113,8 @@ foreach(site FILES META)
     string(REPLACE ";" "\", \"" Launcher_${site}_MIRRORS_LITERALS "\"${Launcher_${site}_MIRRORS}\"")
 endforeach()
 
-# Which updater a build uses: 1, the current one, or 2, the new one (Design/Updater.md in the
-# MultiMC repository). Both are built into every build.
-set(Launcher_UPDATER_VERSION "1" CACHE STRING "The updater this build uses: 1 or 2")
+# The updater (Design/Updater.md in the MultiMC repository). A build updates itself only when
+# all of these but the serial floor are set.
 # Updater v2: pinned root keys: Ed25519 public keys, 64 hex digits each
 set(Launcher_UPDATER_ROOT_KEYS "" CACHE STRING "Updater v2: pinned root public keys, a list")
 # Updater v2: the keys document compiled in as the floor; it must list exactly the pinned root keys
@@ -123,9 +122,6 @@ set(Launcher_UPDATER_KEYS_FLOOR "" CACHE FILEPATH "Updater v2: the keys document
 set(Launcher_UPDATER_SERIAL_FLOOR "0" CACHE STRING "Updater v2: the lowest tags serial accepted")
 # Updater v2: the variant ID this build is, e.g. linux-x86_64-qt5 (see Design/UpdaterFormats.md)
 set(Launcher_UPDATER_VARIANT "" CACHE STRING "Updater v2: this build's variant ID")
-if(NOT Launcher_UPDATER_VERSION MATCHES "^[12]$")
-    message(FATAL_ERROR "Launcher_UPDATER_VERSION must be 1 or 2, not '${Launcher_UPDATER_VERSION}'")
-endif()
 if(NOT Launcher_UPDATER_SERIAL_FLOOR MATCHES "^(0|[1-9][0-9]*)$")
     message(FATAL_ERROR "Launcher_UPDATER_SERIAL_FLOOR must be a number, not '${Launcher_UPDATER_SERIAL_FLOOR}'")
 endif()

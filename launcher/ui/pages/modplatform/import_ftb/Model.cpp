@@ -12,6 +12,7 @@
 #include <Version.h>
 
 #include <QtMath>
+#include <QDirIterator>
 #include <QLabel>
 
 #include <RWStorage.h>

@@ -59,7 +59,6 @@
 
 #include "java/JavaUtils.h"
 
-#include "updater/v1/UpdateChecker.h"
 #include "updater/v2/Checker.h"
 #include "updater/v2/HeadlessUpdate.h"
 #include "updater/v2/SystemRequirements.h"
@@ -79,8 +78,6 @@
 #include <FileSystem.h>
 #include <DesktopServices.h>
 #include <LocalPeer.h>
-
-#include <sys.h>
 
 #if defined Q_OS_WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -120,38 +117,6 @@ void appDebugOutput(QtMsgType type, const QMessageLogContext &context, const QSt
     APPLICATION->logFile->flush();
     QTextStream(stderr) << out.toLocal8Bit();
     fflush(stderr);
-}
-
-QString getIdealPlatform(QString currentPlatform) {
-    auto info = Sys::getKernelInfo();
-    switch(info.kernelType) {
-        case Sys::KernelType::Darwin: {
-            return "osx64-5.15.2";
-        }
-        case Sys::KernelType::Windows: {
-            // FIXME: 5.15.2 is not stable on Windows, due to a large number of completely unpredictable and hard to reproduce issues
-            break;
-/*
-            if(info.kernelMajor == 6 && info.kernelMinor >= 1) {
-                // Windows 7
-                return "win32-5.15.2";
-            }
-            else if (info.kernelMajor > 6) {
-                // Above Windows 7
-                return "win32-5.15.2";
-            }
-            else {
-                // Below Windows 7
-                return "win32";
-            }
-*/
-        }
-        case Sys::KernelType::Undetermined:
-        case Sys::KernelType::Linux: {
-            break;
-        }
-    }
-    return currentPlatform;
 }
 
 }
@@ -834,7 +799,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
             m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
             m_globalSettingsProvider->addPage<LauncherPage>();
             m_globalSettingsProvider->addPage<AppearancePage>();
-            if(BuildConfig.UPDATER_ENABLED && BuildConfig.UPDATER_VERSION == 2)
+            if(BuildConfig.UPDATER_ENABLED)
             {
                 m_globalSettingsProvider->addPage<UpdatesPage>();
             }
@@ -875,7 +840,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
     }
 
     // initialize the updater
-    if(BuildConfig.UPDATER_ENABLED && BuildConfig.UPDATER_VERSION == 2)
+    if(BuildConfig.UPDATER_ENABLED)
     {
         UpdaterV2::Config config;
         config.site = BuildConfig.FILES_MIRRORS.first();
@@ -894,14 +859,6 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         {
             m_updaterV2->setPreferredVariant(value.toString());
         });
-        qDebug() << "<> Updater v2 started.";
-    }
-    else if(BuildConfig.UPDATER_ENABLED)
-    {
-        auto platform = getIdealPlatform(BuildConfig.BUILD_PLATFORM);
-        auto channelUrl = BuildConfig.UPDATER_BASE + platform + "/channels.json";
-        qDebug() << "Initializing updater with platform: " << platform << " -- " << channelUrl;
-        m_updateChecker.reset(new UpdaterV1::UpdateChecker(m_network, channelUrl, BuildConfig.VERSION_BUILD));
         qDebug() << "<> Updater started.";
     }
 
@@ -1074,10 +1031,9 @@ void Application::startHeadlessUpdate()
     }
     if(!m_updaterV2)
     {
-        // a build that can't update itself with updater 2: exactly what this mode must catch
-        qWarning() << "Update (headless): this build doesn't use updater 2 (enabled:" << BuildConfig.UPDATER_ENABLED << "version:"
-                   << BuildConfig.UPDATER_VERSION << ")";
-        std::cerr << "Update (headless): this build doesn't use updater 2" << std::endl;
+        // a build that can't update itself: exactly what this mode must catch
+        qWarning() << "Update (headless): this build can't update itself (BuildConfig.UPDATER_ENABLED is false)";
+        std::cerr << "Update (headless): this build can't update itself" << std::endl;
         m_status = Application::Failed;
         return;
     }
@@ -1113,8 +1069,8 @@ bool Application::createSetupWizard()
         return false;
     }();
     // updater v2's tier, until it is chosen; existing installs choose once too
-    bool updatesRequired = BuildConfig.UPDATER_ENABLED && BuildConfig.UPDATER_VERSION == 2
-        && settings()->get("UpdateTier").toString().isEmpty();
+    bool updatesRequired = BuildConfig.UPDATER_ENABLED && settings()->get("UpdateTier").toString().isEmpty();
+
     // the theme, until it is chosen; existing installs choose once too
     bool themeRequired = !m_themeManager->themeChosen();
     bool wizardRequired = javaRequired || languageRequired || updatesRequired || themeRequired;

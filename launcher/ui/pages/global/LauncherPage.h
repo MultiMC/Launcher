@@ -60,7 +60,7 @@ public:
 private:
     void applySettings();
     void loadSettings();
-    // updater v2's tier; only in builds that use it
+
 
 private
 slots:

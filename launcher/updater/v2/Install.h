@@ -10,7 +10,7 @@
  * Updater v2's apply step. It works from the target state, a build's variant: what has
  * to change on disk to get there is planned first (planInstall), then the Installer makes
  * the changes, moving everything it replaces or removes into a backup, so it can put it all
- * back. It is updater v2's own; updater v1 keeps its UpdateController.
+ * back.
  */
 namespace UpdaterV2
 {
@@ -73,7 +73,8 @@ QString prepareBackupDir(const QString &updateDir);
 /**
  * Delete what earlier updates left in `updateDir`: every directory in it but `backup` and
  * `keep`, older backups that couldn't be deleted in time included. A download or an install that failed keeps its staging directory, a full copy of
- * the changed files each time; updater v1 uses the same directory.
+ * the changed files each time; the old updater's staging directories, from before updater v2,
+ * are deleted the same way.
  */
 void removeOldStaging(const QString &updateDir, const QString &keep);
 

@@ -20,12 +20,9 @@
 #include <QMessageBox>
 #include <QDir>
 
-#include "updater/v1/UpdateChecker.h"
-
 #include "settings/SettingsObject.h"
 #include <FileSystem.h>
 #include "Application.h"
-#include "BuildConfig.h"
 
 #include <QApplication>
 #include <QProcess>
@@ -49,12 +46,6 @@ LauncherPage::LauncherPage(QWidget *parent) : QWidget(parent), ui(new Ui::Launch
 
     m_languageModel = APPLICATION->translations();
     loadSettings();
-
-    // Updater; updater v2 has a page of its own (UpdatesPage)
-    if(!BuildConfig.UPDATER_ENABLED || BuildConfig.UPDATER_VERSION == 2)
-    {
-        ui->updateSettingsBox->setHidden(true);
-    }
 
     //move mac data button
     QFile file(QDir::current().absolutePath() + "/dontmovemacdata");
@@ -178,11 +169,6 @@ void LauncherPage::applySettings()
         s->set("ConfirmLogClear", true);
     }
 
-    // Updates (updater v2's are on UpdatesPage)
-    if(BuildConfig.UPDATER_VERSION != 2)
-    {
-        s->set("AutoUpdate", ui->autoUpdateCheckBox->isChecked());
-    }
     // Console settings
     s->set("ShowConsole", ui->showConsoleCheck->isChecked());
     s->set("AutoCloseConsole", ui->autoCloseConsoleCheck->isChecked());
@@ -212,9 +198,8 @@ void LauncherPage::applySettings()
 void LauncherPage::loadSettings()
 {
     auto s = APPLICATION->settings();
-    // Updates
-    ui->autoUpdateCheckBox->setChecked(s->get("AutoUpdate").toBool());
     // Console settings
+
     ui->showConsoleCheck->setChecked(s->get("ShowConsole").toBool());
     ui->autoCloseConsoleCheck->setChecked(s->get("AutoCloseConsole").toBool());
     ui->showConsoleErrorCheck->setChecked(s->get("ShowConsoleOnError").toBool());

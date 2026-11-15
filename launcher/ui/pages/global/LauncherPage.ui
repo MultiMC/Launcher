@@ -46,22 +46,6 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_9">
        <item>
-        <widget class="QGroupBox" name="updateSettingsBox">
-         <property name="title">
-          <string>Update Settings</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_7">
-          <item>
-           <widget class="QCheckBox" name="autoUpdateCheckBox">
-            <property name="text">
-             <string>Check for updates on start?</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="foldersBox">
          <property name="title">
           <string>Folders</string>
@@ -367,8 +351,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>autoUpdateCheckBox</tabstop>
   <tabstop>instDirTextBox</tabstop>
+
   <tabstop>instDirBrowseBtn</tabstop>
   <tabstop>instDirOpenBtn</tabstop>
   <tabstop>modsDirTextBox</tabstop>

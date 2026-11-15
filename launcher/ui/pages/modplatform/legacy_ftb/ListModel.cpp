@@ -8,6 +8,8 @@
 #include <QLabel>
 
 #include <RWStorage.h>
+#include <net/NetJob.h>
+#include <net/HttpMetaCache.h>
 
 #include <BuildConfig.h>
 

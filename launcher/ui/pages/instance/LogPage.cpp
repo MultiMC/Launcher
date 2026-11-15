@@ -5,6 +5,7 @@
 
 #include <QCheckBox>
 #include <QIcon>
+#include <QIdentityProxyModel>
 #include <QScrollBar>
 #include <QShortcut>
 

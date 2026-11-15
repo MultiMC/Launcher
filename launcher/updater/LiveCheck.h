@@ -6,8 +6,7 @@
 
 /**
  * After an update, the updater starts the new build with --alive and waits for it to report
- * in: once it runs, it writes its single-instance key into a file (Application.cpp). Shared by
- * updater v1 and v2.
+ * in: once it runs, it writes its single-instance key into a file (Application.cpp).
  */
 namespace LiveCheck
 {

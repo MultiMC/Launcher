@@ -62,8 +62,6 @@
 #include <news/NewsChecker.h>
 #include <notifications/NotificationChecker.h>
 #include <tools/BaseProfiler.h>
-#include <updater/v1/DownloadTask.h>
-#include <updater/v1/UpdateChecker.h>
 #include <updater/v2/Checker.h>
 #include <updater/v2/CheckHistory.h>
 #include <updater/v2/DownloadTask.h>
@@ -91,7 +89,6 @@
 #include "ui/dialogs/ExportInstanceDialog.h"
 #include "ui/dialogs/ModrinthExportDialog.h"
 
-#include "updater/v1/UpdateController.h"
 #include "KonamiCode.h"
 
 #include "InstanceImportTask.h"
@@ -922,18 +919,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         // NOTE: calling the operator like that is an ugly hack to appease ancient gcc...
         connect(ui->actionCheckUpdate.operator->(), &QAction::triggered, this, &MainWindow::checkForUpdates);
 
-        if(BuildConfig.UPDATER_VERSION == 2)
-        {
-            auto updater = APPLICATION->updaterV2();
-            connect(updater.get(), &UpdaterV2::Checker::finished, this, &MainWindow::updateCheckedV2);
-        }
-        else
-        {
-            // set up the updater object.
-            auto updater = APPLICATION->updateChecker();
-            connect(updater.get(), &UpdaterV1::UpdateChecker::updateAvailable, this, &MainWindow::updateAvailable);
-            connect(updater.get(), &UpdaterV1::UpdateChecker::noUpdateFound, this, &MainWindow::updateNotAvailable);
-        }
+        auto updater = APPLICATION->updaterV2();
+        connect(updater.get(), &UpdaterV2::Checker::finished, this, &MainWindow::updateCheckedV2);
     }
 
     {
@@ -1366,26 +1353,6 @@ void MainWindow::updateNewsLabel()
     }
 }
 
-void MainWindow::updateAvailable(UpdaterV1::Status status)
-{
-    if(!APPLICATION->updatesAreAllowed())
-    {
-        updateNotAvailable();
-        return;
-    }
-    UpdateDialog dlg(true, this);
-    UpdateAction action = (UpdateAction)dlg.exec();
-    switch (action)
-    {
-    case UPDATE_LATER:
-        qDebug() << "Update will be installed later.";
-        break;
-    case UPDATE_NOW:
-        downloadUpdates(status);
-        break;
-    }
-}
-
 void MainWindow::updateNotAvailable()
 {
     UpdateDialog dlg(false, this);
@@ -1428,40 +1395,6 @@ void MainWindow::notificationsChanged()
         }
     }
     APPLICATION->settings()->set("ShownNotifications", intListToString(shownNotifications));
-}
-
-void MainWindow::downloadUpdates(UpdaterV1::Status status)
-{
-    if(!APPLICATION->updatesAreAllowed())
-    {
-        return;
-    }
-    qDebug() << "Downloading updates.";
-    ProgressDialog updateDlg(this);
-    status.rootPath = APPLICATION->root();
-
-    auto dlPath = FS::PathCombine(APPLICATION->root(), "update", "XXXXXX");
-    if (!FS::ensureFilePathExists(dlPath))
-    {
-        CustomMessageBox::selectable(this, tr("Error"), tr("Couldn't create folder for update downloads:\n%1").arg(dlPath), QMessageBox::Warning)->show();
-    }
-    UpdaterV1::DownloadTask updateTask(APPLICATION->network(), status, dlPath, &updateDlg);
-    // If the task succeeds, install the updates.
-    if (updateDlg.execWithTask(&updateTask))
-    {
-        /**
-         * NOTE: This disables launching instances until the update either succeeds (and this process exits)
-         * or the update fails (and the control leaves this scope).
-         */
-        APPLICATION->updateIsRunning(true);
-        UpdaterV1::UpdateController update(this, APPLICATION->root(), updateTask.updateFilesDir(), updateTask.operations());
-        update.installUpdates();
-        APPLICATION->updateIsRunning(false);
-    }
-    else
-    {
-        CustomMessageBox::selectable(this, tr("Error"), updateTask.failReason(), QMessageBox::Warning)->show();
-    }
 }
 
 UpdaterV2::Tier MainWindow::updateTier()
@@ -2028,14 +1961,9 @@ void MainWindow::on_actionConfig_Folder_triggered()
 
 void MainWindow::checkForUpdates()
 {
-    if(BuildConfig.UPDATER_ENABLED && BuildConfig.UPDATER_VERSION == 2)
+    if(BuildConfig.UPDATER_ENABLED)
     {
         APPLICATION->updaterV2()->check(updateTier(), false, true);
-    }
-    else if(BuildConfig.UPDATER_ENABLED)
-    {
-        auto updater = APPLICATION->updateChecker();
-        updater->checkForUpdate(true);
     }
     else
     {
@@ -2369,15 +2297,9 @@ void MainWindow::autoCheckForUpdates()
     {
         return;
     }
-    if(BuildConfig.UPDATER_VERSION == 2)
-    {
-        APPLICATION->updaterV2()->check(updateTier(), false, false);
-    }
-    else
-    {
-        APPLICATION->updateChecker()->checkForUpdate(false);
-    }
+    APPLICATION->updaterV2()->check(updateTier(), false, false);
 }
+
 
 void MainWindow::checkInstancePathForProblems()
 {

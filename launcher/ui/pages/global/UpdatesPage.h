@@ -12,10 +12,10 @@ class QLabel;
 class UpdateTierWidget;
 
 /**
- * Updater v2's settings: checking for updates on start, the tier (UpdateTierWidget), and which
+ * The updater's settings: checking for updates on start, the tier (UpdateTierWidget), and which
  * variant to run when this computer can run several.
- * Only in builds with updater v2; builds with updater v1 keep their update settings on the
- * Launcher page.
+ * Only in builds that can update themselves (BuildConfig.UPDATER_ENABLED).
+
  */
 class UpdatesPage : public QWidget, public BasePage
 {
