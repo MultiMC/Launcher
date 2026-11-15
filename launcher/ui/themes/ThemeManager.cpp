@@ -6,9 +6,11 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QPixmapCache>
+#include <QScopedValueRollback>
 #include <QStyle>
 #include <QStyleFactory>
 #include <QStyleOption>
+#include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
 #include <QVersionNumber>
@@ -266,6 +268,21 @@ ThemeManager::ThemeManager(SettingsObjectPtr settings, QObject *parent) : QObjec
         }
         emit systemChanged();
     });
+    // The platform sets the application palette itself when the desktop's colours change: KDE's
+    // (on a colour scheme change, unless KDE_COLOR_SCHEME_PATH is set) puts its whole palette
+    // over ours. That leaves our themes with the desktop's colours, and the System theme with
+    // stale widget class palettes (Qt only renews those while no palette has been set). Once it's
+    // done, ours goes back on: for System, the desktop's new colours.
+    connect(qApp, &QGuiApplication::paletteChanged, this, [this]() {
+        if (m_applying || m_reapplyQueued || m_current.theme.isEmpty())
+            return;
+        m_reapplyQueued = true;
+        QTimer::singleShot(0, this, [this]() {
+            m_reapplyQueued = false;
+            qDebug() << "The platform changed the palette: applying the theme again";
+            apply(m_current);
+        });
+    });
     qDebug() << "Native style:" << m_nativeStyle << "- following the system:" << canFollowSystem();
 }
 
@@ -426,6 +443,8 @@ QPalette ThemeManager::previewPalette(const QString &themeId, const Choice &choi
 
 void ThemeManager::apply(const Choice &choice)
 {
+    // the palette changes from here are ours (see the constructor)
+    QScopedValueRollback<bool> applying(m_applying, true);
     m_current = choice;
     const Choice now = effective(choice);
     ITheme *chosen = theme(now.theme);
@@ -572,6 +591,8 @@ void ThemeManager::applyNative(ITheme *theme, const Choice &choice)
     if (m_paletteResetWorks)
     {
         QApplication::setPalette(QPalette());
+        // the previews of the platform's look: as it is now, not as it was at the start
+        m_platformPalette = QApplication::palette();
     }
     else
     {

@@ -130,4 +130,7 @@ private: /* data */
     QList<QPair<const char *, QPalette>> m_platformClassPalettes;
     // whether setting a palette with no roles gives the platform's back (Qt 5.15+)
     bool m_paletteResetWorks = true;
+    // inside apply(): its palette changes are ours; a later one is the platform's
+    bool m_applying = false;
+    bool m_reapplyQueued = false;
 };
