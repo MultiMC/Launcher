@@ -60,6 +60,8 @@ public:
 private:
     void applySettings();
     void loadSettings();
+    // the applications menu group (DesktopIntegration.h): what this copy's entry is, now
+    void showApplicationsMenu();
 
 
 private
@@ -77,6 +79,9 @@ slots:
     void on_skinsDirOpenBtn_clicked();
 
     void on_migrateDataFolderMacBtn_clicked();
+
+    void on_applicationsMenuCheck_toggled(bool);
+    void on_applicationsMenuUseThisBtn_clicked();
 
 private:
     Ui::LauncherPage *ui;

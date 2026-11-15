@@ -95,6 +95,13 @@ add_unit_test(Colors
     LIBS Launcher_logic
     )
 
+if(UNIX AND NOT APPLE)
+    add_unit_test(DesktopIntegration
+        SOURCES DesktopIntegration_test.cpp
+        LIBS Launcher_logic
+        )
+endif()
+
 add_unit_test(Download
     SOURCES net/Download_test.cpp
     LIBS Launcher_logic
@@ -989,6 +996,13 @@ else()
     # the desktop portal, over D-Bus
     find_package(Qt5DBus REQUIRED)
     list(APPEND LAUNCHER_SOURCES ui/themes/TitleBar_other.cpp ui/themes/SystemAppearance_linux.cpp)
+endif()
+
+# The Launcher's applications menu entry and icon (Linux); elsewhere nothing
+if(UNIX AND NOT APPLE)
+    list(APPEND LAUNCHER_SOURCES DesktopIntegration.h DesktopIntegration_linux.cpp)
+else()
+    list(APPEND LAUNCHER_SOURCES DesktopIntegration.h DesktopIntegration_other.cpp)
 endif()
 
 qt5_wrap_ui(LAUNCHER_UI

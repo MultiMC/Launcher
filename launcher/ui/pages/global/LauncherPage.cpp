@@ -27,6 +27,7 @@
 #include <QApplication>
 #include <QProcess>
 #include <DesktopServices.h>
+#include "DesktopIntegration.h"
 
 // FIXME: possibly move elsewhere
 enum InstSortMode
@@ -163,6 +164,9 @@ void LauncherPage::applySettings()
 {
     auto s = APPLICATION->settings();
 
+    s->set("ApplicationsMenuEntry", ui->applicationsMenuCheck->isChecked());
+    DesktopIntegration::update(APPLICATION->root(), ui->applicationsMenuCheck->isChecked());
+
     if (ui->resetNotificationsBtn->isChecked())
     {
         s->set("ShownNotifications", QString());
@@ -222,4 +226,50 @@ void LauncherPage::loadSettings()
     {
         ui->sortByNameBtn->setChecked(true);
     }
+
+    ui->applicationsMenuCheck->setChecked(s->get("ApplicationsMenuEntry").toBool());
+    showApplicationsMenu();
+}
+
+void LauncherPage::showApplicationsMenu()
+{
+    const auto status = DesktopIntegration::status(APPLICATION->root());
+    ui->applicationsMenuBox->setVisible(status.state != DesktopIntegration::State::Unsupported);
+    bool usable = status.state == DesktopIntegration::State::Ours || status.state == DesktopIntegration::State::Other;
+    QString text;
+    switch (status.state)
+    {
+    case DesktopIntegration::State::Unsupported:
+        break;
+    case DesktopIntegration::State::Unavailable:
+        text = status.why;
+        break;
+    case DesktopIntegration::State::Packaged:
+        text = tr("MultiMC is installed as a package here: the package provides its applications menu entry.");
+        break;
+    case DesktopIntegration::State::Ours:
+        text = ui->applicationsMenuCheck->isChecked()
+            ? tr("The applications menu starts this copy of MultiMC.")
+            : tr("MultiMC is hidden from the applications menu. Its entry stays, to give MultiMC's windows their icon.");
+        break;
+    case DesktopIntegration::State::Other:
+        text = status.other.isEmpty()
+            ? tr("The applications menu has an entry for MultiMC that MultiMC didn't make. It is left as it is.")
+            : tr("The applications menu starts another copy of MultiMC, in %1.").arg(status.other);
+        break;
+    }
+    ui->applicationsMenuCheck->setEnabled(usable);
+    ui->applicationsMenuLabel->setText(text);
+    ui->applicationsMenuUseThisBtn->setVisible(usable && status.state == DesktopIntegration::State::Other);
+}
+
+void LauncherPage::on_applicationsMenuCheck_toggled(bool)
+{
+    showApplicationsMenu();
+}
+
+void LauncherPage::on_applicationsMenuUseThisBtn_clicked()
+{
+    DesktopIntegration::takeOver(APPLICATION->root(), ui->applicationsMenuCheck->isChecked());
+    showApplicationsMenu();
 }

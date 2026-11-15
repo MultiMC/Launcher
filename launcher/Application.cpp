@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "BuildConfig.h"
+#include "DesktopIntegration.h"
 
 #include "ui/MainWindow.h"
 #include "ui/InstanceWindow.h"
@@ -668,6 +669,10 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         // questions with a "Don't ask again" (brought back by "Reset hidden notifications")
         m_settings->registerSetting("ConfirmLogClear", true);
 
+        // Linux: this copy's entry in the applications menu (DesktopIntegration.h); off, the
+        // entry stays hidden, for the window icon
+        m_settings->registerSetting("ApplicationsMenuEntry", true);
+
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());
 
@@ -1003,6 +1008,9 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         startHeadlessUpdate();
         return;
     }
+    // Linux: this copy's applications menu entry and icon, which also give the windows their
+    // icon (DesktopIntegration.h)
+    DesktopIntegration::update(m_rootPath, m_settings->get("ApplicationsMenuEntry").toBool());
     if(createSetupWizard())
     {
         return;

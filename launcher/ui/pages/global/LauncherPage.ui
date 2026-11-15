@@ -241,6 +241,39 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="applicationsMenuBox">
+         <property name="title">
+          <string>Applications menu</string>
+         </property>
+         <layout class="QVBoxLayout" name="applicationsMenuBoxLayout">
+          <item>
+           <widget class="QCheckBox" name="applicationsMenuCheck">
+            <property name="text">
+             <string>Show MultiMC in the applications menu</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="applicationsMenuLabel">
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="applicationsMenuUseThisBtn">
+            <property name="text">
+             <string>Use this copy</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="generalTabSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -368,6 +401,8 @@
   <tabstop>resetNotificationsBtn</tabstop>
   <tabstop>sortLastLaunchedBtn</tabstop>
   <tabstop>sortByNameBtn</tabstop>
+  <tabstop>applicationsMenuCheck</tabstop>
+  <tabstop>applicationsMenuUseThisBtn</tabstop>
   <tabstop>showConsoleCheck</tabstop>
   <tabstop>autoCloseConsoleCheck</tabstop>
   <tabstop>showConsoleErrorCheck</tabstop>
