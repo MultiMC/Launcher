@@ -17,10 +17,10 @@ BEGIN
         BEGIN
                 BLOCK "000004b0"
                 BEGIN
-                        VALUE "CompanyName", "MultiMC Contributors"
-                        VALUE "FileDescription", "MultiMC Launcher"
+                        VALUE "CompanyName", "MENKIA"
+                        VALUE "FileDescription", "MENKIA Launcher"
                         VALUE "FileVersion", "@Launcher_VERSION_NAME@"
-                        VALUE "ProductName", "MultiMC"
+                        VALUE "ProductName", "MENKIA"
                         VALUE "ProductVersion", "@Launcher_VERSION_NAME@"
                 END
         END
