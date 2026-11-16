@@ -104,19 +104,22 @@ set(Launcher_BUILD_PLATFORM "" CACHE STRING "A short string identifying the plat
 
 # Our sites, each a list of base URLs: the main server first, then its copies, in the order they are tried.
 # Every URL on a site is one of its base URLs and a path.
-set(Launcher_FILES_MIRRORS "https://files.multimc.org/;https://files-r2.multimc.org/" CACHE STRING "Base URLs of the files site (updates, notifications, translations, ...), in order.")
-set(Launcher_META_MIRRORS "https://meta.multimc.org/;https://meta-r2.multimc.org/" CACHE STRING "Base URLs of the meta site, in order.")
+# MENKIA does not reuse MultiMC update or metadata services. Keep these empty
+# until MENKIA operates compatible services of its own.
+set(Launcher_FILES_MIRRORS "" CACHE STRING "MENKIA files service base URLs (optional).")
+set(Launcher_META_MIRRORS "" CACHE STRING "MENKIA metadata service base URLs (optional).")
 foreach(site FILES META)
-    if(NOT Launcher_${site}_MIRRORS)
-        message(FATAL_ERROR "Launcher_${site}_MIRRORS must have at least one base URL")
+    if(Launcher_${site}_MIRRORS)
+        foreach(url ${Launcher_${site}_MIRRORS})
+            if(NOT url MATCHES "^https?://[^/]+/$")
+                message(FATAL_ERROR "Launcher_${site}_MIRRORS: ${url} is not a base URL like https://example.org/")
+            endif()
+        endforeach()
+        # as C++ string literals, one per URL: "a", "b"
+        string(REPLACE ";" "\", \"" Launcher_${site}_MIRRORS_LITERALS "\"${Launcher_${site}_MIRRORS}\"")
+    else()
+        set(Launcher_${site}_MIRRORS_LITERALS "")
     endif()
-    foreach(url ${Launcher_${site}_MIRRORS})
-        if(NOT url MATCHES "^https?://[^/]+/$")
-            message(FATAL_ERROR "Launcher_${site}_MIRRORS: ${url} is not a base URL like https://example.org/")
-        endif()
-    endforeach()
-    # as C++ string literals, one per URL: "a", "b"
-    string(REPLACE ";" "\", \"" Launcher_${site}_MIRRORS_LITERALS "\"${Launcher_${site}_MIRRORS}\"")
 endforeach()
 
 # The updater (Design/Updater.md in the MultiMC repository). A build updates itself only when
