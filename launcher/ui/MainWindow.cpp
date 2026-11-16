@@ -907,7 +907,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
     // Show initial account
     defaultAccountChanged();
 
-    // load the news
+    // Load news only when MENKIA has configured an RSS endpoint.
+    // m_newsChecker is intentionally null when the feed is disabled.
+    if (m_newsChecker)
     {
         m_newsChecker->reloadNews();
         updateNewsLabel();
