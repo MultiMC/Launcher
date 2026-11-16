@@ -68,7 +68,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_NO_DEPRECATED_WARNINGS=Y")
 ##################################### Set Application options #####################################
 
 ######## Set URLs ########
-set(Launcher_NEWS_URL "" CACHE STRING "URL to open MENKIA news (optional).")
+set(Launcher_NEWS_URL "https://github.com/Laky912/MENKIA-LAUNCHER" CACHE STRING "URL to open MENKIA project updates.")
 set(Launcher_NEWS_RSS_URL "" CACHE STRING "URL to fetch MENKIA news RSS (optional).")
 
 ######## Set version numbers ########
