@@ -1,53 +1,35 @@
-<p align="center">
-  <img src="https://avatars2.githubusercontent.com/u/5411890" alt="MultiMC logo"/>
-</p>
+# MENKIA Launcher
 
-MultiMC
-=======
+MENKIA is an independent Windows-first Minecraft Java launcher project based on the open-source MultiMC Launcher codebase.
 
-MultiMC is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.
+The goal is to build a polished, reliable desktop launcher with MENKIA branding and its own configuration, services, and release process. This repository is a work in progress; it is not yet a tested or distributable executable.
 
-## Development
-If you want to contribute, talk to us on [Discord](https://discord.gg/multimc) first.
+## Current status
 
-While blindly submitting PRs is definitely possible, they're not necessarily going to get accepted.
+- [x] MENKIA source fork established
+- [x] Initial application identity and user-agent changed to MENKIA
+- [x] MENKIA SVG application mark added
+- [x] Upstream Microsoft, paste.ee, and Imgur client credentials removed from the build configuration
+- [x] Windows executable metadata changed to MENKIA
+- [ ] Replace remaining legacy artwork and audit all upstream branding references
+- [ ] Complete dependency and license notices for every bundled component
+- [ ] Establish a reproducible Windows x64 build environment
+- [ ] Register MENKIA's own Microsoft Entra application before enabling Microsoft sign-in
+- [ ] Implement and test MENKIA-specific interface improvements
+- [ ] Package, sign, and test a Windows release
 
-We aren't looking for flashy features, but expanding upon the existing feature set without disruption or endangering the future viability of the project is OK.
+## Building
 
-### Building
-If you want to build the launcher yourself, check [BUILD.md](BUILD.md) for build instructions.
+See [BUILD.md](BUILD.md) for the upstream build requirements. Those instructions are not yet a verified recipe for current Windows x64 systems. Do not assume that a successful source checkout means a working build.
 
-### Code formatting
-Just follow the existing formatting.
+## Authentication and game access
 
-In general, in order of importance:
-* Make sure your IDE is not messing up line endings or whitespace and avoid using linters.
-* Prefer readability over dogma.
-* Keep to the existing formatting.
-* Indent with 4 space unless it's in a submodule.
-* Keep lists (of arguments, parameters, initializers...) as lists, not paragraphs. It should either read from top to bottom, or left to right. Not both.
+Microsoft authentication must use an application registration owned by MENKIA. The upstream MultiMC client ID has deliberately been removed and Microsoft sign-in remains unconfigured until that registration and its redirect settings are completed.
 
-## Translations
-Translations can be done [on crowdin](https://translate.multimc.org). Please avoid making direct pull requests to the translations repository.
+A local/offline profile is not a Microsoft account and does not grant ownership of Minecraft. It can only be used where the server explicitly permits offline-mode authentication.
 
-## License
-Copyright &copy; 2013-2022 MultiMC Contributors
+## Upstream origin and license
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this program except in compliance with the License. You may obtain a copy of the License at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
+MENKIA is an independent fork of [MultiMC/Launcher](https://github.com/MultiMC/Launcher). The upstream project is licensed under Apache License 2.0; retain the upstream license and required notices when redistributing. Third-party libraries and submodules may have separate licenses, which must be reviewed individually before a release.
 
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-
-## Forking/Redistributing/Custom builds policy
-We keep Launcher open source because we think it's important to be able to see the source code for a project like this, and we do so using the Apache license.
-
-The license gives you access to the source MultiMC is built from, but not:
-- The name, logo and other branding.
-- The API tokens required to talk to services that the launcher depends on.
-
-Because of the nature of the agreements required to interact with the Microsoft identity platform, it's impossible for us to continue allowing everyone to build the code as 'MultiMC'. The source code has been debranded and now builds as `DevLauncher` by default.
-
-You must provide your own branding if you want to distribute your own builds.
-
-You will also have to register your own app on Azure to be able to handle Microsoft account logins.
-
-If you decide to fork the project, a mention of its origins in the About dialog and the license is acceptable. However, it should be abundantly clear that the project is a fork *without* implying that you have our blessing.
+MENKIA is not affiliated with or endorsed by the MultiMC contributors. The original project name, logos, service credentials, and branding are not MENKIA assets. This fork is being rebranded independently.
