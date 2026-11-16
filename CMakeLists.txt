@@ -68,8 +68,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_NO_DEPRECATED_WARNINGS=Y")
 ##################################### Set Application options #####################################
 
 ######## Set URLs ########
-set(Launcher_NEWS_URL "https://multimc.org/posts.html" CACHE STRING "URL to open Launcher's news.")
-set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fetch Launcher's news RSS feed from.")
+set(Launcher_NEWS_URL "" CACHE STRING "URL to open MENKIA news (optional).")
+set(Launcher_NEWS_RSS_URL "" CACHE STRING "URL to fetch MENKIA news RSS (optional).")
 
 ######## Set version numbers ########
 # The version is 5.<minor>.<build> (the Design repo's Updater.md, Versions): the minor version
@@ -77,7 +77,7 @@ set(Launcher_NEWS_RSS_URL "https://multimc.org/rss.xml" CACHE STRING "URL to fet
 # towards it carry it, and Stable gets it when one of them is promoted. The major version
 # changes only for a break (the data layout move, say). The build number comes from the release
 # pipeline and only goes up. Tagging a build (Testing, Stable) never changes its version.
-set(Launcher_VERSION_MAJOR    5)
+set(Launcher_VERSION_MAJOR    1)
 set(Launcher_VERSION_MINOR    0)
 
 # Build number
@@ -180,16 +180,16 @@ endif()
 
 ####################################### Branding #######################################
 
-set(Launcher_CommonName "MultiMC")
+set(Launcher_CommonName "MENKIA")
 
-set(Launcher_Copyright "MultiMC Contributors")
-set(Launcher_Domain "multimc.org")
+set(Launcher_Copyright "MENKIA Contributors")
+set(Launcher_Domain "menkia")
 set(Launcher_Name "${Launcher_CommonName}")
 # the 5 is in the version now (5.<minor>.<build>), not in the name
 set(Launcher_DisplayName "${Launcher_CommonName}")
-set(Launcher_UserAgent "${Launcher_CommonName}/5.0")
-set(Launcher_ConfigFile "multimc.cfg")
-set(Launcher_Git "https://github.com/MultiMC/Launcher")
+set(Launcher_UserAgent "${Launcher_CommonName}/1.0")
+set(Launcher_ConfigFile "menkia.cfg")
+set(Launcher_Git "https://github.com/Laky912/MENKIA-LAUNCHER")
 
 set(Launcher_Branding_ICNS "${PROJECT_SOURCE_DIR}/branding/${Launcher_CommonName}.icns")
 # with the version filled in (major,minor,build,0: the Microsoft Store keeps the fourth part)
@@ -198,13 +198,13 @@ configure_file("${PROJECT_SOURCE_DIR}/branding/multimc.rc.in" "${PROJECT_BINARY_
 set(Launcher_Branding_WindowsRC "${PROJECT_BINARY_DIR}/branding/multimc.rc")
 set(Launcher_Branding_LogoQRC "${PROJECT_SOURCE_DIR}/branding/logo.qrc")
 
-set(Launcher_PASTE_EE_API_KEY "utLvciUouSURFzfjPxLBf5W4ISsUX4pwBDF7N1AfZ")
-set(Launcher_MSA_CLIENT_ID "499546d9-bbfe-4b9b-a086-eb3d75afb78f")
-set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3")
-set(Launcher_BUG_TRACKER_URL "https://github.com/MultiMC/Launcher/issues")
-set(Launcher_DISCORD_URL "https://discord.gg/multimc")
-set(Launcher_SUBREDDIT_URL "https://www.reddit.com/r/MultiMC/")
-set(Launcher_PATREON_URL "https://www.patreon.com/multimc")
+set(Launcher_PASTE_EE_API_KEY "")
+set(Launcher_MSA_CLIENT_ID "" CACHE STRING "MENKIA Microsoft Entra application client ID; configure after registering MENKIA.")
+set(Launcher_IMGUR_CLIENT_ID "")
+set(Launcher_BUG_TRACKER_URL "https://github.com/Laky912/MENKIA-LAUNCHER/issues")
+set(Launcher_DISCORD_URL "")
+set(Launcher_SUBREDDIT_URL "")
+set(Launcher_PATREON_URL "")
 
 ####################################### Install layout #######################################
 
