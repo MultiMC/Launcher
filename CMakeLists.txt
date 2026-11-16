@@ -60,6 +60,12 @@ set(CMAKE_CXX_FLAGS_RELEASE " -O3 -D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS_RELEASE}
 if(UNIX AND APPLE)
     set(CMAKE_CXX_FLAGS " -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 endif()
+# 32-bit MinGW 8.1 reads the stack protector's canary from %gs:0 by default, which only
+# works by accident on 64-bit Windows and crashes in window procedures on Windows 10.
+# MinGW 4.9.2 already uses the global guard.
+if(MINGW)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mstack-protector-guard=global")
+endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -Werror=return-type -O0")
 
 # Fix build with Qt 5.13
