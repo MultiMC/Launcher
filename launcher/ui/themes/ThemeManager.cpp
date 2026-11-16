@@ -292,7 +292,7 @@ ThemeManager::~ThemeManager()
 
 QString ThemeManager::defaultTheme() const
 {
-    return canFollowSystem() ? "system" : "bright";
+    return "dark";
 }
 
 ThemeManager::Choice ThemeManager::savedChoice() const
