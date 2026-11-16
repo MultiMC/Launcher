@@ -1,0 +1,67 @@
+name: MENKIA Windows x64 build
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-x64:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout MENKIA with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+
+      - name: Install MinGW, Qt and build dependencies
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-qt5-base
+            mingw-w64-x86_64-qt5-svg
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-zlib
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-pkgconf
+
+      - name: Configure MENKIA
+        shell: msys2 {0}
+        run: |
+          export JAVA_HOME="$(cygpath -u "$JAVA_HOME")"
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH=/mingw64 \
+            -DCMAKE_INSTALL_PREFIX="$(cygpath -m "$PWD/dist")" \
+            -DLauncher_LAYOUT=win-bundle \
+            -DLauncher_FILES_MIRRORS= \
+            -DLauncher_META_MIRRORS=
+
+      - name: Compile MENKIA
+        shell: msys2 {0}
+        run: cmake --build build --parallel 2
+
+      - name: Package MENKIA
+        shell: msys2 {0}
+        run: cmake --install build
+
+      - name: Upload Windows x64 build
+        uses: actions/upload-artifact@v4
+        with:
+          name: MENKIA-Windows-x64
+          path: dist/
+          if-no-files-found: error
