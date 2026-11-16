@@ -17,11 +17,11 @@ QPalette DarkTheme::palette()
 
 QPalette DarkTheme::colors()
 {
-    const QColor window(49, 54, 59), blue(42, 130, 218);
+    const QColor window(27, 31, 38), blue(38, 190, 235);
     QPalette p(window, window);
     p.setColor(QPalette::Window, window);
     p.setColor(QPalette::WindowText, Qt::white);
-    p.setColor(QPalette::Base, QColor(35, 38, 41));
+    p.setColor(QPalette::Base, QColor(19, 23, 30));
     p.setColor(QPalette::AlternateBase, window);
     // the blue tooltips the Dark theme's stylesheet used to give
     p.setColor(QPalette::ToolTipBase, blue);
