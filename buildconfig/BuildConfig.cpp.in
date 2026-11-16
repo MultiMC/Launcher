@@ -24,11 +24,19 @@ Config::Config()
     BUILD_PLATFORM = "@Launcher_BUILD_PLATFORM@";
     FILES_MIRRORS = QStringList{@Launcher_FILES_MIRRORS_LITERALS@};
     META_MIRRORS = QStringList{@Launcher_META_MIRRORS_LITERALS@};
-    NOTIFICATION_URL = FILES_MIRRORS.first() + "notifications.json";
-    TRANSLATIONS_BASE_URL = FILES_MIRRORS.first() + "translations/";
-    FMLLIBS_BASE_URL = FILES_MIRRORS.first() + "fmllibs/";
-    PATRONS_URL = FILES_MIRRORS.first() + "patrons.txt";
-    META_URL = META_MIRRORS.first() + "v1/";
+    // MENKIA can be built before its own update/content mirrors are deployed.
+    // Keep these endpoints empty instead of dereferencing an empty QStringList.
+    if(!FILES_MIRRORS.isEmpty())
+    {
+        NOTIFICATION_URL = FILES_MIRRORS.first() + "notifications.json";
+        TRANSLATIONS_BASE_URL = FILES_MIRRORS.first() + "translations/";
+        FMLLIBS_BASE_URL = FILES_MIRRORS.first() + "fmllibs/";
+        PATRONS_URL = FILES_MIRRORS.first() + "patrons.txt";
+    }
+    if(!META_MIRRORS.isEmpty())
+    {
+        META_URL = META_MIRRORS.first() + "v1/";
+    }
     FULL_VERSION_STR = "@Launcher_VERSION_MAJOR@.@Launcher_VERSION_MINOR@.@Launcher_VERSION_BUILD@";
 
     UPDATER_ROOT_KEYS = QStringList{@Launcher_UPDATER_ROOT_KEYS_LITERALS@};
