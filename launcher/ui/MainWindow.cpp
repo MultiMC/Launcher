@@ -34,6 +34,8 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QStatusBar>
@@ -755,6 +757,91 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
         QObject::connect(newsLabel, &QAbstractButton::clicked, this, &MainWindow::newsButtonClicked);
         QObject::connect(m_newsChecker.get(), &NewsChecker::newsLoaded, this, &MainWindow::updateNewsLabel);
         updateNewsLabel();
+    }
+
+    // MENKIA navigation sidebar. These buttons reuse the launcher's real actions,
+    // so they stay connected to the existing account, settings and launch workflows.
+    {
+        auto sidebar = new QFrame(ui->centralWidget);
+        sidebar->setObjectName(QStringLiteral("menkiaSidebar"));
+        sidebar->setFixedWidth(188);
+        sidebar->setFrameShape(QFrame::NoFrame);
+        sidebar->setStyleSheet(
+            "#menkiaSidebar { background-color: #171c24; border-right: 1px solid #293442; }"
+            "#menkiaBrand { color: #f2f7fb; font-size: 20px; font-weight: 800; letter-spacing: 2px; }"
+            "#menkiaTagline { color: #8293a7; font-size: 10px; }"
+            "#menkiaSection { color: #718399; font-size: 10px; font-weight: 700; padding-left: 8px; }"
+            "QToolButton { color: #c7d3df; background: transparent; border: 0; border-radius: 7px;"
+            " text-align: left; padding: 10px 9px; font-size: 12px; }"
+            "QToolButton:hover { background: #263342; color: white; }"
+            "QToolButton:pressed { background: #16465b; }"
+            "QToolButton:disabled { color: #536170; }"
+        );
+        auto sidebarLayout = new QVBoxLayout(sidebar);
+        sidebarLayout->setContentsMargins(14, 22, 14, 16);
+        sidebarLayout->setSpacing(7);
+
+        auto brand = new QLabel(QStringLiteral("MENKIA"), sidebar);
+        brand->setObjectName(QStringLiteral("menkiaBrand"));
+        auto tagline = new QLabel(tr("MINECRAFT CLIENT"), sidebar);
+        tagline->setObjectName(QStringLiteral("menkiaTagline"));
+        sidebarLayout->addWidget(brand);
+        sidebarLayout->addWidget(tagline);
+        sidebarLayout->addSpacing(24);
+
+        auto section = new QLabel(tr("LAUNCHER"), sidebar);
+        section->setObjectName(QStringLiteral("menkiaSection"));
+        sidebarLayout->addWidget(section);
+
+        auto addActionButton = [sidebar, sidebarLayout](QAction *action, const QString &name) {
+            auto button = new QToolButton(sidebar);
+            button->setObjectName(name);
+            button->setDefaultAction(action);
+            button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+            button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+            button->setMinimumHeight(38);
+            sidebarLayout->addWidget(button);
+            return button;
+        };
+
+        addActionButton(ui->actionLaunchInstance.operator->(), QStringLiteral("menkiaPlayButton"));
+        addActionButton(ui->actionAddInstance.operator->(), QStringLiteral("menkiaAddButton"));
+        sidebarLayout->addSpacing(18);
+
+        auto toolsSection = new QLabel(tr("PREFERENCIAS"), sidebar);
+        toolsSection->setObjectName(QStringLiteral("menkiaSection"));
+        sidebarLayout->addWidget(toolsSection);
+        addActionButton(ui->actionManageAccounts.operator->(), QStringLiteral("menkiaAccountsButton"));
+        addActionButton(ui->actionSettings.operator->(), QStringLiteral("menkiaSettingsButton"));
+
+        auto foldersButton = new QToolButton(sidebar);
+        foldersButton->setObjectName(QStringLiteral("menkiaFoldersButton"));
+        foldersButton->setText(tr("Carpetas"));
+        foldersButton->setIcon(APPLICATION->getThemedIcon("viewfolder"));
+        foldersButton->setMenu(ui->foldersMenu);
+        foldersButton->setPopupMode(QToolButton::InstantPopup);
+        foldersButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        foldersButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        foldersButton->setMinimumHeight(38);
+        sidebarLayout->addWidget(foldersButton);
+
+        auto helpButton = new QToolButton(sidebar);
+        helpButton->setObjectName(QStringLiteral("menkiaHelpButton"));
+        helpButton->setText(tr("Ayuda"));
+        helpButton->setIcon(APPLICATION->getThemedIcon("help"));
+        helpButton->setMenu(ui->helpMenu);
+        helpButton->setPopupMode(QToolButton::InstantPopup);
+        helpButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        helpButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        helpButton->setMinimumHeight(38);
+        sidebarLayout->addWidget(helpButton);
+
+        sidebarLayout->addStretch(1);
+        auto footer = new QLabel(tr("MENKIA CLIENT  •  %1").arg(BuildConfig.printableVersionString()), sidebar);
+        footer->setStyleSheet("color: #647487; font-size: 9px;");
+        footer->setWordWrap(true);
+        sidebarLayout->addWidget(footer);
+        ui->horizontalLayout->addWidget(sidebar);
     }
 
     // Create the instance list widget
