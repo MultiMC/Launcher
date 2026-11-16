@@ -1,3 +1,10 @@
-<svg fill="#757575" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0,2A2,2,0,0,1,2,0H22a2,2,0,0,1,2,2V8L22,8V6H20V8H18v2H16V8H14V6H12V8H10V6H8v4H6V8H4V6H2V8H0ZM0,22a2,2,0,0,0,2,2H22a2,2,0,0,0,2-2V10H22V22H2V10H0Zm18.71-3.29a3.83,3.83,0,0,0-5.41-5.41L12,14.59l-1.29-1.29a3.83,3.83,0,1,0,0,5.41L12,17.41l1.29,1.29a3.83,3.83,0,0,0,5.41,0Zm-4-4a1.83,1.83,0,1,1,0,2.59L13.41,16Zm-5.41,0L10.59,16,9.29,17.29a1.83,1.83,0,1,1,0-2.59Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="menkia" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#70e7f7"/>
+      <stop offset=".55" stop-color="#638fff"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#menkia)" d="M2 3h4.2L12 10l5.8-7H22v18h-4V9.1l-6 7.2-6-7.2V21H2z"/>
 </svg>
