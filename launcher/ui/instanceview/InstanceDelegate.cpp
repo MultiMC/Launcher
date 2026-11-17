@@ -24,6 +24,7 @@
 #include "InstanceView.h"
 #include "BaseInstance.h"
 #include "InstanceList.h"
+#include "icons/IconUtils.h"
 #include <xdgicon.h>
 #include <QTextEdit>
 #include <QResizeEvent>
@@ -259,16 +260,14 @@ void ListViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         mode = QIcon::Disabled;
     QIcon::State state = opt.state & QStyle::State_Open ? QIcon::On : QIcon::Off;
 
-    // the icon, as big as asked: QIcon only scales its images down, so a small one (most
-    // instance icons are 32 to 128 pixels) is scaled up here, smoothly
+    // the icon, fit to the square (IconUtils::fitted)
     {
         iconbox.setHeight(iconSize);
-        const QSize wanted(iconSize, iconSize);
-        QPixmap pixmap = opt.icon.pixmap(wanted, mode, state);
+        const qreal ratio = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+        const QPixmap pixmap = IconUtils::fitted(opt.icon, QSize(iconSize, iconSize), ratio, mode, state);
         if (!pixmap.isNull())
         {
-            const QSize shown = (pixmap.size() / pixmap.devicePixelRatio()).scaled(wanted, Qt::KeepAspectRatio);
-            painter->setRenderHint(QPainter::SmoothPixmapTransform);
+            const QSize shown = pixmap.size() / pixmap.devicePixelRatio();
             painter->drawPixmap(QStyle::alignedRect(opt.direction, Qt::AlignCenter, shown, iconbox), pixmap);
         }
     }

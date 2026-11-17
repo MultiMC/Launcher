@@ -18,6 +18,7 @@
 #include <QResizeEvent>
 #include <QStyleOption>
 #include "LabeledToolButton.h"
+#include "icons/IconUtils.h"
 #include <QApplication>
 #include <QDebug>
 
@@ -140,16 +141,9 @@ void LabeledToolButton::keepWholeContent()
 
 void LabeledToolButton::resetIcon()
 {
-    auto iconSz = m_icon.actualSize(QSize(160, 80));
-    float w = iconSz.width();
-    float h = iconSz.height();
-    float ar = w/h;
-    // FIXME: hardcoded max size of 160x80
-    int newW = 80 * ar;
-    if(newW > 160)
-        newW = 160;
-    QSize newSz (newW, 80);
-    auto pixmap = m_icon.pixmap(newSz);
+    // fit to 80 pixels high, up to 160 wide for a wide one, as the instance view fits its icons
+    // (enlarged too: QIcon alone only scales its images down)
+    const QPixmap pixmap = IconUtils::fitted(m_icon, QSize(160, 80), devicePixelRatioF());
     m_label->setPixmap(pixmap);
     m_label->setMinimumHeight(80);
     m_label->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Preferred );
