@@ -935,6 +935,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/TierLever.h
     ui/widgets/ConsolePreview.cpp
     ui/widgets/ConsolePreview.h
+    ui/widgets/InstancePanel.cpp
+    ui/widgets/InstancePanel.h
     ui/widgets/ColorEdit.cpp
     ui/widgets/ColorEdit.h
     ui/widgets/ThemeSampleWidget.cpp

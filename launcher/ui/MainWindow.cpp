@@ -76,6 +76,7 @@
 #include "ui/instanceview/InstanceView.h"
 #include "ui/instanceview/InstanceDelegate.h"
 #include "ui/widgets/ElidedLabel.h"
+#include "ui/widgets/InstancePanel.h"
 #include "ui/widgets/LabeledToolButton.h"
 #include "ui/dialogs/NewInstanceDialog.h"
 #include "ui/dialogs/ProgressDialog.h"
@@ -260,6 +261,7 @@ public:
     QVector<TranslatedAction *> all_actions;
 
     LabeledToolButton *renameButton = nullptr;
+    InstancePanel *instancePanel = nullptr;
     LabeledToolButton *changeIconButton = nullptr;
 
     QMenu * foldersMenu = nullptr;
@@ -511,6 +513,8 @@ public:
         instanceToolBar->setToolButtonStyle(Qt::ToolButtonTextOnly);
         instanceToolBar->setFloatable(false);
         instanceToolBar->setWindowTitle(QT_TRANSLATE_NOOP("MainWindow", "Instance Toolbar"));
+        // its one item, which lays the header and the buttons out itself (InstancePanel)
+        instancePanel = new InstancePanel(instanceToolBar);
 
         // NOTE: not added to toolbar, but used for instance context menu (right click)
         actionChangeInstIcon = TranslatedAction(MainWindow);
@@ -526,7 +530,7 @@ public:
         changeIconButton->setIcon(APPLICATION->getThemedIcon("news"));
         changeIconButton->setToolTip(actionChangeInstIcon->toolTip());
         changeIconButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        instanceToolBar->addWidget(changeIconButton);
+        instancePanel->addHeaderWidget(changeIconButton);
 
         // NOTE: not added to toolbar, but used for instance context menu (right click)
         actionRenameInstance = TranslatedAction(MainWindow);
@@ -540,74 +544,74 @@ public:
         renameButton->setObjectName(QStringLiteral("renameButton"));
         renameButton->setToolTip(actionRenameInstance->toolTip());
         renameButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        instanceToolBar->addWidget(renameButton);
+        instancePanel->addHeaderWidget(renameButton);
 
         actionChangeInstGroup = TranslatedAction(MainWindow);
         actionChangeInstGroup->setObjectName(QStringLiteral("actionChangeInstGroup"));
         actionChangeInstGroup.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Change Group"));
         actionChangeInstGroup.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Change the selected instance's group."));
         all_actions.append(&actionChangeInstGroup);
-        instanceToolBar->addAction(actionChangeInstGroup);
+        instancePanel->addActionButton(actionChangeInstGroup);
 
-        instanceToolBar->addSeparator();
+        instancePanel->addSeparator();
 
         actionLaunchInstance = TranslatedAction(MainWindow);
         actionLaunchInstance->setObjectName(QStringLiteral("actionLaunchInstance"));
         all_actions.append(&actionLaunchInstance);
-        instanceToolBar->addAction(actionLaunchInstance);
+        instancePanel->addActionButton(actionLaunchInstance);
 
         actionLaunchInstanceOffline = TranslatedAction(MainWindow);
         actionLaunchInstanceOffline->setObjectName(QStringLiteral("actionLaunchInstanceOffline"));
         actionLaunchInstanceOffline.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Launch Offline"));
         actionLaunchInstanceOffline.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Launch the selected instance in offline mode."));
         all_actions.append(&actionLaunchInstanceOffline);
-        instanceToolBar->addAction(actionLaunchInstanceOffline);
+        instancePanel->addActionButton(actionLaunchInstanceOffline);
 
-        instanceToolBar->addSeparator();
+        instancePanel->addSeparator();
 
         actionEditInstance = TranslatedAction(MainWindow);
         actionEditInstance->setObjectName(QStringLiteral("actionEditInstance"));
         actionEditInstance.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Edit Instance"));
         actionEditInstance.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Change the instance settings, mods and versions."));
         all_actions.append(&actionEditInstance);
-        instanceToolBar->addAction(actionEditInstance);
+        instancePanel->addActionButton(actionEditInstance);
 
         actionEditInstNotes = TranslatedAction(MainWindow);
         actionEditInstNotes->setObjectName(QStringLiteral("actionEditInstNotes"));
         actionEditInstNotes.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Edit Notes"));
         actionEditInstNotes.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Edit the notes for the selected instance."));
         all_actions.append(&actionEditInstNotes);
-        instanceToolBar->addAction(actionEditInstNotes);
+        instancePanel->addActionButton(actionEditInstNotes);
 
         actionMods = TranslatedAction(MainWindow);
         actionMods->setObjectName(QStringLiteral("actionMods"));
         actionMods.setTextId(QT_TRANSLATE_NOOP("MainWindow", "View Mods"));
         actionMods.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "View the mods of this instance."));
         all_actions.append(&actionMods);
-        instanceToolBar->addAction(actionMods);
+        instancePanel->addActionButton(actionMods);
 
         actionWorlds = TranslatedAction(MainWindow);
         actionWorlds->setObjectName(QStringLiteral("actionWorlds"));
         actionWorlds.setTextId(QT_TRANSLATE_NOOP("MainWindow", "View Worlds"));
         actionWorlds.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "View the worlds of this instance."));
         all_actions.append(&actionWorlds);
-        instanceToolBar->addAction(actionWorlds);
+        instancePanel->addActionButton(actionWorlds);
 
         actionScreenshots = TranslatedAction(MainWindow);
         actionScreenshots->setObjectName(QStringLiteral("actionScreenshots"));
         actionScreenshots.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Manage Screenshots"));
         actionScreenshots.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "View and upload screenshots for this instance."));
         all_actions.append(&actionScreenshots);
-        instanceToolBar->addAction(actionScreenshots);
+        instancePanel->addActionButton(actionScreenshots);
 
-        instanceToolBar->addSeparator();
+        instancePanel->addSeparator();
 
         actionViewSelectedMCFolder = TranslatedAction(MainWindow);
         actionViewSelectedMCFolder->setObjectName(QStringLiteral("actionViewSelectedMCFolder"));
         actionViewSelectedMCFolder.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Minecraft Folder"));
         actionViewSelectedMCFolder.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the selected instance's minecraft folder in a file browser."));
         all_actions.append(&actionViewSelectedMCFolder);
-        instanceToolBar->addAction(actionViewSelectedMCFolder);
+        instancePanel->addActionButton(actionViewSelectedMCFolder);
 
         /*
         actionViewSelectedModsFolder = TranslatedAction(MainWindow);
@@ -615,7 +619,7 @@ public:
         actionViewSelectedModsFolder.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Mods Folder"));
         actionViewSelectedModsFolder.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the selected instance's mods folder in a file browser."));
         all_actions.append(&actionViewSelectedModsFolder);
-        instanceToolBar->addAction(actionViewSelectedModsFolder);
+        instancePanel->addActionButton(actionViewSelectedModsFolder);
         */
 
         actionConfig_Folder = TranslatedAction(MainWindow);
@@ -623,37 +627,37 @@ public:
         actionConfig_Folder.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Config Folder"));
         actionConfig_Folder.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the instance's config folder."));
         all_actions.append(&actionConfig_Folder);
-        instanceToolBar->addAction(actionConfig_Folder);
+        instancePanel->addActionButton(actionConfig_Folder);
 
         actionViewSelectedInstFolder = TranslatedAction(MainWindow);
         actionViewSelectedInstFolder->setObjectName(QStringLiteral("actionViewSelectedInstFolder"));
         actionViewSelectedInstFolder.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Instance Folder"));
         actionViewSelectedInstFolder.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Open the selected instance's root folder in a file browser."));
         all_actions.append(&actionViewSelectedInstFolder);
-        instanceToolBar->addAction(actionViewSelectedInstFolder);
+        instancePanel->addActionButton(actionViewSelectedInstFolder);
 
-        instanceToolBar->addSeparator();
+        instancePanel->addSeparator();
 
         actionCreateShortcut = TranslatedAction(MainWindow);
         actionCreateShortcut->setObjectName(QStringLiteral("actionCreateShortcut"));
         actionCreateShortcut.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Create Shortcut"));
         actionCreateShortcut.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Create a shortcut that launches the selected instance"));
         all_actions.append(&actionCreateShortcut);
-        instanceToolBar->addAction(actionCreateShortcut);
+        instancePanel->addActionButton(actionCreateShortcut);
 
         actionExportInstance = TranslatedAction(MainWindow);
         actionExportInstance->setObjectName(QStringLiteral("actionExportInstance"));
         actionExportInstance.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Export Instance"));
         actionExportInstance.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Export the selected instance as a zip file."));
         all_actions.append(&actionExportInstance);
-        instanceToolBar->addAction(actionExportInstance);
+        instancePanel->addActionButton(actionExportInstance);
 
         actionDeleteInstance = TranslatedAction(MainWindow);
         actionDeleteInstance->setObjectName(QStringLiteral("actionDeleteInstance"));
         actionDeleteInstance.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Delete"));
         actionDeleteInstance.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Delete the selected instance."));
         all_actions.append(&actionDeleteInstance);
-        instanceToolBar->addAction(actionDeleteInstance);
+        instancePanel->addActionButton(actionDeleteInstance);
 
         actionCopyInstance = TranslatedAction(MainWindow);
         actionCopyInstance->setObjectName(QStringLiteral("actionCopyInstance"));
@@ -661,8 +665,9 @@ public:
         actionCopyInstance.setTextId(QT_TRANSLATE_NOOP("MainWindow", "Copy Instance"));
         actionCopyInstance.setTooltipId(QT_TRANSLATE_NOOP("MainWindow", "Copy the selected instance."));
         all_actions.append(&actionCopyInstance);
-        instanceToolBar->addAction(actionCopyInstance);
+        instancePanel->addActionButton(actionCopyInstance);
 
+        instanceToolBar->addWidget(instancePanel);
         all_toolbars.append(&instanceToolBar);
         MainWindow->addToolBar(Qt::RightToolBarArea, instanceToolBar);
     }
@@ -887,7 +892,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new MainWindow
 
     // Tool bars make the buttons for their actions: name them after the actions, so custom
     // themes' stylesheets can pick them out (QToolButton#actionLaunchInstance)
-    for(QToolBar *toolBar: QList<QToolBar *>{ui->mainToolBar, ui->instanceToolBar, ui->newsToolBar})
+    // (the instance panel names its own: InstancePanel)
+    for(QToolBar *toolBar: QList<QToolBar *>{ui->mainToolBar, ui->newsToolBar})
     {
         for(QAction *action: toolBar->actions())
         {
@@ -989,13 +995,9 @@ void MainWindow::showInstanceContextMenu(const QPoint &pos)
     bool onInstance = view->indexAt(pos).isValid();
     if (onInstance)
     {
-        actions = ui->instanceToolBar->actions();
-
-        // replace the change icon widget with an actual action
-        actions.replace(0, ui->actionChangeInstIcon);
-
-        // replace the rename widget with an actual action
-        actions.replace(1, ui->actionRenameInstance);
+        // the panel's: actions for its header (the icon, the name), then its buttons
+        actions = {ui->actionChangeInstIcon, ui->actionRenameInstance};
+        actions += ui->instancePanel->menuActions();
 
         // add header
         actions.prepend(actionSep);
@@ -1060,7 +1062,7 @@ void setPopupMode(QToolButton *button, QToolButton::ToolButtonPopupMode mode)
 
 void MainWindow::updateToolsMenu()
 {
-    QToolButton *exportButton = dynamic_cast<QToolButton*>(ui->instanceToolBar->widgetForAction(ui->actionExportInstance));
+    QToolButton *exportButton = dynamic_cast<QToolButton*>(ui->instancePanel->buttonForAction(ui->actionExportInstance));
     setPopupMode(exportButton, QToolButton::MenuButtonPopup);
 
     QMenu *exportMenu = ui->actionExportInstance->menu();
@@ -1087,8 +1089,8 @@ void MainWindow::updateToolsMenu()
 
     ui->actionExportInstance->setMenu(exportMenu);
 
-    QToolButton *launchButton = dynamic_cast<QToolButton*>(ui->instanceToolBar->widgetForAction(ui->actionLaunchInstance));
-    QToolButton *launchOfflineButton = dynamic_cast<QToolButton*>(ui->instanceToolBar->widgetForAction(ui->actionLaunchInstanceOffline));
+    QToolButton *launchButton = dynamic_cast<QToolButton*>(ui->instancePanel->buttonForAction(ui->actionLaunchInstance));
+    QToolButton *launchOfflineButton = dynamic_cast<QToolButton*>(ui->instancePanel->buttonForAction(ui->actionLaunchInstanceOffline));
 
     if(!m_selectedInstance || m_selectedInstance->isRunning())
     {

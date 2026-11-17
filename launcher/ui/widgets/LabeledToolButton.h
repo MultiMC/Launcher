@@ -38,5 +38,5 @@ protected:
     void resizeEvent(QResizeEvent * event);
     bool event(QEvent * event) override;
     void resetIcon();
-    void keepWholeIcon();
+    void keepWholeContent();
 };
