@@ -48,12 +48,15 @@ QString LabeledToolButton::text() const
 void LabeledToolButton::setText(const QString & text)
 {
     m_label->setText(text);
+    keepWholeContent();
 }
 
 void LabeledToolButton::setIcon(QIcon icon)
 {
     m_icon = icon;
     resetIcon();
+    // a picture instead of text, or another one: another height
+    keepWholeContent();
 }
 
 
@@ -94,6 +97,11 @@ void LabeledToolButton::resizeEvent(QResizeEvent * event)
     {
         resetIcon();
     }
+    // a new width wraps the text into more or fewer lines
+    if(event->size().width() != event->oldSize().width())
+    {
+        keepWholeContent();
+    }
     QWidget::resizeEvent(event);
 }
 
@@ -103,17 +111,31 @@ bool LabeledToolButton::event(QEvent * event)
     // after a stylesheet had its say (it polishes the button, then the style changes)
     if (event->type() == QEvent::Polish || event->type() == QEvent::StyleChange)
     {
-        keepWholeIcon();
+        keepWholeContent();
     }
     return result;
 }
 
-// A stylesheet's min-height on tool buttons (Ore UI has one) is an explicit minimum, which
-// layouts take over the size hint: a crowded tool bar squeezed the button and the label cut the
-// icon off, more or less with the window's height. Never smaller than the icon and text.
-void LabeledToolButton::keepWholeIcon()
+// Never smaller than what's on it, as a minimum: a layout short of room squeezes widgets down to
+// their minimums (the instance tool bar does), and the label cut the icon off, or clipped a long
+// name and moved it around, with the window's height. A stylesheet's min-height (Ore UI has one)
+// is a minimum too, which layouts take over the size hint. Text wraps: its height is the one at
+// the button's width (the size hint's is for one line).
+// Not fixed by this: Qt 5's tool bar can still place the name over the icon when it runs out of
+// room (Design/Theming.md, "The instance tool bar", 2026-11-17).
+void LabeledToolButton::keepWholeContent()
 {
-    setMinimumHeight(sizeHint().height());
+    // the label is 4 pixels in from each edge (resizeEvent), which the style's size hint
+    // doesn't know about
+    int height = qMax(sizeHint().height(), m_label->sizeHint().height() + 8);
+    if(m_icon.isNull() && width() > 8)
+    {
+        height = qMax(height, m_label->heightForWidth(width() - 8) + 8);
+    }
+    if(height != minimumHeight())
+    {
+        setMinimumHeight(height);
+    }
 }
 
 void LabeledToolButton::resetIcon()
