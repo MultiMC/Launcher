@@ -1,3 +1,9 @@
+/* Copyright 2026 Petr Mrázek
+ *
+ * This source is subject to the Microsoft Permissive License (MS-PL).
+ * Please see the COPYING.md file for more information.
+ */
+
 #pragma once
 // Shared by updater v2's unit tests: the test trees from make-test-trees.py
 

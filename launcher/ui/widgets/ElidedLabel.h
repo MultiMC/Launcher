@@ -1,3 +1,9 @@
+/* Copyright 2026 Petr Mrázek
+ *
+ * This source is subject to the Microsoft Permissive License (MS-PL).
+ * Please see the COPYING.md file for more information.
+ */
+
 #pragma once
 
 #include <QLabel>

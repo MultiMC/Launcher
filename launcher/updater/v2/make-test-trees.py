@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# Copyright 2026 Petr Mrázek
+#
+# This source is subject to the Microsoft Permissive License (MS-PL).
+# Please see the COPYING.md file for more information.
+
 """Make updater v2's test trees in testdata/trees, for the unit tests next to this script.
 
     launcher/updater/v2/make-test-trees.py <hopper checkout>
