@@ -5,6 +5,7 @@
  */
 
 #include <QAction>
+#include "ui/GuiUtil.h"
 #include <QStatusBar>
 
 #include "AccountsDialog.h"
@@ -152,7 +153,7 @@ AccountsDialog::AccountsDialog(QWidget *parent, const QString& internalId) : QDi
 
     setNameStatus(NameStatus::NotSet, QString());
 
-    restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("AccountsDialogGeometry").toByteArray()));
+    GuiUtil::restoreDialogGeometry(this, "AccountsDialogGeometry");
     ui->splitter->restoreState(QByteArray::fromBase64(APPLICATION->settings()->get("AccountsDialogSplitterState").toByteArray()));
 }
 
@@ -164,7 +165,7 @@ AccountsDialog::~AccountsDialog()
 void AccountsDialog::closeEvent(QCloseEvent* event)
 {
     APPLICATION->settings()->set("AccountsDialogSplitterState", ui->splitter->saveState().toBase64());
-    APPLICATION->settings()->set("AccountsDialogGeometry", saveGeometry().toBase64());
+    GuiUtil::saveDialogGeometry(this, "AccountsDialogGeometry");
     QDialog::closeEvent(event);
 }
 

@@ -14,6 +14,7 @@
  */
 
 #include "PageDialog.h"
+#include "ui/GuiUtil.h"
 
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -46,7 +47,7 @@ PageDialog::PageDialog(BasePageProvider *pageProvider, QString defaultId, QWidge
     connect(buttons->button(QDialogButtonBox::Close), SIGNAL(clicked()), this, SLOT(close()));
     connect(buttons->button(QDialogButtonBox::Help), SIGNAL(clicked()), m_container, SLOT(help()));
 
-    restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toByteArray()));
+    GuiUtil::restoreDialogGeometry(this, "PagedGeometry");
 }
 
 void PageDialog::closeEvent(QCloseEvent *event)
@@ -55,7 +56,7 @@ void PageDialog::closeEvent(QCloseEvent *event)
     if (m_container->prepareToClose())
     {
         qDebug() << "Paged dialog close approved";
-        APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
+        GuiUtil::saveDialogGeometry(this, "PagedGeometry");
         qDebug() << "Paged dialog geometry saved";
         QDialog::closeEvent(event);
     }

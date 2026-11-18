@@ -1,4 +1,5 @@
 #include "UpdateDialog.h"
+#include "ui/GuiUtil.h"
 #include "ui_UpdateDialog.h"
 #include <QDebug>
 #include "Application.h"
@@ -25,7 +26,7 @@ UpdateDialog::UpdateDialog(bool hasUpdate, QWidget *parent, const QString &targe
     }
     ui->changelogBrowser->setHtml(tr("<center><h1>Loading changelog...</h1></center>"));
     loadChangelog();
-    restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("UpdateDialogGeometry").toByteArray()));
+    GuiUtil::restoreDialogGeometry(this, "UpdateDialogGeometry");
 }
 
 UpdateDialog::~UpdateDialog()
@@ -191,6 +192,6 @@ void UpdateDialog::on_btnUpdateNow_clicked()
 
 void UpdateDialog::closeEvent(QCloseEvent* evt)
 {
-    APPLICATION->settings()->set("UpdateDialogGeometry", saveGeometry().toBase64());
+    GuiUtil::saveDialogGeometry(this, "UpdateDialogGeometry");
     QDialog::closeEvent(evt);
 }

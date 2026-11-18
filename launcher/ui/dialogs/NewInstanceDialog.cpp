@@ -14,6 +14,7 @@
  */
 
 #include "Application.h"
+#include "ui/GuiUtil.h"
 #include "NewInstanceDialog.h"
 #include "ui_NewInstanceDialog.h"
 
@@ -107,18 +108,18 @@ NewInstanceDialog::NewInstanceDialog(const QString & initialGroup, const QString
 
     updateDialogState();
 
-    restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("NewInstanceGeometry").toByteArray()));
+    GuiUtil::restoreDialogGeometry(this, "NewInstanceGeometry");
 }
 
 void NewInstanceDialog::reject()
 {
-    APPLICATION->settings()->set("NewInstanceGeometry", saveGeometry().toBase64());
+    GuiUtil::saveDialogGeometry(this, "NewInstanceGeometry");
     QDialog::reject();
 }
 
 void NewInstanceDialog::accept()
 {
-    APPLICATION->settings()->set("NewInstanceGeometry", saveGeometry().toBase64());
+    GuiUtil::saveDialogGeometry(this, "NewInstanceGeometry");
     importIconNow();
     QDialog::accept();
 }
@@ -277,5 +278,5 @@ void NewInstanceDialog::importIconNow()
         InstIconKey = importIconName;
         importIcon = false;
     }
-    APPLICATION->settings()->set("NewInstanceGeometry", saveGeometry().toBase64());
+    GuiUtil::saveDialogGeometry(this, "NewInstanceGeometry");
 }
