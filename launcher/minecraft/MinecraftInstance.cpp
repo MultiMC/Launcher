@@ -398,6 +398,14 @@ QStringList MinecraftInstance::javaArguments() const
         }
     }
 
+    // CVE-2026-114938: the AVX-512 Base64 decoder intrinsic writes out of bounds on malformed input.
+    // The flag exists since Java 9; Java 8 refuses to start with it (and has no such intrinsic).
+    // It comes after the custom args, so it also wins over them.
+    if(javaVersion.major() >= 9)
+    {
+        args << "-XX:-UseBASE64Intrinsics";
+    }
+
     args << "-Duser.language=en";
 
     return args;
