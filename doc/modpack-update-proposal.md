@@ -6,6 +6,13 @@ behavior. This responds to the request in
 to define pack updates before proposing an implementation. The code in that PR
 is an experiment; it should not determine the answers below.
 
+The [November 12 feedback](https://github.com/MultiMC/Launcher/pull/5793#issuecomment-6835137839)
+asks for planning across pack formats and a discussion of implementation order
+on Discord. The maintainer is also working on a new launcher update mechanism
+to support experiments without affecting users who do not want them. Its design
+and availability are not established here. Agree on how this work fits that
+effort before adding runtime changes or exposing the prototype to users.
+
 ## Problem and scope
 
 A player has installed a pack release, changed settings, and possibly added,
@@ -17,11 +24,38 @@ to their latest versions is a separate operation. Preserving files does not
 guarantee that the resulting mods will work together or interpret settings in
 the same way.
 
-The proposed first scope is an explicitly requested update of a Modrinth pack
-with a known original release, on the same Minecraft version and loader family.
-This is a scope proposal, not a requirement that the underlying instance model
-be specific to Modrinth. Other providers, Minecraft migrations, loader-family
-changes, automatic updates, and arbitrary configuration merging are deferred.
+The proposal covers explicitly requested updates across pack formats. The first
+implementation's formats and order need agreement; Modrinth is the prototype's
+format, not a settled first milestone. Keeping Minecraft and loader family fixed
+is still a proposed initial limit. Minecraft migrations, loader-family changes,
+automatic updates, and arbitrary configuration merging are deferred.
+
+## Differences between pack sources
+
+The existing import paths provide concrete cases to discuss. This is an inventory
+of this checkout, not a claim that each source already supports pack updates.
+
+| Existing path | What the shared behavior must account for |
+| --- | --- |
+| Modrinth (`InstanceImportTask::processModrinth`) | Manifest files, overrides, and client requirements; a local archive need not identify a remote project/release. |
+| ATLauncher (`ATLPackInstallTask`, `ATLPackManifest`) | Optional selections, dependencies, separate config archives, and extraction rules; installation is more than copying a list of JARs. |
+| Technic (`SolderPackInstallTask`, `SingleZipPackInstallTask`) | Solder builds download and extract multiple archives; a single-ZIP pack follows a different path. Download identity is not installed-file identity. |
+| Legacy FTB and FTB App import (`LegacyFTB::PackInstallTask`, `ImportFTB::PackInstallTask`) | Installing a published pack and copying an already installed directory provide different evidence of original content and user changes. |
+| MultiMC instance archive (`InstanceImportTask::processMultiMC`) | An instance snapshot does not by itself establish an update source or distinguish pack content from user content. |
+
+Before choosing a common representation, walk through a manifest-based pack and
+an archive/extraction-based pack, including optional selections. Identify which
+information each importer actually has and what needs recording at installation.
+Do not make Modrinth IDs, URLs, hashes, or release labels prerequisites for all
+formats. Missing provenance or unsupported install operations must be explicit;
+do not invent it from filenames. These cases should guide reuse of existing
+import code rather than the creation of another parallel installer framework.
+
+`BaseInstance` already stores managed-pack type, ID, name, and version through
+`setManagedPack()`; ATLauncher already uses it. Start the provenance discussion
+there. Those fields identify a pack but do not record per-file ownership or
+optional selections. Agree on how to extend or complement them before adding
+another provider-specific source of truth.
 
 ## Information needed to make a decision
 
@@ -50,11 +84,14 @@ model are open design decisions.
 
 1. The user requests a pack update. The launcher identifies the installed pack
    and release, or explains why they need to be linked first.
-2. Show eligible target releases. Recommend a newer stable release of the same
-   project and distinguish “no newer release” from “newer releases require a
-   different Minecraft version or loader family.” Validate the actual target
-   requirements as well as the provider's listing. Do not compare display version
-   strings as if all packs used semantic versioning.
+2. Show eligible target releases from the same pack source. Where the source has
+   release ordering and stable/recommended labels, use their defined meanings;
+   otherwise require an explicit target instead of guessing a “latest” release.
+   Distinguish “no newer release,” “target cannot be determined,” and “newer
+   releases require a different Minecraft version or loader family.” Validate
+   actual target requirements as well as any provider listing. Do not assume
+   display version strings use semantic versioning or all sources have the same
+   release metadata.
 3. Compare the old release, local instance, and target. Show pack versions,
    component changes, additions, replacements, removals, preserved local changes,
    conflicts, changelog, expected downloads, and required working/backup space.
@@ -145,6 +182,11 @@ an in-place journal, full snapshot, or directory replacement strategy.
   an unavailable backup produces a recoverable error, not a successful launch.
 - Undo after playing preserves new world progress and warns about later edits to
   files it would replace. Copy/export does not carry an active transaction.
+- A manifest-based source and an archive/extraction-based source produce the
+  same local-change outcomes for equivalent installed content. Unknown provenance
+  produces an explicit limitation; optional selections survive either path.
+- Users outside the agreed experiment retain their existing launch/import flow
+  without new pack-update prompts or changes to their instances.
 
 Small local fixtures should exercise these cases deterministically. Real-pack
 tests supplement them and should be optional and pinned to exact releases.
@@ -153,17 +195,38 @@ validation work; a passing planner test does not demonstrate pack compatibility.
 
 ## Decisions needed before another implementation
 
-1. Should updates modify an existing instance or create a replacement instance
+1. Which formats should be addressed first, and what work can proceed alongside
+   the launcher update mechanism? How will users opt into and leave experiments?
+2. Should updates modify an existing instance or create a replacement instance
    for the user to switch to? What identity and local data must carry over?
-2. Where should provenance, local selections, and managed content live within
+3. Where should provenance, local selections, and managed content live within
    MultiMC's instance/component model? What can import and update share?
-3. Are the proposed conflict and configuration policies acceptable, particularly
+4. Are the proposed conflict and configuration policies acceptable, particularly
    deleted files, new optional mods, and required pack configuration changes?
-4. Is fixing Minecraft and loader family a useful first scope? Should the user
+5. Is fixing Minecraft and loader family a useful first scope? Should the user
    choose targets, and should prereleases or downgrades ever be offered?
-5. What recovery and undo guarantees justify the storage and maintenance costs?
+6. What recovery and undo guarantees justify the storage and maintenance costs?
 
-Once those decisions are agreed, implementation can be proposed in small pieces:
-shared import/provenance handling, a read-only comparison with tests, then an
-instance operation with failure/recovery tests, and finally the UI. The existing
-prototype is not a prerequisite for accepting this behavior proposal.
+## Proposed order for discussion
+
+1. Discuss the questions above with the maintainer on
+   [MultiMC's Discord](https://discord.gg/multimc), as requested in the review and
+   the repository's contribution guidance. Record the agreed first change and
+   experiment boundary; this sequence is a suggestion, not an approved roadmap.
+2. Compare two different import paths with small local examples. Agree on pack
+   identity, installed-file provenance, and optional-selection semantics before
+   changing their representation. Existing import behavior must remain intact.
+3. Propose the smallest shared import/provenance change that discussion supports,
+   with focused tests. Review it independently of the prototype's updater.
+4. Add read-only comparison and conflict tests for both formats. Review the
+   results before introducing any instance writes.
+5. Once the instance operation and recovery approach are agreed, implement and
+   test failures, cancellation, and undo in isolation from the UI.
+6. Expose the flow through the maintainer's agreed experiment mechanism when it
+   is ready. Verify opt-in behavior and Windows/Linux/macOS execution before
+   proposing wider availability.
+
+Do not create a competing launcher update mechanism or assume a feature flag,
+release channel, or delivery date. The existing prototype remains reference
+material; this proposal does not request merging it or implementing every format
+at once.

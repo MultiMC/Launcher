@@ -5,6 +5,16 @@ reading of the implementation, not a claim to recover the original agent's
 private reasoning. The [behavior proposal](modpack-update-proposal.md) is the
 starting point for discussion; the prototype is not an agreed architecture.
 
+## Latest feedback and response
+
+In the [November 12 comment](https://github.com/MultiMC/Launcher/pull/5793#issuecomment-6835137839),
+peterix supports pursuing pack updates, asks to discuss order on Discord, and
+points out both the launcher update work and the need to consider other formats.
+The proposal now compares existing import paths, identifies the existing
+`BaseInstance::setManagedPack()` metadata, and suggests small reviewable steps
+with an agreed experiment boundary. Modrinth is no longer assumed to be the
+first implementation. Runtime changes wait for that design discussion.
+
 ## Why the prototype took these approaches
 
 | Approach | Problem it addresses | Cost or assumption to revisit |
@@ -49,19 +59,12 @@ prototype before agreeing on behavior. The proposed next step is to settle the
 questions in the behavior proposal, then make small changes along MultiMC's
 existing boundaries. No new architecture is assumed approved by this document.
 
-## Suggested reply (not posted)
+## Suggested Discord opener (not posted)
 
-I moved too quickly from a use case to an implementation. I've written a behavior
-proposal covering local changes, optional/disabled mods, conflicts, cancellation,
-and recovery, with the unresolved policy questions called out separately.
+Hi peterix, I'm the author of PR #5793. Thanks for inviting me here. I've revised
+the proposal to consider the existing ATLauncher, Technic, FTB, and MultiMC import
+paths alongside Modrinth. I'd like to agree on a small first step that fits your
+launcher update work. Would comparing provenance and optional selections in two
+import paths be useful, or is there a different prerequisite you'd prefer first?
 
-The prototype used a hash baseline to identify unchanged pack files, preserved
-settings to avoid overwriting player choices, and staged/journaled writes to
-recover from interrupted in-place updates. Those choices also created a separate
-ownership/recovery system, duplicated manifest handling, and too much orchestration
-in the dialog. Reusing NetJob did not resolve those architectural issues.
-
-The dense control flow needs work. The Python addition is an optional fixture
-downloader, but its maintenance cost also needs justification. I'd like to agree
-on what updates should do and how that fits the instance model before pursuing
-the implementation further. The existing code should be treated as an experiment.
+Proposal: https://github.com/nikhil-iso/Launcher/blob/codex/modpack-updater/doc/modpack-update-proposal.md
