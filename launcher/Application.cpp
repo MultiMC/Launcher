@@ -707,6 +707,8 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         m_settings->registerSetting("InstanceDir", "instances");
         m_settings->registerSetting({"CentralModsDir", "ModsDir"}, "mods");
         m_settings->registerSetting("IconsDir", "icons");
+        // the icon key instances without an icon of their own show; empty: MultiMC's logo
+        m_settings->registerSetting("DefaultInstanceIcon", QString());
         m_settings->registerSetting("SkinsDir", "skins");
 
         // Editors
@@ -881,6 +883,24 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         connect(setting.get(), &Setting::SettingChanged,[&](const Setting &, QVariant value)
         {
             m_icons->directoryChanged(value.toString());
+        });
+        auto defaultIcon = m_settings->getSetting("DefaultInstanceIcon");
+        m_icons->setDefaultIcon(defaultIcon->get().toString());
+        connect(defaultIcon.get(), &Setting::SettingChanged, [&](const Setting &, QVariant value)
+        {
+            m_icons->setDefaultIcon(value.toString());
+        });
+        // a renamed icon: the instances using it, and the default, follow it
+        connect(m_icons.get(), &IconList::iconRenamed, [&](QString oldKey, QString newKey)
+        {
+            for (int i = 0; m_instances && i < m_instances->count(); i++)
+            {
+                auto instance = m_instances->at(i);
+                if (instance->iconKey() == oldKey)
+                    instance->setIconKey(newKey);
+            }
+            if (m_settings->get("DefaultInstanceIcon").toString() == oldKey)
+                m_settings->set("DefaultInstanceIcon", newKey);
         });
         qDebug() << "<> Instance icons intialized.";
     }

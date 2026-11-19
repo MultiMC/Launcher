@@ -34,14 +34,22 @@ public:
     int execWithSelection(QString selection);
     QString selectedIconKey;
 
+public slots:
+    void accept() override;
+
 protected:
     virtual bool eventFilter(QObject *, QEvent *);
 
 private:
     Ui::IconPickerDialog *ui;
     QPushButton *buttonRemove;
+    QPushButton *buttonRename;
+    QPushButton *buttonDefault;
+    // the key it opened with: "default" stays that when the default icon is picked
+    QString initialKey;
 
-    void updateRemoveButton();
+    void updateButtons();
+    void selectIcon(const QString &key);
 
 private
 slots:
@@ -50,5 +58,7 @@ slots:
     void delayed_scroll(QModelIndex);
     void addNewIcon();
     void removeSelectedIcon();
+    void renameSelectedIcon();
+    void setSelectedAsDefault();
     void openFolder();
 };

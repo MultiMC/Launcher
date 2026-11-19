@@ -40,6 +40,16 @@ public:
     int getIconIndex(const QString &key) const;
     QString getDirectory() const;
 
+    /// What the key "default" shows, for instances without an icon of their own: the icon set
+    /// as the default (setting DefaultInstanceIcon) while it's there, else MultiMC's logo
+    QString defaultIconKey() const;
+    /// Empty, "default" or "logo": MultiMC's logo
+    void setDefaultIcon(const QString &key);
+
+    /// Renames an icon from the icons folder: its file, extension kept. Empty when it worked,
+    /// else why not, for the user. Instances follow through iconRenamed.
+    QString renameIcon(const QString &key, const QString &newKey);
+
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
@@ -64,6 +74,8 @@ public:
 
 signals:
     void iconUpdated(QString key);
+    /// An icon has a new name: whatever used the old one should use the new one
+    void iconRenamed(QString oldKey, QString newKey);
 
 private:
     // hide copy constructor
@@ -71,6 +83,8 @@ private:
     // hide assign op
     IconList &operator=(const IconList &) = delete;
     void reindex();
+    /// iconUpdated for the key, and for "default" when it's the default icon
+    void notifyUpdated(const QString &key);
 
 public slots:
     void directoryChanged(const QString &path);
@@ -85,4 +99,6 @@ private:
     QVector<MMCIcon> icons;
     QDir m_dir;
     QIcon m_logoIcon;
+    // the icon set as the default, as set: empty for the logo
+    QString m_defaultKey;
 };

@@ -120,7 +120,7 @@ void IconList::directoryChanged(const QString &path)
             dataChanged(index(idx), index(idx));
         }
         m_watcher->removePath(remove);
-        emit iconUpdated(key);
+        notifyUpdated(key);
     }
 
     for (auto add : to_add)
@@ -131,7 +131,7 @@ void IconList::directoryChanged(const QString &path)
         if (addIcon(key, QString(), addfile.filePath(), IconType::FileBased))
         {
             m_watcher->addPath(add);
-            emit iconUpdated(key);
+            notifyUpdated(key);
         }
     }
 }
@@ -152,7 +152,7 @@ void IconList::fileChanged(const QString &path)
 
     icons[idx].m_images[IconType::FileBased].icon = icon;
     dataChanged(index(idx), index(idx));
-    emit iconUpdated(key);
+    notifyUpdated(key);
 }
 
 void IconList::SettingChanged(const Setting &setting, QVariant value)
@@ -438,7 +438,7 @@ QIcon IconList::getIcon(const QString &key) const
 
 int IconList::getIconIndex(const QString &key) const
 {
-    auto iter = name_index.find(key == "default" ? "logo" : key);
+    auto iter = name_index.find(key == "default" ? defaultIconKey() : key);
     if (iter != name_index.end())
         return *iter;
 
@@ -451,3 +451,68 @@ QString IconList::getDirectory() const
 }
 
 //#include "IconList.moc"
+
+void IconList::notifyUpdated(const QString &key)
+{
+    emit iconUpdated(key);
+    if (!m_defaultKey.isEmpty() && key == m_defaultKey)
+        emit iconUpdated("default");
+}
+
+QString IconList::defaultIconKey() const
+{
+    if (!m_defaultKey.isEmpty() && name_index.contains(m_defaultKey))
+        return m_defaultKey;
+    return "logo";
+}
+
+void IconList::setDefaultIcon(const QString &key)
+{
+    const QString newKey = (key == "default" || key == "logo") ? QString() : key;
+    if (newKey == m_defaultKey)
+        return;
+    const int before = getIconIndex("default");
+    m_defaultKey = newKey;
+    const int after = getIconIndex("default");
+    // the icons that stopped and started being the default, and everything showing "default"
+    if (before != -1)
+        emit dataChanged(index(before), index(before));
+    if (after != -1)
+        emit dataChanged(index(after), index(after));
+    emit iconUpdated("default");
+}
+
+QString IconList::renameIcon(const QString &key, const QString &newKey)
+{
+    auto entry = icon(key);
+    if (key == "default" || !entry || !entry->has(IconType::FileBased))
+        return tr("Only icons from the icons folder can be renamed.");
+    if (newKey == key)
+        return QString();
+    if (newKey.isEmpty())
+        return tr("An icon needs a name.");
+    // the key is the file's name up to the first dot; ':' is kept for namespaced keys; the rest
+    // can't be in file names on Windows
+    static const QString forbidden = QStringLiteral(".:/\\<>\"|?*");
+    for (auto c : newKey)
+    {
+        if (forbidden.contains(c) || c.unicode() < 0x20)
+            return tr("An icon's name can't contain any of these: %1").arg(". : / \\ < > \" | ? *");
+    }
+    if (newKey == "default" || newKey == "logo" || name_index.contains(newKey))
+        return tr("There already is an icon called \"%1\".").arg(newKey);
+
+    const QFileInfo file(entry->m_images[IconType::FileBased].filename);
+    const QString target = m_dir.filePath(file.suffix().isEmpty() ? newKey : newKey + "." + file.suffix());
+    if (QFileInfo::exists(target))
+        return tr("There already is a file called \"%1\" in the icons folder.").arg(QFileInfo(target).fileName());
+    if (!QFile::rename(file.filePath(), target))
+        return tr("The file \"%1\" couldn't be renamed.").arg(file.fileName());
+
+    // the list as the folder is now, without waiting for the watcher
+    directoryChanged(m_dir.absolutePath());
+    if (m_defaultKey == key)
+        m_defaultKey = newKey;
+    emit iconRenamed(key, newKey);
+    return QString();
+}

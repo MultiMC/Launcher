@@ -28,7 +28,10 @@ struct InstanceViewRoles
     {
         GroupRole = Qt::UserRole,
         ProgressValueRole,
-        ProgressMaximumRole
+        ProgressMaximumRole,
+        // theme icon names to draw on an item's icon as badges, for items that aren't
+        // instances (QStringList)
+        BadgesRole
     };
 };
 

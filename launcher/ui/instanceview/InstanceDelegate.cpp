@@ -146,14 +146,10 @@ void drawProgressOverlay(QPainter *painter, const QStyleOptionViewItem &option,
     painter->restore();
 }
 
-// The instance's badges (running or broken, an update), as KDE draws icon overlays: a third of
-// the icon's size, each in a corner of it, sticking out a little into the space around it:
-// bottom left first, then bottom right, top right, top left (mirrored right to left).
-// iconRect: the square the icon is fit in.
-void drawBadges(QPainter *painter, const QRect &iconRect, int iconSize, Qt::LayoutDirection direction, BaseInstance *instance,
-                QIcon::Mode mode, QIcon::State state)
+// An instance's badges: running or broken, an update
+QStringList instanceBadges(BaseInstance *instance)
 {
-    QList<QString> badges;
+    QStringList badges;
     if (instance->isRunning())
     {
         badges.append("status-running");
@@ -166,7 +162,16 @@ void drawBadges(QPainter *painter, const QRect &iconRect, int iconSize, Qt::Layo
     {
         badges.append("checkupdate");
     }
+    return badges;
+}
 
+// Badges (theme icon names), as KDE draws icon overlays: a third of the icon's size, each in a
+// corner of it, sticking out a little into the space around it: bottom left first, then bottom
+// right, top right, top left (mirrored right to left).
+// iconRect: the square the icon is fit in.
+void drawBadges(QPainter *painter, const QRect &iconRect, int iconSize, Qt::LayoutDirection direction, const QStringList &badges,
+                QIcon::Mode mode, QIcon::State state)
+{
     const int side = qMax(12, iconSize / 3);
     // how far out of the icon: a quarter of a badge, but not over the name below it or past the
     // item's edge above it
@@ -287,14 +292,16 @@ void ListViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         line.draw(painter, position);
     }
 
-    // the badges (running, crashed, update) on the icon's bottom corner
-    // FIXME: this really has no business of being here. Make generic.
+    // the badges on the icon's corners: an instance's (running, crashed, update), or what the
+    // model gives (the default icon's check mark in the icon picker)
+    // FIXME: instances could give theirs through BadgesRole too
     auto instance = (BaseInstance*)index.data(InstanceList::InstancePointerRole)
             .value<void *>();
-    if (instance)
+    const QStringList badges = instance ? instanceBadges(instance) : index.data(InstanceViewRoles::BadgesRole).toStringList();
+    if (!badges.isEmpty())
     {
         // on the square the icon is fit in, so they're in the same places on every item
-        drawBadges(painter, QStyle::alignedRect(opt.direction, Qt::AlignCenter, QSize(iconSize, iconSize), iconbox), iconSize, opt.direction, instance, mode, state);
+        drawBadges(painter, QStyle::alignedRect(opt.direction, Qt::AlignCenter, QSize(iconSize, iconSize), iconbox), iconSize, opt.direction, badges, mode, state);
     }
 
     // the progress of a launch or an update, over all of it

@@ -16,6 +16,8 @@
 #include <QKeyEvent>
 #include <QPushButton>
 #include <QFileDialog>
+#include <QMessageBox>
+#include <QTimer>
 
 #include "Application.h"
 
@@ -23,6 +25,7 @@
 #include "ui_IconPickerDialog.h"
 
 #include "ui/instanceview/InstanceDelegate.h"
+#include "IconPickerModel.h"
 
 #include "icons/IconList.h"
 #include "icons/IconUtils.h"
@@ -59,20 +62,40 @@ IconPickerDialog::IconPickerDialog(QWidget *parent)
 
     contentsWidget->installEventFilter(this);
 
-    contentsWidget->setModel(APPLICATION->icons().get());
+    // renamed in place with F2 or Rename Icon; a double click picks the icon
+    contentsWidget->setEditTriggers(QAbstractItemView::EditKeyPressed);
+    contentsWidget->setModel(new IconPickerModel(APPLICATION->icons().get(), [this](const QString &key, const QString &newKey) {
+        const QString error = APPLICATION->icons()->renameIcon(key, newKey);
+        if (!error.isEmpty())
+        {
+            QMessageBox::warning(this, tr("Can't rename the icon"), error);
+            // back to the icons, for another try (F2)
+            ui->iconView->setFocus();
+            return false;
+        }
+        // the renamed icon, where it is in the list now, once the editor is gone
+        QTimer::singleShot(0, this, [this, newKey]() { selectIcon(newKey); });
+        return true;
+    }, this));
 
     // NOTE: ResetRole forces the button to be on the left, while the OK/Cancel ones are on the right. We win.
     auto buttonAdd = ui->buttonBox->addButton(tr("Add Icon"), QDialogButtonBox::ResetRole);
     buttonRemove = ui->buttonBox->addButton(tr("Remove Icon"), QDialogButtonBox::ResetRole);
+    buttonRename = ui->buttonBox->addButton(tr("Rename Icon"), QDialogButtonBox::ResetRole);
+    buttonDefault = ui->buttonBox->addButton(tr("Set as Default"), QDialogButtonBox::ResetRole);
+    buttonDefault->setToolTip(tr("Show this icon for new instances, and for instances without an icon of their own."));
 
     connect(buttonAdd, SIGNAL(clicked(bool)), SLOT(addNewIcon()));
     connect(buttonRemove, SIGNAL(clicked(bool)), SLOT(removeSelectedIcon()));
+    connect(buttonRename, &QPushButton::clicked, this, &IconPickerDialog::renameSelectedIcon);
+    connect(buttonDefault, &QPushButton::clicked, this, &IconPickerDialog::setSelectedAsDefault);
 
     connect(contentsWidget, SIGNAL(doubleClicked(QModelIndex)), SLOT(activated(QModelIndex)));
 
     connect(contentsWidget->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), SLOT(selectionChanged(QItemSelection, QItemSelection)));
-    // a file-based icon can turn into a built-in one when its file goes away
-    connect(APPLICATION->icons().get(), &QAbstractItemModel::dataChanged, this, &IconPickerDialog::updateRemoveButton);
+    // a file-based icon can turn into a built-in one when its file goes away; the default can
+    // change
+    connect(APPLICATION->icons().get(), &QAbstractItemModel::dataChanged, this, &IconPickerDialog::updateButtons);
 
     auto buttonFolder = ui->buttonBox->addButton(tr("Open Folder"), QDialogButtonBox::ResetRole);
     connect(buttonFolder, &QPushButton::clicked, this, &IconPickerDialog::openFolder);
@@ -116,6 +139,25 @@ void IconPickerDialog::removeSelectedIcon()
     APPLICATION->icons()->deleteIcon(selectedIconKey);
 }
 
+void IconPickerDialog::renameSelectedIcon()
+{
+    ui->iconView->edit(ui->iconView->currentIndex());
+}
+
+void IconPickerDialog::setSelectedAsDefault()
+{
+    // the logo is the default when none is set
+    APPLICATION->settings()->set("DefaultInstanceIcon", selectedIconKey == "logo" ? QString() : selectedIconKey);
+    updateButtons();
+}
+
+void IconPickerDialog::accept()
+{
+    if (initialKey == "default" && selectedIconKey == APPLICATION->icons()->defaultIconKey())
+        selectedIconKey = initialKey;
+    QDialog::accept();
+}
+
 void IconPickerDialog::activated(QModelIndex index)
 {
     selectedIconKey = index.data(Qt::UserRole).toString();
@@ -126,7 +168,7 @@ void IconPickerDialog::selectionChanged(QItemSelection selected, QItemSelection 
 {
     if (selected.empty())
     {
-        updateRemoveButton();
+        updateButtons();
         return;
     }
 
@@ -134,29 +176,34 @@ void IconPickerDialog::selectionChanged(QItemSelection selected, QItemSelection 
     if (!key.isEmpty()) {
         selectedIconKey = key;
     }
-    updateRemoveButton();
+    updateButtons();
 }
 
-void IconPickerDialog::updateRemoveButton()
+void IconPickerDialog::updateButtons()
 {
-    // only icons from the icons folder can be removed, built-in ones can't
-    auto icon = APPLICATION->icons()->icon(selectedIconKey);
-    buttonRemove->setEnabled(icon && icon->has(IconType::FileBased));
+    // only icons from the icons folder can be removed and renamed, built-in ones can't
+    auto list = APPLICATION->icons();
+    auto icon = list->icon(selectedIconKey);
+    const bool fileBased = icon && icon->has(IconType::FileBased);
+    buttonRemove->setEnabled(fileBased);
+    buttonRename->setEnabled(fileBased);
+    buttonDefault->setEnabled(icon && list->getIconIndex(selectedIconKey) != list->getIconIndex("default"));
+}
+
+void IconPickerDialog::selectIcon(const QString &key)
+{
+    auto contentsWidget = ui->iconView;
+    auto model_index = contentsWidget->model()->index(APPLICATION->icons()->getIconIndex(key), 0);
+    selectedIconKey = model_index.isValid() ? model_index.data(Qt::UserRole).toString() : key;
+    contentsWidget->selectionModel()->setCurrentIndex(model_index, QItemSelectionModel::ClearAndSelect);
+    updateButtons();
+    QMetaObject::invokeMethod(this, "delayed_scroll", Qt::QueuedConnection, Q_ARG(QModelIndex, model_index));
 }
 
 int IconPickerDialog::execWithSelection(QString selection)
 {
-    auto list = APPLICATION->icons();
-    auto contentsWidget = ui->iconView;
-    selectedIconKey = selection;
-    updateRemoveButton();
-
-    int index_nr = list->getIconIndex(selection);
-    auto model_index = list->index(index_nr);
-    contentsWidget->selectionModel()->select(
-        model_index, QItemSelectionModel::Current | QItemSelectionModel::Select);
-
-    QMetaObject::invokeMethod(this, "delayed_scroll", Qt::QueuedConnection, Q_ARG(QModelIndex, model_index));
+    initialKey = selection;
+    selectIcon(selection);
     return QDialog::exec();
 }
 
