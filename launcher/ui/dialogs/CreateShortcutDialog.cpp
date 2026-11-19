@@ -17,6 +17,7 @@
 #include "minecraft/VersionFilterData.h"
 #include "minecraft/PackProfile.h"
 #include "icons/IconList.h"
+#include "FileSystem.h"
 
 #ifdef Q_OS_WIN
 #include <shobjidl.h>
@@ -179,19 +180,18 @@ void CreateShortcutDialog::createShortcut()
         } else
             // freedesktop.org desktop entry
         {
-            // save the launcher icon to a file so we can use it in the shortcut
-            if (!QFileInfo::exists(QDir::currentPath() + "/icons/shortcut-icon.png"))
-            {
-                QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
-                iconPixmap.save(QDir::currentPath() + "/icons/shortcut-icon.png");
-            }
+            // the instance's icon, as the game gets it: written now, so it's there before the
+            // first launch, and anew at every launch
+            const QString iconPath = QFileInfo(FS::PathCombine(m_instance->gameRoot(), "icon.png")).absoluteFilePath();
+            FS::ensureFilePathExists(iconPath);
+            APPLICATION->icons()->saveIcon(m_instance->iconKey(), iconPath, "PNG");
 
             shortcutText = "[Desktop Entry]\n"
                            "Type=Application\n"
                            "Name=" + m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME + "\n"
                            + "Exec=" + getLaunchCommand(true) + "\n"
                            + "Path=" + QDir::currentPath() + "\n"
-                           + "Icon=" + QDir::currentPath() + "/icons/shortcut-icon.png\n";
+                           + "Icon=" + iconPath + "\n";
 
         }
 #endif
@@ -214,18 +214,18 @@ void CreateShortcutDialog::createShortcut()
     }
     else
     {
-        if (!QFileInfo::exists(QDir::currentPath() + "/icons/shortcut-icon.ico"))
-        {
-            QPixmap iconPixmap = QIcon(":/logo.svg").pixmap(64, 64);
-            iconPixmap.save(QDir::currentPath() + "/icons/shortcut-icon.ico");
-        }
-        
+        // the instance's icon, beside the game's icon.png, as links need an .ico: written now,
+        // and anew at every launch once it's there (MinecraftInstance::createLaunchTask)
+        const QString iconPath = QFileInfo(FS::PathCombine(m_instance->gameRoot(), "icon.ico")).absoluteFilePath();
+        FS::ensureFilePathExists(iconPath);
+        APPLICATION->icons()->saveIcon(m_instance->iconKey(), iconPath, "ICO");
+
         createWindowsLink(QDir::toNativeSeparators(QCoreApplication::applicationFilePath()).toStdString().c_str(),
                           QDir::toNativeSeparators(QDir::currentPath()).toStdString().c_str(),
                           getLaunchArgs().toStdString().c_str(),
                           ui->shortcutPath->text().toStdString().c_str(),
                           (m_instance->name() + " - " + BuildConfig.LAUNCHER_DISPLAYNAME).toStdString().c_str(),
-                          QDir::toNativeSeparators(QDir::currentPath() + "/icons/shortcut-icon.ico").toStdString().c_str()
+                          QDir::toNativeSeparators(iconPath).toStdString().c_str()
                           );
     }
 #endif

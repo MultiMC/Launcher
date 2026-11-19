@@ -899,7 +899,13 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     auto process = LaunchTask::create(std::dynamic_pointer_cast<MinecraftInstance>(shared_from_this()));
     auto pptr = process.get();
 
+    // the instance's icon for the game (the macOS Dock, the legacy applet frame) and the
+    // desktop shortcuts, which point at these: kept up to date with the icon at every launch
     APPLICATION->icons()->saveIcon(iconKey(), FS::PathCombine(gameRoot(), "icon.png"), "PNG");
+    // the .ico only Windows shortcuts use: only once one has been made
+    const QString shortcutIco = FS::PathCombine(gameRoot(), "icon.ico");
+    if (QFileInfo::exists(shortcutIco))
+        APPLICATION->icons()->saveIcon(iconKey(), shortcutIco, "ICO");
 
     // print a header
     {
