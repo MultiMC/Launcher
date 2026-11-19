@@ -105,19 +105,10 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent), ui(new Ui::AboutDia
     else
         ui->channelLabel->setVisible(false);
 
-    ui->redistributionText->setHtml(tr(
-"<p>We keep MultiMC open source because we think it's important to be able to see the source code for a project like this, and we do so using the Apache license.</p>\n"
-"<p>Part of the reason for using the Apache license is we don't want people using the &quot;MultiMC&quot; name when redistributing the project. "
-"This means people must take the time to go through the source code and remove all references to &quot;MultiMC&quot;, including but not limited to the project "
-"icon and the title of windows, (no <b>MultiMC-fork</b> in the title).</p>\n"
-"<p>The Apache license covers reasonable use for the name - a mention of the project's origins in the About dialog and the license is acceptable. "
-"However, it should be abundantly clear that the project is a fork <b>without</b> implying that you have our blessing.</p>"
-    ));
-
     QString urlText("<html><head/><body><p><a href=\"%1\">%1</a></p></body></html>");
     ui->urlLabel->setText(urlText.arg(BuildConfig.LAUNCHER_GIT));
 
-    QString copyText("© 2012-2021 %1");
+    QString copyText("© 2012-2026 %1");
     ui->copyLabel->setText(copyText.arg(BuildConfig.LAUNCHER_COPYRIGHT));
 
     connect(ui->closeButton, SIGNAL(clicked()), SLOT(close()));

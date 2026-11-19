@@ -569,7 +569,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv)
         FS::updateTimestamp(m_rootPath);
 #endif
 
-        qDebug() << BuildConfig.LAUNCHER_DISPLAYNAME << ", (c) 2013-2023 " << BuildConfig.LAUNCHER_COPYRIGHT;
+        qDebug() << BuildConfig.LAUNCHER_DISPLAYNAME << ", (c) 2012-2026 " << BuildConfig.LAUNCHER_COPYRIGHT;
         qDebug() << "Version                    : " << BuildConfig.printableVersionString();
         qDebug() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
         qDebug() << "Git refspec                : " << BuildConfig.GIT_REFSPEC;
