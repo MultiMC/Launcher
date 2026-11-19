@@ -553,6 +553,14 @@ set(JAVA_SOURCES
     java/JavaVersion.cpp
 )
 
+if(NOT Launcher_DISABLE_JAVA_DOWNLOADER)
+    list(APPEND JAVA_SOURCES
+        java/download/JavaRuntime.h
+        java/download/JavaDownloadTask.h
+        java/download/JavaDownloadTask.cpp
+    )
+endif()
+
 add_unit_test(JavaVersion
     SOURCES java/JavaVersion_test.cpp
     LIBS Launcher_logic
@@ -1052,6 +1060,13 @@ qt5_wrap_ui(LAUNCHER_UI
     ui/widgets/MCModInfoFrame.ui
 )
 
+if(NOT Launcher_DISABLE_JAVA_DOWNLOADER)
+    list(APPEND LAUNCHER_SOURCES
+        ui/dialogs/JavaDownloadDialog.cpp
+        ui/dialogs/JavaDownloadDialog.h
+    )
+endif()
+
 qt5_add_resources(LAUNCHER_RESOURCES
     resources/backgrounds/backgrounds.qrc
     resources/multimc/multimc.qrc
@@ -1108,6 +1123,10 @@ endif()
 
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
 target_link_libraries(${Launcher_Name} Launcher_logic)
+
+if(Launcher_DISABLE_JAVA_DOWNLOADER)
+    target_compile_definitions(Launcher_logic PUBLIC Launcher_DISABLE_JAVA_DOWNLOADER)
+endif()
 
 if(DEFINED Launcher_APP_BINARY_NAME)
     set_target_properties(${Launcher_Name} PROPERTIES OUTPUT_NAME "${Launcher_APP_BINARY_NAME}")

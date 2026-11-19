@@ -58,12 +58,17 @@ public:
 private:
     void applySettings();
     void loadSettings();
+    void refreshInstalledJavas();
 
 private
 slots:
     void on_javaDetectBtn_clicked();
     void on_javaTestBtn_clicked();
     void on_javaBrowseBtn_clicked();
+    void on_javaDownloadBtn_clicked();
+    void on_javaRefreshBtn_clicked();
+    void on_javaRemoveBtn_clicked();
+    void on_javaUseBtn_clicked();
     void checkerFinished();
 
 private:
