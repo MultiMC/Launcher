@@ -24,6 +24,7 @@
 #include <QSet>
 #include <QDebug>
 #include <QImage>
+#include <QImageReader>
 #include <QPainter>
 #include <QStyle>
 
@@ -265,9 +266,10 @@ void IconList::installIcons(const QStringList &iconFiles)
         QFileInfo fileinfo(file);
         if (!fileinfo.isReadable() || !fileinfo.isFile())
             continue;
-        QString target = FS::PathCombine(m_dir.dirName(), fileinfo.fileName());
+        // into the icons folder that's set, wherever it is (GH-2845)
+        QString target = m_dir.filePath(fileinfo.fileName());
 
-        QString suffix = fileinfo.suffix();
+        QString suffix = fileinfo.suffix().toLower();
         if (suffix != "jpeg" && suffix != "png" && suffix != "jpg" && suffix != "ico" && suffix != "svg" && suffix != "gif")
             continue;
 
@@ -282,7 +284,20 @@ void IconList::installIcon(const QString &file, const QString &name)
     if(!fileinfo.isReadable() || !fileinfo.isFile())
         return;
 
-    QString target = FS::PathCombine(m_dir.dirName(), name);
+    // an icon of this name stays as it is, whatever its file's extension
+    if (iconFileExists(name))
+        return;
+
+    // named with the extension of what's in it, so other programs open it (GH-3702): downloads
+    // come without one, or with the wrong one
+    const QByteArray format = QImageReader::imageFormat(file);
+    if (format.isEmpty())
+    {
+        qWarning() << "Icon" << file << "for" << name << "isn't an image MultiMC can read, not installed";
+        return;
+    }
+    const QString extension = format == "jpeg" ? QStringLiteral("jpg") : QString::fromLatin1(format);
+    QString target = m_dir.filePath(name + "." + extension);
 
     QFile::copy(file, target);
 }
