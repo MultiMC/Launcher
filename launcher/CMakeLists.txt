@@ -302,6 +302,8 @@ set(ICONS_SOURCES
     icons/IconUtils.cpp
     icons/CappedIconEngine.h
     icons/CappedIconEngine.cpp
+    icons/FittedIconEngine.h
+    icons/FittedIconEngine.cpp
 )
 
 # Support for Minecraft instances and launch

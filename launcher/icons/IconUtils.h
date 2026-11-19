@@ -21,4 +21,8 @@ QIcon fromFile(const QString &path);
 /// margins trimmed, small pixel art enlarged sharp, anything else smoothly. Cached.
 QPixmap fitted(const QIcon &icon, const QSize &box, qreal ratio, QIcon::Mode mode = QIcon::Normal, QIcon::State state = QIcon::Off);
 
+/// The icon drawn fitted (as fitted() does) at any size asked for: for buttons, windows and
+/// menus that draw a QIcon themselves (FittedIconEngine)
+QIcon fittedIcon(const QIcon &icon);
+
 }

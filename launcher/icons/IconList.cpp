@@ -23,6 +23,9 @@
 #include <QFileSystemWatcher>
 #include <QSet>
 #include <QDebug>
+#include <QImage>
+#include <QPainter>
+#include <QStyle>
 
 #define MAX_SIZE 1024
 
@@ -377,9 +380,18 @@ bool IconList::addIcon(const QString &key, const QString &name, const QString &p
 
 void IconList::saveIcon(const QString &key, const QString &path, const char * format) const
 {
-    auto icon = getIcon(key);
-    auto pixmap = icon.pixmap(128, 128);
-    pixmap.save(path, format);
+    // fitted in the middle of a transparent square: the macOS Dock squashes a wide image into
+    // a square (GH-3820), and small ones come out as big as the others
+    const QSize square(128, 128);
+    const QPixmap fitted = IconUtils::fitted(getIcon(key), square, 1.0);
+    if (fitted.isNull())
+        return;
+    QImage image(square, QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    QPainter painter(&image);
+    painter.drawPixmap(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, fitted.size(), image.rect()), fitted);
+    painter.end();
+    image.save(path, format);
 }
 
 

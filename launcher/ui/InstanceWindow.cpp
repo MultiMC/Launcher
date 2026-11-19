@@ -30,13 +30,14 @@
 #include "InstancePageProvider.h"
 
 #include "icons/IconList.h"
+#include "icons/IconUtils.h"
 
 InstanceWindow::InstanceWindow(InstancePtr instance, QWidget *parent)
     : QMainWindow(parent), m_instance(instance)
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
-    auto icon = APPLICATION->icons()->getIcon(m_instance->iconKey());
+    auto icon = IconUtils::fittedIcon(APPLICATION->icons()->getIcon(m_instance->iconKey()));
     QString windowTitle = tr("Console window for ") + m_instance->name();
 
     // Set window properties

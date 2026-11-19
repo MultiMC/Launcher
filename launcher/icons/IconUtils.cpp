@@ -1,5 +1,6 @@
 #include "IconUtils.h"
 #include "CappedIconEngine.h"
+#include "FittedIconEngine.h"
 #include <QFileInfo>
 #include <QPixmapCache>
 #include <QPixmap>
@@ -65,15 +66,6 @@ QString getIconFilter() {
 }
 
 
-// - what's in it, without its transparent margins (some modpacks' logos sit small in a wide
-//   image), fit to the box, its shape kept;
-// - from the biggest image the icon has (QIcon only scales its images down), or for one drawn
-//   at any size (SVG), drawn at the size it's shown at;
-// - a small image (32 pixels or less, as Minecraft's textures are) enlarged twice or more:
-//   sharp, by the largest whole factor with nearest pixels, then smoothly for the rest, so its
-//   pixels stay crisp and all the same size. Anything else smoothly: a picture enlarged with
-//   nearest pixels looks crunchy, and nothing tells pixel art and pictures apart reliably
-//   (Design/Theming.md, "Instance icons", 2026-11-17).
 QIcon fromFile(const QString &path)
 {
     const QString suffix = QFileInfo(path).suffix().toLower();
@@ -91,15 +83,25 @@ QIcon fromFile(const QString &path)
     return QIcon(engine);
 }
 
+// - what's in it, without its transparent margins (some modpacks' logos sit small in a wide
+//   image), fit to the box, its shape kept;
+// - from the biggest image the icon has (QIcon only scales its images down), or for one drawn
+//   at any size (SVG), drawn at the size it's shown at;
+// - a small image (32 pixels or less, as Minecraft's textures are) enlarged twice or more:
+//   sharp, by the largest whole factor with nearest pixels, then smoothly for the rest, so its
+//   pixels stay crisp and all the same size. Anything else smoothly: a picture enlarged with
+//   nearest pixels looks crunchy, and nothing tells pixel art and pictures apart reliably
+//   (Design/Theming.md, "Instance icons", 2026-11-17).
 QPixmap fitted(const QIcon &icon, const QSize &box, qreal ratio, QIcon::Mode mode, QIcon::State state)
 {
     if (icon.isNull())
         return QPixmap();
     const QSize pixels = box * ratio;
-    const QString key = QString("fitted-icon:%1:%2x%3:%4:%5")
+    const QString key = QString("fitted-icon:%1:%2x%3@%4:%5:%6")
                             .arg(icon.cacheKey())
                             .arg(pixels.width())
                             .arg(pixels.height())
+                            .arg(ratio)
                             .arg(int(mode))
                             .arg(int(state));
     QPixmap out;
@@ -152,6 +154,13 @@ QPixmap fitted(const QIcon &icon, const QSize &box, qreal ratio, QIcon::Mode mod
     out.setDevicePixelRatio(ratio);
     QPixmapCache::insert(key, out);
     return out;
+}
+
+QIcon fittedIcon(const QIcon &icon)
+{
+    if (icon.isNull())
+        return icon;
+    return QIcon(new FittedIconEngine(icon));
 }
 }
 

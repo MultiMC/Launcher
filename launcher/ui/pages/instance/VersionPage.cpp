@@ -41,6 +41,7 @@
 #include "minecraft/mod/Mod.h"
 #include "minecraft/VersionFilterData.h"
 #include "icons/IconList.h"
+#include "icons/IconUtils.h"
 #include "Exception.h"
 #include "Version.h"
 #include "DesktopServices.h"
@@ -93,7 +94,7 @@ private:
 
 QIcon VersionPage::icon() const
 {
-    return APPLICATION->icons()->getIcon(m_inst->iconKey());
+    return IconUtils::fittedIcon(APPLICATION->icons()->getIcon(m_inst->iconKey()));
 }
 bool VersionPage::shouldDisplay() const
 {
