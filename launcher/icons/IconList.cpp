@@ -14,6 +14,7 @@
  */
 
 #include "IconList.h"
+#include "IconUtils.h"
 #include <FileSystem.h>
 #include <QMap>
 #include <QEventLoop>
@@ -141,8 +142,8 @@ void IconList::fileChanged(const QString &path)
     int idx = getIconIndex(key);
     if (idx == -1)
         return;
-    QIcon icon(path);
-    if (!icon.availableSizes().size())
+    QIcon icon = IconUtils::fromFile(path);
+    if (icon.isNull())
         return;
 
     icons[idx].m_images[IconType::FileBased].icon = icon;
@@ -345,7 +346,7 @@ bool IconList::addThemeIcon(const QString& key)
 bool IconList::addIcon(const QString &key, const QString &name, const QString &path, const IconType type)
 {
     // replace the icon even? is the input valid?
-    QIcon icon(path);
+    QIcon icon = IconUtils::fromFile(path);
     if (icon.isNull())
         return false;
     auto iter = name_index.find(key);

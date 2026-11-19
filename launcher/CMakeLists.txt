@@ -300,6 +300,8 @@ set(ICONS_SOURCES
     # Icons System and related code
     icons/IconUtils.h
     icons/IconUtils.cpp
+    icons/CappedIconEngine.h
+    icons/CappedIconEngine.cpp
 )
 
 # Support for Minecraft instances and launch

@@ -1863,6 +1863,8 @@ void MainWindow::on_actionChangeInstIcon_triggered()
 
 void MainWindow::iconUpdated(QString icon)
 {
+    // the instances showing it: the view paints icons from the icon list, which it doesn't watch
+    view->viewport()->update();
     if (icon == m_currentInstIcon)
     {
         auto icon = APPLICATION->icons()->getIcon(m_currentInstIcon);

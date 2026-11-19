@@ -12,6 +12,11 @@ QString findBestIconIn(const QString &folder, const QString & iconKey);
 // Get icon file type filter for file browser dialogs
 QString getIconFilter();
 
+/// An icon from an image file: raster images through CappedIconEngine (decoded when drawn, at
+/// most 512 pixels), vector and multi-size ones (SVG, ICO) as Qt loads them. Null when the file
+/// isn't a readable image.
+QIcon fromFile(const QString &path);
+
 /// The icon fit to a box (in logical pixels, drawn at ratio device pixels each): its transparent
 /// margins trimmed, small pixel art enlarged sharp, anything else smoothly. Cached.
 QPixmap fitted(const QIcon &icon, const QSize &box, qreal ratio, QIcon::Mode mode = QIcon::Normal, QIcon::State state = QIcon::Off);

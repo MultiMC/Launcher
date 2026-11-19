@@ -1,4 +1,6 @@
 #include "IconUtils.h"
+#include "CappedIconEngine.h"
+#include <QFileInfo>
 #include <QPixmapCache>
 #include <QPixmap>
 #include <QImage>
@@ -72,6 +74,23 @@ QString getIconFilter() {
 //   pixels stay crisp and all the same size. Anything else smoothly: a picture enlarged with
 //   nearest pixels looks crunchy, and nothing tells pixel art and pictures apart reliably
 //   (Design/Theming.md, "Instance icons", 2026-11-17).
+QIcon fromFile(const QString &path)
+{
+    const QString suffix = QFileInfo(path).suffix().toLower();
+    if (suffix == "svg" || suffix == "svgz" || suffix == "ico")
+    {
+        QIcon icon(path);
+        return icon.availableSizes().isEmpty() && suffix == "ico" ? QIcon() : icon;
+    }
+    auto engine = new CappedIconEngine(path);
+    if (engine->null())
+    {
+        delete engine;
+        return QIcon();
+    }
+    return QIcon(engine);
+}
+
 QPixmap fitted(const QIcon &icon, const QSize &box, qreal ratio, QIcon::Mode mode, QIcon::State state)
 {
     if (icon.isNull())
