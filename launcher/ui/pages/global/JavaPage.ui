@@ -36,7 +36,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string notr="true">Tab 1</string>
+       <string>Settings</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
@@ -237,6 +237,92 @@
           </size>
          </property>
         </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabInstallations">
+      <attribute name="title">
+       <string>Installations</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="installationsLayout">
+       <item>
+        <widget class="QGroupBox" name="installedGroupBox">
+         <property name="title">
+          <string>Installed Java Runtimes</string>
+         </property>
+         <layout class="QVBoxLayout" name="installedLayout">
+          <item>
+           <widget class="QTreeWidget" name="installedJavaTree">
+            <property name="rootIsDecorated">
+             <bool>false</bool>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <column>
+             <property name="text">
+              <string>Version</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Vendor</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Path</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="installBtnLayout">
+            <item>
+             <widget class="QPushButton" name="javaDownloadBtn">
+              <property name="text">
+               <string>Download Java...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="javaRefreshBtn">
+              <property name="text">
+               <string>Refresh</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="javaRemoveBtn">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="installBtnSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="javaUseBtn">
+              <property name="text">
+               <string>Use Selected</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
